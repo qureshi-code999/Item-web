@@ -14,6 +14,7 @@ window.TRANSLATIONS.hi = {
   productsFound: "{count} उत्पाद मिले",
   languageLabel: "भाषा",
   noPhoto: "कोई फोटो नहीं",
+  priceLabel: "रु {amount}",
   categories: {
     soaps: "साबुन",
     shampoo: "शैंपू",

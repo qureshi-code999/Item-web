@@ -1154,6 +1154,7 @@
                       activeCategory={activeCategory}
                       setActiveCategory={setActiveCategory}
                       setCatMenuOpen={setCatMenuOpen}
+                      langData={langData}
                     />
                   )}
                 </div>
@@ -1222,6 +1223,7 @@
                 >
                   <option value="en">English</option>
                   <option value="ur">اردو</option>
+                  <option value="hi">हिंदी</option>
                 </select>
               </div>
 
@@ -1304,7 +1306,7 @@
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
                   {visibleProducts.map((p) => (
-                    <ProductCard key={p.id} product={p} langData={langData} />
+                    <ProductCard key={p.id} product={p} langData={langData} language={language} />
                   ))}
                 </div>
 
@@ -1378,7 +1380,7 @@
       );
     }
 
-    function ProductCard({ product, langData }) {
+    function ProductCard({ product, langData, language }) {
       return (
         <div
           className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group cursor-default"

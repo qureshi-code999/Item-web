@@ -911,7 +911,11 @@
 
       const [language, setLanguage] = useState("en");
       const [isLocked, setIsLocked] = useState(() => {
-        return !sessionStorage.getItem("sahil_authorized");
+        try {
+          return !localStorage.getItem("sahil_authorized") && !sessionStorage.getItem("sahil_authorized");
+        } catch (e) {
+          return true;
+        }
       });
       const [password, setPassword] = useState("");
       const [passError, setPassError] = useState("");
@@ -1367,7 +1371,12 @@
       function handleUnlock(e) {
         if (e) e.preventDefault();
         if (password === "sahil99") {
-          sessionStorage.setItem("sahil_authorized", "true");
+          try {
+            localStorage.setItem("sahil_authorized", "true");
+            sessionStorage.setItem("sahil_authorized", "true");
+          } catch (e) {
+            console.warn("Storage access restricted on this browser:", e);
+          }
           setIsLocked(false);
           setPassError("");
         } else {

@@ -1,0 +1,32 @@
+window.TRANSLATIONS = window.TRANSLATIONS || {};
+window.TRANSLATIONS.en = {
+  appTitle: "Sahil Traders",
+  subtitle: "Wholesale & Retail",
+  skipIntro: "SKIP INTRO",
+  searchPlaceholder: "Search products...",
+  recentSearches: "Recently Searched",
+  allCategories: "All Categories",
+  noMatch: "No matching products",
+  noProducts: "No products match your search.",
+  loadMore: "Load More",
+  footer: "Sahil Traders — Wholesale & Retail",
+  productsInStock: "{count}+ products in stock",
+  productsFound: "{count} product{plural} found",
+  languageLabel: "Language",
+  noPhoto: "No Photo",
+  categories: {
+    soaps: "Soaps",
+    shampoo: "Shampoo",
+    facewash: "Face Wash",
+    toothpaste: "Toothpaste",
+    creams: "Creams & Lotions",
+    hairoil: "Hair Oil & Hair Care",
+    deo: "Deodorants & Talcum",
+    perfume: "Perfumes & Body Spray",
+    detergent: "Detergents & Cleaning",
+    babycare: "Baby Care",
+    shaving: "Shaving & Blades",
+    beverages: "Food & Beverages",
+    general: "General Items & Stationary"
+  }
+};

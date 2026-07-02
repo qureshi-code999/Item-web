@@ -14,6 +14,7 @@ window.TRANSLATIONS.en = {
   productsFound: "{count} product{plural} found",
   languageLabel: "Language",
   noPhoto: "No Photo",
+  priceLabel: "Rs {amount}",
   categories: {
     soaps: "Soaps",
     shampoo: "Shampoo",

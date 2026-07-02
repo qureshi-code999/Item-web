@@ -206,6 +206,109 @@
       }, value);
     }
 
+    function transliterateToUrdu(text) {
+      const normalized = String(text || "").toLowerCase();
+      const replacements = [
+        ["soap", "صابون"],
+        ["shampoo", "شیمپو"],
+        ["face wash", "فیس واش"],
+        ["facewash", "فیس واش"],
+        ["toothpaste", "ٹوتھ پیسٹ"],
+        ["cream", "کریم"],
+        ["lotion", "لوسن"],
+        ["hair oil", "بالوں کا تیل"],
+        ["hair", "بال"],
+        ["oil", "تیل"],
+        ["deo", "ڈی اوڈورنٹ"],
+        ["deodorant", "ڈی اوڈورنٹ"],
+        ["talcum", "ٹالکم"],
+        ["perfume", "پرفیوم"],
+        ["body spray", "باڈی سپرے"],
+        ["spray", "اسپرے"],
+        ["detergent", "ڈٹرجنٹ"],
+        ["cleaning", "صفائی"],
+        ["baby", "بیبی"],
+        ["care", "کیئر"],
+        ["shaving", "شیونگ"],
+        ["blade", "بلیڈ"],
+        ["beverage", "پینے کی چیز"],
+        ["food", "خوراک"],
+        ["general", "عام"],
+        ["item", "آئٹم"],
+        ["stationary", "اسٹیشنری"],
+        ["small", "چھوٹا"],
+        ["large", "بڑا"],
+        ["medium", "درمیانہ"],
+        ["black", "سیاہ"],
+        ["white", "سفید"],
+        ["red", "سرخ"],
+        ["green", "سبز"],
+        ["blue", "نیلا"],
+        ["pink", "گلابی"],
+        ["yellow", "پیلا"],
+        ["brown", "براؤن"],
+        ["gold", "سونے"],
+        ["silver", "چاندی"],
+        ["mix", "مکس"],
+        ["original", "اصل"],
+        ["new", "نیا"],
+        ["old", "پرانا"],
+        ["good", "اچھا"],
+        ["quality", "کوالٹی"],
+        ["box", "باکس"],
+        ["pack", "پیک"],
+        ["packet", "پیکٹ"],
+        ["jar", "جار"],
+        ["tube", "ٹیوب"],
+        ["roll", "رول"],
+        ["with", "کے ساتھ"],
+        ["for", "کے لیے"],
+        ["and", "اور"],
+        ["the", "یہ"],
+        ["pink", "گلابی"],
+        ["men", "مرد"],
+        ["women", "خواتین"],
+        ["beauty", "بیوٹی"],
+        ["fresh", "تازہ"],
+        ["clear", "صاف"],
+        ["protect", "محفوظ"],
+        ["daily", "روزانہ"],
+        ["soft", "نرم"],
+        ["hard", "سخت"],
+        ["sun", "سورج"],
+        ["moon", "چاند"],
+        ["light", "روشنی"],
+        ["dark", "گہرا"],
+        ["warm", "گرم"],
+        ["cool", "ٹھنڈا"],
+        ["mini", "مینی"],
+        ["small", "چھوٹا"],
+        ["large", "بڑا"],
+        ["medium", "درمیانہ"],
+      ];
+
+      let result = normalized;
+      replacements.forEach(([source, target]) => {
+        result = result.split(source).join(target);
+      });
+
+      const translitMap = {
+        a: "ا", b: "ب", c: "ک", d: "ڈ", e: "ی", f: "ف", g: "گ", h: "ح", i: "اِ", j: "ج", k: "ک", l: "ل", m: "م", n: "ن", o: "و", p: "پ", q: "ق", r: "ر", s: "س", t: "ٹ", u: "یو", v: "و", w: "و", x: "کس", y: "ی", z: "ز",
+        "0": "۰", "1": "۱", "2": "۲", "3": "۳", "4": "۴", "5": "۵", "6": "۶", "7": "۷", "8": "۸", "9": "۹",
+        " ": " "
+      };
+
+      result = Array.from(result).map((char) => translitMap[char] || char).join("");
+      return result.replace(/\s+/g, " ").trim();
+    }
+
+    function getProductDisplayName(product, language) {
+      if (language === "ur") {
+        return transliterateToUrdu(product.name);
+      }
+      return product.name;
+    }
+
     // --- Lucide Icons Replacements (SVG Components) ---
     function Search({ className }) {
       return (
@@ -1096,8 +1199,8 @@
                           onMouseEnter={e => e.currentTarget.style.background='rgba(212,175,55,0.07)'}
                           onMouseLeave={e => e.currentTarget.style.background='transparent'}
                         >
-                          <span>{s.name}</span>
-                          <span className="font-bold whitespace-nowrap ml-3" style={{ color: '#d4af37' }}>Rs {s.price.toLocaleString()}</span>
+                          <span>{getProductDisplayName(s, language)}</span>
+                          <span className="font-bold whitespace-nowrap ml-3" style={{ color: '#d4af37' }}>{translate(langData, 'priceLabel', { amount: s.price.toLocaleString() })}</span>
                         </button>
                       ))
                     ) : (
@@ -1119,7 +1222,6 @@
                 >
                   <option value="en">English</option>
                   <option value="ur">اردو</option>
-                  <option value="hi">हिंदी</option>
                 </select>
               </div>
 
@@ -1178,8 +1280,8 @@
                         )}
                       </div>
                       <div className="p-2 pt-0">
-                        <p className="text-sm font-semibold leading-snug line-clamp-2" style={{ color: 'rgba(255,255,255,0.85)' }}>{p.name}</p>
-                        <p className="font-bold text-sm mt-1" style={{ color: '#d4af37' }}>Rs {p.price.toLocaleString()}</p>
+                        <p className="text-sm font-semibold leading-snug line-clamp-2" style={{ color: 'rgba(255,255,255,0.85)' }}>{getProductDisplayName(p, language)}</p>
+                        <p className="font-bold text-sm mt-1" style={{ color: '#d4af37' }}>{translate(langData, 'priceLabel', { amount: p.price.toLocaleString() })}</p>
                       </div>
                     </button>
                   ))}
@@ -1302,8 +1404,8 @@
           {/* Thin gold divider */}
           <div className="h-px mx-3" style={{ background: 'rgba(212,175,55,0.08)' }} />
           <div className="p-3 pt-2 flex flex-col gap-1 flex-1">
-            <p className="text-sm sm:text-base font-semibold leading-snug line-clamp-2" style={{ color: 'rgba(255,255,255,0.88)' }}>{product.name}</p>
-            <p className="font-black text-base sm:text-lg mt-auto" style={{ color: '#d4af37' }}>Rs {product.price.toLocaleString()}</p>
+            <p className="text-sm sm:text-base font-semibold leading-snug line-clamp-2" style={{ color: 'rgba(255,255,255,0.88)' }}>{getProductDisplayName(product, language)}</p>
+            <p className="font-black text-base sm:text-lg mt-auto" style={{ color: '#d4af37' }}>{translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}</p>
           </div>
         </div>
       );

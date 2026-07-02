@@ -14,6 +14,7 @@ window.TRANSLATIONS.ur = {
   productsFound: "{count} مصنوعات مل گئیں",
   languageLabel: "زبان",
   noPhoto: "کوئی تصویر نہیں",
+  priceLabel: "روپے {amount}",
   categories: {
     soaps: "صابون",
     shampoo: "شیمپو",

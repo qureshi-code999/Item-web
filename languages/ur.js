@@ -15,6 +15,10 @@ window.TRANSLATIONS.ur = {
   languageLabel: "زبان",
   noPhoto: "کوئی تصویر نہیں",
   priceLabel: "روپے {amount}",
+  enterPassword: "پاس ورڈ درج کریں",
+  unlockLabel: "انلاک کریں",
+  incorrectPass: "غلط پاس ورڈ! دوبارہ کوشش کریں۔",
+  lockSubtitle: "یہ ویب سائٹ محفوظ ہے۔ رسائی کے لیے پاس ورڈ درج کریں۔",
   categories: {
     soaps: "صابون",
     shampoo: "شیمپو",

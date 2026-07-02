@@ -15,6 +15,10 @@ window.TRANSLATIONS.en = {
   languageLabel: "Language",
   noPhoto: "No Photo",
   priceLabel: "Rs {amount}",
+  enterPassword: "Enter Password",
+  unlockLabel: "Unlock",
+  incorrectPass: "Incorrect Password! Please try again.",
+  lockSubtitle: "This website is protected. Enter password to access.",
   categories: {
     soaps: "Soaps",
     shampoo: "Shampoo",

@@ -1076,15 +1076,6 @@
       const products = PRODUCTS;
 
       const [language, setLanguage] = useState("en");
-      const [isLocked, setIsLocked] = useState(() => {
-        try {
-          return !localStorage.getItem("sahil_authorized") && !sessionStorage.getItem("sahil_authorized");
-        } catch (e) {
-          return true;
-        }
-      });
-      const [password, setPassword] = useState("");
-      const [passError, setPassError] = useState("");
       const [showSplash, setShowSplash] = useState(true);
       const [fadeSplash, setFadeSplash] = useState(false);
       const [searchTerm, setSearchTerm] = useState("");
@@ -1132,6 +1123,10 @@
       }
       // ────────────────────────────────────────────────────────────────
 
+      // ── CATEGORY VIEW STATE ─────────────────────────────────────────
+      const [selectedCategory, setSelectedCategory] = useState(null); // null = show category home
+      // ────────────────────────────────────────────────────────────────
+
       const langData = useMemo(() => {
         return window.TRANSLATIONS?.[language] || window.TRANSLATIONS?.en || {};
       }, [language]);
@@ -1177,9 +1172,6 @@
         };
       }, []);
 
-      useEffect(() => {
-        setVisibleCount(PAGE_SIZE);
-      }, [searchTerm, activeCategory]);
 
       useEffect(() => {
         function handleClickOutside(e) {
@@ -1193,12 +1185,12 @@
 
       const filtered = useMemo(() => {
         const term = searchTerm.trim().toLowerCase();
-        return products.filter((p) => {
-          const matchesCategory = activeCategory === "all" || p.categoryId === activeCategory;
-          const matchesSearch = term === "" || p.name.toLowerCase().includes(term);
-          return matchesCategory && matchesSearch;
-        });
-      }, [products, activeCategory, searchTerm]);
+        if (term === "") {
+          if (selectedCategory) return products.filter(p => p.categoryId === selectedCategory);
+          return products;
+        }
+        return products.filter(p => p.name.toLowerCase().includes(term));
+      }, [products, selectedCategory, searchTerm]);
 
       const suggestions = useMemo(() => {
         const term = searchTerm.trim().toLowerCase();
@@ -1227,12 +1219,12 @@
         }
       }
 
-      const visibleProducts = filtered.slice(0, visibleCount);
-      const activeCategoryName =
-        activeCategory === "all"
-          ? translate(langData, "allCategories")
-          : (langData.categories?.[activeCategory] || CATEGORIES.find((c) => c.id === activeCategory)?.name || activeCategory);
-      const showRecent = searchTerm.trim() === "" && activeCategory === "all" && recentSearches.length > 0;
+      // Show search results if searching, else show category home or products
+      const isSearching = searchTerm.trim() !== "";
+      const showCategoryHome = !isSearching && !selectedCategory;
+      const selectedCategoryName = selectedCategory
+        ? (CATEGORIES.find(c => c.id === selectedCategory)?.name || selectedCategory)
+        : null;
 
       return (
         <div className="min-h-screen relative text-white overflow-x-hidden" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
@@ -1324,23 +1316,8 @@
           <div className="fixed top-1/3 -right-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-amber-600/5 rounded-full blur-[100px] -z-10" />
           <div className="fixed bottom-0 left-1/3 w-72 h-72 sm:w-96 sm:h-96 bg-amber-400/4 rounded-full blur-[80px] -z-10" />
 
-          {isLocked ? (
-            (fadeSplash || !showSplash) && (
-              <LockScreen
-                password={password}
-                setPassword={setPassword}
-                passError={passError}
-                setPassError={setPassError}
-                setIsLocked={setIsLocked}
-                language={language}
-                setLanguage={setLanguage}
-                langData={langData}
-              />
-            )
-          ) : (
-            <>
-              {/* Header — Obsidian & Gold */}
-              <header className="sticky top-0 z-30 backdrop-blur-xl border-b shadow-xl shadow-black/60" style={{ background: 'rgba(2,2,5,0.85)', borderColor: 'rgba(212,175,55,0.12)' }}>
+          {/* Header — Obsidian & Gold */}
+          <header className="sticky top-0 z-30 backdrop-blur-xl border-b shadow-xl shadow-black/60" style={{ background: 'rgba(2,2,5,0.85)', borderColor: 'rgba(212,175,55,0.12)' }}>
             <div className="max-w-6xl mx-auto px-4 py-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -1364,49 +1341,25 @@
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  {/* Cart Button */}
-                  <button
-                    id="cart-btn"
-                    onClick={() => setCartOpen(true)}
-                    className="relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all"
-                    style={{ background: 'rgba(9,9,13,0.8)', borderColor: cartCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.18)', color: '#d4af37' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.7)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor=cartCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.18)'}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-                    </svg>
-                    <span className="hidden sm:inline">Cart</span>
-                    {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#d4af37,#b49017)', color: '#020205' }}>
-                        {cartCount}
-                      </span>
-                    )}
-                  </button>
-
-                  {/* Category button — desktop */}
-                  <div className="hidden sm:block relative">
-                    <button
-                      onClick={() => setCatMenuOpen((o) => !o)}
-                      className="flex items-center gap-2 border px-4 py-2.5 rounded-xl text-sm font-semibold tracking-wide transition-all"
-                      style={{ background: 'rgba(9,9,13,0.8)', borderColor: 'rgba(212,175,55,0.18)', color: 'rgba(212,175,55,0.85)' }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.45)'}
-                      onMouseLeave={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.18)'}
-                    >
-                      {activeCategoryName}
-                      <ChevronDown className={`w-4 h-4 transition-transform ${catMenuOpen ? "rotate-180" : ""}`} />
-                    </button>
-                    {catMenuOpen && (
-                      <CategoryDropdown
-                        activeCategory={activeCategory}
-                        setActiveCategory={setActiveCategory}
-                        setCatMenuOpen={setCatMenuOpen}
-                        langData={langData}
-                      />
-                    )}
-                  </div>
-                </div>
+                {/* Cart Button */}
+                <button
+                  id="cart-btn"
+                  onClick={() => setCartOpen(true)}
+                  className="relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all"
+                  style={{ background: 'rgba(9,9,13,0.8)', borderColor: cartCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.18)', color: '#d4af37' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.7)'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor=cartCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.18)'}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                  </svg>
+                  <span className="hidden sm:inline">Cart</span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#d4af37,#b49017)', color: '#020205' }}>
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
               </div>
 
               {/* Search — Gold Glow */}
@@ -1421,7 +1374,7 @@
                       setSuggestOpen(true);
                     }}
                     onKeyDown={handleSearchKeyDown}
-                    placeholder={translate(langData, "searchPlaceholder")}
+                    placeholder="Search any product..."
                     className="w-full border rounded-xl pl-10 pr-9 py-2.5 text-sm transition-all focus:outline-none"
                     style={{ background: 'rgba(9,9,13,0.9)', borderColor: 'rgba(212,175,55,0.15)', color: 'rgba(255,255,255,0.9)', caretColor: '#d4af37' }}
                     onFocus={e => { setSuggestOpen(true); e.target.style.borderColor='rgba(212,175,55,0.5)'; e.target.style.boxShadow='0 0 0 3px rgba(212,175,55,0.08)'; }}
@@ -1454,45 +1407,9 @@
                         </button>
                       ))
                     ) : (
-                      <p className="px-4 py-3 text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>{translate(langData, "noMatch")}</p>
+                      <p className="px-4 py-3 text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>No products found</p>
                     )}
                   </div>
-                )}
-              </div>
-
-              <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.3em]" style={{ color: 'rgba(212,175,55,0.55)' }}>
-                  {translate(langData, "languageLabel")}
-                </div>
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="border rounded-xl px-3 py-2 text-sm font-medium transition-all"
-                  style={{ background: 'rgba(9,9,13,0.9)', borderColor: 'rgba(212,175,55,0.15)', color: 'rgba(255,255,255,0.9)' }}
-                >
-                  <option value="en">English</option>
-                  <option value="ur">اردو</option>
-                </select>
-              </div>
-
-              {/* Category button — mobile */}
-              <div className="sm:hidden mt-2 relative">
-                <button
-                  onClick={() => setCatMenuOpen((o) => !o)}
-                  className="w-full flex items-center justify-between border px-4 py-2.5 rounded-xl text-sm font-semibold tracking-wide transition-all"
-                  style={{ background: 'rgba(9,9,13,0.8)', borderColor: 'rgba(212,175,55,0.18)', color: 'rgba(212,175,55,0.85)' }}
-                >
-                  {activeCategoryName}
-                  <ChevronDown className={`w-4 h-4 transition-transform ${catMenuOpen ? "rotate-180" : ""}`} />
-                </button>
-                {catMenuOpen && (
-                  <CategoryDropdown
-                    activeCategory={activeCategory}
-                    setActiveCategory={setActiveCategory}
-                    setCatMenuOpen={setCatMenuOpen}
-                    fullWidth
-                    langData={langData}
-                  />
                 )}
               </div>
             </div>
@@ -1500,75 +1417,47 @@
 
           {/* Body */}
           <main className="max-w-6xl mx-auto px-4 py-5">
-            {showRecent && (
-              <section className="mb-7">
-                <div className="flex items-center gap-2 mb-3">
-                  <Clock className="w-4 h-4 text-amber-500/70" />
-                  <h2 className="text-sm font-semibold tracking-widest uppercase" style={{ color: 'rgba(212,175,55,0.7)' }}>{translate(langData, "recentSearches")}</h2>
-                </div>
-                <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0" style={{ scrollbarWidth: "thin" }}>
-                  {recentSearches.map((p) => (
-                    <button
-                      key={`recent-${p.id}`}
-                      onClick={() => recordSearch(p)}
-                      className="shrink-0 w-32 sm:w-36 rounded-xl overflow-hidden transition-all text-left border"
-                      style={{ background: 'rgba(9,9,13,0.9)', borderColor: 'rgba(212,175,55,0.15)' }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.4)'}
-                      onMouseLeave={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.15)'}
-                    >
-                      <div className="h-24 w-full flex items-center justify-center p-2">
-                        {p.hasImage ? (
-                          <div className={`w-16 h-16 rounded-lg bg-gradient-to-br ${p.gradient} flex items-center justify-center shrink-0`}>
-                            <span className="text-white text-sm font-bold" style={{ fontFamily: "'Poppins', sans-serif" }}>
-                              {p.initial}
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="w-16 h-16 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(212,175,55,0.05)' }}>
-                            <ImageOff className="w-4 h-4 text-amber-500/20" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-2 pt-0">
-                        <p className="text-sm font-semibold leading-snug line-clamp-2" style={{ color: 'rgba(255,255,255,0.85)' }}>{getProductDisplayName(p, language)}</p>
-                        <p className="font-bold text-sm mt-1" style={{ color: '#d4af37' }}>{translate(langData, 'priceLabel', { amount: p.price.toLocaleString() })}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-bold tracking-[0.3em] uppercase" style={{ color: 'rgba(212,175,55,0.5)' }}>
-                {translate(langData, "productsFound", { count: filtered.length.toLocaleString(), plural: filtered.length !== 1 ? "s" : "" })}
-              </h2>
-            </div>
-
-            {visibleProducts.length === 0 ? (
-              <div className="text-center py-20">
-                <ShoppingBag className="w-10 h-10 mx-auto mb-3" style={{ color: 'rgba(212,175,55,0.2)' }} />
-                <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>{translate(langData, "noProducts")}</p>
-              </div>
+            {showCategoryHome ? (
+              <CategoryHome
+                products={products}
+                onSelectCategory={setSelectedCategory}
+                langData={langData}
+                language={language}
+              />
             ) : (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-                  {visibleProducts.map((p) => (
-                    <ProductCard key={p.id} product={p} langData={langData} language={language} onAddToCart={addToCart} />
-                  ))}
+                {/* Back button + title */}
+                <div className="flex items-center gap-3 mb-5">
+                  {selectedCategory && !isSearching && (
+                    <button
+                      onClick={() => setSelectedCategory(null)}
+                      className="flex items-center gap-1.5 border px-3 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all"
+                      style={{ background: 'rgba(9,9,13,0.8)', borderColor: 'rgba(212,175,55,0.25)', color: '#d4af37' }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.6)'}
+                      onMouseLeave={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.25)'}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                      Categories
+                    </button>
+                  )}
+                  <div>
+                    <h2 className="text-base font-black tracking-widest uppercase" style={{ color: '#d4af37', fontFamily: "'Poppins',sans-serif" }}>
+                      {isSearching ? `Search: "${searchTerm}"` : selectedCategoryName}
+                    </h2>
+                    <p className="text-xs" style={{ color: 'rgba(212,175,55,0.45)' }}>{filtered.length} item{filtered.length !== 1 ? 's' : ''}</p>
+                  </div>
                 </div>
 
-                {visibleCount < filtered.length && (
-                  <div className="flex justify-center mt-8">
-                    <button
-                      onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                      className="border font-bold px-10 py-3 rounded-xl text-sm tracking-widest uppercase transition-all shadow-lg"
-                      style={{ background: 'rgba(9,9,13,0.9)', borderColor: 'rgba(212,175,55,0.35)', color: '#d4af37', boxShadow: '0 0 25px rgba(212,175,55,0.08)' }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.7)'; e.currentTarget.style.boxShadow='0 0 35px rgba(212,175,55,0.18)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.35)'; e.currentTarget.style.boxShadow='0 0 25px rgba(212,175,55,0.08)'; }}
-                    >
-                      {translate(langData, "loadMore")}
-                    </button>
+                {filtered.length === 0 ? (
+                  <div className="text-center py-20">
+                    <ShoppingBag className="w-10 h-10 mx-auto mb-3" style={{ color: 'rgba(212,175,55,0.2)' }} />
+                    <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>No products found.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                    {filtered.map((p) => (
+                      <ProductCard key={p.id} product={p} langData={langData} language={language} onAddToCart={addToCart} />
+                    ))}
                   </div>
                 )}
               </>
@@ -1600,161 +1489,68 @@
                   onOrderPlaced={() => { clearCart(); setCheckoutOpen(false); }}
                 />
               )}
-            </>
-          )}
         </div>
       );
     }
 
-    function LockScreen({
-      password,
-      setPassword,
-      passError,
-      setPassError,
-      setIsLocked,
-      language,
-      setLanguage,
-      langData
-    }) {
-      const [showPass, setShowPass] = useState(false);
 
-      function handleUnlock(e) {
-        if (e) e.preventDefault();
-        if (password === "sahil99") {
-          try {
-            localStorage.setItem("sahil_authorized", "true");
-            sessionStorage.setItem("sahil_authorized", "true");
-          } catch (e) {
-            console.warn("Storage access restricted on this browser:", e);
-          }
-          setIsLocked(false);
-          setPassError("");
-        } else {
-          setPassError(translate(langData, "incorrectPass"));
-        }
-      }
 
+    // ── CATEGORY META (icons + gradients per category) ─────────────────
+    // To add a category image: set the `image` field to a URL or relative file path.
+    // Example: image: 'images/soaps.jpg'  or  image: 'https://...'  — leave as '' to use default gradient+icon.
+    const CATEGORY_META = {
+      soaps:     { image: '', gradient: 'linear-gradient(135deg,#667eea,#764ba2)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><circle cx="7" cy="12" r="1"/><circle cx="10.5" cy="9.5" r="1.5"/><circle cx="14.5" cy="14" r="1"/><circle cx="17" cy="11" r="2"/></svg>) },
+      shampoo:   { image: '', gradient: 'linear-gradient(135deg,#f093fb,#f5576c)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M7 21a2 2 0 002 2h6a2 2 0 002-2V10a2 2 0 00-2-2H9a2 2 0 00-2 2v11z"/><path d="M12 2v6"/><path d="M9 5h6"/><path d="M10 13h4"/><path d="M10 17h4"/></svg>) },
+      facewash:  { image: '', gradient: 'linear-gradient(135deg,#4facfe,#00f2fe)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M6 3h12l-2 15H8L6 3z"/><path d="M9 18h6v3H9z"/><path d="M8 8h8"/><path d="M10 12h4"/></svg>) },
+      toothpaste:{ image: '', gradient: 'linear-gradient(135deg,#43e97b,#38f9d7)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 2C8 2 5 5 5 9v11a2 2 0 004 0v-5h6v5a2 2 0 004 0V9c0-4-3-7-7-7z"/><path d="M9 9h6"/></svg>) },
+      creams:    { image: '', gradient: 'linear-gradient(135deg,#fa709a,#fee140)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M5 9h14v9a3 3 0 01-3 3H8a3 3 0 01-3-3V9z"/><rect x="4" y="5" width="16" height="4" rx="1"/><path d="M5 14c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 4 2"/></svg>) },
+      hairoil:   { image: '', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 3c-1.5 3-5 5-5 9a5 5 0 0010 0c0-4-3.5-6-5-9z"/><path d="M12 17v4"/><path d="M10 21h4"/></svg>) },
+      deo:       { image: '', gradient: 'linear-gradient(135deg,#30cfd0,#330867)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="8" y="4" width="8" height="16" rx="2"/><path d="M10 2h4"/><path d="M12 8v4"/><circle cx="12" cy="15" r="1"/></svg>) },
+      perfume:   { image: '', gradient: 'linear-gradient(135deg,#f7971e,#ffd200)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><rect x="10" y="7" width="4" height="3"/><path d="M12 3v4"/><path d="M9 3h6"/></svg>) },
+      detergent: { image: '', gradient: 'linear-gradient(135deg,#56ab2f,#a8e063)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M3 6h18l-1.5 14H4.5L3 6z"/><path d="M3 6l2-3h14l2 3"/><path d="M8 11c0 2 8 2 8 0"/></svg>) },
+      babycare:  { image: '', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/><path d="M9 11l1 2 2-3 2 3 1-2"/></svg>) },
+      shaving:   { image: '', gradient: 'linear-gradient(135deg,#373b44,#4286f4)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 8v13"/><rect x="6" y="3" width="12" height="5" rx="1.5"/><line x1="8" y1="5" x2="16" y2="5"/><line x1="11" y1="12" x2="13" y2="12"/><line x1="11" y1="15" x2="13" y2="15"/><line x1="11" y1="18" x2="13" y2="18"/></svg>) },
+      beverages: { image: '', gradient: 'linear-gradient(135deg,#f6d365,#fda085)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M6 2h12l1 6H5L6 2z"/><path d="M5 8l1 13h12l1-13"/><path d="M9 13c0 2 6 2 6 0"/></svg>) },
+      general:   { image: '', gradient: 'linear-gradient(135deg,#d4af37,#9b7a00)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>) },
+    };
+
+    // ── CATEGORY HOME ───────────────────────────────────────────────────
+    function CategoryHome({ products, onSelectCategory }) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen px-4 py-12 relative z-10">
-          <div className="absolute top-4 right-4 flex items-center gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-500/60">
-              {translate(langData, "languageLabel")}
-            </span>
-            <select
-              value={language}
-              onChange={(e) => {
-                setLanguage(e.target.value);
-                setPassError("");
-              }}
-              className="border rounded-xl px-2.5 py-1.5 text-xs font-medium bg-black/60 border-amber-500/20 text-white/80 focus:outline-none focus:border-amber-500/50"
-            >
-              <option value="en">English</option>
-              <option value="ur">اردو</option>
-            </select>
+        <div>
+          <div style={{ marginBottom: 24 }}>
+            <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(212,175,55,0.55)', marginBottom: 4 }}>Browse by Category</h2>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{CATEGORIES.length} categories &middot; {products.length} total products</p>
           </div>
-
-          <div 
-            className="w-full max-w-md backdrop-blur-xl rounded-3xl p-8 sm:p-10 border text-center transition-all duration-300 shadow-2xl"
-            style={{ background: 'rgba(9,9,13,0.75)', borderColor: 'rgba(212,175,55,0.18)', boxShadow: '0 10px 50px rgba(0,0,0,0.8)' }}
-          >
-            <div className="relative flex items-center justify-center w-20 h-20 mx-auto mb-6">
-              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500 to-amber-700 opacity-20 rounded-2xl blur-md animate-pulse" />
-              <div 
-                className="relative rounded-2xl border p-4 flex items-center justify-center bg-[#09090d] transition-all"
-                style={{ borderColor: 'rgba(212,175,55,0.45)' }}
-              >
-                <svg className="w-8 h-8 text-amber-400 animate-scale-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-              </div>
-            </div>
-
-            <h2 
-              className="text-2xl sm:text-3xl font-black tracking-wider uppercase mb-2 bg-gradient-to-r from-amber-400 via-amber-200 to-amber-400"
-              style={{ fontFamily: "'Poppins', sans-serif", WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}
-            >
-              {translate(langData, "appTitle")}
-            </h2>
-            <p className="text-xs text-white/50 tracking-wider max-w-xs mx-auto mb-8 leading-relaxed">
-              {translate(langData, "lockSubtitle")}
-            </p>
-
-            <form onSubmit={handleUnlock} className="flex flex-col gap-4 text-left">
-              <div className="relative">
-                <input
-                  type={showPass ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (passError) setPassError("");
-                  }}
-                  placeholder={translate(langData, "enterPassword")}
-                  className="w-full border rounded-xl pl-4 pr-12 py-3.5 text-sm transition-all focus:outline-none"
-                  style={{
-                    background: 'rgba(5,5,8,0.9)',
-                    borderColor: passError ? 'rgba(239,68,68,0.5)' : 'rgba(212,175,55,0.18)',
-                    color: 'rgba(255,255,255,0.9)',
-                    caretColor: '#d4af37'
-                  }}
-                  onFocus={e => {
-                    if (!passError) {
-                      e.target.style.borderColor='rgba(212,175,55,0.5)';
-                      e.target.style.boxShadow='0 0 0 3px rgba(212,175,55,0.08)';
-                    }
-                  }}
-                  onBlur={e => {
-                    if (!passError) {
-                      e.target.style.borderColor='rgba(212,175,55,0.18)';
-                      e.target.style.boxShadow='none';
-                    }
-                  }}
-                />
-                
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-amber-400 transition-colors"
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 16 }}>
+            {CATEGORIES.map(cat => {
+              const count = products.filter(p => p.categoryId === cat.id).length;
+              const meta = CATEGORY_META[cat.id] || { image: '', gradient: 'linear-gradient(135deg,#d4af37,#9b7a00)', icon: null };
+              return (
+                <div
+                  key={cat.id}
+                  onClick={() => onSelectCategory(cat.id)}
+                  style={{ borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(212,175,55,0.12)', background: '#09090d', boxShadow: '0 4px 24px rgba(0,0,0,0.5)', transition: 'all 0.25s', cursor: 'pointer' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.5)'; e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 10px 40px rgba(212,175,55,0.12),0 4px 24px rgba(0,0,0,0.6)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.12)'; e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 4px 24px rgba(0,0,0,0.5)'; }}
                 >
-                  {showPass ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"></path>
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                  )}
-                </button>
-              </div>
-
-              {passError && (
-                <p className="text-red-500 text-xs font-semibold pl-1 animate-pulse">
-                  {passError}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                className="w-full mt-2 font-bold py-3.5 rounded-xl text-sm tracking-wider uppercase transition-all shadow-lg text-center"
-                style={{
-                  background: 'linear-gradient(135deg, #d4af37 0%, #b49017 100%)',
-                  color: '#020205',
-                  boxShadow: '0 4px 20px rgba(212,175,55,0.25)'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.filter='brightness(1.1)';
-                  e.currentTarget.style.boxShadow='0 6px 25px rgba(212,175,55,0.4)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.filter='none';
-                  e.currentTarget.style.boxShadow='0 4px 20px rgba(212,175,55,0.25)';
-                }}
-              >
-                {translate(langData, "unlockLabel")}
-              </button>
-            </form>
+                  {/* Image area */}
+                  <div style={{ height: 140, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: meta.image ? 'transparent' : meta.gradient, position: 'relative', overflow: 'hidden' }}>
+                    {meta.image ? (
+                      <img src={meta.image} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ opacity: 0.9 }}>{meta.icon}</div>
+                    )}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 50, background: 'linear-gradient(to top, rgba(9,9,13,0.85), transparent)' }} />
+                  </div>
+                  {/* Info */}
+                  <div style={{ padding: '12px 14px 14px' }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.92)', lineHeight: 1.3, marginBottom: 4 }}>{cat.name}</p>
+                    <p style={{ fontSize: 11, color: 'rgba(212,175,55,0.6)', fontWeight: 600 }}>{count} items</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       );

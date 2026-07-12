@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Add New Products - Sahil Traders</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #fff; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  header { background: #111; border-bottom: 2px solid #d4af37; padding: 8px 15px; display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+  header h1 { color: #d4af37; font-size: 15px; font-weight: 700; flex: 1; }
+  .header-btns { display: flex; gap: 8px; align-items: center; }
+  .btn { padding: 5px 12px; border-radius: 5px; font-size: 11px; font-weight: 600; border: none; cursor: pointer; transition: all 0.15s; }
+  .btn-gold { background: #d4af37; color: #000; }
+  .btn-gold:hover { background: #e8c84a; }
+  .btn-red { background: #5a1a1a; color: #ff6b6b; border: 1px solid #ff3333; }
+  .btn-red:hover { background: #6a2a2a; }
+  .btn-green { background: #1a4a1a; color: #5aba5a; border: 1px solid #3a8a3a; }
+  .btn-green:hover { background: #2a5a2a; }
+
+  .layout { display: flex; flex: 1; overflow: hidden; }
+
+  /* LEFT: Items List */
+  .items-panel { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #222; min-width: 0; }
+  .panel-head { padding: 8px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #d4af37; background: #111; border-bottom: 1px solid #222; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+
+  .items-list { overflow-y: auto; flex: 1; }
+  .item-row { display: flex; align-items: center; padding: 6px 12px; border-bottom: 1px solid #141418; font-size: 12px; gap: 10px; cursor: pointer; transition: background 0.1s; }
+  .item-row:hover { background: #14141c; }
+  .item-row.selected-row { background: #1a200d !important; }
+  .item-row.assigned { background: #0c1c0c; }
+  .item-row input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; accent-color: #d4af37; }
+  .item-row .num { color: #555; font-size: 10px; min-width: 35px; }
+  .item-row .name { flex: 1; color: #ddd; font-weight: 500; }
+  .item-row .cat-badge { font-size: 10px; padding: 1px 6px; border-radius: 10px; background: #1a3a1a; color: #6aca6a; white-space: nowrap; }
+
+  /* RIGHT: Category Grid (Highly Compact + Scrollable) */
+  .control-panel { width: 440px; flex-shrink: 0; display: flex; flex-direction: column; background: #0d0d12; }
+  .control-box { padding: 10px 12px; border-bottom: 1px solid #222; background: #111; flex-shrink: 0; }
+  .control-box h3 { font-size: 12px; color: #d4af37; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .selection-summary { font-size: 11px; color: #aaa; margin-bottom: 4px; }
+  .selection-summary strong { color: #fff; font-size: 13px; }
+
+  .cats-list-container { overflow-y: auto; flex: 1; padding: 8px; }
+  .cats-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+  .cat-btn { text-align: left; padding: 6px 8px; font-size: 11px; color: #ccc; cursor: pointer; background: #161622; border: 1px solid #2a2a38; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; transition: all 0.1s; font-weight: 500; }
+  .cat-btn:hover { background: #1e1e30; border-color: #d4af37; color: #d4af37; }
+  .cat-btn .assign-badge { font-size: 9px; background: #1a3a1a; color: #5aba5a; padding: 1px 5px; border-radius: 5px; font-weight: bold; }
+
+  /* BOTTOM PROGRESS */
+  .bottom-bar { background: #0d0d12; border-top: 1px solid #1a1a22; padding: 6px 12px; font-size: 11px; color: #888; display: flex; gap: 20px; align-items: center; flex-shrink: 0; }
+  .bottom-bar strong { color: #d4af37; }
+
+  /* Toast notification */
+  #toast { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: #1a3a1a; color: #5aba5a; border: 1px solid #3a6a3a; padding: 8px 18px; border-radius: 20px; font-size: 12px; font-weight: 600; pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 999; }
+  #toast.show { opacity: 1; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #111; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📥 Add New Products from Excel — Sahil Traders</h1>
+  <div class="header-btns">
+    <button class="btn btn-red" onclick="clearSelections()">🗑️ Clear Selections</button>
+    <button class="btn btn-green" onclick="exportJSON()">📥 Export JSON to Add</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Items Panel -->
+  <div class="items-panel">
+    <div class="panel-head">
+      <span>📦 New Excel Products (Total: <span id="excel-total">0</span>)</span>
+    </div>
+    <div class="items-list" id="itemsList"></div>
+  </div>
+
+  <!-- Control & Category Grid -->
+  <div class="control-panel">
+    <div class="control-box">
+      <h3>Selection</h3>
+      <div class="selection-summary">
+        Selected: <strong id="selected-count">0</strong> items
+      </div>
+      <p style="font-size: 9px; color: #666; line-height: 1.3;">
+        Tick the items on the left, then click any category below to assign it.
+      </p>
+    </div>
+    
+    <div class="panel-head" style="border-top: 1px solid #222;">📂 Click Category to Assign</div>
+    <div class="cats-list-container">
+      <div class="cats-list" id="catsList"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="bottom-bar">
+  <span>Selected & Categorized: <strong id="categorized-count">0</strong></span>
+  <span style="margin-left: auto; color: #d4af37;">Once finalized, click "Export JSON to Add" at the top!</span>
+</div>
+
+<div id="toast">✅ Action Completed</div>
+
+<!-- Load the exported list of new excel items -->
+<script src="new_items.js"></script>
+
+<script>
+// Available categories matching the updated list
+const CATEGORIES = [
+  { id: "soaps",        name: "Soaps" },
+  { id: "shampoo",      name: "Shampoo & Conditioner" },
+  { id: "perfumes",     name: "Perfumes" },
+  { id: "bodyspray",    name: "Body Spray" },
+  { id: "creams",       name: "Creams" },
+  { id: "bleachfacial", name: "Bleach & Facial" },
+  { id: "stationary",   name: "Stationary" },
+  { id: "sports",       name: "Sports" },
+  { id: "toys",         name: "Toys" },
+  { id: "birthday",     name: "Birthday" },
+  { id: "powders",      name: "Powders" },
+  { id: "tapes",        name: "Tapes" },
+  { id: "shaving",      name: "Shaving" },
+  { id: "haircolour",   name: "Hair Colour" },
+  { id: "haircare",     name: "Hair Care & Oil" },
+  { id: "condemn",      name: "Condemn" },
+  { id: "lock",         name: "Lock" },
+  { id: "general",      name: "General Items" },
+  { id: "bodylotion",   name: "Body Lotions" },
+  { id: "babycare",     name: "Baby Care" },
+  { id: "blades",       name: "Blades & Razers" },
+  { id: "cells",        name: "Cells" },
+  { id: "mosquito",     name: "Anti-Mosquito" },
+  { id: "personalcare", name: "Personal Care" },
+  { id: "others",       name: "Others" },
+];
+
+// State
+let selectedNames = JSON.parse(localStorage.getItem('gp_selected_names') || '{}'); // name -> categoryId
+let checkedItems = new Set(); // set of item names
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+function init() {
+  if (typeof NEW_ITEMS === 'undefined') {
+    alert('new_items.js file missing or failed to load. Please make sure it is in the same folder.');
+    return;
+  }
+  
+  document.getElementById('excel-total').textContent = NEW_ITEMS.length.toLocaleString();
+  renderItems();
+  renderCats();
+  updateCounts();
+}
+
+function renderItems() {
+  const list = document.getElementById('itemsList');
+  
+  // Render all items directly for continuous scroll
+  list.innerHTML = NEW_ITEMS.map((name, index) => {
+    const catId = selectedNames[name];
+    const isChecked = checkedItems.has(name);
+    return `<div class="item-row ${isChecked ? 'selected-row' : ''} ${catId ? 'assigned' : ''}" onclick="toggleRow('${name}')">
+      <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleCheckbox('${name}')" />
+      <span class="num">${(index + 1).toLocaleString()}</span>
+      <span class="name">${name}</span>
+      ${catId ? `<span class="cat-badge">${CATEGORIES.find(c => c.id === catId)?.name || catId}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderCats() {
+  const list = document.getElementById('catsList');
+  list.innerHTML = CATEGORIES.map(cat => {
+    const count = Object.values(selectedNames).filter(v => v === cat.id).length;
+    return `<button class="cat-btn" onclick="assignCategory('${cat.id}')">
+      <span>${cat.name}</span>
+      ${count > 0 ? `<span class="assign-badge">${count}</span>` : ''}
+    </button>`;
+  }).join('');
+}
+
+function toggleRow(name) {
+  if (checkedItems.has(name)) {
+    checkedItems.delete(name);
+  } else {
+    checkedItems.add(name);
+  }
+  
+  // Quick update DOM state without full re-render for performance
+  const rows = document.querySelectorAll('.item-row');
+  const index = NEW_ITEMS.indexOf(name);
+  if (index !== -1 && rows[index]) {
+    const row = rows[index];
+    const checkbox = row.querySelector('input[type="checkbox"]');
+    if (checkedItems.has(name)) {
+      row.classList.add('selected-row');
+      checkbox.checked = true;
+    } else {
+      row.classList.remove('selected-row');
+      checkbox.checked = false;
+    }
+  }
+  updateCounts();
+}
+
+function toggleCheckbox(name) {
+  toggleRow(name);
+}
+
+function assignCategory(catId) {
+  if (checkedItems.size === 0) {
+    showToast('⚠️ Pehle items check (tick) karein');
+    return;
+  }
+
+  checkedItems.forEach(name => {
+    selectedNames[name] = catId;
+  });
+
+  // Clear checked items after assignment to make it ready for next batch
+  checkedItems.clear();
+
+  localStorage.setItem('gp_selected_names', JSON.stringify(selectedNames));
+  showToast(`✅ Assigned to ${CATEGORIES.find(c => c.id === catId)?.name}!`);
+  
+  updateCounts();
+  renderItems();
+  renderCats();
+}
+
+function updateCounts() {
+  document.getElementById('selected-count').textContent = checkedItems.size;
+  const categorized = Object.keys(selectedNames).length;
+  document.getElementById('categorized-count').textContent = categorized;
+}
+
+function clearSelections() {
+  if (!confirm('Kya aap saari selections delete karna chahte hain?')) return;
+  selectedNames = {};
+  checkedItems.clear();
+  localStorage.removeItem('gp_selected_names');
+  updateCounts();
+  renderItems();
+  renderCats();
+  showToast('🗑️ Cleared!');
+}
+
+function exportJSON() {
+  const list = Object.entries(selectedNames).map(([name, categoryId]) => ({
+    name: name,
+    categoryId: categoryId
+  }));
+
+  if (list.length === 0) {
+    showToast('⚠️ Koi item categorized nahi hai');
+    return;
+  }
+
+  const data = JSON.stringify(list, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'new_items_to_add.json';
+  a.click();
+  showToast('📥 JSON File Downloaded! Mujhe batayein jab complete ho jaye.');
+}
+
+// Start
+init();
+</script>
+</body>
+</html>

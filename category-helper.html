@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Category Helper - Sahil Traders</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #fff; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  header { background: #111; border-bottom: 2px solid #d4af37; padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
+  header h1 { color: #d4af37; font-size: 15px; font-weight: 700; flex: 1; }
+  .header-btns { display: flex; gap: 8px; align-items: center; }
+  .btn { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; border: none; cursor: pointer; transition: all 0.15s; }
+  .btn-gold { background: #d4af37; color: #000; }
+  .btn-gold:hover { background: #e8c84a; }
+  .btn-red { background: #5a1a1a; color: #ff6b6b; border: 1px solid #ff3333; }
+  .btn-red:hover { background: #6a2a2a; }
+  .btn-green { background: #1a4a1a; color: #5aba5a; border: 1px solid #3a8a3a; }
+  .btn-green:hover { background: #2a5a2a; }
+  .saved-label { font-size: 10px; color: #5aba5a; }
+
+  .layout { display: flex; flex: 1; overflow: hidden; }
+
+  /* LEFT: Items */
+  .items-panel { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #222; min-width: 0; }
+  .panel-head { padding: 8px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #d4af37; background: #111; border-bottom: 1px solid #1e1e1e; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+  .search-bar { padding: 6px 10px; background: #0d0d12; border-bottom: 1px solid #1a1a22; flex-shrink: 0; display: flex; gap: 6px; }
+  .search-bar input { flex: 1; background: #1a1a22; border: 1px solid #2a2a36; border-radius: 5px; padding: 5px 9px; color: #fff; font-size: 12px; outline: none; }
+  .search-bar input:focus { border-color: #d4af37; }
+  .filter-btn { padding: 4px 9px; border-radius: 5px; font-size: 11px; border: 1px solid #2a2a36; background: #1a1a22; color: #aaa; cursor: pointer; }
+  .filter-btn.active { border-color: #d4af37; color: #d4af37; background: #1a1a10; }
+
+  .items-list { overflow-y: auto; flex: 1; }
+  .item-row { display: flex; align-items: center; padding: 6px 12px; border-bottom: 1px solid #111; font-size: 12px; gap: 8px; cursor: pointer; transition: background 0.1s; }
+  .item-row:hover { background: #14141c; }
+  .item-row.selected { background: #1a200d !important; border-left: 3px solid #d4af37; }
+  .item-row.assigned { background: #0b180b; }
+  .item-row .num { color: #444; font-size: 10px; min-width: 26px; text-align: right; }
+  .item-row .name { flex: 1; color: #ddd; line-height: 1.3; }
+  .item-row .cat-badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; background: #1a3a1a; color: #6aca6a; white-space: nowrap; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+  .item-row .undo-x { color: #555; font-size: 12px; cursor: pointer; padding: 0 3px; }
+  .item-row .undo-x:hover { color: #ff6b6b; }
+
+  /* RIGHT: Categories */
+  .cats-panel { width: 200px; flex-shrink: 0; display: flex; flex-direction: column; background: #0d0d12; border-right: 1px solid #1a1a22; }
+  .cats-list { overflow-y: auto; flex: 1; padding: 4px 0; }
+  .cat-item { padding: 8px 12px; font-size: 12px; color: #bbb; cursor: pointer; border-left: 3px solid transparent; display: flex; justify-content: space-between; align-items: center; transition: all 0.1s; }
+  .cat-item:hover { background: #14141c; color: #d4af37; border-left-color: #d4af37; }
+  .cat-count { font-size: 10px; background: #1a3a1a; color: #5aba5a; padding: 1px 6px; border-radius: 8px; }
+
+  /* BOTTOM */
+  .bottom-bar { background: #0d0d12; border-top: 1px solid #1a1a22; padding: 7px 14px; font-size: 11px; color: #666; display: flex; gap: 16px; align-items: center; flex-shrink: 0; }
+  .bottom-bar strong { color: #d4af37; }
+  .progress-bar { flex: 1; height: 4px; background: #1a1a22; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #d4af37, #5aba5a); transition: width 0.3s; border-radius: 2px; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: #1a3a1a; color: #5aba5a; border: 1px solid #3a6a3a; padding: 8px 18px; border-radius: 20px; font-size: 12px; font-weight: 600; pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 999; }
+  #toast.show { opacity: 1; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #111; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🗂️ Sahil Traders — Category Helper</h1>
+  <div class="header-btns">
+    <span class="saved-label" id="saveLabel">💾 Auto-saving ON</span>
+    <button class="btn btn-red" onclick="clearAll()">🗑️ Reset All</button>
+    <button class="btn btn-green" onclick="exportJSON()">📥 Export for Website</button>
+    <button class="btn btn-gold" onclick="applyToWebsite()">✅ Apply to Website</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Items Panel -->
+  <div class="items-panel">
+    <div class="panel-head">
+      📦 Items &nbsp;<span id="hd-count" style="color:#555;font-weight:400;font-size:10px"></span>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="🔍 Search item name..." oninput="filterItems()" />
+      <button class="filter-btn" id="filterUnassigned" onclick="toggleFilter()">Unassigned only</button>
+    </div>
+    <div class="items-list" id="itemsList"></div>
+  </div>
+
+  <!-- Categories Panel -->
+  <div class="cats-panel">
+    <div class="panel-head">📂 Categories</div>
+    <div class="cats-list" id="catsList"></div>
+  </div>
+
+</div>
+
+<div class="bottom-bar">
+  <span>Done: <strong id="assigned-count">0</strong></span>
+  <span>Left: <strong id="remaining-count">0</strong></span>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <span id="selected-label" style="color:#d4af37;font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+</div>
+
+<div id="toast">✅ Saved!</div>
+
+<script>
+const CATEGORIES = [
+  { id: "soaps",        name: "Soaps" },
+  { id: "shampoo",      name: "Shampoo & Conditioner" },
+  { id: "perfumes",     name: "Perfumes" },
+  { id: "bodyspray",    name: "Body Spray" },
+  { id: "creams",       name: "Creams" },
+  { id: "bleachfacial", name: "Bleach & Facial" },
+  { id: "stationary",   name: "Stationary" },
+  { id: "sports",       name: "Sports" },
+  { id: "toys",         name: "Toys" },
+  { id: "birthday",     name: "Birthday" },
+  { id: "powders",      name: "Powders" },
+  { id: "tapes",        name: "Tapes" },
+  { id: "shaving",      name: "Shaving" },
+  { id: "haircolour",   name: "Hair Colour" },
+  { id: "haircare",     name: "Hair Care & Oil" },
+  { id: "condemn",      name: "Condemn" },
+  { id: "lock",         name: "Lock" },
+  { id: "general",      name: "General Items" },
+  { id: "bodylotion",   name: "Body Lotions" },
+  { id: "babycare",     name: "Baby Care" },
+  { id: "blades",       name: "Blades & Razers" },
+  { id: "cells",        name: "Cells" },
+  { id: "mosquito",     name: "Anti-Mosquito" },
+  { id: "personalcare", name: "Personal Care" },
+  { id: "others",       name: "Others" },
+];
+
+const ITEMS = [
+  {id:1,name:"Lifebuoy Total 10 Soap"},{id:2,name:"Sunsilk Black Shine Shampoo"},{id:3,name:"Colgate Total Advanced Toothpaste"},{id:4,name:"Nivea Soft Moisturizing Cream"},{id:5,name:"Surf Excel Detergent Powder"},{id:6,name:"BALL FINE (ORIGNAL)"},{id:7,name:"BLADE 7 O CLOCK GREEN"},{id:8,name:"BLADE TREET (BLACK)"},{id:9,name:"BODY SPRAY FOGG (BLACK) MARCO (PK)"},{id:10,name:"BODY SPRAY SHALIS (MEN)"},{id:11,name:"CELL TOSHIBA SIZE (C)"},{id:12,name:"COFFE SASHAY (60 PCS)"},{id:13,name:"COLOUR GARNIER SASHAY (1# BLACK) RS,199"},{id:14,name:"COLOUR GARNIER SASHAY (3# DARK BROWN) RS,199"},{id:15,name:"COLOUR GARNIER SASHAY (4# BROWN) RS,199"},{id:16,name:"COLOUR HELLO HAIR (# 03 DARK BROWN)"},{id:17,name:"COLOUR OLIVIA (# 1 BLACK) RS,300"},{id:18,name:"COLOUR OLIVIA (# 2 DARK BROWN) RS,300"},{id:19,name:"COLOUR OLIVIA (# 9 MAHOGANY) RS,300"},{id:20,name:"COTTON BUD DIBI SMALL (WOOD)"},{id:21,name:"CREAM 3D BLECH (BOX) SASHY RP.30"},{id:22,name:"CREAM PEACH BLEACH (BOX) RS,40"},{id:23,name:"CREAM TIBET SNOW RS,230"},{id:24,name:"DABUR AMLA HAIR OIL (DUBAI) 100ml RS,340"},{id:25,name:"DABUR AMLA HAIR OIL (DUBAI) 300ML RS,880"},{id:26,name:"DORCO RAZOR"},{id:27,name:"GILLETTE BLUE 2 PLUS (GREEN)"},{id:28,name:"SUNNY PLAST"},{id:29,name:"T CLAY LARGE"},{id:30,name:"TAPE OSAKA (WHITE)"},{id:31,name:"COLOUR OLIVIA (# 3 MEDIUM BROWN) RS,300"},{id:32,name:"COLOUR REVLON REGULAR (20) Brown Black (LARGE)"},{id:33,name:"CONDITIONER MECLAY (PINK)"},{id:34,name:"CONDITIONER MECLAY (PP)"},{id:35,name:"CONDITIONER MECLAY (WHITE)"},{id:36,name:"COTTON BURD (PAKIT) WOOD"},{id:37,name:"CREAM ARCHI PERL THAILAND"},{id:38,name:"CREAM EU TUBE (SMALL) RS,160"},{id:39,name:"CREAM FACE FRESH (LARGE) RS,380"},{id:40,name:"CREAM GLUTA WHITE"},{id:41,name:"CREAM NIVIA SOFT 50ml"},{id:42,name:"CREAM SANDAL RS,380"},{id:43,name:"ELFY JIMSA BOX"},{id:44,name:"F & L M,V JAR"},{id:45,name:"FACE WASH ACNI-PLUS"},{id:46,name:"J BABY PETROLIUM GELL (BLUE) SMALL"},{id:47,name:"LOTION OLIVIA 110ml RS,220"},{id:48,name:"PASTE COLGATE 125g MAX FRESH (RED) RS,325"},{id:49,name:"PASTE COLGATE 125g MAX FRESH (GREEN) RS,325"},{id:50,name:"PASTE MEDICAM 90GM RS,320"},{id:51,name:"SHAMPOO BIO AMLA FARVEL ORUNAL RS,340"},{id:52,name:"KING TOX SPRAY 300ml (SMALL)"},{id:53,name:"LUDO (LARGE) (GOOD QUALITY)"},{id:54,name:"PASTE CLOSE UP (SMALL) GREEN"},{id:55,name:"PASTE CLOSE UP (SMALL) RED"},{id:56,name:"PASTE MEDICAM 65GM RS,250"},{id:57,name:"SHAMPOO ENGLISH ANTI LICE (SMALL) RS,170"},{id:58,name:"SHAMPOO H & S 200ml (MIX) RS,470"},{id:59,name:"SHAMPOO MECLAY (MEDIUM) (PP)"},{id:60,name:"SOAP DOVE LARGE WHITE (IMP)"},{id:61,name:"SOAP PALMOLIVE (LARGE) RS,150 (MIX)"},{id:62,name:"TAPE DOUBLE SIDED (1 INCH)"},{id:63,name:"TAPE OSAKA (BLACK)"},{id:64,name:"TAPE OSAKA (RED)"},{id:65,name:"TAPE TRANSPARENT (2 INCH)"},{id:66,name:"TUSBHI (LED)"},{id:67,name:"TUSBHI (SADA)"},{id:68,name:"UNDER WEAR LADIES BLACK & SKIN (MEDIUM)"},{id:69,name:"VASELINE HAIR TONIC 100ml (NON ORUNAL)"},{id:70,name:"VATIKA HAIR OIL 100ml (ALMOND)"},{id:71,name:"VATIKA HAIR OIL 100ml (CACTUS)"},{id:72,name:"VATIKA HAIR OIL 100ml (Coconut)"},{id:73,name:"VEET JAR LARGE (MIX) RS,595"},{id:74,name:"VEET JAR SMALL 40g (MIX) RS,300"},{id:75,name:"VITAMN CAPSOLE LARGE WHITE"},{id:76,name:"ROOM SPRAY (IMP) MIX"},{id:77,name:"SHAMPOO LOREAL MEDIUM (DREAM LONG)"},{id:78,name:"SHAMPOO LOREAL MEDIUM (HYALURON MOISTURE)"},{id:79,name:"SHAMPOO LOREAL MEDIUM (RED) COLOUR PROTECT"},{id:80,name:"SHAMPOO MECLAY (MEDIUM) ORANGE"},{id:81,name:"SHAMPOO MECLAY (MEDIUM) PINK"},{id:82,name:"SHAMPOO MECLAY (MEDIUM) RED COLOUR PROTECT"},{id:83,name:"SHAMPOO MECLAY (MEDIUM) WHITE"},{id:84,name:"SHAMPOO PALMOLIVE (MEDIUM) GREEN RS,400"},{id:85,name:"SHAMPOO TRESEMME 170ml RS,550 (RED)"},{id:86,name:"SOAP SKIN WHITE (MIX) RS,150"},{id:87,name:"SOAP SKIN WHITE (PINK) RS,150"},{id:88,name:"SOFT TOUCH WONDER WAX LARGE GREEN"},{id:89,name:"SOFT TOUCH WONDER WAX SMALL LEMON"},{id:90,name:"SUNBLOCK RIVAJ (LARGE) RP,630"},{id:91,name:"SUNBLOCK RIVAJ SPF 60 (SMALL) RP,300"},{id:92,name:"CONDITIONER LOREAL (GOLDEN) RS,550"},{id:93,name:"CONDITIONER LOREAL (HYALURON MOISTURE) BLUE"},{id:94,name:"CONDITIONER LOREAL (RED) RS,550"},{id:95,name:"CONDITIONER LOREAL (WHITE) RS,540"},{id:96,name:"CONDITIONER MECLAY (RED)"},{id:97,name:"CREAM GOLDEN PEARL NEW RS,360"},{id:98,name:"CREAM JHALAK RS,360"},{id:99,name:"CREAM PARLEY BEAUTY BLACK RS 350"},{id:100,name:"CREAM SANDAL RS,360"},{id:101,name:"DABUR AMLA HAIR OIL (DUBAI) 50ml RS,180"},{id:102,name:"FACE WASH CLEAN & CLEAR (SMALL)"},{id:103,name:"FACE WASH GARNIER (LARGE) WOMEN VITAMAN C"},{id:104,name:"FACE WASH GARNIER (SMALL) OIL CLEAR RS,519"},{id:105,name:"FACE WASH GARNIER (SMALL) POWER WHITE RS,519"},{id:106,name:"FACE WASH HIMALYA (SMALL) DUBAI RS 310"},{id:107,name:"FACE WASH JUNSUI LARGE (BLACK)"},{id:108,name:"FACE WASH MAC ALEO VERA"},{id:109,name:"FACE WASH MAC BLACK CHARCOAL"},{id:110,name:"FACE WASH MAC PINK"},{id:111,name:"FACE WASH PONDS (IMP) ACNE SOLUTION"},{id:112,name:"FACE WASH PONDS (IMP) BLACK (P O+PURITY)"},{id:113,name:"FACE WASH PONDS (IMP) BLACK SMALL"},{id:114,name:"FACE WASH PONDS (IMP) WHITE BEAUTY (PINK)"},{id:115,name:"FACE WASH PONDS (IMP) WHITE BEAUTY (SMALL)"},{id:116,name:"FACE WASH Y,C (LARGE) BLACK (COW)"},{id:117,name:"FACE WASH Y,C (LARGE) YELLOW LEMON"},{id:118,name:"FACE WASH Y,C (SMALL) BLACK (COW)"},{id:119,name:"FACE WASH Y,C (SMALL) YELLOW LEMON"},{id:120,name:"LIGHTER (HEATER) 801"},{id:121,name:"LIP OIL POUCH 12 PCES"},{id:122,name:"LOTION PONDS 100ml RS,350"},{id:123,name:"LOTION VASELINE 100ml (IMP) GREEN"},{id:124,name:"MORTIEN SPRAY 300ml"},{id:125,name:"PARACHUTE COCONUT OIL (MEDIUM) HEMANI"},{id:126,name:"ALOE VERA JELL TUBE (SMALL) 80ML"},{id:127,name:"BIO AMLA HAIR OIL 100ml RS,280"},{id:128,name:"BIO AMLA HAIR OIL 50ml RP,160"},{id:129,name:"BLACK COBRA SPRAY 300ML"},{id:130,name:"BODY RAZER TWINKLE LADIES (EYEBROW)"},{id:131,name:"BODY SPRAY AXE (MIX)"},{id:132,name:"BODY SPRAY CHI CHI (PINK) WOMEN"},{id:133,name:"BODY SPRAY CHI CHI (SOLID)"},{id:134,name:"BODY SPRAY SHE (ANGLE)"},{id:135,name:"BODY SPRAY SHE (RED)"},{id:136,name:"BRUSH SUREE PLASTIK (NAYLON TAR)"},{id:137,name:"COLOUR GARNIER (#3 DARK BROWN) RS,1099"},{id:138,name:"COLOUR OLIVIA (# 10 BLUE/BLACK) RS,300"},{id:139,name:"COLOUR OLIVIA (# 11 COPPER BROWN) RS,300"},{id:140,name:"COLOUR OLIVIA (# 12 GLODEN BLONDE) RS,300"},{id:141,name:"CONDAM JOSH (BLUE) DELAY"},{id:142,name:"CONDITIONER LOREAL (BLACK) RS,550"},{id:143,name:"CONDITIONER LOREAL (DREAM LONG) RS,550"},{id:144,name:"PASTE DOCTOR RS,110"},{id:145,name:"PASTE SENSODYNE 30g RAPID ACTION RS,165"},{id:146,name:"PASTE SENSODYNE 70g RAPID ACTION RS,420"},{id:147,name:"PERFUME DELYCIA (MEDIUM) BEAUTY RS,650"},{id:148,name:"PERFUME DELYCIA (MEDIUM) CHECK RS,650"},{id:149,name:"PERFUME DELYCIA (SMALL) BEAUTY RS,350"},{id:150,name:"PERFUME DELYCIA (SMALL) CHECK RS,350"},{id:151,name:"PERFUME MEDORA (MEDIUM) BLUE RS,650"},{id:152,name:"PERFUME MEDORA (MEDIUM) GREEN RS,650"},{id:153,name:"PERFUME MEDORA (SMALL) BLUE RS,350"},{id:154,name:"PERFUME MEDORA (SMALL) GREEN RS,350"},{id:155,name:"POWDER BLACK BEAUTY (SMALL) RP,220"},{id:156,name:"POWDER BLACK CAT (SMALL) RS,250"},{id:157,name:"POWDER EDEN ROCK (SMALL) RS,199"},{id:158,name:"POWDER MEDORA (SMALL) (JOY) RS,230"},{id:159,name:"POWDER MEDORA (SMALL) (MIX) RS,230"},{id:160,name:"POWDER TIBET (SMALL) RS,190"},{id:161,name:"ROLL ON FA (MYSTIC MOMENT)"},{id:162,name:"ROLL ON FA (PINK)"},{id:163,name:"ROLL ON NIVIA (WOMEN)"},{id:164,name:"PERFUME RASSASI BLUE LADY"},{id:165,name:"PERFUME RASSASI SECRET"},{id:166,name:"POWDER BLACK BEAUTY (LARGE) RS,450"},{id:167,name:"RAZER TREET HYGIENE"},{id:168,name:"SCISSOR STEEL SMALL"},{id:169,name:"STEPLER PIN 24/6 (BOX) DOLLAR"},{id:170,name:"VENEEZIA WAX (SMALL) RP,220"},{id:171,name:"CREAM PARLEY BLEACH SASHAY BLACK RS,70"},{id:172,name:"F & L M,V TUBE (SMALL) GLOW RS,170"},{id:173,name:"CELL TOSHIBA AAA (H,D PK)"},{id:174,name:"CREAM FACE FRESH CLEANSER (LARGE)"},{id:175,name:"F & L M,V FACE WASH (SMALL) RS.199"},{id:176,name:"F & L M,V SASHAY RS,50"},{id:177,name:"FACE WASH GARNIER (SMALL) WOMEN VITAMAN C"},{id:178,name:"FACE WASH Y,C (LARGE) COCUMBER"},{id:179,name:"MARKER 604 (BLUE)"},{id:180,name:"PASTE COLGATE 20g SADA RS,50"},{id:181,name:"PEN PIANO (BLACK) GRIPER 0.8MM"},{id:182,name:"PEN PIANO (BLUE) GRIPER 0.8MM"},{id:183,name:"SHAMPOO H & S 200ml CLASSIC CLEAN (BLUE)"},{id:184,name:"SHAMPOO LIFE BOY 100ml (GREEN) RS,200"},{id:185,name:"CELL TOSHIBA AA (H,D PK)"},{id:186,name:"COLOUR REVLON REGULAR (30) Dark Brown (LARGE)"},{id:187,name:"COLOUR REVLON REGULAR (51) Light Brown (LARGE)"},{id:188,name:"LIGHTER (SADA TIK) 601"},{id:189,name:"POWDER MOTHER CARE GO-RASH 150g RS,400"},{id:190,name:"ROOM SPRAY NEW (T) MIX"},{id:191,name:"SHAMPOO COLOUR LICHEN SASHAY (BROWN)"},{id:192,name:"SHAMPOO MECLAY (MEDIUM) BLUE"},{id:193,name:"SHAMPOO MECLAY (MEDIUM) GREEN"},{id:194,name:"CONDAM TOUCH (BLUE) 6 PACK 3IN1"},{id:195,name:"MOOV SPRAY"},{id:196,name:"SHIELD FEEDER COLOUR (LARGE) RS,200"},{id:197,name:"SHIELD FEEDER COLOUR (MEDIUM) RS,190"},{id:198,name:"VASELINE PETROLIUM (IMP) 50ml BLUE"},{id:199,name:"VASELINE PETROLIUM (IMP) 50ml GREEN ALOE"},{id:200,name:"VASELINE PETROLIUM (IMP) 50ml PINK BABY"},{id:400,name:"COLOUR OLIVIA (# 4 LIGHT BROWN) RS,300"},{id:401,name:"CREAM EU JAR (LARGE) RS,350"},{id:402,name:"CREAM EU TUBE (SMALL) RS,160"},{id:403,name:"HUSSAIN MANJAN BOX (MEDIUM) RS,80"},{id:404,name:"SCALE ORO LARGE"},{id:405,name:"SCALE ORO SMALL"},{id:406,name:"SOAP SKIN WHITE (BLUE) RS,150"},{id:407,name:"SOAP SKIN WHITE (PINK) RS,150"},{id:408,name:"VENEEZIA WAX (LARGE) RS,280"},{id:409,name:"MULTANI MUTTI JAR"},{id:410,name:"NALKI (BLACK)"},{id:411,name:"NALKI (MIX)"},{id:412,name:"NALKI (WHITE)"},{id:413,name:"PASTE CHILD ABC RS,180"},{id:414,name:"PASTE CHILD KODOMO (MIX)"},{id:415,name:"PERFUME MARCO POLO (MIX)"},{id:416,name:"PERFUME MUTUAL LOVE (GOLD)"},{id:417,name:"PERFUME PENCIL (MEN + WOMEN)"},{id:418,name:"POWDER EDEN ROCK (LARGE) RS,299"},{id:419,name:"POWDER ENCHANTEUR 125g (PERPAL)"},{id:420,name:"POWDER ENCHANTEUR 125g (PINK)"},{id:421,name:"POWDER ENCHANTEUR 125g (ROSE)"},{id:422,name:"POWDER ENCHANTEUR 125g (YELLOW)"},{id:423,name:"POWDER MEDORA (LARGE) JOY RS,450"},{id:424,name:"ROOM SPRAY (IMP) DARHAM"},{id:425,name:"CHEERY POLISH (BLACK) LARGE RS,650"},{id:426,name:"CHEERY POLISH (BLACK) SMALL RS,325"},{id:427,name:"CHEERY POLISH (BRWON) LARGE RS,650"},{id:428,name:"CHEERY POLISH (BRWON) SMALL RS,325"},{id:429,name:"LOCK GOLD 38mm"},{id:430,name:"LOCK GOLD 63mm"},{id:431,name:"PERFUME DELYCIA (SMALL) CHECK RS,350"},{id:432,name:"PERFUME MEDORA (SMALL) BLUE RS,350"},{id:433,name:"PERFUME MEDORA (SMALL) GREEN RS,350"},{id:434,name:"PERFUME MEDORA (SMALL) RED RS,350"},{id:435,name:"PERFUME MEDORA (SMALL) SHEDOW RS,350"},{id:436,name:"SOAP DOVE LARGE WHITE (IMP)"},{id:437,name:"MARKER 604 (BLUE)"},{id:438,name:"MARKER 605 (BLUE)"},{id:439,name:"MARKER DOLLER BLACK BOARD (BLACK)"},{id:440,name:"MARKER DOLLER BLACK BOARD (BLUE)"},{id:441,name:"MARKER PERMANENT (BLACK)"},{id:442,name:"MARKER PERMANENT (BLUE)"},{id:443,name:"METRO AGHER BATTI (SMALL)"},{id:444,name:"NAIL CUTTER V9"},{id:445,name:"PARTY POPPER (MEDIUM)"},{id:446,name:"PEN PIANO (BLUE) GRIPER 0.8MM"},{id:447,name:"PENCIL GOLDFISH (PATA)"},{id:448,name:"PENCIL MY DOLLAR"},{id:449,name:"PENCIL ORO (GATTA PACK)"},{id:450,name:"PERFUME MUTUAL LOVE (PINK)"},{id:451,name:"PERFUME MUTUAL LOVE (RED)"},{id:452,name:"POWDER BLACK BEAUTY (SMALL) RP,220"},{id:453,name:"ELFY JIMSA BOTTEL 20GM"},{id:454,name:"ELFY JIMSA BOX"},{id:455,name:"EXTENSION LEAD (# 235)"},{id:456,name:"EXTENSION LEAD (# 809)"},{id:457,name:"EXTENSION LEAD USB (339)"},{id:458,name:"EXTENSION LEAD BUTTON (ON/OFF)"},{id:459,name:"F & L BB CREAM 9g (SMALL) IMP"},{id:460,name:"F & L M,V JAR"},{id:461,name:"FACE WASH PONDS (IMP) SUN DULLNESS"},{id:462,name:"FACE WASH PONDS (IMP) WHITE BEAUTY PINK"},{id:463,name:"GOLDEN PEARL URGENT FACIAL"},{id:464,name:"KOOKER RUBBER LARGE"},{id:465,name:"KOOKER RUBBER EX QUALITY"},{id:466,name:"LASTIK BAREEK CHILD"},{id:467,name:"LASTIK CHORDA LADIES ROLL (SMALL)"},{id:468,name:"LASTIK CHORDA WHITE (LARGE)"},{id:469,name:"LASTIK DARME YNA WHITE 20 PECE"},{id:470,name:"LASTIK LADIES (WHITE)"},{id:471,name:"MACHINE OIL (EX GOOD QUALITY)"},{id:472,name:"SOAP DETTOL JAMBO RS,150 MIX"},{id:473,name:"SOAP GOLDEN PEARL (YELLOW)"},{id:474,name:"SOAP PALMOLIVE (LARGE) RS,150 (MIX)"},{id:475,name:"VATIKA HAIR OIL 100ml (ALMOND)"},{id:476,name:"VITAMN CAPSOLE LARGE WHITE"},{id:477,name:"FACE WASH GARNIER (LARGE) OIL CLEAR"},{id:478,name:"FACE WASH GARNIER (LARGE) POWER WHITE"},{id:479,name:"FACE WASH GARNIER (LARGE) WOMEN VITAMAN C"},{id:480,name:"FACE WASH GARNIER (SMALL) OIL CLEAR"},{id:481,name:"FACE WASH GARNIER (SMALL) POWER WHITE"},{id:482,name:"FACE WASH GARNIER (SMALL) WOMEN VITAMAN C"},{id:483,name:"FACE WASH HIMALIYA (LARGE) DUBAI"},{id:484,name:"FACE WASH HIMALIYA (SMALL) DUBAI"},{id:485,name:"GILLETTE BLUE 2 PLUS (GREEN)"},{id:486,name:"HASHMI SORMA RS,200"},{id:487,name:"INK BOTTEL DOLLER BLUE (SMALL)"},{id:488,name:"INK REMOVER MARKER (ORO)"},{id:489,name:"INK REMOVER WHITENER"},{id:490,name:"KING COIL BLAKI (LARGE)"},{id:491,name:"KING MOSPEL"},{id:492,name:"SHARPNER ORO JAR 50 PECE RS,10"},{id:493,name:"SHIELD NIPPLE BOX"},{id:494,name:"VASELINE TIBET RS,130"},{id:495,name:"WAX PATI BUKRAM"},{id:496,name:"WIPES PAMPER (NON ORUNAL)"},{id:497,name:"ZERO MOSKITO SASHAY BOX RS,10"},{id:498,name:"POWDER BLACK CAT (SMALL) RS,260"},{id:499,name:"POWDER MEDORA (SMALL) JOY RS,230"},{id:500,name:"POWDER MEDORA (SMALL) MIX RS,230"},{id:501,name:"POWDER MOTHER CARE GO-RASH 150g RS,400"},{id:502,name:"POWDER TIBET (SMALL) RS,190"},{id:503,name:"ROLL ON NIVIA (WOMEN)"},{id:504,name:"SHAMPOO BIO AMLA FARVEL RS,180"},{id:505,name:"SHAMPOO BIO AMLA FARVEL RS,500"},{id:506,name:"J BABY WIPES WITH CAP 84 PECE"},{id:507,name:"LUX BODY WASH SOFT TUCH (PURPAL) IMP"},{id:508,name:"NOVA GOLD HAIR SPRAY (SMALL) COPY"},{id:509,name:"PARACHUTE COCONUT OIL (MEDIUM) HEMANI"},{id:510,name:"PASTE DOCTOR RS,220"},{id:511,name:"PASTE SENSODYNE 70g RAPID ACTION RS,420"},{id:512,name:"PERFUME DELYCIA (MEDIUM) BEAUTY RS,650"},{id:513,name:"PERFUME DELYCIA (MEDIUM) CHECK RS,650"},{id:514,name:"SABALON SPRAY (PK)"},{id:515,name:"BODY SPRAY EVERY ONE"},{id:516,name:"COMBS CRISTAL"},{id:517,name:"COMBS SAIRA"},{id:518,name:"CONDITIONER MECLAY (BLACK)"},{id:519,name:"CONDITIONER MECLAY (PINK)"},{id:520,name:"CONDITIONER TRESEMME 400ml (MIX)"},{id:521,name:"F & LM V FACE WASH (SMALL) RS,199"},{id:522,name:"FACE WASH Y,C (LARGE) YELLOW LEMON"},{id:523,name:"FACE WASH Y,C (SMALL) YELLOW LEMON"},{id:524,name:"FORHANS HAIR TONIC 100ML (BLUE)"},{id:525,name:"GATS BY GEL (MEDIUM) RED HARD"},{id:526,name:"GILLETTE GEL (LARGE) MIX"},{id:527,name:"J BABY SHAMPOO 100ml (COMPANY)"},{id:528,name:"J BABY SHAMPOO 200ml (COMPANY)"},{id:529,name:"KOHE NOOR OIL (CHANBALI) RP,350"},{id:530,name:"LOTION PONDS 100ml RS,350"},{id:531,name:"SHAMPOO MECLAY (MEDIUM) PINK"},{id:532,name:"ALWAYS PAD MAXI"},{id:533,name:"VEET TUBE MEDIUM 50g (MIX)"},{id:534,name:"MEDORA PERFUME (SMALL)"},{id:535,name:"DENTONIC POWDER BOX (MEDIUM)"},{id:536,name:"SOAP PEARS (GREEN)"},{id:537,name:"BALLOON LARGE (SMILE)"},{id:538,name:"HAPPY BIRTHDAY SPELLING (PINK)"},{id:539,name:"TAPE PACKING BROWN (2 INCH)"},{id:540,name:"ACNO FIGHT FACE WASH"},{id:541,name:"ACNO CLEAR FACE WASH GOLDEN PEARL"},{id:542,name:"DERMI COOL POWDER"},{id:543,name:"EDEN ROCK POWDER (SMALL MIX)"},{id:544,name:"SOAP IMPERIAL LEATHER"},{id:545,name:"RAZER CHI CHI"},{id:546,name:"GARNIER FACE WASH"},{id:547,name:"LMAX FACE WASH"},{id:548,name:"GLYCERINE"}
+];
+
+// ── State ─────────────────────────────────────────────────────────
+let assignments = JSON.parse(localStorage.getItem('st_assignments') || '{}');
+let selectedItem = null;
+let showUnassignedOnly = false;
+let filteredItems = [...ITEMS];
+
+// ── Save ──────────────────────────────────────────────────────────
+function save() {
+  localStorage.setItem('st_assignments', JSON.stringify(assignments));
+  showToast('💾 Saved!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+// ── Render Items ──────────────────────────────────────────────────
+function renderItems() {
+  const list = document.getElementById('itemsList');
+  let items = filteredItems;
+  if (showUnassignedOnly) items = items.filter(i => !assignments[i.id]);
+  document.getElementById('hd-count').textContent = `(${items.length} showing)`;
+
+  list.innerHTML = items.map(item => {
+    const catId = assignments[item.id];
+    const catName = catId ? CATEGORIES.find(c => c.id === catId)?.name : '';
+    const isSel = selectedItem === item.id;
+    return `<div class="item-row ${catId ? 'assigned' : ''} ${isSel ? 'selected' : ''}"
+      id="item-${item.id}" onclick="selectItem(${item.id})">
+      <span class="num">${item.id}</span>
+      <span class="name">${item.name}</span>
+      ${catName
+        ? `<span class="cat-badge" title="${catName}">${catName}</span>
+           <span class="undo-x" onclick="undoItem(event,${item.id})" title="Undo">✕</span>`
+        : ''}
+    </div>`;
+  }).join('');
+
+  // Scroll selected into view
+  if (selectedItem) {
+    const el = document.getElementById(`item-${selectedItem}`);
+    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+// ── Render Categories ─────────────────────────────────────────────
+function renderCats() {
+  const list = document.getElementById('catsList');
+  list.innerHTML = CATEGORIES.map(cat => {
+    const count = Object.values(assignments).filter(v => v === cat.id).length;
+    return `<div class="cat-item" onclick="assignCategory('${cat.id}')">
+      <span>${cat.name}</span>
+      ${count > 0 ? `<span class="cat-count">${count}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Select Item ───────────────────────────────────────────────────
+function selectItem(id) {
+  selectedItem = id;
+  const item = ITEMS.find(i => i.id === id);
+  document.getElementById('selected-label').textContent = item ? `▶ ${item.name}` : '';
+  renderItems();
+}
+
+// ── Assign Category ───────────────────────────────────────────────
+function assignCategory(catId) {
+  if (!selectedItem) {
+    showToast('⚠️ Pehle item click karein');
+    return;
+  }
+  assignments[selectedItem] = catId;
+  save();
+
+  // Auto advance to next unassigned
+  const visibleItems = showUnassignedOnly
+    ? filteredItems.filter(i => !assignments[i.id] || i.id === selectedItem)
+    : filteredItems;
+  const currentIndex = visibleItems.findIndex(i => i.id === selectedItem);
+  const next = visibleItems.slice(currentIndex + 1).find(i => !assignments[i.id]);
+  selectedItem = next ? next.id : null;
+  document.getElementById('selected-label').textContent = next ? `▶ ${next.name}` : '✅ All done!';
+
+  updateProgress();
+  renderItems();
+  renderCats();
+}
+
+// ── Undo single item ──────────────────────────────────────────────
+function undoItem(e, id) {
+  e.stopPropagation();
+  delete assignments[id];
+  save();
+  updateProgress();
+  renderItems();
+  renderCats();
+}
+
+// ── Filter ────────────────────────────────────────────────────────
+function filterItems() {
+  const q = document.getElementById('search').value.toLowerCase();
+  filteredItems = ITEMS.filter(i => i.name.toLowerCase().includes(q));
+  renderItems();
+}
+
+function toggleFilter() {
+  showUnassignedOnly = !showUnassignedOnly;
+  document.getElementById('filterUnassigned').classList.toggle('active', showUnassignedOnly);
+  renderItems();
+}
+
+// ── Progress ──────────────────────────────────────────────────────
+function updateProgress() {
+  const total = ITEMS.length;
+  const done = Object.keys(assignments).length;
+  document.getElementById('assigned-count').textContent = done;
+  document.getElementById('remaining-count').textContent = total - done;
+  document.getElementById('progressFill').style.width = `${Math.round(done / total * 100)}%`;
+}
+
+// ── Clear All ─────────────────────────────────────────────────────
+function clearAll() {
+  if (!confirm('Sab assignments reset karna chahte hain?')) return;
+  assignments = {};
+  selectedItem = null;
+  save();
+  updateProgress();
+  renderItems();
+  renderCats();
+}
+
+// ── Export JSON ───────────────────────────────────────────────────
+function exportJSON() {
+  const data = JSON.stringify(assignments, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'category-assignments.json';
+  a.click();
+  showToast('📥 JSON downloaded!');
+}
+
+// ── Apply to Website ──────────────────────────────────────────────
+function applyToWebsite() {
+  const done = Object.keys(assignments).length;
+  if (done === 0) { showToast('⚠️ Koi assignment nahi hai abhi'); return; }
+
+  const lines = Object.entries(assignments).map(([id, catId]) => {
+    const item = ITEMS.find(i => i.id == id);
+    const cat = CATEGORIES.find(c => c.id === catId);
+    return `${id}|${catId}|${cat?.name || ''}`;
+  }).join('\n');
+
+  const blob = new Blob([lines], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'assignments-for-website.txt';
+  a.click();
+  showToast(`✅ ${done} assignments exported! Ab website update hogi.`);
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+updateProgress();
+renderItems();
+renderCats();
+</script>
+</body>
+</html>

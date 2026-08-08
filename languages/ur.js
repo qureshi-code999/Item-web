@@ -15,6 +15,8 @@ window.TRANSLATIONS.ur = {
   languageLabel: "زبان",
   noPhoto: "تصویر نہیں ہے",
   priceLabel: "Rs. {amount}",
+  addToCart: "کارٹ میں شامل کریں",
+  added: "شامل ہو گیا",
 
   cartTitle: "آپ کی خریداری (Cart)",
   cartEmpty: "آپ کا کارٹ ابھی خالی ہے",

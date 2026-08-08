@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -194,40 +194,38 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Glossy Category Marquee Slider CSS */
+    /* Ultra-Smooth Hardware-Accelerated Category Marquee CSS */
     @keyframes catSlideTrack {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); }
     }
     .cat-marquee-track {
       display: flex;
       gap: 14px;
       width: max-content;
-      animation: catSlideTrack 38s linear infinite;
       will-change: transform;
+      transform: translate3d(0,0,0);
+      backface-visibility: hidden;
     }
     .cat-card-container:hover .cat-marquee-track {
       animation-play-state: paused;
     }
     .cat-img-box {
-      width: 125px;
-      height: 125px;
+      width: 120px;
+      height: 120px;
       border-radius: 16px;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.08) 0%, rgba(15,15,25,0.9) 100%);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      backdrop-filter: blur(12px);
+      background: #121222;
+      border: 1px solid rgba(212, 175, 55, 0.25);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 8px;
       flex-shrink: 0;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-      transition: all 0.25s ease;
+      transition: border-color 0.2s ease, transform 0.2s ease;
     }
     .cat-img-box:hover {
       border-color: rgba(212, 175, 55, 0.7);
-      transform: translateY(-3px) scale(1.04);
-      box-shadow: 0 12px 30px rgba(212, 175, 55, 0.3);
+      transform: translateY(-2px);
     }
     .cat-img-box img {
       max-width: 100%;
@@ -235,7 +233,6 @@
       width: auto;
       height: auto;
       object-fit: contain;
-      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.7));
     }
   </style>
 </head>
@@ -743,7 +740,7 @@
       { id: 157, name: "CELL DUBLE CHARGER AAA", price: 30, categoryId: "mosquito", categoryName: "Anti-Mosquito" },
       { id: 158, name: "CELL POWER PLUS AA", price: 30, categoryId: "general", categoryName: "General Items & Stationary", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
       { id: 159, name: "CELL TOSHIBA AA (BLACK)", price: 35, categoryId: "cells", categoryName: "Cells" },
-      { id: 161, name: "CELL TOSHIBA AA (RED))", price: 35, categoryId: "cells", categoryName: "Cells" },
+      { id: 161, name: "CELL TOSHIBA AA (RED)", price: 35, categoryId: "cells", categoryName: "Cells" },
       { id: 162, name: "CELL TOSHIBA AAA (BLACK)", price: 35, categoryId: "cells", categoryName: "Cells" },
       { id: 163, name: "CELL TOSHIBA AAA (RED)", price: 35, categoryId: "general", categoryName: "General Items & Stationary", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "C" },
       { id: 165, name: "CELL TOSHIBA SIZE (D)", price: 140, categoryId: "cells", categoryName: "Cells" },
@@ -1675,36 +1672,7 @@
     const RECENT_LIMIT = 15;
 
     function SahilTraders() {
-      const [products, setProducts] = useState(PRODUCTS);
-      const [adminOpen, setAdminOpen] = useState(false);
-      const [adminSearch, setAdminSearch] = useState("");
-      const [editingProduct, setEditingProduct] = useState(null);
-      const [addingProduct, setAddingProduct] = useState(false);
-      const [saving, setSaving] = useState(false);
-
-      async function handleSaveProducts(updatedList) {
-        setSaving(true);
-        try {
-          const resp = await fetch("/api/save", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedList)
-          });
-          if (resp.ok) {
-            alert("Changes saved to disk successfully! Web pages have been updated.");
-            setProducts(updatedList);
-          } else {
-            const errText = await resp.text();
-            alert("Server returned error: " + errText);
-          }
-        } catch (err) {
-          console.error(err);
-          alert("Local Admin Server is not running. Please double-click 'ADMIN PORTAL.bat' first, then open http://localhost:8000 to save changes directly.");
-        } finally {
-          setSaving(false);
-        }
-      }
-
+      const products = PRODUCTS;
       const [language, setLanguage] = useState("en");
       const [showSplash, setShowSplash] = useState(true);
       const [fadeSplash, setFadeSplash] = useState(false);
@@ -1787,20 +1755,34 @@
         });
       }, []);
 
+      // Intelligent Asset & Image Preloader during Intro Animation
       useEffect(() => {
+        if (!showSplash) return;
+
+        // Silently pre-load catalog images into browser memory during intro
+        const imageIds = Array.from(window.PRODUCT_IMAGES || []).slice(0, 150);
+        imageIds.forEach(id => {
+          const img = new Image();
+          img.src = `images/${id}.png`;
+          img.onerror = () => {
+            const fallback = new Image();
+            fallback.src = `images/${id}.jpg`;
+          };
+        });
+
         const fadeTimer = setTimeout(() => {
           setFadeSplash(true);
-        }, 2000); // Start fade-out at 2.0 seconds
+        }, 2500);
 
         const removeTimer = setTimeout(() => {
           setShowSplash(false);
-        }, 3000); // Completely remove splash screen at 3.0 seconds
+        }, 3200);
 
         return () => {
           clearTimeout(fadeTimer);
           clearTimeout(removeTimer);
         };
-      }, []);
+      }, [showSplash]);
 
 
       useEffect(() => {
@@ -1824,8 +1806,7 @@
 
       const suggestions = useMemo(() => {
         const term = searchTerm.trim().toLowerCase();
-        if (term === "") return [
-    ];
+        if (term === "") return [];
         return products.filter((p) => p.name.toLowerCase().includes(term)).slice(0, 6);
       }, [products, searchTerm]);
 
@@ -1938,6 +1919,9 @@
                 <div className="w-48 h-[2px] bg-white/5 rounded-full overflow-hidden mt-3 relative text-carve">
                   <div className="h-full bg-gradient-to-r from-amber-500 to-amber-300 rounded-full gold-progress-bar" />
                 </div>
+                <div className="text-[10px] text-amber-400/50 font-semibold tracking-widest uppercase mt-1.5 animate-pulse">
+                  Pre-caching Store Catalog & Images...
+                </div>
               </div>
             </div>
           )}
@@ -1983,23 +1967,8 @@
                     onMouseLeave={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.18)'}
                   >
                     <option value="en" style={{background:'#09090d', color:'#fff'}}>English</option>
-                    <option value="ur" style={{background:'#09090d', color:'#fff'}}>Ã˜Â§Ã˜Â±Ã˜Â¯Ã™Ë†</option>
+                    <option value="ur" style={{background:'#09090d', color:'#fff'}}>&#x627;&#x631;&#x62F;&#x648;</option>
                   </select>
-
-                  {/* Admin Button */}
-                  <button
-                    onClick={() => setAdminOpen(!adminOpen)}
-                    className="relative flex items-center gap-1.5 border px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
-                    style={{ 
-                      background: adminOpen ? 'rgba(212,175,55,0.2)' : 'rgba(9,9,13,0.8)', 
-                      borderColor: 'rgba(212,175,55,0.4)', 
-                      color: '#d4af37' 
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.8)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.4)'}
-                  >
-                    <span>{adminOpen ? "Shop Mode" : "Admin Portal"}</span>
-                  </button>
 
                   {/* Cart Button */}
                   <button
@@ -2078,15 +2047,7 @@
 
           {/* Body */}
           <main className="max-w-6xl mx-auto px-4 py-5">
-            {adminOpen ? (
-              <AdminPortal
-                products={products}
-                onSave={handleSaveProducts}
-                saving={saving}
-                adminSearch={adminSearch}
-                setAdminSearch={setAdminSearch}
-              />
-            ) : showCategoryHome ? (
+            {showCategoryHome ? (
               <CategoryHome
                 products={products}
                 onSelectCategory={setSelectedCategory}
@@ -2096,31 +2057,44 @@
             ) : (
               <>
                 {/* Back button + title */}
-                <div className="flex items-center gap-3 mb-5">
-                  {selectedCategory && !isSearching && (
+                <div className="flex items-center gap-4 mb-6 flex-wrap">
+                  {(selectedCategory || isSearching || activeCategory !== "all") && (
                     <button
-                      onClick={() => setSelectedCategory(null)}
-                      className="flex items-center gap-1.5 border px-3 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all"
-                      style={{ background: 'rgba(9,9,13,0.8)', borderColor: 'rgba(212,175,55,0.25)', color: '#d4af37' }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.6)'}
-                      onMouseLeave={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.25)'}
+                      onClick={handleGoBack}
+                      className="flex items-center gap-2 border px-4 py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+                      style={{ 
+                        background: 'linear-gradient(135deg, rgba(212,175,55,0.22), rgba(15,15,25,0.95))', 
+                        borderColor: 'rgba(212,175,55,0.55)', 
+                        color: '#d4af37',
+                        boxShadow: '0 4px 20px rgba(212,175,55,0.2)'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.9)'; e.currentTarget.style.boxShadow='0 6px 25px rgba(212,175,55,0.35)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.55)'; e.currentTarget.style.boxShadow='0 4px 20px rgba(212,175,55,0.2)'; }}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
-                      {translate(langData, "categoriesLabel")}
+                      <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                      <span>← {translate(langData, "categoriesLabel")} (Back)</span>
                     </button>
                   )}
                   <div>
-                    <h2 className="text-base font-black tracking-widest uppercase" style={{ color: '#d4af37', fontFamily: "'Poppins',sans-serif" }}>
-                      {isSearching ? `Search: "${searchTerm}"` : selectedCategoryName}
+                    <h2 className="text-lg font-black tracking-widest uppercase" style={{ color: '#d4af37', fontFamily: "'Poppins',sans-serif" }}>
+                      {isSearching ? `Search Results for: "${searchTerm}"` : selectedCategoryName}
                     </h2>
-                    <p className="text-xs" style={{ color: 'rgba(212,175,55,0.45)' }}>{filtered.length} {translate(langData, "itemsLabel")}</p>
+                    <p className="text-xs font-semibold" style={{ color: 'rgba(212,175,55,0.5)' }}>{filtered.length} {translate(langData, "itemsLabel")} found</p>
                   </div>
                 </div>
 
                 {filtered.length === 0 ? (
-                  <div className="text-center py-20">
-                    <ShoppingBag className="w-10 h-10 mx-auto mb-3" style={{ color: 'rgba(212,175,55,0.2)' }} />
-                    <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>No products found.</p>
+                  <div className="text-center py-16 bg-[#09090d]/80 border border-amber-500/15 rounded-2xl p-8">
+                    <ShoppingBag className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(212,175,55,0.3)' }} />
+                    <p className="text-base font-bold text-amber-300 mb-2">No items found matching "{searchTerm}"</p>
+                    <p className="text-xs text-amber-500/50 mb-6">Try searching with a different item name or go back to main categories.</p>
+                    <button
+                      onClick={handleGoBack}
+                      className="inline-flex items-center gap-2 border px-6 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+                      style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', color: '#09090d' }}
+                    >
+                      ← Back to Main Categories
+                    </button>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
@@ -2221,43 +2195,58 @@
                   marqueeItems = marqueeItems.concat(imageProducts);
                 }
               }
+              // Standardize max items per track for equal visual balance
+              if (marqueeItems.length > 10) {
+                marqueeItems = marqueeItems.slice(0, 10);
+              }
               const doubleItems = [...marqueeItems, ...marqueeItems];
+              
+              // Dynamic uniform speed: 4.2 seconds per item so ALL categories revolve smoothly with perfect lively pace!
+              const animSpeed = (marqueeItems.length * 4.2) + 's';
 
               return (
                 <div
                   key={cat.id}
                   onClick={() => onSelectCategory(cat.id)}
-                  className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300"
+                  className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-400"
                   style={{
-                    background: 'linear-gradient(145deg, rgba(16,16,28,0.95), rgba(8,8,16,0.98))',
-                    border: '1px solid rgba(212,175,55,0.16)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+                    background: 'linear-gradient(160deg, rgba(20,20,36,0.92) 0%, rgba(7,7,15,0.98) 100%)',
+                    border: '1px solid rgba(212,175,55,0.22)',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06)',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.55)';
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 16px 45px rgba(212,175,55,0.2), 0 8px 32px rgba(0,0,0,0.8)';
+                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.75)';
+                    e.currentTarget.style.transform = 'translateY(-6px)';
+                    e.currentTarget.style.boxShadow = '0 22px 50px rgba(212,175,55,0.22), 0 10px 35px rgba(0,0,0,0.95)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.16)';
+                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.22)';
                     e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.6)';
+                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06)';
                   }}
                 >
                   {/* Top Image Reel Area */}
-                  <div style={{ height: 175, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.12) 0%, rgba(5,5,10,0.95) 85%)' }}>
+                  <div style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.18) 0%, rgba(4,4,10,0.98) 85%)' }}>
                     
-                    {/* Top Golden Light Line */}
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)', zIndex: 10 }} />
+                    {/* Top & Bottom Golden Light Lines */}
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)', zIndex: 10 }} />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.25), transparent)', zIndex: 10 }} />
+
+
+
+                    {/* Top Right Item Count Badge */}
+                    <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: 'linear-gradient(135deg, rgba(212,175,55,0.22), rgba(10,10,18,0.95))', border: '1px solid rgba(212,175,55,0.4)', color: '#ffd700', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                      {count} {translate(langData, "itemsLabel")}
+                    </div>
 
                     {imageProducts.length > 0 ? (
                       <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
                         {/* Side Fade Shading for Glassy Framing */}
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 24, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, rgba(9,9,13,0.95), transparent)' }} />
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 24, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, rgba(9,9,13,0.95), transparent)' }} />
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 28, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, rgba(7,7,15,0.95), transparent)' }} />
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 28, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, rgba(7,7,15,0.95), transparent)' }} />
 
                         {/* Infinite Sliding Track */}
-                        <div className="cat-marquee-track">
+                        <div className="cat-marquee-track" style={{ animation: `catSlideTrack ${animSpeed} linear infinite` }}>
                           {doubleItems.map((item, idx) => (
                             <div key={idx} className="cat-img-box">
                               <img
@@ -2274,29 +2263,36 @@
                       </div>
                     ) : (
                       <div style={{ opacity: 0.95, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 48, height: 48, borderRadius: 14, background: meta.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 20px rgba(0,0,0,0.4)' }}>
+                        <div style={{ width: 52, height: 52, borderRadius: 16, background: meta.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 25px rgba(0,0,0,0.5)' }}>
                           {meta.icon || '🛍️'}
                         </div>
                       </div>
                     )}
-
-                    {/* Bottom Smooth Blend Overlay */}
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 35, background: 'linear-gradient(to top, #09090d, transparent)', zIndex: 10, pointerEvents: 'none' }} />
-
-                    {/* Item Count Badge */}
-                    <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 9px', borderRadius: 999, fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', background: 'rgba(9,9,13,0.85)', border: '1px solid rgba(212,175,55,0.3)', color: '#f0d060', backdropFilter: 'blur(6px)' }}>
-                      {count} {translate(langData, "itemsLabel")}
-                    </div>
                   </div>
 
                   {/* Info Footer */}
-                  <div style={{ padding: '12px 14px 14px', background: '#09090d', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(212,175,55,0.08)' }}>
+                  <div style={{ padding: '14px 16px', background: 'rgba(6,6,12,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(212,175,55,0.12)' }}>
                     <div>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.95)', lineHeight: 1.3, marginBottom: 2 }}>{langData.categories?.[cat.id] || cat.name}</p>
-                      <p style={{ fontSize: 10, color: 'rgba(212,175,55,0.65)', fontWeight: 600, letterSpacing: '0.03em' }}>Browse &rarr;</p>
+                      <h3 style={{ 
+                        fontSize: 14, 
+                        fontWeight: 800, 
+                        fontFamily: "'Poppins', sans-serif", 
+                        letterSpacing: '0.03em', 
+                        background: 'linear-gradient(135deg, #ffffff 20%, #fef08a 60%, #d4af37 95%)', 
+                        WebkitBackgroundClip: 'text', 
+                        WebkitTextFillColor: 'transparent',
+                        lineHeight: 1.3, 
+                        marginBottom: 3 
+                      }}>
+                        {langData.categories?.[cat.id] || cat.name}
+                      </h3>
+                      <p className="group-hover:text-amber-400 transition-colors" style={{ fontSize: 11, color: 'rgba(212,175,55,0.6)', fontWeight: 700, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        Explore Catalog &rarr;
+                      </p>
                     </div>
-                    <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4af37' }}>
-                      <svg style={{ width: 12, height: 12 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+
+                    <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-black group-hover:border-amber-400 transition-all duration-300 shadow-md">
+                      <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                       </svg>
                     </div>
@@ -2381,45 +2377,52 @@
       return (
         <div
           className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group"
-          style={{ background: 'rgba(9,9,13,0.92)', border: '1px solid rgba(212,175,55,0.1)', boxShadow: '0 4px 30px rgba(0,0,0,0.5)' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.4)'; e.currentTarget.style.boxShadow='0 8px 40px rgba(212,175,55,0.08), 0 4px 30px rgba(0,0,0,0.6)'; e.currentTarget.style.transform='translateY(-2px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.1)'; e.currentTarget.style.boxShadow='0 4px 30px rgba(0,0,0,0.5)'; e.currentTarget.style.transform='translateY(0)'; }}
+          style={{ background: 'linear-gradient(145deg, rgba(16,16,26,0.95), rgba(8,8,14,0.98))', border: '1px solid rgba(212,175,55,0.14)', boxShadow: '0 8px 30px rgba(0,0,0,0.6)' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.5)'; e.currentTarget.style.boxShadow='0 12px 45px rgba(212,175,55,0.15), 0 8px 30px rgba(0,0,0,0.8)'; e.currentTarget.style.transform='translateY(-3px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.14)'; e.currentTarget.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; e.currentTarget.style.transform='translateY(0)'; }}
         >
-          {/* Product Image / Initial */}
-          <div className="h-32 sm:h-36 w-full flex items-center justify-center p-3" style={{ background: 'rgba(212,175,55,0.03)' }}>
+          {/* Product Image Container (Snug & Compact - No Empty Gaps) */}
+          <div className="h-44 sm:h-48 w-full flex items-center justify-center p-1.5 relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.06) 0%, rgba(5,5,10,0.6) 100%)' }}>
             {!imgErr ? (
               <img 
                 src={imageSrc} 
                 onError={handleImgError}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl object-cover shrink-0 shadow-lg"
+                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-md"
               />
             ) : product.hasImage ? (
-              <div className={`w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0 shadow-lg`}>
+              <div className={`w-28 h-28 sm:w-32 sm:h-32 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0 shadow-lg`}>
                 <span className="text-white text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   {product.initial}
                 </span>
               </div>
             ) : (
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl flex flex-col items-center justify-center gap-0.5 shrink-0" style={{ background: 'rgba(212,175,55,0.04)' }}>
-                <ImageOff className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: 'rgba(212,175,55,0.2)' }} />
-                <span className="text-[9px] font-medium" style={{ color: 'rgba(212,175,55,0.3)' }}>{translate(langData, "noPhoto")}</span>
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl flex flex-col items-center justify-center gap-1 shrink-0" style={{ background: 'rgba(212,175,55,0.04)' }}>
+                <ImageOff className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: 'rgba(212,175,55,0.25)' }} />
+                <span className="text-[9px] font-medium" style={{ color: 'rgba(212,175,55,0.4)' }}>{translate(langData, "noPhoto")}</span>
               </div>
             )}
           </div>
-          {/* Thin gold divider */}
-          <div className="h-px mx-3" style={{ background: 'rgba(212,175,55,0.08)' }} />
-          <div className="p-3 pt-2 flex flex-col gap-2 flex-1">
-            <p className="text-sm sm:text-base font-semibold leading-snug line-clamp-2" style={{ color: 'rgba(255,255,255,0.88)' }}>{getProductDisplayName(product, language)}</p>
-            <p className="font-black text-base sm:text-lg" style={{ color: '#d4af37' }}>{translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}</p>
+
+          {/* Gold Divider */}
+          <div className="h-px mx-3" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent)' }} />
+
+          {/* Balanced Compact Text & Action Details */}
+          <div className="p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-[#09090d]">
+            <p className="text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
+              {getProductDisplayName(product, language)}
+            </p>
+            <p className="font-extrabold text-sm sm:text-base" style={{ color: '#d4af37' }}>
+              {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
+            </p>
             <button
               onClick={handleAdd}
-              className="mt-auto w-full py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-1.5"
+              className="mt-auto w-full py-2 rounded-xl text-[11px] font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-1.5"
               style={{
                 background: added ? 'rgba(34,197,94,0.18)' : 'rgba(212,175,55,0.1)',
                 border: added ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(212,175,55,0.25)',
                 color: added ? '#4ade80' : '#d4af37'
               }}
-              onMouseEnter={e => { if (!added) { e.currentTarget.style.background='rgba(212,175,55,0.18)'; e.currentTarget.style.borderColor='rgba(212,175,55,0.5)'; }}}
+              onMouseEnter={e => { if (!added) { e.currentTarget.style.background='rgba(212,175,55,0.2)'; e.currentTarget.style.borderColor='rgba(212,175,55,0.55)'; }}}
               onMouseLeave={e => { if (!added) { e.currentTarget.style.background='rgba(212,175,55,0.1)'; e.currentTarget.style.borderColor='rgba(212,175,55,0.25)'; }}}
             >
               {added ? (
@@ -2439,180 +2442,6 @@
       );
     }
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ ADMIN PORTAL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-    function AdminPortal({ products, onSave, saving, adminSearch, setAdminSearch }) {
-      const [localProducts, setLocalProducts] = React.useState(() => products.map(p => ({...p})));
-      const [editId, setEditId] = React.useState(null);
-      const [editForm, setEditForm] = React.useState({});
-      const [addForm, setAddForm] = React.useState({ name: '', price: '', categoryId: 'personalcare' });
-      const [showAddForm, setShowAddForm] = React.useState(false);
-      const [confirmDelete, setConfirmDelete] = React.useState(null);
-
-      const filtered = localProducts.filter(p =>
-        p.name.toLowerCase().includes(adminSearch.toLowerCase()) ||
-        String(p.id).includes(adminSearch)
-      );
-
-      function startEdit(p) {
-        setEditId(p.id);
-        setEditForm({ name: p.name, price: p.price, categoryId: p.categoryId });
-      }
-
-      function saveEdit(id) {
-        const updated = localProducts.map(p =>
-          p.id === id ? { ...p, name: editForm.name, price: Number(editForm.price), categoryId: editForm.categoryId } : p
-        );
-        setLocalProducts(updated);
-        setEditId(null);
-      }
-
-      function deleteProduct(id) {
-        const remaining = localProducts.filter(p => p.id !== id);
-        const renumbered = remaining.map((p, idx) => ({ ...p, id: idx + 1 }));
-        setLocalProducts(renumbered);
-        setConfirmDelete(null);
-      }
-
-      function addProduct() {
-        if (!addForm.name.trim() || !addForm.price) return;
-        const newId = localProducts.length > 0 ? Math.max(...localProducts.map(p => p.id)) + 1 : 1;
-        const catName = CATEGORIES.find(c => c.id === addForm.categoryId)?.name || addForm.categoryId;
-        const newProduct = {
-          id: newId,
-          name: addForm.name.trim().toUpperCase(),
-          price: Number(addForm.price),
-          categoryId: addForm.categoryId,
-          categoryName: catName
-        };
-        setLocalProducts(prev => [...prev, newProduct]);
-        setAddForm({ name: '', price: '', categoryId: 'personalcare' });
-        setShowAddForm(false);
-      }
-
-      const inputStyle = {
-        background: 'rgba(9,9,13,0.9)',
-        border: '1px solid rgba(212,175,55,0.3)',
-        borderRadius: '8px',
-        color: 'rgba(255,255,255,0.9)',
-        padding: '6px 10px',
-        fontSize: '13px',
-        outline: 'none',
-        width: '100%',
-        boxSizing: 'border-box'
-      };
-      const catSelectStyle = { ...inputStyle, cursor: 'pointer' };
-
-      return (
-        React.createElement('div', { style: { fontFamily: "'Inter', sans-serif" } },
-          /* Header Bar */
-          React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' } },
-            React.createElement('div', null,
-              React.createElement('h2', { style: { color: '#d4af37', fontFamily: "'Poppins', sans-serif", fontSize: '20px', fontWeight: '800', letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 } }, '\uD83D\uDEE0 Admin Portal'),
-              React.createElement('p', { style: { color: 'rgba(212,175,55,0.5)', fontSize: '12px', marginTop: '4px', margin: '4px 0 0 0' } },
-                localProducts.length + ' items \u2014 changes yahan save hon ge, phir "Save to Disk" dabayein'
-              )
-            ),
-            React.createElement('div', { style: { display: 'flex', gap: '10px', flexWrap: 'wrap' } },
-              React.createElement('button', {
-                onClick: () => setShowAddForm(!showAddForm),
-                style: { display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '10px', border: '1px solid rgba(212,175,55,0.5)', background: 'rgba(212,175,55,0.12)', color: '#d4af37', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }
-              }, '\u2795 Naya Item Add Karo'),
-              React.createElement('button', {
-                onClick: () => onSave(localProducts),
-                disabled: saving,
-                style: { display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '10px', border: '1px solid rgba(34,197,94,0.5)', background: saving ? 'rgba(34,197,94,0.05)' : 'rgba(34,197,94,0.15)', color: '#4ade80', fontWeight: '700', fontSize: '13px', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }
-              }, saving ? '\u23F3 Saving...' : '\uD83D\uDCBE Save to Disk')
-            )
-          ),
-          /* Add New Item Form */
-          showAddForm && React.createElement('div', { style: { background: 'rgba(9,9,13,0.95)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '14px', padding: '18px', marginBottom: '18px' } },
-            React.createElement('h3', { style: { color: '#d4af37', fontSize: '15px', fontWeight: '700', marginBottom: '14px' } }, '\u2795 Naya Item'),
-            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '10px', alignItems: 'end' } },
-              React.createElement('div', null,
-                React.createElement('label', { style: { color: 'rgba(212,175,55,0.6)', fontSize: '11px', display: 'block', marginBottom: '4px', fontWeight: '600' } }, 'ITEM KA NAAM'),
-                React.createElement('input', { style: inputStyle, placeholder: 'Jaise: HEAD SHOULDERS 400ML', value: addForm.name, onChange: e => setAddForm(f => ({...f, name: e.target.value})) })
-              ),
-              React.createElement('div', null,
-                React.createElement('label', { style: { color: 'rgba(212,175,55,0.6)', fontSize: '11px', display: 'block', marginBottom: '4px', fontWeight: '600' } }, 'PRICE (Rs.)'),
-                React.createElement('input', { style: inputStyle, type: 'number', placeholder: 'Jaise: 250', value: addForm.price, onChange: e => setAddForm(f => ({...f, price: e.target.value})) })
-              ),
-              React.createElement('div', null,
-                React.createElement('label', { style: { color: 'rgba(212,175,55,0.6)', fontSize: '11px', display: 'block', marginBottom: '4px', fontWeight: '600' } }, 'CATEGORY'),
-                React.createElement('select', { style: catSelectStyle, value: addForm.categoryId, onChange: e => setAddForm(f => ({...f, categoryId: e.target.value})) },
-                  CATEGORIES.map(c => React.createElement('option', { key: c.id, value: c.id, style: {background:'#09090d'} }, c.name))
-                )
-              ),
-              React.createElement('div', { style: { display: 'flex', gap: '8px' } },
-                React.createElement('button', { onClick: addProduct, style: { padding: '7px 14px', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.5)', background: 'rgba(34,197,94,0.15)', color: '#4ade80', fontWeight: '700', fontSize: '12px', cursor: 'pointer' } }, 'Add \u2713'),
-                React.createElement('button', { onClick: () => setShowAddForm(false), style: { padding: '7px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.4)', fontWeight: '700', fontSize: '12px', cursor: 'pointer' } }, 'Cancel')
-              )
-            )
-          ),
-          /* Search Box */
-          React.createElement('div', { style: { position: 'relative', marginBottom: '16px' } },
-            React.createElement('input', {
-              style: { ...inputStyle, paddingLeft: '36px', fontSize: '14px' },
-              placeholder: 'Item ka naam ya ID search karein...',
-              value: adminSearch,
-              onChange: e => setAdminSearch(e.target.value)
-            }),
-            React.createElement('span', { style: { position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(212,175,55,0.4)', fontSize: '14px' } }, '\uD83D\uDD0D')
-          ),
-          /* Products Table */
-          React.createElement('div', { style: { background: 'rgba(9,9,13,0.85)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: '14px', overflow: 'hidden' } },
-            /* Table Header */
-            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '55px 1fr 1fr 110px 100px', gap: '0', padding: '10px 14px', borderBottom: '1px solid rgba(212,175,55,0.12)', background: 'rgba(212,175,55,0.05)' } },
-              ['ID', 'ITEM KA NAAM', 'CATEGORY', 'PRICE (Rs.)', 'ACTIONS'].map(h =>
-                React.createElement('span', { key: h, style: { color: 'rgba(212,175,55,0.55)', fontSize: '10px', fontWeight: '800', letterSpacing: '0.1em' } }, h)
-              )
-            ),
-            /* Rows */
-            React.createElement('div', { style: { maxHeight: '60vh', overflowY: 'auto' } },
-              filtered.length === 0 && React.createElement('div', { style: { textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.25)' } }, 'Koi item nahi mila'),
-              filtered.map((p, idx) =>
-                React.createElement('div', {
-                  key: p.id,
-                  style: { display: 'grid', gridTemplateColumns: '55px 1fr 1fr 110px 100px', gap: '0', padding: '10px 14px', borderBottom: '1px solid rgba(212,175,55,0.06)', background: idx % 2 === 0 ? 'transparent' : 'rgba(212,175,55,0.02)', alignItems: 'center' }
-                },
-                  React.createElement('span', { style: { color: 'rgba(212,175,55,0.4)', fontSize: '12px', fontWeight: '700' } }, '#' + p.id),
-                  editId === p.id
-                    ? React.createElement('input', { style: { ...inputStyle, fontSize: '12px' }, value: editForm.name, onChange: e => setEditForm(f => ({...f, name: e.target.value})), autoFocus: true })
-                    : React.createElement('span', { style: { color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: '500', paddingRight: '8px' } }, p.name),
-                  editId === p.id
-                    ? React.createElement('select', { style: { ...catSelectStyle, fontSize: '12px' }, value: editForm.categoryId, onChange: e => setEditForm(f => ({...f, categoryId: e.target.value})) },
-                        CATEGORIES.map(c => React.createElement('option', { key: c.id, value: c.id, style: {background:'#09090d'} }, c.name))
-                      )
-                    : React.createElement('span', { style: { color: 'rgba(255,255,255,0.45)', fontSize: '11px' } }, (CATEGORIES.find(c => c.id === p.categoryId) || {}).name || p.categoryId),
-                  editId === p.id
-                    ? React.createElement('input', { style: { ...inputStyle, fontSize: '12px' }, type: 'number', value: editForm.price, onChange: e => setEditForm(f => ({...f, price: e.target.value})) })
-                    : React.createElement('span', { style: { color: '#d4af37', fontSize: '13px', fontWeight: '700' } }, 'Rs. ' + p.price.toLocaleString()),
-                  React.createElement('div', { style: { display: 'flex', gap: '6px', justifyContent: 'flex-end' } },
-                    editId === p.id
-                      ? React.createElement(React.Fragment, null,
-                          React.createElement('button', { onClick: () => saveEdit(p.id), style: { padding: '5px 10px', borderRadius: '6px', border: '1px solid rgba(34,197,94,0.4)', background: 'rgba(34,197,94,0.12)', color: '#4ade80', fontSize: '11px', fontWeight: '700', cursor: 'pointer' } }, '\u2713 Save'),
-                          React.createElement('button', { onClick: () => setEditId(null), style: { padding: '5px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.35)', fontSize: '11px', cursor: 'pointer' } }, '\u2715')
-                        )
-                      : confirmDelete === p.id
-                        ? React.createElement(React.Fragment, null,
-                            React.createElement('button', { onClick: () => deleteProduct(p.id), style: { padding: '5px 8px', borderRadius: '6px', border: '1px solid rgba(239,68,68,0.5)', background: 'rgba(239,68,68,0.15)', color: '#f87171', fontSize: '11px', fontWeight: '700', cursor: 'pointer' } }, 'Delete?'),
-                            React.createElement('button', { onClick: () => setConfirmDelete(null), style: { padding: '5px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.35)', fontSize: '11px', cursor: 'pointer' } }, 'Cancel')
-                          )
-                        : React.createElement(React.Fragment, null,
-                            React.createElement('button', { onClick: () => startEdit(p), title: 'Edit', style: { padding: '5px 8px', borderRadius: '6px', border: '1px solid rgba(212,175,55,0.3)', background: 'rgba(212,175,55,0.08)', color: '#d4af37', cursor: 'pointer', fontSize: '14px' } }, '\u270F\uFE0F'),
-                            React.createElement('button', { onClick: () => setConfirmDelete(p.id), title: 'Delete', style: { padding: '5px 8px', borderRadius: '6px', border: '1px solid rgba(239,68,68,0.25)', background: 'rgba(239,68,68,0.06)', color: '#f87171', cursor: 'pointer', fontSize: '14px' } }, '\uD83D\uDDD1\uFE0F')
-                          )
-                  )
-                )
-              )
-            )
-          ),
-          /* Footer */
-          React.createElement('p', { style: { color: 'rgba(212,175,55,0.3)', fontSize: '11px', textAlign: 'center', marginTop: '14px' } },
-            'Tip: Changes sirf browser mein hain. Permanent karne ke liye "Save to Disk" dabayein (Admin Portal server chalna chahiye).'
-          )
-        )
-      );
-    }
 
     // Ã¢â€â‚¬Ã¢â€â‚¬ CART DRAWER Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     function CartDrawer({ open, cart, cartTotal, langData, onClose, onUpdateQty, onRemove, onCheckout }) {

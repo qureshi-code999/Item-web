@@ -35,16 +35,16 @@ function Optimize-ProductImage {
         $origBmp = New-Object System.Drawing.Bitmap($img)
         $img.Dispose()
         $w = $origBmp.Width; $h = $origBmp.Height
-        if ($w -lt 20 -or $h -lt 20) { $origBmp.Dispose(); return }
+        if ($w -lt 15 -or $h -lt 15) { $origBmp.Dispose(); return }
         $c1 = $origBmp.GetPixel(2, 2)
         $minX = $w; $maxX = 0; $minY = $h; $maxY = 0; $hasContent = $false
-        $step = [Math]::Max(1, [Math]::Floor([Math]::Min($w, $h) / 100))
+        $step = [Math]::Max(1, [Math]::Floor([Math]::Min($w, $h) / 120))
         for ($y = 0; $y -lt $h; $y += $step) {
             for ($x = 0; $x -lt $w; $x += $step) {
                 $p = $origBmp.GetPixel($x, $y)
                 $isTransparent = ($p.A -lt 30)
-                $isWhiteBg     = ($p.R -gt 238 -and $p.G -gt 238 -and $p.B -gt 238)
-                $isCornerMatch = ([Math]::Abs([int]$p.R - [int]$c1.R) -lt 18 -and [Math]::Abs([int]$p.G - [int]$c1.G) -lt 18 -and [Math]::Abs([int]$p.B - [int]$c1.B) -lt 18)
+                $isWhiteBg     = ($p.R -gt 205 -and $p.G -gt 205 -and $p.B -gt 205)
+                $isCornerMatch = ([Math]::Abs([int]$p.R - [int]$c1.R) -lt 25 -and [Math]::Abs([int]$p.G - [int]$c1.G) -lt 25 -and [Math]::Abs([int]$p.B - [int]$c1.B) -lt 25)
                 if (-not ($isTransparent -or $isWhiteBg -or $isCornerMatch)) {
                     if ($x -lt $minX) { $minX = $x }
                     if ($x -gt $maxX) { $maxX = $x }
@@ -54,25 +54,35 @@ function Optimize-ProductImage {
                 }
             }
         }
-        if (-not $hasContent -or $minX -ge $maxX -or $minY -ge $maxY) { $origBmp.Dispose(); return }
+        if (-not $hasContent -or $minX -ge $maxX -or $minY -ge $maxY) {
+            $minX = 0; $maxX = $w - 1; $minY = 0; $maxY = $h - 1
+        }
         $cropW = $maxX - $minX + 1; $cropH = $maxY - $minY + 1
-        if ($cropW * $cropH / ($w * $h) -gt 0.88) { $origBmp.Dispose(); return }
-        $padX = [int]($cropW * 0.025); $padY = [int]($cropH * 0.025)
+        $padX = [int]($cropW * 0.01); $padY = [int]($cropH * 0.01)
         $finalMinX = [Math]::Max(0, $minX - $padX); $finalMinY = [Math]::Max(0, $minY - $padY)
         $finalMaxX = [Math]::Min($w - 1, $maxX + $padX); $finalMaxY = [Math]::Min($h - 1, $maxY + $padY)
         $finalW = $finalMaxX - $finalMinX + 1; $finalH = $finalMaxY - $finalMinY + 1
-        $newBmp = New-Object System.Drawing.Bitmap $w, $h
+        $targetSize = 450
+        $newBmp = New-Object System.Drawing.Bitmap $targetSize, $targetSize
         $g = [System.Drawing.Graphics]::FromImage($newBmp)
         $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
         $g.SmoothingMode     = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
         $g.PixelOffsetMode   = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
         $g.Clear([System.Drawing.Color]::Transparent)
-        $scale = [Math]::Min(($w * 0.95) / $finalW, ($h * 0.95) / $finalH)
+        $scale = [Math]::Min(($targetSize * 0.98) / $finalW, ($targetSize * 0.98) / $finalH)
         $drawW = [int]($finalW * $scale); $drawH = [int]($finalH * $scale)
-        $drawX = [int](($w - $drawW) / 2); $drawY = [int](($h - $drawH) / 2)
+        $drawX = [int](($targetSize - $drawW) / 2); $drawY = [int](($targetSize - $drawH) / 2)
         $srcRect  = New-Object System.Drawing.Rectangle $finalMinX, $finalMinY, $finalW, $finalH
         $destRect = New-Object System.Drawing.Rectangle $drawX, $drawY, $drawW, $drawH
         $g.DrawImage($origBmp, $destRect, $srcRect, [System.Drawing.GraphicsUnit]::Pixel)
+        for ($cy = 0; $cy -lt $targetSize; $cy++) {
+            for ($cx = 0; $cx -lt $targetSize; $cx++) {
+                $px = $newBmp.GetPixel($cx, $cy)
+                if ($px.A -gt 0 -and $px.R -gt 220 -and $px.G -gt 220 -and $px.B -gt 220) {
+                    $newBmp.SetPixel($cx, $cy, [System.Drawing.Color]::Transparent)
+                }
+            }
+        }
         $origBmp.Dispose(); $g.Dispose()
         $tmpFile = $filePath + ".tmp"
         $newBmp.Save($tmpFile, [System.Drawing.Imaging.ImageFormat]::Png)

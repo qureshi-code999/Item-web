@@ -63,7 +63,7 @@ const PRODUCTS = [
       { id: 5, name: "AL RASHIEED OIL 100ML SASSO", price: 480, categoryId: "haircare", categoryName: "Hair Care & Oil" },
       { id: 6, name: "ALOE VERA JELL TUBE (LARGE)", price: 170, categoryId: "creams", categoryName: "Creams & Lotions", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "A" },
       { id: 7, name: "ALOE VERA JELL TUBE 160ml (MEDIUM) 160ML", price: 130, categoryId: "creams", categoryName: "Creams & Lotions", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "A" },
-      { id: 8, name: "ALOE VERA JELL TUBE (SMALL) 80ML", price: 90, categoryId: "creams", categoryName: "Creams & Lotions", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "A" },
+      { id: 8, name: "ALOE VERA JELL TUBE (SMALL) 80ML", price: 70, categoryId: "creams", categoryName: "Creams & Lotions", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "A" },
       { id: 9, name: "ALWAYS PAD MAXI", price: 480, categoryId: "general", categoryName: "General Items & Stationary", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "A" },
       { id: 10, name: "ASSIGNMENT SHEET (NARROW)", price: 0, categoryId: "stationary", categoryName: "Stationary" },
       { id: 11, name: "ASSIGNMENT SHEET (URDU)", price: 0, categoryId: "stationary", categoryName: "Stationary" },
@@ -1323,7 +1323,8 @@ const PRODUCTS = [
       { id: 1265, name: "WIPES SOFT-CREAME (WHITE)", price: 129, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1266, name: "ZERO MOSKITO SASHAY BOX RS,10", price: 8, categoryId: "general", categoryName: "General Items & Stationary", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "Z" },
     
-];
+System.Collections.Hashtable[1]System.Collections.Hashtable[2]
+    ];
 
 const PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
@@ -1364,7 +1365,8 @@ export default function SahilTraders() {
 
   const suggestions = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (term === "") return [];
+    if (term === "") return [
+    ];
     return products.filter((p) => p.name.toLowerCase().includes(term)).slice(0, 6);
   }, [products, searchTerm]);
 
@@ -1666,3 +1668,6 @@ function ProductCard({ product }) {
     </div>
   );
 }
+
+
+

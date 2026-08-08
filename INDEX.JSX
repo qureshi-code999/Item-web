@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+﻿import React, { useState, useMemo, useEffect, useRef } from "react";
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
     }
@@ -1522,14 +1522,16 @@ function getTranslationValue(dictionary, key) {
       useEffect(() => {
         if (!showSplash) return;
 
-        // Silently pre-load catalog images into browser memory during intro
-        const imageIds = Array.from(window.PRODUCT_IMAGES || []).slice(0, 150);
-        imageIds.forEach(id => {
+        // Only preload first 20 images eagerly — rest load lazily as user scrolls
+        // This dramatically speeds up mobile load time
+        const allIds = Array.from(window.PRODUCT_IMAGES || []);
+        const eagerIds = allIds.slice(0, 20);
+        eagerIds.forEach(id => {
           const img = new Image();
-          img.src = `images/${id}.png`;
+          img.src = `images/${id}.jpg`;
           img.onerror = () => {
             const fallback = new Image();
-            fallback.src = `images/${id}.jpg`;
+            fallback.src = `images/${id}.png`;
           };
         });
 
@@ -1696,25 +1698,18 @@ function getTranslationValue(dictionary, key) {
 
           {/* Header Ã¢â‚¬â€ Obsidian & Gold */}
           <header className="sticky top-0 z-30 backdrop-blur-xl border-b shadow-xl shadow-black/60" style={{ background: 'rgba(2,2,5,0.85)', borderColor: 'rgba(212,175,55,0.12)' }}>
-            <div className="max-w-6xl mx-auto px-4 py-3">
+            <div className="max-w-6xl mx-auto px-4 py-3 mobile-header-row">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  {/* Gold Ring Logo Badge */}
-                  <div className="relative flex items-center justify-center w-10 h-10">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 opacity-20 blur-sm" />
-                    <div className="relative rounded-xl border p-2 flex items-center justify-center" style={{ background: '#09090d', borderColor: 'rgba(212,175,55,0.35)' }}>
-                      <Store className="w-5 h-5 text-amber-400" />
-                    </div>
-                  </div>
                   <div>
                     <h1
-                      className="text-lg sm:text-xl font-black leading-tight tracking-widest uppercase"
+                      className="mobile-logo-title text-lg sm:text-xl font-black leading-tight tracking-widest uppercase"
                       style={{ fontFamily: "'Poppins', sans-serif", background: 'linear-gradient(to right, #d4af37, #fef08a, #d4af37)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}
                     >
                       {translate(langData, "appTitle")}
                     </h1>
-                    <p className="text-amber-500/50 text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] uppercase">
-                      {translate(langData, "productsInStock", { count: products.length.toLocaleString() })}
+                    <p className="mobile-logo-subtitle text-amber-500/50 text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] uppercase">
+                      {translate(langData, "subtitle")}
                     </p>
                   </div>
                 </div>
@@ -1724,7 +1719,7 @@ function getTranslationValue(dictionary, key) {
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="border rounded-xl px-2.5 py-2 text-xs font-semibold transition-all cursor-pointer"
+                    className="border rounded-xl px-2.5 py-2 text-xs font-semibold transition-all cursor-pointer language-select-mobile"
                     style={{ background: 'rgba(9,9,13,0.85)', borderColor: 'rgba(212,175,55,0.18)', color: 'rgba(212,175,55,0.85)' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.5)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.18)'}
@@ -1737,7 +1732,7 @@ function getTranslationValue(dictionary, key) {
                   <button
                     id="cart-btn"
                     onClick={() => setCartOpen(true)}
-                    className="relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all"
+                    className="relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all cart-btn-mobile"
                     style={{ background: 'rgba(9,9,13,0.8)', borderColor: cartCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.18)', color: '#d4af37' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.7)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor=cartCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.18)'}
@@ -1755,8 +1750,8 @@ function getTranslationValue(dictionary, key) {
                 </div>
               </div>
 
-              {/* Search Ã¢â‚¬â€ Gold Glow */}
-              <div className="mt-3 relative" ref={searchBoxRef}>
+              {/* Search Ã¢â‚¬â€  Gold Glow */}
+              <div className="mt-3 relative search-wrapper-mobile" ref={searchBoxRef}>
                 <div className="relative">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500/50" />
                   <input
@@ -1809,7 +1804,7 @@ function getTranslationValue(dictionary, key) {
           </header>
 
           {/* Body */}
-          <main className="max-w-6xl mx-auto px-4 py-5">
+          <main className="max-w-6xl mx-auto px-4 py-6 main-content-area">
             {showCategoryHome ? (
               <CategoryHome
                 products={products}
@@ -1860,7 +1855,7 @@ function getTranslationValue(dictionary, key) {
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                  <div className="product-grid">
                     {filtered.map((p) => (
                       <ProductCard key={p.id} product={p} langData={langData} language={language} onAddToCart={addToCart} />
                     ))}
@@ -1942,7 +1937,7 @@ function getTranslationValue(dictionary, key) {
             <h2 style={{ fontSize: 13, fontWeight: 800, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(212,175,55,0.55)', marginBottom: 4 }}>{translate(langData, "categoriesLabel")}</h2>
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{CATEGORIES.length} {translate(langData, "categoriesLabel")} &middot; {translate(langData, "productsInStock", { count: products.length })}</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 20 }}>
+          <div className="cat-home-grid">
             {CATEGORIES.map(cat => {
               const catProducts = products.filter(p => p.categoryId === cat.id);
               const count = catProducts.length;
@@ -1989,7 +1984,7 @@ function getTranslationValue(dictionary, key) {
                   }}
                 >
                   {/* Top Image Reel Area */}
-                  <div style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.18) 0%, rgba(4,4,10,0.98) 85%)' }}>
+                  <div className="cat-img-reel-area" style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.18) 0%, rgba(4,4,10,0.98) 85%)' }}>
                     
                     {/* Top & Bottom Golden Light Lines */}
                     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)', zIndex: 10 }} />
@@ -1998,7 +1993,7 @@ function getTranslationValue(dictionary, key) {
 
 
                     {/* Top Right Item Count Badge */}
-                    <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: 'linear-gradient(135deg, rgba(212,175,55,0.22), rgba(10,10,18,0.95))', border: '1px solid rgba(212,175,55,0.4)', color: '#ffd700', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                    <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: 'linear-gradient(135deg, rgba(212,175,55,0.22), rgba(10,10,18,0.95))', border: '1px solid rgba(212,175,55,0.4)', color: '#ffd700', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
                       {count} {translate(langData, "itemsLabel")}
                     </div>
 
@@ -2036,7 +2031,7 @@ function getTranslationValue(dictionary, key) {
                   {/* Info Footer */}
                   <div style={{ padding: '14px 16px', background: 'rgba(6,6,12,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(212,175,55,0.12)' }}>
                     <div>
-                      <h3 style={{ 
+                      <h3 className="cat-card-title" style={{ 
                         fontSize: 14, 
                         fontWeight: 800, 
                         fontFamily: "'Poppins', sans-serif", 
@@ -2049,7 +2044,7 @@ function getTranslationValue(dictionary, key) {
                       }}>
                         {langData.categories?.[cat.id] || cat.name}
                       </h3>
-                      <p className="group-hover:text-amber-400 transition-colors" style={{ fontSize: 11, color: 'rgba(212,175,55,0.6)', fontWeight: 700, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <p className="cat-card-subtitle group-hover:text-amber-400 transition-colors" style={{ fontSize: 11, color: 'rgba(212,175,55,0.6)', fontWeight: 700, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
                         Explore Catalog &rarr;
                       </p>
                     </div>
@@ -2144,12 +2139,14 @@ function getTranslationValue(dictionary, key) {
           onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.5)'; e.currentTarget.style.boxShadow='0 12px 45px rgba(212,175,55,0.15), 0 8px 30px rgba(0,0,0,0.8)'; e.currentTarget.style.transform='translateY(-3px)'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.14)'; e.currentTarget.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; e.currentTarget.style.transform='translateY(0)'; }}
         >
-          {/* Product Image Container (Snug & Compact - No Empty Gaps) */}
-          <div className="h-44 sm:h-48 w-full flex items-center justify-center p-1.5 relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.06) 0%, rgba(5,5,10,0.6) 100%)' }}>
+          {/* Product Image Container */}
+          <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-1.5 relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.06) 0%, rgba(5,5,10,0.6) 100%)' }}>
             {!imgErr ? (
               <img 
                 src={imageSrc} 
                 onError={handleImgError}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-md"
               />
             ) : product.hasImage ? (
@@ -2170,16 +2167,16 @@ function getTranslationValue(dictionary, key) {
           <div className="h-px mx-3" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent)' }} />
 
           {/* Balanced Compact Text & Action Details */}
-          <div className="p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-[#09090d]">
-            <p className="text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
+          <div className="product-card-body p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-[#09090d]">
+            <p className="product-name-text text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
               {getProductDisplayName(product, language)}
             </p>
-            <p className="font-extrabold text-sm sm:text-base" style={{ color: '#d4af37' }}>
+            <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#d4af37' }}>
               {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
             </p>
             <button
               onClick={handleAdd}
-              className="mt-auto w-full py-2 rounded-xl text-[11px] font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-1.5"
+              className="product-add-btn mt-auto w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2"
               style={{
                 background: added ? 'rgba(34,197,94,0.18)' : 'rgba(212,175,55,0.1)',
                 border: added ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(212,175,55,0.25)',
@@ -2278,21 +2275,30 @@ function getTranslationValue(dictionary, key) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {cart.map(({ product, qty }) => (
                     <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.1)', borderRadius: 14 }}>
-                      {/* Swatch */}
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`}>
-                        <span style={{ color: 'white', fontWeight: 800, fontSize: 16, fontFamily: "'Poppins',sans-serif" }}>{product.initial}</span>
-                      </div>
+                      {/* Product Thumbnail / Swatch */}
+                      {(window.PRODUCT_IMAGES && window.PRODUCT_IMAGES.has(product.id)) ? (
+                        <img
+                          src={`images/${product.id}.jpg`}
+                          onError={(e) => { e.target.onerror = null; e.target.src = `images/${product.id}.png`; }}
+                          alt={product.name}
+                          className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 shrink-0 border border-amber-500/20"
+                        />
+                      ) : (
+                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`}>
+                          <span style={{ color: 'white', fontWeight: 800, fontSize: 16, fontFamily: "'Poppins',sans-serif" }}>{product.initial}</span>
+                        </div>
+                      )}
                       {/* Info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.88)', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{product.name}</p>
-                        <p style={{ fontSize: 12, color: '#d4af37', fontWeight: 700 }}>{translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} Ãƒâ€” {qty}</p>
+                        <p style={{ fontSize: 12, color: '#d4af37', fontWeight: 700 }}>{translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} &times; {qty}</p>
                         <p style={{ fontSize: 11, color: 'rgba(212,175,55,0.6)', fontWeight: 700, marginTop: 2 }}>= {translate(langData, "priceLabel", { amount: (product.price * qty).toLocaleString() })}</p>
                       </div>
                       {/* Qty controls */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(212,175,55,0.08)', borderRadius: 10, padding: '4px 8px', border: '1px solid rgba(212,175,55,0.18)' }}>
                           <button onClick={() => onUpdateQty(product.id, -1)} style={{ width: 24, height: 24, border: 'none', background: 'none', color: '#d4af37', fontSize: 18, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>
-                            Ã¢Ë†â€™
+                            -
                           </button>
                           <span style={{ minWidth: 20, textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'white' }}>{qty}</span>
                           <button onClick={() => onUpdateQty(product.id, 1)} style={{ width: 24, height: 24, border: 'none', background: 'none', color: '#d4af37', fontSize: 18, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>
@@ -2455,12 +2461,21 @@ function getTranslationValue(dictionary, key) {
                       {cart.map(({ product, qty }) => (
                         <div key={product.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                            <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`}>
-                              <span style={{ color: 'white', fontSize: 10, fontWeight: 800 }}>{product.initial}</span>
-                            </div>
+                            {(window.PRODUCT_IMAGES && window.PRODUCT_IMAGES.has(product.id)) ? (
+                              <img
+                                src={`images/${product.id}.jpg`}
+                                onError={(e) => { e.target.onerror = null; e.target.src = `images/${product.id}.png`; }}
+                                alt={product.name}
+                                className="w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-amber-500/20"
+                              />
+                            ) : (
+                              <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`}>
+                                <span style={{ color: 'white', fontSize: 10, fontWeight: 800 }}>{product.initial}</span>
+                              </div>
+                            )}
                             <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</span>
                           </div>
-                          <span style={{ fontSize: 12, color: '#d4af37', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>Ãƒâ€”{qty} = {translate(langData, "priceLabel", { amount: (product.price*qty).toLocaleString() })}</span>
+                          <span style={{ fontSize: 12, color: '#d4af37', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>&times; {qty} = {translate(langData, "priceLabel", { amount: (product.price*qty).toLocaleString() })}</span>
                         </div>
                       ))}
                     </div>

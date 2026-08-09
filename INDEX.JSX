@@ -1,4 +1,5 @@
 ﻿import React, { useState, useMemo, useEffect, useRef } from "react";
+
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
     }

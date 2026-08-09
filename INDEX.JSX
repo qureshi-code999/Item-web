@@ -1961,7 +1961,7 @@ function getTranslationValue(dictionary, key) {
               const meta = CATEGORY_META[cat.id] || { gradient: 'linear-gradient(135deg,#d4af37,#9b7a00)', icon: null };
               
               // Find all items in this category that have images
-              const imageProducts = catProducts.filter(p => (window.PRODUCT_IMAGES && window.PRODUCT_IMAGES.has(p.id)) || p.hasImage);
+              const imageProducts = catProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage);
               
               // Prepare item list for infinite marquee loop (repeat if < 6)
               let marqueeItems = imageProducts;
@@ -2129,7 +2129,7 @@ function getTranslationValue(dictionary, key) {
     function ProductCard({ product, langData, language, onAddToCart }) {
       const [added, setAdded] = useState(false);
       // Only attempt image loading if this product's image file exists in images/ folder
-      const hasFile = window.PRODUCT_IMAGES && window.PRODUCT_IMAGES.has(product.id);
+      const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
       const [imgErr, setImgErr] = useState(!hasFile);
       const [imgType, setImgType] = useState('jpg'); // Try jpg first, then png
 
@@ -2293,10 +2293,10 @@ function getTranslationValue(dictionary, key) {
                   {cart.map(({ product, qty }) => (
                     <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.1)', borderRadius: 14 }}>
                       {/* Product Thumbnail / Swatch */}
-                      {(window.PRODUCT_IMAGES && window.PRODUCT_IMAGES.has(product.id)) ? (
+                      {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
                         <img
-                          src={`images/${product.id}.jpg`}
-                          onError={(e) => { e.target.onerror = null; e.target.src = `images/${product.id}.png`; }}
+                          src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
+                          onError={(e) => { e.target.onerror = null; }}
                           alt={product.name}
                           className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 shrink-0 border border-amber-500/20"
                         />
@@ -2478,10 +2478,10 @@ function getTranslationValue(dictionary, key) {
                       {cart.map(({ product, qty }) => (
                         <div key={product.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                            {(window.PRODUCT_IMAGES && window.PRODUCT_IMAGES.has(product.id)) ? (
+                            {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
                               <img
-                                src={`images/${product.id}.jpg`}
-                                onError={(e) => { e.target.onerror = null; e.target.src = `images/${product.id}.png`; }}
+                                src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
+                                onError={(e) => { e.target.onerror = null; }}
                                 alt={product.name}
                                 className="w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-amber-500/20"
                               />

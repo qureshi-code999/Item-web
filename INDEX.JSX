@@ -1,5 +1,4 @@
 ﻿import React, { useState, useMemo, useEffect, useRef } from "react";
-
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
     }
@@ -1752,13 +1751,13 @@ function getTranslationValue(dictionary, key) {
             </div>
           )}
           {/* Background — Obsidian & Gold */}
-          <div className="fixed inset-0 -z-10" style={{ background: '#020205' }} />
+          <div className="fixed inset-0 -z-10" style={{ background: '#ffffff' }} />
           <div className="fixed -top-32 -left-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-amber-500/6 rounded-full blur-[120px] -z-10" />
           <div className="fixed top-1/3 -right-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-amber-600/5 rounded-full blur-[100px] -z-10" />
           <div className="fixed bottom-0 left-1/3 w-72 h-72 sm:w-96 sm:h-96 bg-amber-400/4 rounded-full blur-[80px] -z-10" />
 
           {/* Header — Obsidian & Gold */}
-          <header className="sticky top-0 z-30 backdrop-blur-xl border-b shadow-xl shadow-black/60" style={{ background: 'rgba(2,2,5,0.85)', borderColor: 'rgba(212,175,55,0.12)' }}>
+          <header className="sticky top-0 z-30 backdrop-blur-xl border-b shadow-xl shadow-black/60" style={{ background: 'rgba(255,255,255,0.95)', borderColor: 'rgba(212,175,55,0.25)' }}>
             <div className="max-w-6xl mx-auto px-4 py-3 mobile-header-row">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -1781,12 +1780,12 @@ function getTranslationValue(dictionary, key) {
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
                     className="border rounded-xl px-2.5 py-2 text-xs font-semibold transition-all cursor-pointer language-select-mobile"
-                    style={{ background: 'rgba(9,9,13,0.85)', borderColor: 'rgba(212,175,55,0.18)', color: 'rgba(212,175,55,0.85)' }}
+                    style={{ background: '#ffffff', borderColor: 'rgba(212,175,55,0.3)', color: '#8a7010' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.5)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.18)'}
                   >
-                    <option value="en" style={{background:'#09090d', color:'#fff'}}>English</option>
-                    <option value="ur" style={{background:'#09090d', color:'#fff'}}>&#x627;&#x631;&#x62F;&#x648;</option>
+                    <option value="en" style={{background:'#ffffff', color:'#1a1a2e'}}>English</option>
+                    <option value="ur" style={{background:'#ffffff', color:'#1a1a2e'}}>&#x627;&#x631;&#x62F;&#x648;</option>
                   </select>
 
                   {/* Cart Button */}
@@ -1794,7 +1793,7 @@ function getTranslationValue(dictionary, key) {
                     id="cart-btn"
                     onClick={() => setCartOpen(true)}
                     className="relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all cart-btn-mobile"
-                    style={{ background: 'rgba(9,9,13,0.8)', borderColor: cartCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.18)', color: '#d4af37' }}
+                    style={{ background: '#ffffff', borderColor: cartCount > 0 ? '#d4af37' : 'rgba(212,175,55,0.3)', color: '#8a7010' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.7)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor=cartCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.18)'}
                   >
@@ -1825,7 +1824,7 @@ function getTranslationValue(dictionary, key) {
                     onKeyDown={handleSearchKeyDown}
                     placeholder={translate(langData, "searchPlaceholder")}
                     className="w-full border rounded-xl pl-10 pr-9 py-2.5 text-sm transition-all focus:outline-none"
-                    style={{ background: 'rgba(9,9,13,0.9)', borderColor: 'rgba(212,175,55,0.15)', color: 'rgba(255,255,255,0.9)', caretColor: '#d4af37' }}
+                    style={{ background: '#ffffff', borderColor: 'rgba(212,175,55,0.3)', color: '#1a1a2e', caretColor: '#d4af37' }}
                     onFocus={e => { setSuggestOpen(true); e.target.style.borderColor='rgba(212,175,55,0.5)'; e.target.style.boxShadow='0 0 0 3px rgba(212,175,55,0.08)'; }}
                     onBlur={e => { e.target.style.borderColor='rgba(212,175,55,0.15)'; e.target.style.boxShadow='none'; }}
                   />
@@ -1840,7 +1839,7 @@ function getTranslationValue(dictionary, key) {
                 </div>
 
                 {suggestOpen && searchTerm && (
-                  <div className="absolute mt-2 w-full backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-40 border" style={{ background: 'rgba(9,9,13,0.97)', borderColor: 'rgba(212,175,55,0.15)' }}>
+                  <div className="absolute mt-2 w-full backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-40 border" style={{ background: '#ffffff', borderColor: 'rgba(212,175,55,0.3)' }}>
                     {suggestions.length > 0 ? (
                       suggestions.map((s) => (
                         <button
@@ -1852,7 +1851,7 @@ function getTranslationValue(dictionary, key) {
                           onMouseLeave={e => e.currentTarget.style.background='transparent'}
                         >
                           <span>{getProductDisplayName(s, language)}</span>
-                          <span className="font-bold whitespace-nowrap ml-3" style={{ color: '#d4af37' }}>{translate(langData, 'priceLabel', { amount: s.price.toLocaleString() })}</span>
+                          <span className="font-bold whitespace-nowrap ml-3" style={{ color: '#a07820' }}>{translate(langData, 'priceLabel', { amount: s.price.toLocaleString() })}</span>
                         </button>
                       ))
                     ) : (
@@ -1880,36 +1879,36 @@ function getTranslationValue(dictionary, key) {
                   {(selectedCategory || isSearching || activeCategory !== "all") && (
                     <button
                       onClick={handleGoBack}
-                      className="flex items-center gap-1.5 border px-3 py-1.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-md cursor-pointer shrink-0"
+                      className="flex items-center gap-1.5 border px-3 py-1.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-sm cursor-pointer shrink-0"
                       style={{ 
-                        background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(15,15,25,0.95))', 
-                        borderColor: 'rgba(212,175,55,0.5)', 
-                        color: '#d4af37'
+                        background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(255,255,255,0.95))', 
+                        borderColor: 'rgba(212,175,55,0.4)', 
+                        color: '#8a7010'
                       }}
                     >
-                      <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                      <svg className="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
                       <span>{translate(langData, "backBtn") || "BACK"}</span>
                     </button>
                   )}
                   <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
-                    <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#d4af37', fontFamily: "'Poppins', sans-serif" }}>
+                    <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8a7010', fontFamily: "'Poppins', sans-serif" }}>
                       {isSearching ? `Search: "${searchTerm}"` : selectedCategoryName}
                     </h2>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: '#fef08a', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 12, padding: '1px 8px', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#8a7010', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 12, padding: '1px 8px', whiteSpace: 'nowrap' }}>
                       {filtered.length} {translate(langData, "itemsLabel")}
                     </span>
                   </div>
                 </div>
 
                 {filtered.length === 0 ? (
-                  <div className="text-center py-16 bg-[#09090d]/80 border border-amber-500/15 rounded-2xl p-8">
-                    <ShoppingBag className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(212,175,55,0.3)' }} />
-                    <p className="text-base font-bold text-amber-300 mb-2">No items found matching "{searchTerm}"</p>
-                    <p className="text-xs text-amber-500/50 mb-6">Try searching with a different item name or go back to main categories.</p>
+                  <div className="text-center py-16 bg-white border border-amber-500/25 rounded-2xl p-8 shadow-sm">
+                    <ShoppingBag className="w-12 h-12 mx-auto mb-3 text-amber-600/40" />
+                    <p className="text-base font-bold text-amber-900 mb-2">No items found matching "{searchTerm}"</p>
+                    <p className="text-xs text-amber-700/60 mb-6">Try searching with a different item name or go back to main categories.</p>
                     <button
                       onClick={handleGoBack}
-                      className="inline-flex items-center gap-2 border px-6 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
-                      style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', color: '#09090d' }}
+                      className="inline-flex items-center gap-2 border px-6 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer"
+                      style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', color: '#ffffff' }}
                     >
                       ← Back to Main Categories
                     </button>
@@ -1956,18 +1955,18 @@ function getTranslationValue(dictionary, key) {
 
               {/* Exit Confirmation Modal */}
               {exitModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-                  <div className="bg-[#09090d] border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4" style={{ boxShadow: '0 12px 50px rgba(0,0,0,0.9)' }}>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+                  <div className="bg-white border border-amber-500/40 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4">
                     <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto">
-                      <svg className="w-7 h-7 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-base font-extrabold text-amber-300 uppercase tracking-wider">
+                      <h3 className="text-base font-extrabold text-amber-900 uppercase tracking-wider">
                         {language === 'ur' ? 'ویب سائٹ سے باہر جانا چاہتے ہیں؟' : 'Exit Sahil Traders?'}
                       </h3>
-                      <p className="text-xs text-amber-100/70 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-amber-800/80 mt-1.5 leading-relaxed">
                         {language === 'ur' ? 'کیا آپ واقعی Sahil Traders بند کرنا چاہتے ہیں؟' : 'Are you sure you want to leave the store?'}
                       </p>
                     </div>
@@ -1976,7 +1975,7 @@ function getTranslationValue(dictionary, key) {
                         onClick={() => {
                           setExitModalOpen(false);
                         }}
-                        className="flex-1 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-bold uppercase tracking-wider hover:bg-amber-500/20 transition-all cursor-pointer"
+                        className="flex-1 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-800 text-xs font-bold uppercase tracking-wider hover:bg-amber-500/20 transition-all cursor-pointer"
                       >
                         {language === 'ur' ? 'نہیں، واپس رہیں' : 'No, Stay'}
                       </button>
@@ -1985,7 +1984,7 @@ function getTranslationValue(dictionary, key) {
                           setExitModalOpen(false);
                           window.history.go(-2);
                         }}
-                        className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black text-xs font-extrabold uppercase tracking-wider hover:brightness-110 transition-all shadow-lg cursor-pointer"
+                        className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-extrabold uppercase tracking-wider hover:brightness-110 transition-all shadow-md cursor-pointer"
                       >
                         {language === 'ur' ? 'ہاں، باہر جائیں' : 'Yes, Exit'}
                       </button>
@@ -2073,7 +2072,7 @@ function getTranslationValue(dictionary, key) {
                   onClick={() => onSelectCategory(cat.id)}
                   className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-400"
                   style={{
-                    background: 'linear-gradient(160deg, rgba(20,20,36,0.92) 0%, rgba(7,7,15,0.98) 100%)',
+                    background: '#ffffff',
                     border: '1px solid rgba(212,175,55,0.22)',
                     boxShadow: '0 10px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06)',
                   }}
@@ -2089,7 +2088,7 @@ function getTranslationValue(dictionary, key) {
                   }}
                 >
                   {/* Top Image Reel Area */}
-                  <div className="cat-img-reel-area" style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.18) 0%, rgba(4,4,10,0.98) 85%)' }}>
+                  <div className="cat-img-reel-area" style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#ffffff' }}>
                     
                     {/* Top & Bottom Golden Light Lines */}
                     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)', zIndex: 10 }} />
@@ -2098,15 +2097,15 @@ function getTranslationValue(dictionary, key) {
 
 
                     {/* Top Right Item Count Badge */}
-                    <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: 'linear-gradient(135deg, rgba(212,175,55,0.22), rgba(10,10,18,0.95))', border: '1px solid rgba(212,175,55,0.4)', color: '#ffd700', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                    <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(255,255,255,0.95))', border: '1px solid rgba(212,175,55,0.4)', color: '#ffd700', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
                       {count} {translate(langData, "itemsLabel")}
                     </div>
 
                     {imageProducts.length > 0 ? (
                       <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
                         {/* Side Fade Shading for Glassy Framing */}
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 28, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, rgba(7,7,15,0.95), transparent)' }} />
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 28, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, rgba(7,7,15,0.95), transparent)' }} />
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 28, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, #ffffff, transparent)' }} />
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 28, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, #ffffff, transparent)' }} />
 
                         {/* Infinite Sliding Track */}
                         <div className="cat-marquee-track" style={{ animation: `catSlideTrack ${animSpeed} linear infinite` }}>
@@ -2137,16 +2136,14 @@ function getTranslationValue(dictionary, key) {
                   </div>
 
                   {/* Info Footer */}
-                  <div style={{ padding: '14px 16px', background: 'rgba(6,6,12,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(212,175,55,0.12)' }}>
+                  <div style={{ padding: '14px 16px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(212,175,55,0.12)' }}>
                     <div>
                       <h3 className="cat-card-title" style={{ 
                         fontSize: 14, 
                         fontWeight: 800, 
                         fontFamily: "'Poppins', sans-serif", 
                         letterSpacing: '0.03em', 
-                        background: 'linear-gradient(135deg, #ffffff 20%, #fef08a 60%, #d4af37 95%)', 
-                        WebkitBackgroundClip: 'text', 
-                        WebkitTextFillColor: 'transparent',
+                        color: '#1a1a2e',
                         lineHeight: 1.3, 
                         marginBottom: 3 
                       }}>
@@ -2243,12 +2240,12 @@ function getTranslationValue(dictionary, key) {
       return (
         <div
           className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group"
-          style={{ background: 'linear-gradient(145deg, rgba(16,16,26,0.95), rgba(8,8,14,0.98))', border: '1px solid rgba(212,175,55,0.14)', boxShadow: '0 8px 30px rgba(0,0,0,0.6)' }}
+          style={{ background: '#ffffff', border: '1px solid rgba(212,175,55,0.25)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.5)'; e.currentTarget.style.boxShadow='0 12px 45px rgba(212,175,55,0.15), 0 8px 30px rgba(0,0,0,0.8)'; e.currentTarget.style.transform='translateY(-3px)'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.14)'; e.currentTarget.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; e.currentTarget.style.transform='translateY(0)'; }}
         >
           {/* Product Image Container */}
-          <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-1.5 relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.06) 0%, rgba(5,5,10,0.6) 100%)' }}>
+          <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-1.5 relative overflow-hidden" style={{ background: '#ffffff' }}>
             {!imgErr ? (
               <img 
                 src={imageSrc} 
@@ -2275,11 +2272,11 @@ function getTranslationValue(dictionary, key) {
           <div className="h-px mx-3" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent)' }} />
 
           {/* Balanced Compact Text & Action Details */}
-          <div className="product-card-body p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-[#09090d]">
-            <p className="product-name-text text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
+          <div className="product-card-body p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-white">
+            <p className="product-name-text text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight" style={{ color: '#1a1a2e' }}>
               {getProductDisplayName(product, language)}
             </p>
-            <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#d4af37' }}>
+            <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#a07820' }}>
               {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
             </p>
             <button
@@ -2353,7 +2350,7 @@ function getTranslationValue(dictionary, key) {
               position: 'fixed', top: 0, right: 0, bottom: 0,
               width: '100%', maxWidth: '420px',
               zIndex: 51,
-              background: '#09090d',
+              background: '#ffffff',
               borderLeft: '1px solid rgba(212,175,55,0.18)',
               boxShadow: '-8px 0 60px rgba(0,0,0,0.8)',
               transform: open ? 'translateX(0)' : 'translateX(100%)',
@@ -2421,7 +2418,7 @@ function getTranslationValue(dictionary, key) {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p
                           onClick={() => onSelectProduct && onSelectProduct(product)}
-                          style={{ cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.88)', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+                          style={{ cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#1a1a2e', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
                           className="hover:text-amber-400 hover:underline transition-colors"
                           title="Click to view product details"
                         >
@@ -2612,7 +2609,7 @@ function getTranslationValue(dictionary, key) {
 
       return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
-          <div style={{ width: '100%', maxWidth: 500, background: '#09090d', border: '1px solid rgba(212,175,55,0.22)', borderRadius: 24, boxShadow: '0 24px 80px rgba(0,0,0,0.9)', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ width: '100%', maxWidth: 500, background: '#ffffff', border: '1px solid rgba(212,175,55,0.22)', borderRadius: 24, boxShadow: '0 24px 80px rgba(0,0,0,0.9)', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
             {success ? (
               <div style={{ padding: 48, textAlign: 'center' }}>

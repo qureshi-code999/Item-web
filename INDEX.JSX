@@ -1846,11 +1846,11 @@ function getTranslationValue(dictionary, key) {
                           key={s.id}
                           onClick={() => handleSuggestionClick(s)}
                           className="w-full flex items-center justify-between text-left px-4 py-2.5 text-sm border-b transition-colors"
-                          style={{ borderColor: 'rgba(0,0,0,0.12)', color: 'rgba(255,255,255,0.85)' }}
-                          onMouseEnter={e => e.currentTarget.style.background='rgba(0,0,0,0.12)'}
+                          style={{ borderColor: '#e5e7eb', color: '#111111' }}
+                          onMouseEnter={e => e.currentTarget.style.background='#f3f4f6'}
                           onMouseLeave={e => e.currentTarget.style.background='transparent'}
                         >
-                          <span>{getProductDisplayName(s, language)}</span>
+                          <span style={{ color: '#111111', fontWeight: 600 }}>{getProductDisplayName(s, language)}</span>
                           <span className="font-bold whitespace-nowrap ml-3" style={{ color: '#000000' }}>{translate(langData, 'priceLabel', { amount: s.price.toLocaleString() })}</span>
                         </button>
                       ))

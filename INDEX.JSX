@@ -1439,6 +1439,7 @@ function getTranslationValue(dictionary, key) {
       const [fadeSplash, setFadeSplash] = useState(false);
       const [searchTerm, setSearchTerm] = useState("");
       const [activeCategory, setActiveCategory] = useState("all");
+      const [selectedCategory, setSelectedCategory] = useState(null); // null = show category home
       const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
       const [catMenuOpen, setCatMenuOpen] = useState(false);
       const [suggestOpen, setSuggestOpen] = useState(false);
@@ -1648,8 +1649,6 @@ function getTranslationValue(dictionary, key) {
       // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
       // Ã¢â€â‚¬Ã¢â€â‚¬ CATEGORY VIEW STATE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-      const [selectedCategory, setSelectedCategory] = useState(null); // null = show category home
-
       function handleGoBack() {
         setSearchTerm("");
         setSelectedCategory(null);
@@ -2733,12 +2732,13 @@ function getTranslationValue(dictionary, key) {
 
       const inputStyle = (hasErr) => ({
         width: '100%', boxSizing: 'border-box',
-        padding: '12px 14px', borderRadius: 12,
-        border: `1px solid ${hasErr ? 'rgba(239,68,68,0.6)' : 'rgba(0,0,0,0.12)'}`,
-        background: 'rgba(5,5,8,0.9)',
-        color: 'rgba(255,255,255,0.9)', fontSize: 14,
+        padding: '13px 15px', borderRadius: 12,
+        border: `1px solid ${hasErr ? 'rgba(239,68,68,0.65)' : 'rgba(0,0,0,0.18)'}`,
+        background: '#ffffff',
+        color: '#111827', fontSize: 14,
         outline: 'none', caretColor: '#000000',
-        transition: 'border-color 0.2s'
+        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
+        transition: 'border-color 0.2s, box-shadow 0.2s, background 0.2s'
       });
 
       return (
@@ -2814,8 +2814,8 @@ function getTranslationValue(dictionary, key) {
                         type="text" placeholder={translate(langData, "fullNamePlaceholder")}
                         value={name} onChange={e=>{setName(e.target.value);if(errors.name)setErrors(p=>({...p,name:''}))}}
                         style={inputStyle(errors.name)}
-                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.12)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.12)';}}
-                        onBlur={e=>{e.target.style.borderColor=errors.name?'rgba(239,68,68,0.6)':'rgba(0,0,0,0.12)';e.target.style.boxShadow='none';}}
+                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.42)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.08), inset 0 1px 2px rgba(0,0,0,0.04)';}}
+                        onBlur={e=>{e.target.style.borderColor=errors.name?'rgba(239,68,68,0.65)':'rgba(0,0,0,0.18)';e.target.style.boxShadow='inset 0 1px 2px rgba(0,0,0,0.04)';}}
                       />
                       {errors.name && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.name}</p>}
                     </div>
@@ -2826,8 +2826,8 @@ function getTranslationValue(dictionary, key) {
                         type="tel" placeholder="03xxxxxxxxx"
                         value={phone} onChange={e=>{setPhone(e.target.value);if(errors.phone)setErrors(p=>({...p,phone:''}))}}
                         style={inputStyle(errors.phone)}
-                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.12)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.12)';}}
-                        onBlur={e=>{e.target.style.borderColor=errors.phone?'rgba(239,68,68,0.6)':'rgba(0,0,0,0.12)';e.target.style.boxShadow='none';}}
+                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.42)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.08), inset 0 1px 2px rgba(0,0,0,0.04)';}}
+                        onBlur={e=>{e.target.style.borderColor=errors.phone?'rgba(239,68,68,0.65)':'rgba(0,0,0,0.18)';e.target.style.boxShadow='inset 0 1px 2px rgba(0,0,0,0.04)';}}
                       />
                       {errors.phone && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.phone}</p>}
                     </div>
@@ -2839,8 +2839,8 @@ function getTranslationValue(dictionary, key) {
                         value={address} onChange={e=>{setAddress(e.target.value);if(errors.address)setErrors(p=>({...p,address:''}))}}
                         rows={3}
                         style={{ ...inputStyle(errors.address), resize: 'none', fontFamily: 'inherit' }}
-                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.12)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.12)';}}
-                        onBlur={e=>{e.target.style.borderColor=errors.address?'rgba(239,68,68,0.6)':'rgba(0,0,0,0.12)';e.target.style.boxShadow='none';}}
+                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.42)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.08), inset 0 1px 2px rgba(0,0,0,0.04)';}}
+                        onBlur={e=>{e.target.style.borderColor=errors.address?'rgba(239,68,68,0.65)':'rgba(0,0,0,0.18)';e.target.style.boxShadow='inset 0 1px 2px rgba(0,0,0,0.04)';}}
                       />
                       {errors.address && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.address}</p>}
                     </div>

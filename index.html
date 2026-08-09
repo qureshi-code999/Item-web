@@ -2752,14 +2752,15 @@
           onMouseLeave={e => { e.currentTarget.style.borderColor='#e5e7eb'; e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform='translateY(0)'; }}
         >
           {/* Product Image Container */}
-          <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-1.5 relative overflow-hidden" style={{ background: '#ffffff' }}>
+          <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-2.5 relative overflow-visible" style={{ background: 'transparent' }}>
             {!imgErr ? (
               <img
                 src={imageSrc}
                 onError={handleImgError}
                 loading="lazy"
                 decoding="async"
-                className="product-card-main-img w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-md"
+                className="product-card-main-img w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                style={{ filter: 'none' }}
               />
             ) : product.hasImage ? (
               <div className={`w-28 h-28 sm:w-32 sm:h-32 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0 shadow-lg`}>
@@ -2776,7 +2777,7 @@
           </div>
 
           {/* Gold Divider */}
-          <div className="h-px mx-3" style={{ background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.12), transparent)' }} />
+          <div className="h-px mx-3" style={{ background: 'transparent' }} />
 
           {/* Balanced Compact Text & Action Details */}
           <div className="product-card-body p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-white">

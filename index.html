@@ -2199,8 +2199,8 @@
               />
             ) : (
               <>
-                {/* Back button + title */}
-                <div className="flex items-center gap-4 mb-6 flex-wrap">
+                {/* Back button + Right-aligned Category Title Banner */}
+                <div style={{ marginBottom: 24, padding: '16px 20px', background: 'linear-gradient(135deg, rgba(20,20,32,0.85), rgba(8,8,16,0.95))', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 20, boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
                   {(selectedCategory || isSearching || activeCategory !== "all") && (
                     <button
                       onClick={handleGoBack}
@@ -2218,11 +2218,14 @@
                       <span>{translate(langData, "backBtn") || "BACK"}</span>
                     </button>
                   )}
-                  <div>
-                    <h2 className="text-lg font-black tracking-widest uppercase" style={{ color: '#d4af37', fontFamily: "'Poppins',sans-serif" }}>
-                      {isSearching ? `Search Results for: "${searchTerm}"` : selectedCategoryName}
+                  <div style={{ textAlign: 'right', marginLeft: 'auto' }}>
+                    <h2 style={{ fontSize: 20, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: "'Poppins', sans-serif", background: 'linear-gradient(90deg, #d4af37, #fef08a, #d4af37)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', marginBottom: 2 }}>
+                      {isSearching ? `Search: "${searchTerm}"` : selectedCategoryName}
                     </h2>
-                    <p className="text-xs font-semibold" style={{ color: 'rgba(212,175,55,0.5)' }}>{filtered.length} {translate(langData, "itemsLabel")} found</p>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 12, padding: '3px 10px' }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#fef08a' }}>{filtered.length}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.6)' }}>{translate(langData, "itemsLabel")} available</span>
+                    </div>
                   </div>
                 </div>
 

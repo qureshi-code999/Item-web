@@ -2200,32 +2200,28 @@
             ) : (
               <>
                 {/* Back button + Right-aligned Category Title Banner */}
-                <div style={{ marginBottom: 24, padding: '16px 20px', background: 'linear-gradient(135deg, rgba(20,20,32,0.85), rgba(8,8,16,0.95))', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 20, boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+                <div style={{ marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                   {(selectedCategory || isSearching || activeCategory !== "all") && (
                     <button
                       onClick={handleGoBack}
-                      className="flex items-center gap-2 border px-4 py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+                      className="flex items-center gap-1.5 border px-3 py-1.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-md cursor-pointer shrink-0"
                       style={{ 
-                        background: 'linear-gradient(135deg, rgba(212,175,55,0.22), rgba(15,15,25,0.95))', 
-                        borderColor: 'rgba(212,175,55,0.55)', 
-                        color: '#d4af37',
-                        boxShadow: '0 4px 20px rgba(212,175,55,0.2)'
+                        background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(15,15,25,0.95))', 
+                        borderColor: 'rgba(212,175,55,0.5)', 
+                        color: '#d4af37'
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.9)'; e.currentTarget.style.boxShadow='0 6px 25px rgba(212,175,55,0.35)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.55)'; e.currentTarget.style.boxShadow='0 4px 20px rgba(212,175,55,0.2)'; }}
                     >
-                      <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                      <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
                       <span>{translate(langData, "backBtn") || "BACK"}</span>
                     </button>
                   )}
-                  <div style={{ textAlign: 'right', marginLeft: 'auto' }}>
-                    <h2 style={{ fontSize: 20, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: "'Poppins', sans-serif", background: 'linear-gradient(90deg, #d4af37, #fef08a, #d4af37)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', marginBottom: 2 }}>
+                  <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
+                    <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#d4af37', fontFamily: "'Poppins', sans-serif" }}>
                       {isSearching ? `Search: "${searchTerm}"` : selectedCategoryName}
                     </h2>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 12, padding: '3px 10px' }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: '#fef08a' }}>{filtered.length}</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.6)' }}>{translate(langData, "itemsLabel")} available</span>
-                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#fef08a', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 12, padding: '1px 8px', whiteSpace: 'nowrap' }}>
+                      {filtered.length} {translate(langData, "itemsLabel")}
+                    </span>
                   </div>
                 </div>
 
@@ -2321,25 +2317,13 @@
     function CategoryHome({ products, onSelectCategory, langData }) {
       return (
         <div>
-          <div style={{ marginBottom: 24, padding: '16px 20px', background: 'linear-gradient(135deg, rgba(20,20,32,0.85), rgba(8,8,16,0.95))', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 20, boxShadow: '0 10px 30px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <h2 style={{ fontSize: 18, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: "'Poppins', sans-serif", background: 'linear-gradient(90deg, #d4af37, #fef08a, #d4af37)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', marginBottom: 2 }}>
-                {translate(langData, "categoriesLabel")}
-              </h2>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>
-                Wholesale & Retail Products Collection
-              </p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 14, padding: '6px 14px', textAlign: 'center' }}>
-                <span style={{ fontSize: 16, fontWeight: 900, color: '#d4af37', display: 'block', lineHeight: 1.1 }}>{CATEGORIES.length}</span>
-                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>Categories</span>
-              </div>
-              <div style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 14, padding: '6px 14px', textAlign: 'center' }}>
-                <span style={{ fontSize: 16, fontWeight: 900, color: '#fef08a', display: 'block', lineHeight: 1.1 }}>{products.length.toLocaleString()}+</span>
-                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>Products</span>
-              </div>
-            </div>
+          <div style={{ marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(212,175,55,0.15)', paddingBottom: 8 }}>
+            <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#d4af37', fontFamily: "'Poppins', sans-serif" }}>
+              {translate(langData, "categoriesLabel")}
+            </h2>
+            <span style={{ fontSize: 10, fontWeight: 800, color: '#fef08a', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 12, padding: '2px 8px', whiteSpace: 'nowrap' }}>
+              {CATEGORIES.length} Categories &middot; {products.length.toLocaleString()}+ Items
+            </span>
           </div>
           <div className="cat-home-grid">
             {CATEGORIES.map(cat => {

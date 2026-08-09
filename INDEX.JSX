@@ -1750,14 +1750,11 @@ function getTranslationValue(dictionary, key) {
               </div>
             </div>
           )}
-          {/* Background — Obsidian & Gold */}
-          <div className="fixed inset-0 -z-10" style={{ background: '#ffffff' }} />
-          <div className="fixed -top-32 -left-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-gray-100 rounded-full blur-[120px] -z-10" />
-          <div className="fixed top-1/3 -right-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-gray-100 rounded-full blur-[100px] -z-10" />
-          <div className="fixed bottom-0 left-1/3 w-72 h-72 sm:w-96 sm:h-96 bg-gray-100 rounded-full blur-[80px] -z-10" />
+          {/* Background — Pure Clean White */}
+          <div className="fixed inset-0 -z-10 bg-white" />
 
-          {/* Header — Obsidian & Gold */}
-          <header className="sticky top-0 z-30 backdrop-blur-xl border-b shadow-xl shadow-black/60" style={{ background: 'rgba(255,255,255,0.95)', borderColor: 'rgba(0,0,0,0.12)' }}>
+          {/* Header — Clean Minimalist White */}
+          <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
             <div className="max-w-6xl mx-auto px-4 py-3 mobile-header-row">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -2070,34 +2067,28 @@ function getTranslationValue(dictionary, key) {
                 <div
                   key={cat.id}
                   onClick={() => onSelectCategory(cat.id)}
-                  className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-400"
+                  className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300"
                   style={{
                     background: '#ffffff',
-                    border: '1px solid rgba(0,0,0,0.12)',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06)',
+                    border: '1px solid #e5e7eb',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)';
-                    e.currentTarget.style.transform = 'translateY(-6px)';
-                    e.currentTarget.style.boxShadow = '0 22px 50px rgba(0,0,0,0.12), 0 10px 35px rgba(0,0,0,0.95)';
+                    e.currentTarget.style.borderColor = '#000000';
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.08)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)';
+                    e.currentTarget.style.borderColor = '#e5e7eb';
                     e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
                   }}
                 >
                   {/* Top Image Reel Area */}
                   <div className="cat-img-reel-area" style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#ffffff' }}>
-                    
-                    {/* Top & Bottom Golden Light Lines */}
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.12), transparent)', zIndex: 10 }} />
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.12), transparent)', zIndex: 10 }} />
-
-
 
                     {/* Top Right Item Count Badge */}
-                    <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: 'linear-gradient(135deg, rgba(0,0,0,0.12), rgba(255,255,255,0.95))', border: '1px solid rgba(0,0,0,0.12)', color: '#111111', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                    <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: '#f3f4f6', border: '1px solid #e5e7eb', color: '#111111' }}>
                       {count} {translate(langData, "itemsLabel")}
                     </div>
 
@@ -2240,9 +2231,9 @@ function getTranslationValue(dictionary, key) {
       return (
         <div
           className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group"
-          style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'; e.currentTarget.style.boxShadow='0 12px 45px rgba(0,0,0,0.12), 0 8px 30px rgba(0,0,0,0.8)'; e.currentTarget.style.transform='translateY(-3px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'; e.currentTarget.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; e.currentTarget.style.transform='translateY(0)'; }}
+          style={{ background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor='#000000'; e.currentTarget.style.boxShadow='0 8px 20px rgba(0,0,0,0.08)'; e.currentTarget.style.transform='translateY(-3px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor='#e5e7eb'; e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform='translateY(0)'; }}
         >
           {/* Product Image Container */}
           <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-1.5 relative overflow-hidden" style={{ background: '#ffffff' }}>

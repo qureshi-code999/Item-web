@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -235,46 +235,25 @@
       object-fit: contain;
     }
 
-    /* ============================================
-       MOBILE-FIRST RESPONSIVE OVERHAUL
-       ============================================ */
+    /* Hide broken image alt text - stops blinking text on failed images */
+    img { color: transparent !important; font-size: 0 !important; }
 
-    /* Smooth image fade-in */
-    @keyframes imgFadeIn {
-      from { opacity: 0; transform: scale(0.97); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-    img {
-      animation: imgFadeIn 0.3s ease-out both;
-    }
-
-    /* Base box sizing */
-    *, *::before, *::after { box-sizing: border-box; }
+    /* Smooth fade-in only for successfully loaded images */
+    @keyframes imgFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     /* Prevent horizontal scroll */
     html, body { overflow-x: hidden; max-width: 100vw; }
+    *, *::before, *::after { box-sizing: border-box; }
 
     /* ---- HEADER MOBILE ---- */
     @media (max-width: 480px) {
-      /* Compact header padding */
-      .mobile-header-row {
-        padding: 8px 12px !important;
-      }
-      /* Smaller logo title */
-      .mobile-logo-title {
-        font-size: 14px !important;
-        letter-spacing: 0.15em !important;
-      }
-      .mobile-logo-subtitle {
-        font-size: 9px !important;
-        letter-spacing: 0.15em !important;
-      }
-      /* Cart button compact */
+      .mobile-header-row { padding: 8px 12px !important; }
+      .mobile-logo-title { font-size: 14px !important; letter-spacing: 0.15em !important; }
+      .mobile-logo-subtitle { font-size: 9px !important; letter-spacing: 0.15em !important; }
       .mobile-cart-btn span.cart-text { display: none !important; }
     }
 
     /* ---- PRODUCT GRID MOBILE ---- */
-    /* 2 columns on mobile, 3 on sm, 4+ on larger */
     .product-grid {
       display: grid !important;
       grid-template-columns: repeat(2, 1fr) !important;
@@ -2411,18 +2390,22 @@
 
                         {/* Infinite Sliding Track */}
                         <div className="cat-marquee-track" style={{ animation: `catSlideTrack ${animSpeed} linear infinite` }}>
-                          {doubleItems.map((item, idx) => (
-                            <div key={idx} className="cat-img-box">
-                              <img
-                                src={`images/${item.id}.png`}
-                                alt={item.name}
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = `images/${item.id}.jpg`;
-                                }}
-                              />
-                            </div>
-                          ))}
+                          {doubleItems.map((item, idx) => {
+                            const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
+                            return (
+                              <div key={idx} className="cat-img-box">
+                                {ext && (
+                                  <img
+                                    src={`images/${item.id}.${ext}`}
+                                    alt=""
+                                    loading="lazy"
+                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                  />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
                         </div>
                       </div>
                     ) : (

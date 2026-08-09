@@ -1453,12 +1453,44 @@ function getTranslationValue(dictionary, key) {
       });
       const [cartOpen, setCartOpen] = useState(false);
       const [checkoutOpen, setCheckoutOpen] = useState(false);
+      const [exitModalOpen, setExitModalOpen] = useState(false);
 
       useEffect(() => {
         try {
           localStorage.setItem("sahil_traders_cart", JSON.stringify(cart));
         } catch (e) {}
       }, [cart]);
+
+      // Smart Mobile / Hardware Back Button Interceptor (popstate)
+      useEffect(() => {
+        try {
+          window.history.pushState({ page: 'app' }, '');
+        } catch(e) {}
+
+        const handlePopState = () => {
+          if (checkoutOpen) {
+            setCheckoutOpen(false);
+            try { window.history.pushState({ page: 'app' }, ''); } catch(e) {}
+          } else if (cartOpen) {
+            setCartOpen(false);
+            try { window.history.pushState({ page: 'app' }, ''); } catch(e) {}
+          } else if (selectedCategory || isSearching || activeCategory !== "all") {
+            setSearchTerm("");
+            setSelectedCategory(null);
+            setActiveCategory("all");
+            try { window.history.pushState({ page: 'app' }, ''); } catch(e) {}
+          } else {
+            // Already at Home Screen! Show Exit Confirmation Modal!
+            setExitModalOpen(true);
+            try { window.history.pushState({ page: 'app' }, ''); } catch(e) {}
+          }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+          window.removeEventListener('popstate', handlePopState);
+        };
+      }, [checkoutOpen, cartOpen, selectedCategory, isSearching, activeCategory]);
 
       const cartCount = cart.reduce((sum, i) => sum + i.qty, 0);
       const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.qty, 0);
@@ -1908,6 +1940,46 @@ function getTranslationValue(dictionary, key) {
                   onBack={() => { setCheckoutOpen(false); setCartOpen(true); }}
                   onOrderPlaced={() => { clearCart(); setCheckoutOpen(false); }}
                 />
+              )}
+
+              {/* Exit Confirmation Modal */}
+              {exitModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+                  <div className="bg-[#09090d] border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4" style={{ boxShadow: '0 12px 50px rgba(0,0,0,0.9)' }}>
+                    <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto">
+                      <svg className="w-7 h-7 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-base font-extrabold text-amber-300 uppercase tracking-wider">
+                        {language === 'ur' ? 'ویب سائٹ سے باہر جانا چاہتے ہیں؟' : 'Exit Sahil Traders?'}
+                      </h3>
+                      <p className="text-xs text-amber-100/70 mt-1.5 leading-relaxed">
+                        {language === 'ur' ? 'کیا آپ واقعی Sahil Traders بند کرنا چاہتے ہیں؟' : 'Are you sure you want to leave the store?'}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 pt-2">
+                      <button
+                        onClick={() => {
+                          setExitModalOpen(false);
+                        }}
+                        className="flex-1 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-bold uppercase tracking-wider hover:bg-amber-500/20 transition-all cursor-pointer"
+                      >
+                        {language === 'ur' ? 'نہیں، واپس رہیں' : 'No, Stay'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setExitModalOpen(false);
+                          window.history.go(-2);
+                        }}
+                        className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black text-xs font-extrabold uppercase tracking-wider hover:brightness-110 transition-all shadow-lg cursor-pointer"
+                      >
+                        {language === 'ur' ? 'ہاں، باہر جائیں' : 'Yes, Exit'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
         </div>
       );

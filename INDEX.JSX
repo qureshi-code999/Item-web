@@ -2135,10 +2135,10 @@ function getTranslationValue(dictionary, key) {
                   <div style={{ padding: '14px 16px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.12)' }}>
                     <div>
                       <h3 className="cat-card-title" style={{ 
-                        fontSize: 14, 
+                        fontSize: 17, 
                         fontWeight: 800, 
                         fontFamily: "'Poppins', sans-serif", 
-                        letterSpacing: '0.03em', 
+                        letterSpacing: '0.02em', 
                         color: '#1a1a2e',
                         lineHeight: 1.3, 
                         marginBottom: 3 

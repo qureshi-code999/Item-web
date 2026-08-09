@@ -99,6 +99,13 @@
     .btn-pick input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
     .btn-clr-img{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:var(--danger);display:none}
     .btn-clr-img.show{display:inline-flex}
+    .new-cat-row{display:none;grid-column:1/-1;gap:10px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.22);border-radius:12px;padding:12px;margin-top:2px}
+    .new-cat-row.show{display:grid;grid-template-columns:1fr 1fr}
+    .new-cat-note{grid-column:1/-1;font-size:11px;color:var(--text-muted);line-height:1.45}
+    .edit-cat-select{flex:1.4;min-width:170px;padding:8px 11px;font-size:13px;border-radius:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;outline:none}
+    .edit-cat-select:focus{border-color:var(--gold)}
+    .edit-new-cat-row{display:none;width:100%;gap:8px}
+    .edit-new-cat-row.show{display:flex;flex-wrap:wrap}
     .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
     .confirm-overlay.show{display:flex}
     .confirm-box{background:var(--bg2);border:1px solid rgba(239,68,68,0.4);border-radius:20px;padding:32px;max-width:380px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.6)}
@@ -130,7 +137,7 @@
     .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px}
     .empty-state .em{font-size:36px;margin-bottom:10px}
     .loading-row{text-align:center;padding:30px;color:var(--text-muted);font-size:13px}
-    @media(max-width:520px){.card{padding:20px 12px 16px}.form-grid{grid-template-columns:1fr}.form-group.full,.upload-area,.preview-wrap{grid-column:1}.filter-row{flex-direction:column;align-items:stretch}}
+    @media(max-width:520px){.card{padding:20px 12px 16px}.form-grid{grid-template-columns:1fr}.form-group.full,.upload-area,.preview-wrap{grid-column:1}.filter-row{flex-direction:column;align-items:stretch}.new-cat-row{grid-template-columns:1fr}.edit-new-cat-row{flex-direction:column}}
   </style>
 </head>
 <body>
@@ -186,34 +193,18 @@
         </div>
         <div class="form-group">
           <label>Category <span class="req">*</span></label>
-          <select id="itemCategory" required>
-            <option value="">-- Select Category --</option>
-            <option value="soaps">Soaps</option>
-            <option value="shampoo">Shampoo &amp; Conditioner</option>
-            <option value="perfumes">Perfumes</option>
-            <option value="bodyspray">Body Spray</option>
-            <option value="creams">Creams</option>
-            <option value="bleachfacial">Bleach &amp; Facial</option>
-            <option value="stationary">Stationery</option>
-            <option value="sports">Sports</option>
-            <option value="toys">Toys</option>
-            <option value="birthday">Birthday</option>
-            <option value="powders">Powders</option>
-            <option value="tapes">Tapes</option>
-            <option value="shaving">Shaving</option>
-            <option value="haircolour">Hair Colour</option>
-            <option value="haircare">Hair Care &amp; Oil</option>
-            <option value="condemn">Condoms</option>
-            <option value="lock">Lock</option>
-            <option value="general">General Items</option>
-            <option value="bodylotion">Body Lotions</option>
-            <option value="babycare">Baby Care</option>
-            <option value="blades">Blades &amp; Razors</option>
-            <option value="cells">Cells</option>
-            <option value="mosquito">Anti-Mosquito</option>
-            <option value="personalcare">Personal Care</option>
-            <option value="others">Others</option>
-          </select>
+          <select id="itemCategory" required onchange="toggleNewCategory('add')"></select>
+        </div>
+        <div class="new-cat-row" id="newCatRow">
+          <div class="form-group">
+            <label>New Category Name <span class="req">*</span></label>
+            <input type="text" id="newCategoryName" placeholder="e.g. Kitchen Items" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label>Category ID</label>
+            <input type="text" id="newCategoryId" placeholder="Auto created if empty" autocomplete="off">
+          </div>
+          <div class="new-cat-note">New category website ke front page par bhi add ho jayegi, aur is item ke sath save hogi.</div>
         </div>
         <div class="upload-area" id="uploadArea">
           <input type="file" id="imageInput" accept="image/*">
@@ -240,34 +231,7 @@
   <div class="card">
     <div class="card-title">&#9998; Edit &amp; Delete Items</div>
     <div class="filter-row">
-      <select id="filterCategory" onchange="applyFilter()">
-        <option value="">All Categories</option>
-        <option value="soaps">Soaps</option>
-        <option value="shampoo">Shampoo &amp; Conditioner</option>
-        <option value="perfumes">Perfumes</option>
-        <option value="bodyspray">Body Spray</option>
-        <option value="creams">Creams</option>
-        <option value="bleachfacial">Bleach &amp; Facial</option>
-        <option value="stationary">Stationery</option>
-        <option value="sports">Sports</option>
-        <option value="toys">Toys</option>
-        <option value="birthday">Birthday</option>
-        <option value="powders">Powders</option>
-        <option value="tapes">Tapes</option>
-        <option value="shaving">Shaving</option>
-        <option value="haircolour">Hair Colour</option>
-        <option value="haircare">Hair Care &amp; Oil</option>
-        <option value="condemn">Condoms</option>
-        <option value="lock">Lock</option>
-        <option value="general">General Items</option>
-        <option value="bodylotion">Body Lotions</option>
-        <option value="babycare">Baby Care</option>
-        <option value="blades">Blades &amp; Razors</option>
-        <option value="cells">Cells</option>
-        <option value="mosquito">Anti-Mosquito</option>
-        <option value="personalcare">Personal Care</option>
-        <option value="others">Others</option>
-      </select>
+      <select id="filterCategory" onchange="applyFilter()"></select>
       <input type="search" id="filterSearch" placeholder="Search item name..." oninput="applyFilter()">
       <span class="item-count" id="itemCount"></span>
     </div>
@@ -291,6 +255,62 @@
 var selFile=null, statsData={total:0,nextId:0,images:0}, addedToday=0, recentItems=[];
 var allProducts=[], filteredProducts=[], delId=null, delName=null, editFiles={};
 var CAT={soaps:'Soaps',shampoo:'Shampoo & Conditioner',perfumes:'Perfumes',bodyspray:'Body Spray',creams:'Creams',bleachfacial:'Bleach & Facial',stationary:'Stationery',sports:'Sports',toys:'Toys',birthday:'Birthday',powders:'Powders',tapes:'Tapes',shaving:'Shaving',haircolour:'Hair Colour',haircare:'Hair Care & Oil',condemn:'Condoms',lock:'Lock',general:'General Items',bodylotion:'Body Lotions',babycare:'Baby Care',blades:'Blades & Razors',cells:'Cells',mosquito:'Anti-Mosquito',personalcare:'Personal Care',others:'Others'};
+var CAT_ORDER=['soaps','shampoo','perfumes','bodyspray','creams','bleachfacial','stationary','sports','toys','birthday','powders','tapes','shaving','haircolour','haircare','condemn','lock','general','bodylotion','babycare','blades','cells','mosquito','personalcare','others'];
+
+function slugifyCategory(s){
+  return String(s||'').toLowerCase().trim().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'').slice(0,28);
+}
+function rememberCategory(id,name){
+  id=String(id||'').trim(); name=String(name||'').trim();
+  if(!id||!name) return;
+  if(!CAT[id]) CAT_ORDER.push(id);
+  CAT[id]=name;
+}
+function rebuildCategoriesFromProducts(){
+  allProducts.forEach(function(p){rememberCategory(p.categoryId,p.categoryName||p.categoryId)});
+  fillCategorySelects();
+}
+function eH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function categoryOptions(selected,includeCreate){
+  var html='<option value="">-- Select Category --</option>';
+  CAT_ORDER.forEach(function(id){
+    if(!CAT[id]) return;
+    html+='<option value="'+eH(id)+'"'+(id===selected?' selected':'')+'>'+eH(CAT[id])+'</option>';
+  });
+  if(includeCreate) html+='<option value="__new__">+ Create New Category</option>';
+  return html;
+}
+function fillCategorySelects(){
+  document.getElementById('itemCategory').innerHTML=categoryOptions('',true);
+  document.getElementById('filterCategory').innerHTML='<option value="">All Categories</option>'+CAT_ORDER.map(function(id){return CAT[id]?'<option value="'+eH(id)+'">'+eH(CAT[id])+'</option>':''}).join('');
+}
+function toggleNewCategory(scope,id){
+  if(scope==='add'){
+    document.getElementById('newCatRow').classList.toggle('show',document.getElementById('itemCategory').value==='__new__');
+    return;
+  }
+  var sel=document.getElementById('ec-'+id), row=document.getElementById('ecnr-'+id);
+  if(sel&&row) row.classList.toggle('show',sel.value==='__new__');
+}
+function getCategoryPayload(scope,id){
+  var sel,nameInp,idInp;
+  if(scope==='add'){
+    sel=document.getElementById('itemCategory');
+    nameInp=document.getElementById('newCategoryName');
+    idInp=document.getElementById('newCategoryId');
+  }else{
+    sel=document.getElementById('ec-'+id);
+    nameInp=document.getElementById('ecn-'+id);
+    idInp=document.getElementById('eci-'+id);
+  }
+  if(sel.value==='__new__'){
+    var catName=nameInp.value.trim();
+    var catId=(idInp.value.trim()||slugifyCategory(catName));
+    if(!catName||!catId) return null;
+    return {id:catId,name:catName};
+  }
+  return sel.value?{id:sel.value,name:CAT[sel.value]||sel.value}:null;
+}
 
 function switchTab(n){
   ['add','manage','recent'].forEach(function(t){
@@ -322,7 +342,7 @@ function loadProducts(){
   var l=document.getElementById('itemsList');
   l.innerHTML='<div class="loading-row">&#8987; Loading items...</div>';
   fetch('/api/products').then(function(r){return r.json()})
-  .then(function(d){allProducts=d; applyFilter();})
+  .then(function(d){allProducts=d; rebuildCategoriesFromProducts(); applyFilter();})
   .catch(function(){
     l.innerHTML='<div class="empty-state"><div class="em">&#9888;&#65039;</div>Could not load products. Is the server running?</div>';
   });
@@ -340,7 +360,6 @@ function applyFilter(){
   renderItems();
 }
 
-function eH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function eJ(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
 
 function renderItems(){

@@ -103,7 +103,6 @@ function getTranslationValue(dictionary, key) {
         "CARE": "ÃšÂ©Ã›Å’Ã˜Â¦Ã˜Â±",
         "SHAVING": "Ã˜Â´Ã›Å’Ã™Ë†Ã™â€ ÃšÂ¯",
         "BLADE": "Ã˜Â¨Ã™â€žÃ›Å’ÃšË†",
-        "RAZER": "Ã˜Â±Ã›Å’Ã˜Â²Ã˜Â±",
         "RAZOR": "Ã˜Â±Ã›Å’Ã˜Â²Ã˜Â±",
         "PAD": "Ã™Â¾Ã›Å’ÃšË†",
         "PADS": "Ã™Â¾Ã›Å’ÃšË†Ã˜Â²",
@@ -486,7 +485,7 @@ function getTranslationValue(dictionary, key) {
       { id: 137, name: "BRUSH HAIR (THAPA) GOOD QUALITY", price: 195, categoryId: "general", categoryName: "General Items & Stationery", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "B" },
       { id: 139, name: "BRUSH ORAL-B (WITH CAP)", price: 150, categoryId: "general", categoryName: "General Items" },
       { id: 140, name: "BRUSH SENSODYNE (STAND+CAP) SOFT", price: 170, categoryId: "general", categoryName: "General Items" },
-      { id: 141, name: "BRUSH SHAVING (GOOD QUILTY)", price: 190, categoryId: "shaving", categoryName: "Shaving & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "B" },
+      { id: 141, name: "BRUSH SHAVING (GOOD QUALITY)", price: 190, categoryId: "shaving", categoryName: "Shaving & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "B" },
       { id: 142, name: "BRUSH SUREE PLASTIC PACKING SINGLE (NYLON TAR) BLACK", price: 120, categoryId: "general", categoryName: "General Items" },
       { id: 143, name: "BRUSH SUREE PLASTIC PACKING SINGLE (NYLON TAR) WHITE", price: 120, categoryId: "general", categoryName: "General Items & Stationery", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
       { id: 144, name: "BRUSH TYR HANDLE", price: 70, categoryId: "general", categoryName: "General Items" },
@@ -696,12 +695,12 @@ function getTranslationValue(dictionary, key) {
       { id: 422, name: "FACE WASH GARNIER (LARGE) SAKURE WHITE", price: 690, categoryId: "others", categoryName: "Others" },
       { id: 423, name: "FACE WASH GARNIER (LARGE) TURBO LIGHT WHITE+OIL CONTROL", price: 890, categoryId: "others", categoryName: "Others" },
       { id: 424, name: "FACE WASH GARNIER (LARGE) WOMEN (NEEM) PURE ACTIVE RS,649", price: 590, categoryId: "others", categoryName: "Others" },
-      { id: 425, name: "FACE WASH GARNIER (LARGE) WOMEN (VITAMAN C) RP,619", price: 570, categoryId: "facewash", categoryName: "Face Wash", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "F" },
+      { id: 425, name: "FACE WASH GARNIER (LARGE) WOMEN (VITAMIN C) RP,619", price: 570, categoryId: "facewash", categoryName: "Face Wash", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "F" },
       { id: 426, name: "FACE WASH GARNIER (SMALL)  ACNO FIGHT RS,519", price: 470, categoryId: "others", categoryName: "Others" },
       { id: 427, name: "FACE WASH GARNIER (SMALL) OIL CLEAR RS,519", price: 470, categoryId: "facewash", categoryName: "Face Wash", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "F" },
       { id: 428, name: "FACE WASH GARNIER (SMALL) POWER WHITE RS,519", price: 470, categoryId: "facewash", categoryName: "Face Wash", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "F" },
       { id: 429, name: "FACE WASH GARNIER (SMALL) WOMEN (NEEM) RS,369", price: 340, categoryId: "others", categoryName: "Others" },
-      { id: 430, name: "FACE WASH GARNIER (SMALL) WOMEN VITAMAN C RS,369", price: 340, categoryId: "facewash", categoryName: "Face Wash", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
+      { id: 430, name: "FACE WASH GARNIER (SMALL) WOMEN VITAMIN C RS,369", price: 340, categoryId: "facewash", categoryName: "Face Wash", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
       { id: 431, name: "FACE WASH GOLDEN PEARL (ACNO CLEAR)", price: 230, categoryId: "others", categoryName: "Others" },
       { id: 432, name: "FACE WASH GOLDEN PEARL (OIL & CONTROL)", price: 230, categoryId: "others", categoryName: "Others" },
       { id: 433, name: "FACE WASH GOLDEN PEARL (FLAWLESS SKIN)", price: 230, categoryId: "others", categoryName: "Others" },
@@ -1112,8 +1111,8 @@ function getTranslationValue(dictionary, key) {
       { id: 878, name: "POWDER TIBET (SMALL) RS,190", price: 179, categoryId: "deo", categoryName: "Deodorants & Talcum", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
       { id: 881, name:  "RAZOR DARCO", price: 199, categoryId: "blades", categoryName: "Blades & Razors" },
       { id: 882, name: "RAZOR FEMINA PINK", price: 40, categoryId: "blades", categoryName: "Blades & Razors" },
-      { id: 883, name: "RAZER TREET HYGIENE", price: 45, categoryId: "shaving", categoryName: "Shaving & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "R" },
-      { id: 884, name: "RAZER TRIM", price: 59, categoryId: "shaving", categoryName: "Shaving & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "R" },
+      { id: 883, name: "RAZOR TREET HYGIENE", price: 45, categoryId: "shaving", categoryName: "Shaving & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "R" },
+      { id: 884, name: "RAZOR TRIM", price: 59, categoryId: "shaving", categoryName: "Shaving & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "R" },
       { id: 904, name: "REGISTER (ALL TYPES)", price: 0, categoryId: "stationary", categoryName: "Stationery" },
       { id: 905, name: "RACKET (SET) (EXCELLENT QUALITY)", price: 2250, categoryId: "sports", categoryName: "Sports" },
       { id: 906, name: "RACKET (SET) (NORMAL QUALITY)", price: 999, categoryId: "sports", categoryName: "Sports" },
@@ -1216,7 +1215,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1015, name: "SHAMPOO PALMOLIVE (MEDIUM) (WHITE) BRILLIANT SHINE RS,330", price: 379, categoryId: "shampoo", categoryName: "Shampoo & Conditioner" },
       { id: 1016, name: "SHAMPOO PALMOLIVE (MEDIUM) (GREEN) HEALTHY & SMOOTH RS,330", price: 379, categoryId: "shampoo", categoryName: "Shampoo & Conditioner" },
       { id: 1017, name: "SHAMPOO PALMOLIVE (MEDIUM) (PINK) INTENSIVE MOISTURE RS,330", price: 379, categoryId: "shampoo", categoryName: "Shampoo & Conditioner" },
-      { id: 1034, name: "SHAMPOO REVLON COLOUR SASHY 30#", price: 70, categoryId: "shampoo", categoryName: "Shampoo", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
+      { id: 1034, name: "SHAMPOO REVLON COLOUR SACHET 30#", price: 70, categoryId: "shampoo", categoryName: "Shampoo", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
       { id: 1035, name: "SHAMPOO SUNSILK (IMP) LARGE (BLACK) BLACK SHINE", price: 889, categoryId: "shampoo", categoryName: "Shampoo & Conditioner" },
       { id: 1036, name: "SHAMPOO SUNSILK (IMP) LARGE (BLUE) ANTI DANDRUFF", price: 889, categoryId: "shampoo", categoryName: "Shampoo & Conditioner" },
       { id: 1037, name: "SHAMPOO SUNSILK (IMP) LARGE (GOLDEN) H,F SOLUTION", price: 889, categoryId: "shampoo", categoryName: "Shampoo & Conditioner" },
@@ -1270,7 +1269,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1099, name: "SOAP LIFEBUOY (LARGE) GREEN RS,125", price: 119, categoryId: "soaps", categoryName: "Soaps" },
       { id: 1100, name: "SOAP LIFEBUOY (MEDIUM) (BLUE) RS,95", price: 90 ,categoryId: "soaps", categoryName: "Soaps" },
       { id: 1101, name: "SOAP LIFEBUOY (XL) BLUE RS,125", price: 119, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1102, name: "SOAP LIFEBUOY (XL) GREEN RS,125", price: 119, categoryId: "soaps", categoryName: "Soaps" }, 
+      { id: 1102, name: "SOAP LIFEBUOY (XL) GREEN RS,125", price: 119, categoryId: "soaps", categoryName: "Soaps" },
       { id: 1103, name: "SOAP PALMOLIVE (LARGE) RS,150 BLACK", price: 139 ,categoryId: "soaps", categoryName: "Soaps" },
       { id: 1104, name: "SOAP PALMOLIVE (LARGE) RS,150 ORANGE", price: 139, categoryId: "soaps", categoryName: "Soaps" },
       { id: 1105, name: "SOAP PALMOLIVE (LARGE) RS,150 YELLOW", price: 139, categoryId: "soaps", categoryName: "Soaps" },
@@ -1670,7 +1669,7 @@ function getTranslationValue(dictionary, key) {
 
       return (
         <div className="min-h-screen relative text-white overflow-x-hidden" style={{ fontFamily: language === 'ur' ? "'Noto Sans Urdu', 'Inter', sans-serif" : "'Inter', system-ui, sans-serif" }}>
-          
+
           {/* Splash Screen */}
           {showSplash && (
             <div className={`fixed inset-0 z-50 bg-[#020205] flex flex-col items-center justify-center transition-all duration-1000 ${fadeSplash ? "opacity-0 scale-105 pointer-events-none" : "opacity-100"}`}>
@@ -1725,7 +1724,7 @@ function getTranslationValue(dictionary, key) {
                   {/* Outer spinning gradient ring representing solar corona */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-amber-500 via-amber-400 to-transparent rounded-full blur-lg opacity-40 animate-slow-spin" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-amber-500 via-amber-400 to-transparent rounded-full animate-slow-spin" />
-                  
+
                   {/* Inner glass box */}
                   <div className="absolute inset-[2px] bg-black rounded-full flex items-center justify-center">
                     <Store className="w-12 h-12 sm:w-14 sm:h-14 text-black" />
@@ -1734,8 +1733,8 @@ function getTranslationValue(dictionary, key) {
 
                 {/* Brand Name Text with Cinematic Shimmer Sweep */}
                 <div className="text-center text-carve">
-                  <h1 
-                    className="text-4xl sm:text-5xl font-black tracking-[0.2em] uppercase gold-shimmer" 
+                  <h1
+                    className="text-4xl sm:text-5xl font-black tracking-[0.2em] uppercase gold-shimmer"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
                     {translate(langData, "appTitle")}
@@ -1882,9 +1881,9 @@ function getTranslationValue(dictionary, key) {
                     <button
                       onClick={handleGoBack}
                       className="flex items-center gap-1.5 border px-3 py-1.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-sm cursor-pointer shrink-0"
-                      style={{ 
-                        background: 'linear-gradient(135deg, rgba(0,0,0,0.12), rgba(255,255,255,0.95))', 
-                        borderColor: 'rgba(0,0,0,0.12)', 
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(0,0,0,0.12), rgba(255,255,255,0.95))',
+                        borderColor: 'rgba(0,0,0,0.12)',
                         color: '#111111'
                       }}
                     >
@@ -2048,10 +2047,10 @@ function getTranslationValue(dictionary, key) {
               const catProducts = products.filter(p => p.categoryId === cat.id);
               const count = catProducts.length;
               const meta = CATEGORY_META[cat.id] || { gradient: 'linear-gradient(135deg,#000000,#9b7a00)', icon: null };
-              
+
               // Find all items in this category that have images
               const imageProducts = catProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage);
-              
+
               // Prepare item list for infinite marquee loop (repeat if < 6)
               let marqueeItems = imageProducts;
               if (marqueeItems.length > 0 && marqueeItems.length < 6) {
@@ -2064,7 +2063,7 @@ function getTranslationValue(dictionary, key) {
                 marqueeItems = marqueeItems.slice(0, 10);
               }
               const doubleItems = [...marqueeItems, ...marqueeItems];
-              
+
               // Dynamic uniform speed: 4.2 seconds per item so ALL categories revolve smoothly with perfect lively pace!
               const animSpeed = (marqueeItems.length * 4.2) + 's';
 
@@ -2134,14 +2133,14 @@ function getTranslationValue(dictionary, key) {
                   {/* Info Footer */}
                   <div style={{ padding: '14px 16px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.12)' }}>
                     <div>
-                      <h3 className="cat-card-title" style={{ 
+                      <h3 className="cat-card-title" style={{
                         fontSize: '13px',
-                        fontWeight: 800, 
-                        fontFamily: "'Poppins', sans-serif", 
-                        letterSpacing: '0.02em', 
+                        fontWeight: 800,
+                        fontFamily: "'Poppins', sans-serif",
+                        letterSpacing: '0.02em',
                         color: '#1a1a2e',
-                        lineHeight: 1.3, 
-                        marginBottom: 3 
+                        lineHeight: 1.3,
+                        marginBottom: 3
                       }}>
                         {langData.categories?.[cat.id] || cat.name}
                       </h3>
@@ -2243,8 +2242,8 @@ function getTranslationValue(dictionary, key) {
           {/* Product Image Container */}
           <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-1.5 relative overflow-hidden" style={{ background: '#ffffff' }}>
             {!imgErr ? (
-              <img 
-                src={imageSrc} 
+              <img
+                src={imageSrc}
                 onError={handleImgError}
                 loading="lazy"
                 decoding="async"

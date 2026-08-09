@@ -91,7 +91,7 @@
         Tick the items on the left, then click any category below to assign it.
       </p>
     </div>
-    
+
     <div class="panel-head" style="border-top: 1px solid #222;">📂 Click Category to Assign</div>
     <div class="cats-list-container">
       <div class="cats-list" id="catsList"></div>
@@ -119,7 +119,7 @@ const CATEGORIES = [
   { id: "bodyspray",    name: "Body Spray" },
   { id: "creams",       name: "Creams" },
   { id: "bleachfacial", name: "Bleach & Facial" },
-  { id: "stationary",   name: "Stationary" },
+  { id: "stationary",   name: "Stationery" },
   { id: "sports",       name: "Sports" },
   { id: "toys",         name: "Toys" },
   { id: "birthday",     name: "Birthday" },
@@ -128,12 +128,12 @@ const CATEGORIES = [
   { id: "shaving",      name: "Shaving" },
   { id: "haircolour",   name: "Hair Colour" },
   { id: "haircare",     name: "Hair Care & Oil" },
-  { id: "condemn",      name: "Condemn" },
+  { id: "condemn",      name: "Condoms" },
   { id: "lock",         name: "Lock" },
   { id: "general",      name: "General Items" },
   { id: "bodylotion",   name: "Body Lotions" },
   { id: "babycare",     name: "Baby Care" },
-  { id: "blades",       name: "Blades & Razers" },
+  { id: "blades",       name: "Blades & Razors" },
   { id: "cells",        name: "Cells" },
   { id: "mosquito",     name: "Anti-Mosquito" },
   { id: "personalcare", name: "Personal Care" },
@@ -156,7 +156,7 @@ function init() {
     alert('new_items.js file missing or failed to load. Please make sure it is in the same folder.');
     return;
   }
-  
+
   document.getElementById('excel-total').textContent = NEW_ITEMS.length.toLocaleString();
   renderItems();
   renderCats();
@@ -165,7 +165,7 @@ function init() {
 
 function renderItems() {
   const list = document.getElementById('itemsList');
-  
+
   // Render all items directly for continuous scroll
   list.innerHTML = NEW_ITEMS.map((name, index) => {
     const catId = selectedNames[name];
@@ -196,7 +196,7 @@ function toggleRow(name) {
   } else {
     checkedItems.add(name);
   }
-  
+
   // Quick update DOM state without full re-render for performance
   const rows = document.querySelectorAll('.item-row');
   const index = NEW_ITEMS.indexOf(name);
@@ -233,7 +233,7 @@ function assignCategory(catId) {
 
   localStorage.setItem('gp_selected_names', JSON.stringify(selectedNames));
   showToast(`✅ Assigned to ${CATEGORIES.find(c => c.id === catId)?.name}!`);
-  
+
   updateCounts();
   renderItems();
   renderCats();

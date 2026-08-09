@@ -17,7 +17,7 @@ window.TRANSLATIONS.en = {
   priceLabel: "Rs {amount}",
   addToCart: "Add to Cart",
   added: "Added",
-  
+
   // Cart & Checkout translations
   cartTitle: "Your Cart",
   cartEmpty: "Your cart is empty",

@@ -2145,7 +2145,7 @@ function getTranslationValue(dictionary, key) {
                       }}>
                         {langData.categories?.[cat.id] || cat.name}
                       </h3>
-                      <p className="cat-card-subtitle group-hover:text-black transition-colors" style={{ fontSize: 11, color: 'rgba(0,0,0,0.12)', fontWeight: 700, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <p className="cat-card-subtitle" style={{ fontSize: 12, color: '#555555', fontWeight: 600, letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: 4 }}>
                         Explore Catalog &rarr;
                       </p>
                     </div>

@@ -1591,7 +1591,7 @@ function getTranslationValue(dictionary, key) {
           { transform: `translate3d(${dx * 0.76}px, ${dy * 0.78 - 34}px, 0) scale(0.56) rotate(395deg)`, opacity: 0.95, offset: 0.82 },
           { transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.18) rotate(540deg)`, opacity: 0, offset: 1 }
         ];
-        const timing = { duration: 1500, easing: 'cubic-bezier(.18,.72,.2,1)', fill: 'forwards' };
+        const timing = { duration: 2900, easing: 'cubic-bezier(.18,.72,.2,1)', fill: 'forwards' };
         const finish = () => {
           flyer.remove();
           if (cartBtn.animate) {
@@ -1613,7 +1613,7 @@ function getTranslationValue(dictionary, key) {
             flyer.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(0.18) rotate(540deg)`;
             flyer.style.opacity = '0';
           });
-          setTimeout(finish, 1520);
+          setTimeout(finish, 2920);
         }
       }
 

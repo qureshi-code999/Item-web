@@ -1846,6 +1846,7 @@ function getTranslationValue(dictionary, key) {
                       onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.9)'; e.currentTarget.style.boxShadow='0 6px 25px rgba(212,175,55,0.35)'; }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.55)'; e.currentTarget.style.boxShadow='0 4px 20px rgba(212,175,55,0.2)'; }}
                     >
+                      <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
                       <span>{translate(langData, "backBtn") || "BACK"}</span>
                     </button>
                   )}

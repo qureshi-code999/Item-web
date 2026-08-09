@@ -1678,7 +1678,7 @@ function getTranslationValue(dictionary, key) {
                   return (
                     <div
                       key={item.id}
-                      className="absolute transform-gpu text-amber-400"
+                      className="absolute transform-gpu text-black"
                       style={{
                         left: `${item.left}%`,
                         top: `${item.top}%`,
@@ -1706,10 +1706,10 @@ function getTranslationValue(dictionary, key) {
                   setFadeSplash(true);
                   setTimeout(() => setShowSplash(false), 500);
                 }}
-                className="absolute bottom-6 right-6 z-[60] bg-black/60 hover:bg-black/90 border border-amber-500/10 px-4 py-2 rounded-full text-[10px] sm:text-xs font-semibold tracking-widest text-amber-500/60 hover:text-amber-400 hover:border-amber-400/30 transition-all cursor-pointer pointer-events-auto flex items-center gap-1.5 shadow-lg backdrop-blur-sm"
+                className="absolute bottom-6 right-6 z-[60] bg-black/60 hover:bg-black/90 border border-gray-200 px-4 py-2 rounded-full text-[10px] sm:text-xs font-semibold tracking-widest text-gray-700 hover:text-black hover:border-gray-200 transition-all cursor-pointer pointer-events-auto flex items-center gap-1.5 shadow-lg backdrop-blur-sm"
               >
                 {translate(langData, "skipIntro")}
-                <svg className="w-3.5 h-3.5 text-amber-500/60" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-3.5 h-3.5 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
                 </svg>
               </button>
@@ -1723,7 +1723,7 @@ function getTranslationValue(dictionary, key) {
                   
                   {/* Inner glass box */}
                   <div className="absolute inset-[2px] bg-black rounded-full flex items-center justify-center">
-                    <Store className="w-12 h-12 sm:w-14 sm:h-14 text-amber-400" />
+                    <Store className="w-12 h-12 sm:w-14 sm:h-14 text-black" />
                   </div>
                 </div>
 
@@ -1735,7 +1735,7 @@ function getTranslationValue(dictionary, key) {
                   >
                     {translate(langData, "appTitle")}
                   </h1>
-                  <p className="text-amber-500/40 text-[10px] sm:text-xs font-bold tracking-[0.4em] uppercase mt-3.5 animate-pulse">
+                  <p className="text-gray-700 text-[10px] sm:text-xs font-bold tracking-[0.4em] uppercase mt-3.5 animate-pulse">
                     {translate(langData, "subtitle")}
                   </p>
                 </div>
@@ -1744,7 +1744,7 @@ function getTranslationValue(dictionary, key) {
                 <div className="w-48 h-[2px] bg-white/5 rounded-full overflow-hidden mt-3 relative text-carve">
                   <div className="h-full bg-gradient-to-r from-amber-500 to-amber-300 rounded-full gold-progress-bar" />
                 </div>
-                <div className="text-[10px] text-amber-400/50 font-semibold tracking-widest uppercase mt-1.5 animate-pulse">
+                <div className="text-[10px] text-gray-700 font-semibold tracking-widest uppercase mt-1.5 animate-pulse">
                   Pre-caching Store Catalog & Images...
                 </div>
               </div>
@@ -1752,23 +1752,23 @@ function getTranslationValue(dictionary, key) {
           )}
           {/* Background — Obsidian & Gold */}
           <div className="fixed inset-0 -z-10" style={{ background: '#ffffff' }} />
-          <div className="fixed -top-32 -left-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-amber-500/6 rounded-full blur-[120px] -z-10" />
-          <div className="fixed top-1/3 -right-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-amber-600/5 rounded-full blur-[100px] -z-10" />
-          <div className="fixed bottom-0 left-1/3 w-72 h-72 sm:w-96 sm:h-96 bg-amber-400/4 rounded-full blur-[80px] -z-10" />
+          <div className="fixed -top-32 -left-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-gray-100 rounded-full blur-[120px] -z-10" />
+          <div className="fixed top-1/3 -right-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-gray-100 rounded-full blur-[100px] -z-10" />
+          <div className="fixed bottom-0 left-1/3 w-72 h-72 sm:w-96 sm:h-96 bg-gray-100 rounded-full blur-[80px] -z-10" />
 
           {/* Header — Obsidian & Gold */}
-          <header className="sticky top-0 z-30 backdrop-blur-xl border-b shadow-xl shadow-black/60" style={{ background: 'rgba(255,255,255,0.95)', borderColor: 'rgba(212,175,55,0.25)' }}>
+          <header className="sticky top-0 z-30 backdrop-blur-xl border-b shadow-xl shadow-black/60" style={{ background: 'rgba(255,255,255,0.95)', borderColor: 'rgba(0,0,0,0.12)' }}>
             <div className="max-w-6xl mx-auto px-4 py-3 mobile-header-row">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div>
                     <h1
                       className="mobile-logo-title text-lg sm:text-xl font-black leading-tight tracking-widest uppercase"
-                      style={{ fontFamily: "'Poppins', sans-serif", background: 'linear-gradient(to right, #d4af37, #fef08a, #d4af37)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}
+                      style={{ fontFamily: "'Poppins', sans-serif", color: '#000000' }}
                     >
                       {translate(langData, "appTitle")}
                     </h1>
-                    <p className="mobile-logo-subtitle text-amber-500/50 text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] uppercase">
+                    <p className="mobile-logo-subtitle text-gray-700 text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] uppercase">
                       {translate(langData, "subtitle")}
                     </p>
                   </div>
@@ -1780,9 +1780,9 @@ function getTranslationValue(dictionary, key) {
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
                     className="border rounded-xl px-2.5 py-2 text-xs font-semibold transition-all cursor-pointer language-select-mobile"
-                    style={{ background: '#ffffff', borderColor: 'rgba(212,175,55,0.3)', color: '#8a7010' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.5)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.18)'}
+                    style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#111111' }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'}
                   >
                     <option value="en" style={{background:'#ffffff', color:'#1a1a2e'}}>English</option>
                     <option value="ur" style={{background:'#ffffff', color:'#1a1a2e'}}>&#x627;&#x631;&#x62F;&#x648;</option>
@@ -1793,16 +1793,16 @@ function getTranslationValue(dictionary, key) {
                     id="cart-btn"
                     onClick={() => setCartOpen(true)}
                     className="relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all cart-btn-mobile"
-                    style={{ background: '#ffffff', borderColor: cartCount > 0 ? '#d4af37' : 'rgba(212,175,55,0.3)', color: '#8a7010' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(212,175,55,0.7)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor=cartCount > 0 ? 'rgba(212,175,55,0.55)' : 'rgba(212,175,55,0.18)'}
+                    style={{ background: '#ffffff', borderColor: cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.12)', color: '#111111' }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor=cartCount > 0 ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.12)'}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
                     <span className="hidden sm:inline">Cart</span>
                     {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#d4af37,#b49017)', color: '#020205' }}>
+                      <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#000000,#000000)', color: '#ffffff' }}>
                         {cartCount}
                       </span>
                     )}
@@ -1813,7 +1813,7 @@ function getTranslationValue(dictionary, key) {
               {/* Search — Gold Glow */}
               <div className="mt-3 relative search-wrapper-mobile" ref={searchBoxRef}>
                 <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500/50" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
                   <input
                     type="text"
                     value={searchTerm}
@@ -1824,14 +1824,14 @@ function getTranslationValue(dictionary, key) {
                     onKeyDown={handleSearchKeyDown}
                     placeholder={translate(langData, "searchPlaceholder")}
                     className="w-full border rounded-xl pl-10 pr-9 py-2.5 text-sm transition-all focus:outline-none"
-                    style={{ background: '#ffffff', borderColor: 'rgba(212,175,55,0.3)', color: '#1a1a2e', caretColor: '#d4af37' }}
-                    onFocus={e => { setSuggestOpen(true); e.target.style.borderColor='rgba(212,175,55,0.5)'; e.target.style.boxShadow='0 0 0 3px rgba(212,175,55,0.08)'; }}
-                    onBlur={e => { e.target.style.borderColor='rgba(212,175,55,0.15)'; e.target.style.boxShadow='none'; }}
+                    style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#1a1a2e', caretColor: '#000000' }}
+                    onFocus={e => { setSuggestOpen(true); e.target.style.borderColor='rgba(0,0,0,0.12)'; e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.12)'; }}
+                    onBlur={e => { e.target.style.borderColor='rgba(0,0,0,0.12)'; e.target.style.boxShadow='none'; }}
                   />
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-500/40 hover:text-amber-400 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 hover:text-black transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -1839,19 +1839,19 @@ function getTranslationValue(dictionary, key) {
                 </div>
 
                 {suggestOpen && searchTerm && (
-                  <div className="absolute mt-2 w-full backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-40 border" style={{ background: '#ffffff', borderColor: 'rgba(212,175,55,0.3)' }}>
+                  <div className="absolute mt-2 w-full backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-40 border" style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)' }}>
                     {suggestions.length > 0 ? (
                       suggestions.map((s) => (
                         <button
                           key={s.id}
                           onClick={() => handleSuggestionClick(s)}
                           className="w-full flex items-center justify-between text-left px-4 py-2.5 text-sm border-b transition-colors"
-                          style={{ borderColor: 'rgba(212,175,55,0.07)', color: 'rgba(255,255,255,0.85)' }}
-                          onMouseEnter={e => e.currentTarget.style.background='rgba(212,175,55,0.07)'}
+                          style={{ borderColor: 'rgba(0,0,0,0.12)', color: 'rgba(255,255,255,0.85)' }}
+                          onMouseEnter={e => e.currentTarget.style.background='rgba(0,0,0,0.12)'}
                           onMouseLeave={e => e.currentTarget.style.background='transparent'}
                         >
                           <span>{getProductDisplayName(s, language)}</span>
-                          <span className="font-bold whitespace-nowrap ml-3" style={{ color: '#a07820' }}>{translate(langData, 'priceLabel', { amount: s.price.toLocaleString() })}</span>
+                          <span className="font-bold whitespace-nowrap ml-3" style={{ color: '#000000' }}>{translate(langData, 'priceLabel', { amount: s.price.toLocaleString() })}</span>
                         </button>
                       ))
                     ) : (
@@ -1881,34 +1881,34 @@ function getTranslationValue(dictionary, key) {
                       onClick={handleGoBack}
                       className="flex items-center gap-1.5 border px-3 py-1.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-sm cursor-pointer shrink-0"
                       style={{ 
-                        background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(255,255,255,0.95))', 
-                        borderColor: 'rgba(212,175,55,0.4)', 
-                        color: '#8a7010'
+                        background: 'linear-gradient(135deg, rgba(0,0,0,0.12), rgba(255,255,255,0.95))', 
+                        borderColor: 'rgba(0,0,0,0.12)', 
+                        color: '#111111'
                       }}
                     >
-                      <svg className="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                      <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
                       <span>{translate(langData, "backBtn") || "BACK"}</span>
                     </button>
                   )}
                   <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
-                    <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8a7010', fontFamily: "'Poppins', sans-serif" }}>
+                    <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#111111', fontFamily: "'Poppins', sans-serif" }}>
                       {isSearching ? `Search: "${searchTerm}"` : selectedCategoryName}
                     </h2>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: '#8a7010', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 12, padding: '1px 8px', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#111111', background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12, padding: '1px 8px', whiteSpace: 'nowrap' }}>
                       {filtered.length} {translate(langData, "itemsLabel")}
                     </span>
                   </div>
                 </div>
 
                 {filtered.length === 0 ? (
-                  <div className="text-center py-16 bg-white border border-amber-500/25 rounded-2xl p-8 shadow-sm">
-                    <ShoppingBag className="w-12 h-12 mx-auto mb-3 text-amber-600/40" />
-                    <p className="text-base font-bold text-amber-900 mb-2">No items found matching "{searchTerm}"</p>
-                    <p className="text-xs text-amber-700/60 mb-6">Try searching with a different item name or go back to main categories.</p>
+                  <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+                    <ShoppingBag className="w-12 h-12 mx-auto mb-3 text-gray-700" />
+                    <p className="text-base font-bold text-black mb-2">No items found matching "{searchTerm}"</p>
+                    <p className="text-xs text-gray-700 mb-6">Try searching with a different item name or go back to main categories.</p>
                     <button
                       onClick={handleGoBack}
                       className="inline-flex items-center gap-2 border px-6 py-3 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer"
-                      style={{ background: 'linear-gradient(135deg, #d4af37, #f59e0b)', color: '#ffffff' }}
+                      style={{ background: 'linear-gradient(135deg, #000000, #f59e0b)', color: '#ffffff' }}
                     >
                       ← Back to Main Categories
                     </button>
@@ -1924,8 +1924,8 @@ function getTranslationValue(dictionary, key) {
             )}
           </main>
 
-              <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(212,175,55,0.08)' }}>
-                <p className="text-xs tracking-[0.3em] uppercase" style={{ color: 'rgba(212,175,55,0.3)' }}>{translate(langData, "footer")}</p>
+              <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(0,0,0,0.12)' }}>
+                <p className="text-xs tracking-[0.3em] uppercase" style={{ color: 'rgba(0,0,0,0.12)' }}>{translate(langData, "footer")}</p>
               </footer>
 
               {/* Cart Drawer */}
@@ -1956,17 +1956,17 @@ function getTranslationValue(dictionary, key) {
               {/* Exit Confirmation Modal */}
               {exitModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-                  <div className="bg-white border border-amber-500/40 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4">
-                    <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-full flex items-center justify-center mx-auto">
-                      <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <div className="bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4">
+                    <div className="w-14 h-14 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center mx-auto">
+                      <svg className="w-7 h-7 text-black" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-base font-extrabold text-amber-900 uppercase tracking-wider">
+                      <h3 className="text-base font-extrabold text-black uppercase tracking-wider">
                         {language === 'ur' ? 'ویب سائٹ سے باہر جانا چاہتے ہیں؟' : 'Exit Sahil Traders?'}
                       </h3>
-                      <p className="text-xs text-amber-800/80 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-gray-700 mt-1.5 leading-relaxed">
                         {language === 'ur' ? 'کیا آپ واقعی Sahil Traders بند کرنا چاہتے ہیں؟' : 'Are you sure you want to leave the store?'}
                       </p>
                     </div>
@@ -1975,7 +1975,7 @@ function getTranslationValue(dictionary, key) {
                         onClick={() => {
                           setExitModalOpen(false);
                         }}
-                        className="flex-1 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-800 text-xs font-bold uppercase tracking-wider hover:bg-amber-500/20 transition-all cursor-pointer"
+                        className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-gray-100 text-black text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-all cursor-pointer"
                       >
                         {language === 'ur' ? 'نہیں، واپس رہیں' : 'No, Stay'}
                       </button>
@@ -2019,7 +2019,7 @@ function getTranslationValue(dictionary, key) {
       haircare:     { image: '', gradient: 'linear-gradient(135deg,#c471ed,#12c2e9)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 3c-1.5 3-5 5-5 9a5 5 0 0010 0c0-4-3.5-6-5-9z"/><path d="M8 10c1 2 5 2 6 0"/></svg>) },
       condemn:      { image: '', gradient: 'linear-gradient(135deg,#e96c6c,#c0392b)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 2C8 2 5 5 5 9v6l7 7 7-7V9c0-4-3-7-7-7z"/></svg>) },
       lock:         { image: '', gradient: 'linear-gradient(135deg,#636e72,#2d3436)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>) },
-      general:      { image: '', gradient: 'linear-gradient(135deg,#d4af37,#9b7a00)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>) },
+      general:      { image: '', gradient: 'linear-gradient(135deg,#000000,#9b7a00)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>) },
       bodylotion:   { image: '', gradient: 'linear-gradient(135deg,#fa709a,#fee140)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M5 9h14v9a3 3 0 01-3 3H8a3 3 0 01-3-3V9z"/><rect x="4" y="5" width="16" height="4" rx="1"/><path d="M5 14c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 4 2"/></svg>) },
       babycare:     { image: '', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0112 0v2"/></svg>) },
       blades:       { image: '', gradient: 'linear-gradient(135deg,#b8c6db,#f5f7fa)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M18 3L6 21"/><path d="M6 3l12 18"/><rect x="4" y="9" width="16" height="6" rx="1"/></svg>) },
@@ -2033,11 +2033,11 @@ function getTranslationValue(dictionary, key) {
     function CategoryHome({ products, onSelectCategory, langData }) {
       return (
         <div>
-          <div style={{ marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(212,175,55,0.15)', paddingBottom: 8 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#d4af37', fontFamily: "'Poppins', sans-serif" }}>
+          <div style={{ marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.12)', paddingBottom: 8 }}>
+            <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#000000', fontFamily: "'Poppins', sans-serif" }}>
               {translate(langData, "categoriesLabel")}
             </h2>
-            <span style={{ fontSize: 10, fontWeight: 800, color: '#fef08a', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 12, padding: '2px 8px', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: '#333333', background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12, padding: '2px 8px', whiteSpace: 'nowrap' }}>
               {CATEGORIES.length} Categories &middot; {products.length.toLocaleString()}+ Items
             </span>
           </div>
@@ -2045,7 +2045,7 @@ function getTranslationValue(dictionary, key) {
             {CATEGORIES.map(cat => {
               const catProducts = products.filter(p => p.categoryId === cat.id);
               const count = catProducts.length;
-              const meta = CATEGORY_META[cat.id] || { gradient: 'linear-gradient(135deg,#d4af37,#9b7a00)', icon: null };
+              const meta = CATEGORY_META[cat.id] || { gradient: 'linear-gradient(135deg,#000000,#9b7a00)', icon: null };
               
               // Find all items in this category that have images
               const imageProducts = catProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage);
@@ -2073,16 +2073,16 @@ function getTranslationValue(dictionary, key) {
                   className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-400"
                   style={{
                     background: '#ffffff',
-                    border: '1px solid rgba(212,175,55,0.22)',
+                    border: '1px solid rgba(0,0,0,0.12)',
                     boxShadow: '0 10px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06)',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.75)';
+                    e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)';
                     e.currentTarget.style.transform = 'translateY(-6px)';
-                    e.currentTarget.style.boxShadow = '0 22px 50px rgba(212,175,55,0.22), 0 10px 35px rgba(0,0,0,0.95)';
+                    e.currentTarget.style.boxShadow = '0 22px 50px rgba(0,0,0,0.12), 0 10px 35px rgba(0,0,0,0.95)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.22)';
+                    e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)';
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06)';
                   }}
@@ -2091,13 +2091,13 @@ function getTranslationValue(dictionary, key) {
                   <div className="cat-img-reel-area" style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#ffffff' }}>
                     
                     {/* Top & Bottom Golden Light Lines */}
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)', zIndex: 10 }} />
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.25), transparent)', zIndex: 10 }} />
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.12), transparent)', zIndex: 10 }} />
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.12), transparent)', zIndex: 10 }} />
 
 
 
                     {/* Top Right Item Count Badge */}
-                    <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(255,255,255,0.95))', border: '1px solid rgba(212,175,55,0.4)', color: '#ffd700', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                    <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: 'linear-gradient(135deg, rgba(0,0,0,0.12), rgba(255,255,255,0.95))', border: '1px solid rgba(0,0,0,0.12)', color: '#111111', backdropFilter: 'blur(8px)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
                       {count} {translate(langData, "itemsLabel")}
                     </div>
 
@@ -2136,7 +2136,7 @@ function getTranslationValue(dictionary, key) {
                   </div>
 
                   {/* Info Footer */}
-                  <div style={{ padding: '14px 16px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(212,175,55,0.12)' }}>
+                  <div style={{ padding: '14px 16px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.12)' }}>
                     <div>
                       <h3 className="cat-card-title" style={{ 
                         fontSize: 14, 
@@ -2149,12 +2149,12 @@ function getTranslationValue(dictionary, key) {
                       }}>
                         {langData.categories?.[cat.id] || cat.name}
                       </h3>
-                      <p className="cat-card-subtitle group-hover:text-amber-400 transition-colors" style={{ fontSize: 11, color: 'rgba(212,175,55,0.6)', fontWeight: 700, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <p className="cat-card-subtitle group-hover:text-black transition-colors" style={{ fontSize: 11, color: 'rgba(0,0,0,0.12)', fontWeight: 700, letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 4 }}>
                         Explore Catalog &rarr;
                       </p>
                     </div>
 
-                    <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-black group-hover:border-amber-400 transition-all duration-300 shadow-md">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-black group-hover:bg-black group-hover:text-black group-hover:border-gray-300 transition-all duration-300 shadow-md">
                       <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                       </svg>
@@ -2172,7 +2172,7 @@ function getTranslationValue(dictionary, key) {
       return (
         <div
           className={`absolute mt-2 ${fullWidth ? "w-full" : "w-64 right-0"} backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-40 max-h-80 overflow-y-auto border`}
-          style={{ background: 'rgba(9,9,13,0.97)', borderColor: 'rgba(212,175,55,0.18)' }}
+          style={{ background: 'rgba(9,9,13,0.97)', borderColor: 'rgba(0,0,0,0.12)' }}
         >
           <button
             onClick={() => {
@@ -2181,11 +2181,11 @@ function getTranslationValue(dictionary, key) {
             }}
             className="w-full text-left px-4 py-2.5 text-sm font-semibold border-b transition-colors"
             style={{
-              borderColor: 'rgba(212,175,55,0.08)',
-              color: activeCategory === "all" ? '#8a7010' : '#1a1a2e',
-              background: activeCategory === "all" ? 'rgba(212,175,55,0.06)' : 'transparent'
+              borderColor: 'rgba(0,0,0,0.12)',
+              color: activeCategory === "all" ? '#111111' : '#1a1a2e',
+              background: activeCategory === "all" ? 'rgba(0,0,0,0.12)' : 'transparent'
             }}
-            onMouseEnter={e => { if (activeCategory !== 'all') e.currentTarget.style.background='rgba(212,175,55,0.04)'; }}
+            onMouseEnter={e => { if (activeCategory !== 'all') e.currentTarget.style.background='rgba(0,0,0,0.12)'; }}
             onMouseLeave={e => { if (activeCategory !== 'all') e.currentTarget.style.background='transparent'; }}
           >
             {translate(langData, "allCategories")}
@@ -2199,12 +2199,12 @@ function getTranslationValue(dictionary, key) {
               }}
               className="w-full text-left px-4 py-2.5 text-sm border-b last:border-0 transition-colors"
               style={{
-                borderColor: 'rgba(212,175,55,0.06)',
-                color: activeCategory === c.id ? '#8a7010' : '#1a1a2e',
-                background: activeCategory === c.id ? 'rgba(212,175,55,0.06)' : 'transparent',
+                borderColor: 'rgba(0,0,0,0.12)',
+                color: activeCategory === c.id ? '#111111' : '#1a1a2e',
+                background: activeCategory === c.id ? 'rgba(0,0,0,0.12)' : 'transparent',
                 fontWeight: activeCategory === c.id ? '600' : '400'
               }}
-              onMouseEnter={e => { if (activeCategory !== c.id) e.currentTarget.style.background='rgba(212,175,55,0.04)'; }}
+              onMouseEnter={e => { if (activeCategory !== c.id) e.currentTarget.style.background='rgba(0,0,0,0.12)'; }}
               onMouseLeave={e => { if (activeCategory !== c.id) e.currentTarget.style.background='transparent'; }}
             >
               {langData.categories?.[c.id] || c.name}
@@ -2240,9 +2240,9 @@ function getTranslationValue(dictionary, key) {
       return (
         <div
           className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group"
-          style={{ background: '#ffffff', border: '1px solid rgba(212,175,55,0.25)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.5)'; e.currentTarget.style.boxShadow='0 12px 45px rgba(212,175,55,0.15), 0 8px 30px rgba(0,0,0,0.8)'; e.currentTarget.style.transform='translateY(-3px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(212,175,55,0.14)'; e.currentTarget.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; e.currentTarget.style.transform='translateY(0)'; }}
+          style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.12)', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'; e.currentTarget.style.boxShadow='0 12px 45px rgba(0,0,0,0.12), 0 8px 30px rgba(0,0,0,0.8)'; e.currentTarget.style.transform='translateY(-3px)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'; e.currentTarget.style.boxShadow='0 8px 30px rgba(0,0,0,0.6)'; e.currentTarget.style.transform='translateY(0)'; }}
         >
           {/* Product Image Container */}
           <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-1.5 relative overflow-hidden" style={{ background: '#ffffff' }}>
@@ -2261,34 +2261,32 @@ function getTranslationValue(dictionary, key) {
                 </span>
               </div>
             ) : (
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl flex flex-col items-center justify-center gap-1 shrink-0" style={{ background: 'rgba(212,175,55,0.04)' }}>
-                <ImageOff className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: 'rgba(212,175,55,0.25)' }} />
-                <span className="text-[9px] font-medium" style={{ color: 'rgba(212,175,55,0.4)' }}>{translate(langData, "noPhoto")}</span>
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl flex flex-col items-center justify-center gap-1 shrink-0" style={{ background: 'rgba(0,0,0,0.12)' }}>
+                <ImageOff className="w-7 h-7 sm:w-8 sm:h-8" style={{ color: 'rgba(0,0,0,0.12)' }} />
+                <span className="text-[9px] font-medium" style={{ color: 'rgba(0,0,0,0.12)' }}>{translate(langData, "noPhoto")}</span>
               </div>
             )}
           </div>
 
           {/* Gold Divider */}
-          <div className="h-px mx-3" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent)' }} />
+          <div className="h-px mx-3" style={{ background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.12), transparent)' }} />
 
           {/* Balanced Compact Text & Action Details */}
           <div className="product-card-body p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-white">
             <p className="product-name-text text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight" style={{ color: '#1a1a2e' }}>
               {getProductDisplayName(product, language)}
             </p>
-            <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#a07820' }}>
+            <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#000000' }}>
               {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
             </p>
             <button
               onClick={handleAdd}
               className="product-add-btn mt-auto w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2"
               style={{
-                background: added ? 'rgba(34,197,94,0.18)' : 'rgba(212,175,55,0.1)',
-                border: added ? '1px solid rgba(34,197,94,0.5)' : '1px solid rgba(212,175,55,0.25)',
-                color: added ? '#4ade80' : '#d4af37'
+                background: added ? '#16a34a' : '#000000', border: 'none', color: '#ffffff'
               }}
-              onMouseEnter={e => { if (!added) { e.currentTarget.style.background='rgba(212,175,55,0.2)'; e.currentTarget.style.borderColor='rgba(212,175,55,0.55)'; }}}
-              onMouseLeave={e => { if (!added) { e.currentTarget.style.background='rgba(212,175,55,0.1)'; e.currentTarget.style.borderColor='rgba(212,175,55,0.25)'; }}}
+              onMouseEnter={e => { if (!added) { e.currentTarget.style.background='rgba(0,0,0,0.12)'; e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'; }}}
+              onMouseLeave={e => { if (!added) { e.currentTarget.style.background='rgba(0,0,0,0.12)'; e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'; }}}
             >
               {added ? (
                 <>
@@ -2351,7 +2349,7 @@ function getTranslationValue(dictionary, key) {
               width: '100%', maxWidth: '420px',
               zIndex: 51,
               background: '#ffffff',
-              borderLeft: '1px solid rgba(212,175,55,0.18)',
+              borderLeft: '1px solid rgba(0,0,0,0.12)',
               boxShadow: '-8px 0 60px rgba(0,0,0,0.8)',
               transform: open ? 'translateX(0)' : 'translateX(100%)',
               transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1)',
@@ -2359,20 +2357,20 @@ function getTranslationValue(dictionary, key) {
             }}
           >
             {/* Header */}
-            <div style={{ padding: '20px', borderBottom: '1px solid rgba(212,175,55,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+            <div style={{ padding: '20px', borderBottom: '1px solid rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <svg style={{ width: 22, height: 22, color: '#d4af37' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg style={{ width: 22, height: 22, color: '#000000' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                 </svg>
-                <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#d4af37', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "cartTitle")}</span>
+                <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#000000', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "cartTitle")}</span>
                 {cart.length > 0 && (
-                  <span style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 20, padding: '1px 10px', fontSize: 11, fontWeight: 700, color: '#d4af37' }}>
+                  <span style={{ background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 20, padding: '1px 10px', fontSize: 11, fontWeight: 700, color: '#000000' }}>
                     {cart.reduce((s,i)=>s+i.qty,0)} {translate(langData, "itemsLabel")}
                   </span>
                 )}
               </div>
-              <button onClick={onClose} style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.18)', borderRadius: 10, padding: '6px', color: '#555555', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                onMouseEnter={e=>e.currentTarget.style.color='#d4af37'}
+              <button onClick={onClose} style={{ background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 10, padding: '6px', color: '#555555', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                onMouseEnter={e=>e.currentTarget.style.color='#000000'}
                 onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.6)'}
               >
                 <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -2383,17 +2381,17 @@ function getTranslationValue(dictionary, key) {
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
               {cart.length === 0 ? (
                 <div style={{ textAlign: 'center', paddingTop: 80, color: '#777777' }}>
-                  <svg style={{ width: 60, height: 60, margin: '0 auto 16px', color: 'rgba(212,175,55,0.2)' }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                  <svg style={{ width: 60, height: 60, margin: '0 auto 16px', color: 'rgba(0,0,0,0.12)' }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                   </svg>
                   <p style={{ fontSize: 14, fontWeight: 600 }}>{translate(langData, "cartEmpty")}</p>
                   <p style={{ fontSize: 12, marginTop: 6, color: '#888888' }}>{translate(langData, "noProducts")}</p>
-                  <button onClick={onClose} style={{ marginTop: 20, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 12, padding: '10px 24px', color: '#d4af37', fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{translate(langData, "continueShopping")}</button>
+                  <button onClick={onClose} style={{ marginTop: 20, background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12, padding: '10px 24px', color: '#000000', fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{translate(langData, "continueShopping")}</button>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {cart.map(({ product, qty }) => (
-                    <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.1)', borderRadius: 14 }}>
+                    <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 14 }}>
                       {/* Product Thumbnail - Clickable */}
                       <div
                         onClick={() => onSelectProduct && onSelectProduct(product)}
@@ -2406,7 +2404,7 @@ function getTranslationValue(dictionary, key) {
                             src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
                             onError={(e) => { e.target.onerror = null; }}
                             alt={product.name}
-                            className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-amber-500/20 hover:border-amber-400 transition-colors"
+                            className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-gray-200 hover:border-gray-300 transition-colors"
                           />
                         ) : (
                           <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`}>
@@ -2419,17 +2417,17 @@ function getTranslationValue(dictionary, key) {
                         <p
                           onClick={() => onSelectProduct && onSelectProduct(product)}
                           style={{ cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#1a1a2e', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
-                          className="hover:text-amber-400 hover:underline transition-colors"
+                          className="hover:text-black hover:underline transition-colors"
                           title="Click to view product details"
                         >
                           {product.name}
                         </p>
-                        <p style={{ fontSize: 12, color: '#d4af37', fontWeight: 700 }}>{translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} &times; {qty}</p>
-                        <p style={{ fontSize: 11, color: 'rgba(212,175,55,0.6)', fontWeight: 700, marginTop: 2 }}>= {translate(langData, "priceLabel", { amount: (product.price * qty).toLocaleString() })}</p>
+                        <p style={{ fontSize: 12, color: '#000000', fontWeight: 700 }}>{translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} &times; {qty}</p>
+                        <p style={{ fontSize: 11, color: 'rgba(0,0,0,0.12)', fontWeight: 700, marginTop: 2 }}>= {translate(langData, "priceLabel", { amount: (product.price * qty).toLocaleString() })}</p>
                       </div>
                       {/* Smart Qty Controls */}
                       <div style={{ flexShrink: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(212,175,55,0.08)', borderRadius: 10, padding: '4px 6px', border: '1px solid rgba(212,175,55,0.18)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.12)', borderRadius: 10, padding: '4px 6px', border: '1px solid rgba(0,0,0,0.12)' }}>
                           {/* Left: Trash if qty=1, Minus if qty>1 */}
                           {qty === 1 ? (
                             <button
@@ -2446,8 +2444,8 @@ function getTranslationValue(dictionary, key) {
                           ) : (
                             <button
                               onClick={() => handleMinusClick(product.id, qty)}
-                              style={{ width: 28, height: 28, border: 'none', background: 'none', color: '#d4af37', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'background 0.2s' }}
-                              onMouseEnter={e => e.currentTarget.style.background='rgba(212,175,55,0.15)'}
+                              style={{ width: 28, height: 28, border: 'none', background: 'none', color: '#000000', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'background 0.2s' }}
+                              onMouseEnter={e => e.currentTarget.style.background='rgba(0,0,0,0.12)'}
                               onMouseLeave={e => e.currentTarget.style.background='none'}
                             >−</button>
                           )}
@@ -2455,8 +2453,8 @@ function getTranslationValue(dictionary, key) {
                           {/* Right: always Plus */}
                           <button
                             onClick={() => onUpdateQty(product.id, 1)}
-                            style={{ width: 28, height: 28, border: 'none', background: 'none', color: '#d4af37', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'background 0.2s' }}
-                            onMouseEnter={e => e.currentTarget.style.background='rgba(212,175,55,0.15)'}
+                            style={{ width: 28, height: 28, border: 'none', background: 'none', color: '#000000', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'background 0.2s' }}
+                            onMouseEnter={e => e.currentTarget.style.background='rgba(0,0,0,0.12)'}
                             onMouseLeave={e => e.currentTarget.style.background='none'}
                           >+</button>
                         </div>
@@ -2503,24 +2501,24 @@ function getTranslationValue(dictionary, key) {
             </div>
           )}            {/* Footer */}
             {cart.length > 0 && (
-              <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(212,175,55,0.12)', flexShrink: 0 }}>
+              <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(0,0,0,0.12)', flexShrink: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                   <span style={{ fontSize: 13, color: '#555555', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{translate(langData, "totalBill")}</span>
-                  <span style={{ fontSize: 22, fontWeight: 900, color: '#d4af37', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "priceLabel", { amount: cartTotal.toLocaleString() })}</span>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: '#000000', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "priceLabel", { amount: cartTotal.toLocaleString() })}</span>
                 </div>
                 <button
                   onClick={onCheckout}
                   style={{
                     width: '100%', padding: '14px', borderRadius: 14, border: 'none',
-                    background: 'linear-gradient(135deg,#d4af37 0%,#b49017 100%)',
-                    color: '#020205', fontSize: 14, fontWeight: 800,
+                    background: 'linear-gradient(135deg,#000000 0%,#000000 100%)',
+                    color: '#ffffff', fontSize: 14, fontWeight: 800,
                     letterSpacing: '0.15em', textTransform: 'uppercase',
-                    cursor: 'pointer', boxShadow: '0 4px 20px rgba(212,175,55,0.35)',
+                    cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                     transition: 'all 0.2s'
                   }}
-                  onMouseEnter={e=>{e.currentTarget.style.filter='brightness(1.1)';e.currentTarget.style.boxShadow='0 6px 28px rgba(212,175,55,0.55)';}}
-                  onMouseLeave={e=>{e.currentTarget.style.filter='none';e.currentTarget.style.boxShadow='0 4px 20px rgba(212,175,55,0.35)';} }
+                  onMouseEnter={e=>{e.currentTarget.style.filter='brightness(1.1)';e.currentTarget.style.boxShadow='0 6px 28px rgba(0,0,0,0.12)';}}
+                  onMouseLeave={e=>{e.currentTarget.style.filter='none';e.currentTarget.style.boxShadow='0 4px 20px rgba(0,0,0,0.12)';} }
                 >
                   <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                   {translate(langData, "proceedOrder")}
@@ -2600,35 +2598,35 @@ function getTranslationValue(dictionary, key) {
       const inputStyle = (hasErr) => ({
         width: '100%', boxSizing: 'border-box',
         padding: '12px 14px', borderRadius: 12,
-        border: `1px solid ${hasErr ? 'rgba(239,68,68,0.6)' : 'rgba(212,175,55,0.2)'}`,
+        border: `1px solid ${hasErr ? 'rgba(239,68,68,0.6)' : 'rgba(0,0,0,0.12)'}`,
         background: 'rgba(5,5,8,0.9)',
         color: 'rgba(255,255,255,0.9)', fontSize: 14,
-        outline: 'none', caretColor: '#d4af37',
+        outline: 'none', caretColor: '#000000',
         transition: 'border-color 0.2s'
       });
 
       return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
-          <div style={{ width: '100%', maxWidth: 500, background: '#ffffff', border: '1px solid rgba(212,175,55,0.22)', borderRadius: 24, boxShadow: '0 24px 80px rgba(0,0,0,0.9)', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ width: '100%', maxWidth: 500, background: '#ffffff', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 24, boxShadow: '0 24px 80px rgba(0,0,0,0.9)', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
             {success ? (
               <div style={{ padding: 48, textAlign: 'center' }}>
                 <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '2px solid rgba(34,197,94,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                   <svg style={{ width: 36, height: 36, color: '#4ade80' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
                 </div>
-                <h3 style={{ fontSize: 22, fontWeight: 800, color: '#d4af37', fontFamily: "'Poppins',sans-serif", marginBottom: 10 }}>{translate(langData, "orderPlacedSuccess")}</h3>
+                <h3 style={{ fontSize: 22, fontWeight: 800, color: '#000000', fontFamily: "'Poppins',sans-serif", marginBottom: 10 }}>{translate(langData, "orderPlacedSuccess")}</h3>
                 <p style={{ fontSize: 14, color: '#555555', lineHeight: 1.6 }}>{translate(langData, "successNotice")}</p>
               </div>
             ) : (
               <>
                 {/* Modal Header */}
-                <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(212,175,55,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <button onClick={onBack} style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 10, padding: '6px 10px', color: 'rgba(212,175,55,0.7)', cursor: 'pointer', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <button onClick={onBack} style={{ background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 10, padding: '6px 10px', color: 'rgba(0,0,0,0.12)', cursor: 'pointer', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
                       <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
                       {translate(langData, "backBtn")}
                     </button>
-                    <span style={{ fontSize: 16, fontWeight: 800, color: '#d4af37', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "checkoutTitle")}</span>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: '#000000', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "checkoutTitle")}</span>
                   </div>
                   <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'flex' }}
                     onMouseEnter={e=>e.currentTarget.style.color='white'}
@@ -2640,8 +2638,8 @@ function getTranslationValue(dictionary, key) {
 
                 <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
                   {/* Order Summary */}
-                  <div style={{ background: '#f8f9fa', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 16, padding: '14px 16px' }}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(212,175,55,0.6)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>{translate(langData, "orderSummary")}</p>
+                  <div style={{ background: '#f8f9fa', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 16, padding: '14px 16px' }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(0,0,0,0.12)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>{translate(langData, "orderSummary")}</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 180, overflowY: 'auto' }}>
                       {cart.map(({ product, qty }) => (
                         <div key={product.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
@@ -2651,7 +2649,7 @@ function getTranslationValue(dictionary, key) {
                                 src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
                                 onError={(e) => { e.target.onerror = null; }}
                                 alt={product.name}
-                                className="w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-amber-500/20"
+                                className="w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-gray-200"
                               />
                             ) : (
                               <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`}>
@@ -2660,19 +2658,19 @@ function getTranslationValue(dictionary, key) {
                             )}
                             <span style={{ fontSize: 12, color: '#1a1a2e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</span>
                           </div>
-                          <span style={{ fontSize: 12, color: '#d4af37', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>&times; {qty} = {translate(langData, "priceLabel", { amount: (product.price*qty).toLocaleString() })}</span>
+                          <span style={{ fontSize: 12, color: '#000000', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>&times; {qty} = {translate(langData, "priceLabel", { amount: (product.price*qty).toLocaleString() })}</span>
                         </div>
                       ))}
                     </div>
-                    <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(212,175,55,0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.12)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: 13, color: '#444444', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{translate(langData, "totalBill")}</span>
-                      <span style={{ fontSize: 20, fontWeight: 900, color: '#d4af37', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "priceLabel", { amount: cartTotal.toLocaleString() })}</span>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: '#000000', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "priceLabel", { amount: cartTotal.toLocaleString() })}</span>
                     </div>
                   </div>
 
                   {/* Customer Details */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(212,175,55,0.6)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>{translate(langData, "yourDetails")}</p>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(0,0,0,0.12)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>{translate(langData, "yourDetails")}</p>
 
                     <div>
                       <label style={{ fontSize: 12, color: '#444444', fontWeight: 600, display: 'block', marginBottom: 6 }}>{translate(langData, "fullName")}</label>
@@ -2680,8 +2678,8 @@ function getTranslationValue(dictionary, key) {
                         type="text" placeholder={translate(langData, "fullNamePlaceholder")}
                         value={name} onChange={e=>{setName(e.target.value);if(errors.name)setErrors(p=>({...p,name:''}))}}
                         style={inputStyle(errors.name)}
-                        onFocus={e=>{e.target.style.borderColor='rgba(212,175,55,0.55)';e.target.style.boxShadow='0 0 0 3px rgba(212,175,55,0.07)';}}
-                        onBlur={e=>{e.target.style.borderColor=errors.name?'rgba(239,68,68,0.6)':'rgba(212,175,55,0.2)';e.target.style.boxShadow='none';}}
+                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.12)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.12)';}}
+                        onBlur={e=>{e.target.style.borderColor=errors.name?'rgba(239,68,68,0.6)':'rgba(0,0,0,0.12)';e.target.style.boxShadow='none';}}
                       />
                       {errors.name && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.name}</p>}
                     </div>
@@ -2692,8 +2690,8 @@ function getTranslationValue(dictionary, key) {
                         type="tel" placeholder="03xxxxxxxxx"
                         value={phone} onChange={e=>{setPhone(e.target.value);if(errors.phone)setErrors(p=>({...p,phone:''}))}}
                         style={inputStyle(errors.phone)}
-                        onFocus={e=>{e.target.style.borderColor='rgba(212,175,55,0.55)';e.target.style.boxShadow='0 0 0 3px rgba(212,175,55,0.07)';}}
-                        onBlur={e=>{e.target.style.borderColor=errors.phone?'rgba(239,68,68,0.6)':'rgba(212,175,55,0.2)';e.target.style.boxShadow='none';}}
+                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.12)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.12)';}}
+                        onBlur={e=>{e.target.style.borderColor=errors.phone?'rgba(239,68,68,0.6)':'rgba(0,0,0,0.12)';e.target.style.boxShadow='none';}}
                       />
                       {errors.phone && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.phone}</p>}
                     </div>
@@ -2705,8 +2703,8 @@ function getTranslationValue(dictionary, key) {
                         value={address} onChange={e=>{setAddress(e.target.value);if(errors.address)setErrors(p=>({...p,address:''}))}}
                         rows={3}
                         style={{ ...inputStyle(errors.address), resize: 'none', fontFamily: 'inherit' }}
-                        onFocus={e=>{e.target.style.borderColor='rgba(212,175,55,0.55)';e.target.style.boxShadow='0 0 0 3px rgba(212,175,55,0.07)';}}
-                        onBlur={e=>{e.target.style.borderColor=errors.address?'rgba(239,68,68,0.6)':'rgba(212,175,55,0.2)';e.target.style.boxShadow='none';}}
+                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.12)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.12)';}}
+                        onBlur={e=>{e.target.style.borderColor=errors.address?'rgba(239,68,68,0.6)':'rgba(0,0,0,0.12)';e.target.style.boxShadow='none';}}
                       />
                       {errors.address && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.address}</p>}
                     </div>
@@ -2726,7 +2724,7 @@ function getTranslationValue(dictionary, key) {
                     disabled={placing}
                     style={{
                       width: '100%', padding: '15px', borderRadius: 14, border: 'none',
-                      background: placing ? 'rgba(212,175,55,0.4)' : 'linear-gradient(135deg,#25d366 0%,#128C7E 100%)',
+                      background: placing ? 'rgba(0,0,0,0.12)' : 'linear-gradient(135deg,#25d366 0%,#128C7E 100%)',
                       color: '#1a1a2e', fontSize: 15, fontWeight: 800,
                       letterSpacing: '0.12em', textTransform: 'uppercase',
                       cursor: placing ? 'not-allowed' : 'pointer',

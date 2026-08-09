@@ -1,4 +1,5 @@
 ﻿import React, { useState, useMemo, useEffect, useRef } from "react";
+
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
     }
@@ -166,11 +167,15 @@ function getTranslationValue(dictionary, key) {
       return finalResult.replace(/\s+/g, " ").trim();
     }
 
+    function toTitleCase(str) {
+      return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    }
+
     function getProductDisplayName(product, language) {
       if (language === "ur") {
         return translateItemNameToUrdu(product.name);
       }
-      return product.name;
+      return toTitleCase(product.name);
     }
 
     // --- Lucide Icons Replacements (SVG Components) ---
@@ -2411,7 +2416,7 @@ function getTranslationValue(dictionary, key) {
                           className="hover:text-black hover:underline transition-colors"
                           title="Click to view product details"
                         >
-                          {product.name}
+                          {toTitleCase(product.name)}
                         </p>
                         <p style={{ fontSize: 12, color: '#000000', fontWeight: 700 }}>{translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} &times; {qty}</p>
                         <p style={{ fontSize: 11, color: 'rgba(0,0,0,0.12)', fontWeight: 700, marginTop: 2 }}>= {translate(langData, "priceLabel", { amount: (product.price * qty).toLocaleString() })}</p>
@@ -2647,7 +2652,7 @@ function getTranslationValue(dictionary, key) {
                                 <span style={{ color: '#1a1a2e', fontSize: 10, fontWeight: 800 }}>{product.initial}</span>
                               </div>
                             )}
-                            <span style={{ fontSize: 12, color: '#1a1a2e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</span>
+                            <span style={{ fontSize: 12, color: '#1a1a2e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{toTitleCase(product.name)}</span>
                           </div>
                           <span style={{ fontSize: 12, color: '#000000', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>&times; {qty} = {translate(langData, "priceLabel", { amount: (product.price*qty).toLocaleString() })}</span>
                         </div>

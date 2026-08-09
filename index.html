@@ -2075,13 +2075,13 @@
               </div>
             </div>
           )}
-          {/* Background Ã¢â‚¬â€ Obsidian & Gold */}
+          {/* Background — Obsidian & Gold */}
           <div className="fixed inset-0 -z-10" style={{ background: '#020205' }} />
           <div className="fixed -top-32 -left-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-amber-500/6 rounded-full blur-[120px] -z-10" />
           <div className="fixed top-1/3 -right-32 w-80 h-80 sm:w-[500px] sm:h-[500px] bg-amber-600/5 rounded-full blur-[100px] -z-10" />
           <div className="fixed bottom-0 left-1/3 w-72 h-72 sm:w-96 sm:h-96 bg-amber-400/4 rounded-full blur-[80px] -z-10" />
 
-          {/* Header Ã¢â‚¬â€ Obsidian & Gold */}
+          {/* Header — Obsidian & Gold */}
           <header className="sticky top-0 z-30 backdrop-blur-xl border-b shadow-xl shadow-black/60" style={{ background: 'rgba(2,2,5,0.85)', borderColor: 'rgba(212,175,55,0.12)' }}>
             <div className="max-w-6xl mx-auto px-4 py-3 mobile-header-row">
               <div className="flex items-center justify-between gap-3">
@@ -2135,7 +2135,7 @@
                 </div>
               </div>
 
-              {/* Search Ã¢â‚¬â€  Gold Glow */}
+              {/* Search — Gold Glow */}
               <div className="mt-3 relative search-wrapper-mobile" ref={searchBoxRef}>
                 <div className="relative">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500/50" />
@@ -2263,6 +2263,7 @@
                 onUpdateQty={updateQty}
                 onRemove={removeFromCart}
                 onCheckout={() => { setCartOpen(false); setCheckoutOpen(true); }}
+                onSelectProduct={handleSelectProductFromCart}
               />
 
               {/* Checkout Modal */}
@@ -2595,7 +2596,7 @@
 
 
     // Ã¢â€â‚¬Ã¢â€â‚¬ CART DRAWER Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-    function CartDrawer({ open, cart, cartTotal, langData, onClose, onUpdateQty, onRemove, onCheckout }) {
+    function CartDrawer({ open, cart, cartTotal, langData, onClose, onUpdateQty, onRemove, onCheckout, onSelectProduct }) {
       useEffect(() => {
         if (open) document.body.style.overflow = 'hidden';
         else document.body.style.overflow = '';
@@ -2666,22 +2667,36 @@
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {cart.map(({ product, qty }) => (
                     <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.1)', borderRadius: 14 }}>
-                      {/* Product Thumbnail / Swatch */}
-                      {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
-                        <img
-                          src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
-                          onError={(e) => { e.target.onerror = null; }}
-                          alt={product.name}
-                          className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 shrink-0 border border-amber-500/20"
-                        />
-                      ) : (
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`}>
-                          <span style={{ color: 'white', fontWeight: 800, fontSize: 16, fontFamily: "'Poppins',sans-serif" }}>{product.initial}</span>
-                        </div>
-                      )}
-                      {/* Info */}
+                      {/* Product Thumbnail / Swatch - Clickable */}
+                      <div 
+                        onClick={() => onSelectProduct && onSelectProduct(product)}
+                        style={{ cursor: 'pointer' }}
+                        className="shrink-0 transition-transform active:scale-95"
+                        title="Click to view product details"
+                      >
+                        {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
+                          <img
+                            src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
+                            onError={(e) => { e.target.onerror = null; }}
+                            alt={product.name}
+                            className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-amber-500/20 hover:border-amber-400 transition-colors"
+                          />
+                        ) : (
+                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`}>
+                            <span style={{ color: 'white', fontWeight: 800, fontSize: 16, fontFamily: "'Poppins',sans-serif" }}>{product.initial}</span>
+                          </div>
+                        )}
+                      </div>
+                      {/* Info - Clickable Title */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.88)', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{product.name}</p>
+                        <p 
+                          onClick={() => onSelectProduct && onSelectProduct(product)}
+                          style={{ cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.88)', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+                          className="hover:text-amber-400 hover:underline transition-colors"
+                          title="Click to view product details"
+                        >
+                          {product.name}
+                        </p>
                         <p style={{ fontSize: 12, color: '#d4af37', fontWeight: 700 }}>{translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} &times; {qty}</p>
                         <p style={{ fontSize: 11, color: 'rgba(212,175,55,0.6)', fontWeight: 700, marginTop: 2 }}>= {translate(langData, "priceLabel", { amount: (product.price * qty).toLocaleString() })}</p>
                       </div>

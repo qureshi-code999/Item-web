@@ -27,6 +27,44 @@ function Get-ProductStats {
     }
 }
 
+function Escape-JsString {
+    param([string]$value)
+    if ($null -eq $value) { return "" }
+    return $value.Replace('\', '\\').Replace('"', '\"')
+}
+
+function Normalize-CategoryId {
+    param([string]$value)
+    $slug = "$value".Trim().ToLower()
+    $slug = [regex]::Replace($slug, '&', ' and ')
+    $slug = [regex]::Replace($slug, '[^a-z0-9]+', '')
+    if ($slug.Length -gt 28) { $slug = $slug.Substring(0, 28) }
+    return $slug
+}
+
+function Ensure-CategoryInFile {
+    param([string]$filePath, [string]$catId, [string]$catName)
+    if (-not (Test-Path $filePath)) { return }
+    if ([string]::IsNullOrWhiteSpace($catId) -or [string]::IsNullOrWhiteSpace($catName)) { return }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $escapedId = Escape-JsString $catId
+    $escapedName = Escape-JsString $catName
+    $idPattern = '(\{\s*id:\s*"' + [regex]::Escape($escapedId) + '"\s*,\s*name:\s*)"[^"]*"'
+    if ([regex]::IsMatch($fc, $idPattern)) {
+        $fc = [regex]::Replace($fc, $idPattern, "`$1`"$escapedName`"")
+    } else {
+        $catStart = $fc.IndexOf("const CATEGORIES = [")
+        if ($catStart -ge 0) {
+            $catEnd = $fc.IndexOf("];", $catStart)
+            if ($catEnd -gt $catStart) {
+                $newCatLine = "`n      { id: `"$escapedId`",        name: `"$escapedName`" },"
+                $fc = $fc.Substring(0, $catEnd) + $newCatLine + $fc.Substring($catEnd)
+            }
+        }
+    }
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+}
+
 function Optimize-ProductImage {
     param([string]$filePath)
     try {
@@ -229,10 +267,20 @@ while ($listener.IsListening) {
                 $editId    = 0; [int]::TryParse("$($f2['id'])", [ref]$editId) | Out-Null
                 $newName   = "$($f2['name'])".Trim().ToUpper()
                 $newPrice  = 0; [int]::TryParse("$($f2['price'])", [ref]$newPrice) | Out-Null
+                $newCatId  = ""
+                if ($f2.ContainsKey("categoryId") -and $f2["categoryId"]) { $newCatId = "$($f2['categoryId'])" }
+                $newCatId = (Normalize-CategoryId $newCatId)
+                $newCatName = ""
+                if ($f2.ContainsKey("categoryName") -and $f2["categoryName"]) { $newCatName = "$($f2['categoryName'])" }
+                $newCatName = $newCatName.Trim()
+                if (-not $newCatName) { $newCatName = $newCatId }
                 if ($editId -le 0)   { throw "Invalid ID" }
                 if (-not $newName)   { throw "Name cannot be empty" }
                 if ($newPrice -le 0) { throw "Price must be positive" }
-                $eName = $newName.Replace('\','\\').Replace('"','\"')
+                if ([string]::IsNullOrWhiteSpace($newCatId)) { throw "Category select karna zaroori hai!" }
+                $eName = Escape-JsString $newName
+                $eCatId = Escape-JsString $newCatId
+                $eCatName = Escape-JsString $newCatName
                 $initial = $newName.Substring(0,1).ToUpper()
 
                 # Save image if provided
@@ -250,11 +298,15 @@ while ($listener.IsListening) {
 
                 foreach ($f in @($htmlFile, $jsxFile)) {
                     if (-not (Test-Path $f)) { continue }
+                    Ensure-CategoryInFile -filePath $f -catId $newCatId -catName $newCatName
                     $fc = [System.IO.File]::ReadAllText($f, [System.Text.Encoding]::UTF8)
                     # Update name
                     $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',\s*name:\s*)"[^"]*"', "`$1`"$eName`"")
                     # Update price
                     $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',\s*name:\s*"[^"]*",\s*price:\s*)\d+', "`${1}$newPrice")
+                    # Update category
+                    $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',[^}]*?categoryId:\s*)"[^"]*"', "`$1`"$eCatId`"")
+                    $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',[^}]*?categoryName:\s*)"[^"]*"', "`$1`"$eCatName`"")
                     # If image newly saved, ensure hasImage, gradient, initial are present
                     if ($imgSaved) {
                         # Check if this item already has hasImage
@@ -275,7 +327,7 @@ while ($listener.IsListening) {
                     }
                     [System.IO.File]::WriteAllText($f, $fc, [System.Text.Encoding]::UTF8)
                 }
-                Write-Host "  EDIT: ID $editId -> '$newName' Rs.$newPrice$(if($imgSaved){' + new image'})" -ForegroundColor Cyan
+                Write-Host "  EDIT: ID $editId -> '$newName' Rs.$newPrice [$newCatName]$(if($imgSaved){' + new image'})" -ForegroundColor Cyan
                 $imgSavedStr = if ($imgSaved) { "true" } else { "false" }
                 $json = "{`"ok`":true,`"imgSaved`":$imgSavedStr,`"message`":`"Item updated successfully`"}"
             } catch {
@@ -339,7 +391,7 @@ while ($listener.IsListening) {
 
                 $catId = ""
                 if ($fields.ContainsKey("categoryId") -and $fields["categoryId"]) { $catId = "$($fields['categoryId'])" }
-                $catId = $catId.Trim()
+                $catId = Normalize-CategoryId $catId
 
                 $catName = ""
                 if ($fields.ContainsKey("categoryName") -and $fields["categoryName"]) { $catName = "$($fields['categoryName'])" }
@@ -366,15 +418,17 @@ while ($listener.IsListening) {
                 $gradients = @("SWATCH_GRADIENTS[0]","SWATCH_GRADIENTS[1]","SWATCH_GRADIENTS[2]","SWATCH_GRADIENTS[3]","SWATCH_GRADIENTS[4]","SWATCH_GRADIENTS[5]","SWATCH_GRADIENTS[6]","SWATCH_GRADIENTS[7]")
                 $grad = $gradients[$newId % 8]
 
-                $escapedName = $name.Replace('\', '\\').Replace('"', '\"')
-                $escapedCat  = $catName.Replace('\', '\\').Replace('"', '\"')
+                $escapedName = Escape-JsString $name
+                $escapedCat  = Escape-JsString $catName
+                $escapedCatId = Escape-JsString $catId
 
                 if ($hasImage) {
-                    $newLine = "`n      { id: $newId, name: `"$escapedName`", price: $price, categoryId: `"$catId`", categoryName: `"$escapedCat`", hasImage: true, gradient: $grad, initial: `"$initial`" },"
+                    $newLine = "`n      { id: $newId, name: `"$escapedName`", price: $price, categoryId: `"$escapedCatId`", categoryName: `"$escapedCat`", hasImage: true, gradient: $grad, initial: `"$initial`" },"
                 } else {
-                    $newLine = "`n      { id: $newId, name: `"$escapedName`", price: $price, categoryId: `"$catId`", categoryName: `"$escapedCat`" },"
+                    $newLine = "`n      { id: $newId, name: `"$escapedName`", price: $price, categoryId: `"$escapedCatId`", categoryName: `"$escapedCat`" },"
                 }
 
+                Ensure-CategoryInFile -filePath $htmlFile -catId $catId -catName $catName
                 $html = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
                 $prodStart = $html.IndexOf("const PRODUCTS = [")
                 if ($prodStart -lt 0) { throw "Could not find PRODUCTS array in index.html" }
@@ -384,6 +438,7 @@ while ($listener.IsListening) {
                 [System.IO.File]::WriteAllText($htmlFile, $updatedHtml, [System.Text.Encoding]::UTF8)
 
                 if (Test-Path $jsxFile) {
+                    Ensure-CategoryInFile -filePath $jsxFile -catId $catId -catName $catName
                     $jsx = [System.IO.File]::ReadAllText($jsxFile, [System.Text.Encoding]::UTF8)
                     $jsxProdStart = $jsx.IndexOf("const PRODUCTS = [")
                     if ($jsxProdStart -ge 0) {

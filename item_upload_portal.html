@@ -388,10 +388,15 @@ function renderItems(){
           '<div class="edit-fields">'+
             '<input class="edit-inp" type="text" id="en-'+p.id+'" value="'+eH(p.name)+'" placeholder="Item Name">'+
             '<input class="edit-price-inp" type="number" id="ep-'+p.id+'" value="'+p.price+'" placeholder="Price" min="1">'+
+            '<select class="edit-cat-select" id="ec-'+p.id+'" onchange="toggleNewCategory(&quot;edit&quot;,'+p.id+')">'+categoryOptions(p.categoryId,true)+'</select>'+
             '<div class="edit-zone-btns">'+
               '<button class="btn btn-save btn-sm" onclick="saveEdit('+p.id+')">&#10003; Save</button>'+
               '<button class="btn btn-cancel-s btn-sm" onclick="cancelEdit('+p.id+')">&#10005;</button>'+
             '</div>'+
+          '</div>'+
+          '<div class="edit-new-cat-row" id="ecnr-'+p.id+'">'+
+            '<input class="edit-inp" type="text" id="ecn-'+p.id+'" placeholder="New Category Name">'+
+            '<input class="edit-inp" type="text" id="eci-'+p.id+'" placeholder="Category ID optional">'+
           '</div>'+
           '<div class="edit-img-row">'+
             '<div class="edit-img-ph" id="eph-'+p.id+'">&#128247;</div>'+
@@ -446,18 +451,22 @@ function clearImg2(id){
 function saveEdit(id){
   var n=document.getElementById('en-'+id).value.trim().toUpperCase();
   var pr=parseInt(document.getElementById('ep-'+id).value,10);
+  var cat=getCategoryPayload('edit',id);
   if(!n){showToast('Item name cannot be empty.','error');return;}
   if(!pr||pr<1){showToast('Please enter a valid price.','error');return;}
+  if(!cat){showToast('Please select or create a category.','error');return;}
   var fd=new FormData();
   fd.append('id',id); fd.append('name',n); fd.append('price',pr);
+  fd.append('categoryId',cat.id); fd.append('categoryName',cat.name);
   if(editFiles[id]) fd.append('image',editFiles[id]);
   fetch('/api/edit-product',{method:'POST',body:fd})
   .then(function(r){return r.json()})
   .then(function(res){
     if(res.ok){
-      allProducts.forEach(function(p){if(p.id===id){p.name=n;p.price=pr;}});
+      rememberCategory(cat.id,cat.name);
+      allProducts.forEach(function(p){if(p.id===id){p.name=n;p.price=pr;p.categoryId=cat.id;p.categoryName=cat.name;}});
       delete editFiles[id];
-      cancelEdit(id); applyFilter(); loadStats();
+      fillCategorySelects(); cancelEdit(id); applyFilter(); loadStats();
       showToast('"'+n+'" updated successfully'+(res.imgSaved?' + image saved.':'.'), 'success');
     }else{
       showToast('Error: '+(res.message||'Update failed'),'error');
@@ -512,9 +521,9 @@ document.getElementById('uploadForm').addEventListener('submit',function(e){
   e.preventDefault();
   var name=document.getElementById('itemName').value.trim().toUpperCase();
   var price=parseInt(document.getElementById('itemPrice').value,10);
-  var catId=document.getElementById('itemCategory').value;
-  var catName=CAT[catId]||catId;
-  if(!name||!price||!catId){showToast('All required fields must be filled.','error');return;}
+  var cat=getCategoryPayload('add');
+  if(!name||!price||!cat){showToast('All required fields must be filled.','error');return;}
+  var catId=cat.id, catName=cat.name;
   var btn=document.getElementById('submitBtn');
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Uploading...';
   var fd=new FormData();
@@ -527,6 +536,7 @@ document.getElementById('uploadForm').addEventListener('submit',function(e){
     var res; try{res=JSON.parse(r.text)}catch(x){res={ok:r.ok,message:r.text}}
     if(r.ok&&res.ok!==false){
       var nid=res.id||statsData.nextId;
+      rememberCategory(catId,catName); fillCategorySelects();
       statsData.total++; statsData.nextId=nid+1;
       if(selFile) statsData.images++;
       document.getElementById('statTotal').textContent=statsData.total;
@@ -535,7 +545,7 @@ document.getElementById('uploadForm').addEventListener('submit',function(e){
       addedToday++; document.getElementById('statToday').textContent=addedToday;
       addRecent({id:nid,name:name,price:price,catName:catName,imgSrc:selFile?previewImg.src:null});
       showToast('"'+name+'" added! (ID: '+nid+')','success');
-      document.getElementById('uploadForm').reset(); clearImg();
+      document.getElementById('uploadForm').reset(); clearImg(); toggleNewCategory('add');
     }else{
       showToast('Error: '+(res.message||r.text),'error');
     }
@@ -563,7 +573,9 @@ function showToast(msg,type){
   setTimeout(function(){if(t.parentElement)t.remove()},6000);
 }
 
+fillCategorySelects();
 loadStats();
+loadProducts();
 </script>
 </body>
 </html>

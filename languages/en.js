@@ -55,6 +55,6 @@ window.TRANSLATIONS.en = {
     babycare: "Baby Care",
     shaving: "Shaving & Blades",
     beverages: "Food & Beverages",
-    general: "General Items & Stationary"
+    general: "General Items & Stationery"
   }
 };

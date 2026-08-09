@@ -235,6 +235,11 @@
       height: auto;
       object-fit: contain;
     }
+    .cat-card-title {
+      font-size: 13px !important;
+      line-height: 1.2 !important;
+      overflow-wrap: anywhere;
+    }
 
     /* Hide broken image alt text - stops blinking text on failed images */
     img { color: transparent !important; font-size: 0 !important; }
@@ -2507,7 +2512,7 @@
                   <div style={{ padding: '14px 16px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.12)' }}>
                     <div>
                       <h3 className="cat-card-title" style={{ 
-                        fontSize: 13,
+                        fontSize: '13px',
                         fontWeight: 800, 
                         fontFamily: "'Poppins', sans-serif", 
                         letterSpacing: '0.02em', 

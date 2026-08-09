@@ -1,5 +1,7 @@
-﻿import React, { useState, useMemo, useEffect, useRef } from "react";
-function getTranslationValue(dictionary, key) {
+﻿
+    const { useState, useMemo, useEffect, useRef } = React;
+
+    function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
     }
 
@@ -1428,7 +1430,7 @@ function getTranslationValue(dictionary, key) {
     const PAGE_SIZE = 10;
     const RECENT_LIMIT = 15;
 
-    export default function SahilTraders() {
+    function SahilTraders() {
       const products = PRODUCTS;
       const [language, setLanguage] = useState("en");
       const [showSplash, setShowSplash] = useState(true);
@@ -1946,7 +1948,7 @@ function getTranslationValue(dictionary, key) {
       others:       { image: '', gradient: 'linear-gradient(135deg,#8e9eab,#eef2f3)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>) },
     };
 
-    // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
+    // Ã¢â€â‚¬Ã¢â€â‚¬ CATEGORY HOME Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     function CategoryHome({ products, onSelectCategory, langData }) {
       return (
         <div>
@@ -2037,6 +2039,7 @@ function getTranslationValue(dictionary, key) {
                               </div>
                             );
                           })}
+                        </div>
                         </div>
                       </div>
                     ) : (
@@ -2593,3 +2596,8 @@ function getTranslationValue(dictionary, key) {
         </div>
       );
     }
+
+    const container = document.getElementById('root');
+    const root = ReactDOM.createRoot(container);
+    root.render(<SahilTraders />);
+  

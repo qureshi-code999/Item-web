@@ -2313,11 +2313,25 @@ function getTranslationValue(dictionary, key) {
 
     // Ã¢â€â‚¬Ã¢â€â‚¬ CART DRAWER Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
     function CartDrawer({ open, cart, cartTotal, langData, onClose, onUpdateQty, onRemove, onCheckout, onSelectProduct }) {
+      const [deleteConfirm, setDeleteConfirm] = React.useState(null);
+
       useEffect(() => {
         if (open) document.body.style.overflow = 'hidden';
         else document.body.style.overflow = '';
         return () => { document.body.style.overflow = ''; };
       }, [open]);
+
+      function handleMinusClick(productId, qty) {
+        if (qty === 1) {
+          setDeleteConfirm(productId);
+        } else {
+          onUpdateQty(productId, -1);
+        }
+      }
+
+      function confirmDelete() {
+        if (deleteConfirm) { onRemove(deleteConfirm); setDeleteConfirm(null); }
+      }
 
       return (
         <>
@@ -2383,8 +2397,8 @@ function getTranslationValue(dictionary, key) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {cart.map(({ product, qty }) => (
                     <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.1)', borderRadius: 14 }}>
-                      {/* Product Thumbnail / Swatch - Clickable */}
-                      <div 
+                      {/* Product Thumbnail - Clickable */}
+                      <div
                         onClick={() => onSelectProduct && onSelectProduct(product)}
                         style={{ cursor: 'pointer' }}
                         className="shrink-0 transition-transform active:scale-95"
@@ -2403,9 +2417,9 @@ function getTranslationValue(dictionary, key) {
                           </div>
                         )}
                       </div>
-                      {/* Info - Clickable Title */}
+                      {/* Info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p 
+                        <p
                           onClick={() => onSelectProduct && onSelectProduct(product)}
                           style={{ cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.88)', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
                           className="hover:text-amber-400 hover:underline transition-colors"
@@ -2416,21 +2430,39 @@ function getTranslationValue(dictionary, key) {
                         <p style={{ fontSize: 12, color: '#d4af37', fontWeight: 700 }}>{translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} &times; {qty}</p>
                         <p style={{ fontSize: 11, color: 'rgba(212,175,55,0.6)', fontWeight: 700, marginTop: 2 }}>= {translate(langData, "priceLabel", { amount: (product.price * qty).toLocaleString() })}</p>
                       </div>
-                      {/* Qty controls */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(212,175,55,0.08)', borderRadius: 10, padding: '4px 8px', border: '1px solid rgba(212,175,55,0.18)' }}>
-                          <button onClick={() => onUpdateQty(product.id, -1)} style={{ width: 24, height: 24, border: 'none', background: 'none', color: '#d4af37', fontSize: 18, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>
-                            -
-                          </button>
-                          <span style={{ minWidth: 20, textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'white' }}>{qty}</span>
-                          <button onClick={() => onUpdateQty(product.id, 1)} style={{ width: 24, height: 24, border: 'none', background: 'none', color: '#d4af37', fontSize: 18, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>
-                            +
-                          </button>
+                      {/* Smart Qty Controls */}
+                      <div style={{ flexShrink: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(212,175,55,0.08)', borderRadius: 10, padding: '4px 6px', border: '1px solid rgba(212,175,55,0.18)' }}>
+                          {/* Left: Trash if qty=1, Minus if qty>1 */}
+                          {qty === 1 ? (
+                            <button
+                              onClick={() => handleMinusClick(product.id, qty)}
+                              title="Remove item"
+                              style={{ width: 28, height: 28, border: 'none', background: 'rgba(239,68,68,0.12)', color: 'rgba(239,68,68,0.9)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'all 0.2s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background='rgba(239,68,68,0.25)'; e.currentTarget.style.color='#ef4444'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background='rgba(239,68,68,0.12)'; e.currentTarget.style.color='rgba(239,68,68,0.9)'; }}
+                            >
+                              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleMinusClick(product.id, qty)}
+                              style={{ width: 28, height: 28, border: 'none', background: 'none', color: '#d4af37', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'background 0.2s' }}
+                              onMouseEnter={e => e.currentTarget.style.background='rgba(212,175,55,0.15)'}
+                              onMouseLeave={e => e.currentTarget.style.background='none'}
+                            >−</button>
+                          )}
+                          <span style={{ minWidth: 24, textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'white' }}>{qty}</span>
+                          {/* Right: always Plus */}
+                          <button
+                            onClick={() => onUpdateQty(product.id, 1)}
+                            style={{ width: 28, height: 28, border: 'none', background: 'none', color: '#d4af37', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'background 0.2s' }}
+                            onMouseEnter={e => e.currentTarget.style.background='rgba(212,175,55,0.15)'}
+                            onMouseLeave={e => e.currentTarget.style.background='none'}
+                          >+</button>
                         </div>
-                        <button onClick={() => onRemove(product.id)} style={{ background: 'none', border: 'none', color: 'rgba(239,68,68,0.6)', cursor: 'pointer', fontSize: 10, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}
-                          onMouseEnter={e=>e.currentTarget.style.color='rgba(239,68,68,1)'}
-                          onMouseLeave={e=>e.currentTarget.style.color='rgba(239,68,68,0.6)'}
-                        >{translate(langData, "removeBtn")}</button>
                       </div>
                     </div>
                   ))}
@@ -2438,7 +2470,41 @@ function getTranslationValue(dictionary, key) {
               )}
             </div>
 
-            {/* Footer */}
+          {/* Delete Confirmation Modal */}
+          {deleteConfirm && (
+            <div
+              onClick={() => setDeleteConfirm(null)}
+              style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+            >
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{ background: '#fff', borderRadius: 16, padding: '32px 24px 24px', maxWidth: 320, width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.55)', textAlign: 'center', position: 'relative' }}
+              >
+                <button onClick={() => setDeleteConfirm(null)} style={{ position: 'absolute', top: 12, right: 14, background: 'none', border: 'none', fontSize: 18, color: '#aaa', cursor: 'pointer' }}>✕</button>
+                <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  <svg width="26" height="26" fill="none" stroke="#ef4444" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </div>
+                <p style={{ fontSize: 16, fontWeight: 700, color: '#111', marginBottom: 8 }}>Are you sure to delete this item?</p>
+                <p style={{ fontSize: 12, color: '#888', marginBottom: 24 }}>This item will be removed from your cart.</p>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    onClick={() => setDeleteConfirm(null)}
+                    style={{ flex: 1, padding: '12px', border: '1.5px solid #ddd', borderRadius: 10, background: '#fff', color: '#444', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'background 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.background='#f5f5f5'}
+                    onMouseLeave={e => e.currentTarget.style.background='#fff'}
+                  >Cancel</button>
+                  <button
+                    onClick={confirmDelete}
+                    style={{ flex: 1, padding: '12px', border: 'none', borderRadius: 10, background: '#1a1a2e', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'background 0.2s' }}
+                    onMouseEnter={e => e.currentTarget.style.background='#2d2d50'}
+                    onMouseLeave={e => e.currentTarget.style.background='#1a1a2e'}
+                  >Delete</button>
+                </div>
+              </div>
+            </div>
+          )}            {/* Footer */}
             {cart.length > 0 && (
               <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(212,175,55,0.12)', flexShrink: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>

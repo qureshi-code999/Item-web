@@ -1054,7 +1054,7 @@ function getTranslationValue(dictionary, key) {
       { id: 818, name: "PENCIL ORO", price: 19, categoryId: "general", categoryName: "General Items & Stationery", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
       { id: 819, name: "PERFUME ALISHA (GOLD)", price: 1590, categoryId: "fragnances", categoryName: "Fragnances" },
       { id: 820, name: "PERFUME ALISHA (NAVY)", price: 1590, categoryId: "fragnances", categoryName: "Fragnances" },
-      { id: 821, name: "PERFUME ALISHA (ROSE)", price: 1590, categoryId: "perfumes", categoryName: "Perfumes" },
+      { id: 821, name: "PERFUME ALISHA (ROSE)", price: 1590, categoryId: "fragnances", categoryName: "Fragnances" },
       { id: 822, name: "PERFUME ASEEL", price: 1790, categoryId: "perfume", categoryName: "Perfumes & Body Spray", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
       { id: 823, name: "PERFUME DELYCIA (MEDIUM) BEAUTY RS,650", price: 619, categoryId: "perfume", categoryName: "Perfumes & Body Spray", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
       { id: 824, name: "PERFUME DELYCIA (MEDIUM) CHECK RS,650", price: 619, categoryId: "perfume", categoryName: "Perfumes & Body Spray", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },

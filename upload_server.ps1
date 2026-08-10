@@ -35,6 +35,12 @@ function Escape-JsString {
     return $value.Replace('\', '\\').Replace('"', '\"')
 }
 
+function Escape-JsonString {
+    param([string]$value)
+    if ($null -eq $value) { return "" }
+    return $value.Replace('\', '\\').Replace('"', '\"').Replace("`r", "\r").Replace("`n", "\n")
+}
+
 function Normalize-CategoryId {
     param([string]$value)
     $slug = "$value".Trim().ToLower()
@@ -65,6 +71,36 @@ function Ensure-CategoryInFile {
         }
     }
     [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+}
+
+function Remove-CategoryFromFile {
+    param([string]$filePath, [string]$catId)
+    if (-not (Test-Path $filePath)) { return }
+    if ([string]::IsNullOrWhiteSpace($catId)) { return }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $escapedId = [regex]::Escape($catId)
+    $pattern = '(?m)^\s*\{\s*id:\s*"' + $escapedId + '"\s*,\s*name:\s*"[^"]*"\s*\},?\s*\r?\n?'
+    $fc = [regex]::Replace($fc, $pattern, "")
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+}
+
+function Get-CategoryRows {
+    if (-not (Test-Path $htmlFile)) { return @() }
+    $content = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
+    $catStart = $content.IndexOf("const CATEGORIES = [")
+    if ($catStart -lt 0) { return @() }
+    $catEnd = $content.IndexOf("];", $catStart)
+    if ($catEnd -lt $catStart) { return @() }
+    $catBlock = $content.Substring($catStart + "const CATEGORIES = [".Length, $catEnd - $catStart - "const CATEGORIES = [".Length)
+    $catMatches = [regex]::Matches($catBlock, '\{\s*id:\s*"([^"]+)"\s*,\s*name:\s*"([^"]+)"\s*\}')
+    $rows = @()
+    foreach ($m in $catMatches) {
+        $id = $m.Groups[1].Value
+        $name = $m.Groups[2].Value
+        $count = [regex]::Matches($content, 'categoryId:\s*"' + [regex]::Escape($id) + '"').Count
+        $rows += [pscustomobject]@{ id=$id; name=$name; count=$count }
+    }
+    return $rows
 }
 
 function Optimize-ProductImage {
@@ -371,6 +407,27 @@ while ($true) {
             continue
         }
 
+        if ($request.HttpMethod -eq "GET" -and $path -eq "/api/categories") {
+            try {
+                $rows = Get-CategoryRows
+                $items = $rows | ForEach-Object {
+                    $cid = Escape-JsonString $_.id
+                    $cname = Escape-JsonString $_.name
+                    "{`"id`":`"$cid`",`"name`":`"$cname`",`"count`":$($_.count)}"
+                }
+                $json = "[" + ($items -join ",") + "]"
+            } catch {
+                $json = "[]"
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.StatusCode = 200
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.Close()
+            continue
+        }
+
         if ($request.HttpMethod -eq "POST" -and $path -eq "/api/edit-product") {
             try {
                 $parsed2   = Parse-Multipart -stream $request.InputStream -contentType $request.ContentType
@@ -442,6 +499,39 @@ while ($true) {
                 Write-Host "  EDIT: ID $editId -> '$newName' Rs.$newPrice [$newCatName]$(if($imgSaved){' + new image'})" -ForegroundColor Cyan
                 $imgSavedStr = if ($imgSaved) { "true" } else { "false" }
                 $json = "{`"ok`":true,`"imgSaved`":$imgSavedStr,`"message`":`"Item updated successfully`"}"
+            } catch {
+                $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
+                $json = "{`"ok`":false,`"message`":`"$em`"}"
+                $response.StatusCode = 400
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.Close()
+            continue
+        }
+
+        if ($request.HttpMethod -eq "POST" -and $path -eq "/api/delete-category") {
+            try {
+                $parsedCat = Parse-Multipart -stream $request.InputStream -contentType $request.ContentType
+                $catId = ""
+                if ($parsedCat.fields.ContainsKey("categoryId") -and $parsedCat.fields["categoryId"]) {
+                    $catId = "$($parsedCat.fields['categoryId'])"
+                }
+                $catId = Normalize-CategoryId $catId
+                if ([string]::IsNullOrWhiteSpace($catId)) { throw "Invalid category" }
+
+                $rows = Get-CategoryRows
+                $row = @($rows | Where-Object { $_.id -eq $catId } | Select-Object -First 1)
+                if (-not $row -or $row.Count -eq 0) { throw "Category not found" }
+                if ([int]$row[0].count -gt 0) { throw "Category empty nahi hai. Pehle is category ke items shift ya delete karein." }
+
+                foreach ($f in @($htmlFile, $jsxFile)) {
+                    Remove-CategoryFromFile -filePath $f -catId $catId
+                }
+                Write-Host "  DELETE CATEGORY: $catId" -ForegroundColor Yellow
+                $json = "{`"ok`":true,`"message`":`"Category deleted successfully`"}"
             } catch {
                 $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
                 $json = "{`"ok`":false,`"message`":`"$em`"}"

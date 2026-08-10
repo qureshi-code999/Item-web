@@ -1539,14 +1539,23 @@ function getTranslationValue(dictionary, key) {
           }
         };
 
+        const handlePageShow = () => primeBackTrap(true);
+        const handleFocus = () => primeBackTrap(false);
+        const handleFirstTouch = () => primeBackTrap(false);
+        const handleFirstClick = () => primeBackTrap(false);
+
         primeBackTrap(true);
         window.addEventListener('popstate', handlePopState);
-        window.addEventListener('pageshow', () => primeBackTrap(true));
-        window.addEventListener('focus', () => primeBackTrap(false));
-        window.addEventListener('touchstart', () => primeBackTrap(false), { once: true, passive: true });
-        window.addEventListener('click', () => primeBackTrap(false), { once: true });
+        window.addEventListener('pageshow', handlePageShow);
+        window.addEventListener('focus', handleFocus);
+        window.addEventListener('touchstart', handleFirstTouch, { once: true, passive: true });
+        window.addEventListener('click', handleFirstClick, { once: true });
         return () => {
           window.removeEventListener('popstate', handlePopState);
+          window.removeEventListener('pageshow', handlePageShow);
+          window.removeEventListener('focus', handleFocus);
+          window.removeEventListener('touchstart', handleFirstTouch);
+          window.removeEventListener('click', handleFirstClick);
         };
       }, []);
 

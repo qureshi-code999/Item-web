@@ -66,6 +66,10 @@
     .filter-row select{flex:1;min-width:180px;max-width:240px}
     .filter-row input[type=search]{flex:2;min-width:160px}
     .item-count{font-size:12px;color:var(--text-muted);white-space:nowrap}
+    .category-admin-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);border-radius:12px;padding:12px;margin-bottom:16px}
+    .category-admin-row label{margin-right:auto;color:#fca5a5}
+    .category-admin-row select{flex:1;min-width:190px;max-width:320px;background:var(--bg)}
+    .category-admin-row .hint{width:100%;font-size:11px;color:var(--text-muted);line-height:1.45}
     .items-list{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow-y:auto;padding-right:4px}
     .items-list::-webkit-scrollbar{width:5px}
     .items-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
@@ -235,6 +239,12 @@
       <input type="search" id="filterSearch" placeholder="Search item name..." oninput="applyFilter()">
       <span class="item-count" id="itemCount"></span>
     </div>
+    <div class="category-admin-row">
+      <label>Delete Empty Category</label>
+      <select id="deleteCategorySelect"></select>
+      <button class="btn btn-danger" onclick="deleteEmptyCategory()">Delete Category</button>
+      <div class="hint">Sirf woh category delete hogi jisme 0 items hon. Jis category me item hai, woh delete nahi hogi.</div>
+    </div>
     <div class="items-list" id="itemsList">
       <div class="loading-row">&#8987; Loading items...</div>
     </div>
@@ -255,6 +265,7 @@
 var selFile=null, statsData={total:0,nextId:0,images:0}, addedToday=0, recentItems=[];
 var allProducts=[], filteredProducts=[], delId=null, delName=null, editFiles={};
 var activeTab='add';
+var categoryRows=[];
 var CAT={soaps:'Soaps',shampoo:'Shampoo & Conditioner',perfumes:'Perfumes',bodyspray:'Body Spray',creams:'Creams',bleachfacial:'Bleach & Facial',stationary:'Stationery',sports:'Sports',toys:'Toys',birthday:'Birthday',powders:'Powders',tapes:'Tapes',shaving:'Shaving',haircolour:'Hair Colour',haircare:'Hair Care & Oil',condemn:'Condoms',lock:'Lock',general:'General Items',bodylotion:'Body Lotions',babycare:'Baby Care',blades:'Blades & Razors',cells:'Cells',mosquito:'Anti-Mosquito',personalcare:'Personal Care',others:'Others'};
 var CAT_ORDER=['soaps','shampoo','perfumes','bodyspray','creams','bleachfacial','stationary','sports','toys','birthday','powders','tapes','shaving','haircolour','haircare','condemn','lock','general','bodylotion','babycare','blades','cells','mosquito','personalcare','others'];
 var API_BASE=window.location.protocol==='file:'?'http://localhost:8888':'';
@@ -281,11 +292,21 @@ function rememberCategory(id,name){
   if(!CAT[id]) CAT_ORDER.push(id);
   CAT[id]=name;
 }
+function refreshCategoryCounts(){
+  var counts={};
+  allProducts.forEach(function(p){counts[p.categoryId]=(counts[p.categoryId]||0)+1});
+  categoryRows=CAT_ORDER.filter(function(id){return CAT[id]}).map(function(id){
+    var existing=categoryRows.find(function(c){return c.id===id});
+    return {id:id,name:CAT[id],count:counts[id]||0,serverCount:existing?existing.serverCount:counts[id]||0};
+  });
+  renderDeleteCategoryOptions();
+}
 function rebuildCategoriesFromProducts(){
   var filterValue=document.getElementById('filterCategory')?.value||'';
   allProducts.forEach(function(p){rememberCategory(p.categoryId,p.categoryName||p.categoryId)});
   fillCategorySelects();
   if(filterValue && CAT[filterValue]) document.getElementById('filterCategory').value=filterValue;
+  refreshCategoryCounts();
 }
 function eH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function categoryOptions(selected,includeCreate){
@@ -305,6 +326,31 @@ function fillCategorySelects(){
   addSel.innerHTML=categoryOptions(addValue,true);
   filterSel.innerHTML='<option value="">All Categories</option>'+CAT_ORDER.map(function(id){return CAT[id]?'<option value="'+eH(id)+'">'+eH(CAT[id])+'</option>':''}).join('');
   if(filterValue && CAT[filterValue]) filterSel.value=filterValue;
+  renderDeleteCategoryOptions();
+}
+function loadCategories(){
+  return fetchJsonRetry('/api/categories',8).then(function(rows){
+    categoryRows=rows.map(function(c){return {id:c.id,name:c.name,count:c.count||0,serverCount:c.count||0}});
+    rows.forEach(function(c){rememberCategory(c.id,c.name)});
+    fillCategorySelects();
+    renderDeleteCategoryOptions();
+  }).catch(function(){renderDeleteCategoryOptions()});
+}
+function renderDeleteCategoryOptions(){
+  var sel=document.getElementById('deleteCategorySelect');
+  if(!sel) return;
+  var old=sel.value;
+  var emptyRows=categoryRows.filter(function(c){return (c.count||0)===0});
+  if(!emptyRows.length){
+    sel.innerHTML='<option value="">No empty categories</option>';
+    sel.disabled=true;
+    return;
+  }
+  sel.disabled=false;
+  sel.innerHTML='<option value="">-- Select Empty Category --</option>'+emptyRows.map(function(c){
+    return '<option value="'+eH(c.id)+'">'+eH(c.name)+' (0 items)</option>';
+  }).join('');
+  if(old && emptyRows.some(function(c){return c.id===old})) sel.value=old;
 }
 function toggleNewCategory(scope,id){
   if(scope==='add'){
@@ -370,6 +416,33 @@ function loadProducts(){
   .catch(function(){
     l.innerHTML='<div class="empty-state"><div class="em">&#9888;&#65039;</div>Could not load products.<br>Please run ITEM UPLOAD.bat, then click below.<br><br><button class="btn btn-edit" onclick="loadStats();loadProducts()">Retry Loading</button></div>';
   });
+}
+
+function deleteEmptyCategory(){
+  var sel=document.getElementById('deleteCategorySelect');
+  var catId=sel.value;
+  if(!catId){showToast('Please select an empty category first.','error');return;}
+  var catName=CAT[catId]||catId;
+  var row=categoryRows.find(function(c){return c.id===catId});
+  if(row && row.count>0){showToast('This category still has items. Pehle items shift/delete karein.','error');return;}
+  if(!confirm('Delete empty category "'+catName+'"?')) return;
+  var fd=new FormData();
+  fd.append('categoryId',catId);
+  fetch(apiUrl('/api/delete-category'),{method:'POST',body:fd})
+  .then(function(r){return r.json()})
+  .then(function(res){
+    if(res.ok){
+      delete CAT[catId];
+      CAT_ORDER=CAT_ORDER.filter(function(id){return id!==catId});
+      categoryRows=categoryRows.filter(function(c){return c.id!==catId});
+      if(document.getElementById('filterCategory').value===catId) document.getElementById('filterCategory').value='';
+      fillCategorySelects(); applyFilter();
+      showToast('"'+catName+'" category deleted successfully.','success');
+    }else{
+      showToast('Error: '+(res.message||'Category delete failed'),'error');
+      loadCategories().then(function(){applyFilter()});
+    }
+  }).catch(function(){showToast('Server connection error.','error');});
 }
 
 function applyFilter(){
@@ -494,7 +567,7 @@ function saveEdit(id){
       rememberCategory(cat.id,cat.name);
       allProducts.forEach(function(p){if(p.id===id){p.name=n;p.price=pr;p.categoryId=cat.id;p.categoryName=cat.name;}});
       delete editFiles[id];
-      fillCategorySelects(); applyFilter(); loadStats();
+      fillCategorySelects(); refreshCategoryCounts(); applyFilter(); loadStats();
       showToast('"'+n+'" updated successfully'+(res.imgSaved?' + image saved.':'.'), 'success');
     }else{
       showToast('Error: '+(res.message||'Update failed'),'error');
@@ -521,7 +594,7 @@ document.getElementById('confirmDelBtn').onclick=function(){
   .then(function(res){
     if(res.ok){
       allProducts=allProducts.filter(function(p){return p.id!==id;});
-      applyFilter(); loadStats();
+      refreshCategoryCounts(); applyFilter(); loadStats();
       showToast('"'+name+'" deleted successfully.','success');
     }else{
       showToast('Error: '+(res.message||'Delete failed'),'error');
@@ -573,6 +646,7 @@ document.getElementById('uploadForm').addEventListener('submit',function(e){
       addedToday++; document.getElementById('statToday').textContent=addedToday;
       addRecent({id:nid,name:name,price:price,catName:catName,imgSrc:selFile?previewImg.src:null});
       allProducts.push({id:nid,name:name,price:price,categoryId:catId,categoryName:catName});
+      refreshCategoryCounts();
       if(activeTab==='manage') applyFilter();
       showToast('"'+name+'" added! (ID: '+nid+')','success');
       document.getElementById('uploadForm').reset(); clearImg(); toggleNewCategory('add');
@@ -611,7 +685,7 @@ try{
   document.getElementById('filterSearch').value=savedSearch;
 }catch(e){}
 loadStats();
-loadProducts();
+loadCategories().then(function(){loadProducts()});
 try{
   var savedTab=sessionStorage.getItem('itemUploadActiveTab')||'add';
   if(['add','manage','recent'].indexOf(savedTab)>=0) switchTab(savedTab);

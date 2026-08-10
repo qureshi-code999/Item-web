@@ -1467,6 +1467,7 @@ function getTranslationValue(dictionary, key) {
       const isSearching = searchTerm.trim() !== "";
       const backStateRef = useRef({});
       const allowRealBackRef = useRef(false);
+      const backTrapPrimedRef = useRef(false);
 
       useEffect(() => {
         try {
@@ -1499,13 +1500,21 @@ function getTranslationValue(dictionary, key) {
 
       // Smart Mobile / Hardware Back Button Interceptor
       useEffect(() => {
-        try {
-          window.history.replaceState({ page: 'sahil-entry' }, '');
-          window.history.pushState({ page: 'sahil-app' }, '');
-        } catch(e) {}
+        const primeBackTrap = (force = false) => {
+          if (allowRealBackRef.current) return;
+          try {
+            const url = window.location.href;
+            if (!backTrapPrimedRef.current || force) {
+              window.history.replaceState({ page: 'sahil-entry', trap: true }, '', url);
+              window.history.pushState({ page: 'sahil-app', trap: true, layer: 1 }, '', url);
+              window.history.pushState({ page: 'sahil-app', trap: true, layer: 2 }, '', url);
+              backTrapPrimedRef.current = true;
+            }
+          } catch(e) {}
+        };
 
         const keepInsideApp = () => {
-          try { window.history.pushState({ page: 'sahil-app' }, ''); } catch(e) {}
+          setTimeout(() => primeBackTrap(true), 0);
         };
 
         const handlePopState = (event) => {
@@ -1530,7 +1539,12 @@ function getTranslationValue(dictionary, key) {
           }
         };
 
+        primeBackTrap(true);
         window.addEventListener('popstate', handlePopState);
+        window.addEventListener('pageshow', () => primeBackTrap(true));
+        window.addEventListener('focus', () => primeBackTrap(false));
+        window.addEventListener('touchstart', () => primeBackTrap(false), { once: true, passive: true });
+        window.addEventListener('click', () => primeBackTrap(false), { once: true });
         return () => {
           window.removeEventListener('popstate', handlePopState);
         };
@@ -1858,16 +1872,13 @@ function getTranslationValue(dictionary, key) {
               </button>
 
               <div className="relative flex flex-col items-center gap-7 max-w-sm px-4 z-10">
-                {/* Modern Cinematic Logo Container (The Sun) */}
-                <div className="relative flex items-center justify-center w-28 h-28 sm:w-32 sm:h-32 group logo-emerge gold-sun-glow">
-                  {/* Outer spinning gradient ring representing solar corona */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-amber-500 via-amber-400 to-transparent rounded-full blur-lg opacity-40 animate-slow-spin" />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-amber-500 via-amber-400 to-transparent rounded-full animate-slow-spin" />
-
-                  {/* Inner glass box */}
-                  <div className="absolute inset-[2px] bg-black rounded-full flex items-center justify-center">
-                    <Store className="w-12 h-12 sm:w-14 sm:h-14 text-black" />
-                  </div>
+                {/* Brand logo */}
+                <div className="relative flex items-center justify-center w-40 h-32 sm:w-48 sm:h-40 group logo-emerge">
+                  <img
+                    src="images/sahil-traders-logo.png"
+                    alt="Sahil Traders"
+                    className="w-full h-full object-contain drop-shadow-xl"
+                  />
                 </div>
 
                 {/* Brand Name Text with Cinematic Shimmer Sweep */}
@@ -1876,11 +1887,8 @@ function getTranslationValue(dictionary, key) {
                     className="text-4xl sm:text-5xl font-black tracking-[0.2em] uppercase gold-shimmer"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
-                    {translate(langData, "appTitle")}
+                    Sahil Traders
                   </h1>
-                  <p className="text-gray-700 text-[10px] sm:text-xs font-bold tracking-[0.4em] uppercase mt-3.5 animate-pulse">
-                    {translate(langData, "subtitle")}
-                  </p>
                 </div>
 
                 {/* Progress Loader bar */}
@@ -1901,16 +1909,18 @@ function getTranslationValue(dictionary, key) {
             <div className="max-w-6xl mx-auto px-4 py-3 mobile-header-row">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
+                  <img
+                    src="images/sahil-traders-logo.png"
+                    alt="Sahil Traders"
+                    className="w-12 h-12 sm:w-14 sm:h-14 object-contain shrink-0"
+                  />
                   <div>
                     <h1
                       className="mobile-logo-title text-lg sm:text-xl font-black leading-tight tracking-widest uppercase"
                       style={{ fontFamily: "'Poppins', sans-serif", color: '#000000' }}
                     >
-                      {translate(langData, "appTitle")}
+                      Sahil Traders
                     </h1>
-                    <p className="mobile-logo-subtitle text-gray-700 text-[10px] sm:text-[11px] font-semibold tracking-[0.25em] uppercase">
-                      {translate(langData, "subtitle")}
-                    </p>
                   </div>
                 </div>
 

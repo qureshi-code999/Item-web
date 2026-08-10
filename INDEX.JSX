@@ -1468,6 +1468,7 @@ function getTranslationValue(dictionary, key) {
       const backStateRef = useRef({});
       const allowRealBackRef = useRef(false);
       const backTrapPrimedRef = useRef(false);
+      const primeBackTrapRef = useRef(() => {});
 
       useEffect(() => {
         try {
@@ -1496,6 +1497,9 @@ function getTranslationValue(dictionary, key) {
           isSearching,
           activeCategory
         };
+        setTimeout(() => {
+          if (!allowRealBackRef.current) primeBackTrapRef.current(true);
+        }, 80);
       }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, isSearching, activeCategory]);
 
       // Smart Mobile / Hardware Back Button Interceptor
@@ -1512,9 +1516,11 @@ function getTranslationValue(dictionary, key) {
             }
           } catch(e) {}
         };
+        primeBackTrapRef.current = primeBackTrap;
 
         const keepInsideApp = () => {
-          setTimeout(() => primeBackTrap(true), 0);
+          primeBackTrap(true);
+          setTimeout(() => primeBackTrap(true), 80);
         };
 
         const handlePopState = (event) => {
@@ -2148,6 +2154,7 @@ function getTranslationValue(dictionary, key) {
                       <button
                         onClick={() => {
                           setExitModalOpen(false);
+                          setTimeout(() => primeBackTrapRef.current(true), 80);
                         }}
                         className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-gray-100 text-black text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-all cursor-pointer"
                       >

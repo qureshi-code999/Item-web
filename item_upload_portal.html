@@ -303,7 +303,6 @@ function refreshCategoryCounts(){
 }
 function rebuildCategoriesFromProducts(){
   var filterValue=document.getElementById('filterCategory')?.value||'';
-  allProducts.forEach(function(p){rememberCategory(p.categoryId,p.categoryName||p.categoryId)});
   fillCategorySelects();
   if(filterValue && CAT[filterValue]) document.getElementById('filterCategory').value=filterValue;
   refreshCategoryCounts();
@@ -330,6 +329,8 @@ function fillCategorySelects(){
 }
 function loadCategories(){
   return fetchJsonRetry('/api/categories',8).then(function(rows){
+    CAT={};
+    CAT_ORDER=[];
     categoryRows=rows.map(function(c){return {id:c.id,name:c.name,count:c.count||0,serverCount:c.count||0}});
     rows.forEach(function(c){rememberCategory(c.id,c.name)});
     fillCategorySelects();

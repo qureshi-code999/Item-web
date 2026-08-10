@@ -254,8 +254,23 @@
 <script>
 var selFile=null, statsData={total:0,nextId:0,images:0}, addedToday=0, recentItems=[];
 var allProducts=[], filteredProducts=[], delId=null, delName=null, editFiles={};
+var activeTab='add';
 var CAT={soaps:'Soaps',shampoo:'Shampoo & Conditioner',perfumes:'Perfumes',bodyspray:'Body Spray',creams:'Creams',bleachfacial:'Bleach & Facial',stationary:'Stationery',sports:'Sports',toys:'Toys',birthday:'Birthday',powders:'Powders',tapes:'Tapes',shaving:'Shaving',haircolour:'Hair Colour',haircare:'Hair Care & Oil',condemn:'Condoms',lock:'Lock',general:'General Items',bodylotion:'Body Lotions',babycare:'Baby Care',blades:'Blades & Razors',cells:'Cells',mosquito:'Anti-Mosquito',personalcare:'Personal Care',others:'Others'};
 var CAT_ORDER=['soaps','shampoo','perfumes','bodyspray','creams','bleachfacial','stationary','sports','toys','birthday','powders','tapes','shaving','haircolour','haircare','condemn','lock','general','bodylotion','babycare','blades','cells','mosquito','personalcare','others'];
+var API_BASE=window.location.protocol==='file:'?'http://localhost:8888':'';
+
+function apiUrl(path){return API_BASE+path;}
+function wait(ms){return new Promise(function(resolve){setTimeout(resolve,ms)});}
+function fetchJsonRetry(path,tries){
+  tries=tries||8;
+  return fetch(apiUrl(path)).then(function(r){
+    if(!r.ok) throw new Error('Server not ready');
+    return r.json();
+  }).catch(function(err){
+    if(tries<=1) throw err;
+    return wait(650).then(function(){return fetchJsonRetry(path,tries-1)});
+  });
+}
 
 function slugifyCategory(s){
   return String(s||'').toLowerCase().trim().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'').slice(0,28);
@@ -267,8 +282,10 @@ function rememberCategory(id,name){
   CAT[id]=name;
 }
 function rebuildCategoriesFromProducts(){
+  var filterValue=document.getElementById('filterCategory')?.value||'';
   allProducts.forEach(function(p){rememberCategory(p.categoryId,p.categoryName||p.categoryId)});
   fillCategorySelects();
+  if(filterValue && CAT[filterValue]) document.getElementById('filterCategory').value=filterValue;
 }
 function eH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function categoryOptions(selected,includeCreate){
@@ -281,8 +298,13 @@ function categoryOptions(selected,includeCreate){
   return html;
 }
 function fillCategorySelects(){
-  document.getElementById('itemCategory').innerHTML=categoryOptions('',true);
-  document.getElementById('filterCategory').innerHTML='<option value="">All Categories</option>'+CAT_ORDER.map(function(id){return CAT[id]?'<option value="'+eH(id)+'">'+eH(CAT[id])+'</option>':''}).join('');
+  var addSel=document.getElementById('itemCategory');
+  var filterSel=document.getElementById('filterCategory');
+  var addValue=addSel.value;
+  var filterValue=filterSel.value;
+  addSel.innerHTML=categoryOptions(addValue,true);
+  filterSel.innerHTML='<option value="">All Categories</option>'+CAT_ORDER.map(function(id){return CAT[id]?'<option value="'+eH(id)+'">'+eH(CAT[id])+'</option>':''}).join('');
+  if(filterValue && CAT[filterValue]) filterSel.value=filterValue;
 }
 function toggleNewCategory(scope,id){
   if(scope==='add'){
@@ -313,6 +335,8 @@ function getCategoryPayload(scope,id){
 }
 
 function switchTab(n){
+  activeTab=n;
+  try{sessionStorage.setItem('itemUploadActiveTab',n)}catch(e){}
   ['add','manage','recent'].forEach(function(t){
     document.getElementById('panel-'+t).classList.remove('active');
     document.getElementById('tab-'+t).classList.remove('active');
@@ -323,7 +347,7 @@ function switchTab(n){
 }
 
 function loadStats(){
-  fetch('/api/stats').then(function(r){if(!r.ok)throw 0;return r.json()})
+  fetchJsonRetry('/api/stats',8)
   .then(function(d){
     statsData=d;
     document.getElementById('statTotal').textContent=d.total;
@@ -341,16 +365,20 @@ function loadStats(){
 function loadProducts(){
   var l=document.getElementById('itemsList');
   l.innerHTML='<div class="loading-row">&#8987; Loading items...</div>';
-  fetch('/api/products').then(function(r){return r.json()})
+  fetchJsonRetry('/api/products',8)
   .then(function(d){allProducts=d; rebuildCategoriesFromProducts(); applyFilter();})
   .catch(function(){
-    l.innerHTML='<div class="empty-state"><div class="em">&#9888;&#65039;</div>Could not load products. Is the server running?</div>';
+    l.innerHTML='<div class="empty-state"><div class="em">&#9888;&#65039;</div>Could not load products.<br>Please run ITEM UPLOAD.bat, then click below.<br><br><button class="btn btn-edit" onclick="loadStats();loadProducts()">Retry Loading</button></div>';
   });
 }
 
 function applyFilter(){
   var cat=document.getElementById('filterCategory').value;
   var q=document.getElementById('filterSearch').value.trim().toLowerCase();
+  try{
+    sessionStorage.setItem('itemUploadFilterCategory',cat);
+    sessionStorage.setItem('itemUploadFilterSearch',document.getElementById('filterSearch').value);
+  }catch(e){}
   filteredProducts=allProducts.filter(function(p){
     if(cat && p.categoryId!==cat) return false;
     if(q && p.name.toLowerCase().indexOf(q)<0) return false;
@@ -459,14 +487,14 @@ function saveEdit(id){
   fd.append('id',id); fd.append('name',n); fd.append('price',pr);
   fd.append('categoryId',cat.id); fd.append('categoryName',cat.name);
   if(editFiles[id]) fd.append('image',editFiles[id]);
-  fetch('/api/edit-product',{method:'POST',body:fd})
+  fetch(apiUrl('/api/edit-product'),{method:'POST',body:fd})
   .then(function(r){return r.json()})
   .then(function(res){
     if(res.ok){
       rememberCategory(cat.id,cat.name);
       allProducts.forEach(function(p){if(p.id===id){p.name=n;p.price=pr;p.categoryId=cat.id;p.categoryName=cat.name;}});
       delete editFiles[id];
-      fillCategorySelects(); cancelEdit(id); applyFilter(); loadStats();
+      fillCategorySelects(); applyFilter(); loadStats();
       showToast('"'+n+'" updated successfully'+(res.imgSaved?' + image saved.':'.'), 'success');
     }else{
       showToast('Error: '+(res.message||'Update failed'),'error');
@@ -488,7 +516,7 @@ document.getElementById('confirmDelBtn').onclick=function(){
   var id=delId, name=delName;
   document.getElementById('confirmOverlay').classList.remove('show');
   var fd=new FormData(); fd.append('id',id);
-  fetch('/api/delete-product',{method:'POST',body:fd})
+  fetch(apiUrl('/api/delete-product'),{method:'POST',body:fd})
   .then(function(r){return r.json()})
   .then(function(res){
     if(res.ok){
@@ -530,7 +558,7 @@ document.getElementById('uploadForm').addEventListener('submit',function(e){
   fd.append('name',name); fd.append('price',price);
   fd.append('categoryId',catId); fd.append('categoryName',catName);
   if(selFile) fd.append('image',selFile);
-  fetch('/api/add-product',{method:'POST',body:fd})
+  fetch(apiUrl('/api/add-product'),{method:'POST',body:fd})
   .then(function(r){return r.text().then(function(t){return{ok:r.ok,text:t}})})
   .then(function(r){
     var res; try{res=JSON.parse(r.text)}catch(x){res={ok:r.ok,message:r.text}}
@@ -544,6 +572,8 @@ document.getElementById('uploadForm').addEventListener('submit',function(e){
       document.getElementById('statImages').textContent=statsData.images;
       addedToday++; document.getElementById('statToday').textContent=addedToday;
       addRecent({id:nid,name:name,price:price,catName:catName,imgSrc:selFile?previewImg.src:null});
+      allProducts.push({id:nid,name:name,price:price,categoryId:catId,categoryName:catName});
+      if(activeTab==='manage') applyFilter();
       showToast('"'+name+'" added! (ID: '+nid+')','success');
       document.getElementById('uploadForm').reset(); clearImg(); toggleNewCategory('add');
     }else{
@@ -574,8 +604,18 @@ function showToast(msg,type){
 }
 
 fillCategorySelects();
+try{
+  var savedFilter=sessionStorage.getItem('itemUploadFilterCategory')||'';
+  var savedSearch=sessionStorage.getItem('itemUploadFilterSearch')||'';
+  if(savedFilter && CAT[savedFilter]) document.getElementById('filterCategory').value=savedFilter;
+  document.getElementById('filterSearch').value=savedSearch;
+}catch(e){}
 loadStats();
 loadProducts();
+try{
+  var savedTab=sessionStorage.getItem('itemUploadActiveTab')||'add';
+  if(['add','manage','recent'].indexOf(savedTab)>=0) switchTab(savedTab);
+}catch(e){}
 </script>
 </body>
 </html>

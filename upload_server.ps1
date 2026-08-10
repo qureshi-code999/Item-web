@@ -1,3 +1,5 @@
+param([switch]$NoBrowser)
+
 # PowerShell Web Server for Sahil Traders - Item Upload Portal
 $port     = 8888
 $url      = "http://localhost:$port/"
@@ -190,8 +192,98 @@ function Parse-Multipart {
     return @{ fields=$fields; imageBytes=$imageBytes; imageExt=$imageExt }
 }
 
-$listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add($url)
+function Read-HttpRequest {
+    param([System.Net.Sockets.NetworkStream]$stream)
+
+    $headerBuffer = New-Object System.IO.MemoryStream
+    $one = New-Object byte[] 1
+    while ($stream.Read($one, 0, 1) -eq 1) {
+        $headerBuffer.Write($one, 0, 1)
+        $hb = $headerBuffer.ToArray()
+        $n = $hb.Length
+        if ($n -ge 4 -and $hb[$n-4] -eq 13 -and $hb[$n-3] -eq 10 -and $hb[$n-2] -eq 13 -and $hb[$n-1] -eq 10) { break }
+        if ($n -gt 65536) { throw "Request header is too large" }
+    }
+
+    $headerText = [System.Text.Encoding]::ASCII.GetString($headerBuffer.ToArray())
+    $lines = $headerText -split "`r?`n"
+    if ($lines.Count -eq 0 -or [string]::IsNullOrWhiteSpace($lines[0])) { return $null }
+
+    $requestParts = $lines[0].Split(" ")
+    if ($requestParts.Count -lt 2) { return $null }
+
+    $headers = @{}
+    foreach ($line in $lines | Select-Object -Skip 1) {
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        $colon = $line.IndexOf(":")
+        if ($colon -gt 0) {
+            $headers[$line.Substring(0, $colon).Trim().ToLower()] = $line.Substring($colon + 1).Trim()
+        }
+    }
+
+    $contentLength = 0
+    if ($headers.ContainsKey("content-length")) { [int]::TryParse($headers["content-length"], [ref]$contentLength) | Out-Null }
+    $body = New-Object byte[] $contentLength
+    $read = 0
+    while ($read -lt $contentLength) {
+        $chunk = $stream.Read($body, $read, $contentLength - $read)
+        if ($chunk -le 0) { break }
+        $read += $chunk
+    }
+
+    return [pscustomobject]@{
+        Method      = $requestParts[0]
+        RawPath     = $requestParts[1]
+        Headers     = $headers
+        BodyStream  = (New-Object System.IO.MemoryStream(,$body))
+    }
+}
+
+function New-HttpResponse {
+    param([System.Net.Sockets.NetworkStream]$stream, [System.Net.Sockets.TcpClient]$client)
+
+    $response = [pscustomobject]@{
+        Headers         = @{}
+        StatusCode      = 200
+        ContentType     = "text/plain; charset=utf-8"
+        ContentLength64 = 0
+        OutputStream    = (New-Object System.IO.MemoryStream)
+        NetworkStream   = $stream
+        Client          = $client
+        Closed          = $false
+    }
+
+    $response | Add-Member -MemberType ScriptMethod -Name Close -Value {
+        if ($this.Closed) { return }
+        $this.Closed = $true
+        $body = $this.OutputStream.ToArray()
+        $statusText = switch ($this.StatusCode) {
+            200 { "OK" }
+            204 { "No Content" }
+            400 { "Bad Request" }
+            404 { "Not Found" }
+            default { "OK" }
+        }
+        $headerText = "HTTP/1.1 $($this.StatusCode) $statusText`r`n"
+        $headerText += "Content-Type: $($this.ContentType)`r`n"
+        $headerText += "Content-Length: $($body.Length)`r`n"
+        $headerText += "Connection: close`r`n"
+        foreach ($key in $this.Headers.Keys) {
+            $headerText += "$key`: $($this.Headers[$key])`r`n"
+        }
+        $headerText += "`r`n"
+        $headerBytes = [System.Text.Encoding]::ASCII.GetBytes($headerText)
+        $this.NetworkStream.Write($headerBytes, 0, $headerBytes.Length)
+        if ($body.Length -gt 0) { $this.NetworkStream.Write($body, 0, $body.Length) }
+        $this.OutputStream.Dispose()
+        $this.NetworkStream.Dispose()
+        $this.Client.Close()
+    }
+
+    return $response
+}
+
+$listener = New-Object System.Net.Sockets.TcpListener ([System.Net.IPAddress]::Parse("127.0.0.1"), $port)
 
 try {
     $listener.Start()
@@ -201,16 +293,36 @@ try {
 }
 
 Write-Host "Server running at $url"
+if (-not $NoBrowser) {
+    try { Start-Process "http://localhost:$port/upload" } catch {}
+}
 
-while ($listener.IsListening) {
+while ($true) {
     try {
-        $context = $listener.GetContext()
-        $request  = $context.Request
-        $response = $context.Response
+        $tcpClient = $listener.AcceptTcpClient()
+        $stream = $tcpClient.GetStream()
+        $rawRequest = Read-HttpRequest -stream $stream
+        if ($null -eq $rawRequest) { $tcpClient.Close(); continue }
+
+        $request  = [pscustomobject]@{
+            HttpMethod  = $rawRequest.Method
+            Url         = [System.Uri]("http://localhost:$port$($rawRequest.RawPath)")
+            InputStream = $rawRequest.BodyStream
+            ContentType = if ($rawRequest.Headers.ContainsKey("content-type")) { $rawRequest.Headers["content-type"] } else { "" }
+        }
+        $response = New-HttpResponse -stream $stream -client $tcpClient
         $response.Headers.Add("Access-Control-Allow-Origin", "*")
+        $response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        $response.Headers.Add("Access-Control-Allow-Headers", "Content-Type")
         $path = $request.Url.AbsolutePath
 
         Write-Host "[$(Get-Date -Format 'HH:mm:ss')] $($request.HttpMethod) $path"
+
+        if ($request.HttpMethod -eq "OPTIONS") {
+            $response.StatusCode = 204
+            $response.Close()
+            continue
+        }
 
         if ($path -eq "/upload" -or $path -eq "/upload/") {
             $bytes = [System.IO.File]::ReadAllBytes($portalFile)
@@ -523,6 +635,7 @@ while ($listener.IsListening) {
 
     } catch {
         Write-Host "[ERROR] $($_.Exception.Message)" -ForegroundColor Red
-        try { if ($context.Response) { $context.Response.Close() } } catch {}
+        try { if ($response) { $response.Close() } } catch {}
+        try { if ($tcpClient) { $tcpClient.Close() } } catch {}
     }
 }

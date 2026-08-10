@@ -16,10 +16,7 @@ echo.
 echo  ==========================================
 echo.
 
-:: Browser ko samne open karein
-start http://localhost:8888/upload
-
-:: Server script ko chalao
+:: Server ready hone ke baad browser khud open ho jaega
 powershell -ExecutionPolicy Bypass -File "c:\Users\ALICOM4\Desktop\ITEMS WEB\upload_server.ps1"
 
 echo.

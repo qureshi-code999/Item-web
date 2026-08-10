@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+﻿import React, { useState, useMemo, useEffect, useRef } from "react";
 
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
@@ -370,7 +370,8 @@ function getTranslationValue(dictionary, key) {
       { id: "mosquito",     name: "Anti-Mosquito" },
       { id: "personalcare", name: "Personal Care" },
       { id: "others",       name: "Others" },
-    ];
+    
+      { id: "fragnances",        name: "Fragnances" },];
 
     const SWATCH_GRADIENTS = [
       "from-amber-400 to-orange-500",
@@ -1051,8 +1052,8 @@ function getTranslationValue(dictionary, key) {
       { id: 816, name: "PENCIL GOLDFISH", price: 19, categoryId: "general", categoryName: "General Items & Stationery", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "P" },
       { id: 817, name: "PENCIL MY DOLLAR", price: 19, categoryId: "general", categoryName: "General Items & Stationery", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
       { id: 818, name: "PENCIL ORO", price: 19, categoryId: "general", categoryName: "General Items & Stationery", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
-      { id: 819, name: "PERFUME ALISHA (GOLD)", price: 1590, categoryId: "perfumes", categoryName: "Perfumes" },
-      { id: 820, name: "PERFUME ALISHA (NAVY)", price: 1590, categoryId: "perfumes", categoryName: "Perfumes" },
+      { id: 819, name: "PERFUME ALISHA (GOLD)", price: 1590, categoryId: "fragnances", categoryName: "Fragnances" },
+      { id: 820, name: "PERFUME ALISHA (NAVY)", price: 1590, categoryId: "fragnances", categoryName: "Fragnances" },
       { id: 821, name: "PERFUME ALISHA (ROSE)", price: 1590, categoryId: "perfumes", categoryName: "Perfumes" },
       { id: 822, name: "PERFUME ASEEL", price: 1790, categoryId: "perfume", categoryName: "Perfumes & Body Spray", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
       { id: 823, name: "PERFUME DELYCIA (MEDIUM) BEAUTY RS,650", price: 619, categoryId: "perfume", categoryName: "Perfumes & Body Spray", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
@@ -1426,6 +1427,8 @@ function getTranslationValue(dictionary, key) {
       { id: 1266, name: "ZERO MOSQUITO SACHET BOX RS,10", price: 8, categoryId: "general", categoryName: "General Items & Stationery", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "Z" },
       { id: 1267, name: "SAHIL", price: 300, categoryId: "birthday", categoryName: "Birthday", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
       { id: 1268, name: "ALI", price: 300, categoryId: "birthday", categoryName: "Birthday", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "A" },
+    
+      { id: 1269, name: "SALO", price: 199, categoryId: "fragnances", categoryName: "Fragnances" },
     ];
 
 
@@ -1461,6 +1464,9 @@ function getTranslationValue(dictionary, key) {
       const [cartOpen, setCartOpen] = useState(false);
       const [checkoutOpen, setCheckoutOpen] = useState(false);
       const [exitModalOpen, setExitModalOpen] = useState(false);
+      const isSearching = searchTerm.trim() !== "";
+      const backStateRef = useRef({});
+      const allowRealBackRef = useRef(false);
 
       useEffect(() => {
         try {
@@ -1480,28 +1486,47 @@ function getTranslationValue(dictionary, key) {
         cartNoticeTimerRef.current = setTimeout(() => setCartNotice(false), 1100);
       }
 
-      // Smart Mobile / Hardware Back Button Interceptor (popstate)
+      useEffect(() => {
+        backStateRef.current = {
+          checkoutOpen,
+          cartOpen,
+          exitModalOpen,
+          selectedCategory,
+          isSearching,
+          activeCategory
+        };
+      }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, isSearching, activeCategory]);
+
+      // Smart Mobile / Hardware Back Button Interceptor
       useEffect(() => {
         try {
-          window.history.pushState({ page: 'app' }, '');
+          window.history.replaceState({ page: 'sahil-entry' }, '');
+          window.history.pushState({ page: 'sahil-app' }, '');
         } catch(e) {}
 
-        const handlePopState = () => {
-          if (checkoutOpen) {
+        const keepInsideApp = () => {
+          try { window.history.pushState({ page: 'sahil-app' }, ''); } catch(e) {}
+        };
+
+        const handlePopState = (event) => {
+          if (allowRealBackRef.current) return;
+          if (event && event.preventDefault) event.preventDefault();
+
+          const state = backStateRef.current || {};
+          keepInsideApp();
+
+          if (state.exitModalOpen) {
+            setExitModalOpen(false);
+          } else if (state.checkoutOpen) {
             setCheckoutOpen(false);
-            try { window.history.pushState({ page: 'app' }, ''); } catch(e) {}
-          } else if (cartOpen) {
+          } else if (state.cartOpen) {
             setCartOpen(false);
-            try { window.history.pushState({ page: 'app' }, ''); } catch(e) {}
-          } else if (selectedCategory || isSearching || activeCategory !== "all") {
+          } else if (state.selectedCategory || state.isSearching || state.activeCategory !== "all") {
             setSearchTerm("");
             setSelectedCategory(null);
             setActiveCategory("all");
-            try { window.history.pushState({ page: 'app' }, ''); } catch(e) {}
           } else {
-            // Already at Home Screen! Show Exit Confirmation Modal!
             setExitModalOpen(true);
-            try { window.history.pushState({ page: 'app' }, ''); } catch(e) {}
           }
         };
 
@@ -1509,7 +1534,7 @@ function getTranslationValue(dictionary, key) {
         return () => {
           window.removeEventListener('popstate', handlePopState);
         };
-      }, [checkoutOpen, cartOpen, selectedCategory, isSearching, activeCategory]);
+      }, []);
 
       const cartCount = cart.reduce((sum, i) => sum + i.qty, 0);
       const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.qty, 0);
@@ -1776,7 +1801,6 @@ function getTranslationValue(dictionary, key) {
       }
 
       // Show search results if searching, else show category home or products
-      const isSearching = searchTerm.trim() !== "";
       const showCategoryHome = !isSearching && !selectedCategory;
       const selectedCategoryName = selectedCategory
         ? (langData.categories?.[selectedCategory] || CATEGORIES.find(c => c.id === selectedCategory)?.name || selectedCategory)
@@ -2112,6 +2136,7 @@ function getTranslationValue(dictionary, key) {
                       </button>
                       <button
                         onClick={() => {
+                          allowRealBackRef.current = true;
                           setExitModalOpen(false);
                           window.history.go(-2);
                         }}

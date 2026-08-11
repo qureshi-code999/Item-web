@@ -126,6 +126,62 @@ function Move-ProductsToCategoryInFile {
     return $updated
 }
 
+function Update-ProductInFile {
+    param(
+        [string]$filePath,
+        [int]$productId,
+        [string]$name,
+        [int]$price,
+        [string]$catId,
+        [string]$catName,
+        [bool]$imgSaved,
+        [string]$initial,
+        [string]$gradient
+    )
+    if (-not (Test-Path $filePath)) { return 0 }
+    Ensure-CategoryInFile -filePath $filePath -catId $catId -catName $catName
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $itemPattern = '\{\s*id:\s*' + $productId + ',[^}]*\}'
+    $match = [regex]::Match($fc, $itemPattern)
+    if (-not $match.Success) { return 0 }
+
+    $eName = Escape-JsString $name
+    $eCatId = Escape-JsString $catId
+    $eCatName = Escape-JsString $catName
+    $item = $match.Value
+    $item = [regex]::Replace($item, '(name:\s*)"[^"]*"', "`$1`"$eName`"", 1)
+    $item = [regex]::Replace($item, '(price:\s*)-?\d+', "`${1}$price", 1)
+    $item = [regex]::Replace($item, '(categoryId:\s*)"[^"]*"', "`$1`"$eCatId`"", 1)
+    $item = [regex]::Replace($item, '(categoryName:\s*)"[^"]*"', "`$1`"$eCatName`"", 1)
+
+    if ($imgSaved) {
+        if ($item -match 'hasImage:\s*true') {
+            if ($item -match 'initial:\s*"[^"]*"') {
+                $item = [regex]::Replace($item, '(initial:\s*)"[^"]*"', "`$1`"$initial`"", 1)
+            } else {
+                $item = $item.TrimEnd("}") + ", initial: `"$initial`" }"
+            }
+        } else {
+            $item = $item.TrimEnd("}") + ", hasImage: true, gradient: $gradient, initial: `"$initial`" }"
+        }
+    }
+
+    $fc = $fc.Substring(0, $match.Index) + $item + $fc.Substring($match.Index + $match.Length)
+    if ($imgSaved) {
+        $setM = [regex]::Match($fc, 'window\.PRODUCT_IMAGES\s*=\s*new Set\(\[([^\]]*)\]\)')
+        if ($setM.Success) {
+            $ids = [regex]::Matches($setM.Groups[1].Value, '\d+') | ForEach-Object { $_.Value }
+            if ($ids -notcontains "$productId") {
+                $curIds = $setM.Groups[1].Value.Trim()
+                $comma = if ($curIds) { "," } else { "" }
+                $fc = $fc.Replace($setM.Value, "window.PRODUCT_IMAGES = new Set([$curIds$comma$productId])")
+            }
+        }
+    }
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+    return 1
+}
+
 function Get-CategoryRows {
     if (-not (Test-Path $htmlFile)) { return @() }
     $content = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
@@ -514,9 +570,6 @@ while ($true) {
                 if (-not $newName)   { throw "Name cannot be empty" }
                 if (-not $priceOk -or $newPrice -lt 0) { throw "Price must be 0 or more" }
                 if ([string]::IsNullOrWhiteSpace($newCatId)) { throw "Category select karna zaroori hai!" }
-                $eName = Escape-JsString $newName
-                $eCatId = Escape-JsString $newCatId
-                $eCatName = Escape-JsString $newCatName
                 $initial = $newName.Substring(0,1).ToUpper()
 
                 # Save image if provided
@@ -532,37 +585,11 @@ while ($true) {
                 $gradients = @("SWATCH_GRADIENTS[0]","SWATCH_GRADIENTS[1]","SWATCH_GRADIENTS[2]","SWATCH_GRADIENTS[3]","SWATCH_GRADIENTS[4]","SWATCH_GRADIENTS[5]","SWATCH_GRADIENTS[6]","SWATCH_GRADIENTS[7]")
                 $grad = $gradients[$editId % 8]
 
+                $updatedFiles = 0
                 foreach ($f in @($htmlFile, $jsxFile)) {
-                    if (-not (Test-Path $f)) { continue }
-                    Ensure-CategoryInFile -filePath $f -catId $newCatId -catName $newCatName
-                    $fc = [System.IO.File]::ReadAllText($f, [System.Text.Encoding]::UTF8)
-                    # Update name
-                    $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',\s*name:\s*)"[^"]*"', "`$1`"$eName`"")
-                    # Update price
-                    $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',\s*name:\s*"[^"]*",\s*price:\s*)\d+', "`${1}$newPrice")
-                    # Update category
-                    $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',[^}]*?categoryId:\s*)"[^"]*"', "`$1`"$eCatId`"")
-                    $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',[^}]*?categoryName:\s*)"[^"]*"', "`$1`"$eCatName`"")
-                    # If image newly saved, ensure hasImage, gradient, initial are present
-                    if ($imgSaved) {
-                        # Check if this item already has hasImage
-                        $hasImgMatch = [regex]::Match($fc, '\{\s*id:\s*' + $editId + ',[^}]+hasImage')
-                        if (-not $hasImgMatch.Success) {
-                            # Add hasImage, gradient, initial before closing }
-                            $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',(?:[^}]*?)),(\s*\})', "`$1, hasImage: true, gradient: $grad, initial: `"$initial`"`$2")
-                        } else {
-                            # Update initial in case name changed
-                            $fc = [regex]::Replace($fc, '(\{\s*id:\s*' + $editId + ',[^}]+initial:\s*)"[^"]*"', "`$1`"$initial`"")
-                        }
-                        # Update PRODUCT_IMAGES set if present
-                        $setM = [regex]::Match($fc, 'window\.PRODUCT_IMAGES\s*=\s*new Set\(\[([^\]]+)\]\)')
-                        if ($setM.Success -and $fc -notmatch "new Set\(\[.*?$editId.*?\]\)") {
-                            $curIds = $setM.Groups[1].Value.Trim()
-                            $fc = $fc.Replace($setM.Value, "window.PRODUCT_IMAGES = new Set([$curIds,$editId])")
-                        }
-                    }
-                    [System.IO.File]::WriteAllText($f, $fc, [System.Text.Encoding]::UTF8)
+                    $updatedFiles += Update-ProductInFile -filePath $f -productId $editId -name $newName -price $newPrice -catId $newCatId -catName $newCatName -imgSaved $imgSaved -initial $initial -gradient $grad
                 }
+                if ($updatedFiles -le 0) { throw "Item ID $editId file me nahi mila" }
                 Write-Host "  EDIT: ID $editId -> '$newName' Rs.$newPrice [$newCatName]$(if($imgSaved){' + new image'})" -ForegroundColor Cyan
                 $imgSavedStr = if ($imgSaved) { "true" } else { "false" }
                 $json = "{`"ok`":true,`"imgSaved`":$imgSavedStr,`"message`":`"Item updated successfully`"}"

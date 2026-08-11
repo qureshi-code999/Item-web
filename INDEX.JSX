@@ -1136,7 +1136,7 @@ function getTranslationValue(dictionary, key) {
       { id: 931, name: "SAFETY PIN (MEDIUM)", price: 20, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 932, name: "SAMAD BOND BOX (SMALL)", price: 130, categoryId: "general", categoryName: "General Items", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
       { id: 933, name: "SAVOLI OIL 100ml", price: 590, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
-      { id: 934, name: "SCALE ORO LARGE", price: 59, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
+      { id: 934, name: "SCALE ORO LARGE", price: 59, categoryId: "stationary", categoryName: "Stationery", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
       { id: 935, name: "SCALE ORO SMALL", price: 35, categoryId: "stationary", categoryName: "Stationery", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "S" },
       { id: 936, name: "SCISSOR STEEL LARGE", price: 439, categoryId: "general", categoryName: "General Items" },
       { id: 937, name: "SCISSOR STEEL MEDIUM", price: 329, categoryId: "general", categoryName: "General Items" },
@@ -1420,8 +1420,6 @@ function getTranslationValue(dictionary, key) {
       { id: 1264, name: "WIPES SOFT-CREAM (BLUE)", price: 129, categoryId: "babycare", categoryName: "Baby Care" },
       { id: 1265, name: "WIPES SOFT-CREAM (WHITE)", price: 129, categoryId: "babycare", categoryName: "Baby Care" },
       { id: 1266, name: "ZERO MOSQUITO SACHET BOX RS,10", price: 8, categoryId: "mosquito", categoryName: "Anti-Mosquito", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "Z" },
-    
-      { id: 1269, name: "SALO", price: 199, categoryId: "fragnances", categoryName: "Fragnances" },
     ];
 
 

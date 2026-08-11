@@ -129,6 +129,17 @@ function Move-ProductsToCategoryInFile {
 function Get-CategoryRows {
     if (-not (Test-Path $htmlFile)) { return @() }
     $content = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
+    $visibleNames = @{}
+    $enFile = Join-Path $rootDir "languages\en.js"
+    if (Test-Path $enFile) {
+        $enContent = [System.IO.File]::ReadAllText($enFile, [System.Text.Encoding]::UTF8)
+        $enMatch = [regex]::Match($enContent, 'categories:\s*\{([\s\S]*?)\n\s*\}')
+        if ($enMatch.Success) {
+            foreach ($tm in [regex]::Matches($enMatch.Groups[1].Value, '([A-Za-z0-9_]+):\s*"([^"]+)"')) {
+                $visibleNames[$tm.Groups[1].Value] = $tm.Groups[2].Value
+            }
+        }
+    }
     $catStart = $content.IndexOf("const CATEGORIES = [")
     if ($catStart -lt 0) { return @() }
     $catEnd = $content.IndexOf("];", $catStart)
@@ -139,6 +150,7 @@ function Get-CategoryRows {
     foreach ($m in $catMatches) {
         $id = $m.Groups[1].Value
         $name = $m.Groups[2].Value
+        if ($visibleNames.ContainsKey($id)) { $name = $visibleNames[$id] }
         $count = [regex]::Matches($content, 'categoryId:\s*"' + [regex]::Escape($id) + '"').Count
         $rows += [pscustomobject]@{ id=$id; name=$name; count=$count }
     }

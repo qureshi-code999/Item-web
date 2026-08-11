@@ -1464,6 +1464,10 @@ function getTranslationValue(dictionary, key) {
       const backStateRef = useRef({});
       const allowRealBackRef = useRef(false);
       const restoreBackGuardRef = useRef(() => {});
+      const appHistoryReadyRef = useRef(false);
+      const restoringHistoryRef = useRef(false);
+      const lastHistoryKeyRef = useRef("");
+      const lastSearchActiveRef = useRef(false);
 
       useEffect(() => {
         try {
@@ -1489,51 +1493,72 @@ function getTranslationValue(dictionary, key) {
           cartOpen,
           exitModalOpen,
           selectedCategory,
+          searchTerm,
           isSearching,
           activeCategory
         };
-      }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, isSearching, activeCategory]);
+      }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, searchTerm, isSearching, activeCategory]);
 
-      // App Back Button Controller: browser/device Back moves inside the store first.
+      // App Back Button Controller: browser/device Back restores the previous store screen first.
       useEffect(() => {
-        const restoreBackGuard = () => {
+        const getSnapshot = (state) => ({
+          checkoutOpen: !!state.checkoutOpen,
+          cartOpen: !!state.cartOpen,
+          selectedCategory: state.selectedCategory || null,
+          searchTerm: state.searchTerm || "",
+          activeCategory: state.activeCategory || "all"
+        });
+
+        const keyOf = (snapshot) => JSON.stringify(snapshot);
+
+        const pushCurrentAppState = (replace) => {
           if (allowRealBackRef.current) return;
           try {
-            window.history.pushState({ page: 'sahil-back-guard' }, '', window.location.href);
+            const snapshot = getSnapshot(backStateRef.current || {});
+            const key = keyOf(snapshot);
+            if (!replace && key === lastHistoryKeyRef.current) return;
+            const entry = { page: 'sahil-app-state', sahilApp: true, snapshot };
+            if (replace) window.history.replaceState(entry, '', window.location.href);
+            else window.history.pushState(entry, '', window.location.href);
+            lastHistoryKeyRef.current = key;
           } catch(e) {}
         };
-        restoreBackGuardRef.current = restoreBackGuard;
+        restoreBackGuardRef.current = (replace) => pushCurrentAppState(!!replace);
+
+        const restoreSnapshot = (snapshot) => {
+          restoringHistoryRef.current = true;
+          setExitModalOpen(false);
+          setCheckoutOpen(!!snapshot.checkoutOpen);
+          setCartOpen(!!snapshot.cartOpen);
+          setSearchTerm(snapshot.searchTerm || "");
+          setSelectedCategory(snapshot.selectedCategory || null);
+          setActiveCategory(snapshot.activeCategory || "all");
+          setTimeout(() => { restoringHistoryRef.current = false; }, 0);
+        };
 
         try {
           window.history.replaceState({ page: 'sahil-back-base' }, '', window.location.href);
-          restoreBackGuard();
+          pushCurrentAppState(false);
+          appHistoryReadyRef.current = true;
         } catch(e) {}
 
         const handlePopState = (event) => {
           if (allowRealBackRef.current) return;
           if (event && event.preventDefault) event.preventDefault();
 
-          const state = backStateRef.current || {};
-          restoreBackGuard();
-
-          if (state.exitModalOpen) {
-            setExitModalOpen(false);
-          } else if (state.checkoutOpen) {
-            setCheckoutOpen(false);
-          } else if (state.cartOpen) {
-            setCartOpen(false);
-          } else if (state.selectedCategory || state.isSearching || state.activeCategory !== "all") {
-            setSearchTerm("");
-            setSelectedCategory(null);
-            setActiveCategory("all");
-          } else {
-            setExitModalOpen(true);
+          if (event.state && event.state.sahilApp && event.state.snapshot) {
+            lastHistoryKeyRef.current = keyOf(event.state.snapshot);
+            restoreSnapshot(event.state.snapshot);
+            return;
           }
+
+          pushCurrentAppState(false);
+          setExitModalOpen(true);
         };
 
         const handlePageShow = () => {
           allowRealBackRef.current = false;
-          restoreBackGuard();
+          pushCurrentAppState(false);
         };
 
         window.addEventListener('popstate', handlePopState);
@@ -1543,6 +1568,15 @@ function getTranslationValue(dictionary, key) {
           window.removeEventListener('pageshow', handlePageShow);
         };
       }, []);
+
+      useEffect(() => {
+        if (!appHistoryReadyRef.current || restoringHistoryRef.current || exitModalOpen) return;
+        const searchingNow = searchTerm.trim() !== "";
+        const replaceSearchTyping = searchingNow && lastSearchActiveRef.current;
+        lastSearchActiveRef.current = searchingNow;
+        const timer = setTimeout(() => restoreBackGuardRef.current(replaceSearchTyping), 0);
+        return () => clearTimeout(timer);
+      }, [checkoutOpen, cartOpen, selectedCategory, searchTerm, activeCategory, exitModalOpen]);
 
       const cartCount = cart.reduce((sum, i) => sum + i.qty, 0);
       const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.qty, 0);

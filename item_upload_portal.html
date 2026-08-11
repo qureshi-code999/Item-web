@@ -66,10 +66,14 @@
     .filter-row select{flex:1;min-width:180px;max-width:240px}
     .filter-row input[type=search]{flex:2;min-width:160px}
     .item-count{font-size:12px;color:var(--text-muted);white-space:nowrap}
-    .category-admin-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);border-radius:12px;padding:12px;margin-bottom:16px}
-    .category-admin-row label{margin-right:auto;color:#fca5a5}
-    .category-admin-row select{flex:1;min-width:190px;max-width:320px;background:var(--bg)}
+    .category-tools{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:16px}
+    .category-admin-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.18);border-radius:12px;padding:12px}
+    .category-admin-row.danger{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.18)}
+    .category-admin-row label{margin-right:auto;color:var(--gold);min-width:125px}
+    .category-admin-row.danger label{color:#fca5a5}
+    .category-admin-row select,.category-admin-row input{flex:1;min-width:170px;background:var(--bg)}
     .category-admin-row .hint{width:100%;font-size:11px;color:var(--text-muted);line-height:1.45}
+    .bulk-count{font-size:12px;color:var(--text-muted);white-space:nowrap;font-weight:700}
     .items-list{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow-y:auto;padding-right:4px}
     .items-list::-webkit-scrollbar{width:5px}
     .items-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
@@ -77,6 +81,7 @@
     .item-row:hover{border-color:rgba(212,175,55,0.35)}
     .item-row.editing{border-color:var(--gold);background:var(--bg4)}
     .item-id{font-size:10px;color:var(--text-muted);min-width:36px;font-weight:600;flex-shrink:0}
+    .item-check{width:16px;height:16px;accent-color:var(--gold);flex-shrink:0}
     .item-body{flex:1;min-width:0}
     .item-name-txt{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .item-meta{font-size:11px;color:var(--text-muted);margin-top:1px}
@@ -239,11 +244,29 @@
       <input type="search" id="filterSearch" placeholder="Search item name..." oninput="applyFilter()">
       <span class="item-count" id="itemCount"></span>
     </div>
-    <div class="category-admin-row">
-      <label>Delete Empty Category</label>
-      <select id="deleteCategorySelect"></select>
-      <button class="btn btn-danger" onclick="deleteEmptyCategory()">Delete Category</button>
-      <div class="hint">Sirf woh category delete hogi jisme 0 items hon. Jis category me item hai, woh delete nahi hogi.</div>
+    <div class="category-tools">
+      <div class="category-admin-row">
+        <label>Rename Category</label>
+        <select id="renameCategorySelect"></select>
+        <input type="text" id="renameCategoryName" placeholder="New category name">
+        <button class="btn btn-save" onclick="renameCategory()">Rename</button>
+        <div class="hint">Category ka naam website ke front page aur us category ke tamam items me update ho jayega.</div>
+      </div>
+      <div class="category-admin-row">
+        <label>Bulk Move Items</label>
+        <button class="btn btn-edit" onclick="selectFilteredItems()">Select Filtered</button>
+        <button class="btn btn-cancel-s" onclick="clearSelectedItems()">Clear</button>
+        <select id="bulkMoveCategory"></select>
+        <button class="btn btn-save" onclick="bulkMoveSelected()">Move Selected</button>
+        <span class="bulk-count" id="bulkCount">0 selected</span>
+        <div class="hint">Filter/search se items narrow karo, Select Filtered dabao, phir destination category choose karke sab items ek saath shift kar do.</div>
+      </div>
+      <div class="category-admin-row danger">
+        <label>Delete Empty Category</label>
+        <select id="deleteCategorySelect"></select>
+        <button class="btn btn-danger" onclick="deleteEmptyCategory()">Delete Category</button>
+        <div class="hint">Sirf woh category delete hogi jisme 0 items hon. Jis category me item hai, woh delete nahi hogi.</div>
+      </div>
     </div>
     <div class="items-list" id="itemsList">
       <div class="loading-row">&#8987; Loading items...</div>
@@ -266,8 +289,9 @@ var selFile=null, statsData={total:0,nextId:0,images:0}, addedToday=0, recentIte
 var allProducts=[], filteredProducts=[], delId=null, delName=null, editFiles={};
 var activeTab='add';
 var categoryRows=[];
-var CAT={soaps:'Soaps',shampoo:'Shampoo & Conditioner',perfumes:'Perfumes',bodyspray:'Body Spray',creams:'Creams',bleachfacial:'Bleach & Facial',stationary:'Stationery',sports:'Sports',toys:'Toys',birthday:'Birthday',powders:'Powders',tapes:'Tapes',shaving:'Shaving',haircolour:'Hair Colour',haircare:'Hair Care & Oil',condemn:'Condoms',lock:'Lock',general:'General Items',bodylotion:'Body Lotions',babycare:'Baby Care',blades:'Blades & Razors',cells:'Cells',mosquito:'Anti-Mosquito',personalcare:'Personal Care',others:'Others'};
-var CAT_ORDER=['soaps','shampoo','perfumes','bodyspray','creams','bleachfacial','stationary','sports','toys','birthday','powders','tapes','shaving','haircolour','haircare','condemn','lock','general','bodylotion','babycare','blades','cells','mosquito','personalcare','others'];
+var selectedItemIds=new Set();
+var CAT={};
+var CAT_ORDER=[];
 var API_BASE=window.location.protocol==='file:'?'http://localhost:8888':'';
 
 function apiUrl(path){return API_BASE+path;}
@@ -299,7 +323,7 @@ function refreshCategoryCounts(){
     var existing=categoryRows.find(function(c){return c.id===id});
     return {id:id,name:CAT[id],count:counts[id]||0,serverCount:existing?existing.serverCount:counts[id]||0};
   });
-  renderDeleteCategoryOptions();
+  renderCategoryToolOptions();
 }
 function rebuildCategoriesFromProducts(){
   var filterValue=document.getElementById('filterCategory')?.value||'';
@@ -320,12 +344,22 @@ function categoryOptions(selected,includeCreate){
 function fillCategorySelects(){
   var addSel=document.getElementById('itemCategory');
   var filterSel=document.getElementById('filterCategory');
+  var bulkSel=document.getElementById('bulkMoveCategory');
   var addValue=addSel.value;
   var filterValue=filterSel.value;
   addSel.innerHTML=categoryOptions(addValue,true);
   filterSel.innerHTML='<option value="">All Categories</option>'+CAT_ORDER.map(function(id){return CAT[id]?'<option value="'+eH(id)+'">'+eH(CAT[id])+'</option>':''}).join('');
+  if(bulkSel) bulkSel.innerHTML=categoryOptions('',false);
   if(filterValue && CAT[filterValue]) filterSel.value=filterValue;
-  renderDeleteCategoryOptions();
+  renderCategoryToolOptions();
+}
+function restoreSavedManageState(){
+  try{
+    var savedFilter=sessionStorage.getItem('itemUploadFilterCategory')||'';
+    var savedSearch=sessionStorage.getItem('itemUploadFilterSearch')||'';
+    if(savedFilter && CAT[savedFilter]) document.getElementById('filterCategory').value=savedFilter;
+    document.getElementById('filterSearch').value=savedSearch;
+  }catch(e){}
 }
 function loadCategories(){
   return fetchJsonRetry('/api/categories',8).then(function(rows){
@@ -334,17 +368,27 @@ function loadCategories(){
     categoryRows=rows.map(function(c){return {id:c.id,name:c.name,count:c.count||0,serverCount:c.count||0}});
     rows.forEach(function(c){rememberCategory(c.id,c.name)});
     fillCategorySelects();
-    renderDeleteCategoryOptions();
-  }).catch(function(){renderDeleteCategoryOptions()});
+    restoreSavedManageState();
+    renderCategoryToolOptions();
+  }).catch(function(){renderCategoryToolOptions()});
 }
-function renderDeleteCategoryOptions(){
+function renderCategoryToolOptions(){
   var sel=document.getElementById('deleteCategorySelect');
-  if(!sel) return;
+  var renameSel=document.getElementById('renameCategorySelect');
+  if(renameSel){
+    var oldRename=renameSel.value;
+    renameSel.innerHTML='<option value="">-- Select Category --</option>'+categoryRows.map(function(c){
+      return '<option value="'+eH(c.id)+'">'+eH(c.name)+' ('+(c.count||0)+' items)</option>';
+    }).join('');
+    if(oldRename && CAT[oldRename]) renameSel.value=oldRename;
+  }
+  if(!sel) { updateBulkCount(); return; }
   var old=sel.value;
   var emptyRows=categoryRows.filter(function(c){return (c.count||0)===0});
   if(!emptyRows.length){
     sel.innerHTML='<option value="">No empty categories</option>';
     sel.disabled=true;
+    updateBulkCount();
     return;
   }
   sel.disabled=false;
@@ -352,6 +396,7 @@ function renderDeleteCategoryOptions(){
     return '<option value="'+eH(c.id)+'">'+eH(c.name)+' (0 items)</option>';
   }).join('');
   if(old && emptyRows.some(function(c){return c.id===old})) sel.value=old;
+  updateBulkCount();
 }
 function toggleNewCategory(scope,id){
   if(scope==='add'){
@@ -446,6 +491,80 @@ function deleteEmptyCategory(){
   }).catch(function(){showToast('Server connection error.','error');});
 }
 
+function renameCategory(){
+  var sel=document.getElementById('renameCategorySelect');
+  var catId=sel.value;
+  var newName=document.getElementById('renameCategoryName').value.trim();
+  if(!catId){showToast('Please select a category first.','error');return;}
+  if(!newName){showToast('New category name likhna zaroori hai.','error');return;}
+  var oldName=CAT[catId]||catId;
+  if(newName===oldName){showToast('Category name already same hai.','error');return;}
+  var fd=new FormData();
+  fd.append('categoryId',catId);
+  fd.append('categoryName',newName);
+  fetch(apiUrl('/api/rename-category'),{method:'POST',body:fd})
+  .then(function(r){return r.json()})
+  .then(function(res){
+    if(res.ok){
+      CAT[catId]=newName;
+      categoryRows.forEach(function(c){if(c.id===catId)c.name=newName});
+      allProducts.forEach(function(p){if(p.categoryId===catId)p.categoryName=newName});
+      document.getElementById('renameCategoryName').value='';
+      fillCategorySelects(); refreshCategoryCounts(); applyFilter();
+      showToast('"'+oldName+'" renamed to "'+newName+'".','success');
+    }else{
+      showToast('Error: '+(res.message||'Category rename failed'),'error');
+      loadCategories().then(function(){loadProducts()});
+    }
+  }).catch(function(){showToast('Server connection error.','error');});
+}
+
+function updateBulkCount(){
+  var el=document.getElementById('bulkCount');
+  if(el) el.textContent=selectedItemIds.size+' selected';
+}
+function toggleItemSelect(id,checked){
+  if(checked) selectedItemIds.add(id); else selectedItemIds.delete(id);
+  updateBulkCount();
+}
+function selectFilteredItems(){
+  filteredProducts.forEach(function(p){selectedItemIds.add(p.id)});
+  updateBulkCount(); renderItems();
+}
+function clearSelectedItems(){
+  selectedItemIds.clear();
+  updateBulkCount(); renderItems();
+}
+function bulkMoveSelected(){
+  var ids=Array.from(selectedItemIds);
+  var catId=document.getElementById('bulkMoveCategory').value;
+  if(!ids.length){showToast('Pehle items select karein.','error');return;}
+  if(!catId){showToast('Destination category select karein.','error');return;}
+  var catName=CAT[catId]||catId;
+  if(!confirm(ids.length+' selected items ko "'+catName+'" me move karna hai?')) return;
+  var fd=new FormData();
+  fd.append('ids',ids.join(','));
+  fd.append('categoryId',catId);
+  fd.append('categoryName',catName);
+  fetch(apiUrl('/api/bulk-move-products'),{method:'POST',body:fd})
+  .then(function(r){return r.json()})
+  .then(function(res){
+    if(res.ok){
+      var moved=res.updated||ids.length;
+      var idSet=new Set(ids);
+      allProducts.forEach(function(p){
+        if(idSet.has(p.id)){p.categoryId=catId;p.categoryName=catName;}
+      });
+      selectedItemIds.clear();
+      refreshCategoryCounts(); applyFilter(); loadStats();
+      showToast(moved+' items moved to "'+catName+'".','success');
+    }else{
+      showToast('Error: '+(res.message||'Bulk move failed'),'error');
+      loadCategories().then(function(){loadProducts()});
+    }
+  }).catch(function(){showToast('Server connection error.','error');});
+}
+
 function applyFilter(){
   var cat=document.getElementById('filterCategory').value;
   var q=document.getElementById('filterSearch').value.trim().toLowerCase();
@@ -459,6 +578,10 @@ function applyFilter(){
     return true;
   });
   document.getElementById('itemCount').textContent=filteredProducts.length+' item'+(filteredProducts.length!==1?'s':'');
+  selectedItemIds.forEach(function(id){
+    if(!allProducts.some(function(p){return p.id===id})) selectedItemIds.delete(id);
+  });
+  updateBulkCount();
   renderItems();
 }
 
@@ -473,9 +596,11 @@ function renderItems(){
   var html='';
   for(var i=0;i<filteredProducts.length;i++){
     var p=filteredProducts[i];
-    var catLabel=p.categoryName||CAT[p.categoryId]||p.categoryId;
+    var catLabel=CAT[p.categoryId]||p.categoryName||p.categoryId;
+    var checked=selectedItemIds.has(p.id)?' checked':'';
     html+=
       '<div class="item-row" id="row-'+p.id+'">'+
+        '<input class="item-check" type="checkbox" data-id="'+p.id+'" onchange="toggleItemSelect('+p.id+',this.checked)"'+checked+'>'+
         '<span class="item-id">#'+p.id+'</span>'+
         '<div class="item-body">'+
           '<div class="item-name-txt">'+eH(p.name)+'</div>'+
@@ -679,12 +804,7 @@ function showToast(msg,type){
 }
 
 fillCategorySelects();
-try{
-  var savedFilter=sessionStorage.getItem('itemUploadFilterCategory')||'';
-  var savedSearch=sessionStorage.getItem('itemUploadFilterSearch')||'';
-  if(savedFilter && CAT[savedFilter]) document.getElementById('filterCategory').value=savedFilter;
-  document.getElementById('filterSearch').value=savedSearch;
-}catch(e){}
+restoreSavedManageState();
 loadStats();
 loadCategories().then(function(){loadProducts()});
 try{

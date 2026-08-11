@@ -84,6 +84,48 @@ function Remove-CategoryFromFile {
     [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
 }
 
+function Rename-CategoryInFile {
+    param([string]$filePath, [string]$catId, [string]$catName)
+    if (-not (Test-Path $filePath)) { return 0 }
+    if ([string]::IsNullOrWhiteSpace($catId) -or [string]::IsNullOrWhiteSpace($catName)) { return 0 }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $escapedId = [regex]::Escape($catId)
+    $escapedName = Escape-JsString $catName
+    $pattern1 = '(\{\s*id:\s*"' + $escapedId + '"\s*,\s*name:\s*)"[^"]*"'
+    $count = [regex]::Matches($fc, $pattern1).Count
+    $fc = [regex]::Replace($fc, $pattern1, "`$1`"$escapedName`"")
+    $pattern2 = '(categoryId:\s*"' + $escapedId + '"\s*,\s*categoryName:\s*)"[^"]*"'
+    $count += [regex]::Matches($fc, $pattern2).Count
+    $fc = [regex]::Replace($fc, $pattern2, "`$1`"$escapedName`"")
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+    return $count
+}
+
+function Move-ProductsToCategoryInFile {
+    param([string]$filePath, [int[]]$ids, [string]$catId, [string]$catName)
+    if (-not (Test-Path $filePath)) { return 0 }
+    if (-not $ids -or $ids.Count -eq 0) { return 0 }
+    Ensure-CategoryInFile -filePath $filePath -catId $catId -catName $catName
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $escapedCatId = Escape-JsString $catId
+    $escapedCatName = Escape-JsString $catName
+    $updated = 0
+    foreach ($id in $ids) {
+        $itemPattern = '\{\s*id:\s*' + $id + ',[^}]*\}'
+        if (-not [regex]::IsMatch($fc, $itemPattern)) { continue }
+        $fc = [regex]::Replace($fc, $itemPattern, {
+            param($m)
+            $item = $m.Value
+            $item = [regex]::Replace($item, '(categoryId:\s*)"[^"]*"', "`$1`"$escapedCatId`"")
+            $item = [regex]::Replace($item, '(categoryName:\s*)"[^"]*"', "`$1`"$escapedCatName`"")
+            return $item
+        }, 1)
+        $updated++
+    }
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+    return $updated
+}
+
 function Get-CategoryRows {
     if (-not (Test-Path $htmlFile)) { return @() }
     $content = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
@@ -532,6 +574,92 @@ while ($true) {
                 }
                 Write-Host "  DELETE CATEGORY: $catId" -ForegroundColor Yellow
                 $json = "{`"ok`":true,`"message`":`"Category deleted successfully`"}"
+            } catch {
+                $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
+                $json = "{`"ok`":false,`"message`":`"$em`"}"
+                $response.StatusCode = 400
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.Close()
+            continue
+        }
+
+        if ($request.HttpMethod -eq "POST" -and $path -eq "/api/rename-category") {
+            try {
+                $parsedCat = Parse-Multipart -stream $request.InputStream -contentType $request.ContentType
+                $catId = ""
+                if ($parsedCat.fields.ContainsKey("categoryId") -and $parsedCat.fields["categoryId"]) {
+                    $catId = "$($parsedCat.fields['categoryId'])"
+                }
+                $catId = Normalize-CategoryId $catId
+                $catName = ""
+                if ($parsedCat.fields.ContainsKey("categoryName") -and $parsedCat.fields["categoryName"]) {
+                    $catName = "$($parsedCat.fields['categoryName'])"
+                }
+                $catName = $catName.Trim()
+                if ([string]::IsNullOrWhiteSpace($catId)) { throw "Invalid category" }
+                if ([string]::IsNullOrWhiteSpace($catName)) { throw "Category name cannot be empty" }
+
+                $rows = Get-CategoryRows
+                $row = @($rows | Where-Object { $_.id -eq $catId } | Select-Object -First 1)
+                if (-not $row -or $row.Count -eq 0) { throw "Category not found" }
+
+                foreach ($f in @($htmlFile, $jsxFile)) {
+                    Rename-CategoryInFile -filePath $f -catId $catId -catName $catName | Out-Null
+                }
+                Write-Host "  RENAME CATEGORY: $catId -> $catName" -ForegroundColor Yellow
+                $json = "{`"ok`":true,`"message`":`"Category renamed successfully`"}"
+            } catch {
+                $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
+                $json = "{`"ok`":false,`"message`":`"$em`"}"
+                $response.StatusCode = 400
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.Close()
+            continue
+        }
+
+        if ($request.HttpMethod -eq "POST" -and $path -eq "/api/bulk-move-products") {
+            try {
+                $parsedBulk = Parse-Multipart -stream $request.InputStream -contentType $request.ContentType
+                $idsText = ""
+                if ($parsedBulk.fields.ContainsKey("ids") -and $parsedBulk.fields["ids"]) {
+                    $idsText = "$($parsedBulk.fields['ids'])"
+                }
+                $ids = @()
+                foreach ($part in ($idsText -split ",")) {
+                    $num = 0
+                    if ([int]::TryParse($part.Trim(), [ref]$num) -and $num -gt 0) { $ids += $num }
+                }
+                $ids = @($ids | Select-Object -Unique)
+                $catId = ""
+                if ($parsedBulk.fields.ContainsKey("categoryId") -and $parsedBulk.fields["categoryId"]) {
+                    $catId = "$($parsedBulk.fields['categoryId'])"
+                }
+                $catId = Normalize-CategoryId $catId
+                $catName = ""
+                if ($parsedBulk.fields.ContainsKey("categoryName") -and $parsedBulk.fields["categoryName"]) {
+                    $catName = "$($parsedBulk.fields['categoryName'])"
+                }
+                $catName = $catName.Trim()
+                if ($ids.Count -eq 0) { throw "No items selected" }
+                if ([string]::IsNullOrWhiteSpace($catId)) { throw "Invalid category" }
+                if ([string]::IsNullOrWhiteSpace($catName)) { $catName = $catId }
+
+                $updated = 0
+                $firstFile = $true
+                foreach ($f in @($htmlFile, $jsxFile)) {
+                    $count = Move-ProductsToCategoryInFile -filePath $f -ids $ids -catId $catId -catName $catName
+                    if ($firstFile) { $updated = $count; $firstFile = $false }
+                }
+                Write-Host "  BULK MOVE: $updated items -> $catName" -ForegroundColor Cyan
+                $json = "{`"ok`":true,`"updated`":$updated,`"message`":`"Items moved successfully`"}"
             } catch {
                 $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
                 $json = "{`"ok`":false,`"message`":`"$em`"}"

@@ -1465,8 +1465,7 @@ function getTranslationValue(dictionary, key) {
       const isSearching = searchTerm.trim() !== "";
       const backStateRef = useRef({});
       const allowRealBackRef = useRef(false);
-      const backTrapPrimedRef = useRef(false);
-      const primeBackTrapRef = useRef(() => {});
+      const restoreBackGuardRef = useRef(() => {});
 
       useEffect(() => {
         try {
@@ -1495,38 +1494,29 @@ function getTranslationValue(dictionary, key) {
           isSearching,
           activeCategory
         };
-        setTimeout(() => {
-          if (!allowRealBackRef.current) primeBackTrapRef.current(true);
-        }, 80);
       }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, isSearching, activeCategory]);
 
-      // Smart Mobile / Hardware Back Button Interceptor
+      // App Back Button Controller: browser/device Back moves inside the store first.
       useEffect(() => {
-        const primeBackTrap = (force = false) => {
+        const restoreBackGuard = () => {
           if (allowRealBackRef.current) return;
           try {
-            const url = window.location.href;
-            if (!backTrapPrimedRef.current || force) {
-              window.history.replaceState({ page: 'sahil-entry', trap: true }, '', url);
-              window.history.pushState({ page: 'sahil-app', trap: true, layer: 1 }, '', url);
-              window.history.pushState({ page: 'sahil-app', trap: true, layer: 2 }, '', url);
-              backTrapPrimedRef.current = true;
-            }
+            window.history.pushState({ page: 'sahil-back-guard' }, '', window.location.href);
           } catch(e) {}
         };
-        primeBackTrapRef.current = primeBackTrap;
+        restoreBackGuardRef.current = restoreBackGuard;
 
-        const keepInsideApp = () => {
-          primeBackTrap(true);
-          setTimeout(() => primeBackTrap(true), 80);
-        };
+        try {
+          window.history.replaceState({ page: 'sahil-back-base' }, '', window.location.href);
+          restoreBackGuard();
+        } catch(e) {}
 
         const handlePopState = (event) => {
           if (allowRealBackRef.current) return;
           if (event && event.preventDefault) event.preventDefault();
 
           const state = backStateRef.current || {};
-          keepInsideApp();
+          restoreBackGuard();
 
           if (state.exitModalOpen) {
             setExitModalOpen(false);
@@ -1543,31 +1533,16 @@ function getTranslationValue(dictionary, key) {
           }
         };
 
-        const resetAndPrimeBackTrap = () => {
+        const handlePageShow = () => {
           allowRealBackRef.current = false;
-          backTrapPrimedRef.current = false;
-          primeBackTrap(true);
+          restoreBackGuard();
         };
 
-        const handlePageShow = () => resetAndPrimeBackTrap();
-        const handleFocus = () => {
-          if (document.visibilityState === 'visible') resetAndPrimeBackTrap();
-        };
-        const handleFirstTouch = () => primeBackTrap(false);
-        const handleFirstClick = () => primeBackTrap(false);
-
-        primeBackTrap(true);
         window.addEventListener('popstate', handlePopState);
         window.addEventListener('pageshow', handlePageShow);
-        window.addEventListener('focus', handleFocus);
-        window.addEventListener('touchstart', handleFirstTouch, { once: true, passive: true });
-        window.addEventListener('click', handleFirstClick, { once: true });
         return () => {
           window.removeEventListener('popstate', handlePopState);
           window.removeEventListener('pageshow', handlePageShow);
-          window.removeEventListener('focus', handleFocus);
-          window.removeEventListener('touchstart', handleFirstTouch);
-          window.removeEventListener('click', handleFirstClick);
         };
       }, []);
 
@@ -2160,7 +2135,7 @@ function getTranslationValue(dictionary, key) {
                       <button
                         onClick={() => {
                           setExitModalOpen(false);
-                          setTimeout(() => primeBackTrapRef.current(true), 80);
+                          setTimeout(() => restoreBackGuardRef.current(), 50);
                         }}
                         className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-gray-100 text-black text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-all cursor-pointer"
                       >
@@ -2171,10 +2146,6 @@ function getTranslationValue(dictionary, key) {
                           allowRealBackRef.current = true;
                           setExitModalOpen(false);
                           window.history.go(-2);
-                          setTimeout(() => {
-                            allowRealBackRef.current = false;
-                            primeBackTrapRef.current(true);
-                          }, 1500);
                         }}
                         className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-extrabold uppercase tracking-wider hover:brightness-110 transition-all shadow-md cursor-pointer"
                       >

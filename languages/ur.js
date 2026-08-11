@@ -1,4 +1,4 @@
-window.TRANSLATIONS = window.TRANSLATIONS || {};
+﻿window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.ur = {
   appTitle: "سہیل ٹریڈرز",
   subtitle: "ہول سیل اور پرچون ریٹ",
@@ -43,29 +43,23 @@ window.TRANSLATIONS.ur = {
   itemsLabel: "چیزیں",
   categories: {
     soaps:        "صابن (Soaps)",
-    shampoo:      "شیمپو اور کنڈیشنر (Shampoo & Conditioner)",
-    perfumes:     "پرفیوم (Perfumes)",
-    bodyspray:    "باڈی سپری (Body Spray)",
+    shampoo:      "شیمپو اور کنڈیشنرز (Shampoo & Conditioners)",
     creams:       "کریم (Creams)",
-    bleachfacial: "بلیچ اور فیشل (Bleach & Facial)",
-    stationary:   "اسٹیشنری (Stationery)",
+    stationary:   "Stationary & Tapes",
     sports:       "کھیل کا سامان (Sports)",
-    toys:         "کھلونے (Toys)",
     birthday:     "برتھ ڈی سامان (Birthday)",
     powders:      "پاؤڈر (Powders)",
-    tapes:        "ٹیپ (Tapes)",
-    shaving:      "شیونگ سامان (Shaving)",
-    haircolour:   "بالوں کا کلر (Hair Colour)",
-    haircare:     "بالوں کا تیل اور دیکھ بھال (Hair Care & Oil)",
+    shaving:      "شیونگ، ریزر اور بلیڈ (Shaving & Razers & Blades)",
+    haircolour:   "بالوں کا کلر، کیئر اور آئل (Hair Colour & Care & Oil)",
     condemn:      "کنڈم (Condoms)",
-    lock:         "تالے (Locks)",
+    lock:         "Lock & Cells",
     general:      "عام سامان (General Items)",
-    bodylotion:   "باڈی لوشن (Body Lotions)",
     babycare:     "بچوں کا سامان (Baby Care)",
-    blades:       "بلیڈ اور ریزر (Blades & Razors)",
-    cells:        "بیٹریاں (Cells)",
     mosquito:     "مچھر بھگانے کا سامان (Anti-Mosquito)",
     personalcare: "ذاتی صفائی (Personal Care)",
-    others:       "دیگر چیزیں (Others)"
+    others:       "دیگر چیزیں (Others)",
+    fragnances:   "خوشبوئیں (Fragnances)",
+    toothpasteandbrush: "ٹوتھ پیسٹ اور برش (Tooth Paste & Brush)",
+    facewash:     "فیس واش (Face Wash)"
   }
 };

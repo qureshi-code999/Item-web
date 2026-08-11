@@ -1,4 +1,4 @@
-window.TRANSLATIONS = window.TRANSLATIONS || {};
+﻿window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.en = {
   appTitle: "Sahil Traders",
   subtitle: "Wholesale & Retail",
@@ -44,17 +44,23 @@ window.TRANSLATIONS.en = {
   itemsLabel: "items",
   categories: {
     soaps: "Soaps",
-    shampoo: "Shampoo",
-    facewash: "Face Wash",
-    toothpaste: "Toothpaste",
+    shampoo: "Shampoo & Conditioners",
     creams: "Creams & Lotions",
-    hairoil: "Hair Oil & Hair Care",
-    deo: "Deodorants & Talcum",
-    perfume: "Perfumes & Body Spray",
-    detergent: "Detergents & Cleaning",
+    stationary: "Stationary & Tapes",
+    sports: "Sports & Toys",
+    birthday: "Birthday",
+    powders: "Powders",
+    shaving: "Shaving & Razers & Blades",
+    haircolour: "Hair Colour & Care & Oil",
+    condemn: "Condoms",
+    lock: "Lock & Cells",
+    general: "General Item & Others",
     babycare: "Baby Care",
-    shaving: "Shaving & Blades",
-    beverages: "Food & Beverages",
-    general: "General Items & Stationery"
+    mosquito: "Anti-Mosquito",
+    personalcare: "Personal Care",
+    others: "Others",
+    fragnances: "Fragnances",
+    toothpasteandbrush: "Tooth Paste & Brush",
+    facewash: "Face Wash"
   }
 };

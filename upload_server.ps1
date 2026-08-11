@@ -101,6 +101,22 @@ function Rename-CategoryInFile {
     return $count
 }
 
+function Rename-CategoryInLanguageFile {
+    param([string]$filePath, [string]$catId, [string]$catName)
+    if (-not (Test-Path $filePath)) { return 0 }
+    if ([string]::IsNullOrWhiteSpace($catId) -or [string]::IsNullOrWhiteSpace($catName)) { return 0 }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $escapedId = [regex]::Escape($catId)
+    $escapedName = Escape-JsString $catName
+    $pattern = '(\b' + $escapedId + '\s*:\s*)"[^"]*"'
+    $count = [regex]::Matches($fc, $pattern).Count
+    if ($count -gt 0) {
+        $fc = [regex]::Replace($fc, $pattern, "`$1`"$escapedName`"")
+        [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+    }
+    return $count
+}
+
 function Move-ProductsToCategoryInFile {
     param([string]$filePath, [int[]]$ids, [string]$catId, [string]$catName)
     if (-not (Test-Path $filePath)) { return 0 }
@@ -661,6 +677,9 @@ while ($true) {
 
                 foreach ($f in @($htmlFile, $jsxFile)) {
                     Rename-CategoryInFile -filePath $f -catId $catId -catName $catName | Out-Null
+                }
+                foreach ($langFile in @((Join-Path $rootDir "languages\en.js"), (Join-Path $rootDir "languages\ur.js"))) {
+                    Rename-CategoryInLanguageFile -filePath $langFile -catId $catId -catName $catName | Out-Null
                 }
                 Write-Host "  RENAME CATEGORY: $catId -> $catName" -ForegroundColor Yellow
                 $json = "{`"ok`":true,`"message`":`"Category renamed successfully`"}"

@@ -501,7 +501,8 @@ while ($true) {
                 $imgBytes2 = $parsed2.imageBytes
                 $editId    = 0; [int]::TryParse("$($f2['id'])", [ref]$editId) | Out-Null
                 $newName   = "$($f2['name'])".Trim().ToUpper()
-                $newPrice  = 0; [int]::TryParse("$($f2['price'])", [ref]$newPrice) | Out-Null
+                $newPrice  = 0
+                $priceOk = [int]::TryParse("$($f2['price'])", [ref]$newPrice)
                 $newCatId  = ""
                 if ($f2.ContainsKey("categoryId") -and $f2["categoryId"]) { $newCatId = "$($f2['categoryId'])" }
                 $newCatId = (Normalize-CategoryId $newCatId)
@@ -511,7 +512,7 @@ while ($true) {
                 if (-not $newCatName) { $newCatName = $newCatId }
                 if ($editId -le 0)   { throw "Invalid ID" }
                 if (-not $newName)   { throw "Name cannot be empty" }
-                if ($newPrice -le 0) { throw "Price must be positive" }
+                if (-not $priceOk -or $newPrice -lt 0) { throw "Price must be 0 or more" }
                 if ([string]::IsNullOrWhiteSpace($newCatId)) { throw "Category select karna zaroori hai!" }
                 $eName = Escape-JsString $newName
                 $eCatId = Escape-JsString $newCatId

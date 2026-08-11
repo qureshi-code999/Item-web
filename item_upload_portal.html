@@ -622,7 +622,7 @@ function renderItems(){
         '<div class="edit-zone" id="ez-'+p.id+'">'+
           '<div class="edit-fields">'+
             '<input class="edit-inp" type="text" id="en-'+p.id+'" value="'+eH(p.name)+'" placeholder="Item Name">'+
-            '<input class="edit-price-inp" type="number" id="ep-'+p.id+'" value="'+p.price+'" placeholder="Price" min="1">'+
+            '<input class="edit-price-inp" type="number" id="ep-'+p.id+'" value="'+p.price+'" placeholder="Price" min="0">'+
             '<select class="edit-cat-select" id="ec-'+p.id+'" onchange="toggleNewCategory(&quot;edit&quot;,'+p.id+')">'+categoryOptions(p.categoryId,true)+'</select>'+
             '<div class="edit-zone-btns">'+
               '<button class="btn btn-save btn-sm" onclick="saveEdit('+p.id+')">&#10003; Save</button>'+
@@ -688,7 +688,7 @@ function saveEdit(id){
   var pr=parseInt(document.getElementById('ep-'+id).value,10);
   var cat=getCategoryPayload('edit',id);
   if(!n){showToast('Item name cannot be empty.','error');return;}
-  if(!pr||pr<1){showToast('Please enter a valid price.','error');return;}
+  if(Number.isNaN(pr)||pr<0){showToast('Please enter a valid price.','error');return;}
   if(!cat){showToast('Please select or create a category.','error');return;}
   var fd=new FormData();
   fd.append('id',id); fd.append('name',n); fd.append('price',pr);

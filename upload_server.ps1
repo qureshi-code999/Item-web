@@ -145,6 +145,14 @@ function Get-CategoryRows {
     return $rows
 }
 
+function Get-CategoryMap {
+    $map = @{}
+    foreach ($row in (Get-CategoryRows)) {
+        if ($row.id -and $row.name) { $map[$row.id] = $row.name }
+    }
+    return $map
+}
+
 function Optimize-ProductImage {
     param([string]$filePath)
     try {
@@ -427,13 +435,17 @@ while ($true) {
         if ($request.HttpMethod -eq "GET" -and $path -eq "/api/products") {
             try {
                 $content = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
+                $catMap = Get-CategoryMap
                 $prodStart = $content.IndexOf("const PRODUCTS = [")
                 $prodEnd   = $content.IndexOf("];", $prodStart)
                 $prodBlock = $content.Substring($prodStart + "const PRODUCTS = [".Length, $prodEnd - $prodStart - "const PRODUCTS = [".Length)
                 $matches3 = [regex]::Matches($prodBlock, '\{\s*id:\s*(\d+),\s*name:\s*"([^"]*)",\s*price:\s*(\d+),\s*categoryId:\s*"([^"]*)",\s*categoryName:\s*"([^"]*)"[^}]*\}')
                 $items = $matches3 | ForEach-Object {
                     $mid=$_.Groups[1].Value; $mname=$_.Groups[2].Value.Replace('\','\\').Replace('"','\"')
-                    $mprice=$_.Groups[3].Value; $mcatid=$_.Groups[4].Value; $mcatname=$_.Groups[5].Value.Replace('\','\\').Replace('"','\"')
+                    $mprice=$_.Groups[3].Value; $mcatid=$_.Groups[4].Value
+                    $mcatname = $_.Groups[5].Value
+                    if ($catMap.ContainsKey($mcatid)) { $mcatname = $catMap[$mcatid] }
+                    $mcatname=$mcatname.Replace('\','\\').Replace('"','\"')
                     "{`"id`":$mid,`"name`":`"$mname`",`"price`":$mprice,`"categoryId`":`"$mcatid`",`"categoryName`":`"$mcatname`"}"
                 }
                 $json = "[" + ($items -join ",") + "]"

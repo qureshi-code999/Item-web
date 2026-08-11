@@ -1450,7 +1450,7 @@ function getTranslationValue(dictionary, key) {
     function getBrandFilters(items) {
       const counts = new Map();
       items.forEach(p => {
-        const brand = getProductBrand(p.name);
+        const brand = (p.filterName && String(p.filterName).trim()) || getProductBrand(p.name);
         if (brand) counts.set(brand, (counts.get(brand) || 0) + 1);
       });
       return Array.from(counts.entries())
@@ -1469,6 +1469,7 @@ function getTranslationValue(dictionary, key) {
       const [activeCategory, setActiveCategory] = useState("all");
       const [selectedCategory, setSelectedCategory] = useState(null); // null = show category home
       const [selectedBrand, setSelectedBrand] = useState("all");
+      const [filterMenuOpen, setFilterMenuOpen] = useState(false);
       const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
       const [catMenuOpen, setCatMenuOpen] = useState(false);
       const [suggestOpen, setSuggestOpen] = useState(false);
@@ -1524,11 +1525,12 @@ function getTranslationValue(dictionary, key) {
           exitModalOpen,
           selectedCategory,
           selectedBrand,
+          filterMenuOpen,
           searchTerm,
           isSearching,
           activeCategory
         };
-      }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, selectedBrand, searchTerm, isSearching, activeCategory]);
+      }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, selectedBrand, filterMenuOpen, searchTerm, isSearching, activeCategory]);
 
       // App Back Button Controller: browser/device Back restores the previous store screen first.
       useEffect(() => {
@@ -1537,6 +1539,7 @@ function getTranslationValue(dictionary, key) {
           cartOpen: !!state.cartOpen,
           selectedCategory: state.selectedCategory || null,
           selectedBrand: state.selectedBrand || "all",
+          filterMenuOpen: !!state.filterMenuOpen,
           searchTerm: state.searchTerm || "",
           activeCategory: state.activeCategory || "all"
         });
@@ -1565,6 +1568,7 @@ function getTranslationValue(dictionary, key) {
           setSearchTerm(snapshot.searchTerm || "");
           setSelectedCategory(snapshot.selectedCategory || null);
           setSelectedBrand(snapshot.selectedBrand || "all");
+          setFilterMenuOpen(!!snapshot.filterMenuOpen);
           setActiveCategory(snapshot.activeCategory || "all");
           setTimeout(() => { restoringHistoryRef.current = false; }, 0);
         };
@@ -1609,7 +1613,7 @@ function getTranslationValue(dictionary, key) {
         lastSearchActiveRef.current = searchingNow;
         const timer = setTimeout(() => restoreBackGuardRef.current(replaceSearchTyping), 0);
         return () => clearTimeout(timer);
-      }, [checkoutOpen, cartOpen, selectedCategory, selectedBrand, searchTerm, activeCategory, exitModalOpen]);
+      }, [checkoutOpen, cartOpen, selectedCategory, selectedBrand, filterMenuOpen, searchTerm, activeCategory, exitModalOpen]);
 
       const cartCount = cart.reduce((sum, i) => sum + i.qty, 0);
       const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.qty, 0);
@@ -1753,6 +1757,7 @@ function getTranslationValue(dictionary, key) {
         setSearchTerm("");
         setSelectedCategory(null);
         setSelectedBrand("all");
+        setFilterMenuOpen(false);
         setActiveCategory("all");
       }
 
@@ -1761,6 +1766,7 @@ function getTranslationValue(dictionary, key) {
         if (product && product.categoryId) {
           setSelectedCategory(product.categoryId);
           setSelectedBrand("all");
+          setFilterMenuOpen(false);
         }
         if (product && product.name) {
           setSearchTerm(product.name);
@@ -1843,6 +1849,7 @@ function getTranslationValue(dictionary, key) {
 
       useEffect(() => {
         setSelectedBrand("all");
+        setFilterMenuOpen(false);
       }, [selectedCategory, searchTerm]);
 
       const baseFiltered = useMemo(() => {
@@ -1861,7 +1868,7 @@ function getTranslationValue(dictionary, key) {
 
       const filtered = useMemo(() => {
         if (!selectedCategory || isSearching || selectedBrand === "all") return baseFiltered;
-        return baseFiltered.filter(p => getProductBrand(p.name) === selectedBrand);
+        return baseFiltered.filter(p => ((p.filterName && String(p.filterName).trim()) || getProductBrand(p.name)) === selectedBrand);
       }, [baseFiltered, selectedCategory, isSearching, selectedBrand]);
 
       const suggestions = useMemo(() => {
@@ -2128,20 +2135,25 @@ function getTranslationValue(dictionary, key) {
                 </div>
 
                 {brandFilters.length > 1 && (
-                  <div style={{ marginBottom: 16, background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 16, padding: '12px 12px 10px', boxShadow: '0 6px 18px rgba(0,0,0,0.06)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
-                      <div style={{ fontSize: 11, fontWeight: 900, color: '#111111', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Poppins', sans-serif" }}>
-                        Brand Filter
-                      </div>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: '#666666', whiteSpace: 'nowrap' }}>
-                        {selectedBrand === "all" ? baseFiltered.length : filtered.length} items
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2, WebkitOverflowScrolling: 'touch' }}>
+                  <div style={{ position: 'relative', marginBottom: 16, display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      onClick={() => setFilterMenuOpen(v => !v)}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid #111111', background: '#ffffff', color: '#111111', borderRadius: 999, padding: '9px 14px', fontSize: 12, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 5px 16px rgba(0,0,0,0.08)' }}
+                    >
+                      <svg style={{ width: 15, height: 15 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 12h12M10 19h4" /></svg>
+                      Filter
+                      <span style={{ fontSize: 10, color: '#666666', letterSpacing: 0, textTransform: 'none' }}>{selectedBrand === "all" ? 'All' : selectedBrand}</span>
+                    </button>
+                    {filterMenuOpen && (
+                      <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 8px)', zIndex: 25, width: 'min(92vw, 360px)', background: '#ffffff', border: '1px solid #d1d5db', borderRadius: 16, padding: 12, boxShadow: '0 18px 45px rgba(0,0,0,0.16)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
+                          <div style={{ fontSize: 11, fontWeight: 900, color: '#111111', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Poppins', sans-serif" }}>Brand Filter</div>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: '#666666', whiteSpace: 'nowrap' }}>{selectedBrand === "all" ? baseFiltered.length : filtered.length} items</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', maxHeight: 260, overflowY: 'auto' }}>
                       <button
-                        onClick={() => setSelectedBrand("all")}
+                        onClick={() => { setSelectedBrand("all"); setFilterMenuOpen(false); }}
                         style={{
-                          flex: '0 0 auto',
                           border: selectedBrand === "all" ? '1px solid #111111' : '1px solid #d1d5db',
                           background: selectedBrand === "all" ? '#111111' : '#f9fafb',
                           color: selectedBrand === "all" ? '#ffffff' : '#111111',
@@ -2160,9 +2172,8 @@ function getTranslationValue(dictionary, key) {
                       {brandFilters.map((brand) => (
                         <button
                           key={brand.name}
-                          onClick={() => setSelectedBrand(brand.name)}
+                          onClick={() => { setSelectedBrand(brand.name); setFilterMenuOpen(false); }}
                           style={{
-                            flex: '0 0 auto',
                             border: selectedBrand === brand.name ? '1px solid #111111' : '1px solid #d1d5db',
                             background: selectedBrand === brand.name ? '#111111' : '#ffffff',
                             color: selectedBrand === brand.name ? '#ffffff' : '#111111',
@@ -2178,8 +2189,10 @@ function getTranslationValue(dictionary, key) {
                           {brand.name} <span style={{ opacity: 0.72 }}>({brand.count})</span>
                         </button>
                       ))}
+                        </div>
+                      </div>
+                    )}
                     </div>
-                  </div>
                 )}
 
                 {filtered.length === 0 ? (

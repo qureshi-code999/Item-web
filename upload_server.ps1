@@ -142,6 +142,47 @@ function Move-ProductsToCategoryInFile {
     return $updated
 }
 
+function Set-ProductsFilterInFile {
+    param([string]$filePath, [int[]]$ids, [string]$filterName)
+    if (-not (Test-Path $filePath)) { return 0 }
+    if (-not $ids -or $ids.Count -eq 0) { return 0 }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $escapedFilter = Escape-JsString $filterName
+    $updated = 0
+    foreach ($id in $ids) {
+        $itemPattern = '\{\s*id:\s*' + $id + ',[^}]*\}'
+        $match = [regex]::Match($fc, $itemPattern)
+        if (-not $match.Success) { continue }
+        $item = $match.Value
+        if ([string]::IsNullOrWhiteSpace($filterName)) {
+            $item = [regex]::Replace($item, ',\s*filterName:\s*"[^"]*"', "")
+        } elseif ($item -match 'filterName:\s*"[^"]*"') {
+            $item = [regex]::Replace($item, '(filterName:\s*)"[^"]*"', "`$1`"$escapedFilter`"", 1)
+        } else {
+            $item = $item.TrimEnd("}") + ", filterName: `"$escapedFilter`" }"
+        }
+        $fc = $fc.Substring(0, $match.Index) + $item + $fc.Substring($match.Index + $match.Length)
+        $updated++
+    }
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+    return $updated
+}
+
+function Rename-ProductFilterInFile {
+    param([string]$filePath, [string]$oldName, [string]$newName)
+    if (-not (Test-Path $filePath)) { return 0 }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $oldEsc = [regex]::Escape($oldName)
+    $newEsc = Escape-JsString $newName
+    $pattern = '(filterName:\s*)"' + $oldEsc + '"'
+    $count = [regex]::Matches($fc, $pattern).Count
+    if ($count -gt 0) {
+        $fc = [regex]::Replace($fc, $pattern, "`$1`"$newEsc`"")
+        [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+    }
+    return $count
+}
+
 function Update-ProductInFile {
     param(
         [string]$filePath,
@@ -530,7 +571,10 @@ while ($true) {
                     $mcatname = $_.Groups[5].Value
                     if ($catMap.ContainsKey($mcatid)) { $mcatname = $catMap[$mcatid] }
                     $mcatname=$mcatname.Replace('\','\\').Replace('"','\"')
-                    "{`"id`":$mid,`"name`":`"$mname`",`"price`":$mprice,`"categoryId`":`"$mcatid`",`"categoryName`":`"$mcatname`"}"
+                    $filterName = ""
+                    $filterMatch = [regex]::Match($_.Value, 'filterName:\s*"([^"]*)"')
+                    if ($filterMatch.Success) { $filterName = $filterMatch.Groups[1].Value.Replace('\','\\').Replace('"','\"') }
+                    "{`"id`":$mid,`"name`":`"$mname`",`"price`":$mprice,`"categoryId`":`"$mcatid`",`"categoryName`":`"$mcatname`",`"filterName`":`"$filterName`"}"
                 }
                 $json = "[" + ($items -join ",") + "]"
             } catch {
@@ -731,6 +775,78 @@ while ($true) {
                 }
                 Write-Host "  BULK MOVE: $updated items -> $catName" -ForegroundColor Cyan
                 $json = "{`"ok`":true,`"updated`":$updated,`"message`":`"Items moved successfully`"}"
+            } catch {
+                $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
+                $json = "{`"ok`":false,`"message`":`"$em`"}"
+                $response.StatusCode = 400
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.Close()
+            continue
+        }
+
+        if ($request.HttpMethod -eq "POST" -and $path -eq "/api/set-product-filter") {
+            try {
+                $parsedFilter = Parse-Multipart -stream $request.InputStream -contentType $request.ContentType
+                $idsText = ""
+                if ($parsedFilter.fields.ContainsKey("ids") -and $parsedFilter.fields["ids"]) {
+                    $idsText = "$($parsedFilter.fields['ids'])"
+                }
+                $ids = @()
+                foreach ($part in ($idsText -split ",")) {
+                    $num = 0
+                    if ([int]::TryParse($part.Trim(), [ref]$num) -and $num -gt 0) { $ids += $num }
+                }
+                $ids = @($ids | Select-Object -Unique)
+                $filterName = ""
+                if ($parsedFilter.fields.ContainsKey("filterName") -and $parsedFilter.fields["filterName"]) {
+                    $filterName = "$($parsedFilter.fields['filterName'])"
+                }
+                $filterName = $filterName.Trim()
+                if ($ids.Count -eq 0) { throw "No items selected" }
+                $updated = 0
+                $firstFile = $true
+                foreach ($f in @($htmlFile, $jsxFile)) {
+                    $count = Set-ProductsFilterInFile -filePath $f -ids $ids -filterName $filterName
+                    if ($firstFile) { $updated = $count; $firstFile = $false }
+                }
+                Write-Host "  SET FILTER: $updated items -> '$filterName'" -ForegroundColor Cyan
+                $json = "{`"ok`":true,`"updated`":$updated,`"message`":`"Filter updated successfully`"}"
+            } catch {
+                $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
+                $json = "{`"ok`":false,`"message`":`"$em`"}"
+                $response.StatusCode = 400
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.Close()
+            continue
+        }
+
+        if ($request.HttpMethod -eq "POST" -and $path -eq "/api/rename-filter") {
+            try {
+                $parsedFilter2 = Parse-Multipart -stream $request.InputStream -contentType $request.ContentType
+                $oldName = ""
+                $newName = ""
+                if ($parsedFilter2.fields.ContainsKey("oldName") -and $parsedFilter2.fields["oldName"]) { $oldName = "$($parsedFilter2.fields['oldName'])" }
+                if ($parsedFilter2.fields.ContainsKey("newName") -and $parsedFilter2.fields["newName"]) { $newName = "$($parsedFilter2.fields['newName'])" }
+                $oldName = $oldName.Trim()
+                $newName = $newName.Trim()
+                if ([string]::IsNullOrWhiteSpace($oldName)) { throw "Old filter select karein" }
+                if ([string]::IsNullOrWhiteSpace($newName)) { throw "New filter name likhein" }
+                $updated = 0
+                $firstFile = $true
+                foreach ($f in @($htmlFile, $jsxFile)) {
+                    $count = Rename-ProductFilterInFile -filePath $f -oldName $oldName -newName $newName
+                    if ($firstFile) { $updated = $count; $firstFile = $false }
+                }
+                Write-Host "  RENAME FILTER: '$oldName' -> '$newName'" -ForegroundColor Yellow
+                $json = "{`"ok`":true,`"updated`":$updated,`"message`":`"Filter renamed successfully`"}"
             } catch {
                 $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
                 $json = "{`"ok`":false,`"message`":`"$em`"}"

@@ -24,6 +24,7 @@
     .tab-btn.active{background:var(--bg3);color:var(--gold);border:1px solid var(--border)}
     .tab-btn:hover:not(.active){color:var(--text)}
     .panel{display:none;width:100%;max-width:760px}
+    #panel-manage{max-width:1100px}
     .panel.active{display:block}
     .card{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px 32px 26px;position:relative;overflow:hidden;margin-bottom:20px}
     .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold-light),var(--gold),transparent)}
@@ -62,17 +63,27 @@
     .btn-save:hover{background:rgba(34,197,94,0.25)}
     .btn-cancel-s{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted)}
     .btn-sm{padding:5px 10px;font-size:11px}
+    .manage-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+    .manage-main{min-width:0}
     .filter-row{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
     .filter-row select{flex:1;min-width:180px;max-width:240px}
     .filter-row input[type=search]{flex:2;min-width:160px}
     .item-count{font-size:12px;color:var(--text-muted);white-space:nowrap}
-    .category-tools{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:16px}
-    .category-admin-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.18);border-radius:12px;padding:12px}
+    .category-tools{position:sticky;top:16px;display:grid;gap:9px;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:16px}
+    .tools-head{font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);padding:2px 2px 6px}
+    .category-admin-row{background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.18);border-radius:12px;overflow:hidden}
     .category-admin-row.danger{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.18)}
-    .category-admin-row label{margin-right:auto;color:var(--gold);min-width:125px}
-    .category-admin-row.danger label{color:#fca5a5}
-    .category-admin-row select,.category-admin-row input{flex:1;min-width:170px;background:var(--bg)}
-    .category-admin-row .hint{width:100%;font-size:11px;color:var(--text-muted);line-height:1.45}
+    .category-admin-row summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 12px;font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);cursor:pointer}
+    .category-admin-row summary::-webkit-details-marker{display:none}
+    .category-admin-row summary::after{content:'+';width:22px;height:22px;border-radius:999px;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1}
+    .category-admin-row[open] summary::after{content:'-'}
+    .category-admin-row.danger summary{color:#fca5a5}
+    .category-admin-row.danger summary::after{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.25)}
+    .tool-body{display:grid;gap:9px;padding:0 12px 12px}
+    .tool-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .tool-body .btn,.tool-body select,.tool-body input{width:100%}
+    .tool-body select,.tool-body input{min-width:0;background:var(--bg);padding:10px 12px;font-size:13px}
+    .category-admin-row .hint{font-size:11px;color:var(--text-muted);line-height:1.45}
     .bulk-count{font-size:12px;color:var(--text-muted);white-space:nowrap;font-weight:700}
     .items-list{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow-y:auto;padding-right:4px}
     .items-list::-webkit-scrollbar{width:5px}
@@ -146,6 +157,7 @@
     .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px}
     .empty-state .em{font-size:36px;margin-bottom:10px}
     .loading-row{text-align:center;padding:30px;color:var(--text-muted);font-size:13px}
+    @media(max-width:860px){.manage-layout{grid-template-columns:1fr}.category-tools{position:static;order:-1}}
     @media(max-width:520px){.card{padding:20px 12px 16px}.form-grid{grid-template-columns:1fr}.form-group.full,.upload-area,.preview-wrap{grid-column:1}.filter-row{flex-direction:column;align-items:stretch}.new-cat-row{grid-template-columns:1fr}.edit-new-cat-row{flex-direction:column}}
   </style>
 </head>
@@ -239,37 +251,63 @@
 <div class="panel" id="panel-manage">
   <div class="card">
     <div class="card-title">&#9998; Edit &amp; Delete Items</div>
-    <div class="filter-row">
-      <select id="filterCategory" onchange="applyFilter()"></select>
-      <input type="search" id="filterSearch" placeholder="Search item name..." oninput="applyFilter()">
-      <span class="item-count" id="itemCount"></span>
-    </div>
-    <div class="category-tools">
-      <div class="category-admin-row">
-        <label>Rename Category</label>
-        <select id="renameCategorySelect"></select>
-        <input type="text" id="renameCategoryName" placeholder="New category name">
-        <button class="btn btn-save" onclick="renameCategory()">Rename</button>
-        <div class="hint">Category ka naam website ke front page aur us category ke tamam items me update ho jayega.</div>
+    <div class="manage-layout">
+      <div class="manage-main">
+        <div class="filter-row">
+          <select id="filterCategory" onchange="applyFilter()"></select>
+          <input type="search" id="filterSearch" placeholder="Search item name..." oninput="applyFilter()">
+          <span class="item-count" id="itemCount"></span>
+        </div>
+        <div class="items-list" id="itemsList">
+          <div class="loading-row">&#8987; Loading items...</div>
+        </div>
       </div>
-      <div class="category-admin-row">
-        <label>Bulk Move Items</label>
-        <button class="btn btn-edit" onclick="selectFilteredItems()">Select Filtered</button>
-        <button class="btn btn-cancel-s" onclick="clearSelectedItems()">Clear</button>
-        <select id="bulkMoveCategory"></select>
-        <button class="btn btn-save" onclick="bulkMoveSelected()">Move Selected</button>
-        <span class="bulk-count" id="bulkCount">0 selected</span>
-        <div class="hint">Filter/search se items narrow karo, Select Filtered dabao, phir destination category choose karke sab items ek saath shift kar do.</div>
-      </div>
-      <div class="category-admin-row danger">
-        <label>Delete Empty Category</label>
-        <select id="deleteCategorySelect"></select>
-        <button class="btn btn-danger" onclick="deleteEmptyCategory()">Delete Category</button>
-        <div class="hint">Sirf woh category delete hogi jisme 0 items hon. Jis category me item hai, woh delete nahi hogi.</div>
-      </div>
-    </div>
-    <div class="items-list" id="itemsList">
-      <div class="loading-row">&#8987; Loading items...</div>
+      <aside class="category-tools">
+        <div class="tools-head">Category Tools</div>
+        <details class="category-admin-row">
+          <summary>Rename Category</summary>
+          <div class="tool-body">
+            <select id="renameCategorySelect"></select>
+            <input type="text" id="renameCategoryName" placeholder="New category name">
+            <button class="btn btn-save" onclick="renameCategory()">Rename</button>
+            <div class="hint">Category ka naam website ke front page aur us category ke tamam items me update ho jayega.</div>
+          </div>
+        </details>
+        <details class="category-admin-row" open>
+          <summary>Bulk Move Items</summary>
+          <div class="tool-body">
+            <div class="tool-actions">
+              <button class="btn btn-edit" onclick="selectFilteredItems()">Select Filtered</button>
+              <button class="btn btn-cancel-s" onclick="clearSelectedItems()">Clear</button>
+            </div>
+            <select id="bulkMoveCategory"></select>
+            <button class="btn btn-save" onclick="bulkMoveSelected()">Move Selected</button>
+            <span class="bulk-count" id="bulkCount">0 selected</span>
+            <div class="hint">Filter/search se items narrow karo, Select Filtered dabao, phir destination category choose karke sab items ek saath shift kar do.</div>
+          </div>
+        </details>
+        <details class="category-admin-row">
+          <summary>Manage Filters</summary>
+          <div class="tool-body">
+            <input type="text" id="assignFilterName" placeholder="New or existing filter name">
+            <button class="btn btn-save" onclick="assignFilterToSelected()">Add Selected to Filter</button>
+            <button class="btn btn-cancel-s" onclick="removeFilterFromSelected()">Remove Filter from Selected</button>
+            <select id="renameFilterSelect"></select>
+            <input type="text" id="renameFilterName" placeholder="Rename selected filter">
+            <button class="btn btn-edit" onclick="renameFilter()">Rename Filter</button>
+            <button class="btn btn-danger" onclick="deleteFilter()">Delete Filter</button>
+            <div class="hint">Items select karo, filter name likho, phir add/remove/rename/delete karo. Website ke Filter menu me ye name show hoga.</div>
+          </div>
+        </details>
+        <details class="category-admin-row danger">
+          <summary>Delete Empty Category</summary>
+          <div class="tool-body">
+            <select id="deleteCategorySelect"></select>
+            <button class="btn btn-danger" onclick="deleteEmptyCategory()">Delete Category</button>
+            <div class="hint">Sirf woh category delete hogi jisme 0 items hon. Jis category me item hai, woh delete nahi hogi.</div>
+          </div>
+        </details>
+      </aside>
     </div>
   </div>
 </div>
@@ -383,6 +421,7 @@ function loadCategories(){
 function renderCategoryToolOptions(){
   var sel=document.getElementById('deleteCategorySelect');
   var renameSel=document.getElementById('renameCategorySelect');
+  var filterSel=document.getElementById('renameFilterSelect');
   if(renameSel){
     var oldRename=renameSel.value;
     renameSel.innerHTML='<option value="">-- Select Category --</option>'+categoryRows.map(function(c){
@@ -391,6 +430,14 @@ function renderCategoryToolOptions(){
     if(oldRename && CAT[oldRename]) renameSel.value=oldRename;
   }
   if(!sel) { updateBulkCount(); return; }
+  if(filterSel){
+    var oldFilter=filterSel.value;
+    var filters=getFilterRows();
+    filterSel.innerHTML='<option value="">-- Select Filter --</option>'+filters.map(function(f){
+      return '<option value="'+eH(f.name)+'">'+eH(f.name)+' ('+f.count+' items)</option>';
+    }).join('');
+    if(oldFilter && filters.some(function(f){return f.name===oldFilter})) filterSel.value=oldFilter;
+  }
   var old=sel.value;
   var emptyRows=categoryRows.filter(function(c){return (c.count||0)===0});
   if(!emptyRows.length){
@@ -405,6 +452,15 @@ function renderCategoryToolOptions(){
   }).join('');
   if(old && emptyRows.some(function(c){return c.id===old})) sel.value=old;
   updateBulkCount();
+}
+function getFilterRows(){
+  var map={};
+  allProducts.forEach(function(p){
+    var name=(p.filterName||'').trim();
+    if(!name) return;
+    map[name]=(map[name]||0)+1;
+  });
+  return Object.keys(map).sort(function(a,b){return map[b]-map[a]||a.localeCompare(b)}).map(function(name){return{name:name,count:map[name]}});
 }
 function toggleNewCategory(scope,id){
   if(scope==='add'){
@@ -530,6 +586,17 @@ function renameCategory(){
 function updateBulkCount(){
   var el=document.getElementById('bulkCount');
   if(el) el.textContent=selectedItemIds.size+' selected';
+  renderFilterOptions();
+}
+function renderFilterOptions(){
+  var sel=document.getElementById('renameFilterSelect');
+  if(!sel) return;
+  var old=sel.value;
+  var filters=getFilterRows();
+  sel.innerHTML='<option value="">-- Select Filter --</option>'+filters.map(function(f){
+    return '<option value="'+eH(f.name)+'">'+eH(f.name)+' ('+f.count+' items)</option>';
+  }).join('');
+  if(old && filters.some(function(f){return f.name===old})) sel.value=old;
 }
 function toggleItemSelect(id,checked){
   if(checked) selectedItemIds.add(id); else selectedItemIds.delete(id);
@@ -573,6 +640,60 @@ function bulkMoveSelected(){
   }).catch(function(){showToast('Server connection error.','error');});
 }
 
+function postFilterChange(path,fields,onOk){
+  var fd=new FormData();
+  Object.keys(fields).forEach(function(k){fd.append(k,fields[k])});
+  fetch(apiUrl(path),{method:'POST',body:fd})
+  .then(function(r){return r.json()})
+  .then(function(res){
+    if(res.ok){onOk(res); renderFilterOptions(); applyFilter(); loadStats();}
+    else showToast('Error: '+(res.message||'Filter update failed'),'error');
+  }).catch(function(){showToast('Server connection error.','error');});
+}
+function assignFilterToSelected(){
+  var ids=Array.from(selectedItemIds);
+  var name=document.getElementById('assignFilterName').value.trim();
+  if(!ids.length){showToast('Pehle items select karein.','error');return;}
+  if(!name){showToast('Filter name likhna zaroori hai.','error');return;}
+  postFilterChange('/api/set-product-filter',{ids:ids.join(','),filterName:name},function(res){
+    var idSet=new Set(ids);
+    allProducts.forEach(function(p){if(idSet.has(p.id))p.filterName=name});
+    document.getElementById('assignFilterName').value='';
+    showToast((res.updated||ids.length)+' items "'+name+'" filter me add ho gaye.','success');
+  });
+}
+function removeFilterFromSelected(){
+  var ids=Array.from(selectedItemIds);
+  if(!ids.length){showToast('Pehle items select karein.','error');return;}
+  postFilterChange('/api/set-product-filter',{ids:ids.join(','),filterName:''},function(res){
+    var idSet=new Set(ids);
+    allProducts.forEach(function(p){if(idSet.has(p.id))p.filterName=''});
+    showToast((res.updated||ids.length)+' items se filter remove ho gaya.','success');
+  });
+}
+function renameFilter(){
+  var oldName=document.getElementById('renameFilterSelect').value;
+  var newName=document.getElementById('renameFilterName').value.trim();
+  if(!oldName){showToast('Pehle filter select karein.','error');return;}
+  if(!newName){showToast('New filter name likhein.','error');return;}
+  postFilterChange('/api/rename-filter',{oldName:oldName,newName:newName},function(res){
+    allProducts.forEach(function(p){if((p.filterName||'')===oldName)p.filterName=newName});
+    document.getElementById('renameFilterName').value='';
+    showToast('"'+oldName+'" renamed to "'+newName+'".','success');
+  });
+}
+function deleteFilter(){
+  var name=document.getElementById('renameFilterSelect').value;
+  if(!name){showToast('Pehle filter select karein.','error');return;}
+  var ids=allProducts.filter(function(p){return (p.filterName||'')===name}).map(function(p){return p.id});
+  if(!ids.length){showToast('Is filter me koi item nahi hai.','error');return;}
+  if(!confirm('"'+name+'" filter delete karna hai? Items delete nahi honge, sirf filter remove hoga.')) return;
+  postFilterChange('/api/set-product-filter',{ids:ids.join(','),filterName:''},function(res){
+    allProducts.forEach(function(p){if((p.filterName||'')===name)p.filterName=''});
+    showToast('"'+name+'" filter remove ho gaya.','success');
+  });
+}
+
 function applyFilter(){
   var cat=document.getElementById('filterCategory').value;
   var q=document.getElementById('filterSearch').value.trim().toLowerCase();
@@ -605,6 +726,7 @@ function renderItems(){
   for(var i=0;i<filteredProducts.length;i++){
     var p=filteredProducts[i];
     var catLabel=CAT[p.categoryId]||'Not on website categories';
+    var filterLabel=p.filterName?' &middot; Filter: '+eH(p.filterName):'';
     var checked=selectedItemIds.has(p.id)?' checked':'';
     html+=
       '<div class="item-row" id="row-'+p.id+'">'+
@@ -612,7 +734,7 @@ function renderItems(){
         '<span class="item-id">#'+p.id+'</span>'+
         '<div class="item-body">'+
           '<div class="item-name-txt">'+eH(p.name)+'</div>'+
-          '<div class="item-meta">'+eH(catLabel)+'</div>'+
+          '<div class="item-meta">'+eH(catLabel)+filterLabel+'</div>'+
         '</div>'+
         '<span class="item-price">Rs.'+p.price+'</span>'+
         '<div class="item-actions">'+

@@ -29,6 +29,48 @@ function Get-ProductStats {
     }
 }
 
+function Sync-ProductImageMapInFile {
+    param([string]$filePath)
+    if (-not (Test-Path $filePath)) { return }
+    if (-not (Test-Path $imgDir)) { return }
+
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    if ($fc -notmatch 'window\.PRODUCT_IMAGE_MAP\s*=') { return }
+
+    $productIds = @{}
+    $prodStart = $fc.IndexOf("const PRODUCTS = [")
+    if ($prodStart -ge 0) {
+        $prodEnd = $fc.IndexOf("];", $prodStart)
+        $prodBlock = if ($prodEnd -gt $prodStart) { $fc.Substring($prodStart, $prodEnd - $prodStart) } else { $fc }
+        foreach ($m in [regex]::Matches($prodBlock, '\{\s*id:\s*(\d+)\s*,')) {
+            $productIds[[int]$m.Groups[1].Value] = $true
+        }
+    }
+
+    $imagesById = @{}
+    foreach ($file in Get-ChildItem $imgDir -File) {
+        $m = [regex]::Match($file.Name, '^(\d+)\.(png|jpg|jpeg|webp|jfif)$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+        if (-not $m.Success) { continue }
+        $id = [int]$m.Groups[1].Value
+        if (-not $productIds.ContainsKey($id)) { continue }
+        $ext = $m.Groups[2].Value.ToLower()
+        if (-not $imagesById.ContainsKey($id) -or $file.LastWriteTime -gt $imagesById[$id].Modified) {
+            $imagesById[$id] = [pscustomobject]@{ Id = $id; Ext = $ext; Modified = $file.LastWriteTime }
+        }
+    }
+
+    $rows = @($imagesById.Values | Sort-Object Id)
+    $mapBody = ($rows | ForEach-Object { "$($_.Id):'$($_.Ext)'" }) -join ","
+    $setBody = ($rows | ForEach-Object { "$($_.Id)" }) -join ","
+
+    $fc = [regex]::Replace($fc, 'window\.PRODUCT_IMAGE_MAP\s*=\s*\{[\s\S]*?\};', "window.PRODUCT_IMAGE_MAP = {$mapBody};", 1)
+    if ([regex]::IsMatch($fc, 'window\.PRODUCT_IMAGES\s*=\s*new Set\(\[[\s\S]*?\]\);')) {
+        $fc = [regex]::Replace($fc, 'window\.PRODUCT_IMAGES\s*=\s*new Set\(\[[\s\S]*?\]\);', "window.PRODUCT_IMAGES = new Set([$setBody]);", 1)
+    }
+
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+}
+
 function Escape-JsString {
     param([string]$value)
     if ($null -eq $value) { return "" }
@@ -39,6 +81,20 @@ function Escape-JsonString {
     param([string]$value)
     if ($null -eq $value) { return "" }
     return $value.Replace('\', '\\').Replace('"', '\"').Replace("`r", "\r").Replace("`n", "\n")
+}
+
+function Get-JsStringField {
+    param([string]$text, [string]$fieldName)
+    $m = [regex]::Match($text, [regex]::Escape($fieldName) + '\s*:\s*"([^"]*)"')
+    if ($m.Success) { return $m.Groups[1].Value }
+    return ""
+}
+
+function Get-JsNumberField {
+    param([string]$text, [string]$fieldName)
+    $m = [regex]::Match($text, [regex]::Escape($fieldName) + '\s*:\s*(-?\d+)')
+    if ($m.Success) { return [int]$m.Groups[1].Value }
+    return $null
 }
 
 function Normalize-CategoryId {
@@ -564,16 +620,19 @@ while ($true) {
                 $prodStart = $content.IndexOf("const PRODUCTS = [")
                 $prodEnd   = $content.IndexOf("];", $prodStart)
                 $prodBlock = $content.Substring($prodStart + "const PRODUCTS = [".Length, $prodEnd - $prodStart - "const PRODUCTS = [".Length)
-                $matches3 = [regex]::Matches($prodBlock, '\{\s*id:\s*(\d+),\s*name:\s*"([^"]*)",\s*price:\s*(\d+),\s*categoryId:\s*"([^"]*)",\s*categoryName:\s*"([^"]*)"[^}]*\}')
-                $items = $matches3 | ForEach-Object {
-                    $mid=$_.Groups[1].Value; $mname=$_.Groups[2].Value.Replace('\','\\').Replace('"','\"')
-                    $mprice=$_.Groups[3].Value; $mcatid=$_.Groups[4].Value
-                    $mcatname = $_.Groups[5].Value
+                $productObjects = [regex]::Matches($prodBlock, '\{\s*id:\s*\d+,[^}]*\}')
+                $items = foreach ($po in $productObjects) {
+                    $itemText = $po.Value
+                    $mid = Get-JsNumberField $itemText "id"
+                    $mnameRaw = Get-JsStringField $itemText "name"
+                    $mprice = Get-JsNumberField $itemText "price"
+                    $mcatid = Get-JsStringField $itemText "categoryId"
+                    $mcatname = Get-JsStringField $itemText "categoryName"
+                    if ($null -eq $mid -or [string]::IsNullOrWhiteSpace($mnameRaw) -or $null -eq $mprice -or [string]::IsNullOrWhiteSpace($mcatid)) { continue }
+                    $mname = $mnameRaw.Replace('\','\\').Replace('"','\"')
                     if ($catMap.ContainsKey($mcatid)) { $mcatname = $catMap[$mcatid] }
                     $mcatname=$mcatname.Replace('\','\\').Replace('"','\"')
-                    $filterName = ""
-                    $filterMatch = [regex]::Match($_.Value, 'filterName:\s*"([^"]*)"')
-                    if ($filterMatch.Success) { $filterName = $filterMatch.Groups[1].Value.Replace('\','\\').Replace('"','\"') }
+                    $filterName = (Get-JsStringField $itemText "filterName").Replace('\','\\').Replace('"','\"')
                     "{`"id`":$mid,`"name`":`"$mname`",`"price`":$mprice,`"categoryId`":`"$mcatid`",`"categoryName`":`"$mcatname`",`"filterName`":`"$filterName`"}"
                 }
                 $json = "[" + ($items -join ",") + "]"
@@ -650,6 +709,7 @@ while ($true) {
                     $updatedFiles += Update-ProductInFile -filePath $f -productId $editId -name $newName -price $newPrice -catId $newCatId -catName $newCatName -imgSaved $imgSaved -initial $initial -gradient $grad
                 }
                 if ($updatedFiles -le 0) { throw "Item ID $editId file me nahi mila" }
+                Sync-ProductImageMapInFile -filePath $htmlFile
                 Write-Host "  EDIT: ID $editId -> '$newName' Rs.$newPrice [$newCatName]$(if($imgSaved){' + new image'})" -ForegroundColor Cyan
                 $imgSavedStr = if ($imgSaved) { "true" } else { "false" }
                 $json = "{`"ok`":true,`"imgSaved`":$imgSavedStr,`"message`":`"Item updated successfully`"}"
@@ -874,6 +934,7 @@ while ($true) {
                 # Remove image if it exists
                 $imgFile = Join-Path $imgDir "$delId.png"
                 if (Test-Path $imgFile) { Remove-Item $imgFile -Force }
+                Sync-ProductImageMapInFile -filePath $htmlFile
                 Write-Host "  DELETE: ID $delId" -ForegroundColor Red
                 $json = "{`"ok`":true,`"message`":`"Item deleted successfully`"}"
             } catch {
@@ -977,6 +1038,7 @@ while ($true) {
                         [System.IO.File]::WriteAllText($htmlFile, $updatedHtml2, [System.Text.Encoding]::UTF8)
                     }
                 }
+                Sync-ProductImageMapInFile -filePath $htmlFile
 
                 Write-Host "  SUCCESS: Added '$name' (ID: $newId, Price: $price)" -ForegroundColor Green
 

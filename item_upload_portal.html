@@ -84,6 +84,10 @@
     .tool-body .btn,.tool-body select,.tool-body input{width:100%}
     .tool-body select,.tool-body input{min-width:0;background:var(--bg);padding:10px 12px;font-size:13px}
     .category-admin-row .hint{font-size:11px;color:var(--text-muted);line-height:1.45}
+    .filter-chip-list{display:flex;flex-wrap:wrap;gap:7px;max-height:150px;overflow:auto;background:rgba(0,0,0,.14);border:1px solid rgba(212,175,55,.14);border-radius:10px;padding:9px}
+    .filter-chip{border:1px solid rgba(212,175,55,.25);background:rgba(212,175,55,.08);color:var(--text);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif}
+    .filter-chip.active{background:var(--gold);color:#1a0f00;border-color:var(--gold)}
+    .filter-empty{font-size:11px;color:var(--text-muted);line-height:1.45}
     .bulk-count{font-size:12px;color:var(--text-muted);white-space:nowrap;font-weight:700}
     .items-list{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow-y:auto;padding-right:4px}
     .items-list::-webkit-scrollbar{width:5px}
@@ -289,14 +293,17 @@
         <details class="category-admin-row">
           <summary>Manage Filters</summary>
           <div class="tool-body">
+            <div class="filter-chip-list" id="filterList">
+              <div class="filter-empty">Pehle left side se category select karo.</div>
+            </div>
             <input type="text" id="assignFilterName" placeholder="New or existing filter name">
-            <button class="btn btn-save" onclick="assignFilterToSelected()">Add Selected to Filter</button>
-            <button class="btn btn-cancel-s" onclick="removeFilterFromSelected()">Remove Filter from Selected</button>
             <select id="renameFilterSelect"></select>
             <input type="text" id="renameFilterName" placeholder="Rename selected filter">
+            <button class="btn btn-save" onclick="assignFilterToSelected()">Add Selected to Filter</button>
+            <button class="btn btn-cancel-s" onclick="removeFilterFromSelected()">Remove Selected From Filter</button>
             <button class="btn btn-edit" onclick="renameFilter()">Rename Filter</button>
             <button class="btn btn-danger" onclick="deleteFilter()">Delete Filter</button>
-            <div class="hint">Items select karo, filter name likho, phir add/remove/rename/delete karo. Website ke Filter menu me ye name show hoga.</div>
+            <div class="hint">Left side category select karo, yahan us category ke filters aa jayenge. Filter click karne se items narrow ho jayengi, phir selected items add/remove kar sakte ho.</div>
           </div>
         </details>
         <details class="category-admin-row danger">
@@ -328,9 +335,13 @@ var allProducts=[], filteredProducts=[], delId=null, delName=null, editFiles={};
 var activeTab='add';
 var categoryRows=[];
 var selectedItemIds=new Set();
+var selectedAdminFilter='';
+var activeManageCategory='';
 var CAT={};
 var CAT_ORDER=[];
 var API_BASE=window.location.protocol==='file:'?'http://localhost:8888':'';
+var FILTER_STOP_WORDS=new Set(['SOAP','SOAPS','SHAMPOO','CONDITIONER','CREAM','LOTION','POWDER','SPRAY','BODY','FACE','WASH','TOOTH','PASTE','BRUSH','RAZOR','BLADE','OIL','HAIR','COLOUR','COLOR','BALL','PEN','TOY','TAPE','CELL','LOCK','CANDLE','PAD','WIPES','PERFUME','PERFUMES','DEO','DEODORANT','TALCUM','ROOM','FRESHNER','FRESHENER','ROLL','ON','AIR','LARGE','MEDIUM','SMALL','SACHET','PACK','PCS','PIECE','SIZE','FULL','HALF','MIX','ALL','GOOD','QUALITY','ORIGINAL','NON','IMP','PK','RS','RP','ML','G','GM','KG','INCH','BLACK','WHITE','BLUE','GREEN','RED','PINK','YELLOW','GOLDEN','BROWN','ORANGE','PURPLE','DARK','LIGHT']);
+var FILTER_PHRASES=['BIO AMLA','BLACK ROSE','AL RASHIEED','JUST FOR MEN','ONE MAN SHOW','WHITE ROSE','SOFT CREME','SOFT CREAM','SKIN WHITE','CHI CHI','7 HERBAL','BODY SHOP'];
 
 function apiUrl(path){return API_BASE+path;}
 function wait(ms){return new Promise(function(resolve){setTimeout(resolve,ms)});}
@@ -347,6 +358,18 @@ function fetchJsonRetry(path,tries){
 
 function slugifyCategory(s){
   return String(s||'').toLowerCase().trim().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'').slice(0,28);
+}
+function titleCaseWords(s){return String(s||'').split(' ').map(function(w){return w?w.charAt(0)+w.slice(1).toLowerCase():''}).join(' ')}
+function autoFilterName(name){
+  var clean=String(name||'').toUpperCase().replace(/[#(),.&\/+_-]/g,' ').replace(/\b\d+\s*(ML|G|GM|KG|PCS|PC|INCH|METER)\b/g,' ').replace(/\b(RS|RP)\s*\d+\b/g,' ').replace(/\s+/g,' ').trim();
+  for(var i=0;i<FILTER_PHRASES.length;i++){if(clean.indexOf(FILTER_PHRASES[i])>-1)return titleCaseWords(FILTER_PHRASES[i]);}
+  var words=clean.split(' ').filter(function(w){return w&&!FILTER_STOP_WORDS.has(w)&&!/^\d+$/.test(w)});
+  return words.length?titleCaseWords(words[0]):'';
+}
+function productFilterName(p){
+  var custom=String(p.filterName||'').trim();
+  if(custom==='__none__') return '';
+  return custom||autoFilterName(p.name);
 }
 function rememberCategory(id,name){
   id=String(id||'').trim(); name=String(name||'').trim();
@@ -430,14 +453,7 @@ function renderCategoryToolOptions(){
     if(oldRename && CAT[oldRename]) renameSel.value=oldRename;
   }
   if(!sel) { updateBulkCount(); return; }
-  if(filterSel){
-    var oldFilter=filterSel.value;
-    var filters=getFilterRows();
-    filterSel.innerHTML='<option value="">-- Select Filter --</option>'+filters.map(function(f){
-      return '<option value="'+eH(f.name)+'">'+eH(f.name)+' ('+f.count+' items)</option>';
-    }).join('');
-    if(oldFilter && filters.some(function(f){return f.name===oldFilter})) filterSel.value=oldFilter;
-  }
+  renderFilterOptions();
   var old=sel.value;
   var emptyRows=categoryRows.filter(function(c){return (c.count||0)===0});
   if(!emptyRows.length){
@@ -455,8 +471,11 @@ function renderCategoryToolOptions(){
 }
 function getFilterRows(){
   var map={};
+  var cat=document.getElementById('filterCategory')?document.getElementById('filterCategory').value:'';
+  if(!cat) return [];
   allProducts.forEach(function(p){
-    var name=(p.filterName||'').trim();
+    if(p.categoryId!==cat) return;
+    var name=productFilterName(p);
     if(!name) return;
     map[name]=(map[name]||0)+1;
   });
@@ -590,13 +609,33 @@ function updateBulkCount(){
 }
 function renderFilterOptions(){
   var sel=document.getElementById('renameFilterSelect');
-  if(!sel) return;
+  var list=document.getElementById('filterList');
+  if(!sel && !list) return;
   var old=sel.value;
   var filters=getFilterRows();
-  sel.innerHTML='<option value="">-- Select Filter --</option>'+filters.map(function(f){
-    return '<option value="'+eH(f.name)+'">'+eH(f.name)+' ('+f.count+' items)</option>';
-  }).join('');
-  if(old && filters.some(function(f){return f.name===old})) sel.value=old;
+  if(sel){
+    sel.innerHTML='<option value="">-- Select Filter --</option>'+filters.map(function(f){
+      return '<option value="'+eH(f.name)+'">'+eH(f.name)+' ('+f.count+' items)</option>';
+    }).join('');
+    if(old && filters.some(function(f){return f.name===old})) sel.value=old;
+  }
+  if(list){
+    var cat=document.getElementById('filterCategory').value;
+    if(!cat){
+      list.innerHTML='<div class="filter-empty">Pehle left side se category select karo.</div>';
+    }else if(!filters.length){
+      list.innerHTML='<div class="filter-empty">Is category me abhi koi filter nahi mila. Items select karke new filter bana sakte ho.</div>';
+    }else{
+      list.innerHTML='<button class="filter-chip'+(!selectedAdminFilter?' active':'')+'" onclick="selectAdminFilter(&quot;&quot;)">All ('+allProducts.filter(function(p){return p.categoryId===cat}).length+')</button>'+
+        filters.map(function(f){return '<button class="filter-chip'+(selectedAdminFilter===f.name?' active':'')+'" onclick="selectAdminFilter(&quot;'+eH(f.name)+'&quot;)">'+eH(f.name)+' ('+f.count+')</button>';}).join('');
+    }
+  }
+}
+function selectAdminFilter(name){
+  selectedAdminFilter=name||'';
+  var sel=document.getElementById('renameFilterSelect');
+  if(sel) sel.value=selectedAdminFilter;
+  applyFilter();
 }
 function toggleItemSelect(id,checked){
   if(checked) selectedItemIds.add(id); else selectedItemIds.delete(id);
@@ -697,20 +736,27 @@ function deleteFilter(){
 function applyFilter(){
   var cat=document.getElementById('filterCategory').value;
   var q=document.getElementById('filterSearch').value.trim().toLowerCase();
+  if(cat!==activeManageCategory){
+    activeManageCategory=cat;
+    selectedAdminFilter='';
+    selectedItemIds.clear();
+  }
   try{
     sessionStorage.setItem('itemUploadFilterCategory',cat);
     sessionStorage.setItem('itemUploadFilterSearch',document.getElementById('filterSearch').value);
   }catch(e){}
   filteredProducts=allProducts.filter(function(p){
     if(cat && p.categoryId!==cat) return false;
+    if(selectedAdminFilter && productFilterName(p)!==selectedAdminFilter) return false;
     if(q && p.name.toLowerCase().indexOf(q)<0) return false;
     return true;
   });
-  document.getElementById('itemCount').textContent=filteredProducts.length+' item'+(filteredProducts.length!==1?'s':'');
+  document.getElementById('itemCount').textContent=filteredProducts.length+' item'+(filteredProducts.length!==1?'s':'')+(selectedAdminFilter?' in '+selectedAdminFilter:'');
   selectedItemIds.forEach(function(id){
     if(!allProducts.some(function(p){return p.id===id})) selectedItemIds.delete(id);
   });
   updateBulkCount();
+  renderFilterOptions();
   renderItems();
 }
 
@@ -726,7 +772,8 @@ function renderItems(){
   for(var i=0;i<filteredProducts.length;i++){
     var p=filteredProducts[i];
     var catLabel=CAT[p.categoryId]||'Not on website categories';
-    var filterLabel=p.filterName?' &middot; Filter: '+eH(p.filterName):'';
+    var shownFilter=productFilterName(p);
+    var filterLabel=shownFilter?' &middot; Filter: '+eH(shownFilter):'';
     var checked=selectedItemIds.has(p.id)?' checked':'';
     html+=
       '<div class="item-row" id="row-'+p.id+'">'+

@@ -116,6 +116,23 @@ while ($listener.IsListening) {
             continue
         }
 
+        # Handle API Save Compiled JS Request
+        if ($request.HttpMethod -eq "POST" -and $request.Url.AbsolutePath -eq "/api/save_compiled_js") {
+            $reader = New-Object System.IO.StreamReader($request.InputStream)
+            $body = $reader.ReadToEnd()
+            $appJsFile = Join-Path "c:\Users\ALICOM4\Desktop\ITEMS WEB" "app.js"
+            [System.IO.File]::WriteAllText($appJsFile, $body, [System.Text.Encoding]::UTF8)
+            Write-Output "--> Saved pre-compiled app.js ($($body.Length) bytes)"
+
+            $respBytes = [System.Text.Encoding]::UTF8.GetBytes("app.js saved successfully")
+            $response.StatusCode = 200
+            $response.ContentType = "text/plain"
+            $response.ContentLength64 = $respBytes.Length
+            $response.OutputStream.Write($respBytes, 0, $respBytes.Length)
+            $response.Close()
+            continue
+        }
+
         # Handle static files serving
         $relPath = $request.Url.AbsolutePath.TrimStart('/')
         if (-not $relPath) {

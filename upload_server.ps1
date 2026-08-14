@@ -309,11 +309,12 @@ function Get-CategoryRows {
             }
         }
     }
-    $catStart = $content.IndexOf("const CATEGORIES = [")
-    if ($catStart -lt 0) { return @() }
+    $catMatch = [regex]::Match($content, '(?:const|var)\s+CATEGORIES\s*=\s*\[')
+    if (-not $catMatch.Success) { return @() }
+    $catStart = $catMatch.Index
     $catEnd = $content.IndexOf("];", $catStart)
     if ($catEnd -lt $catStart) { return @() }
-    $catBlock = $content.Substring($catStart + "const CATEGORIES = [".Length, $catEnd - $catStart - "const CATEGORIES = [".Length)
+    $catBlock = $content.Substring($catStart + $catMatch.Length, $catEnd - ($catStart + $catMatch.Length))
     $catMatches = [regex]::Matches($catBlock, '\{\s*id:\s*"([^"]+)"\s*,\s*name:\s*"([^"]+)"\s*\}')
     $rows = @()
     foreach ($m in $catMatches) {
@@ -617,9 +618,20 @@ while ($true) {
             try {
                 $content = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
                 $catMap = Get-CategoryMap
-                $prodStart = $content.IndexOf("const PRODUCTS = [")
+                $prodMatch = [regex]::Match($content, '(?:const|var)\s+PRODUCTS\s*=\s*\[')
+                if (-not $prodMatch.Success) {
+                    $json = "[]"
+                    $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+                    $response.StatusCode = 200
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $response.ContentLength64 = $bytes.Length
+                    $response.OutputStream.Write($bytes, 0, $bytes.Length)
+                    $response.Close()
+                    continue
+                }
+                $prodStart = $prodMatch.Index
                 $prodEnd   = $content.IndexOf("];", $prodStart)
-                $prodBlock = $content.Substring($prodStart + "const PRODUCTS = [".Length, $prodEnd - $prodStart - "const PRODUCTS = [".Length)
+                $prodBlock = $content.Substring($prodStart + $prodMatch.Length, $prodEnd - ($prodStart + $prodMatch.Length))
                 $productObjects = [regex]::Matches($prodBlock, '\{\s*id:\s*\d+,[^}]*\}')
                 $items = foreach ($po in $productObjects) {
                     $itemText = $po.Value

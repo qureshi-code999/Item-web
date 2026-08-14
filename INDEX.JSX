@@ -16,7 +16,122 @@ function getTranslationValue(dictionary, key) {
 
     function translateItemNameToUrdu(text) {
       if (!text) return "";
-      return toTitleCase(text);
+      let result = text.toUpperCase();
+
+      // Pre-process common units and pricing patterns
+      result = result.replace(/(\d+)\s*ML/gi, "$1 \u0627\u06cc\u0645 \u0627\u06cc\u064c");
+      result = result.replace(/(\d+)\s*G/gi, "$1 \u06af\u0631\u0627\u0645");
+      result = result.replace(/(\d+)\s*KG/gi, "$1 \u06a9\u0644\u0648");
+      result = result.replace(/RS\.?\s*(\d+)/gi, "\u0631\u0648\u067e\u06d2 $1");
+      result = result.replace(/RP\.?\s*(\d+)/gi, "\u0631\u0648\u067e\u06d2 $1");
+      result = result.replace(/(\d+)\s*INCH/gi, "$1 \u0627\u0646\u0686");
+      result = result.replace(/(\d+)\s*PCS/gi, "$1 \u0639\u062f\u062f");
+
+      const wordMap = {
+        // Brands
+        "PEARS": "\u067e\u06cc\u0626\u0631\u0632",
+        "PONDS": "\u067e\u0648\u0646\u0686\u0632",
+        "SAFEGUARD": "\u0633\u06cc\u0641 \u06af\u0627\u0631\u0686",
+        "SAFE GUARD": "\u0633\u06cc\u0641 \u06af\u0627\u0631\u0686",
+        "DETTOL": "\u0686\u06cc\u067e\u0648\u0644",
+        "DETOL": "\u0686\u06cc\u067e\u0648\u0644",
+        "LIFEBUOY": "\u0644\u0627\u0626\u0641 \u0628\u0648\u0627\u0626\u06d2",
+        "LUX": "\u0644\u06a9\u0633",
+        "MEDORA": "\u0645\u06cc\u0686\u0648\u0631\u0627",
+        "OLIVIA": "\u0627\u0648\u0644\u06cc\u0648\u06cc\u0627",
+        "TIBET": "\u062a\u0628\u062a",
+        "CAPRI": "\u06a9\u06cc\u067e\u0631\u06cc",
+        "MECLAY": "\u0645\u06cc\u06a9\u0644\u06d2",
+        "GARNIER": "\u06af\u0627\u0631\u0646\u06cc\u0626\u0631",
+        "VEET": "\u0648\u06cc\u067e",
+        "FAIR & LOVELY": "\u0641\u06cc\u0626\u0631 \u0627\u06cc\u0646\u0686 \u0644\u0648\u0644\u06cc",
+        "FAIR AND LOVELY": "\u0641\u06cc\u0626\u0631 \u0627\u06cc\u0646\u0686 \u0644\u0648\u0644\u06cc",
+        "GOLDEN PEARL": "\u06af\u0648\u0644\u0686\u0646 \u067e\u0631\u0644",
+        "BIO AMLA": "\u0628\u0627\u0626\u06cc\u0648 \u0622\u0645\u0644\u06c1",
+        "SUNSILK": "\u0633\u0646 \u0633\u0644\u06a9",
+        "PANTENE": "\u067e\u06cc\u0646\u067e\u06cc\u0646",
+        "DOVE": "\u0686\u0648",
+        "SENSODYNE": "\u0633\u0646\u0633\u0648\u0686\u0627\u0626\u0646",
+        "COLGATE": "\u06a9\u0648\u0644\u06af\u06cc\u067e",
+        "DENTONIC": "\u0686\u06cc\u0646\u067e\u0648\u0646\u06a9",
+        "CLOSE UP": "\u06a9\u0644\u0648\u0632 \u0627\u067e",
+        "GILLETTE": "\u062c\u0644\u06cc\u067e",
+        "LEMON MAX": "\u0644\u06cc\u0645\u0646 \u0645\u06cc\u06a9\u0633",
+        "ARIEL": "\u0627\u06cc\u0631\u06cc\u0644",
+        "SURF EXCEL": "\u0633\u0631\u0641 \u0627\u06cc\u06a9\u0633\u0644",
+        "BONUS": "\u0628\u0648\u0646\u0633",
+        "EXPRESS": "\u0627\u06cc\u06a9\u0633\u067e\u0631\u06cc\u0633",
+        "BRITE": "\u0628\u0631\u0627\u0626\u067e",
+        "VIM": "\u0648\u0650\u0645",
+        "HARPIC": "\u06c1\u0627\u0631\u067e\u06a9",
+        "JOHNSONS": "\u062c\u0627\u0646\u0633\u0646\u0632",
+        "JOHNSON'S": "\u062c\u0627\u0646\u0633\u0646\u0632",
+        "ROSE PETAL": "\u0631\u0648\u0632 \u067e\u06cc\u067e\u0644",
+        "LIPTON": "\u0644\u067e\u067e\u0646",
+        "TAPAL": "\u067c\u0627\u067e\u0644",
+        "NESTLE": "\u0646\u06cc\u0633\u0644\u06d2",
+        "EVERYDAY": "\u0627\u06cc\u0648\u0631\u06cc \u0686\u06d2",
+
+        // Product Types / Keywords
+        "SOAP": "\u0635\u0627\u0628\u0646",
+        "SHAMPOO": "\u0634\u06cc\u0645\u067e\u0648",
+        "CREAM": "\u06a9\u0631\u06cc\u0645",
+        "LOTION": "\u0644\u0648\u0634\u0646",
+        "FACE WASH": "\u0641\u06cc\u0633 \u0648\u0627\u0634",
+        "FACEWASH": "\u0641\u06cc\u0633 \u0648\u0627\u0634",
+        "TOOTHPASTE": "\u067c\u0648\u062a\u06be \u067e\u06cc\u0633\u067c",
+        "HAIR OIL": "\u0628\u0627\u0644\u0648\u06ba \u06a9\u0627 \u062a\u06cc\u0644",
+        "OIL": "\u062a\u06cc\u0644",
+        "HAIR": "\u0628\u0627\u0644",
+        "DEO": "\u0628\u0627\u0686\u06cc \u0627\u0633\u067e\u0631\u06d2 / \u067e\u0627\u0624\u0681\u0631",
+        "TALCUM": "\u067c\u0627\u0644\u06a9\u0645",
+        "POWDER": "\u067e\u0627\u0624\u0681\u0631",
+        "PERFUME": "\u067e\u0631\u0641\u06cc\u0648\u0645",
+        "SPRAY": "\u0627\u0633\u067e\u0631\u06d2",
+        "DETERGENT": "\u0633\u0631\u0641",
+        "BABY": "\u0628\u06cc\u0628\u06cc",
+        "CARE": "\u06a9\u06cc\u0626\u0631",
+        "SHAVING": "\u0634\u06cc\u0648\u0646\u06af",
+        "BLADE": "\u0628\u0644\u06cc\u0686",
+        "RAZOR": "\u0631\u06cc\u0622\u0631",
+        "PAD": "\u067e\u06cc\u0686",
+        "PADS": "\u067e\u06cc\u0686\u0632",
+        "PACK": "\u067e\u06cc\u06a9",
+        "PACKET": "\u067e\u06cc\u06a9\u067e",
+        "TUBE": "\u067c\u06cc\u0648\u0628",
+        "BOX": "\u0686\u0628\u06c1",
+        "BOTTLE": "\u0628\u0648\u062a\u0644",
+        "SMALL": "\u0686\u06be\u0648\u067f\u0627",
+        "MEDIUM": "\u062f\u0631\u0645\u06cc\u0627\u0646\u06c1",
+        "LARGE": "\u0628\u0686\u0627",
+        "WITH": "\u06a9\u06d2 \u0633\u0627\u062a\u06be",
+        "FOR": "\u06a9\u06d2 \u0644\u06cc\u06d2",
+        "AND": "\u0627\u0648\u0631"
+      };
+
+      let words = result.split(/(\s+|,|\(|\)|\/|&)/);
+      let translatedWords = words.map(w => {
+        let trimmed = w.trim().toUpperCase();
+        if (wordMap[trimmed]) {
+          return wordMap[trimmed];
+        }
+        return w;
+      });
+
+      let textAfterWordReplacements = translatedWords.join("");
+
+      // Transliterate all remaining A-Z letters and 0-9 digits into Urdu script
+      const translitMap = {
+        'A': '\u0627', 'B': '\u0628', 'C': '\u06a9', 'D': '\u0686', 'E': '\u06cc', 'F': '\u0641', 'G': '\u06af', 'H': '\u06c1', 'I': '\u0622\u0626\u06cc', 'J': '\u062c', 'K': '\u06a9', 'L': '\u0644', 'M': '\u0645', 'N': '\u0646', 'O': '\u0648', 'P': '\u067e', 'Q': '\u0642', 'R': '\u0631', 'S': '\u0633', 'T': '\u067c', 'U': '\u06cc\u0648', 'V': '\u0648', 'W': '\u0648', 'X': '\u0627\u06cc\u06a9\u0633', 'Y': '\u0648\u0627\u0626\u06d2', 'Z': '\u0632\u06cc\u0686',
+        '0': '\u06f0', '1': '\u06f1', '2': '\u06f2', '3': '\u06f3', '4': '\u06f4', '5': '\u06f5', '6': '\u06f6', '7': '\u06f7', '8': '\u06f8', '9': '\u06f9'
+      };
+
+      let finalResult = Array.from(textAfterWordReplacements).map(char => {
+        let upperChar = char.toUpperCase();
+        return translitMap[upperChar] || char;
+      }).join("");
+
+      return finalResult.replace(/\s+/g, " ").trim();
     }
 
     function unusedTranslateItemNameToUrdu(text) {
@@ -412,7 +527,7 @@ function getTranslationValue(dictionary, key) {
       { id: 46, name: "BANYAN (# 38)", price: 165, categoryId: "general", categoryName: "General Item & Others" },
       { id: 47, name: "BANYAN (# 40)", price: 175, categoryId: "general", categoryName: "General Item & Others" },
       { id: 48, name: "BANYAN (# 42)", price: 185, categoryId: "general", categoryName: "General Item & Others" },
-      { id: 49, name: "BANYAN (# 44)" ,price: 195, categoryId: "others", categoryName: "Others" },
+      { id: 49, name: "BANYAN (# 44)" ,price: 195, categoryId: "general", categoryName: "General Item & Others" },
       { id: 50, name: "BANYAN CHILD  30# GOOD QUALITY", price: 80, categoryId: "general", categoryName: "General Item & Others" },
       { id: 51, name: "BIO AMLA HAIR OIL 100ml RS,280", price: 190, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
       { id: 52, name: "BIO AMLA HAIR OIL 200ml FARVAL ORIGINAL RS,475", price: 380, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
@@ -717,9 +832,9 @@ function getTranslationValue(dictionary, key) {
       { id: 445, name: "FACE WASH GOLDEN PEARL (HERBAL) LARGE", price: 450, categoryId: "facewash", categoryName: "Face Wash" },
       { id: 446, name: "FACE WASH GOLDEN PEARL (WHITE BEAUTY) LARGE", price: 450, categoryId: "facewash", categoryName: "Face Wash" },
       { id: 447, name: "FACE WASH GOLDEN PEARL (MEN) LARGE", price: 450, categoryId: "facewash", categoryName: "Face Wash" },
-      { id: 448, name: "FACE WASH HIMALAYA (LARGE) NEEM DUBAI RS,510" , price: 460, categoryId: "others", categoryName: "Others" },
+      { id: 448, name: "FACE WASH HIMALAYA (LARGE) NEEM DUBAI RS,510" , price: 460, categoryId: "facewash", categoryName: "Face Wash" },
       { id: 449, name: "FACE WASH HIMALAYA (SMALL) DUBAI RS,310", price: 280, categoryId: "facewash", categoryName: "Face Wash", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "F" },
-      { id: 450, name: "FACE WASH JHALAK" , price: 180, categoryId: "others", categoryName: "Others" },
+      { id: 450, name: "FACE WASH JHALAK" , price: 180, categoryId: "facewash", categoryName: "Face Wash" },
       { id: 451, name: "FACE WASH JUNSUI LARGE (BLACK)", price: 570, categoryId: "facewash", categoryName: "Face Wash", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "F" },
       { id: 452, name: "FACE WASH JUNSUI LARGE (ICE COOL)", price: 570, categoryId: "facewash", categoryName: "Face Wash" },
       { id: 453, name: "FACE WASH JUNSUI LARGE (GREEN) NEEM", price: 570, categoryId: "facewash", categoryName: "Face Wash" },
@@ -2480,6 +2595,7 @@ export default function SahilTraders() {
       useEffect(() => {
         setSelectedBrand("all");
         setFilterMenuOpen(false);
+        setVisibleCount(24);
       }, [selectedCategory, searchTerm]);
 
       const baseFiltered = useMemo(() => {
@@ -2846,7 +2962,9 @@ export default function SahilTraders() {
                         <span style={{ fontSize: 10, color: '#666666', letterSpacing: 0, textTransform: 'none' }}>{selectedBrand === "all" ? 'All' : selectedBrand}</span>
                       </button>
                     {filterMenuOpen && (
-                      <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 8px)', zIndex: 25, width: 'min(92vw, 360px)', background: '#ffffff', border: '1px solid #d1d5db', borderRadius: 16, padding: 12, boxShadow: '0 18px 45px rgba(0,0,0,0.16)' }}>
+                      <>
+                        <div onClick={() => setFilterMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 49, background: 'rgba(0,0,0,0.3)' }} />
+                        <div style={{ position: 'fixed', right: 12, left: 12, bottom: 'auto', top: '50%', transform: 'translateY(-50%)', zIndex: 50, maxWidth: 380, margin: '0 auto', background: '#ffffff', border: '1px solid #d1d5db', borderRadius: 20, padding: 16, boxShadow: '0 24px 60px rgba(0,0,0,0.3)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
                           <div style={{ fontSize: 11, fontWeight: 900, color: '#111111', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Poppins', sans-serif" }}>Brand Filter</div>
                           <div style={{ fontSize: 10, fontWeight: 800, color: '#666666', whiteSpace: 'nowrap' }}>{selectedBrand === "all" ? baseFiltered.length : filtered.length} items</div>
@@ -2892,7 +3010,8 @@ export default function SahilTraders() {
                       ))}
                         </div>
                       </div>
-                    )}
+                    </>
+                  )}
                     </div>
                   )}
                 </div>
@@ -2911,11 +3030,39 @@ export default function SahilTraders() {
                     </button>
                   </div>
                 ) : (
-                  <div className="product-grid">
-                    {sortedProducts.slice(0, visibleCount).map((p) => (
-                      <ProductCard key={p.id} product={p} langData={langData} language={language} cartQty={cart.find(i => i.product.id === p.id)?.qty || 0} onAddToCart={addToCart} onFlyToCart={flyProductToCart} onSelectProduct={selectProductWithHash} />
-                    ))}
-                  </div>
+                  <>
+                    <div className="product-grid">
+                      {sortedProducts.slice(0, visibleCount).map((p) => (
+                        <ProductCard key={p.id} product={p} langData={langData} language={language} cartQty={cart.find(i => i.product.id === p.id)?.qty || 0} onAddToCart={addToCart} onFlyToCart={flyProductToCart} onSelectProduct={selectProductWithHash} />
+                      ))}
+                    </div>
+
+                    {visibleCount < sortedProducts.length && (
+                      <div style={{ marginTop: 32, marginBottom: 20, textAlign: 'center' }}>
+                        <button
+                          onClick={() => setVisibleCount(prev => prev + 24)}
+                          className="inline-flex items-center gap-3 border px-8 py-3.5 rounded-2xl text-sm font-black tracking-wider uppercase transition-all shadow-xl cursor-pointer"
+                          style={{
+                            background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+                            color: '#ffffff',
+                            border: '1px solid #333333',
+                            boxShadow: '0 10px 25px rgba(0,0,0,0.25)'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.04)'}
+                          onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                          <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+                          </svg>
+                          <span>
+                            {language === 'ur'
+                              ? `مزید اشیاء دیکھیں (${Math.min(visibleCount, sortedProducts.length)} / ${sortedProducts.length})`
+                              : `Load More Items (${Math.min(visibleCount, sortedProducts.length)} of ${sortedProducts.length})`}
+                          </span>
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}
@@ -3644,33 +3791,35 @@ export default function SahilTraders() {
 
         // Build WhatsApp message
         const itemLines = cart.map(({ product, qty }) =>
-          `• ${product.name}\n  Quantity: ${qty} | Rate: Rs ${product.price.toLocaleString()} | Total: Rs ${(product.price*qty).toLocaleString()}`
+          `\u{2022} ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price*qty).toLocaleString()}`
         ).join('\n\n');
 
         const deliveryText = deliveryMethod === 'pickup'
-          ? 'Store Pickup (BS Mart Shop) - Ready in 20 Mins to 1 Hour'
-          : 'Home Delivery (' + (deliveryFee === 0 ? 'FREE' : 'Rs 150') + ')';
+          ? '\u{1F3EC} Store Pickup (BS Mart Shop)\n  \u{23F1}\u{FE0F} Pickup Time: Ready in 20 Mins to 1 Hour'
+          : `\u{1F69A} Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
 
         const msg = [
-          '*NEW ORDER - Sahil Traders*',
-          '----------------------------------------',
+          '\u{1F6D2} *NEW ORDER — Sahil Traders*',
+          '═════════════════════════',
           '',
-          '*ORDER ITEMS:*',
+          '*\u{1F4E6} ORDER DETAILS:*',
           itemLines,
           '',
-          '----------------------------------------',
-          '*Subtotal:* Rs ' + cartTotal.toLocaleString(),
-          '*Delivery:* ' + deliveryText,
-          '*TOTAL BILL: Rs ' + grandTotal.toLocaleString() + '*',
-          '----------------------------------------',
+          '═════════════════════════',
+          `*Subtotal:* Rs ${cartTotal.toLocaleString()}`,
+          `*Delivery:* ${deliveryText}`,
+          `*\u{1F4B0} TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`,
+          '═════════════════════════',
           '',
-          '*CUSTOMER INFO:*',
-          '- Name: ' + name.trim(),
-          '- Phone: ' + phone.trim(),
-          (deliveryMethod === 'home' ? '- Address: ' + address.trim() : '- Pickup Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  Note: Ready for pickup in 20 mins to 1 hour'),
+          '*\u{1F464} CUSTOMER INFO:*',
+          `\u{2022} Name: ${name.trim()}`,
+          `\u{2022} Phone: ${phone.trim()}`,
+          deliveryMethod === 'home' 
+            ? `\u{2022} Delivery Address: ${address.trim()}` 
+            : `\u{2022} Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  \u{23F1}\u{FE0F} Note: Order will be ready for pickup in 20 mins to 1 hour`,
           '',
-          '----------------------------------------',
-          'Date: ' + new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+          '═════════════════════════',
+          `\u{1F4C5} Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
         ].join('\n');
 
         const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;

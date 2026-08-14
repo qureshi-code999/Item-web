@@ -16,6 +16,10 @@ function translate(dictionary, key, params = {}) {
 }
 function translateItemNameToUrdu(text) {
   if (!text) return "";
+  return toTitleCase(text);
+}
+function unusedTranslateItemNameToUrdu(text) {
+  if (!text) return "";
   let result = text.toUpperCase();
 
   // Pre-process common units and pricing patterns

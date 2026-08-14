@@ -44,7 +44,7 @@ window.TRANSLATIONS.en = {
   itemsLabel: "items",
   categories: {
     soaps: "Soaps",
-    shampoo: "Shampoo & Conditioners",
+    shampoo: "Shampoo & Conditioner",
     creams: "Creams & Lotions",
     stationary: "Stationary & Tapes",
     sports: "Sports & Toys",

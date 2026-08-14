@@ -91,6 +91,31 @@ while ($listener.IsListening) {
             continue
         }
 
+        # Handle API Order Logging Request
+        if ($request.HttpMethod -eq "POST" -and $request.Url.AbsolutePath -eq "/api/order") {
+            $reader = New-Object System.IO.StreamReader($request.InputStream)
+            $body = $reader.ReadToEnd()
+            $ordersFile = Join-Path "c:\Users\ALICOM4\Desktop\ITEMS WEB" "orders.json"
+            $existing = if (Test-Path $ordersFile) { Get-Content $ordersFile -Raw } else { "[]" }
+            $list = [System.Collections.ArrayList]::new()
+            try { $parsed = $existing | ConvertFrom-Json; if ($parsed) { $list.AddRange($parsed) } } catch {}
+            try {
+                $newOrder = $body | ConvertFrom-Json
+                $list.Insert(0, $newOrder)
+                $updatedJson = $list | ConvertTo-Json -Depth 5
+                [System.IO.File]::WriteAllText($ordersFile, $updatedJson, [System.Text.Encoding]::UTF8)
+                Write-Output "--> Logged new order $($newOrder.id) to orders.json"
+            } catch {}
+
+            $respBytes = [System.Text.Encoding]::UTF8.GetBytes("Order logged")
+            $response.StatusCode = 200
+            $response.ContentType = "text/plain"
+            $response.ContentLength64 = $respBytes.Length
+            $response.OutputStream.Write($respBytes, 0, $respBytes.Length)
+            $response.Close()
+            continue
+        }
+
         # Handle static files serving
         $relPath = $request.Url.AbsolutePath.TrimStart('/')
         if (-not $relPath) {

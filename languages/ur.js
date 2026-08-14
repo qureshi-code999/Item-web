@@ -43,7 +43,7 @@ window.TRANSLATIONS.ur = {
   itemsLabel: "چیزیں",
   categories: {
     soaps:        "صابن (Soaps)",
-    shampoo:      "شیمپو اور کنڈیشنرز (Shampoo & Conditioners)",
+    shampoo:      "شیمپو اور کنڈیشنر (Shampoo & Conditioner)",
     creams:       "کریم (Creams)",
     stationary:   "Stationary & Tapes",
     sports:       "کھیل کا سامان (Sports)",

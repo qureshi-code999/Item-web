@@ -346,7 +346,7 @@ function getTranslationValue(dictionary, key) {
     // --- Product Categories and Data ---
     const CATEGORIES = [
       { id: "soaps",        name: "Soaps" },
-      { id: "shampoo",      name: "Shampoo & Conditioners" },
+      { id: "shampoo",      name: "Shampoo & Conditioner" },
 { id: "creams",       name: "Creams & Lotions" },
 { id: "stationary",   name: "Stationary & Tapes" },
       { id: "sports",       name: "Sports & Toys" },
@@ -1447,10 +1447,16 @@ function getTranslationValue(dictionary, key) {
       return first.charAt(0) + first.slice(1).toLowerCase();
     }
 
+    function getProductFilterName(product) {
+      const custom = product && product.filterName ? String(product.filterName).trim() : "";
+      if (custom === "__none__") return "";
+      return custom || getProductBrand(product && product.name);
+    }
+
     function getBrandFilters(items) {
       const counts = new Map();
       items.forEach(p => {
-        const brand = (p.filterName && String(p.filterName).trim()) || getProductBrand(p.name);
+        const brand = getProductFilterName(p);
         if (brand) counts.set(brand, (counts.get(brand) || 0) + 1);
       });
       return Array.from(counts.entries())
@@ -1498,6 +1504,7 @@ function getTranslationValue(dictionary, key) {
       const appHistoryReadyRef = useRef(false);
       const restoringHistoryRef = useRef(false);
       const lastHistoryKeyRef = useRef("");
+      const appHistoryDepthRef = useRef(0);
       const lastSearchActiveRef = useRef(false);
 
       useEffect(() => {
@@ -1546,19 +1553,35 @@ function getTranslationValue(dictionary, key) {
 
         const keyOf = (snapshot) => JSON.stringify(snapshot);
 
-        const pushCurrentAppState = (replace) => {
+        const pushCurrentAppState = (replace, force) => {
           if (allowRealBackRef.current) return;
           try {
             const snapshot = getSnapshot(backStateRef.current || {});
             const key = keyOf(snapshot);
-            if (!replace && key === lastHistoryKeyRef.current) return;
+            if (!force && !replace && key === lastHistoryKeyRef.current) return;
             const entry = { page: 'sahil-app-state', sahilApp: true, snapshot };
             if (replace) window.history.replaceState(entry, '', window.location.href);
-            else window.history.pushState(entry, '', window.location.href);
+            else {
+              window.history.pushState(entry, '', window.location.href);
+              appHistoryDepthRef.current += 1;
+            }
             lastHistoryKeyRef.current = key;
           } catch(e) {}
         };
-        restoreBackGuardRef.current = (replace) => pushCurrentAppState(!!replace);
+        restoreBackGuardRef.current = (replace, force) => pushCurrentAppState(!!replace, !!force);
+
+        const exitStore = () => {
+          allowRealBackRef.current = true;
+          setExitModalOpen(false);
+          const steps = Math.max(2, appHistoryDepthRef.current + 1);
+          try {
+            window.history.go(-steps);
+          } catch(e) {}
+          setTimeout(() => {
+            try { window.location.replace('about:blank'); } catch(e) {}
+          }, 900);
+        };
+        window.sahilExitStore = exitStore;
 
         const restoreSnapshot = (snapshot) => {
           restoringHistoryRef.current = true;
@@ -1589,13 +1612,13 @@ function getTranslationValue(dictionary, key) {
             return;
           }
 
-          pushCurrentAppState(false);
+          pushCurrentAppState(false, true);
           setExitModalOpen(true);
         };
 
         const handlePageShow = () => {
           allowRealBackRef.current = false;
-          pushCurrentAppState(false);
+          pushCurrentAppState(false, true);
         };
 
         window.addEventListener('popstate', handlePopState);
@@ -1603,6 +1626,7 @@ function getTranslationValue(dictionary, key) {
         return () => {
           window.removeEventListener('popstate', handlePopState);
           window.removeEventListener('pageshow', handlePageShow);
+          if (window.sahilExitStore === exitStore) delete window.sahilExitStore;
         };
       }, []);
 
@@ -1611,7 +1635,7 @@ function getTranslationValue(dictionary, key) {
         const searchingNow = searchTerm.trim() !== "";
         const replaceSearchTyping = searchingNow && lastSearchActiveRef.current;
         lastSearchActiveRef.current = searchingNow;
-        const timer = setTimeout(() => restoreBackGuardRef.current(replaceSearchTyping), 0);
+        const timer = setTimeout(() => restoreBackGuardRef.current(replaceSearchTyping, false), 0);
         return () => clearTimeout(timer);
       }, [checkoutOpen, cartOpen, selectedCategory, selectedBrand, filterMenuOpen, searchTerm, activeCategory, exitModalOpen]);
 
@@ -1868,7 +1892,7 @@ function getTranslationValue(dictionary, key) {
 
       const filtered = useMemo(() => {
         if (!selectedCategory || isSearching || selectedBrand === "all") return baseFiltered;
-        return baseFiltered.filter(p => ((p.filterName && String(p.filterName).trim()) || getProductBrand(p.name)) === selectedBrand);
+        return baseFiltered.filter(p => getProductFilterName(p) === selectedBrand);
       }, [baseFiltered, selectedCategory, isSearching, selectedBrand]);
 
       const suggestions = useMemo(() => {
@@ -2292,9 +2316,7 @@ function getTranslationValue(dictionary, key) {
                       </button>
                       <button
                         onClick={() => {
-                          allowRealBackRef.current = true;
-                          setExitModalOpen(false);
-                          window.history.go(-2);
+                          if (window.sahilExitStore) window.sahilExitStore();
                         }}
                         className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-extrabold uppercase tracking-wider hover:brightness-110 transition-all shadow-md cursor-pointer"
                       >

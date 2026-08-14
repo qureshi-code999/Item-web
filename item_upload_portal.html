@@ -704,9 +704,9 @@ function assignFilterToSelected(){
 function removeFilterFromSelected(){
   var ids=Array.from(selectedItemIds);
   if(!ids.length){showToast('Pehle items select karein.','error');return;}
-  postFilterChange('/api/set-product-filter',{ids:ids.join(','),filterName:''},function(res){
+  postFilterChange('/api/set-product-filter',{ids:ids.join(','),filterName:'__none__'},function(res){
     var idSet=new Set(ids);
-    allProducts.forEach(function(p){if(idSet.has(p.id))p.filterName=''});
+    allProducts.forEach(function(p){if(idSet.has(p.id))p.filterName='__none__'});
     showToast((res.updated||ids.length)+' items se filter remove ho gaya.','success');
   });
 }
@@ -715,8 +715,13 @@ function renameFilter(){
   var newName=document.getElementById('renameFilterName').value.trim();
   if(!oldName){showToast('Pehle filter select karein.','error');return;}
   if(!newName){showToast('New filter name likhein.','error');return;}
-  postFilterChange('/api/rename-filter',{oldName:oldName,newName:newName},function(res){
-    allProducts.forEach(function(p){if((p.filterName||'')===oldName)p.filterName=newName});
+  var cat=document.getElementById('filterCategory').value;
+  var ids=allProducts.filter(function(p){return (!cat||p.categoryId===cat)&&productFilterName(p)===oldName}).map(function(p){return p.id});
+  if(!ids.length){showToast('Is filter me koi item nahi mila.','error');return;}
+  postFilterChange('/api/set-product-filter',{ids:ids.join(','),filterName:newName},function(res){
+    var idSet=new Set(ids);
+    allProducts.forEach(function(p){if(idSet.has(p.id))p.filterName=newName});
+    selectedAdminFilter=newName;
     document.getElementById('renameFilterName').value='';
     showToast('"'+oldName+'" renamed to "'+newName+'".','success');
   });
@@ -724,11 +729,14 @@ function renameFilter(){
 function deleteFilter(){
   var name=document.getElementById('renameFilterSelect').value;
   if(!name){showToast('Pehle filter select karein.','error');return;}
-  var ids=allProducts.filter(function(p){return (p.filterName||'')===name}).map(function(p){return p.id});
+  var cat=document.getElementById('filterCategory').value;
+  var ids=allProducts.filter(function(p){return (!cat||p.categoryId===cat)&&productFilterName(p)===name}).map(function(p){return p.id});
   if(!ids.length){showToast('Is filter me koi item nahi hai.','error');return;}
   if(!confirm('"'+name+'" filter delete karna hai? Items delete nahi honge, sirf filter remove hoga.')) return;
-  postFilterChange('/api/set-product-filter',{ids:ids.join(','),filterName:''},function(res){
-    allProducts.forEach(function(p){if((p.filterName||'')===name)p.filterName=''});
+  postFilterChange('/api/set-product-filter',{ids:ids.join(','),filterName:'__none__'},function(res){
+    var idSet=new Set(ids);
+    allProducts.forEach(function(p){if(idSet.has(p.id))p.filterName='__none__'});
+    selectedAdminFilter='';
     showToast('"'+name+'" filter remove ho gaya.','success');
   });
 }

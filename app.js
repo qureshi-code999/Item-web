@@ -3997,14 +3997,15 @@ function CheckoutModal({
     const itemLines = cart.map(({
       product,
       qty
-    }) => `Ã¢â‚¬Â¢ ${product.name}\n  Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
-    const msg = ['Ã°Å¸â€ºâ€™ *NEW ORDER Ã¢â‚¬â€ Sahil Traders*', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', '', '*Ã°Å¸â€œÂ¦ ORDER DETAILS:*', itemLines, '', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', `*Ã°Å¸â€™Â° TOTAL BILL: Rs ${cartTotal.toLocaleString()}*`, 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Address: ${address.trim()}` : `• Pickup Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)`, '', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', `Ã°Å¸â€œâ€¦ Date: ${new Date().toLocaleDateString('en-PK', {
+    }) => `• ${product.name}\n  Quantity: ${qty} | Rate: Rs ${product.price.toLocaleString()} | Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
+    const deliveryText = deliveryMethod === 'pickup' ? 'Store Pickup (BS Mart Shop) - Ready in 20 Mins to 1 Hour' : 'Home Delivery (' + (deliveryFee === 0 ? 'FREE' : 'Rs 150') + ')';
+    const msg = ['*NEW ORDER - Sahil Traders*', '----------------------------------------', '', '*ORDER ITEMS:*', itemLines, '', '----------------------------------------', '*Subtotal:* Rs ' + cartTotal.toLocaleString(), '*Delivery:* ' + deliveryText, '*TOTAL BILL: Rs ' + grandTotal.toLocaleString() + '*', '----------------------------------------', '', '*CUSTOMER INFO:*', '- Name: ' + name.trim(), '- Phone: ' + phone.trim(), deliveryMethod === 'home' ? '- Address: ' + address.trim() : '- Pickup Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  Note: Ready for pickup in 20 mins to 1 hour', '', '----------------------------------------', 'Date: ' + new Date().toLocaleDateString('en-PK', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    })}`].join('\n');
+    })].join('\n');
     const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;
 
     // Open WhatsApp immediately on user action to avoid browser popup blocker freeze
@@ -4449,7 +4450,7 @@ function CheckoutModal({
       marginTop: 4,
       fontWeight: 600
     }
-  }, errors.phone)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+  }, errors.phone)), deliveryMethod === 'home' ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
     style: {
       fontSize: 12,
       color: '#444444',
@@ -4488,7 +4489,38 @@ function CheckoutModal({
       marginTop: 4,
       fontWeight: 600
     }
-  }, errors.address))), /*#__PURE__*/React.createElement("div", {
+  }, errors.address)) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '14px',
+      borderRadius: 14,
+      background: '#f0fdf4',
+      border: '1px solid #bbf7d0',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      fontSize: 13,
+      fontWeight: 800,
+      color: '#166534'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 18
+    }
+  }, "⏱️"), /*#__PURE__*/React.createElement("span", null, "پک اپ کا وقت: 20 منٹ سے 1 گھنٹہ")), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 11,
+      color: '#15803d',
+      fontWeight: 600,
+      lineHeight: 1.5,
+      margin: 0
+    }
+  }, "آپ کا آرڈر تیار ہونے میں 20 منٹ سے 1 گھنٹہ لگ سکتا ہے۔ اس وقت کے بعد آپ BS Mart اسٹور (محمد زبیر معین / محمد سہیل سلیم) سے اپنا سامان پک اپ کر سکتے ہیں۔"))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'flex-start',

@@ -3644,27 +3644,33 @@ export default function SahilTraders() {
 
         // Build WhatsApp message
         const itemLines = cart.map(({ product, qty }) =>
-          `Ã¢â‚¬Â¢ ${product.name}\n  Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price*qty).toLocaleString()}`
+          `• ${product.name}\n  Quantity: ${qty} | Rate: Rs ${product.price.toLocaleString()} | Total: Rs ${(product.price*qty).toLocaleString()}`
         ).join('\n\n');
 
+        const deliveryText = deliveryMethod === 'pickup'
+          ? 'Store Pickup (BS Mart Shop) - Ready in 20 Mins to 1 Hour'
+          : 'Home Delivery (' + (deliveryFee === 0 ? 'FREE' : 'Rs 150') + ')';
+
         const msg = [
-          'Ã°Å¸â€ºâ€™ *NEW ORDER Ã¢â‚¬â€ Sahil Traders*',
-          'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â',
+          '*NEW ORDER - Sahil Traders*',
+          '----------------------------------------',
           '',
-          '*Ã°Å¸â€œÂ¦ ORDER DETAILS:*',
+          '*ORDER ITEMS:*',
           itemLines,
           '',
-          'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â',
-          `*Ã°Å¸â€™Â° TOTAL BILL: Rs ${cartTotal.toLocaleString()}*`,
-          'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â',
+          '----------------------------------------',
+          '*Subtotal:* Rs ' + cartTotal.toLocaleString(),
+          '*Delivery:* ' + deliveryText,
+          '*TOTAL BILL: Rs ' + grandTotal.toLocaleString() + '*',
+          '----------------------------------------',
           '',
-          '*👤 CUSTOMER INFO:*',
-          `• Name: ${name.trim()}`,
-          `• Phone: ${phone.trim()}`,
-          deliveryMethod === 'home' ? `• Address: ${address.trim()}` : `• Pickup Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)`,
+          '*CUSTOMER INFO:*',
+          '- Name: ' + name.trim(),
+          '- Phone: ' + phone.trim(),
+          (deliveryMethod === 'home' ? '- Address: ' + address.trim() : '- Pickup Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  Note: Ready for pickup in 20 mins to 1 hour'),
           '',
-          'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â',
-          `Ã°Å¸â€œâ€¦ Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
+          '----------------------------------------',
+          'Date: ' + new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
         ].join('\n');
 
         const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;
@@ -3811,18 +3817,30 @@ export default function SahilTraders() {
                       {errors.phone && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.phone}</p>}
                     </div>
 
-                    <div>
-                      <label style={{ fontSize: 12, color: '#444444', fontWeight: 600, display: 'block', marginBottom: 6 }}>{translate(langData, "deliveryAddress")}</label>
-                      <textarea
-                        placeholder={translate(langData, "addressPlaceholder")}
-                        value={address} onChange={e=>{setAddress(e.target.value);if(errors.address)setErrors(p=>({...p,address:''}))}}
-                        rows={3}
-                        style={{ ...inputStyle(errors.address), resize: 'none', fontFamily: 'inherit' }}
-                        onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.42)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.08), inset 0 1px 2px rgba(0,0,0,0.04)';}}
-                        onBlur={e=>{e.target.style.borderColor=errors.address?'rgba(239,68,68,0.65)':'rgba(0,0,0,0.18)';e.target.style.boxShadow='inset 0 1px 2px rgba(0,0,0,0.04)';}}
-                      />
-                      {errors.address && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.address}</p>}
-                    </div>
+                    {deliveryMethod === 'home' ? (
+                      <div>
+                        <label style={{ fontSize: 12, color: '#444444', fontWeight: 600, display: 'block', marginBottom: 6 }}>{translate(langData, "deliveryAddress")}</label>
+                        <textarea
+                          placeholder={translate(langData, "addressPlaceholder")}
+                          value={address} onChange={e=>{setAddress(e.target.value);if(errors.address)setErrors(p=>({...p,address:''}))}}
+                          rows={3}
+                          style={{ ...inputStyle(errors.address), resize: 'none', fontFamily: 'inherit' }}
+                          onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.42)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.08), inset 0 1px 2px rgba(0,0,0,0.04)';}}
+                          onBlur={e=>{e.target.style.borderColor=errors.address?'rgba(239,68,68,0.65)':'rgba(0,0,0,0.18)';e.target.style.boxShadow='inset 0 1px 2px rgba(0,0,0,0.04)';}}
+                        />
+                        {errors.address && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.address}</p>}
+                      </div>
+                    ) : (
+                      <div style={{ padding: '14px', borderRadius: 14, background: '#f0fdf4', border: '1px solid #bbf7d0', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#166534' }}>
+                          <span style={{ fontSize: 18 }}>⏱️</span>
+                          <span>پک اپ کا وقت: 20 منٹ سے 1 گھنٹہ</span>
+                        </div>
+                        <p style={{ fontSize: 11, color: '#15803d', fontWeight: 600, lineHeight: 1.5, margin: 0 }}>
+                          آپ کا آرڈر تیار ہونے میں 20 منٹ سے 1 گھنٹہ لگ سکتا ہے۔ اس وقت کے بعد آپ BS Mart اسٹور (محمد زبیر معین / محمد سہیل سلیم) سے اپنا سامان پک اپ کر سکتے ہیں۔
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* WhatsApp note */}

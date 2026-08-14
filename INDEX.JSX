@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
@@ -1466,15 +1466,356 @@ function getTranslationValue(dictionary, key) {
         .map(([name, count]) => ({ name, count }));
     }
 
-    export default function SahilTraders() {
-      const products = PRODUCTS;
-      const [language, setLanguage] = useState("en");
+function AboutUsModal({ isOpen, onClose, language }) {
+  if (!isOpen) return null;
+  const isUrdu = language === 'ur';
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 animate-scale-in relative"
+        style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header Banner */}
+        <div className="relative bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white p-6 pb-8 text-center">
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold w-9 h-9 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
+          >
+            ×
+          </button>
+          <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-white p-2 shadow-lg flex items-center justify-center">
+            <img 
+              src="images/sahil-traders-logo.png" 
+              alt="Sahil Traders Logo" 
+              loading="lazy" 
+              decoding="async" 
+              className="w-full h-full object-contain" 
+            />
+          </div>
+          <h2 className="text-2xl font-black tracking-wider uppercase text-amber-400 font-poppins">Sahil Traders</h2>
+          <p className="text-xs text-gray-300 font-medium mt-1 tracking-widest uppercase">
+            {isUrdu ? 'کراچی کا قابلِ اعتماد ہول سیل و پرچون اسٹور — قائم شدہ 2021' : 'Trusted Wholesale & Retail Store — Est. 2021, Karachi'}
+          </p>
+        </div>
+
+        {/* Scrollable Content Body */}
+        <div className="p-6 overflow-y-auto space-y-5 flex-1 text-gray-800 text-sm leading-relaxed">
+          {/* Story Card */}
+          <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-amber-950 shadow-sm">
+            <div className="flex items-center gap-2 font-bold text-base mb-2 text-amber-900">
+              <span className="text-xl">🏬</span>
+              <span>{isUrdu ? 'ہماری کہانی (Our Story)' : 'Our Story Since 2021'}</span>
+            </div>
+            <p className={isUrdu ? 'font-urdu text-right text-sm leading-loose' : 'text-xs sm:text-sm text-gray-700 leading-normal'}>
+              {isUrdu 
+                ? 'ساحل ٹریڈرز کا آغاز 2021 میں کراچی سے ایک قابلِ اعتماد خاندانی ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات باضابطہ برانڈز سے براہِ راست ہول سیل قیمتوں پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔' 
+                : 'Established in 2021 in Karachi, Sahil Traders started as a trusted family wholesale business. Our mission is simple: bringing direct wholesale prices to retail customers across Pakistan on 4,000+ daily essentials and branded products.'}
+            </p>
+          </div>
+
+          {/* 4 Highlights Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center">
+              <div className="text-2xl mb-1">📦</div>
+              <div className="font-black text-gray-900 text-sm">4,000+</div>
+              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{isUrdu ? 'مصنوعات کی ورائٹی' : 'Total Products'}</div>
+            </div>
+            <div className="bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center">
+              <div className="text-2xl mb-1">🏷️</div>
+              <div className="font-black text-gray-900 text-sm">{isUrdu ? 'ہول سیل ریٹس' : 'Wholesale Rates'}</div>
+              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{isUrdu ? 'عام گاہکوں کے لیے' : 'For Everyone'}</div>
+            </div>
+            <div className="bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center">
+              <div className="text-2xl mb-1">💯</div>
+              <div className="font-black text-gray-900 text-sm">100% Original</div>
+              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{isUrdu ? 'اصلی برانڈز' : 'Genuine Brands'}</div>
+            </div>
+            <div className="bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center">
+              <div className="text-2xl mb-1">🚚</div>
+              <div className="font-black text-gray-900 text-sm">{isUrdu ? 'فاسٹ ڈیلیوری' : 'Fast Delivery'}</div>
+              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{isUrdu ? 'پورے پاکستان میں' : 'Across Pakistan'}</div>
+            </div>
+          </div>
+
+          {/* Business Hours Card */}
+          <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 text-purple-950 space-y-2">
+            <div className="flex items-center gap-2 font-bold text-sm text-purple-900">
+              <span className="text-lg">⏰</span>
+              <span>{isUrdu ? 'اوقاتِ کار (Business Hours)' : 'Store Business Hours'}</span>
+            </div>
+            <div className="bg-white/90 border border-purple-100 rounded-xl p-3 text-xs flex justify-between items-center shadow-xs">
+              <div>
+                <div className="font-bold text-gray-900">{isUrdu ? 'پیر تا ہفتہ (Monday to Saturday):' : 'Monday to Saturday:'}</div>
+                <div className="text-purple-700 font-extrabold text-sm mt-0.5">{isUrdu ? 'صبح 10:00 بجے سے رات 8:00 بجے تک' : '10:00 AM – 8:00 PM'}</div>
+              </div>
+              <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase">
+                {isUrdu ? 'کھلا ہے' : 'Open'}
+              </span>
+            </div>
+          </div>
+
+          {/* Features List */}
+          <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 text-emerald-950 text-xs space-y-2">
+            <div className="flex items-center gap-2 font-bold text-sm text-emerald-900">
+              <span>✨</span>
+              <span>{isUrdu ? 'ہماری خصوصیات (Why Choose Us)' : 'Why Customers Trust Us'}</span>
+            </div>
+            <ul className="space-y-1.5 list-disc list-inside text-emerald-900">
+              <li>{isUrdu ? '2021 سے خاندانی اعتماد کے ساتھ خدمت' : 'Family business serving with trust since 2021'}</li>
+              <li>{isUrdu ? 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)' : 'Free delivery on orders above Rs. 2,000'}</li>
+              <li>{isUrdu ? 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)' : 'Same-day return & exchange policy'}</li>
+              <li>{isUrdu ? 'براہِ راست واٹس ایپ پر فوری سپورٹ' : 'Direct WhatsApp customer support'}</li>
+            </ul>
+          </div>
+
+          {/* Google Maps Exact Plus Code Location Card */}
+          <div className="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 font-bold text-sm text-blue-950">
+                <span className="text-lg">📍</span>
+                <span>{isUrdu ? 'دکان کا مکمل پتہ اور نقشہ' : 'Store Address & Exact Location'}</span>
+              </div>
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=R4C4%2BRV6%2C+Safaid+White+Masjid+Rd%2C+Allah+Wala+Town+Sector+H+Korangi%2C+Karachi%2C+Pakistan" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-[11px] font-bold text-blue-700 hover:text-blue-900 underline flex items-center gap-1 text-decoration-none"
+              >
+                {isUrdu ? 'نقشہ کھولیں ↗' : 'Open Map ↗'}
+              </a>
+            </div>
+
+            <div className="bg-white/90 border border-blue-100 rounded-xl p-3 text-xs text-gray-800 font-medium leading-relaxed flex items-start gap-2 shadow-xs">
+              <span className="text-blue-600 font-bold shrink-0 mt-0.5 text-sm">🏬</span>
+              <div>
+                <div className="font-bold text-gray-900">Sahil Traders (Wholesale & Retail)</div>
+                <div className="text-gray-600 mt-0.5">
+                  {isUrdu ? 'R4C4+RV6، سفید مسجد روڈ، اللہ والا ٹاؤن سیکٹر ایچ، کورنگی، کراچی، پاکستان' : 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan'}
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full h-48 sm:h-52 rounded-xl overflow-hidden border border-blue-200 shadow-inner relative bg-gray-100">
+              <iframe
+                title="Sahil Traders Google Map Location"
+                src="https://maps.google.com/maps?q=R4C4%2BRV6%2C+Safaid+White+Masjid+Rd%2C+Allah+Wala+Town+Sector+H+Korangi%2C+Karachi%2C+Pakistan&t=&z=17&ie=UTF8&iwloc=&output=embed"
+                className="w-full h-full border-0"
+                loading="lazy"
+                allowFullScreen={true}
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
+          <a
+            href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(isUrdu ? 'سلام! میں ساحل ٹریڈرز کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔' : 'Hi Sahil Traders! I have an inquiry about your store.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
+          >
+            <span>💬</span>
+            <span>{isUrdu ? 'واٹس ایپ پر رابطہ کریں' : 'Chat on WhatsApp'}</span>
+          </a>
+          <button
+            onClick={onClose}
+            className="py-3 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
+          >
+            {isUrdu ? 'بند کریں' : 'Close'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductDetailModal({ product, open, onClose, onAddToCart, products, langData, language, onSelectProduct }) {
+  if (!open || !product) return null;
+  const isUrdu = language === 'ur';
+
+  // Find 4-6 Related Products from the same category (excluding current product)
+  const relatedProducts = useMemo(() => {
+    if (!product || !products) return [];
+    const sameCat = products.filter(p => p.categoryId === product.categoryId && p.id !== product.id);
+    if (sameCat.length >= 4) return sameCat.slice(0, 6);
+    
+    // Fallback: items with same brand or general items
+    const brand = getProductFilterName(product);
+    const sameBrand = products.filter(p => p.id !== product.id && getProductFilterName(p) === brand);
+    const combined = Array.from(new Set([...sameCat, ...sameBrand]));
+    return combined.slice(0, 6);
+  }, [product, products]);
+
+  const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+  const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col"
+        style={{ maxHeight: '90vh' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/80">
+          <span className="text-xs font-black tracking-widest uppercase text-gray-500 font-poppins">
+            {isUrdu ? 'پروڈکٹ کی تفصیلات' : 'Product Details'}
+          </span>
+          <button 
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-gray-200 hover:bg-black hover:text-white text-gray-700 font-bold flex items-center justify-center transition-colors cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Scrollable Body */}
+        <div className="p-5 overflow-y-auto space-y-5 flex-1">
+          {/* Main Product Info Card */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start bg-gray-50 p-4 rounded-2xl border border-gray-100">
+            {/* Image */}
+            <div className="w-32 h-32 sm:w-36 sm:h-36 shrink-0 bg-white rounded-xl p-2 border border-gray-200 flex items-center justify-center shadow-xs">
+              {hasFile ? (
+                <img 
+                  src={imageSrc} 
+                  alt={product.name} 
+                  loading="lazy" 
+                  decoding="async" 
+                  className="w-full h-full object-contain" 
+                />
+              ) : (
+                <div className={`w-full h-full rounded-lg bg-gradient-to-br ${product.gradient || 'from-amber-400 to-amber-600'} flex items-center justify-center text-white text-3xl font-black`}>
+                  {product.initial || 'P'}
+                </div>
+              )}
+            </div>
+
+            {/* Details */}
+            <div className="flex-1 space-y-2 text-center sm:text-left">
+              <span className="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase">
+                {isUrdu ? '✓ اسٹاک میں دستیاب' : '✓ In Stock'}
+              </span>
+              <h3 className="text-base font-black text-gray-900 leading-snug">
+                {getProductDisplayName(product, language)}
+              </h3>
+              <div className="text-xl font-black text-black">
+                {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
+              </div>
+              <p className="text-[11px] text-gray-500 font-medium">
+                {isUrdu ? '100% اصلی اور باضابطہ برانڈ — ہول سیل ریٹس' : '100% Genuine & Branded — Direct Wholesale Rates'}
+              </p>
+              <button
+                onClick={() => { onAddToCart(product); onClose(); }}
+                className="w-full py-2.5 px-4 rounded-xl bg-black hover:bg-gray-800 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer mt-2"
+              >
+                <span>🛒</span>
+                <span>{translate(langData, "addToCart")}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Related Products Section ("Ye Bhi Dekhein / یہ بھی دیکھیں") */}
+          {relatedProducts.length > 0 && (
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 font-black text-sm text-gray-900 uppercase tracking-wider">
+                  <span className="text-amber-500 text-base">✨</span>
+                  <span>{isUrdu ? 'یہ بھی دیکھیں (Related Products)' : 'You May Also Like'}</span>
+                </div>
+                <span className="text-[11px] text-gray-400 font-medium">
+                  {relatedProducts.length} {isUrdu ? 'مصنوعات' : 'items'}
+                </span>
+              </div>
+
+              {/* Related Products Mini Horizontal Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {relatedProducts.map(rel => {
+                  const relHasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[rel.id];
+                  const relImgSrc = relHasFile ? `images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}` : null;
+                  return (
+                    <div 
+                      key={rel.id}
+                      onClick={() => onSelectProduct && onSelectProduct(rel)}
+                      className="bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-2.5 flex flex-col justify-between transition-all cursor-pointer group shadow-xs hover:shadow-md"
+                    >
+                      <div className="h-20 w-full bg-gray-50 rounded-xl p-1 mb-2 flex items-center justify-center overflow-hidden">
+                        {relHasFile ? (
+                          <img 
+                            src={relImgSrc} 
+                            alt={rel.name} 
+                            loading="lazy" 
+                            decoding="async" 
+                            className="w-full h-full object-contain group-hover:scale-105 transition-transform" 
+                          />
+                        ) : (
+                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${rel.gradient || 'from-gray-400 to-gray-600'} flex items-center justify-center text-white text-xs font-bold`}>
+                            {rel.initial || 'P'}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-bold text-gray-800 line-clamp-2 leading-tight mb-1 group-hover:text-black">
+                        {getProductDisplayName(rel, language)}
+                      </p>
+                      <div className="flex items-center justify-between gap-1 mt-auto pt-1 border-t border-gray-100">
+                        <span className="text-xs font-extrabold text-black">
+                          Rs.{rel.price}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAddToCart(rel);
+                          }}
+                          className="w-6 h-6 rounded-lg bg-gray-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center transition-colors cursor-pointer"
+                          title="Quick Add to Cart"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-3 border-t border-gray-100 bg-gray-50 text-center">
+          <button 
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
+          >
+            {isUrdu ? 'بند کریں' : 'Close'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function SahilTraders() {
+
+  const products = PRODUCTS;
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [language, setLanguage] = useState("en");
+
       const [showSplash, setShowSplash] = useState(true);
       const [fadeSplash, setFadeSplash] = useState(false);
       const [searchTerm, setSearchTerm] = useState("");
       const [activeCategory, setActiveCategory] = useState("all");
       const [selectedCategory, setSelectedCategory] = useState(null); // null = show category home
       const [selectedBrand, setSelectedBrand] = useState("all");
+      const [sortBy, setSortBy] = useState("default");
       const [filterMenuOpen, setFilterMenuOpen] = useState(false);
       const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
       const [catMenuOpen, setCatMenuOpen] = useState(false);
@@ -1497,6 +1838,11 @@ function getTranslationValue(dictionary, key) {
       const [cartOpen, setCartOpen] = useState(false);
       const [checkoutOpen, setCheckoutOpen] = useState(false);
       const [exitModalOpen, setExitModalOpen] = useState(false);
+      const [selectedProduct, setSelectedProduct] = useState(null);
+
+      function selectProductWithHash(product) {
+        setSelectedProduct(product);
+      }
       const isSearching = searchTerm.trim() !== "";
       const backStateRef = useRef({});
       const allowRealBackRef = useRef(false);
@@ -1895,6 +2241,29 @@ function getTranslationValue(dictionary, key) {
         return baseFiltered.filter(p => getProductFilterName(p) === selectedBrand);
       }, [baseFiltered, selectedCategory, isSearching, selectedBrand]);
 
+      const sortedProducts = useMemo(() => {
+        const list = [...filtered];
+        if (sortBy === "price_asc") {
+          return list.sort((a, b) => {
+            if (a.price === 0) return 1;
+            if (b.price === 0) return -1;
+            return a.price - b.price;
+          });
+        } else if (sortBy === "price_desc") {
+          return list.sort((a, b) => b.price - a.price);
+        } else if (sortBy === "popularity") {
+          return list.sort((a, b) => {
+            const aHasImg = (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[a.id]) || a.hasImage ? 1 : 0;
+            const bHasImg = (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[b.id]) || b.hasImage ? 1 : 0;
+            if (aHasImg !== bHasImg) return bHasImg - aHasImg;
+            return a.id - b.id;
+          });
+        } else if (sortBy === "name_asc") {
+          return list.sort((a, b) => a.name.localeCompare(b.name));
+        }
+        return list;
+      }, [filtered, sortBy]);
+
       const suggestions = useMemo(() => {
         const term = searchTerm.trim().toLowerCase();
         if (term === "") return [];
@@ -2012,6 +2381,21 @@ function getTranslationValue(dictionary, key) {
           {/* Background — Pure Clean White */}
           <div className="fixed inset-0 -z-10 bg-white" />
 
+          {/* Top Store Timing & Info Bar */}
+          <div className="bg-gray-900 text-white text-[11px] font-medium py-1.5 px-4 shadow-inner border-b border-gray-800">
+            <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap text-gray-200">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-400 font-bold">⏰ {language === 'ur' ? 'اوقاتِ کار:' : 'Store Timings:'}</span>
+                <span className="font-semibold text-white">{language === 'ur' ? 'صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : '10:00 AM – 8:00 PM (Mon – Sat)'}</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-3 text-[10px] text-gray-400">
+                <span>🚚 {language === 'ur' ? 'مفت ڈیلیوری Rs. 2,000 سے زائد پر' : 'Free Shipping on Rs. 2,000+'}</span>
+                <span>•</span>
+                <span>💬 {language === 'ur' ? 'واٹس ایپ آرڈرز جاری' : 'WhatsApp Orders Active'}</span>
+              </div>
+            </div>
+          </div>
+
           {/* Header — Clean Minimalist White */}
           <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
             <div className="max-w-6xl mx-auto px-4 py-3 mobile-header-row">
@@ -2045,6 +2429,16 @@ function getTranslationValue(dictionary, key) {
                     <option value="en" style={{background:'#ffffff', color:'#1a1a2e'}}>English</option>
                     <option value="ur" style={{background:'#ffffff', color:'#1a1a2e'}}>&#x627;&#x631;&#x62F;&#x648;</option>
                   </select>
+
+                  {/* About Us Button */}
+                  <button
+                    onClick={() => setAboutOpen(true)}
+                    className="flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer"
+                    style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#111111' }}
+                  >
+                    <span className="text-sm">🏬</span>
+                    <span className="hidden sm:inline">{language === 'ur' ? 'ہمارے بارے میں' : 'About Us'}</span>
+                  </button>
 
                   {/* Cart Button */}
                   <button
@@ -2158,16 +2552,39 @@ function getTranslationValue(dictionary, key) {
                   </div>
                 </div>
 
-                {brandFilters.length > 1 && (
-                  <div style={{ position: 'relative', marginBottom: 16, display: 'flex', justifyContent: 'flex-end' }}>
-                    <button
-                      onClick={() => setFilterMenuOpen(v => !v)}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid #111111', background: '#ffffff', color: '#111111', borderRadius: 999, padding: '9px 14px', fontSize: 12, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 5px 16px rgba(0,0,0,0.08)' }}
+                {/* Controls Bar: Filter & Sort */}
+                <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                  {/* Sorting Control */}
+                  <div className="flex items-center gap-1.5 bg-white border border-gray-900 rounded-full px-3 py-1.5 shadow-sm">
+                    <svg className="w-3.5 h-3.5 text-gray-900 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5-6L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                    </svg>
+                    <span className="text-[11px] font-black uppercase text-gray-900 hidden sm:inline tracking-wider">
+                      {language === 'ur' ? 'ترتیب:' : 'Sort:'}
+                    </span>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="bg-transparent text-xs font-bold text-gray-900 cursor-pointer outline-none border-none py-0.5 pr-1"
                     >
-                      <svg style={{ width: 15, height: 15 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 12h12M10 19h4" /></svg>
-                      Filter
-                      <span style={{ fontSize: 10, color: '#666666', letterSpacing: 0, textTransform: 'none' }}>{selectedBrand === "all" ? 'All' : selectedBrand}</span>
-                    </button>
+                      <option value="default">{language === 'ur' ? 'عام ترتیب (Default)' : 'Default Order'}</option>
+                      <option value="price_asc">{language === 'ur' ? 'قیمت: کم سے زیادہ (Low to High)' : 'Price: Low to High'}</option>
+                      <option value="price_desc">{language === 'ur' ? 'قیمت: زیادہ سے کم (High to Low)' : 'Price: High to Low'}</option>
+                      <option value="popularity">{language === 'ur' ? 'مقبول ترین (Popularity)' : 'Popularity / Featured'}</option>
+                      <option value="name_asc">{language === 'ur' ? 'نام: A سے Z (Name: A-Z)' : 'Name: A to Z'}</option>
+                    </select>
+                  </div>
+
+                  {brandFilters.length > 1 && (
+                    <div style={{ position: 'relative' }}>
+                      <button
+                        onClick={() => setFilterMenuOpen(v => !v)}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid #111111', background: '#ffffff', color: '#111111', borderRadius: 999, padding: '9px 14px', fontSize: 12, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 5px 16px rgba(0,0,0,0.08)' }}
+                      >
+                        <svg style={{ width: 15, height: 15 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 12h10M10 19h4" /></svg>
+                        Filter
+                        <span style={{ fontSize: 10, color: '#666666', letterSpacing: 0, textTransform: 'none' }}>{selectedBrand === "all" ? 'All' : selectedBrand}</span>
+                      </button>
                     {filterMenuOpen && (
                       <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 8px)', zIndex: 25, width: 'min(92vw, 360px)', background: '#ffffff', border: '1px solid #d1d5db', borderRadius: 16, padding: 12, boxShadow: '0 18px 45px rgba(0,0,0,0.16)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
@@ -2234,8 +2651,8 @@ function getTranslationValue(dictionary, key) {
                   </div>
                 ) : (
                   <div className="product-grid">
-                    {filtered.map((p) => (
-                      <ProductCard key={p.id} product={p} langData={langData} language={language} cartQty={cart.find(i => i.product.id === p.id)?.qty || 0} onAddToCart={addToCart} onFlyToCart={flyProductToCart} />
+                    {sortedProducts.slice(0, visibleCount).map((p) => (
+                      <ProductCard key={p.id} product={p} langData={langData} language={language} cartQty={cart.find(i => i.product.id === p.id)?.qty || 0} onAddToCart={addToCart} onFlyToCart={flyProductToCart} onSelectProduct={selectProductWithHash} />
                     ))}
                   </div>
                 )}
@@ -2244,6 +2661,19 @@ function getTranslationValue(dictionary, key) {
           </main>
 
               <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(0,0,0,0.12)' }}>
+                <div className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs">
+                  <span className="text-amber-600">⏰</span>
+                  <span>{language === 'ur' ? 'اوقاتِ کار: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : 'Timings: 10:00 AM – 8:00 PM (Mon – Sat)'}</span>
+                </div>
+                <div>
+                  <button
+                    onClick={() => setAboutOpen(true)}
+                    className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-4 py-1.5 transition-colors cursor-pointer bg-white"
+                  >
+                    <span>🏬</span>
+                    <span>{language === 'ur' ? 'ہمارے بارے میں (About Sahil Traders)' : 'About Sahil Traders'}</span>
+                  </button>
+                </div>
                 <p className="text-xs tracking-[0.3em] uppercase" style={{ color: 'rgba(0,0,0,0.12)' }}>{translate(langData, "footer")}</p>
               </footer>
 
@@ -2542,7 +2972,7 @@ function getTranslationValue(dictionary, key) {
       );
     }
 
-    function ProductCard({ product, langData, language, cartQty = 0, onAddToCart, onFlyToCart }) {
+    function ProductCard({ product, langData, language, cartQty = 0, onAddToCart, onFlyToCart, onSelectProduct }) {
       const [added, setAdded] = useState(false);
       // Only attempt image loading if this product's image file exists in images/ folder
       const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
@@ -2554,6 +2984,7 @@ function getTranslationValue(dictionary, key) {
       }, [cartQty]);
 
       function handleAdd(e) {
+        e.stopPropagation();
         onAddToCart(product);
         if (onFlyToCart) onFlyToCart(product, e.currentTarget);
         setAdded(true);
@@ -2572,7 +3003,8 @@ function getTranslationValue(dictionary, key) {
 
       return (
         <div
-          className="product-card rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group"
+          onClick={() => onSelectProduct && onSelectProduct(product)}
+          className="product-card rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group cursor-pointer"
           style={{ background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor='#000000'; e.currentTarget.style.boxShadow='0 8px 20px rgba(0,0,0,0.08)'; e.currentTarget.style.transform='translateY(-3px)'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor='#e5e7eb'; e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform='translateY(0)'; }}

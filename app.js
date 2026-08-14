@@ -19,113 +19,122 @@ function translateItemNameToUrdu(text) {
   let result = text.toUpperCase();
 
   // Pre-process common units and pricing patterns
-  result = result.replace(/(\d+)\s*ML/g, "$1 ایم ایل");
-  result = result.replace(/(\d+)\s*KG/g, "$1 کلو");
-  result = result.replace(/(\d+)\s*G\b/g, "$1 گرام");
-  result = result.replace(/RS\.?\s*(\d+)/g, "روپے $1");
-  result = result.replace(/RP\.?\s*(\d+)/g, "روپے $1");
-  result = result.replace(/(\d+)\s*INCH/g, "$1 انچ");
+  result = result.replace(/(\d+)\s*ML/g, "$1 Ã˜Â§Ã›Å’Ã™â€¦ Ã˜Â§Ã›Å’Ã™â€ž");
+  result = result.replace(/(\d+)\s*G/g, "$1 ÃšÂ¯Ã˜Â±Ã˜Â§Ã™â€¦");
+  result = result.replace(/(\d+)\s*KG/g, "$1 ÃšÂ©Ã™â€žÃ™Ë†");
+  result = result.replace(/RS\.?\s*(\d+)/g, "Ã˜Â±Ã™Ë†Ã™Â¾Ã›â€™ $1");
+  result = result.replace(/RP\.?\s*(\d+)/g, "Ã˜Â±Ã™Ë†Ã™Â¾Ã›â€™ $1");
+  result = result.replace(/(\d+)\s*INCH/g, "$1 Ã˜Â§Ã™â€ Ãšâ€ ");
   const wordMap = {
     // Brands
-    "PEARS": "پیرز",
-    "PONDS": "پونڈز",
-    "SAFEGUARD": "سیف گارڈ",
-    "SAFE GUARD": "سیف گارڈ",
-    "DETTOL": "ڈیٹول",
-    "DETOL": "ڈیٹول",
-    "LIFEBUOY": "لائف بوائے",
-    "LUX": "لکس",
-    "MEDORA": "میڈورا",
-    "OLIVIA": "اولیویا",
-    "TIBET": "تبت",
-    "CAPRI": "کیپری",
-    "MECLAY": "میکلے",
-    "GARNIER": "گارنیئر",
-    "VEET": "ویٹ",
-    "FAIR & LOVELY": "فیئر اینڈ لولی",
-    "FAIR AND LOVELY": "فیئر اینڈ لولی",
-    "GOLDEN PEARL": "گولڈن پرل",
-    "BIO AMLA": "بائیو آملا",
-    "SUNSILK": "سن سلک",
-    "PANTENE": "پینٹین",
-    "DOVE": "ڈوو",
-    "SENSODYNE": "سینسوڈائن",
-    "COLGATE": "کولگیٹ",
-    "DENTONIC": "ڈینٹونک",
-    "CLOSE UP": "کلوز اپ",
-    "GILLETTE": "جیلیٹ",
-    "LEMON MAX": "لیمن میکس",
-    "ARIEL": "ایریل",
-    "SURF EXCEL": "سرف ایکسل",
-    "BONUS": "بونس",
-    "EXPRESS": "ایکسپریس",
-    "BRITE": "برائٹ",
-    "VIM": "وم",
-    "HARPIC": "ہارپک",
-    "JOHNSONS": "جانسنز",
-    "JOHNSON'S": "جانسنز",
-    "ROSE PETAL": "روز پیٹل",
-    "LIPTON": "لپٹن",
-    "TAPAL": "طاپل",
-    "NESTLE": "نسلے",
-    "EVERYDAY": "ایوری ڈے",
+    "PEARS": "Ã™Â¾Ã›Å’Ã˜Â±Ã˜Â²",
+    "PONDS": "Ã™Â¾Ã™Ë†Ã™â€ ÃšË†Ã˜Â²",
+    "SAFEGUARD": "Ã˜Â³Ã›Å’Ã™Â ÃšÂ¯Ã˜Â§Ã˜Â±ÃšË†",
+    "SAFE GUARD": "Ã˜Â³Ã›Å’Ã™Â ÃšÂ¯Ã˜Â§Ã˜Â±ÃšË†",
+    "DETTOL": "ÃšË†Ã›Å’Ã™Â¹Ã™Ë†Ã™â€ž",
+    "DETOL": "ÃšË†Ã›Å’Ã™Â¹Ã™Ë†Ã™â€ž",
+    "LIFEBUOY": "Ã™â€žÃ˜Â§Ã˜Â¦Ã™Â Ã˜Â¨Ã™Ë†Ã˜Â§Ã˜Â¦Ã›â€™",
+    "LUX": "Ã™â€žÃšÂ©Ã˜Â³",
+    "MEDORA": "Ã™â€¦Ã›Å’ÃšË†Ã™Ë†Ã˜Â±Ã˜Â§",
+    "OLIVIA": "Ã˜Â§Ã™Ë†Ã™â€žÃ›Å’Ã™Ë†Ã›Å’Ã˜Â§",
+    "TIBET": "Ã˜ÂªÃ˜Â¨Ã˜Âª",
+    "CAPRI": "ÃšÂ©Ã›Å’Ã™Â¾Ã˜Â±Ã›Å’",
+    "MECLAY": "Ã™â€¦Ã›Å’ÃšÂ©Ã™â€žÃ›â€™",
+    "GARNIER": "ÃšÂ¯Ã˜Â§Ã˜Â±Ã™â€ Ã›Å’Ã˜Â¦Ã˜Â±",
+    "VEET": "Ã™Ë†Ã›Å’Ã™Â¹",
+    "FAIR & LOVELY": "Ã™ÂÃ›Å’Ã˜Â¦Ã˜Â± Ã˜Â§Ã›Å’Ã™â€ ÃšË† Ã™â€žÃ™Ë†Ã™â€žÃ›Å’",
+    "FAIR AND LOVELY": "Ã™ÂÃ›Å’Ã˜Â¦Ã˜Â± Ã˜Â§Ã›Å’Ã™â€ ÃšË† Ã™â€žÃ™Ë†Ã™â€žÃ›Å’",
+    "GOLDEN PEARL": "ÃšÂ¯Ã™Ë†Ã™â€žÃšË†Ã™â€  Ã™Â¾Ã˜Â±Ã™â€ž",
+    "BIO AMLA": "Ã˜Â¨Ã˜Â§Ã˜Â¦Ã›Å’Ã™Ë† Ã˜Â¢Ã™â€¦Ã™â€žÃ›Â",
+    "SUNSILK": "Ã˜Â³Ã™â€  Ã˜Â³Ã™â€žÃšÂ©",
+    "PANTENE": "Ã™Â¾Ã›Å’Ã™â€ Ã™Â¹Ã›Å’Ã™â€ ",
+    "DOVE": "ÃšË†Ã™Ë†",
+    "SENSODYNE": "Ã˜Â³Ã™â€ Ã˜Â³Ã™Ë†ÃšË†Ã˜Â§Ã˜Â¦Ã™â€ ",
+    "COLGATE": "ÃšÂ©Ã™Ë†Ã™â€žÃšÂ¯Ã›Å’Ã™Â¹",
+    "DENTONIC": "ÃšË†Ã›Å’Ã™â€ Ã™Â¹Ã™Ë†Ã™â€ ÃšÂ©",
+    "CLOSE UP": "ÃšÂ©Ã™â€žÃ™Ë†Ã˜Â² Ã˜Â§Ã™Â¾",
+    "GILLETTE": "Ã˜Â¬Ã™â€žÃ›Å’Ã™Â¹",
+    "LEMON MAX": "Ã™â€žÃ›Å’Ã™â€¦Ã™â€  Ã™â€¦Ã›Å’ÃšÂ©Ã˜Â³",
+    "ARIEL": "Ã˜Â§Ã›Å’Ã˜Â±Ã›Å’Ã™â€ž",
+    "SURF EXCEL": "Ã˜Â³Ã˜Â±Ã™Â Ã˜Â§Ã›Å’ÃšÂ©Ã˜Â³Ã™â€ž",
+    "BONUS": "Ã˜Â¨Ã™Ë†Ã™â€ Ã˜Â³",
+    "EXPRESS": "Ã˜Â§Ã›Å’ÃšÂ©Ã˜Â³Ã™Â¾Ã˜Â±Ã›Å’Ã˜Â³",
+    "BRITE": "Ã˜Â¨Ã˜Â±Ã˜Â§Ã˜Â¦Ã™Â¹",
+    "VIM": "Ã™Ë†Ã™ÂÃ™â€¦",
+    "HARPIC": "Ã›ÂÃ˜Â§Ã˜Â±Ã™Â¾ÃšÂ©",
+    "JOHNSONS": "Ã˜Â¬Ã˜Â§Ã™â€ Ã˜Â³Ã™â€ Ã˜Â²",
+    "JOHNSON'S": "Ã˜Â¬Ã˜Â§Ã™â€ Ã˜Â³Ã™â€ Ã˜Â²",
+    "ROSE PETAL": "Ã˜Â±Ã™Ë†Ã˜Â² Ã™Â¾Ã›Å’Ã™Â¹Ã™â€ž",
+    "LIPTON": "Ã™â€žÃ™Â¾Ã™Â¹Ã™â€ ",
+    "TAPAL": "Ã™Â¹Ã˜Â§Ã™Â¾Ã™â€ž",
+    "NESTLE": "Ã™â€ Ã›Å’Ã˜Â³Ã™â€žÃ›â€™",
+    "EVERYDAY": "Ã˜Â§Ã›Å’Ã™Ë†Ã˜Â±Ã›Å’ ÃšË†Ã›â€™",
+    "SMILE": "Ã˜Â§Ã˜Â³Ã™â€¦Ã˜Â§Ã˜Â¦Ã™â€ž",
+    "ALWAYS": "Ã˜Â¢Ã™â€žÃ™Ë†Ã›Å’Ã˜Â²",
+    "ACNO FIGHT": "Ã˜Â§Ã›Å’ÃšÂ©Ã™â€ Ã™Ë† Ã™ÂÃ˜Â§Ã˜Â¦Ã™Â¹",
+    "ACNO CLEAR": "Ã˜Â§Ã›Å’ÃšÂ©Ã™â€ Ã™Ë† ÃšÂ©Ã™â€žÃ›Å’Ã˜Â¦Ã˜Â±",
+    "DERMI COOL": "ÃšË†Ã˜Â±Ã™â€¦Ã›Å’ ÃšÂ©Ã™Ë†Ã™â€ž",
+    "EDEN ROCK": "Ã˜Â§Ã›Å’ÃšË†Ã™â€  Ã˜Â±Ã˜Â§ÃšÂ©",
+    "IMPERIAL LEATHER": "Ã˜Â§Ã™â€¦Ã™Â¾Ã›Å’Ã˜Â±Ã›Å’Ã™â€ž Ã™â€žÃ›Å’Ã˜Â¯Ã˜Â±",
+    "KOHE NOOR": "ÃšÂ©Ã™Ë†Ã›ÂÃ™Â Ã™â€ Ã™Ë†Ã˜Â±",
+    "CHANBALI": "Ãšâ€ Ã˜Â§Ã™â€ Ã˜Â¯ Ã˜Â¨Ã˜Â§Ã™â€žÃ›Å’",
     // Product Types / Keywords
-    "SOAP": "صابن",
-    "SHAMPOO": "شیمپو",
-    "CREAM": "کریم",
-    "LOTION": "لوشن",
-    "FACE WASH": "فیس واش",
-    "FACEWASH": "فیس واش",
-    "TOOTHPASTE": "ٹوتھ پیسٹ",
-    "HAIR OIL": "بالوں کا تیل",
-    "OIL": "تیل",
-    "HAIR": "بال",
-    "DEO": "باڈی اسپرے / پاؤڈر",
-    "DEODORANT": "ڈی اوڈورنٹ",
-    "TALCUM": "ٹالکم",
-    "POWDER": "پاؤڈر",
-    "PERFUME": "پرفیوم",
-    "BODY SPRAY": "باڈی اسپرے",
-    "SPRAY": "اسپرے",
-    "DETERGENT": "سرف",
-    "BABY": "بیبی",
-    "CARE": "کیئر",
-    "SHAVING": "شیونگ",
-    "BLADE": "بلیڈ",
-    "RAZOR": "ریزر",
-    "PAD": "پیڈ",
-    "PADS": "پیڈز",
-    "MAXI": "میکسی",
-    "BALLOON": "غبارہ",
-    "TAPE": "ٹیپ",
-    "PACKING": "پیکنگ",
-    "GLYCERINE": "گلیسرین",
-    "LIQUID": "لیکوئڈ",
-    "DISHWASH": "ڈش واش",
+    "SOAP": "Ã˜ÂµÃ˜Â§Ã˜Â¨Ã™Ë†Ã™â€ ",
+    "SHAMPOO": "Ã˜Â´Ã›Å’Ã™â€¦Ã™Â¾Ã™Ë†",
+    "CREAM": "ÃšÂ©Ã˜Â±Ã›Å’Ã™â€¦",
+    "LOTION": "Ã™â€žÃ™Ë†Ã˜Â´Ã™â€ ",
+    "FACE WASH": "Ã™ÂÃ›Å’Ã˜Â³ Ã™Ë†Ã˜Â§Ã˜Â´",
+    "FACEWASH": "Ã™ÂÃ›Å’Ã˜Â³ Ã™Ë†Ã˜Â§Ã˜Â´",
+    "TOOTHPASTE": "Ã™Â¹Ã™Ë†Ã˜ÂªÃšÂ¾ Ã™Â¾Ã›Å’Ã˜Â³Ã™Â¹",
+    "HAIR OIL": "Ã˜Â¨Ã˜Â§Ã™â€žÃ™Ë†ÃšÂº ÃšÂ©Ã˜Â§ Ã˜ÂªÃ›Å’Ã™â€ž",
+    "OIL": "Ã˜ÂªÃ›Å’Ã™â€ž",
+    "HAIR": "Ã˜Â¨Ã˜Â§Ã™â€ž",
+    "DEO": "Ã˜Â¨Ã˜Â§ÃšË†Ã›Å’ Ã˜Â³Ã™Â¾Ã˜Â±Ã›â€™ / Ã™Â¾Ã˜Â§Ã˜Â¤ÃšË†Ã˜Â±",
+    "DEODORANT": "ÃšË†Ã›Å’ Ã˜Â§Ã™Ë†ÃšË†Ã™Ë†Ã˜Â±Ã™â€ Ã™Â¹",
+    "TALCUM": "Ã™Â¹Ã˜Â§Ã™â€žÃšÂ©Ã™â€¦",
+    "POWDER": "Ã™Â¾Ã˜Â§Ã˜Â¤ÃšË†Ã˜Â±",
+    "PERFUME": "Ã™Â¾Ã˜Â±Ã™ÂÃ›Å’Ã™Ë†Ã™â€¦",
+    "BODY SPRAY": "Ã˜Â¨Ã˜Â§ÃšË†Ã›Å’ Ã˜Â³Ã™Â¾Ã˜Â±Ã›â€™",
+    "SPRAY": "Ã˜Â§Ã˜Â³Ã™Â¾Ã˜Â±Ã›â€™",
+    "DETERGENT": "Ã˜Â³Ã˜Â±Ã™Â",
+    "BABY": "Ã˜Â¨Ã›Å’Ã˜Â¨Ã›Å’",
+    "CARE": "ÃšÂ©Ã›Å’Ã˜Â¦Ã˜Â±",
+    "SHAVING": "Ã˜Â´Ã›Å’Ã™Ë†Ã™â€ ÃšÂ¯",
+    "BLADE": "Ã˜Â¨Ã™â€žÃ›Å’ÃšË†",
+    "RAZOR": "Ã˜Â±Ã›Å’Ã˜Â²Ã˜Â±",
+    "PAD": "Ã™Â¾Ã›Å’ÃšË†",
+    "PADS": "Ã™Â¾Ã›Å’ÃšË†Ã˜Â²",
+    "MAXI": "Ã™â€¦Ã›Å’ÃšÂ©Ã˜Â³Ã›Å’",
+    "BALLOON": "Ã˜ÂºÃ˜Â¨Ã˜Â§Ã˜Â±Ã›Â",
+    "TAPE": "Ã™Â¹Ã›Å’Ã™Â¾",
+    "PACKING": "Ã™Â¾Ã›Å’ÃšÂ©Ã™â€ ÃšÂ¯",
+    "GLYCERINE": "ÃšÂ¯Ã™â€žÃ›Å’Ã˜Â³Ã˜Â±Ã›Å’Ã™â€ ",
+    "LIQUID": "Ã™â€žÃ›Å’ÃšÂ©Ã™Ë†Ã›Å’ÃšË†",
+    "DISHWASH": "ÃšË†Ã˜Â´ Ã™Ë†Ã˜Â§Ã˜Â´",
     // Sizes / Attributes
-    "SMALL": "چھوٹا",
-    "MEDIUM": "درمیانہ",
-    "LARGE": "بڑا",
-    "BOX": "ڈبہ",
-    "PACK": "پیک",
-    "PACKET": "پیکٹ",
-    "TUBE": "ٹیوب",
-    "ROLL": "رول",
-    "MIX": "مکس",
-    "PINK": "گلابی",
-    "GREEN": "سبز",
-    "BROWN": "براؤن",
-    "BLUE": "نیلا",
-    "YELLOW": "پیلا",
-    "RED": "سرخ",
-    "BLACK": "کالا",
-    "WHITE": "سفید",
-    "GOLD": "گولڈ",
-    "SILVER": "سلور",
+    "SMALL": "Ãšâ€ ÃšÂ¾Ã™Ë†Ã™Â¹Ã˜Â§",
+    "MEDIUM": "Ã˜Â¯Ã˜Â±Ã™â€¦Ã›Å’Ã˜Â§Ã™â€ Ã›Â",
+    "LARGE": "Ã˜Â¨Ãšâ€˜Ã˜Â§",
+    "BOX": "ÃšË†Ã˜Â¨Ã›Â",
+    "PACK": "Ã™Â¾Ã›Å’ÃšÂ©",
+    "PACKET": "Ã™Â¾Ã›Å’ÃšÂ©Ã™Â¹",
+    "TUBE": "Ã™Â¹Ã›Å’Ã™Ë†Ã˜Â¨",
+    "ROLL": "Ã˜Â±Ã™Ë†Ã™â€ž",
+    "MIX": "Ã™â€¦ÃšÂ©Ã˜Â³",
+    "PINK": "ÃšÂ¯Ã™â€žÃ˜Â§Ã˜Â¨Ã›Å’",
+    "GREEN": "Ã˜Â³Ã˜Â¨Ã˜Â²",
+    "BROWN": "Ã˜Â¨Ã˜Â±Ã˜Â§Ã˜Â¤Ã™â€ ",
+    "BLUE": "Ã™â€ Ã›Å’Ã™â€žÃ˜Â§",
+    "YELLOW": "Ã™Â¾Ã›Å’Ã™â€žÃ˜Â§",
+    "RED": "Ã˜Â³Ã˜Â±Ã˜Â®",
+    "BLACK": "ÃšÂ©Ã˜Â§Ã™â€žÃ˜Â§",
+    "WHITE": "Ã˜Â³Ã™ÂÃ›Å’Ã˜Â¯",
+    "GOLD": "ÃšÂ¯Ã™Ë†Ã™â€žÃšË†",
+    "SILVER": "Ã˜Â³Ã™â€žÃ™Ë†Ã˜Â±",
     // Connectors
-    "WITH": "کے ساتھ",
-    "FOR": "کے لیے",
-    "AND": "اور"
+    "WITH": "ÃšÂ©Ã›â€™ Ã˜Â³Ã˜Â§Ã˜ÂªÃšÂ¾",
+    "FOR": "ÃšÂ©Ã›â€™ Ã™â€žÃ›Å’Ã›â€™",
+    "AND": "Ã˜Â§Ã™Ë†Ã˜Â±"
   };
   let words = result.split(/(\s+|,|\(|\)|\/|&)/);
   let translatedWords = words.map(w => {
@@ -139,42 +148,42 @@ function translateItemNameToUrdu(text) {
 
   // Character-by-character fallback for remaining English letters/numbers to convert completely to Urdu script
   const translitMap = {
-    'A': 'ا',
-    'B': 'ب',
-    'C': 'ک',
-    'D': 'ڈ',
-    'E': 'ے',
-    'F': 'ف',
-    'G': 'گ',
-    'H': 'ہ',
-    'I': 'آئی',
-    'J': 'ج',
-    'K': 'ک',
-    'L': 'ل',
-    'M': 'م',
-    'N': 'ن',
-    'O': 'و',
-    'P': 'پ',
-    'Q': 'ق',
-    'R': 'ر',
-    'S': 'س',
-    'T': 'ت',
-    'U': 'یو',
-    'V': 'و',
-    'W': 'و',
-    'X': 'ایکس',
-    'Y': 'وائی',
-    'Z': 'زیڈ',
-    '0': '۰',
-    '1': '۱',
-    '2': '۲',
-    '3': '۳',
-    '4': '۴',
-    '5': '۵',
-    '6': '۶',
-    '7': '۷',
-    '8': '۸',
-    '9': '۹'
+    'A': 'Ã˜Â§',
+    'B': 'Ã˜Â¨',
+    'C': 'ÃšÂ©',
+    'D': 'ÃšË†',
+    'E': 'Ã›Å’',
+    'F': 'Ã™Â',
+    'G': 'ÃšÂ¯',
+    'H': 'Ã›Â',
+    'I': 'Ã˜Â¢Ã˜Â¦Ã›Å’',
+    'J': 'Ã˜Â¬',
+    'K': 'ÃšÂ©',
+    'L': 'Ã™â€ž',
+    'M': 'Ã™â€¦',
+    'N': 'Ã™â€ ',
+    'O': 'Ã™Ë†',
+    'P': 'Ã™Â¾',
+    'Q': 'Ã™â€š',
+    'R': 'Ã˜Â±',
+    'S': 'Ã˜Â³',
+    'T': 'Ã™Â¹',
+    'U': 'Ã›Å’Ã™Ë†',
+    'V': 'Ã™Ë†',
+    'W': 'Ã™Ë†',
+    'X': 'Ã˜Â§Ã›Å’ÃšÂ©Ã˜Â³',
+    'Y': 'Ã™Ë†Ã˜Â§Ã˜Â¦Ã›â€™',
+    'Z': 'Ã˜Â²Ã›Å’ÃšË†',
+    '0': 'Ã›Â°',
+    '1': 'Ã›Â±',
+    '2': 'Ã›Â²',
+    '3': 'Ã›Â³',
+    '4': 'Ã›Â´',
+    '5': 'Ã›Âµ',
+    '6': 'Ã›Â¶',
+    '7': 'Ã›Â·',
+    '8': 'Ã›Â¸',
+    '9': 'Ã›Â¹'
   };
   let finalResult = Array.from(textAfterWordReplacements).map(char => {
     let upperChar = char.toUpperCase();
@@ -185,30 +194,11 @@ function translateItemNameToUrdu(text) {
 function toTitleCase(str) {
   return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 }
-function parseProductPriceAndName(name) {
-  const regex = /RS[,\.\s]?\s*(\d+)/i;
-  const match = String(name || "").match(regex);
-  if (match) {
-    const originalPrice = parseInt(match[1], 10);
-    let clean = name.replace(regex, '').replace(/[-\s,]+$/, '').trim();
-    return {
-      originalPrice,
-      cleanName: clean
-    };
-  }
-  return {
-    originalPrice: null,
-    cleanName: name
-  };
-}
 function getProductDisplayName(product, language) {
-  const {
-    cleanName
-  } = parseProductPriceAndName(product.name);
   if (language === "ur") {
-    return translateItemNameToUrdu(cleanName);
+    return translateItemNameToUrdu(product.name);
   }
-  return toTitleCase(cleanName);
+  return toTitleCase(product.name);
 }
 
 // --- Lucide Icons Replacements (SVG Components) ---
@@ -7139,7 +7129,7 @@ const PRODUCTS = [{
 }, {
   id: 1133,
   name: "TOY AUTO CAR METAL",
-  price: 130,
+  price: 379,
   categoryId: "sports",
   categoryName: "Sports & Toys"
 }, {
@@ -7150,8 +7140,8 @@ const PRODUCTS = [{
   categoryName: "Sports & Toys"
 }, {
   id: 1135,
-  name: "TOY BARREL O SLIME",
-  price: 45,
+  name: "TOY BARREL O SLIME (MELON) KHARBOZA",
+  price: 40,
   categoryId: "sports",
   categoryName: "Sports & Toys"
 }, {
@@ -7162,26 +7152,74 @@ const PRODUCTS = [{
   categoryName: "Sports & Toys"
 }, {
   id: 1137,
-  name: "TOY CUBE BLOCKS GAME",
-  price: 399,
+  name: "TOY BLOCKS GAME",
+  price: 240,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1138,
+  name: "TOY BUBBLE CARTOON FACE (EX QUALITY)",
+  price: 0,
   categoryId: "sports",
   categoryName: "Sports & Toys"
 }, {
   id: 1139,
   name: "TOY BUBBLE CARTOON FACE (GOOD QUALITY)",
-  price: 99,
+  price: 0,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1140,
+  name: "TOY BUBBLE FEEDER",
+  price: 0,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1141,
+  name: "TOY BUBBLE FEEDER EX QUALITY",
+  price: 0,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1142,
+  name: "TOY BUBBLE SURAHI WALA (EX LONG)",
+  price: 0,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1143,
+  name: "TOY BUBBLE SURAHI WALA (EX QUALITY)",
+  price: 0,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1144,
+  name: "TOY BUBBLE WITH FAN",
+  price: 0,
   categoryId: "sports",
   categoryName: "Sports & Toys"
 }, {
   id: 1145,
   name: "TOY CAR JUMPING LARGE PIECE 18 (DORAEMON)",
-  price: 130,
+  price: 0,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1146,
+  name: "TOY CAR JUMPING LARGE PIECE 18",
+  price: 0,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1147,
+  name: "TOY CAR JUMPING MEDIUM  (JEEP ) EX QUALITY",
+  price: 0,
   categoryId: "sports",
   categoryName: "Sports & Toys"
 }, {
   id: 1148,
-  name: "TOY CHORDI MAGIC GAME",
-  price: 190,
+  name: "TOY CHORDI GAME",
+  price: 0,
   categoryId: "sports",
   categoryName: "Sports & Toys"
 }, {
@@ -7208,25 +7246,31 @@ const PRODUCTS = [{
 }, {
   id: 1152,
   name: "TOY POP UP PATAKA (YELLOW)",
-  price: 40,
+  price: 0,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1153,
+  name: "TOY TORCH LIGHT (SMALL) (#H 299)",
+  price: 0,
   categoryId: "sports",
   categoryName: "Sports & Toys"
 }, {
   id: 1154,
   name: "TOY WATER GUN",
-  price: 120,
+  price: 0,
   categoryId: "sports",
   categoryName: "Sports & Toys"
 }, {
   id: 1155,
-  name: "TOY YOYO DORI (GOOD QUALITY)",
-  price: 80,
+  name: "TOY YOYO DORI LIGHT WALA (GOOD QUALITY)",
+  price: 0,
   categoryId: "sports",
   categoryName: "Sports & Toys"
 }, {
   id: 1156,
-  name: "TAPE DOUBLE SIDED (2 INCH)",
-  price: 120,
+  name: "TAPE DOUBLE 2 INCH",
+  price: 0,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -7239,9 +7283,24 @@ const PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[2],
   initial: "T"
 }, {
+  id: 1158,
+  name: "TAPE DOUBLE SIDED (1 INCH)",
+  price: 63,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[3],
+  initial: "T"
+}, {
+  id: 1159,
+  name: "TAPE DOUBLE SIDED (1 INCH) TRANSPARENT",
+  price: 0,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
   id: 1160,
-  name: "TAPE KAGHAZ (0.5 INCH)",
-  price: 40,
+  name: "TAPE KAGHAZ (0.5 INCH) HALF INCH 12 PIECES",
+  price: 0,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -7262,7 +7321,7 @@ const PRODUCTS = [{
 }, {
   id: 1163,
   name: "TAPE OSAKA (BLACK)",
-  price: 50,
+  price: 45,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -7271,13 +7330,13 @@ const PRODUCTS = [{
 }, {
   id: 1164,
   name: "TAPE OSAKA (BLACK) FULL LENGTH",
-  price: 65,
+  price: 59,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 1165,
   name: "TAPE OSAKA (RED)",
-  price: 50,
+  price: 45,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -7286,13 +7345,13 @@ const PRODUCTS = [{
 }, {
   id: 1166,
   name: "TAPE OSAKA (RED) FULL LENGTH",
-  price: 65,
+  price: 59,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 1167,
   name: "TAPE OSAKA (WHITE)",
-  price: 50,
+  price: 45,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -7301,7 +7360,7 @@ const PRODUCTS = [{
 }, {
   id: 1168,
   name: "TAPE OSAKA (WHITE) FULL LENGTH",
-  price: 65,
+  price: 59,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -7314,9 +7373,27 @@ const PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[1],
   initial: "T"
 }, {
+  id: 1170,
+  name: "TAPE PACKING BROWN (2 INCH) 45 METER",
+  price: 0,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1171,
+  name: "TAPE PACKING BROWN (2 INCH) 65 METER",
+  price: 0,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1172,
+  name: "TAPE PACKING BROWN (2 INCH) SHORT LENGTH (SMALL)",
+  price: 0,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
   id: 1173,
   name: "TAPE TRANSPARENT (0.5 INCH) EX QUALITY",
-  price: 35,
+  price: 0,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -7329,6 +7406,12 @@ const PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[6],
   initial: "T"
 }, {
+  id: 1175,
+  name: "TAPE TRANSPARENT (1 INCH) FULL LENGTH",
+  price: 0,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
   id: 1176,
   name: "TAPE TRANSPARENT (2 INCH)",
   price: 95,
@@ -7338,9 +7421,15 @@ const PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[0],
   initial: "T"
 }, {
+  id: 1177,
+  name: "TAPE TRANSPARENT (2 INCH) (MOTI)",
+  price: 0,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
   id: 1178,
   name: "TAPE TRANSPARENT RS,10",
-  price: 8,
+  price: 85,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -7348,13 +7437,31 @@ const PRODUCTS = [{
   initial: "T"
 }, {
   id: 1179,
-  name: "TASH ROYAAL",
+  name: "TASH REGAL",
   price: 180,
   categoryId: "sports",
   categoryName: "Sports & Toys",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "T"
+}, {
+  id: 1180,
+  name: "TIGER INSECT SPRAY 300ML (SMALL)",
+  price: 0,
+  categoryId: "mosquito",
+  categoryName: "Anti-Mosquito"
+}, {
+  id: 1181,
+  name: "TIGER INSECT SPRAY 400ML (MEDIUM)",
+  price: 0,
+  categoryId: "mosquito",
+  categoryName: "Anti-Mosquito"
+}, {
+  id: 1182,
+  name: "TIGER INSECT SPRAY 600ML (LARGE)",
+  price: 0,
+  categoryId: "mosquito",
+  categoryName: "Anti-Mosquito"
 }, {
   id: 1183,
   name: "TOOTH PICK DENTAL FLOSS",
@@ -7374,15 +7481,45 @@ const PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[4],
   initial: "T"
 }, {
+  id: 1185,
+  name: "TOYS MIX",
+  price: 0,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1186,
+  name: "TRUST PAD LARGE (ORANGE) R,P 190",
+  price: 0,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1187,
+  name: "TRUST PAD LARGE (PURPLE) RS,340",
+  price: 0,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1188,
+  name: "TRUST PAD LARGE (PINK) RS,220",
+  price: 0,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1189,
+  name: "TRUST PAD LARGE (YELLOW) RS,290",
+  price: 0,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
   id: 1190,
-  name: "TWEEZER GENTS",
-  price: 120,
+  name: "TUSAR GENTS",
+  price: 80,
   categoryId: "general",
   categoryName: "General Item & Others"
 }, {
   id: 1191,
-  name: "TWEEZER LADIES",
-  price: 120,
+  name: "TUSAR LADIES",
+  price: 80,
   categoryId: "general",
   categoryName: "General Item & Others"
 }, {
@@ -7394,6 +7531,12 @@ const PRODUCTS = [{
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "T"
+}, {
+  id: 1193,
+  name: "TUSBHI (LED) GREEN",
+  price: 135,
+  categoryId: "others",
+  categoryName: "Others"
 }, {
   id: 1194,
   name: "TUSBHI (LED) PATA",
@@ -7461,9 +7604,24 @@ const PRODUCTS = [{
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
+  id: 1204,
+  name: "VASELINE HAIR TONIC 100ml (NON ORIGINAL)",
+  price: 199,
+  categoryId: "haircolour",
+  categoryName: "Hair Colour & Care & Oil",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[3],
+  initial: "V"
+}, {
   id: 1205,
   name: "VASELINE HAIR TONIC 100ml (ORIGINAL)",
   price: 499,
+  categoryId: "haircolour",
+  categoryName: "Hair Colour & Care & Oil"
+}, {
+  id: 1206,
+  name: "VASELINE HAIR TONIC 200ml (NON ORIGINAL)",
+  price: 299,
   categoryId: "haircolour",
   categoryName: "Hair Colour & Care & Oil"
 }, {
@@ -7474,13 +7632,13 @@ const PRODUCTS = [{
   categoryName: "Hair Colour & Care & Oil"
 }, {
   id: 1208,
-  name: "VASELINE PETROLEUM (IMP) 250ML S,A (BLUE)",
+  name: "VASELINE PETROLEUM (IMP) 250ML S,A (MIX)",
   price: 899,
   categoryId: "creams",
   categoryName: "Creams & Lotions"
 }, {
   id: 1209,
-  name: "VASELINE PETROLEUM (IMP) 100ml S,A (BLUE)",
+  name: "VASELINE PETROLEUM (IMP) 100ml S,A (MIX)",
   price: 399,
   categoryId: "creams",
   categoryName: "Creams & Lotions",
@@ -7489,13 +7647,13 @@ const PRODUCTS = [{
   initial: "V"
 }, {
   id: 1210,
-  name: "VASELINE PETROLEUM (IMP) 100ml S,A (COCA BUTTER)",
-  price: 399,
+  name: "VASELINE PETROLEUM (IMP) 50ml",
+  price: 259,
   categoryId: "creams",
   categoryName: "Creams & Lotions"
 }, {
   id: 1211,
-  name: "VASELINE PETROLEUM (IMP) 50ml S,A (BLUE)",
+  name: "VASELINE PETROLEUM (IMP) 50ml S,A (BLUE,ORIGINAL)",
   price: 249,
   categoryId: "creams",
   categoryName: "Creams & Lotions",
@@ -7513,7 +7671,7 @@ const PRODUCTS = [{
   initial: "V"
 }, {
   id: 1213,
-  name: "VASELINE PETROLEUM (IMP) 50ml S,A (COCO BUTTER)",
+  name: "VASELINE PETROLEUM (IMP) 50ml S,A (MIX)",
   price: 249,
   categoryId: "creams",
   categoryName: "Creams & Lotions",
@@ -7522,7 +7680,7 @@ const PRODUCTS = [{
   initial: "V"
 }, {
   id: 1214,
-  name: "VASELINE PETROLEUM (IMP) 50ml S,A (PINK BABY)",
+  name: "VASELINE PETROLEUM (IMP) 50ml S,A (PINK,BABY)",
   price: 249,
   categoryId: "creams",
   categoryName: "Creams & Lotions",
@@ -7567,7 +7725,7 @@ const PRODUCTS = [{
   categoryName: "Hair Colour & Care & Oil"
 }, {
   id: 1220,
-  name: "VATIKA HAIR OIL 100ml (Coconut) COMPANY RP,350",
+  name: "VATIKA HAIR OIL 100ml (Coconut)",
   price: 319,
   categoryId: "haircolour",
   categoryName: "Hair Colour & Care & Oil",
@@ -7582,7 +7740,7 @@ const PRODUCTS = [{
   categoryName: "Hair Colour & Care & Oil"
 }, {
   id: 1222,
-  name: "VATIKA HAIR OIL 100ml (OLIVE) COMPANY RP,350",
+  name: "VATIKA HAIR OIL 100ml (OLIVE)",
   price: 319,
   categoryId: "haircolour",
   categoryName: "Hair Colour & Care & Oil",
@@ -7591,13 +7749,13 @@ const PRODUCTS = [{
   initial: "V"
 }, {
   id: 1223,
-  name: "VATIKA HAIR OIL 200ml (ALMOND) COMPANY RP,640",
+  name: "VATIKA HAIR OIL 200ml (ALMOND) RS,640",
   price: 599,
   categoryId: "haircolour",
   categoryName: "Hair Colour & Care & Oil"
 }, {
   id: 1224,
-  name: "VATIKA HAIR OIL 200ml (CACTUS) COMPANY RP,640",
+  name: "VATIKA HAIR OIL 200ml (CACTUS)",
   price: 599,
   categoryId: "haircolour",
   categoryName: "Hair Colour & Care & Oil",
@@ -7606,19 +7764,19 @@ const PRODUCTS = [{
   initial: "V"
 }, {
   id: 1225,
-  name: "VATIKA HAIR OIL 200ml (Coconut) COMPANY RP,640",
+  name: "VATIKA HAIR OIL 200ml (Coconut)",
   price: 599,
   categoryId: "haircolour",
   categoryName: "Hair Colour & Care & Oil"
 }, {
   id: 1226,
-  name: "VATIKA HAIR OIL 200ml (GARLIC) COMPANY RP,640",
+  name: "VATIKA HAIR OIL 200ml (GARLIC)",
   price: 599,
   categoryId: "haircolour",
   categoryName: "Hair Colour & Care & Oil"
 }, {
   id: 1227,
-  name: "VATIKA HAIR OIL 200ml (OLIVE) COMPANY RP,640",
+  name: "VATIKA HAIR OIL 200ml (OLIVE)",
   price: 599,
   categoryId: "haircolour",
   categoryName: "Hair Colour & Care & Oil",
@@ -7627,7 +7785,7 @@ const PRODUCTS = [{
   initial: "V"
 }, {
   id: 1228,
-  name: "VATIKA HAIR OIL 200ml (ONION) COMPANY RP,640",
+  name: "VATIKA HAIR OIL 200ml (ONION)",
   price: 599,
   categoryId: "haircolour",
   categoryName: "Hair Colour & Care & Oil"
@@ -7644,6 +7802,15 @@ const PRODUCTS = [{
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
+  id: 1231,
+  name: "VEET JAR LARGE (MIX) RS,595",
+  price: 559,
+  categoryId: "personalcare",
+  categoryName: "Personal Care",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[7],
+  initial: "V"
+}, {
   id: 1232,
   name: "VEET JAR LARGE (PINK) RS,595",
   price: 559,
@@ -7657,26 +7824,35 @@ const PRODUCTS = [{
   categoryName: "Personal Care"
 }, {
   id: 1234,
-  name: "VEET JAR SMALL (BLUE) RS,300",
+  name: "VEET JAR SMALL (PINK) RS,300",
   price: 269,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
+  id: 1235,
+  name: "VEET JAR SMALL 40G (MIX) RS,300",
+  price: 269,
+  categoryId: "personalcare",
+  categoryName: "Personal Care",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[6],
+  initial: "V"
+}, {
   id: 1236,
   name: "VEET STRIPS (BLUE)",
-  price: 399,
+  price: 349,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 1237,
   name: "VEET STRIPS (GREEN)",
-  price: 399,
+  price: 349,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 1238,
   name: "VEET STRIPS (PINK)",
-  price: 399,
+  price: 349,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
@@ -7687,19 +7863,19 @@ const PRODUCTS = [{
   categoryName: "Personal Care"
 }, {
   id: 1240,
-  name: "VEET TUBE MEDIUM (PINK) RP,495",
+  name: "VEET TUBE LARGE (IMP) GREEN",
   price: 699,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 1241,
-  name: "VEET TUBE MEDIUM (BLUE) RP,495",
+  name: "VEET TUBE MEDIUM (BLUE) RS,495",
   price: 459,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 1242,
-  name: "VEET TUBE MEDIUM (GREEN) RP,495",
+  name: "VEET TUBE MEDIUM (GREEN) RS,495",
   price: 459,
   categoryId: "personalcare",
   categoryName: "Personal Care"
@@ -7746,6 +7922,12 @@ const PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[5],
   initial: "V"
 }, {
+  id: 1248,
+  name: "VENEEZIA WAX PARLOR SIZE",
+  price: 599,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
   id: 1249,
   name: "VITAMIN (E) CAPSULES (FACIAL ESSENCE)",
   price: 5,
@@ -7775,6 +7957,21 @@ const PRODUCTS = [{
   price: 70,
   categoryId: "general",
   categoryName: "General Item & Others"
+}, {
+  id: 1253,
+  name: "WAX PATI",
+  price: 80,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1254,
+  name: "WAX PATI BUKRAM",
+  price: 90,
+  categoryId: "personalcare",
+  categoryName: "Personal Care",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[0],
+  initial: "W"
 }, {
   id: 1255,
   name: "WAX PATI BUKRAM",
@@ -7830,6 +8027,15 @@ const PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[4],
   initial: "W"
 }, {
+  id: 1263,
+  name: "WIPES SOFT CREME (MIX)",
+  price: 129,
+  categoryId: "babycare",
+  categoryName: "Baby Care",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[7],
+  initial: "W"
+}, {
   id: 1264,
   name: "WIPES SOFT-CREAM (BLUE)",
   price: 129,
@@ -7881,8 +8087,150 @@ function getBrandFilters(items) {
     count
   }));
 }
-function SahilTraders() {
+function AboutUsModal({
+  isOpen,
+  onClose,
+  language
+}) {
+  if (!isOpen) return null;
+  const isUrdu = language === 'ur';
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 animate-scale-in relative",
+    style: {
+      maxHeight: '90vh',
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white p-6 pb-8 text-center"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold w-9 h-9 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
+  }, "×"), /*#__PURE__*/React.createElement("div", {
+    className: "w-16 h-16 mx-auto mb-3 rounded-2xl bg-white p-2 shadow-lg flex items-center justify-center"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "images/sahil-traders-logo.png",
+    alt: "Sahil Traders Logo",
+    loading: "lazy",
+    decoding: "async",
+    className: "w-full h-full object-contain"
+  })), /*#__PURE__*/React.createElement("h2", {
+    className: "text-2xl font-black tracking-wider uppercase text-amber-400 font-poppins"
+  }, "Sahil Traders"), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-gray-300 font-medium mt-1 tracking-widest uppercase"
+  }, isUrdu ? 'کراچی کا قابلِ اعتماد ہول سیل و پرچون اسٹور — قائم شدہ 2021' : 'Trusted Wholesale & Retail Store — Est. 2021, Karachi')), /*#__PURE__*/React.createElement("div", {
+    className: "p-6 overflow-y-auto space-y-5 flex-1 text-gray-800 text-sm leading-relaxed"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-amber-950 shadow-sm"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-bold text-base mb-2 text-amber-900"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xl"
+  }, "🏬"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'ہماری کہانی (Our Story)' : 'Our Story Since 2021')), /*#__PURE__*/React.createElement("p", {
+    className: isUrdu ? 'font-urdu text-right text-sm leading-loose' : 'text-xs sm:text-sm text-gray-700 leading-normal'
+  }, isUrdu ? 'ساحل ٹریڈرز کا آغاز 2021 میں کراچی سے ایک قابلِ اعتماد خاندانی ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات باضابطہ برانڈز سے براہِ راست ہول سیل قیمتوں پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔' : 'Established in 2021 in Karachi, Sahil Traders started as a trusted family wholesale business. Our mission is simple: bringing direct wholesale prices to retail customers across Pakistan on 4,000+ daily essentials and branded products.')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl mb-1"
+  }, "📦"), /*#__PURE__*/React.createElement("div", {
+    className: "font-black text-gray-900 text-sm"
+  }, "4,000+"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-gray-600 font-medium mt-0.5"
+  }, isUrdu ? 'مصنوعات کی ورائٹی' : 'Total Products')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl mb-1"
+  }, "🏷️"), /*#__PURE__*/React.createElement("div", {
+    className: "font-black text-gray-900 text-sm"
+  }, isUrdu ? 'ہول سیل ریٹس' : 'Wholesale Rates'), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-gray-600 font-medium mt-0.5"
+  }, isUrdu ? 'عام گاہکوں کے لیے' : 'For Everyone')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl mb-1"
+  }, "💯"), /*#__PURE__*/React.createElement("div", {
+    className: "font-black text-gray-900 text-sm"
+  }, "100% Original"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-gray-600 font-medium mt-0.5"
+  }, isUrdu ? 'اصلی برانڈز' : 'Genuine Brands')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-2xl mb-1"
+  }, "🚚"), /*#__PURE__*/React.createElement("div", {
+    className: "font-black text-gray-900 text-sm"
+  }, isUrdu ? 'فاسٹ ڈیلیوری' : 'Fast Delivery'), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-gray-600 font-medium mt-0.5"
+  }, isUrdu ? 'پورے پاکستان میں' : 'Across Pakistan'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 text-purple-950 space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-bold text-sm text-purple-900"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-lg"
+  }, "⏰"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'اوقاتِ کار (Business Hours)' : 'Store Business Hours')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-white/90 border border-purple-100 rounded-xl p-3 text-xs flex justify-between items-center shadow-xs"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "font-bold text-gray-900"
+  }, isUrdu ? 'پیر تا ہفتہ (Monday to Saturday):' : 'Monday to Saturday:'), /*#__PURE__*/React.createElement("div", {
+    className: "text-purple-700 font-extrabold text-sm mt-0.5"
+  }, isUrdu ? 'صبح 10:00 بجے سے رات 8:00 بجے تک' : '10:00 AM – 8:00 PM')), /*#__PURE__*/React.createElement("span", {
+    className: "bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase"
+  }, isUrdu ? 'کھلا ہے' : 'Open'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 text-emerald-950 text-xs space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-bold text-sm text-emerald-900"
+  }, /*#__PURE__*/React.createElement("span", null, "✨"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'ہماری خصوصیات (Why Choose Us)' : 'Why Customers Trust Us')), /*#__PURE__*/React.createElement("ul", {
+    className: "space-y-1.5 list-disc list-inside text-emerald-900"
+  }, /*#__PURE__*/React.createElement("li", null, isUrdu ? '2021 سے خاندانی اعتماد کے ساتھ خدمت' : 'Family business serving with trust since 2021'), /*#__PURE__*/React.createElement("li", null, isUrdu ? 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)' : 'Free delivery on orders above Rs. 2,000'), /*#__PURE__*/React.createElement("li", null, isUrdu ? 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)' : 'Same-day return & exchange policy'), /*#__PURE__*/React.createElement("li", null, isUrdu ? 'براہِ راست واٹس ایپ پر فوری سپورٹ' : 'Direct WhatsApp customer support'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 space-y-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-bold text-sm text-blue-950"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-lg"
+  }, "📍"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'دکان کا مکمل پتہ اور نقشہ' : 'Store Address & Exact Location')), /*#__PURE__*/React.createElement("a", {
+    href: "https://www.google.com/maps/search/?api=1&query=R4C4%2BRV6%2C+Safaid+White+Masjid+Rd%2C+Allah+Wala+Town+Sector+H+Korangi%2C+Karachi%2C+Pakistan",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "text-[11px] font-bold text-blue-700 hover:text-blue-900 underline flex items-center gap-1 text-decoration-none"
+  }, isUrdu ? 'نقشہ کھولیں ↗' : 'Open Map ↗')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-white/90 border border-blue-100 rounded-xl p-3 text-xs text-gray-800 font-medium leading-relaxed flex items-start gap-2 shadow-xs"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-blue-600 font-bold shrink-0 mt-0.5 text-sm"
+  }, "🏬"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "font-bold text-gray-900"
+  }, "Sahil Traders (Wholesale & Retail)"), /*#__PURE__*/React.createElement("div", {
+    className: "text-gray-600 mt-0.5"
+  }, isUrdu ? 'R4C4+RV6، سفید مسجد روڈ، اللہ والا ٹاؤن سیکٹر ایچ، کورنگی، کراچی، پاکستان' : 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan'))), /*#__PURE__*/React.createElement("div", {
+    className: "w-full h-48 sm:h-52 rounded-xl overflow-hidden border border-blue-200 shadow-inner relative bg-gray-100"
+  }, /*#__PURE__*/React.createElement("iframe", {
+    title: "Sahil Traders Google Map Location",
+    src: "https://maps.google.com/maps?q=R4C4%2BRV6%2C+Safaid+White+Masjid+Rd%2C+Allah+Wala+Town+Sector+H+Korangi%2C+Karachi%2C+Pakistan&t=&z=17&ie=UTF8&iwloc=&output=embed",
+    className: "w-full h-full border-0",
+    loading: "lazy",
+    allowFullScreen: true,
+    referrerPolicy: "no-referrer-when-downgrade"
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: `https://wa.me/${window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775'}?text=${encodeURIComponent(isUrdu ? 'سلام! میں ساحل ٹریڈرز کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔' : 'Hi Sahil Traders! I have an inquiry about your store.')}`,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
+  }, /*#__PURE__*/React.createElement("span", null, "💬"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'واٹس ایپ پر رابطہ کریں' : 'Chat on WhatsApp')), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "py-3 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
+  }, isUrdu ? 'بند کریں' : 'Close'))));
+}
+export default function SahilTraders() {
   const products = PRODUCTS;
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [language, setLanguage] = useState("en");
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
@@ -7898,58 +8246,6 @@ function SahilTraders() {
   const searchBoxRef = useRef(null);
   const [cartNotice, setCartNotice] = useState(false);
   const cartNoticeTimerRef = useRef(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-
-  // Dynamically sync html lang attribute and title when language changes
-  useEffect(() => {
-    document.documentElement.lang = language;
-    if (language === 'ur') {
-      document.title = 'ساحل ٹریڈرز | ہول سیل اور پرچون | Sahil Traders';
-    } else {
-      document.title = 'Sahil Traders | Wholesale & Retail Pakistan';
-    }
-  }, [language]);
-
-  // Hash Routing Listener: Supports shareable URLs (#category=catId or #product=prodId)
-  useEffect(() => {
-    function handleHashChange() {
-      const hash = window.location.hash;
-      if (hash.startsWith('#category=')) {
-        const catId = decodeURIComponent(hash.replace('#category=', ''));
-        setSelectedCategory(catId);
-        setActiveCategory(catId);
-      } else if (hash.startsWith('#product=')) {
-        const prodId = parseInt(hash.replace('#product=', ''), 10);
-        const prod = PRODUCTS.find(p => p.id === prodId);
-        if (prod) setSelectedProduct(prod);
-      } else if (!hash || hash === '#') {
-        setSelectedCategory(null);
-        setSelectedProduct(null);
-      }
-    }
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-  function selectCategoryWithHash(catId) {
-    setSelectedCategory(catId);
-    setActiveCategory(catId);
-    if (catId) {
-      window.location.hash = `category=${encodeURIComponent(catId)}`;
-    } else {
-      window.location.hash = '';
-    }
-  }
-  function selectProductWithHash(prod) {
-    setSelectedProduct(prod);
-    if (prod) {
-      window.location.hash = `product=${prod.id}`;
-    } else if (selectedCategory) {
-      window.location.hash = `category=${encodeURIComponent(selectedCategory)}`;
-    } else {
-      window.location.hash = '';
-    }
-  }
 
   // Ã¢â€â‚¬Ã¢â€â‚¬ CART STATE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
   // Persistent Cart State via localStorage (reloads/refreshes won't lose items!)
@@ -7992,7 +8288,6 @@ function SahilTraders() {
     backStateRef.current = {
       checkoutOpen,
       cartOpen,
-      selectedProduct,
       exitModalOpen,
       selectedCategory,
       selectedBrand,
@@ -8001,14 +8296,13 @@ function SahilTraders() {
       isSearching,
       activeCategory
     };
-  }, [checkoutOpen, cartOpen, selectedProduct, exitModalOpen, selectedCategory, selectedBrand, filterMenuOpen, searchTerm, isSearching, activeCategory]);
+  }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, selectedBrand, filterMenuOpen, searchTerm, isSearching, activeCategory]);
 
   // App Back Button Controller: browser/device Back restores the previous store screen first.
   useEffect(() => {
     const getSnapshot = state => ({
       checkoutOpen: !!state.checkoutOpen,
       cartOpen: !!state.cartOpen,
-      selectedProductId: state.selectedProduct?.id || null,
       selectedCategory: state.selectedCategory || null,
       selectedBrand: state.selectedBrand || "all",
       filterMenuOpen: !!state.filterMenuOpen,
@@ -8054,7 +8348,6 @@ function SahilTraders() {
       setExitModalOpen(false);
       setCheckoutOpen(!!snapshot.checkoutOpen);
       setCartOpen(!!snapshot.cartOpen);
-      setSelectedProduct(snapshot.selectedProductId ? PRODUCTS.find(p => p.id === snapshot.selectedProductId) || null : null);
       setSearchTerm(snapshot.searchTerm || "");
       setSelectedCategory(snapshot.selectedCategory || null);
       setSelectedBrand(snapshot.selectedBrand || "all");
@@ -8101,21 +8394,21 @@ function SahilTraders() {
     lastSearchActiveRef.current = searchingNow;
     const timer = setTimeout(() => restoreBackGuardRef.current(replaceSearchTyping, false), 0);
     return () => clearTimeout(timer);
-  }, [checkoutOpen, cartOpen, selectedProduct, selectedCategory, selectedBrand, filterMenuOpen, searchTerm, activeCategory, exitModalOpen]);
+  }, [checkoutOpen, cartOpen, selectedCategory, selectedBrand, filterMenuOpen, searchTerm, activeCategory, exitModalOpen]);
   const cartCount = cart.reduce((sum, i) => sum + i.qty, 0);
   const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.qty, 0);
-  function addToCart(product, qty = 1) {
+  function addToCart(product) {
     setCart(prev => {
       const existing = prev.find(i => i.product.id === product.id);
       if (existing) {
         return prev.map(i => i.product.id === product.id ? {
           ...i,
-          qty: i.qty + qty
+          qty: i.qty + 1
         } : i);
       }
       return [...prev, {
         product,
-        qty
+        qty: 1
       }];
     });
     showCartNotice();
@@ -8155,9 +8448,7 @@ function SahilTraders() {
     if (ext) {
       const img = document.createElement('img');
       img.src = `images/${product.id}.${ext}`;
-      img.alt = product.name || '';
-      img.loading = 'lazy';
-      img.decoding = 'async';
+      img.alt = '';
       Object.assign(img.style, {
         width: '100%',
         height: '100%',
@@ -8337,13 +8628,9 @@ function SahilTraders() {
     const eagerIds = allIds.slice(0, 20);
     eagerIds.forEach(id => {
       const img = new Image();
-      img.loading = 'lazy';
-      img.decoding = 'async';
       img.src = `images/${id}.jpg`;
       img.onerror = () => {
         const fallback = new Image();
-        fallback.loading = 'lazy';
-        fallback.decoding = 'async';
         fallback.src = `images/${id}.png`;
       };
     });
@@ -8468,8 +8755,6 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("img", {
     src: "images/sahil-traders-logo.png",
     alt: "Sahil Traders",
-    loading: "lazy",
-    decoding: "async",
     className: "w-full h-full object-contain drop-shadow-xl"
   })), /*#__PURE__*/React.createElement("div", {
     className: "text-center text-carve"
@@ -8486,7 +8771,19 @@ function SahilTraders() {
     className: "text-[10px] text-gray-700 font-semibold tracking-widest uppercase mt-1.5 animate-pulse"
   }, "Pre-caching Store Catalog & Images..."))), /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 -z-10 bg-white"
-  }), /*#__PURE__*/React.createElement("header", {
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-900 text-white text-[11px] font-medium py-1.5 px-4 shadow-inner border-b border-gray-800"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap text-gray-200"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-amber-400 font-bold"
+  }, "⏰ ", language === 'ur' ? 'اوقاتِ کار:' : 'Store Timings:'), /*#__PURE__*/React.createElement("span", {
+    className: "font-semibold text-white"
+  }, language === 'ur' ? 'صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : '10:00 AM – 8:00 PM (Mon – Sat)')), /*#__PURE__*/React.createElement("div", {
+    className: "hidden sm:flex items-center gap-3 text-[10px] text-gray-400"
+  }, /*#__PURE__*/React.createElement("span", null, "🚚 ", language === 'ur' ? 'مفت ڈیلیوری Rs. 2,000 سے زائد پر' : 'Free Shipping on Rs. 2,000+'), /*#__PURE__*/React.createElement("span", null, "•"), /*#__PURE__*/React.createElement("span", null, "💬 ", language === 'ur' ? 'واٹس ایپ آرڈرز جاری' : 'WhatsApp Orders Active')))), /*#__PURE__*/React.createElement("header", {
     className: "sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm"
   }, /*#__PURE__*/React.createElement("div", {
     className: "max-w-6xl mx-auto px-4 py-3 mobile-header-row"
@@ -8497,8 +8794,6 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("img", {
     src: "images/sahil-traders-logo.png",
     alt: "Sahil Traders",
-    loading: "lazy",
-    decoding: "async",
     className: "w-12 h-12 sm:w-14 sm:h-14 object-contain shrink-0"
   }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
     className: "mobile-logo-title text-lg sm:text-xl font-black leading-tight tracking-widest uppercase",
@@ -8532,6 +8827,18 @@ function SahilTraders() {
       color: '#1a1a2e'
     }
   }, "اردو")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setAboutOpen(true),
+    className: "flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer",
+    style: {
+      background: '#ffffff',
+      borderColor: 'rgba(0,0,0,0.12)',
+      color: '#111111'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-sm"
+  }, "🏬"), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline"
+  }, language === 'ur' ? 'ہمارے بارے میں' : 'About Us')), /*#__PURE__*/React.createElement("button", {
     id: "cart-btn",
     onClick: () => setCartOpen(true),
     className: "relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all cart-btn-mobile",
@@ -8634,7 +8941,7 @@ function SahilTraders() {
     className: "max-w-6xl mx-auto px-4 py-6 main-content-area"
   }, showCategoryHome ? /*#__PURE__*/React.createElement(CategoryHome, {
     products: products,
-    onSelectCategory: selectCategoryWithHash,
+    onSelectCategory: setSelectedCategory,
     langData: langData,
     language: language
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
@@ -8840,29 +9147,29 @@ function SahilTraders() {
       background: 'linear-gradient(135deg, #000000, #f59e0b)',
       color: '#ffffff'
     }
-  }, "← Back to Main Categories")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  }, "← Back to Main Categories")) : /*#__PURE__*/React.createElement("div", {
     className: "product-grid"
-  }, filtered.slice(0, visibleCount).map(p => /*#__PURE__*/React.createElement(ProductCard, {
+  }, filtered.map(p => /*#__PURE__*/React.createElement(ProductCard, {
     key: p.id,
     product: p,
     langData: langData,
     language: language,
     cartQty: cart.find(i => i.product.id === p.id)?.qty || 0,
     onAddToCart: addToCart,
-    onFlyToCart: flyProductToCart,
-    onSelectProduct: selectProductWithHash
-  }))), visibleCount < filtered.length && /*#__PURE__*/React.createElement("div", {
-    className: "flex justify-center mt-8 mb-4"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setVisibleCount(prev => prev + 24),
-    className: "px-8 py-3 bg-black text-white font-bold rounded-xl shadow-lg hover:bg-gray-800 transition-all text-xs tracking-wider uppercase cursor-pointer border-none",
-    "aria-label": "Load more products"
-  }, language === 'ur' ? `مزید پروڈکٹس دیکھیں (${filtered.length - visibleCount} باقی)` : `Show More Products (${filtered.length - visibleCount} remaining)`))))), /*#__PURE__*/React.createElement("footer", {
+    onFlyToCart: flyProductToCart
+  }))))), /*#__PURE__*/React.createElement("footer", {
     className: "border-t mt-10 py-8 text-center",
     style: {
       borderColor: 'rgba(0,0,0,0.12)'
     }
-  }, /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-amber-600"
+  }, "⏰"), /*#__PURE__*/React.createElement("span", null, language === 'ur' ? 'اوقاتِ کار: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : 'Timings: 10:00 AM – 8:00 PM (Mon – Sat)')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setAboutOpen(true),
+    className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-4 py-1.5 transition-colors cursor-pointer bg-white"
+  }, /*#__PURE__*/React.createElement("span", null, "🏬"), /*#__PURE__*/React.createElement("span", null, language === 'ur' ? 'ہمارے بارے میں (About Sahil Traders)' : 'About Sahil Traders'))), /*#__PURE__*/React.createElement("p", {
     className: "text-xs tracking-[0.3em] uppercase",
     style: {
       color: 'rgba(0,0,0,0.12)'
@@ -8931,16 +9238,6 @@ function SahilTraders() {
       setCheckoutOpen(true);
     },
     onSelectProduct: handleSelectProductFromCart
-  }), /*#__PURE__*/React.createElement(ProductDetailModal, {
-    product: selectedProduct,
-    open: !!selectedProduct,
-    onClose: () => selectProductWithHash(null),
-    onAddToCart: (product, qty) => {
-      addToCart(product, qty);
-      selectProductWithHash(null);
-    },
-    langData: langData,
-    language: language
   }), checkoutOpen && /*#__PURE__*/React.createElement(CheckoutModal, {
     cart: cart,
     cartTotal: cartTotal,
@@ -9782,9 +10079,8 @@ function CategoryHome({
         className: "cat-img-box"
       }, ext && /*#__PURE__*/React.createElement("img", {
         src: `images/${item.id}.${ext}`,
-        alt: item.name,
+        alt: "",
         loading: "lazy",
-        decoding: "async",
         onError: e => {
           e.target.style.display = 'none';
         }
@@ -9905,301 +10201,20 @@ function CategoryDropdown({
     }
   }, langData.categories?.[c.id] || c.name)));
 }
-function TruckIcon({
-  className,
-  style
-}) {
-  return /*#__PURE__*/React.createElement("svg", {
-    className: className,
-    style: style,
-    fill: "none",
-    viewBox: "0 0 24 24",
-    stroke: "currentColor",
-    strokeWidth: "2.5"
-  }, /*#__PURE__*/React.createElement("circle", {
-    cx: "7",
-    cy: "17",
-    r: "2"
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "17",
-    cy: "17",
-    r: "2"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M5 17h2m10 0h2m-4 0h-6m-4 0H3V6a1 1 0 011-1h9v12m4-1v-4a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1"
-  }));
-}
-function PackageIcon({
-  className,
-  style
-}) {
-  return /*#__PURE__*/React.createElement("svg", {
-    className: className,
-    style: style,
-    fill: "none",
-    viewBox: "0 0 24 24",
-    stroke: "currentColor",
-    strokeWidth: "2.5"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-  }));
-}
-function ReturnIcon({
-  className,
-  style
-}) {
-  return /*#__PURE__*/React.createElement("svg", {
-    className: className,
-    style: style,
-    fill: "none",
-    viewBox: "0 0 24 24",
-    stroke: "currentColor",
-    strokeWidth: "2.5"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3"
-  }));
-}
-function WhatsAppIcon({
-  className,
-  style
-}) {
-  return /*#__PURE__*/React.createElement("svg", {
-    className: className,
-    style: style,
-    fill: "currentColor",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
-  }));
-}
-function PriceDisplay({
-  product,
-  size = 'sm',
-  langData,
-  language
-}) {
-  const {
-    originalPrice
-  } = parseProductPriceAndName(product.name);
-  const isUrdu = language === 'ur';
-  if (product.price === 0) {
-    return /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: size === 'lg' ? 14 : 11,
-        fontWeight: 600,
-        color: '#9ca3af',
-        letterSpacing: '0.04em'
-      }
-    }, isUrdu ? 'قیمت دستیاب نہیں' : 'Price N/A');
-  }
-  const hasDiscount = originalPrice && originalPrice > product.price;
-  const savings = hasDiscount ? originalPrice - product.price : 0;
-  const pct = hasDiscount ? Math.round(savings / originalPrice * 100) : 0;
-  if (size === 'lg') {
-    return /*#__PURE__*/React.createElement("div", {
-      className: "flex flex-col gap-1"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "flex items-baseline gap-3"
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "text-3xl font-black text-black"
-    }, "Rs. ", product.price.toLocaleString()), hasDiscount && /*#__PURE__*/React.createElement("span", {
-      className: "text-base font-semibold text-gray-400 line-through"
-    }, "Rs. ", originalPrice.toLocaleString())), hasDiscount && /*#__PURE__*/React.createElement("span", {
-      className: "text-xs font-bold text-green-600"
-    }, isUrdu ? `آپ کی بچت: Rs. ${savings.toLocaleString()} (${pct}% OFF)` : `You save: Rs. ${savings.toLocaleString()} (${pct}% OFF)`));
-  }
-  return /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-col gap-0.5"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-baseline gap-1.5 flex-wrap"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "font-extrabold text-sm sm:text-base text-black"
-  }, "Rs. ", product.price.toLocaleString()), hasDiscount && /*#__PURE__*/React.createElement("span", {
-    className: "text-[10px] sm:text-xs text-gray-400 line-through font-normal"
-  }, "Rs. ", originalPrice.toLocaleString())), hasDiscount && /*#__PURE__*/React.createElement("span", {
-    className: "text-[9px] sm:text-[10px] font-bold text-green-600 leading-none"
-  }, isUrdu ? `بچت: Rs. ${savings.toLocaleString()} (${pct}% OFF)` : `Save: Rs. ${savings.toLocaleString()} (${pct}% OFF)`));
-}
-function ProductDetailModal({
-  product,
-  open,
-  onClose,
-  onAddToCart,
-  langData,
-  language
-}) {
-  const [qty, setQty] = React.useState(1);
-  const [addedText, setAddedText] = React.useState(false);
-  React.useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden';
-      setQty(1);
-      setAddedText(false);
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [open]);
-  if (!open || !product) return null;
-  const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-  const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
-  const brandName = getProductBrand(product.name) || "N/A";
-  const isUrdu = language === 'ur';
-  function handleAddToCartClick() {
-    onAddToCart(product, qty);
-    setAddedText(true);
-    setTimeout(() => {
-      setAddedText(false);
-    }, 2000);
-  }
-  const waNumber = window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775';
-  const waText = encodeURIComponent(isUrdu ? `السلام علیکم! مجھے اس پروڈکٹ کے بارے میں پوچھنا ہے:\nپروڈکٹ کا نام: ${product.name}\nپروڈکٹ ID: ${product.id}` : `Assalam-o-Alaikum! I want to ask about this product:\nProduct: ${product.name}\nID: ${product.id}`);
-  const waLink = `https://wa.me/${waNumber}?text=${waText}`;
-  return /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in",
-    onClick: onClose
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl w-full max-w-lg overflow-hidden relative shadow-2xl animate-scale-in",
-    onClick: e => e.stopPropagation(),
-    style: {
-      maxHeight: '90vh',
-      overflowY: 'auto'
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: onClose,
-    className: "absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-black flex items-center justify-center transition-colors cursor-pointer border-none font-bold text-lg"
-  }, "×"), /*#__PURE__*/React.createElement("div", {
-    className: "p-6"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "w-full h-56 bg-gray-50 rounded-2xl flex items-center justify-center p-4 mb-6 relative overflow-hidden border border-gray-100"
-  }, imageSrc ? /*#__PURE__*/React.createElement("img", {
-    src: imageSrc,
-    alt: product.name,
-    loading: "lazy",
-    decoding: "async",
-    className: "max-w-full max-h-full object-contain"
-  }) : product.hasImage ? /*#__PURE__*/React.createElement("div", {
-    className: `w-32 h-32 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center shadow-lg`
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-white text-4xl font-bold font-poppins"
-  }, product.initial)) : /*#__PURE__*/React.createElement("div", {
-    className: "w-24 h-24 rounded-xl bg-gray-100 flex flex-col items-center justify-center gap-1"
-  }, /*#__PURE__*/React.createElement(ImageOff, {
-    className: "w-8 h-8 text-gray-300"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "text-[10px] text-gray-400 font-medium"
-  }, isUrdu ? 'تصویر نہیں ہے' : 'No Photo'))), /*#__PURE__*/React.createElement("h2", {
-    className: "text-xl font-black text-black leading-tight mb-2 tracking-tight"
-  }, getProductDisplayName(product, language)), /*#__PURE__*/React.createElement("div", {
-    className: "mb-4"
-  }, /*#__PURE__*/React.createElement(PriceDisplay, {
-    product: product,
-    size: "lg",
-    langData: langData,
-    language: language
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "border-t border-gray-100 my-4"
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 gap-y-2 text-xs mb-4"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "text-gray-400 font-medium"
-  }, isUrdu ? 'دستیابی (Availability):' : 'Availability:'), /*#__PURE__*/React.createElement("div", {
-    className: "font-bold text-green-600 text-right"
-  }, product.price === 0 ? isUrdu ? 'قیمت دستیاب نہیں' : 'Price N/A' : isUrdu ? 'اسٹاک میں ہے (In Stock)' : 'In Stock'), /*#__PURE__*/React.createElement("div", {
-    className: "text-gray-400 font-medium"
-  }, isUrdu ? 'برانڈ (Brand):' : 'Brand:'), /*#__PURE__*/React.createElement("div", {
-    className: "font-bold text-gray-900 text-right"
-  }, brandName), /*#__PURE__*/React.createElement("div", {
-    className: "text-gray-400 font-medium"
-  }, isUrdu ? 'کیٹیگری (Category):' : 'Category:'), /*#__PURE__*/React.createElement("div", {
-    className: "font-bold text-gray-900 text-right"
-  }, product.categoryName || product.categoryId)), /*#__PURE__*/React.createElement("div", {
-    className: "border-t border-gray-100 my-4"
-  }), product.price !== 0 && /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-3 mb-5 items-stretch"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center border border-gray-300 rounded-xl overflow-hidden shrink-0"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => setQty(q => Math.max(1, q - 1)),
-    className: "px-3 py-2 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 text-gray-600 font-bold border-none transition-colors cursor-pointer"
-  }, "-"), /*#__PURE__*/React.createElement("span", {
-    className: "w-8 text-center text-sm font-extrabold text-black"
-  }, qty), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setQty(q => q + 1),
-    className: "px-3 py-2 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 text-gray-600 font-bold border-none transition-colors cursor-pointer"
-  }, "+")), /*#__PURE__*/React.createElement("button", {
-    onClick: handleAddToCartClick,
-    className: "flex-1 py-3 rounded-xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-center gap-2 border-none cursor-pointer text-white",
-    style: {
-      background: addedText ? '#16a34a' : '#111111',
-      boxShadow: addedText ? '0 8px 20px rgba(22,163,74,0.25)' : '0 8px 20px rgba(0,0,0,0.15)'
-    }
-  }, /*#__PURE__*/React.createElement(ShoppingBag, {
-    className: "w-4 h-4"
-  }), addedText ? isUrdu ? 'کارٹ میں شامل ہو گیا!' : 'Added to Cart!' : isUrdu ? 'کارٹ میں شامل کریں' : 'Add to Cart')), /*#__PURE__*/React.createElement("div", {
-    className: "bg-gray-50 rounded-2xl p-4 border border-gray-100 flex flex-col gap-3 text-xs leading-normal"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-3 items-start"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "p-1.5 rounded-lg bg-black text-white shrink-0"
-  }, /*#__PURE__*/React.createElement(TruckIcon, {
-    className: "w-4 h-4"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "font-bold text-black"
-  }, isUrdu ? 'ڈیلیوری کا وقت (Estimated Delivery):' : 'Estimated Delivery:'), /*#__PURE__*/React.createElement("div", {
-    className: "text-gray-700"
-  }, isUrdu ? 'آج ہی یا 1 دن میں ڈیلیور ہوگا' : 'Today or 1 Day'))), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-3 items-start"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "p-1.5 rounded-lg bg-black text-white shrink-0"
-  }, /*#__PURE__*/React.createElement(PackageIcon, {
-    className: "w-4 h-4"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "font-bold text-black"
-  }, isUrdu ? 'شپنگ چارجز (Free Shipping Policy):' : 'Free Shipping Policy:'), /*#__PURE__*/React.createElement("div", {
-    className: "text-gray-700"
-  }, isUrdu ? 'کم سے کم Rs. 2,000 کے سامان پر فری شپنگ، ورنہ Rs. 99 چارجز لگیں گے' : 'Free shipping on orders above Rs. 2,000, otherwise Rs. 99 shipping charges apply'))), /*#__PURE__*/React.createElement("div", {
-    className: "flex gap-3 items-start"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "p-1.5 rounded-lg bg-black text-white shrink-0"
-  }, /*#__PURE__*/React.createElement(ReturnIcon, {
-    className: "w-4 h-4"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "font-bold text-black"
-  }, isUrdu ? 'تبدیلی اور واپسی (Returns & Exchange):' : 'Returns & Exchange:'), /*#__PURE__*/React.createElement("div", {
-    className: "text-gray-700"
-  }, isUrdu ? 'اسی دن تبدیلی یا واپسی کی سہولت' : 'Same-day return and exchange policy'))), /*#__PURE__*/React.createElement("div", {
-    className: "border-t border-gray-200 my-1"
-  }), /*#__PURE__*/React.createElement("a", {
-    href: waLink,
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "flex gap-3 items-center hover:bg-green-50 p-1.5 rounded-xl transition-colors cursor-pointer text-decoration-none"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "p-1.5 rounded-lg bg-green-500 text-white shrink-0"
-  }, /*#__PURE__*/React.createElement(WhatsAppIcon, {
-    className: "w-4 h-4"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "font-bold text-green-600"
-  }, isUrdu ? 'کوئی سوال پوچھیں (Ask a Question):' : 'Ask a Question:'), /*#__PURE__*/React.createElement("div", {
-    className: "text-gray-700 font-medium"
-  }, isUrdu ? 'سوالات کے لیے واٹس ایپ پر رابطہ کریں' : 'Have a query? Ask us on WhatsApp!')))))));
-}
 function ProductCard({
   product,
   langData,
   language,
   cartQty = 0,
   onAddToCart,
-  onFlyToCart,
-  onSelectProduct
+  onFlyToCart
 }) {
   const [added, setAdded] = useState(false);
+  // Only attempt image loading if this product's image file exists in images/ folder
   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
   const [imgErr, setImgErr] = useState(!hasFile);
+  const [imgType, setImgType] = useState('jpg'); // Try jpg first, then png
+
   useEffect(() => {
     if (cartQty === 0) setAdded(false);
   }, [cartQty]);
@@ -10209,9 +10224,13 @@ function ProductCard({
     setAdded(true);
   }
   function handleImgError() {
-    setImgErr(true);
+    if (imgType === 'jpg') {
+      setImgType('png');
+    } else {
+      setImgErr(true);
+    }
   }
-  const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
+  const imageSrc = hasFile ? `images/${product.id}.${imgType}` : null;
   const isAdded = added || cartQty > 0;
   return /*#__PURE__*/React.createElement("div", {
     className: "product-card rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group",
@@ -10231,14 +10250,12 @@ function ProductCard({
       e.currentTarget.style.transform = 'translateY(0)';
     }
   }, /*#__PURE__*/React.createElement("div", {
-    onClick: () => onSelectProduct?.(product),
-    className: "product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-2.5 relative overflow-visible cursor-pointer",
+    className: "product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-2.5 relative overflow-visible",
     style: {
       background: 'transparent'
     }
   }, !imgErr ? /*#__PURE__*/React.createElement("img", {
     src: imageSrc,
-    alt: product.name,
     onError: handleImgError,
     loading: "lazy",
     decoding: "async",
@@ -10276,59 +10293,42 @@ function ProductCard({
   }), /*#__PURE__*/React.createElement("div", {
     className: "product-card-body p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-white"
   }, /*#__PURE__*/React.createElement("p", {
-    onClick: () => onSelectProduct?.(product),
-    className: "product-name-text text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight cursor-pointer hover:text-green-600 transition-colors",
+    className: "product-name-text text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight",
     style: {
       color: '#1a1a2e'
     }
-  }, getProductDisplayName(product, language)), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between text-[10px] my-0.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: product.price === 0 ? "text-gray-400 font-semibold" : "text-green-600 font-bold"
-  }, product.price === 0 ? language === 'ur' ? 'دستیاب نہیں' : 'Price N/A' : language === 'ur' ? '✓ اسٹاک میں ہے' : '✓ In Stock')), /*#__PURE__*/React.createElement("div", {
-    className: "product-price-text font-extrabold text-sm sm:text-base"
-  }, /*#__PURE__*/React.createElement(PriceDisplay, {
-    product: product,
-    size: "sm",
-    langData: langData,
-    language: language
+  }, getProductDisplayName(product, language)), /*#__PURE__*/React.createElement("p", {
+    className: "product-price-text font-extrabold text-sm sm:text-base",
+    style: {
+      color: '#000000'
+    }
+  }, translate(langData, 'priceLabel', {
+    amount: product.price.toLocaleString()
   })), /*#__PURE__*/React.createElement("button", {
-    onClick: product.price === 0 ? undefined : handleAdd,
-    disabled: product.price === 0,
+    onClick: handleAdd,
     className: "product-add-btn mt-auto w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2",
     style: {
-      background: product.price === 0 ? '#e5e7eb' : isAdded ? '#16a34a' : '#111111',
-      border: `1px solid ${product.price === 0 ? '#d1d5db' : isAdded ? '#15803d' : '#111111'}`,
-      color: product.price === 0 ? '#9ca3af' : '#ffffff',
-      boxShadow: product.price === 0 ? 'none' : isAdded ? '0 8px 18px rgba(22,163,74,0.24)' : '0 6px 14px rgba(0,0,0,0.16)',
-      transform: 'translateY(0)',
-      cursor: product.price === 0 ? 'not-allowed' : 'pointer'
+      background: isAdded ? '#16a34a' : '#111111',
+      border: `1px solid ${isAdded ? '#15803d' : '#111111'}`,
+      color: '#ffffff',
+      boxShadow: isAdded ? '0 8px 18px rgba(22,163,74,0.24)' : '0 6px 14px rgba(0,0,0,0.16)',
+      transform: 'translateY(0)'
     },
     onMouseEnter: e => {
-      if (!isAdded && product.price !== 0) {
+      if (!isAdded) {
         e.currentTarget.style.background = '#1f2937';
         e.currentTarget.style.borderColor = '#1f2937';
         e.currentTarget.style.transform = 'translateY(-1px)';
       }
     },
     onMouseLeave: e => {
-      if (!isAdded && product.price !== 0) {
+      if (!isAdded) {
         e.currentTarget.style.background = '#111111';
         e.currentTarget.style.borderColor = '#111111';
         e.currentTarget.style.transform = 'translateY(0)';
       }
     }
-  }, product.price === 0 ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("svg", {
-    className: "w-3.5 h-3.5",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-  })), "Price N/A") : isAdded ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("svg", {
+  }, isAdded ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("svg", {
     className: "w-3.5 h-3.5",
     fill: "none",
     stroke: "currentColor",
@@ -10938,7 +10938,7 @@ function CheckoutModal({
   function validate() {
     const e = {};
     if (!name.trim()) e.name = translate(langData, "validationName") || 'Name is required';
-    if (!phone.trim()) e.phone = translate(langData, "validationPhone") || 'Phone number is required';else if (!/^(\+92|0092|0)?[0-9]{10}$/.test(phone.replace(/[\s\-]/g, ''))) e.phone = translate(langData, "validationPhone") || 'Enter valid number (e.g. 03001234567 or +923001234567)';
+    if (!phone.trim()) e.phone = translate(langData, "validationPhone") || 'Phone number is required';else if (!/^[0-9]{10,11}$/.test(phone.replace(/\s/g, ''))) e.phone = translate(langData, "validationPhone") || 'Enter valid 10-11 digit number';
     if (!address.trim()) e.address = translate(langData, "validationAddress") || 'Address is required';
     return e;
   }
@@ -10948,40 +10948,29 @@ function CheckoutModal({
       setErrors(e);
       return;
     }
-
-    // Open window synchronously on user click to prevent browser popup blockers
-    const win = window.open('about:blank', '_blank');
     setPlacing(true);
-    const orderId = 'ST-' + Math.floor(100000 + Math.random() * 900000);
-    const waNumber = window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775';
 
     // Build WhatsApp message
     const itemLines = cart.map(({
       product,
       qty
-    }) => `• ${product.name}\n  Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
-    const deliveryCharges = cartTotal >= 2000 ? 0 : 99;
-    const finalBill = cartTotal + deliveryCharges;
-    const msg = [`📦 *NEW ORDER — ${orderId}*`, '──────────────────────────────────', '', '*📋 ORDER DETAILS:*', itemLines, '', '──────────────────────────────────', `*🛒 Subtotal: Rs ${cartTotal.toLocaleString()}*`, `*🚚 Delivery: ${deliveryCharges === 0 ? 'FREE (Order above 2000)' : `Rs ${deliveryCharges}`}*`, `*💰 TOTAL BILL: Rs ${finalBill.toLocaleString()}*`, '──────────────────────────────────', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, `• Address: ${address.trim()}`, '', '──────────────────────────────────', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
+    }) => `Ã¢â‚¬Â¢ ${product.name}\n  Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
+    const msg = ['Ã°Å¸â€ºâ€™ *NEW ORDER Ã¢â‚¬â€ Sahil Traders*', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', '', '*Ã°Å¸â€œÂ¦ ORDER DETAILS:*', itemLines, '', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', `*Ã°Å¸â€™Â° TOTAL BILL: Rs ${cartTotal.toLocaleString()}*`, 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', '', '*Ã°Å¸â€˜Â¤ CUSTOMER INFO:*', `Ã¢â‚¬Â¢ Name: ${name.trim()}`, `Ã¢â‚¬Â¢ Phone: ${phone.trim()}`, `Ã¢â‚¬Â¢ Address: ${address.trim()}`, '', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', `Ã°Å¸â€œâ€¦ Date: ${new Date().toLocaleDateString('en-PK', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     })}`].join('\n');
-    const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
-    if (win) {
-      win.location.href = waUrl;
-    } else {
-      window.location.href = waUrl;
-    }
+    const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;
     setTimeout(() => {
       setPlacing(false);
       setSuccess(true);
+      window.open(waUrl, '_blank');
       setTimeout(() => {
         onOrderPlaced();
       }, 2500);
-    }, 500);
+    }, 800);
   }
   const inputStyle = hasErr => ({
     width: '100%',
@@ -11198,8 +11187,6 @@ function CheckoutModal({
       e.target.onerror = null;
     },
     alt: product.name,
-    loading: "lazy",
-    decoding: "async",
     className: "w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-gray-200"
   }) : /*#__PURE__*/React.createElement("div", {
     className: `w-7 h-7 rounded-lg bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`
@@ -11235,61 +11222,9 @@ function CheckoutModal({
       borderRadius: 14,
       background: 'linear-gradient(135deg,#ffffff 0%,#f8fafc 100%)',
       display: 'flex',
-      flexDirection: 'column',
-      gap: 8,
-      boxShadow: '0 6px 18px rgba(0,0,0,0.08)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: '#444',
-      fontWeight: 600
-    }
-  }, translate(langData, "subtotal") || "Subtotal"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 14,
-      fontWeight: 700,
-      color: '#111'
-    }
-  }, translate(langData, "priceLabel", {
-    amount: cartTotal.toLocaleString()
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: '#444',
-      fontWeight: 600
-    }
-  }, translate(langData, "deliveryCharges") || "Delivery Charges"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 14,
-      fontWeight: 700,
-      color: cartTotal >= 2000 ? '#16a34a' : '#111'
-    }
-  }, cartTotal >= 2000 ? translate(langData, "freeDelivery") || "FREE" : translate(langData, "priceLabel", {
-    amount: "99"
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 1,
-      background: 'rgba(0,0,0,0.1)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginTop: 4
+      boxShadow: '0 6px 18px rgba(0,0,0,0.08)'
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
@@ -11311,16 +11246,8 @@ function CheckoutModal({
       boxShadow: '0 4px 12px rgba(0,0,0,0.18)'
     }
   }, translate(langData, "priceLabel", {
-    amount: (cartTotal + (cartTotal >= 2000 ? 0 : 99)).toLocaleString()
-  }))), cartTotal >= 2000 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: '#16a34a',
-      fontWeight: 600,
-      textAlign: 'right',
-      marginTop: -4
-    }
-  }, "*(Free delivery on orders above Rs. 2,000)*"))), /*#__PURE__*/React.createElement("div", {
+    amount: cartTotal.toLocaleString()
+  })))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -11529,6 +11456,3 @@ function CheckoutModal({
     d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
   })), translate(langData, "placeOrderBtn")))))));
 }
-const container = document.getElementById('root');
-const root = ReactDOM.createRoot(container);
-root.render(/*#__PURE__*/React.createElement(SahilTraders, null));

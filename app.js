@@ -609,7 +609,7 @@ function PerfumeIcon({
 }
 
 // --- Product Categories and Data ---
-const CATEGORIES = [{
+var CATEGORIES = [{
   id: "soaps",
   name: "Soaps"
 }, {
@@ -667,8 +667,8 @@ const CATEGORIES = [{
   id: "facewash",
   name: "Face Wash"
 }];
-const SWATCH_GRADIENTS = ["from-amber-400 to-orange-500", "from-violet-500 to-purple-600", "from-emerald-400 to-teal-600", "from-rose-400 to-pink-600", "from-sky-400 to-blue-600", "from-fuchsia-400 to-purple-600", "from-teal-400 to-cyan-600", "from-indigo-400 to-violet-600"];
-const PRODUCTS = [{
+var SWATCH_GRADIENTS = ["from-amber-400 to-orange-500", "from-violet-500 to-purple-600", "from-emerald-400 to-teal-600", "from-rose-400 to-pink-600", "from-sky-400 to-blue-600", "from-fuchsia-400 to-purple-600", "from-teal-400 to-cyan-600", "from-indigo-400 to-violet-600"];
+var PRODUCTS = [{
   id: 1,
   name: "7 HERBAL OIL 100ML RS,250",
   price: 220,
@@ -8057,7 +8057,7 @@ const PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[3],
   initial: "Z"
 }];
-const PAGE_SIZE = 10;
+var PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
 const BRAND_STOP_WORDS = new Set(["SOAP", "SOAPS", "SHAMPOO", "CONDITIONER", "CREAM", "LOTION", "POWDER", "SPRAY", "BODY", "FACE", "WASH", "TOOTH", "PASTE", "BRUSH", "RAZOR", "BLADE", "OIL", "HAIR", "COLOUR", "COLOR", "BALL", "PEN", "TOY", "TAPE", "CELL", "LOCK", "CANDLE", "PAD", "WIPES", "PERFUME", "PERFUMES", "DEO", "DEODORANT", "TALCUM", "ROOM", "FRESHNER", "FRESHENER", "ROLL", "ON", "AIR", "LARGE", "MEDIUM", "SMALL", "SACHET", "PACK", "PCS", "PIECE", "SIZE", "FULL", "HALF", "MIX", "ALL", "GOOD", "QUALITY", "ORIGINAL", "NON", "IMP", "PK", "RS", "RP", "ML", "G", "GM", "KG", "INCH", "BLACK", "WHITE", "BLUE", "GREEN", "RED", "PINK", "YELLOW", "GOLDEN", "BROWN", "ORANGE", "PURPLE", "DARK", "LIGHT"]);
 const BRAND_PHRASES = ["BIO AMLA", "BLACK ROSE", "AL RASHIEED", "JUST FOR MEN", "ONE MAN SHOW", "WHITE ROSE", "SOFT CREME", "SOFT CREAM", "SKIN WHITE", "CHI CHI", "7 HERBAL", "BODY SHOP"];
@@ -8125,6 +8125,12 @@ function AboutUsModal({
   }, isUrdu ? 'کراچی کا قابلِ اعتماد ہول سیل و پرچون اسٹور — قائم شدہ 2021' : 'Trusted Wholesale & Retail Store — Est. 2021, Karachi')), /*#__PURE__*/React.createElement("div", {
     className: "p-6 overflow-y-auto space-y-5 flex-1 text-gray-800 text-sm leading-relaxed"
   }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-red-50 border border-red-200 rounded-2xl p-4 text-red-950 space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-black text-xs text-red-900 uppercase tracking-wide"
+  }, "⚠️ ", isUrdu ? 'قیمتوں اور اسٹاک سے متعلق ضروری اعلان' : 'Important Notice — Please Read!'), /*#__PURE__*/React.createElement("p", {
+    className: isUrdu ? 'font-urdu text-right text-xs leading-loose text-red-950 font-bold' : 'text-xs text-red-950 leading-relaxed font-semibold'
+  }, isUrdu ? 'ہمارے پاس ہزاروں قسم کی چیزیں ہیں — اس وجہ سے کچھ چیزوں کا ریٹ مارکیٹ کے حساب سے کم یا زیادہ ہو سکتا ہے۔ لیکن ہم آپ سے وعدہ کرتے ہیں کہ ہمارا ریٹ ہمیشہ سب سے سستا ہوگا!' : 'We have thousands of different items — so some prices may go slightly up or down depending on the market. But we promise you: our prices will always be the cheapest you can find anywhere!')), /*#__PURE__*/React.createElement("div", {
     className: "bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-amber-950 shadow-sm"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2 font-bold text-base mb-2 text-amber-900"
@@ -8133,6 +8139,58 @@ function AboutUsModal({
   }, "🏬"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'ہماری کہانی (Our Story)' : 'Our Story Since 2021')), /*#__PURE__*/React.createElement("p", {
     className: isUrdu ? 'font-urdu text-right text-sm leading-loose' : 'text-xs sm:text-sm text-gray-700 leading-normal'
   }, isUrdu ? 'ساحل ٹریڈرز کا آغاز 2021 میں کراچی سے ایک قابلِ اعتماد خاندانی ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات باضابطہ برانڈز سے براہِ راست ہول سیل قیمتوں پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔' : 'Established in 2021 in Karachi, Sahil Traders started as a trusted family wholesale business. Our mission is simple: bringing direct wholesale prices to retail customers across Pakistan on 4,000+ daily essentials and branded products.')), /*#__PURE__*/React.createElement("div", {
+    className: "relative overflow-hidden bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white rounded-2xl p-4 shadow-lg border-2 border-amber-300"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "absolute top-2 right-2 bg-yellow-300 text-amber-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm"
+  }, "🔥 ", isUrdu ? 'سب سے منفرد بات — شرطیہ' : 'Guaranteed Lowest Rates'), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2.5 mb-2 font-black text-base pr-20"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl"
+  }, "⚡"), /*#__PURE__*/React.createElement("span", {
+    className: "tracking-wide"
+  }, isUrdu ? 'پاکستان کے بڑے سے بڑے سپر مارٹ سے سستا!' : 'Lower Rates Than Any Supermart')), /*#__PURE__*/React.createElement("p", {
+    className: isUrdu ? 'font-urdu text-right text-xs sm:text-sm font-semibold leading-relaxed text-amber-50' : 'text-xs sm:text-sm font-medium leading-relaxed text-amber-50'
+  }, isUrdu ? 'ہمارے 90% سے زائد پروڈکٹس کے ریٹس پاکستان کے بڑے سے بڑے سپر مارٹ سے بھی کم ہوتے ہیں — شرطیہ! یہی ہماری سب سے بڑی خصوصیت اور منفرد بات ہے جس کی وجہ سے ہم نے یہ کام شروع کیا۔ اتنی زیادہ ورائٹی اور اتنی کم قیمت آپ کو اور کہیں نہیں ملے گی!' : 'Over 90% of our product prices are strictly lower than any big supermart across Pakistan — Guaranteed! This unique commitment to direct wholesale pricing and huge variety is the core reason why we started Sahil Traders.')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-800 rounded-2xl p-4 text-white shadow-md space-y-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-black text-sm text-amber-400 uppercase tracking-wider border-b border-gray-800 pb-2"
+  }, /*#__PURE__*/React.createElement("span", null, "🤝"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'قیادت اور پارٹنرشپ (Leadership & Partnership)' : 'Leadership & Partnership')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white/10 border border-white/10 rounded-xl p-3 flex items-center gap-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-lg bg-amber-400 text-gray-950 font-black text-lg flex items-center justify-center shrink-0 shadow-sm"
+  }, "🏬"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase text-amber-300 tracking-wider"
+  }, isUrdu ? 'دکان کے مالکان (بڑے بھائی)' : 'Shop Owner (Elder Brother)'), /*#__PURE__*/React.createElement("div", {
+    className: "font-black text-sm text-white"
+  }, "Muhammad Zubair Moin"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-gray-300 font-medium"
+  }, isUrdu ? 'آنر BS Mart' : 'Owner — BS Mart'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-white/10 border border-white/10 rounded-xl p-3 flex items-center gap-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-lg bg-yellow-400 text-gray-950 font-black text-lg flex items-center justify-center shrink-0 shadow-sm"
+  }, "👨‍💻"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase text-yellow-300 tracking-wider"
+  }, isUrdu ? 'ویب سائٹ میکر اور پارٹنر' : 'Website Creator & Partner'), /*#__PURE__*/React.createElement("div", {
+    className: "font-black text-sm text-white"
+  }, "Muhammad Sahil Saleem"), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] text-gray-300 font-medium"
+  }, isUrdu ? 'بانی و ڈیولپر' : 'Founder & Developer')))), /*#__PURE__*/React.createElement("p", {
+    className: isUrdu ? 'font-urdu text-right text-xs text-amber-200/90 pt-1 leading-relaxed' : 'text-xs text-amber-200/90 pt-1 leading-relaxed'
+  }, isUrdu ? '💡 یہ تمام تر سیٹ اپ اور بزنس محمد زبیر معین (مالک BS Mart) اور محمد ساحل سلیم دونوں بھائی مل کر مشترکہ طور پر چلا رہے ہیں۔' : '💡 This complete business setup is jointly managed by both brothers, Muhammad Zubair Moin (Owner, BS Mart) & Muhammad Sahil Saleem.')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 text-emerald-950 space-y-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-bold text-sm text-emerald-900"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-lg"
+  }, "🏬"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'ہماری فزیکل دکان (BS Mart)' : 'Visit Our Physical Shop (BS Mart)')), /*#__PURE__*/React.createElement("span", {
+    className: "bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider"
+  }, isUrdu ? 'BS مارٹ' : 'BS Mart')), /*#__PURE__*/React.createElement("p", {
+    className: isUrdu ? 'font-urdu text-right text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold' : 'text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold'
+  }, isUrdu ? 'ہے۔ ویب سائٹ پر موجود تقریباً تمام تر مصنوعات آپ کو ہماری دکان (BS Mart) پر بھی مل جائیں گی۔ (نوٹ: شارٹیج یا زیادہ ڈیمانڈ کی صورت میں شاید کچھ پروڈکٹس عارضی طور پر دکان پر اسٹاک میں نہ ہوں، لیکن ہم مسلسل ری اسٹاک کرتے ہیں!)' : 'Visit our physical shop BS Mart! Almost all items listed on this website are available in person at our store. (Note: Due to high demand or market shortage, certain items may temporarily be out of stock, but we restock continuously!)')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 gap-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center"
@@ -8228,16 +8286,250 @@ function AboutUsModal({
     className: "py-3 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
   }, isUrdu ? 'بند کریں' : 'Close'))));
 }
+function WelcomeDisclaimerModal({
+  isOpen,
+  onClose,
+  onOpenAbout,
+  language
+}) {
+  if (!isOpen) return null;
+  const isUrdu = language === 'ur';
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-[99] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border-2 border-amber-400 animate-scale-in relative p-6 text-center",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-white flex items-center justify-center text-3xl shadow-lg"
+  }, "👋"), /*#__PURE__*/React.createElement("h3", {
+    className: "text-xl font-black text-gray-900 tracking-wide"
+  }, isUrdu ? 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ' : 'Assalam U alaikum!'), /*#__PURE__*/React.createElement("h4", {
+    className: "text-lg font-extrabold text-amber-600 mt-1 font-poppins"
+  }, isUrdu ? 'ساحل ٹریڈرز میں خوش آمدید' : 'Welcome to Sahil Traders'), /*#__PURE__*/React.createElement("div", {
+    className: "my-5 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-950"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-center gap-1.5 font-bold text-sm text-amber-900 mb-1.5"
+  }, "📢 ", isUrdu ? 'ضروری گزارش / اعلان' : 'Important Notice'), /*#__PURE__*/React.createElement("p", {
+    className: isUrdu ? 'font-urdu text-right text-xs leading-loose' : 'text-xs text-gray-700 leading-normal text-left'
+  }, isUrdu ? 'ہماری آپ سے گزارش ہے کہ ایک بار ہمارا "About Us (ہماری معلومات)" سیکشن لازمی پڑھ لیں، تاکہ آپ کو تمام ضروری اور اہم معلومات مل سکیں اور خریداری میں کوئی مسئلہ پیش نہ آئے۔' : 'We kindly request you to please read our "About Us" section at least once so you get all the essential information and shop with complete clarity.')), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      onOpenAbout();
+      onClose();
+    },
+    className: "w-full py-3 px-5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs tracking-wider uppercase transition-all shadow-md hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+  }, "📖 ", isUrdu ? 'ہماری معلومات پڑھیں (Read About Us)' : 'Read About Us'), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "w-full py-2.5 px-5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
+  }, isUrdu ? 'ٹھیک ہے، آگے بڑھیں' : 'Understood, Continue'))));
+}
+function ProductDetailModal({
+  product,
+  open,
+  onClose,
+  onAddToCart,
+  products,
+  langData,
+  language,
+  onSelectProduct
+}) {
+  if (!open || !product) return null;
+  const isUrdu = language === 'ur';
+  const [modalQty, setModalQty] = React.useState(1);
+
+  // Find 4-6 Related Products from the same category (excluding current product)
+  const relatedProducts = useMemo(() => {
+    if (!product || !products) return [];
+    const sameCat = products.filter(p => p.categoryId === product.categoryId && p.id !== product.id);
+    if (sameCat.length >= 4) return sameCat.slice(0, 6);
+
+    // Fallback: items with same brand or general items
+    const brand = getProductFilterName(product);
+    const sameBrand = products.filter(p => p.id !== product.id && getProductFilterName(p) === brand);
+    const combined = Array.from(new Set([...sameCat, ...sameBrand]));
+    return combined.slice(0, 6);
+  }, [product, products]);
+  const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+  const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
+  const handleDirectWhatsAppOrder = () => {
+    const pName = getProductDisplayName(product, language);
+    const total = product.price * modalQty;
+    const msg = `Assalam U Alaikum Sahil Traders!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* Rs ${product.price.toLocaleString()} x ${modalQty} = *Rs ${total.toLocaleString()}*\n\nPlease confirm my order.`;
+    window.open(`https://wa.me/923368945775?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-fade-in",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col",
+    style: {
+      maxHeight: '90vh'
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/80"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-black tracking-widest uppercase text-gray-500 font-poppins"
+  }, isUrdu ? 'پروڈکٹ کی مکمل تفصیلات' : 'Product Details & Info'), /*#__PURE__*/React.createElement("span", {
+    className: "bg-amber-100 text-amber-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-200"
+  }, isUrdu ? 'بہترین ہول سیل ریٹ' : 'Wholesale Rate')), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "w-8 h-8 rounded-full bg-gray-200 hover:bg-black hover:text-white text-gray-700 font-bold flex items-center justify-center transition-colors cursor-pointer"
+  }, "✕")), /*#__PURE__*/React.createElement("div", {
+    className: "p-5 overflow-y-auto space-y-5 flex-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col sm:flex-row gap-4 items-center sm:items-start bg-gradient-to-br from-gray-50 to-amber-50/30 p-4 rounded-2xl border border-gray-200 shadow-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-36 h-36 sm:w-40 sm:h-40 shrink-0 bg-white rounded-2xl p-2.5 border border-gray-200 flex items-center justify-center shadow-sm relative group"
+  }, hasFile ? /*#__PURE__*/React.createElement("img", {
+    src: imageSrc,
+    alt: product.name,
+    loading: "lazy",
+    decoding: "async",
+    className: "w-full h-full object-contain"
+  }) : /*#__PURE__*/React.createElement("div", {
+    className: `w-full h-full rounded-xl bg-gradient-to-br ${product.gradient || 'from-amber-400 to-amber-600'} flex items-center justify-center text-white text-4xl font-black`
+  }, product.initial || 'P'), /*#__PURE__*/React.createElement("span", {
+    className: "absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider"
+  }, "Original")), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 space-y-2.5 text-center sm:text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap gap-1.5 justify-center sm:justify-start items-center"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase"
+  }, isUrdu ? '✓ اسٹاک میں دستیاب' : '✓ In Stock'), product.categoryName && /*#__PURE__*/React.createElement("span", {
+    className: "bg-gray-200 text-gray-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full"
+  }, product.categoryName)), /*#__PURE__*/React.createElement("h3", {
+    className: "text-base font-black text-gray-900 leading-snug"
+  }, getProductDisplayName(product, language)), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline justify-center sm:justify-start gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl font-black text-black"
+  }, "Rs. ", product.price.toLocaleString()), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"
+  }, isUrdu ? 'سپر مارکیٹ سے سستا' : 'Cheaper than Supermarts')), /*#__PURE__*/React.createElement("div", {
+    className: "pt-1 flex items-center justify-center sm:justify-start gap-3"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-bold text-gray-700"
+  }, isUrdu ? 'تعداد (Quantity):' : 'Quantity:'), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-2xs"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setModalQty(q => Math.max(1, q - 1)),
+    className: "w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-sm flex items-center justify-center cursor-pointer transition-colors"
+  }, "-"), /*#__PURE__*/React.createElement("span", {
+    className: "w-10 text-center font-black text-sm text-black"
+  }, modalQty), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setModalQty(q => q + 1),
+    className: "w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-sm flex items-center justify-center cursor-pointer transition-colors"
+  }, "+"))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      for (let i = 0; i < modalQty; i++) onAddToCart(product);
+      onClose();
+    },
+    className: "w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+  }, /*#__PURE__*/React.createElement("span", null, "🛒"), /*#__PURE__*/React.createElement("span", null, translate(langData, "addToCart"))), /*#__PURE__*/React.createElement("button", {
+    onClick: handleDirectWhatsAppOrder,
+    className: "w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+  }, /*#__PURE__*/React.createElement("span", null, "💬"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'واٹس ایپ پر آرڈر کریں' : 'Buy on WhatsApp'))))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-xl p-2.5 flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-lg"
+  }, "💯"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "font-bold text-gray-900"
+  }, isUrdu ? '100% اصلی آئٹم' : '100% Original'), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] text-gray-500"
+  }, isUrdu ? 'گارنٹی شدہ معیار' : 'Guaranteed Quality'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-xl p-2.5 flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-lg"
+  }, "🚚"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "font-bold text-gray-900"
+  }, isUrdu ? 'ہوم ڈیلیوری' : 'Home Delivery'), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] text-gray-500"
+  }, isUrdu ? 'Rs. 2000+ پر مفت' : 'Free on Rs 2000+'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-xl p-2.5 flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-lg"
+  }, "🏬"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "font-bold text-gray-900"
+  }, isUrdu ? 'دکان سے پک اپ' : 'Store Pickup'), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] text-gray-500"
+  }, isUrdu ? 'BS Mart دکان سے لیں' : 'BS Mart Shop Karachi')))), relatedProducts.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-3 pt-2"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-black text-sm text-gray-900 uppercase tracking-wider"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-amber-500 text-base"
+  }, "✨"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'یہ بھی دیکھیں (Related Products)' : 'You May Also Like')), /*#__PURE__*/React.createElement("span", {
+    className: "text-[11px] text-gray-400 font-medium"
+  }, relatedProducts.length, " ", isUrdu ? 'مصنوعات' : 'items')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-3 gap-2.5"
+  }, relatedProducts.map(rel => {
+    const relHasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[rel.id];
+    const relImgSrc = relHasFile ? `images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}` : null;
+    return /*#__PURE__*/React.createElement("div", {
+      key: rel.id,
+      onClick: () => onSelectProduct && onSelectProduct(rel),
+      className: "bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-2.5 flex flex-col justify-between transition-all cursor-pointer group shadow-xs hover:shadow-md"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "h-20 w-full bg-gray-50 rounded-xl p-1 mb-2 flex items-center justify-center overflow-hidden"
+    }, relHasFile ? /*#__PURE__*/React.createElement("img", {
+      src: relImgSrc,
+      alt: rel.name,
+      loading: "lazy",
+      decoding: "async",
+      className: "w-full h-full object-contain group-hover:scale-105 transition-transform"
+    }) : /*#__PURE__*/React.createElement("div", {
+      className: `w-10 h-10 rounded-lg bg-gradient-to-br ${rel.gradient || 'from-gray-400 to-gray-600'} flex items-center justify-center text-white text-xs font-bold`
+    }, rel.initial || 'P')), /*#__PURE__*/React.createElement("p", {
+      className: "text-[11px] font-bold text-gray-800 line-clamp-2 leading-tight mb-1 group-hover:text-black"
+    }, getProductDisplayName(rel, language)), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center justify-between gap-1 mt-auto pt-1 border-t border-gray-100"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-xs font-extrabold text-black"
+    }, "Rs.", rel.price), /*#__PURE__*/React.createElement("button", {
+      onClick: e => {
+        e.stopPropagation();
+        onAddToCart(rel);
+      },
+      className: "w-6 h-6 rounded-lg bg-gray-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center transition-colors cursor-pointer",
+      title: "Quick Add to Cart"
+    }, "+")));
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "p-3 border-t border-gray-100 bg-gray-50 text-center"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "w-full py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
+  }, isUrdu ? 'بند کریں' : 'Close'))));
+}
 export default function SahilTraders() {
   const products = PRODUCTS;
   const [aboutOpen, setAboutOpen] = useState(false);
   const [language, setLanguage] = useState("en");
+  const [welcomeOpen, setWelcomeOpen] = useState(() => {
+    try {
+      return !sessionStorage.getItem("sahil_traders_welcome_seen");
+    } catch (e) {
+      return true;
+    }
+  });
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState(null); // null = show category home
   const [selectedBrand, setSelectedBrand] = useState("all");
+  const [sortBy, setSortBy] = useState("default");
   const [filterMenuOpen, setFilterMenuOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [catMenuOpen, setCatMenuOpen] = useState(false);
@@ -8260,6 +8552,10 @@ export default function SahilTraders() {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [exitModalOpen, setExitModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  function selectProductWithHash(product) {
+    setSelectedProduct(product);
+  }
   const isSearching = searchTerm.trim() !== "";
   const backStateRef = useRef({});
   const allowRealBackRef = useRef(false);
@@ -8674,6 +8970,28 @@ export default function SahilTraders() {
     if (!selectedCategory || isSearching || selectedBrand === "all") return baseFiltered;
     return baseFiltered.filter(p => getProductFilterName(p) === selectedBrand);
   }, [baseFiltered, selectedCategory, isSearching, selectedBrand]);
+  const sortedProducts = useMemo(() => {
+    const list = [...filtered];
+    if (sortBy === "price_asc") {
+      return list.sort((a, b) => {
+        if (a.price === 0) return 1;
+        if (b.price === 0) return -1;
+        return a.price - b.price;
+      });
+    } else if (sortBy === "price_desc") {
+      return list.sort((a, b) => b.price - a.price);
+    } else if (sortBy === "popularity") {
+      return list.sort((a, b) => {
+        const aHasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[a.id] || a.hasImage ? 1 : 0;
+        const bHasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[b.id] || b.hasImage ? 1 : 0;
+        if (aHasImg !== bHasImg) return bHasImg - aHasImg;
+        return a.id - b.id;
+      });
+    } else if (sortBy === "name_asc") {
+      return list.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return list;
+  }, [filtered, sortBy]);
   const suggestions = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (term === "") return [];
@@ -8702,7 +9020,7 @@ export default function SahilTraders() {
   const showCategoryHome = !isSearching && !selectedCategory;
   const selectedCategoryName = selectedCategory ? langData.categories?.[selectedCategory] || CATEGORIES.find(c => c.id === selectedCategory)?.name || selectedCategory : null;
   return /*#__PURE__*/React.createElement("div", {
-    className: "min-h-screen relative text-white overflow-x-hidden",
+    className: "min-h-screen relative text-gray-900 overflow-x-hidden",
     style: {
       fontFamily: language === 'ur' ? "'Noto Sans Urdu', 'Inter', sans-serif" : "'Inter', system-ui, sans-serif"
     }
@@ -8998,12 +9316,46 @@ export default function SahilTraders() {
       padding: '1px 8px',
       whiteSpace: 'nowrap'
     }
-  }, filtered.length, " ", translate(langData, "itemsLabel")))), brandFilters.length > 1 && /*#__PURE__*/React.createElement("div", {
+  }, filtered.length, " ", translate(langData, "itemsLabel")))), /*#__PURE__*/React.createElement("div", {
     style: {
-      position: 'relative',
       marginBottom: 16,
       display: 'flex',
-      justifyContent: 'flex-end'
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+      flexWrap: 'wrap'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 bg-white border border-gray-900 rounded-full px-3 py-1.5 shadow-sm"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-3.5 h-3.5 text-gray-900 shrink-0",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5-6L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "text-[11px] font-black uppercase text-gray-900 hidden sm:inline tracking-wider"
+  }, language === 'ur' ? 'ترتیب:' : 'Sort:'), /*#__PURE__*/React.createElement("select", {
+    value: sortBy,
+    onChange: e => setSortBy(e.target.value),
+    className: "bg-transparent text-xs font-bold text-gray-900 cursor-pointer outline-none border-none py-0.5 pr-1"
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "default"
+  }, language === 'ur' ? 'عام ترتیب (Default)' : 'Default Order'), /*#__PURE__*/React.createElement("option", {
+    value: "price_asc"
+  }, language === 'ur' ? 'قیمت: کم سے زیادہ (Low to High)' : 'Price: Low to High'), /*#__PURE__*/React.createElement("option", {
+    value: "price_desc"
+  }, language === 'ur' ? 'قیمت: زیادہ سے کم (High to Low)' : 'Price: High to Low'), /*#__PURE__*/React.createElement("option", {
+    value: "popularity"
+  }, language === 'ur' ? 'مقبول ترین (Popularity)' : 'Popularity / Featured'), /*#__PURE__*/React.createElement("option", {
+    value: "name_asc"
+  }, language === 'ur' ? 'نام: A سے Z (Name: A-Z)' : 'Name: A to Z'))), brandFilters.length > 1 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setFilterMenuOpen(v => !v),
@@ -9035,7 +9387,7 @@ export default function SahilTraders() {
   }, /*#__PURE__*/React.createElement("path", {
     strokeLinecap: "round",
     strokeLinejoin: "round",
-    d: "M3 5h18M6 12h12M10 19h4"
+    d: "M3 5h18M6 12h10M10 19h4"
   })), "Filter", /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 10,
@@ -9132,7 +9484,7 @@ export default function SahilTraders() {
     style: {
       opacity: 0.72
     }
-  }, "(", brand.count, ")")))))), filtered.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, "(", brand.count, ")"))))))), filtered.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "text-center py-16 bg-white border border-gray-200 rounded-2xl p-8 shadow-sm"
   }, /*#__PURE__*/React.createElement(ShoppingBag, {
     className: "w-12 h-12 mx-auto mb-3 text-gray-700"
@@ -9149,14 +9501,15 @@ export default function SahilTraders() {
     }
   }, "← Back to Main Categories")) : /*#__PURE__*/React.createElement("div", {
     className: "product-grid"
-  }, filtered.map(p => /*#__PURE__*/React.createElement(ProductCard, {
+  }, sortedProducts.slice(0, visibleCount).map(p => /*#__PURE__*/React.createElement(ProductCard, {
     key: p.id,
     product: p,
     langData: langData,
     language: language,
     cartQty: cart.find(i => i.product.id === p.id)?.qty || 0,
     onAddToCart: addToCart,
-    onFlyToCart: flyProductToCart
+    onFlyToCart: flyProductToCart,
+    onSelectProduct: selectProductWithHash
   }))))), /*#__PURE__*/React.createElement("footer", {
     className: "border-t mt-10 py-8 text-center",
     style: {
@@ -9225,7 +9578,30 @@ export default function SahilTraders() {
       textTransform: 'uppercase',
       fontFamily: "'Poppins',sans-serif"
     }
-  }, translate(langData, "added")))), /*#__PURE__*/React.createElement(CartDrawer, {
+  }, translate(langData, "added")))), /*#__PURE__*/React.createElement(ProductDetailModal, {
+    product: selectedProduct,
+    open: !!selectedProduct,
+    onClose: () => setSelectedProduct(null),
+    onAddToCart: addToCart,
+    products: products,
+    langData: langData,
+    language: language,
+    onSelectProduct: selectProductWithHash
+  }), /*#__PURE__*/React.createElement(AboutUsModal, {
+    isOpen: aboutOpen,
+    onClose: () => setAboutOpen(false),
+    language: language
+  }), !showSplash && /*#__PURE__*/React.createElement(WelcomeDisclaimerModal, {
+    isOpen: welcomeOpen,
+    onClose: () => {
+      setWelcomeOpen(false);
+      try {
+        sessionStorage.setItem("sahil_traders_welcome_seen", "1");
+      } catch (e) {}
+    },
+    onOpenAbout: () => setAboutOpen(true),
+    language: language
+  }), /*#__PURE__*/React.createElement(CartDrawer, {
     open: cartOpen,
     cart: cart,
     cartTotal: cartTotal,
@@ -10207,7 +10583,8 @@ function ProductCard({
   language,
   cartQty = 0,
   onAddToCart,
-  onFlyToCart
+  onFlyToCart,
+  onSelectProduct
 }) {
   const [added, setAdded] = useState(false);
   // Only attempt image loading if this product's image file exists in images/ folder
@@ -10219,6 +10596,7 @@ function ProductCard({
     if (cartQty === 0) setAdded(false);
   }, [cartQty]);
   function handleAdd(e) {
+    e.stopPropagation();
     onAddToCart(product);
     if (onFlyToCart) onFlyToCart(product, e.currentTarget);
     setAdded(true);
@@ -10233,7 +10611,8 @@ function ProductCard({
   const imageSrc = hasFile ? `images/${product.id}.${imgType}` : null;
   const isAdded = added || cartQty > 0;
   return /*#__PURE__*/React.createElement("div", {
-    className: "product-card rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group",
+    onClick: () => onSelectProduct && onSelectProduct(product),
+    className: "product-card rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group cursor-pointer",
     style: {
       background: '#ffffff',
       border: '1px solid #e5e7eb',
@@ -10494,7 +10873,54 @@ function CartDrawer({
       overflowY: 'auto',
       padding: '16px'
     }
-  }, cart.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, cart.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 14,
+      padding: '12px 14px',
+      borderRadius: 14,
+      background: cartTotal >= 2000 ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'linear-gradient(135deg, #fffbe6 0%, #fef3c7 100%)',
+      border: cartTotal >= 2000 ? '1px solid #bbf7d0' : '1px solid #fde68a'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      fontSize: 12,
+      fontWeight: 800,
+      color: cartTotal >= 2000 ? '#166534' : '#92400e'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 16
+    }
+  }, "🚚"), /*#__PURE__*/React.createElement("span", null, cartTotal >= 2000 ? '🎉 Mubarak! Free Delivery Unlocked!' : `Free Delivery on Rs 2,000+ (Rs ${(2000 - cartTotal).toLocaleString()} remaining)`)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      height: 6,
+      width: '100%',
+      background: 'rgba(0,0,0,0.08)',
+      borderRadius: 10,
+      overflow: 'hidden'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: '100%',
+      width: `${Math.min(100, cartTotal / 2000 * 100)}%`,
+      background: cartTotal >= 2000 ? '#22c55e' : '#f59e0b',
+      borderRadius: 10,
+      transition: 'width 0.4s ease'
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      fontSize: 10,
+      fontWeight: 700,
+      color: '#555',
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "🏠 Home Delivery Available"), /*#__PURE__*/React.createElement("span", null, "🏬 BS Mart Pickup Free"))), cart.length === 0 ? /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       paddingTop: 80,
@@ -10926,6 +11352,7 @@ function CheckoutModal({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("home");
   const [errors, setErrors] = useState({});
   const [placing, setPlacing] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -10935,11 +11362,13 @@ function CheckoutModal({
       document.body.style.overflow = '';
     };
   }, []);
+  const deliveryFee = deliveryMethod === 'pickup' ? 0 : cartTotal >= 2000 ? 0 : 150;
+  const grandTotal = cartTotal + deliveryFee;
   function validate() {
     const e = {};
     if (!name.trim()) e.name = translate(langData, "validationName") || 'Name is required';
     if (!phone.trim()) e.phone = translate(langData, "validationPhone") || 'Phone number is required';else if (!/^[0-9]{10,11}$/.test(phone.replace(/\s/g, ''))) e.phone = translate(langData, "validationPhone") || 'Enter valid 10-11 digit number';
-    if (!address.trim()) e.address = translate(langData, "validationAddress") || 'Address is required';
+    if (deliveryMethod === 'home' && !address.trim()) e.address = translate(langData, "validationAddress") || 'Address is required';
     return e;
   }
   function handleOrder() {
@@ -10955,7 +11384,7 @@ function CheckoutModal({
       product,
       qty
     }) => `Ã¢â‚¬Â¢ ${product.name}\n  Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
-    const msg = ['Ã°Å¸â€ºâ€™ *NEW ORDER Ã¢â‚¬â€ Sahil Traders*', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', '', '*Ã°Å¸â€œÂ¦ ORDER DETAILS:*', itemLines, '', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', `*Ã°Å¸â€™Â° TOTAL BILL: Rs ${cartTotal.toLocaleString()}*`, 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', '', '*Ã°Å¸â€˜Â¤ CUSTOMER INFO:*', `Ã¢â‚¬Â¢ Name: ${name.trim()}`, `Ã¢â‚¬Â¢ Phone: ${phone.trim()}`, `Ã¢â‚¬Â¢ Address: ${address.trim()}`, '', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', `Ã°Å¸â€œâ€¦ Date: ${new Date().toLocaleDateString('en-PK', {
+    const msg = ['Ã°Å¸â€ºâ€™ *NEW ORDER Ã¢â‚¬â€ Sahil Traders*', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', '', '*Ã°Å¸â€œÂ¦ ORDER DETAILS:*', itemLines, '', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', `*Ã°Å¸â€™Â° TOTAL BILL: Rs ${cartTotal.toLocaleString()}*`, 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Address: ${address.trim()}` : `• Pickup Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)`, '', 'Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â', `Ã°Å¸â€œâ€¦ Date: ${new Date().toLocaleDateString('en-PK', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
@@ -10963,14 +11392,14 @@ function CheckoutModal({
       minute: '2-digit'
     })}`].join('\n');
     const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;
+
+    // Open WhatsApp immediately on user action to avoid browser popup blocker freeze
+    window.open(waUrl, '_blank');
+    setPlacing(false);
+    setSuccess(true);
     setTimeout(() => {
-      setPlacing(false);
-      setSuccess(true);
-      window.open(waUrl, '_blank');
-      setTimeout(() => {
-        onOrderPlaced();
-      }, 2500);
-    }, 800);
+      onOrderPlaced();
+    }, 1500);
   }
   const inputStyle = hasErr => ({
     width: '100%',
@@ -11248,6 +11677,81 @@ function CheckoutModal({
   }, translate(langData, "priceLabel", {
     amount: cartTotal.toLocaleString()
   })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 11,
+      fontWeight: 900,
+      color: '#111111',
+      letterSpacing: '0.2em',
+      textTransform: 'uppercase'
+    }
+  }, "Delivery Option"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => setDeliveryMethod('home'),
+    style: {
+      padding: '12px',
+      borderRadius: 14,
+      border: deliveryMethod === 'home' ? '2px solid #000' : '1px solid #e5e7eb',
+      background: deliveryMethod === 'home' ? '#f9fafb' : '#fff',
+      cursor: 'pointer',
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 18
+    }
+  }, "🚚"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      fontWeight: 800,
+      color: '#111',
+      marginTop: 4
+    }
+  }, "Home Delivery"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: '#6b7280',
+      marginTop: 2
+    }
+  }, cartTotal >= 2000 ? 'FREE' : 'Rs 150')), /*#__PURE__*/React.createElement("div", {
+    onClick: () => setDeliveryMethod('pickup'),
+    style: {
+      padding: '12px',
+      borderRadius: 14,
+      border: deliveryMethod === 'pickup' ? '2px solid #000' : '1px solid #e5e7eb',
+      background: deliveryMethod === 'pickup' ? '#f9fafb' : '#fff',
+      cursor: 'pointer',
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 18
+    }
+  }, "🏬"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      fontWeight: 800,
+      color: '#111',
+      marginTop: 4
+    }
+  }, "Store Pickup"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: '#16a34a',
+      fontWeight: 700,
+      marginTop: 2
+    }
+  }, "BS Mart (FREE)")))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',

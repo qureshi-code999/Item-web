@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="status">Compiling...</div>
+  <script>
+    fetch('temp_jsx_input.txt')
+      .then(r => r.text())
+      .then(src => {
+        console.log('Got source, running Babel.transform...');
+        var res = Babel.transform(src, { presets: [['react', { runtime: 'classic' }]], filename: 'app.jsx' }).code;
+        console.log('Compiled JS length:', res.length);
+        return fetch('/api/save_compiled_js', { method: 'POST', body: res });
+      })
+      .then(r => r.text())
+      .then(msg => {
+        console.log('Server response:', msg);
+        document.getElementById('status').innerText = 'DONE: ' + msg;
+      })
+      .catch(err => {
+        console.error('Compiler error:', err);
+        document.getElementById('status').innerText = 'ERROR: ' + err.message;
+      });
+  </script>
+</body>
+</html>

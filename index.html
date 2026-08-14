@@ -9,6 +9,8 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://sahiltraders.com/">
   <link rel="stylesheet" href="style.css">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Global Store Configuration -->
   <script>
@@ -62,11 +64,9 @@
     gtag('config', 'G-SAHILTRADERS');
   </script>
 
-  <!-- React 18 - Local copy (works offline) with CDN fallback -->
+  <!-- React 18 & ReactDOM - Local Production Build (Works Offline & Online) -->
   <script src="./react.production.min.js"></script>
-  <script>if (!window.React) { document.write('<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"><\/script>'); }</script>
   <script src="./react-dom.production.min.js"></script>
-  <script>if (!window.ReactDOM) { document.write('<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"><\/script>'); }</script>
 
   <script src="./languages/en.js"></script>
   <script src="./languages/ur.js"></script>
@@ -312,7 +312,7 @@
       /* Compact image area */
       .product-img-area { height: 110px !important; padding: 6px !important; }
       /* Smaller text */
-      .product-name-text { font-size: 11px !important; line-height: 1.3 !important; -webkit-line-clamp: 2 !important; }
+      .product-name-text { font-size: 11px !important; line-height: 1.3 !important; max-height: 2.6em !important; overflow: hidden !important; }
       .product-price-text { font-size: 12px !important; }
       /* Compact add button */
       .product-add-btn {
@@ -381,15 +381,7 @@
   </script>
 </head>
 <body class="min-h-screen text-gray-900" style="background:#ffffff">
-  <div id="root">
-    <div style="padding:24px;text-align:center;font-family:sans-serif;">
-      <h1 style="font-size:24px;font-weight:bold;margin-bottom:8px;">Sahil Traders | Wholesale & Retail Store Pakistan</h1>
-      <p style="color:#666;font-size:14px;max-width:600px;margin:0 auto 16px;">Welcome to Sahil Traders. Pakistan's premier online store for soap, shampoo, cream, cosmetics, baby care, stationary and household products at wholesale prices.</p>
-      <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;font-size:12px;color:#444;">
-        <span>• Soap</span> <span>• Shampoo</span> <span>• Cream & Lotion</span> <span>• Baby Care</span> <span>• Stationary</span>
-      </div>
-    </div>
-  </div>
+  <div id="root"></div>
 
   <noscript>
     <div style="padding:20px;background:#fff3cd;color:#856404;text-align:center;font-family:sans-serif;">
@@ -400,18 +392,13 @@
 
 
   <script>
-    const SWATCH_GRADIENTS = [
-      'from-pink-500 to-rose-600',
-      'from-blue-500 to-indigo-600',
-      'from-emerald-500 to-teal-600',
-      'from-amber-500 to-orange-600',
-      'from-purple-500 to-violet-600',
-      'from-cyan-500 to-blue-600',
-      'from-fuchsia-500 to-pink-600',
-      'from-lime-500 to-emerald-600'
+    var SWATCH_GRADIENTS = window.SWATCH_GRADIENTS || [
+      'from-pink-500 to-rose-600', 'from-blue-500 to-indigo-600',
+      'from-emerald-500 to-teal-600', 'from-amber-500 to-orange-600',
+      'from-purple-500 to-violet-600', 'from-cyan-500 to-blue-600',
+      'from-fuchsia-500 to-pink-600', 'from-lime-500 to-emerald-600'
     ];
-
-    const PRODUCTS = [
+    var PRODUCTS = [
 
       { id: 1, name: "7 HERBAL OIL 100ML RS,250", price: 220, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
       { id: 2, name: "7 HERBAL OIL 200ML RP,400", price: 369, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
@@ -1421,9 +1408,10 @@
       { id: 1265, name: "WIPES SOFT-CREAM (WHITE)", price: 129, categoryId: "babycare", categoryName: "Baby Care" },
       { id: 1266, name: "ZERO MOSQUITO SACHET BOX RS,10", price: 8, categoryId: "mosquito", categoryName: "Anti-Mosquito", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "Z" },
     ];
+  </script>
 
   <!-- PRODUCT_IMAGE_MAP already defined in head -->
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2.0"></script>
 </body>
 </html>

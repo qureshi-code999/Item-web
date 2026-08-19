@@ -993,7 +993,7 @@ function AboutUsModal({
     className: "font-bold text-gray-900"
   }, isUrdu ? 'پیر تا ہفتہ (Monday to Saturday):' : 'Monday to Saturday:'), /*#__PURE__*/React.createElement("div", {
     className: "text-purple-700 font-extrabold text-sm mt-0.5"
-  }, isUrdu ? 'صبح 10:00 بجے سے رات 8:00 بجے تک' : '10:00 AM – 8:00 PM')), /*#__PURE__*/React.createElement("span", {
+  }, isUrdu ? 'صبح 8:00 بجے سے رات 11:30 بجے تک' : '8:00 AM – 11:30 PM')), /*#__PURE__*/React.createElement("span", {
     className: "bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase"
   }, isUrdu ? 'کھلا ہے' : 'Open'))), /*#__PURE__*/React.createElement("div", {
     className: "bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 text-emerald-950 text-xs space-y-2"
@@ -1855,7 +1855,7 @@ function SahilTraders() {
     className: "flex items-center gap-2"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-amber-400 font-bold"
-  }, "⏰ ", language === 'ur' ? 'اوقاتِ کار:' : 'Store Timings:'), /*#__PURE__*/React.createElement("span", {
+  }, "⏰ ", language === 'ur' ? 'ڈیلیوری ٹائمنگ:' : 'Delivery Timing:'), /*#__PURE__*/React.createElement("span", {
     className: "font-semibold text-white"
   }, language === 'ur' ? 'صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : '10:00 AM – 8:00 PM (Mon – Sat)')), /*#__PURE__*/React.createElement("div", {
     className: "hidden sm:flex items-center gap-3 text-[10px] text-gray-400"
@@ -2316,7 +2316,7 @@ function SahilTraders() {
     className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-amber-600"
-  }, "⏰"), /*#__PURE__*/React.createElement("span", null, language === 'ur' ? 'اوقاتِ کار: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : 'Timings: 10:00 AM – 8:00 PM (Mon – Sat)')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
+  }, "⏰"), /*#__PURE__*/React.createElement("span", null, language === 'ur' ? 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)')), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => setAboutOpen(true),
     className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-4 py-1.5 transition-colors cursor-pointer bg-white"
   }, /*#__PURE__*/React.createElement("span", null, "🏬"), /*#__PURE__*/React.createElement("span", null, language === 'ur' ? 'ہمارے بارے میں (About Sahil Traders)' : 'About Sahil Traders'))), /*#__PURE__*/React.createElement("p", {

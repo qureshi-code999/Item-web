@@ -1761,7 +1761,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
           <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 text-purple-950 space-y-2">
             <div className="flex items-center gap-2 font-bold text-sm text-purple-900">
               <span className="text-lg">⏰</span>
-              <span>{isUrdu ? 'ڈیلیوری ٹائمنگ (Delivery Timing)' : 'Delivery Timing'}</span>
+              <span>{isUrdu ? 'اوقاتِ کار (Business Hours)' : 'Store Business Hours'}</span>
             </div>
             <div className="bg-white/90 border border-purple-100 rounded-xl p-3 text-xs flex justify-between items-center shadow-xs">
               <div>
@@ -2759,7 +2759,7 @@ export default function SahilTraders() {
             <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap text-gray-200">
               <div className="flex items-center gap-2">
                 <span className="text-amber-400 font-bold">⏰ {language === 'ur' ? 'ڈیلیوری ٹائمنگ:' : 'Delivery Timing:'}</span>
-                <span className="font-semibold text-white">{language === 'ur' ? 'صبح 8:00 بجے سے رات 11:30 بجے تک (پیر تا ہفتہ)' : '8:00 AM – 11:30 PM (Mon – Sat)'}</span>
+                <span className="font-semibold text-white">{language === 'ur' ? 'صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : '10:00 AM – 8:00 PM (Mon – Sat)'}</span>
               </div>
               <div className="hidden sm:flex items-center gap-3 text-[10px] text-gray-400">
                 <span>🚚 {language === 'ur' ? 'مفت ڈیلیوری Rs. 2,000 سے زائد پر' : 'Free Shipping on Rs. 2,000+'}</span>
@@ -3068,7 +3068,7 @@ export default function SahilTraders() {
               <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(0,0,0,0.12)' }}>
                 <div className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs">
                   <span className="text-amber-600">⏰</span>
-                  <span>{language === 'ur' ? 'ڈیلیوری ٹائمنگ: صبح 8:00 بجے سے رات 11:30 بجے تک (پیر تا ہفتہ)' : 'Delivery Timing: 8:00 AM – 11:30 PM (Mon – Sat)'}</span>
+                  <span>{language === 'ur' ? 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)'}</span>
                 </div>
                 <div>
                   <button

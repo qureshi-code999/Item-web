@@ -775,9 +775,6 @@ var CATEGORIES = [{
   id: "birthday",
   name: "Birthday"
 }, {
-  id: "powders",
-  name: "Powders"
-}, {
   id: "shaving",
   name: "Shaving & Razers & Blades"
 }, {
@@ -801,9 +798,6 @@ var CATEGORIES = [{
 }, {
   id: "personalcare",
   name: "Personal Care"
-}, {
-  id: "others",
-  name: "Others"
 }, {
   id: "fragnances",
   name: "Fragnances"

@@ -1535,6 +1535,14 @@ function getTranslationValue(dictionary, key) {
       { id: 1264, name: "WIPES SOFT-CREAM (BLUE)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1265, name: "WIPES SOFT-CREAM (WHITE)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1266, name: "ZERO MOSQUITO SACHET BOX RS,10", price: 8, categoryId: "mosquito", categoryName: "Anti-Mosquito", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "Z" },
+
+      { id: 1267, name: "NATIONAL SALT RS,60", price: 58, categoryId: "general", categoryName: "General Item & Others", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "N" },
+
+      { id: 1268, name: "LAHORI NAMAK RS,35", price: 29, categoryId: "general", categoryName: "General Item & Others", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "L" },
+
+      { id: 1269, name: "LEMON MAX LONG BAR RS,100", price: 95, categoryId: "general", categoryName: "General Item & Others", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "L" },
+
+      { id: 1270, name: "LEMON MAX BAR SMALL RS,35", price: 34, categoryId: "general", categoryName: "General Item & Others", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "L" },
     ];
 
 
@@ -2209,6 +2217,15 @@ export default function SahilTraders() {
       });
       const [cartOpen, setCartOpen] = useState(false);
       const [checkoutOpen, setCheckoutOpen] = useState(false);
+      const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
+      const [orderHistory, setOrderHistory] = useState(() => {
+        try {
+          const saved = localStorage.getItem("sahil_traders_order_history");
+          return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+          return [];
+        }
+      });
       const [exitModalOpen, setExitModalOpen] = useState(false);
       const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -2490,6 +2507,24 @@ export default function SahilTraders() {
         setCart([]);
         try {
           localStorage.removeItem("sahil_traders_cart");
+        } catch (e) {}
+      }
+
+      function saveOrderHistory(order) {
+        if (!order) return;
+        setOrderHistory(prev => {
+          const next = [order, ...prev].slice(0, 50);
+          try {
+            localStorage.setItem("sahil_traders_order_history", JSON.stringify(next));
+          } catch (e) {}
+          return next;
+        });
+      }
+
+      function clearOrderHistory() {
+        setOrderHistory([]);
+        try {
+          localStorage.removeItem("sahil_traders_order_history");
         } catch (e) {}
       }
       // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -2811,6 +2846,21 @@ export default function SahilTraders() {
                   >
                     <span className="text-sm">🏬</span>
                     <span className="hidden sm:inline">{language === 'ur' ? 'ہمارے بارے میں' : 'About Us'}</span>
+                  </button>
+
+                  {/* Order History Button */}
+                  <button
+                    onClick={() => setOrderHistoryOpen(true)}
+                    className="relative flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer"
+                    style={{ background: '#ffffff', borderColor: orderHistory.length > 0 ? '#111111' : 'rgba(0,0,0,0.12)', color: '#111111' }}
+                  >
+                    <span className="text-sm">🧾</span>
+                    <span className="hidden sm:inline">{language === 'ur' ? 'آرڈر ہسٹری' : 'Orders'}</span>
+                    {orderHistory.length > 0 && (
+                      <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center" style={{ background: '#16a34a', color: '#ffffff' }}>
+                        {orderHistory.length}
+                      </span>
+                    )}
                   </button>
 
                   {/* Cart Button */}
@@ -3142,6 +3192,15 @@ export default function SahilTraders() {
                 onSelectProduct={handleSelectProductFromCart}
               />
 
+              <OrderHistoryModal
+                open={orderHistoryOpen}
+                orders={orderHistory}
+                langData={langData}
+                language={language}
+                onClose={() => setOrderHistoryOpen(false)}
+                onClear={clearOrderHistory}
+              />
+
               {/* Checkout Modal */}
               {checkoutOpen && (
                 <CheckoutModal
@@ -3150,7 +3209,7 @@ export default function SahilTraders() {
                   langData={langData}
                   onClose={() => setCheckoutOpen(false)}
                   onBack={() => { setCheckoutOpen(false); setCartOpen(true); }}
-                  onOrderPlaced={() => { clearCart(); setCheckoutOpen(false); }}
+                  onOrderPlaced={(order) => { saveOrderHistory(order); clearCart(); setCheckoutOpen(false); }}
                 />
               )}
 
@@ -3753,6 +3812,82 @@ export default function SahilTraders() {
     }
 
     // Ã¢â€â‚¬Ã¢â€â‚¬ CHECKOUT MODAL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    function OrderHistoryModal({ open, orders, langData, language, onClose, onClear }) {
+      if (!open) return null;
+      const isUrdu = language === 'ur';
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div style={{ width: '100%', maxWidth: 560, maxHeight: '88vh', overflow: 'hidden', background: '#ffffff', borderRadius: 22, border: '1px solid rgba(0,0,0,0.12)', boxShadow: '0 24px 70px rgba(0,0,0,0.45)', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 12, background: '#f3f4f6', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🧾</div>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#111827', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>{isUrdu ? 'آرڈر ہسٹری' : 'Order History'}</h3>
+                  <p style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{isUrdu ? 'یہ اسی browser میں محفوظ ہے' : 'Saved in this browser'}</p>
+                </div>
+              </div>
+              <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: 10, border: '1px solid rgba(0,0,0,0.18)', background: '#f3f4f6', color: '#111827', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <div style={{ padding: 18, overflowY: 'auto' }}>
+              {orders.length === 0 ? (
+                <div style={{ padding: '44px 18px', textAlign: 'center', background: '#f9fafb', border: '1px dashed #d1d5db', borderRadius: 16 }}>
+                  <div style={{ fontSize: 34, marginBottom: 10 }}>🛒</div>
+                  <p style={{ fontSize: 15, fontWeight: 900, color: '#111827', margin: 0 }}>{isUrdu ? 'ابھی کوئی آرڈر محفوظ نہیں' : 'No saved orders yet'}</p>
+                  <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{isUrdu ? 'آپ کا اگلا آرڈر یہاں نظر آئے گا' : 'Your next placed order will appear here.'}</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {orders.map(order => (
+                    <div key={order.id} style={{ border: '1px solid #e5e7eb', borderRadius: 16, overflow: 'hidden', background: '#ffffff', boxShadow: '0 8px 22px rgba(0,0,0,0.06)' }}>
+                      <div style={{ padding: '12px 14px', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 900, color: '#111827' }}>#{order.id}</div>
+                          <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{order.dateText}</div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 18, fontWeight: 900, color: '#ffffff', background: '#111827', borderRadius: 10, padding: '4px 10px' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
+                          <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 800, marginTop: 4 }}>{order.deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}</div>
+                        </div>
+                      </div>
+                      <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 9 }}>
+                        {order.items.map(item => (
+                          <div key={`${order.id}-${item.id}`} style={{ display: 'grid', gridTemplateColumns: '34px 1fr auto', alignItems: 'center', gap: 10 }}>
+                            {item.imageExt ? (
+                              <img src={`images/${item.id}.${item.imageExt}`} alt={item.name} style={{ width: 34, height: 34, objectFit: 'contain', borderRadius: 8, background: '#f3f4f6', border: '1px solid #e5e7eb' }} />
+                            ) : (
+                              <div style={{ width: 34, height: 34, borderRadius: 8, background: '#f3f4f6', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900 }}>{item.initial || 'S'}</div>
+                            )}
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontSize: 13, color: '#111827', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name)}</div>
+                              <div style={{ fontSize: 11, color: '#6b7280' }}>Qty {item.qty} x Rs {Number(item.price || 0).toLocaleString()}</div>
+                            </div>
+                            <div style={{ fontSize: 12, color: '#111827', fontWeight: 900 }}>Rs {Number(item.total || 0).toLocaleString()}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {orders.length > 0 && (
+              <div style={{ padding: '14px 18px', borderTop: '1px solid #e5e7eb', background: '#f9fafb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: 11, color: '#6b7280', fontWeight: 700 }}>{orders.length} {orders.length === 1 ? 'order' : 'orders'} saved</span>
+                <button onClick={onClear} style={{ border: '1px solid #fecaca', background: '#fee2e2', color: '#991b1b', borderRadius: 10, padding: '8px 12px', fontSize: 11, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  {isUrdu ? 'ہسٹری صاف کریں' : 'Clear History'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     function CheckoutModal({ cart, cartTotal, langData, onClose, onBack, onOrderPlaced }) {
       const [name, setName] = useState("");
       const [phone, setPhone] = useState("");
@@ -3818,6 +3953,25 @@ export default function SahilTraders() {
         ].join('\n');
 
         const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;
+        const orderDate = new Date();
+        const orderRecord = {
+          id: `${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${String(orderDate.getHours()).padStart(2, '0')}${String(orderDate.getMinutes()).padStart(2, '0')}${String(orderDate.getSeconds()).padStart(2, '0')}`,
+          dateText: orderDate.toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+          customer: { name: name.trim(), phone: phone.trim(), address: address.trim() },
+          deliveryMethod,
+          subtotal: cartTotal,
+          deliveryFee,
+          grandTotal,
+          items: cart.map(({ product, qty }) => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            qty,
+            total: product.price * qty,
+            initial: product.initial,
+            imageExt: window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? window.PRODUCT_IMAGE_MAP[product.id] : null
+          }))
+        };
 
         // Open WhatsApp immediately on user action to avoid browser popup blocker freeze
         window.open(waUrl, '_blank');
@@ -3825,7 +3979,7 @@ export default function SahilTraders() {
         setPlacing(false);
         setSuccess(true);
         setTimeout(() => {
-          onOrderPlaced();
+          onOrderPlaced(orderRecord);
         }, 1500);
       }
 

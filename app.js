@@ -2768,27 +2768,6 @@ const CATEGORY_META = {
       d: "M12 1v3M10 2h4"
     }))
   },
-  powders: {
-    image: '',
-    gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)',
-    icon: /*#__PURE__*/React.createElement("svg", {
-      style: {
-        width: 40,
-        height: 40,
-        color: 'white'
-      },
-      fill: "none",
-      stroke: "currentColor",
-      strokeWidth: "1.8",
-      viewBox: "0 0 24 24"
-    }, /*#__PURE__*/React.createElement("path", {
-      d: "M3 6h18l-1.5 14H4.5L3 6z"
-    }), /*#__PURE__*/React.createElement("path", {
-      d: "M3 6l2-3h14l2 3"
-    }), /*#__PURE__*/React.createElement("path", {
-      d: "M8 11c0 2 8 2 8 0"
-    }))
-  },
   tapes: {
     image: '',
     gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)',
@@ -3113,33 +3092,6 @@ const CATEGORY_META = {
       viewBox: "0 0 24 24"
     }, /*#__PURE__*/React.createElement("path", {
       d: "M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
-    }))
-  },
-  others: {
-    image: '',
-    gradient: 'linear-gradient(135deg,#8e9eab,#eef2f3)',
-    icon: /*#__PURE__*/React.createElement("svg", {
-      style: {
-        width: 40,
-        height: 40,
-        color: 'white'
-      },
-      fill: "none",
-      stroke: "currentColor",
-      strokeWidth: "1.8",
-      viewBox: "0 0 24 24"
-    }, /*#__PURE__*/React.createElement("circle", {
-      cx: "12",
-      cy: "12",
-      r: "1"
-    }), /*#__PURE__*/React.createElement("circle", {
-      cx: "19",
-      cy: "12",
-      r: "1"
-    }), /*#__PURE__*/React.createElement("circle", {
-      cx: "5",
-      cy: "12",
-      r: "1"
     }))
   }
 };

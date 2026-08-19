@@ -38,8 +38,9 @@ function Sync-ProductImageMapInFile {
     if ($fc -notmatch 'window\.PRODUCT_IMAGE_MAP\s*=') { return }
 
     $productIds = @{}
-    $prodStart = $fc.IndexOf("const PRODUCTS = [")
-    if ($prodStart -ge 0) {
+    $prodMatch = [regex]::Match($fc, '(?:const|var)\s+PRODUCTS\s*=\s*\[')
+    if ($prodMatch.Success) {
+        $prodStart = $prodMatch.Index
         $prodEnd = $fc.IndexOf("];", $prodStart)
         $prodBlock = if ($prodEnd -gt $prodStart) { $fc.Substring($prodStart, $prodEnd - $prodStart) } else { $fc }
         foreach ($m in [regex]::Matches($prodBlock, '\{\s*id:\s*(\d+)\s*,')) {
@@ -117,8 +118,9 @@ function Ensure-CategoryInFile {
     if ([regex]::IsMatch($fc, $idPattern)) {
         $fc = [regex]::Replace($fc, $idPattern, "`$1`"$escapedName`"")
     } else {
-        $catStart = $fc.IndexOf("const CATEGORIES = [")
-        if ($catStart -ge 0) {
+        $catMatch = [regex]::Match($fc, '(?:const|var)\s+CATEGORIES\s*=\s*\[')
+        if ($catMatch.Success) {
+            $catStart = $catMatch.Index
             $catEnd = $fc.IndexOf("];", $catStart)
             if ($catEnd -gt $catStart) {
                 $newCatLine = "`n      { id: `"$escapedId`",        name: `"$escapedName`" },"
@@ -136,6 +138,28 @@ function Remove-CategoryFromFile {
     $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
     $escapedId = [regex]::Escape($catId)
     $pattern = '(?m)^\s*\{\s*id:\s*"' + $escapedId + '"\s*,\s*name:\s*"[^"]*"\s*\},?\s*\r?\n?'
+    $fc = [regex]::Replace($fc, $pattern, "")
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+}
+
+function Remove-CategoryFromLanguageFile {
+    param([string]$filePath, [string]$catId)
+    if (-not (Test-Path $filePath)) { return }
+    if ([string]::IsNullOrWhiteSpace($catId)) { return }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $escapedId = [regex]::Escape($catId)
+    $pattern = '(?m)^\s*' + $escapedId + '\s*:\s*"[^"]*"\s*,?\s*\r?\n?'
+    $fc = [regex]::Replace($fc, $pattern, "")
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+}
+
+function Remove-CategoryMetaFromFile {
+    param([string]$filePath, [string]$catId)
+    if (-not (Test-Path $filePath)) { return }
+    if ([string]::IsNullOrWhiteSpace($catId)) { return }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $escapedId = [regex]::Escape($catId)
+    $pattern = '(?m)^\s*' + $escapedId + '\s*:\s*\{\s*image:[\s\S]*?\},\s*\r?\n?'
     $fc = [regex]::Replace($fc, $pattern, "")
     [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
 }
@@ -293,6 +317,30 @@ function Update-ProductInFile {
     }
     [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
     return 1
+}
+
+function Add-ProductToFile {
+    param(
+        [string]$filePath,
+        [string]$newLine,
+        [string]$catId,
+        [string]$catName
+    )
+    if (-not (Test-Path $filePath)) { return 0 }
+    Ensure-CategoryInFile -filePath $filePath -catId $catId -catName $catName
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $prodMatch = [regex]::Match($fc, '(?:const|var)\s+PRODUCTS\s*=\s*\[')
+    if (-not $prodMatch.Success) { return 0 }
+    $idx = $fc.IndexOf("];", $prodMatch.Index)
+    if ($idx -lt 0) { return 0 }
+    $updated = $fc.Substring(0, $idx) + $newLine + "`n    ];" + $fc.Substring($idx + 2)
+    [System.IO.File]::WriteAllText($filePath, $updated, [System.Text.Encoding]::UTF8)
+    return 1
+}
+
+function Sync-ProductImageMaps {
+    Sync-ProductImageMapInFile -filePath $htmlFile
+    Sync-ProductImageMapInFile -filePath $jsxFile
 }
 
 function Get-CategoryRows {
@@ -721,7 +769,7 @@ while ($true) {
                     $updatedFiles += Update-ProductInFile -filePath $f -productId $editId -name $newName -price $newPrice -catId $newCatId -catName $newCatName -imgSaved $imgSaved -initial $initial -gradient $grad
                 }
                 if ($updatedFiles -le 0) { throw "Item ID $editId file me nahi mila" }
-                Sync-ProductImageMapInFile -filePath $htmlFile
+                Sync-ProductImageMaps
                 Write-Host "  EDIT: ID $editId -> '$newName' Rs.$newPrice [$newCatName]$(if($imgSaved){' + new image'})" -ForegroundColor Cyan
                 $imgSavedStr = if ($imgSaved) { "true" } else { "false" }
                 $json = "{`"ok`":true,`"imgSaved`":$imgSavedStr,`"message`":`"Item updated successfully`"}"
@@ -755,6 +803,10 @@ while ($true) {
 
                 foreach ($f in @($htmlFile, $jsxFile)) {
                     Remove-CategoryFromFile -filePath $f -catId $catId
+                    Remove-CategoryMetaFromFile -filePath $f -catId $catId
+                }
+                foreach ($langFile in @((Join-Path $rootDir "languages\en.js"), (Join-Path $rootDir "languages\ur.js"))) {
+                    Remove-CategoryFromLanguageFile -filePath $langFile -catId $catId
                 }
                 Write-Host "  DELETE CATEGORY: $catId" -ForegroundColor Yellow
                 $json = "{`"ok`":true,`"message`":`"Category deleted successfully`"}"
@@ -946,7 +998,7 @@ while ($true) {
                 # Remove image if it exists
                 $imgFile = Join-Path $imgDir "$delId.png"
                 if (Test-Path $imgFile) { Remove-Item $imgFile -Force }
-                Sync-ProductImageMapInFile -filePath $htmlFile
+                Sync-ProductImageMaps
                 Write-Host "  DELETE: ID $delId" -ForegroundColor Red
                 $json = "{`"ok`":true,`"message`":`"Item deleted successfully`"}"
             } catch {
@@ -1018,39 +1070,12 @@ while ($true) {
                     $newLine = "`n      { id: $newId, name: `"$escapedName`", price: $price, categoryId: `"$escapedCatId`", categoryName: `"$escapedCat`" },"
                 }
 
-                Ensure-CategoryInFile -filePath $htmlFile -catId $catId -catName $catName
-                $html = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
-                $prodStart = $html.IndexOf("const PRODUCTS = [")
-                if ($prodStart -lt 0) { throw "Could not find PRODUCTS array in index.html" }
-                $idx = $html.IndexOf("];", $prodStart)
-                if ($idx -lt 0) { throw "Could not find PRODUCTS array end in index.html" }
-                $updatedHtml = $html.Substring(0, $idx) + $newLine + "`n    ];" + $html.Substring($idx + 2)
-                [System.IO.File]::WriteAllText($htmlFile, $updatedHtml, [System.Text.Encoding]::UTF8)
-
-                if (Test-Path $jsxFile) {
-                    Ensure-CategoryInFile -filePath $jsxFile -catId $catId -catName $catName
-                    $jsx = [System.IO.File]::ReadAllText($jsxFile, [System.Text.Encoding]::UTF8)
-                    $jsxProdStart = $jsx.IndexOf("const PRODUCTS = [")
-                    if ($jsxProdStart -ge 0) {
-                        $idx2 = $jsx.IndexOf("];", $jsxProdStart)
-                        if ($idx2 -ge 0) {
-                            $updatedJsx = $jsx.Substring(0, $idx2) + $newLine + "`n    ];" + $jsx.Substring($idx2 + 2)
-                            [System.IO.File]::WriteAllText($jsxFile, $updatedJsx, [System.Text.Encoding]::UTF8)
-                        }
-                    }
+                $addedFiles = 0
+                foreach ($f in @($htmlFile, $jsxFile)) {
+                    $addedFiles += Add-ProductToFile -filePath $f -newLine $newLine -catId $catId -catName $catName
                 }
-
-                if ($hasImage) {
-                    $updatedHtml2 = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
-                    $setMatch = [regex]::Match($updatedHtml2, 'window\.PRODUCT_IMAGES\s*=\s*new Set\(\[([^\]]+)\]\)')
-                    if ($setMatch.Success) {
-                        $currentIds = $setMatch.Groups[1].Value.Trim()
-                        $newSet = "window.PRODUCT_IMAGES = new Set([$currentIds,$newId])"
-                        $updatedHtml2 = $updatedHtml2.Replace($setMatch.Value, $newSet)
-                        [System.IO.File]::WriteAllText($htmlFile, $updatedHtml2, [System.Text.Encoding]::UTF8)
-                    }
-                }
-                Sync-ProductImageMapInFile -filePath $htmlFile
+                if ($addedFiles -lt 2) { throw "Item dono website files me save nahi ho saka. Please file structure check karein." }
+                Sync-ProductImageMaps
 
                 Write-Host "  SUCCESS: Added '$name' (ID: $newId, Price: $price)" -ForegroundColor Green
 

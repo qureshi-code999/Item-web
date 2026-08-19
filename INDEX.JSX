@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+﻿import React, { useState, useMemo, useEffect, useRef } from "react";
 
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
@@ -471,18 +471,15 @@ function getTranslationValue(dictionary, key) {
 { id: "stationary",   name: "Stationary & Tapes" },
       { id: "sports",       name: "Sports & Toys" },
 { id: "birthday",     name: "Birthday" },
-      { id: "powders",      name: "Powders" },
 { id: "shaving",      name: "Shaving & Razers & Blades" },
       { id: "haircolour",   name: "Hair Colour & Care & Oil" },
 { id: "condemn",      name: "Condoms" },
       { id: "lock",         name: "Lock & Cells" },
       { id: "general",      name: "General Item & Others" },
-{ id: "babycare",     name: "Baby Care" },
+{ id: "babycare",     name: "Baby Care & Powders" },
 { id: "mosquito",     name: "Anti-Mosquito" },
       { id: "personalcare", name: "Personal Care" },
-      { id: "others",       name: "Others" },
-    
-      { id: "fragnances",        name: "Fragnances" },
+{ id: "fragnances",        name: "Fragnances" },
       { id: "toothpasteandbrush",        name: "Tooth Paste & Brush" },
       { id: "facewash",        name: "Face Wash" },];
 
@@ -882,17 +879,17 @@ function getTranslationValue(dictionary, key) {
       { id: 497, name: "FACE WASH Y,C (SMALL) COCUMBER", price: 320, categoryId: "facewash", categoryName: "Face Wash" },
       { id: 499, name: "FACE WASH Y,C (SMALL) NEEM GREEN", price: 320, categoryId: "facewash", categoryName: "Face Wash" },
       { id: 500, name: "FACE WASH Y,C (SMALL) YELLOW LEMON", price: 320, categoryId: "facewash", categoryName: "Face Wash", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "F" },
-      { id: 502, name: "FEEDER (LARGE NIPPLE) LARGE", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 503, name: "FEEDER (LARGE NIPPLE) MEDIUM", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 504, name: "FEEDER GLASS LARGE", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 505, name: "FEEDER GLASS MEDIUM", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 506, name: "FEEDER GLASS SMALL", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 507, name: "FEEDER MINI TREE (LARGE)", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 508, name: "FEEDER MINI TREE (MEDIUM)", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 509, name: "FEEDER MINI TREE (SMALL)", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 510, name: "FEEDER PP (IMP) HANDLE LARGE", price: 0, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "F" },
-      { id: 511, name: "FEEDER PP (IMP) HANDLE MEDIUM", price: 0, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
-      { id: 512, name: "FEEDER PURE LOVE COLOR (LARGE)", price: 280, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "F" },
+      { id: 502, name: "FEEDER (LARGE NIPPLE) LARGE", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 503, name: "FEEDER (LARGE NIPPLE) MEDIUM", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 504, name: "FEEDER GLASS LARGE", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 505, name: "FEEDER GLASS MEDIUM", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 506, name: "FEEDER GLASS SMALL", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 507, name: "FEEDER MINI TREE (LARGE)", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 508, name: "FEEDER MINI TREE (MEDIUM)", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 509, name: "FEEDER MINI TREE (SMALL)", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 510, name: "FEEDER PP (IMP) HANDLE LARGE", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "F" },
+      { id: 511, name: "FEEDER PP (IMP) HANDLE MEDIUM", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
+      { id: 512, name: "FEEDER PURE LOVE COLOR (LARGE)", price: 280, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "F" },
       { id: 513, name: "FORHANS HAIR TONIC 100ML (BLUE) RS,320", price: 310, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "F" },
       { id: 514, name: "FORHANS HAIR TONIC 100ML (RED) RS,320", price: 310, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
       { id: 515, name: "FORHANS HAIR TONIC 200ml (RED) RP,550", price: 520, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
@@ -912,34 +909,34 @@ function getTranslationValue(dictionary, key) {
       { id: 535, name: "HASHMI SORMA RS,200", price: 190, categoryId: "general", categoryName: "General Item & Others", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "H" },
       { id: 536, name: "HIGHLIGHTER", price: 70, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 537, name: "HUDA BEAUTY BLACK MASK SACHET", price: 50, categoryId: "creams", categoryName: "Creams & Lotions" },
-      { id: 538, name: "HUSSAIN MANJAN BOX (MEDIUM) RS,80", price: 75, categoryId: "powders", categoryName: "Powders", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "H" },
+      { id: 538, name: "HUSSAIN MANJAN BOX (MEDIUM) RS,80", price: 75, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "H" },
       { id: 539, name: "INK BOTTLE DOLLAR (SMALL) BLACK", price: 60, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 540, name: "INK BOTTLE DOLLAR (SMALL) BLUE", price: 50, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "I" },
       { id: 541, name: "INK PEN DOLLAR", price: 70, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 542, name: "INK PEN PIANO CRYSTAL", price: 70, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 543, name: "INK REMOVER MARKER (ORO)", price: 40, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "I" },
       { id: 544, name: "INK REMOVER WHITENER", price: 70, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "I" },
-      { id: 545, name: "J BABY BATH 200ML TOP TO TOE", price: 549, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 548, name: "J BABY LINER", price: 50, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 549, name: "J BABY LOTION 100ml (IMP)", price: 490, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 550, name: "J BABY LOTION 200ml (IMP)", price: 690, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 551, name: "J BABY OIL 125ml (IMP)", price: 650, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "J" },
-      { id: 552, name: "J BABY OIL 200ml (IMP)", price: 840, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 553, name: "J BABY OIL 50ml (IMP)", price: 320, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "J" },
-      { id: 554, name: "J BABY PERFUME COLOGNE", price: 690, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 555, name: "J BABY PETROLEUM GEL (PINK) SMALL", price: 490, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 556, name: "J BABY PETROLEUM GEL (BLUE) SMALL", price: 490, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "J" },
-      { id: 557, name: "J BABY POWDER 100g (MIX)", price: 590, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 558, name: "J BABY POWDER 200g (MIX)", price: 590, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 559, name: "J BABY SHAMPOO 100ml (COMPANY)", price: 320, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "J" },
-      { id: 560, name: "J BABY SHAMPOO 200ml (COMPANY)", price: 590, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "J" },
-      { id: 561, name: "J BABY SHAMPOO 300ml (COMPANY)", price: 750, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 562, name: "J BABY SHAMPOO 750ml (COMPANY) (PUMP)", price: 1780, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 563, name: "J BABY SOAP 100g GREEN", price: 240, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 564, name: "J BABY SOAP 100g PINK", price: 240, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "J" },
-      { id: 565, name: "J BABY SOAP 100g WHITE", price: 240, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "J" },
-      { id: 566, name: "J BABY TOP-TO-TOE 100ML", price: 350, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 567, name: "J BABY WIPES (LARGE 84 PIECES) GOOD QUALITY", price: 240, categoryId: "babycare", categoryName: "Baby Care" },
+      { id: 545, name: "J BABY BATH 200ML TOP TO TOE", price: 549, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 548, name: "J BABY LINER", price: 50, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 549, name: "J BABY LOTION 100ml (IMP)", price: 490, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 550, name: "J BABY LOTION 200ml (IMP)", price: 690, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 551, name: "J BABY OIL 125ml (IMP)", price: 650, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "J" },
+      { id: 552, name: "J BABY OIL 200ml (IMP)", price: 840, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 553, name: "J BABY OIL 50ml (IMP)", price: 320, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "J" },
+      { id: 554, name: "J BABY PERFUME COLOGNE", price: 690, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 555, name: "J BABY PETROLEUM GEL (PINK) SMALL", price: 490, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 556, name: "J BABY PETROLEUM GEL (BLUE) SMALL", price: 490, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "J" },
+      { id: 557, name: "J BABY POWDER 100g (MIX)", price: 590, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 558, name: "J BABY POWDER 200g (MIX)", price: 590, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 559, name: "J BABY SHAMPOO 100ml (COMPANY)", price: 320, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "J" },
+      { id: 560, name: "J BABY SHAMPOO 200ml (COMPANY)", price: 590, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "J" },
+      { id: 561, name: "J BABY SHAMPOO 300ml (COMPANY)", price: 750, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 562, name: "J BABY SHAMPOO 750ml (COMPANY) (PUMP)", price: 1780, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 563, name: "J BABY SOAP 100g GREEN", price: 240, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 564, name: "J BABY SOAP 100g PINK", price: 240, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "J" },
+      { id: 565, name: "J BABY SOAP 100g WHITE", price: 240, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "J" },
+      { id: 566, name: "J BABY TOP-TO-TOE 100ML", price: 350, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 567, name: "J BABY WIPES (LARGE 84 PIECES) GOOD QUALITY", price: 240, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 569, name: "KALA KOLA HAIR TONIC (LARGE) RS,500", price: 460, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
       { id: 570, name: "KALA KOLA HAIR TONIC (SMALL) RS,300", price: 270, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
       { id: 571, name: "KEHKSHAN MAHNDI (BLACK) RS,80", price: 70, categoryId: "general", categoryName: "General Item & Others" },
@@ -987,10 +984,10 @@ function getTranslationValue(dictionary, key) {
       { id: 620, name: "LOCK SILVER 70MM (WOHU)", price: 580, categoryId: "lock", categoryName: "Lock & Cells", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "L" },
       { id: 621, name: "LOTION CARE (SMALL) RS,250", price: 230, categoryId: "creams", categoryName: "Creams & Lotions", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
       { id: 622, name: "LOTION ENCHANTEUR 100ML (SMALL)", price: 460, categoryId: "creams", categoryName: "Creams & Lotions" },
-      { id: 623, name: "LOTION MOTHER CARE 115ML RS,450", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 624, name: "LOTION MOTHER CARE 60ML RS,150", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 625, name: "LOTION NEXTON 125ML RP,499", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 626, name: "LOTION NEXTON 65ML RP,299", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
+      { id: 623, name: "LOTION MOTHER CARE 115ML RS,450", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 624, name: "LOTION MOTHER CARE 60ML RS,150", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 625, name: "LOTION NEXTON 125ML RP,499", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 626, name: "LOTION NEXTON 65ML RP,299", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 627, name: "LOTION NIVEA 100ML SMALL (MIX)", price: 509, categoryId: "creams", categoryName: "Creams & Lotions" },
       { id: 628, name: "LOTION NIVEA 200ML (MIX)", price: 889, categoryId: "creams", categoryName: "Creams & Lotions" },
       { id: 629, name: "LOTION NIVEA 400ML (MIX)", price: 1800, categoryId: "creams", categoryName: "Creams & Lotions" },
@@ -1062,8 +1059,8 @@ function getTranslationValue(dictionary, key) {
       { id: 696, name: "MORTEIN SPRAY 375ML", price: 699, categoryId: "mosquito", categoryName: "Anti-Mosquito" },
       { id: 697, name: "MORTEIN SPRAY 600ML LARGE", price: 899, categoryId: "mosquito", categoryName: "Anti-Mosquito" },
       { id: 698, name: "MOSPEL RS,350", price: 319, categoryId: "mosquito", categoryName: "Anti-Mosquito", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
-      { id: 700, name: "MOTHER CARE OIL 125ML RP,480", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 701, name: "MOTHER CARE OIL 65ML", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
+      { id: 700, name: "MOTHER CARE OIL 125ML RP,480", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 701, name: "MOTHER CARE OIL 65ML", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 702, name: "MOUTH WASH COLGATE 250ML (IMP) MIX", price: 489, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 703, name: "MOUTH WASH LISTERINE (MIX)", price: 489, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 704, name: "MOUTH WASH ORAL-B", price: 489, categoryId: "personalcare", categoryName: "Personal Care" },
@@ -1079,24 +1076,24 @@ function getTranslationValue(dictionary, key) {
       { id: 715, name: "NAIR HAIR REMOVAL SPRAY (MIX)", price: 0, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 716, name: "NALKI (BLACK)", price: 15, categoryId: "general", categoryName: "General Item & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "N" },
       { id: 717, name: "NALKI (WHITE)", price: 15, categoryId: "general", categoryName: "General Item & Others", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "N" },
-      { id: 718, name: "NEXTON BABY COLOGNE BLUE", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 719, name: "NEXTON BABY KIT MEDIUM", price: 1800, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 720, name: "NEXTON BABY KIT SMALL", price: 999, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 721, name: "NEXTON BABY LOTION 125ML RP,525", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 722, name: "NEXTON BABY LOTION 250ML", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 723, name: "NEXTON BABY LOTION 65ML RP,315", price: 299, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 724, name: "NEXTON BABY POWDER 100g RP,275 (MIX)", price: 249, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 725, name: "NEXTON BABY POWDER 200g RP,430 (MIX)", price: 399, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 726, name: "NEXTON BABY SHAMPOO 125ML RP,399", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 727, name: "NEXTON BABY SHAMPOO 250ML RP,699", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 728, name: "NEXTON BABY SHAMPOO 500ML RP,999", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 729, name: "NEXTON BABY SHAMPOO 65ML RP,260", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 730, name: "NEXTON BABY SHAMPOO PUMP", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 731, name: "NEXTON BABY SOAP RP,225", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 732, name: "NEXTON OIL 125ML RP,470", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 733, name: "NEXTON WIPES", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 734, name: "NIPLE PP SMALL", price: 29, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 735, name: "NIPPLE PP LARGE", price: 49, categoryId: "babycare", categoryName: "Baby Care" },
+      { id: 718, name: "NEXTON BABY COLOGNE BLUE", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 719, name: "NEXTON BABY KIT MEDIUM", price: 1800, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 720, name: "NEXTON BABY KIT SMALL", price: 999, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 721, name: "NEXTON BABY LOTION 125ML RP,525", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 722, name: "NEXTON BABY LOTION 250ML", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 723, name: "NEXTON BABY LOTION 65ML RP,315", price: 299, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 724, name: "NEXTON BABY POWDER 100g RP,275 (MIX)", price: 249, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 725, name: "NEXTON BABY POWDER 200g RP,430 (MIX)", price: 399, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 726, name: "NEXTON BABY SHAMPOO 125ML RP,399", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 727, name: "NEXTON BABY SHAMPOO 250ML RP,699", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 728, name: "NEXTON BABY SHAMPOO 500ML RP,999", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 729, name: "NEXTON BABY SHAMPOO 65ML RP,260", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 730, name: "NEXTON BABY SHAMPOO PUMP", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 731, name: "NEXTON BABY SOAP RP,225", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 732, name: "NEXTON OIL 125ML RP,470", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 733, name: "NEXTON WIPES", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 734, name: "NIPLE PP SMALL", price: 29, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 735, name: "NIPPLE PP LARGE", price: 49, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 736, name: "NITRO HAIR WAX (MIX)", price:420, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
       { id: 737, name: "NOVA GOLD HAIR SPRAY (LARGE)", price: 595, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil" },
       { id: 738, name: "NOVA GOLD HAIR SPRAY (SMALL) (COPY)", price: 375, categoryId: "haircolour", categoryName: "Hair Colour & Care & Oil", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "N" },
@@ -1199,29 +1196,29 @@ function getTranslationValue(dictionary, key) {
       { id: 851, name: "PERFUME SHALIS MEN (SMALL)", price: 2690, categoryId: "fragnances", categoryName: "Fragnances" },
       { id: 852, name: "PERFUME SHALIS WOMEN (LARGE)", price: 3650, categoryId: "fragnances", categoryName: "Fragnances" },
       { id: 853, name: "PERFUME SHALIS WOMEN (SMALL)", price: 2690, categoryId: "fragnances", categoryName: "Fragnances" },
-      { id: 854, name: "POWDER BERG (LARGE) RS,380", price: 349, categoryId: "powders", categoryName: "Powders" },
-      { id: 855, name: "POWDER BERG (SMALL) RS,220", price: 180, categoryId: "powders", categoryName: "Powders" },
+      { id: 854, name: "POWDER BERG (LARGE) RS,380", price: 349, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 855, name: "POWDER BERG (SMALL) RS,220", price: 180, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 856, name: "POWDER BLACK BEAUTY (LARGE) RS,450", price: 410, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
       { id: 857, name: "POWDER BLACK BEAUTY (SMALL) RP,220", price: 195, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "P" },
-      { id: 858, name: "POWDER BLACK CAT (LARGE) RS,480", price: 430, categoryId: "powders", categoryName: "Powders" },
+      { id: 858, name: "POWDER BLACK CAT (LARGE) RS,480", price: 430, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 859, name: "POWDER BLACK CAT (SMALL) RS,250", price: 210, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
-      { id: 861, name: "POWDER COOL COOL RS,210", price: 170, categoryId: "powders", categoryName: "Powders" },
-      { id: 862, name: "POWDER DENTONIC BOX 100GM (MEDIUM) RS,75", price: 0, categoryId: "powders", categoryName: "Powders" },
-      { id: 863, name: "POWDER DENTONIC BOX 200GM (LARGE) RS,130", price: 0, categoryId: "powders", categoryName: "Powders" },
+      { id: 861, name: "POWDER COOL COOL RS,210", price: 170, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 862, name: "POWDER DENTONIC BOX 100GM (MEDIUM) RS,75", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 863, name: "POWDER DENTONIC BOX 200GM (LARGE) RS,130", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 864, name: "POWDER EDEN ROCK (LARGE) RS,310", price: 260, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
       { id: 865, name: "POWDER EDEN ROCK (SMALL) RS,210", price: 180, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
       { id: 866, name: "POWDER ENCHANTEUR 125g (PURPLE)", price: 479, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
       { id: 867, name: "POWDER ENCHANTEUR 125g (PINK)", price: 479, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
       { id: 868, name: "POWDER ENCHANTEUR 125g (ROSE)", price: 479, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
       { id: 869, name: "POWDER ENCHANTEUR 125g (YELLOW)", price: 479, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "P" },
-      { id: 870, name: "POWDER ENGLISH PRICKLY HEAT LARGE", price: 390, categoryId: "powders", categoryName: "Powders" },
-      { id: 871, name: "POWDER ENGLISH PRICKLY HEAT SMALL", price: 239, categoryId: "powders", categoryName: "Powders" },
-      { id: 872, name: "POWDER MEDORA (LARGE) (JOY) RS,480", price: 440, categoryId: "powders", categoryName: "Powders" },
-      { id: 873, name: "POWDER MEDORA (SMALL) (JOY) RS,230", price: 210, categoryId: "powders", categoryName: "Powders" },
-      { id: 874, name: "POWDER MEDORA (SMALL) (MIX) RS,230", price: 210, categoryId: "powders", categoryName: "Powders" },
+      { id: 870, name: "POWDER ENGLISH PRICKLY HEAT LARGE", price: 390, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 871, name: "POWDER ENGLISH PRICKLY HEAT SMALL", price: 239, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 872, name: "POWDER MEDORA (LARGE) (JOY) RS,480", price: 440, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 873, name: "POWDER MEDORA (SMALL) (JOY) RS,230", price: 210, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 874, name: "POWDER MEDORA (SMALL) (MIX) RS,230", price: 210, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 875, name: "POWDER MOTHER CARE GO-RASH 150g SMALL RS,400", price: 360, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
       { id: 876, name: "POWDER MOTHER CARE GO-RASH 250g LARGE RS,550", price: 499, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
-      { id: 877, name: "POWDER TIBET (LARGE) RS,580", price: 540, categoryId: "powders", categoryName: "Powders" },
+      { id: 877, name: "POWDER TIBET (LARGE) RS,580", price: 540, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 878, name: "POWDER TIBET (SMALL) RS,190", price: 179, categoryId: "fragnances", categoryName: "Fragnances", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
       { id: 881, name:  "RAZOR DARCO", price: 199, categoryId: "shaving", categoryName: "Shaving & Razers & Blades" },
       { id: 882, name: "RAZOR FEMINA PINK", price: 40, categoryId: "shaving", categoryName: "Shaving & Razers & Blades" },
@@ -1360,9 +1357,9 @@ function getTranslationValue(dictionary, key) {
       { id: 1064, name: "SHUTTLECOCK (PAR WALI) EXCELLENT QUALITY", price: 0, categoryId: "sports", categoryName: "Sports & Toys" },
       { id: 1065, name: "SHUTTLECOCK (PLASTIC) EXCELLENT QUALITY", price: 0, categoryId: "sports", categoryName: "Sports & Toys" },
       { id: 1066, name: "SHUTTLECOCK (PLASTIC) GOOD QUALITY", price: 85, categoryId: "sports", categoryName: "Sports & Toys", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "S" },
-      { id: 1067, name: "SHIELD CHOOSNI (3 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 1068, name: "SHIELD CHOOSNI (6 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 1075, name: "SHIELD NIPPLE BOX", price: 80, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
+      { id: 1067, name: "SHIELD CHOOSNI (3 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 1068, name: "SHIELD CHOOSNI (6 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 1075, name: "SHIELD NIPPLE BOX", price: 80, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
       { id: 1076, name: "SOAP CAPRI (FAMILY PACK) 135g (YELLOW)", price: 130, categoryId: "soaps", categoryName: "Soaps" },
       { id: 1081, name: "SOAP CAPRI (3 IN 1) YELLOW RS,390", price: 350, categoryId: "soaps", categoryName: "Soaps" },
       { id: 1083, name: "SOAP DETTOL JUMBO COMPANY RS,150 (COOL)", price: 139, categoryId: "soaps", categoryName: "Soaps" },
@@ -1464,7 +1461,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1190, name: "TUSAR GENTS", price: 80, categoryId: "general", categoryName: "General Item & Others" },
       { id: 1191, name: "TUSAR LADIES", price: 80, categoryId: "general", categoryName: "General Item & Others" },
       { id: 1192, name: "TUSBHI (LED)", price: 135, categoryId: "general", categoryName: "General Item & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "T" },
-      { id: 1193, name: "TUSBHI (LED) GREEN", price:135, categoryId: "others", categoryName: "Others" },
+      { id: 1193, name: "TUSBHI (LED) GREEN", price:135, categoryId: "general", categoryName: "General Item & Others" },
       { id: 1194, name: "TUSBHI (LED) PATA", price: 115,categoryId: "general", categoryName: "General Item & Others" },
       { id: 1195, name: "TUSBHI (SADA)", price: 59, categoryId: "general", categoryName: "General Item & Others", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "T" },
       { id: 1196, name: "UHU PATA", price: 49, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "U" },
@@ -1530,13 +1527,13 @@ function getTranslationValue(dictionary, key) {
       { id: 1256, name: "WHITE ROSE H,R JAR (LARGE) RS,280", price: 239, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1257, name: "WHITE ROSE H,R JAR (MEDIUM) RS,220", price: 199, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1258, name: "WHITE ROSE H,R JAR (SMALL) RS,190", price: 169, categoryId: "personalcare", categoryName: "Personal Care" },
-      { id: 1259, name: "WIPES CHINA BABY", price: 99, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 1260, name: "WIPES JEEP CAMERA", price: 169, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 1261, name: "WIPES NEXTON", price: 0, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 1262, name: "WIPES PAMPER (NON ORIGINAL)", price: 249, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "W" },
-      { id: 1263, name: "WIPES SOFT CREME (MIX)", price: 129, categoryId: "babycare", categoryName: "Baby Care", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "W" },
-      { id: 1264, name: "WIPES SOFT-CREAM (BLUE)", price: 129, categoryId: "babycare", categoryName: "Baby Care" },
-      { id: 1265, name: "WIPES SOFT-CREAM (WHITE)", price: 129, categoryId: "babycare", categoryName: "Baby Care" },
+      { id: 1259, name: "WIPES CHINA BABY", price: 99, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 1260, name: "WIPES JEEP CAMERA", price: 169, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 1261, name: "WIPES NEXTON", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 1262, name: "WIPES PAMPER (NON ORIGINAL)", price: 249, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "W" },
+      { id: 1263, name: "WIPES SOFT CREME (MIX)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "W" },
+      { id: 1264, name: "WIPES SOFT-CREAM (BLUE)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 1265, name: "WIPES SOFT-CREAM (WHITE)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1266, name: "ZERO MOSQUITO SACHET BOX RS,10", price: 8, categoryId: "mosquito", categoryName: "Anti-Mosquito", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "Z" },
     ];
 
@@ -1764,12 +1761,12 @@ function AboutUsModal({ isOpen, onClose, language }) {
           <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 text-purple-950 space-y-2">
             <div className="flex items-center gap-2 font-bold text-sm text-purple-900">
               <span className="text-lg">⏰</span>
-              <span>{isUrdu ? 'اوقاتِ کار (Business Hours)' : 'Store Business Hours'}</span>
+              <span>{isUrdu ? 'ڈیلیوری ٹائمنگ (Delivery Timing)' : 'Delivery Timing'}</span>
             </div>
             <div className="bg-white/90 border border-purple-100 rounded-xl p-3 text-xs flex justify-between items-center shadow-xs">
               <div>
                 <div className="font-bold text-gray-900">{isUrdu ? 'پیر تا ہفتہ (Monday to Saturday):' : 'Monday to Saturday:'}</div>
-                <div className="text-purple-700 font-extrabold text-sm mt-0.5">{isUrdu ? 'صبح 10:00 بجے سے رات 8:00 بجے تک' : '10:00 AM – 8:00 PM'}</div>
+                <div className="text-purple-700 font-extrabold text-sm mt-0.5">{isUrdu ? 'صبح 8:00 بجے سے رات 11:30 بجے تک' : '8:00 AM – 11:30 PM'}</div>
               </div>
               <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase">
                 {isUrdu ? 'کھلا ہے' : 'Open'}
@@ -2757,12 +2754,12 @@ export default function SahilTraders() {
           {/* Background — Pure Clean White */}
           <div className="fixed inset-0 -z-10 bg-white" />
 
-          {/* Top Store Timing & Info Bar */}
+          {/* Top Delivery Timing & Info Bar */}
           <div className="bg-gray-900 text-white text-[11px] font-medium py-1.5 px-4 shadow-inner border-b border-gray-800">
             <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap text-gray-200">
               <div className="flex items-center gap-2">
-                <span className="text-amber-400 font-bold">⏰ {language === 'ur' ? 'اوقاتِ کار:' : 'Store Timings:'}</span>
-                <span className="font-semibold text-white">{language === 'ur' ? 'صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : '10:00 AM – 8:00 PM (Mon – Sat)'}</span>
+                <span className="text-amber-400 font-bold">⏰ {language === 'ur' ? 'ڈیلیوری ٹائمنگ:' : 'Delivery Timing:'}</span>
+                <span className="font-semibold text-white">{language === 'ur' ? 'صبح 8:00 بجے سے رات 11:30 بجے تک (پیر تا ہفتہ)' : '8:00 AM – 11:30 PM (Mon – Sat)'}</span>
               </div>
               <div className="hidden sm:flex items-center gap-3 text-[10px] text-gray-400">
                 <span>🚚 {language === 'ur' ? 'مفت ڈیلیوری Rs. 2,000 سے زائد پر' : 'Free Shipping on Rs. 2,000+'}</span>
@@ -3071,7 +3068,7 @@ export default function SahilTraders() {
               <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(0,0,0,0.12)' }}>
                 <div className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs">
                   <span className="text-amber-600">⏰</span>
-                  <span>{language === 'ur' ? 'اوقاتِ کار: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : 'Timings: 10:00 AM – 8:00 PM (Mon – Sat)'}</span>
+                  <span>{language === 'ur' ? 'ڈیلیوری ٹائمنگ: صبح 8:00 بجے سے رات 11:30 بجے تک (پیر تا ہفتہ)' : 'Delivery Timing: 8:00 AM – 11:30 PM (Mon – Sat)'}</span>
                 </div>
                 <div>
                   <button
@@ -3216,7 +3213,6 @@ export default function SahilTraders() {
       sports:       { image: '', gradient: 'linear-gradient(135deg,#f6d365,#fda085)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/><path d="M2 12h20"/></svg>) },
       toys:         { image: '', gradient: 'linear-gradient(135deg,#fd79a8,#e84393)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg>) },
       birthday:     { image: '', gradient: 'linear-gradient(135deg,#ff9a9e,#fecfef)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 1v3M10 2h4"/></svg>) },
-      powders:      { image: '', gradient: 'linear-gradient(135deg,#ffecd2,#fcb69f)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M3 6h18l-1.5 14H4.5L3 6z"/><path d="M3 6l2-3h14l2 3"/><path d="M8 11c0 2 8 2 8 0"/></svg>) },
       tapes:        { image: '', gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="3" x2="12" y2="8"/></svg>) },
       shaving:      { image: '', gradient: 'linear-gradient(135deg,#373b44,#4286f4)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 8v13"/><rect x="6" y="3" width="12" height="5" rx="1.5"/><line x1="8" y1="5" x2="16" y2="5"/><line x1="11" y1="12" x2="13" y2="12"/><line x1="11" y1="15" x2="13" y2="15"/><line x1="11" y1="18" x2="13" y2="18"/></svg>) },
       haircolour:   { image: '', gradient: 'linear-gradient(135deg,#a18cd1,#fbc2eb)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 3c-1.5 3-5 5-5 9a5 5 0 0010 0c0-4-3.5-6-5-9z"/><path d="M12 17v4"/><path d="M10 21h4"/></svg>) },
@@ -3230,7 +3226,6 @@ export default function SahilTraders() {
       cells:        { image: '', gradient: 'linear-gradient(135deg,#56ab2f,#a8e063)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="2"/><path d="M10 2h4"/><path d="M12 9v4"/></svg>) },
       mosquito:     { image: '', gradient: 'linear-gradient(135deg,#11998e,#38ef7d)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><path d="M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/></svg>) },
       personalcare: { image: '', gradient: 'linear-gradient(135deg,#ee9ca7,#ffdde1)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>) },
-      others:       { image: '', gradient: 'linear-gradient(135deg,#8e9eab,#eef2f3)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>) },
     };
 
     // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————

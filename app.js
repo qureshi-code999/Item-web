@@ -1330,6 +1330,15 @@ function SahilTraders() {
       localStorage.setItem("sahil_traders_cart", JSON.stringify(cart));
     } catch (e) {}
   }, [cart]);
+  function persistCartSnapshot(nextCart) {
+    try {
+      if (!nextCart || nextCart.length === 0) {
+        localStorage.removeItem("sahil_traders_cart");
+      } else {
+        localStorage.setItem("sahil_traders_cart", JSON.stringify(nextCart));
+      }
+    } catch (e) {}
+  }
   useEffect(() => {
     return () => {
       if (cartNoticeTimerRef.current) clearTimeout(cartNoticeTimerRef.current);
@@ -1456,16 +1465,20 @@ function SahilTraders() {
   function addToCart(product) {
     setCart(prev => {
       const existing = prev.find(i => i.product.id === product.id);
+      let next;
       if (existing) {
-        return prev.map(i => i.product.id === product.id ? {
+        next = prev.map(i => i.product.id === product.id ? {
           ...i,
           qty: i.qty + 1
         } : i);
+      } else {
+        next = [...prev, {
+          product,
+          qty: 1
+        }];
       }
-      return [...prev, {
-        product,
-        qty: 1
-      }];
+      persistCartSnapshot(next);
+      return next;
     });
     showCartNotice();
   }
@@ -1603,11 +1616,16 @@ function SahilTraders() {
         ...i,
         qty: Math.max(0, i.qty + delta)
       } : i).filter(i => i.qty > 0);
+      persistCartSnapshot(updated);
       return updated;
     });
   }
   function removeFromCart(productId) {
-    setCart(prev => prev.filter(i => i.product.id !== productId));
+    setCart(prev => {
+      const updated = prev.filter(i => i.product.id !== productId);
+      persistCartSnapshot(updated);
+      return updated;
+    });
   }
   function clearCart() {
     setCart([]);

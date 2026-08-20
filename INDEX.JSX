@@ -1767,19 +1767,18 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
 
           {/* 4 Points Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            {/* Point 1: 7-Day Window */}
+            {/* Point 1: Same-Day Return */}
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-1">
               <div className="flex items-center gap-2 font-black text-gray-900">
-                <span className="text-base">ðŸ“…</span>
-                <span>{isUrdu ? '7 \u062f\u0646 \u06a9\u06cc \u0645\u06c1\u0644\u062a' : '7-Day Return Window'}</span>
+                <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span>{isUrdu ? '\u0627\u0633\u06cc \u062f\u0646 (Same Day) \u06a9\u06cc \u0633\u06c1\u0648\u0644\u062a' : 'Same-Day Return & Exchange'}</span>
               </div>
               <p className="text-[11px] text-gray-600 leading-relaxed font-medium">
                 {isUrdu
-                  ? '\u0622\u0631\u0688\u0631 \u0645\u0648\u0635\u0648\u0644 \u06c1\u0648\u0646\u06d2 \u06a9\u06d2 7 \u062f\u0646 \u06a9\u06d2 \u0627\u0646\u062f\u0631 \u0627\u0646\u062f\u0631 \u0622\u067e \u06a9\u0644\u06cc\u0645 \u06a9\u0631 \u0633\u06a9\u062a\u06d2 \u06c1\u06cc\u06ba\u06d5'
-                  : 'You can claim return or exchange anytime within 7 days of delivery.'}
+                  ? '\u0622\u0631\u0688\u0631 \u0645\u0648\u0635\u0648\u0644 \u06c1\u0648\u0646\u06d2 \u06a9\u06d2 \u0627\u0633\u06cc \u062f\u0646 (Same Day) \u0622\u067e \u0641\u0648\u0631\u06cc \u06a9\u0644\u06cc\u0645 \u06a9\u0631 \u0633\u06a9\u062a\u06d2 \u06c1\u06cc\u06ba\u06d5'
+                  : 'You can claim return or exchange on the same day of delivery.'}
               </p>
             </div>
-
             {/* Point 2: Zero Delivery Fee */}
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-1">
               <div className="flex items-center gap-2 font-black text-gray-900">

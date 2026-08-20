@@ -3885,70 +3885,160 @@ export default function SahilTraders() {
       if (!open) return null;
       const isUrdu = language === 'ur';
 
+      // Default expand the first (latest) order
+      const [expandedId, setExpandedId] = useState(orders.length > 0 ? orders[0].id : null);
+
+      const toggleOrder = (id) => {
+        setExpandedId(prev => (prev === id ? null : id));
+      };
+
       return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div style={{ width: '100%', maxWidth: 560, maxHeight: '88vh', overflow: 'hidden', background: '#ffffff', borderRadius: 22, border: '1px solid rgba(0,0,0,0.12)', boxShadow: '0 24px 70px rgba(0,0,0,0.45)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} className="animate-fade-in">
+          <div style={{ width: '100%', maxWidth: 580, maxHeight: '88vh', overflow: 'hidden', background: '#ffffff', borderRadius: 22, border: '1px solid rgba(0,0,0,0.12)', boxShadow: '0 24px 70px rgba(0,0,0,0.45)', display: 'flex', flexDirection: 'column' }}>
+
+            {/* Modal Header */}
+            <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, background: '#ffffff' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 12, background: '#f3f4f6', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🧾</div>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#fffbeb', border: '1px solid #fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#b45309' }}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                </div>
                 <div>
-                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#111827', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>{isUrdu ? 'آرڈر ہسٹری' : 'Order History'}</h3>
-                  <p style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{isUrdu ? 'یہ اسی browser میں محفوظ ہے' : 'Saved in this browser'}</p>
+                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#111827', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>{isUrdu ? '\u0622\u0631\u0688\u0631 \u06c1\u0633\u067c\u0631\u06cc' : 'Order History'}</h3>
+                  <p style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{isUrdu ? '\u06a9\u0644\u06a9 \u06a9\u0631\u06cc\u06ba \u0627\u0648\u0631 \u0645\u06a9\u0645\u0644 \u0622\u0631\u0688\u0631 \u062f\u06cc\u06a9\u06be\u06cc\u06ba' : 'Tap an order card to view full items'}</p>
                 </div>
               </div>
-              <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: 10, border: '1px solid rgba(0,0,0,0.18)', background: '#f3f4f6', color: '#111827', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: 10, border: '1px solid rgba(0,0,0,0.18)', background: '#f3f4f6', color: '#111827', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Close modal">
                 <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
+            {/* Modal Scroll Body */}
             <div style={{ padding: 18, overflowY: 'auto' }}>
               {orders.length === 0 ? (
                 <div style={{ padding: '44px 18px', textAlign: 'center', background: '#f9fafb', border: '1px dashed #d1d5db', borderRadius: 16 }}>
-                  <div style={{ fontSize: 34, marginBottom: 10 }}>🛒</div>
-                  <p style={{ fontSize: 15, fontWeight: 900, color: '#111827', margin: 0 }}>{isUrdu ? 'ابھی کوئی آرڈر محفوظ نہیں' : 'No saved orders yet'}</p>
-                  <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{isUrdu ? 'آپ کا اگلا آرڈر یہاں نظر آئے گا' : 'Your next placed order will appear here.'}</p>
+                  <div style={{ fontSize: 36, marginBottom: 10 }}>ðŸ›’</div>
+                  <p style={{ fontSize: 15, fontWeight: 900, color: '#111827', margin: 0 }}>{isUrdu ? '\u0627\u0628\u06be\u06cc \u06a9\u0648\u0626\u06cc \u0622\u0631\u0688\u0631 \u0645\u062d\u0641\u0648\u0638 \u0646\u06c1\u06cc\u06ba' : 'No saved orders yet'}</p>
+                  <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{isUrdu ? '\u0622\u067e \u06a9\u0627 \u0627\u06af\u0644\u0627 \u0622\u0631\u0688\u0631 \u06cc\u06c1\u0627\u06ba \u0646\u0630\u0631 \u0622\u0624 \u06af\u0627' : 'Your placed orders will appear here automatically.'}</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {orders.map(order => (
-                    <div key={order.id} style={{ border: '1px solid #e5e7eb', borderRadius: 16, overflow: 'hidden', background: '#ffffff', boxShadow: '0 8px 22px rgba(0,0,0,0.06)' }}>
-                      <div style={{ padding: '12px 14px', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 900, color: '#111827' }}>#{order.id}</div>
-                          <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{order.dateText}</div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 18, fontWeight: 900, color: '#ffffff', background: '#111827', borderRadius: 10, padding: '4px 10px' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
-                          <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 800, marginTop: 4 }}>{order.deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}</div>
-                        </div>
-                      </div>
-                      <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 9 }}>
-                        {order.items.map(item => (
-                          <div key={`${order.id}-${item.id}`} style={{ display: 'grid', gridTemplateColumns: '34px 1fr auto', alignItems: 'center', gap: 10 }}>
-                            {item.imageExt ? (
-                              <img src={`images/${item.id}.${item.imageExt}`} alt={item.name} style={{ width: 34, height: 34, objectFit: 'contain', borderRadius: 8, background: '#f3f4f6', border: '1px solid #e5e7eb' }} />
-                            ) : (
-                              <div style={{ width: 34, height: 34, borderRadius: 8, background: '#f3f4f6', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900 }}>{item.initial || 'S'}</div>
-                            )}
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ fontSize: 13, color: '#111827', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name)}</div>
-                              <div style={{ fontSize: 11, color: '#6b7280' }}>Qty {item.qty} x Rs {Number(item.price || 0).toLocaleString()}</div>
+                  {orders.map((order, idx) => {
+                    const isExpanded = expandedId === order.id;
+                    const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
+                    const itemsSummaryNames = order.items ? order.items.slice(0, 2).map(i => toTitleCase(i.name)).join(', ') + (order.items.length > 2 ? ` +${order.items.length - 2} more` : '') : '';
+
+                    return (
+                      <div key={order.id} style={{ border: isExpanded ? '1.5px solid #111827' : '1px solid #e5e7eb', borderRadius: 16, overflow: 'hidden', background: '#ffffff', boxShadow: isExpanded ? '0 10px 25px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s ease' }}>
+
+                        {/* Collapsible Header Bar (Clickable) */}
+                        <div
+                          onClick={() => toggleOrder(order.id)}
+                          style={{ padding: '14px 16px', background: isExpanded ? '#f8fafc' : '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: isExpanded ? '#111827' : '#f3f4f6', color: isExpanded ? '#ffffff' : '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>
+                              #{orders.length - idx}
                             </div>
-                            <div style={{ fontSize: 12, color: '#111827', fontWeight: 900 }}>Rs {Number(item.total || 0).toLocaleString()}</div>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: 13, fontWeight: 900, color: '#111827' }}>#{order.id}</span>
+                                <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 12, background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#f0fdf4', color: order.deliveryMethod === 'pickup' ? '#1d4ed8' : '#15803d', border: `1px solid ${order.deliveryMethod === 'pickup' ? '#bfdbfe' : '#bbf7d0'}` }}>
+                                  {order.deliveryMethod === 'pickup' ? (isUrdu ? '\u0627\u0633\u067c\u0648\u0631 \u067e\u06a9 \u0627\u067e' : 'Store Pickup') : (isUrdu ? '\u06c1\u0648\u0645 \u0688\u0644\u06cc\u0648\u0631\u06cc' : 'Home Delivery')}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 3, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <span>ðŸ“… {order.dateText}</span>
+                                <span>â€¢</span>
+                                <span style={{ fontWeight: 600 }}>ðŸ“¦ {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</span>
+                              </div>
+                              {!isExpanded && (
+                                <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '240px' }}>
+                                  {itemsSummaryNames}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        ))}
+
+                          {/* Right Side: Total Amount & Expand Arrow */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: 15, fontWeight: 900, color: '#111827' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
+                              <span style={{ fontSize: 10, fontWeight: 700, color: isExpanded ? '#2563eb' : '#9ca3af' }}>
+                                {isExpanded ? (isUrdu ? '\u0628\u0646\u062f \u06a9\u0631\u06cc\u06ba \u25b2' : 'Collapse \u25b2') : (isUrdu ? '\u062a\u0641\u0635\u06cc\u0644 \u062f\u06cc\u06a9\u06be\u06cc\u06ba \u25bc' : 'View Details \u25bc')}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Collapsible Content Body */}
+                        {isExpanded && (
+                          <div style={{ borderTop: '1px solid #e5e7eb', background: '#ffffff', padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                            {/* Customer Info Card */}
+                            <div style={{ padding: 12, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              <div style={{ fontWeight: 800, color: '#334155', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span>ðŸ‘¤</span>
+                                <span>{order.customer?.name} ({order.customer?.phone})</span>
+                              </div>
+                              {order.customer?.address && (
+                                <div style={{ color: '#64748b', fontSize: 11, display: 'flex', alignItems: 'flex-start', gap: 6, marginTop: 2 }}>
+                                  <span>ðŸ“</span>
+                                  <span>{order.customer.address}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Itemized Order List */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                              <p style={{ fontSize: 11, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                                {isUrdu ? '\u0627\u0634\u06cc\u0622 \u06a9\u06cc \u0641\u06c1\u0631\u0633\u067c:' : 'Itemized Receipt:'}
+                              </p>
+                              {order.items.map(item => (
+                                <div key={`${order.id}-${item.id}`} style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto', alignItems: 'center', gap: 12, padding: '6px 0', borderBottom: '1px border-dashed #f1f5f9' }}>
+                                  {item.imageExt ? (
+                                    <img src={`images/${item.id}.${item.imageExt}`} alt={item.name} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
+                                  ) : (
+                                    <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#475569' }}>{item.initial || 'S'}</div>
+                                  )}
+                                  <div style={{ minWidth: 0 }}>
+                                    <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name)}</div>
+                                    <div style={{ fontSize: 11, color: '#64748b' }}>Qty {item.qty} Ã— Rs {Number(item.price || 0).toLocaleString()}</div>
+                                  </div>
+                                  <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 900 }}>Rs {Number(item.total || 0).toLocaleString()}</div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Bill Breakdown */}
+                            <div style={{ padding: '10px 14px', background: '#f8fafc', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, border: '1px solid #f1f5f9' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                                <span>Subtotal</span>
+                                <span>Rs {Number(order.subtotal || 0).toLocaleString()}</span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                                <span>Delivery Fee</span>
+                                <span>{order.deliveryFee === 0 ? 'FREE' : `Rs ${order.deliveryFee}`}</span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, color: '#0f172a', fontSize: 14, paddingTop: 4, borderTop: '1px solid #e2e8f0', marginTop: 2 }}>
+                                <span>Total Paid</span>
+                                <span style={{ color: '#16a34a' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
 
+            {/* Modal Footer */}
             {orders.length > 0 && (
-              <div style={{ padding: '14px 18px', borderTop: '1px solid #e5e7eb', background: '#f9fafb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+              <div style={{ padding: '14px 18px', borderTop: '1px solid #e5e7eb', background: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 11, color: '#6b7280', fontWeight: 700 }}>{orders.length} {orders.length === 1 ? 'order' : 'orders'} saved</span>
-                <button onClick={onClear} style={{ border: '1px solid #fecaca', background: '#fee2e2', color: '#991b1b', borderRadius: 10, padding: '8px 12px', fontSize: 11, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  {isUrdu ? 'ہسٹری صاف کریں' : 'Clear History'}
+                <button onClick={onClear} style={{ border: '1px solid #fecaca', background: '#fee2e2', color: '#991b1b', borderRadius: 10, padding: '8px 14px', fontSize: 11, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {isUrdu ? '\u06c1\u0633\u067c\u0631\u06cc \u0635\u0627\u0641 \u06a9\u0631\u06cc\u06ba' : 'Clear History'}
                 </button>
               </div>
             )}
@@ -3956,7 +4046,6 @@ export default function SahilTraders() {
         </div>
       );
     }
-
     function CheckoutModal({ cart, cartTotal, langData, onClose, onBack, onOrderPlaced }) {
       const [name, setName] = useState("");
       const [phone, setPhone] = useState("");

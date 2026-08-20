@@ -4798,9 +4798,9 @@ function CheckoutModal({
     const itemLines = cart.map(({
       product,
       qty
-    }) => `\u{2022} ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
-    const deliveryText = deliveryMethod === 'pickup' ? '\u{1F3EC} Store Pickup (BS Mart Shop)\n  \u{23F1}\u{FE0F} Pickup Time: Ready in 20 Mins to 1 Hour' : `\u{1F69A} Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
-    const msg = ['\u{1F6D2} *NEW ORDER — Sahil Traders*', '═════════════════════════', '', '*\u{1F4E6} ORDER DETAILS:*', itemLines, '', '═════════════════════════', `*Subtotal:* Rs ${cartTotal.toLocaleString()}`, `*Delivery:* ${deliveryText}`, `*\u{1F4B0} TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '═════════════════════════', '', '*\u{1F464} CUSTOMER INFO:*', `\u{2022} Name: ${name.trim()}`, `\u{2022} Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `\u{2022} Delivery Address: ${address.trim()}` : `\u{2022} Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  \u{23F1}\u{FE0F} Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '═════════════════════════', `\u{1F4C5} Date: ${new Date().toLocaleDateString('en-PK', {
+    }) => `• ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
+    const deliveryText = deliveryMethod === 'pickup' ? '🏬 Store Pickup (BS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
+    const msg = ['🛒 *NEW ORDER — Sahil Traders*', '═════════════════════════', '', '*📦 ORDER DETAILS:*', itemLines, '', '═════════════════════════', `*Subtotal:* Rs ${cartTotal.toLocaleString()}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '═════════════════════════', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}` : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '═════════════════════════', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',

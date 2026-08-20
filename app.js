@@ -4358,10 +4358,27 @@ function OrderHistoryModal({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 36,
-      marginBottom: 10
+      width: 48,
+      height: 48,
+      borderRadius: '50%',
+      background: '#f3f4f6',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      margin: '0 auto 10px',
+      color: '#9ca3af'
     }
-  }, "ðŸ›’"), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-6 h-6",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+  }))), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 15,
       fontWeight: 900,
@@ -4458,19 +4475,50 @@ function OrderHistoryModal({
       style: {
         fontSize: 11,
         color: '#6b7280',
-        marginTop: 3,
+        marginTop: 4,
         display: 'flex',
         alignItems: 'center',
         gap: 6,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        flexWrap: 'wrap'
       }
-    }, /*#__PURE__*/React.createElement("span", null, "ðŸ“… ", order.dateText), /*#__PURE__*/React.createElement("span", null, "â€¢"), /*#__PURE__*/React.createElement("span", {
+    }, /*#__PURE__*/React.createElement("div", {
       style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4
+      }
+    }, /*#__PURE__*/React.createElement("svg", {
+      className: "w-3.5 h-3.5 text-gray-400",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "2",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      d: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
+    })), /*#__PURE__*/React.createElement("span", null, order.dateText)), /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: '#d1d5db'
+      }
+    }, "â€¢"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
         fontWeight: 600
       }
-    }, "ðŸ“¦ ", totalItemsCount, " ", totalItemsCount === 1 ? 'item' : 'items')), !isExpanded && /*#__PURE__*/React.createElement("p", {
+    }, /*#__PURE__*/React.createElement("svg", {
+      className: "w-3.5 h-3.5 text-gray-400",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "2",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      d: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+    })), /*#__PURE__*/React.createElement("span", null, totalItemsCount, " ", totalItemsCount === 1 ? 'item' : 'items'))), !isExpanded && /*#__PURE__*/React.createElement("p", {
       style: {
         fontSize: 11,
         color: '#9ca3af',
@@ -4521,7 +4569,7 @@ function OrderHistoryModal({
         fontSize: 12,
         display: 'flex',
         flexDirection: 'column',
-        gap: 4
+        gap: 6
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -4529,18 +4577,41 @@ function OrderHistoryModal({
         color: '#334155',
         display: 'flex',
         alignItems: 'center',
-        gap: 6
+        gap: 8
       }
-    }, /*#__PURE__*/React.createElement("span", null, "ðŸ‘¤"), /*#__PURE__*/React.createElement("span", null, order.customer?.name, " (", order.customer?.phone, ")")), order.customer?.address && /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("svg", {
+      className: "w-4 h-4 text-slate-600 shrink-0",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "2",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      d: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+    })), /*#__PURE__*/React.createElement("span", null, order.customer?.name, " (", order.customer?.phone, ")")), order.customer?.address && /*#__PURE__*/React.createElement("div", {
       style: {
         color: '#64748b',
         fontSize: 11,
         display: 'flex',
         alignItems: 'flex-start',
-        gap: 6,
-        marginTop: 2
+        gap: 8
       }
-    }, /*#__PURE__*/React.createElement("span", null, "ðŸ“"), /*#__PURE__*/React.createElement("span", null, order.customer.address))), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("svg", {
+      className: "w-4 h-4 text-slate-500 shrink-0 mt-0.5",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "2",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      d: "M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+    }), /*#__PURE__*/React.createElement("path", {
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      d: "M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+    })), /*#__PURE__*/React.createElement("span", null, order.customer.address))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         flexDirection: 'column',
@@ -4608,7 +4679,7 @@ function OrderHistoryModal({
         fontSize: 11,
         color: '#64748b'
       }
-    }, "Qty ", item.qty, " Ã— Rs ", Number(item.price || 0).toLocaleString())), /*#__PURE__*/React.createElement("div", {
+    }, "Qty ", item.qty, " x Rs ", Number(item.price || 0).toLocaleString())), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 13,
         color: '#0f172a',

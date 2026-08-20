@@ -3916,7 +3916,9 @@ export default function SahilTraders() {
             <div style={{ padding: 18, overflowY: 'auto' }}>
               {orders.length === 0 ? (
                 <div style={{ padding: '44px 18px', textAlign: 'center', background: '#f9fafb', border: '1px dashed #d1d5db', borderRadius: 16 }}>
-                  <div style={{ fontSize: 36, marginBottom: 10 }}>ðŸ›’</div>
+                  <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: '#9ca3af' }}>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>
+                  </div>
                   <p style={{ fontSize: 15, fontWeight: 900, color: '#111827', margin: 0 }}>{isUrdu ? '\u0627\u0628\u06be\u06cc \u06a9\u0648\u0626\u06cc \u0622\u0631\u0688\u0631 \u0645\u062d\u0641\u0648\u0638 \u0646\u06c1\u06cc\u06ba' : 'No saved orders yet'}</p>
                   <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{isUrdu ? '\u0622\u067e \u06a9\u0627 \u0627\u06af\u0644\u0627 \u0622\u0631\u0688\u0631 \u06cc\u06c1\u0627\u06ba \u0646\u0630\u0631 \u0622\u0624 \u06af\u0627' : 'Your placed orders will appear here automatically.'}</p>
                 </div>
@@ -3947,10 +3949,16 @@ export default function SahilTraders() {
                                   {order.deliveryMethod === 'pickup' ? (isUrdu ? '\u0627\u0633\u067c\u0648\u0631 \u067e\u06a9 \u0627\u067e' : 'Store Pickup') : (isUrdu ? '\u06c1\u0648\u0645 \u0688\u0644\u06cc\u0648\u0631\u06cc' : 'Home Delivery')}
                                 </span>
                               </div>
-                              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 3, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                <span>ðŸ“… {order.dateText}</span>
-                                <span>â€¢</span>
-                                <span style={{ fontWeight: 600 }}>ðŸ“¦ {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</span>
+                              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                  <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                                  <span>{order.dateText}</span>
+                                </div>
+                                <span style={{ color: '#d1d5db' }}>â€¢</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
+                                  <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                                  <span>{totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</span>
+                                </div>
                               </div>
                               {!isExpanded && (
                                 <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '240px' }}>
@@ -3975,14 +3983,14 @@ export default function SahilTraders() {
                         {isExpanded && (
                           <div style={{ borderTop: '1px solid #e5e7eb', background: '#ffffff', padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
                             {/* Customer Info Card */}
-                            <div style={{ padding: 12, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                              <div style={{ fontWeight: 800, color: '#334155', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span>ðŸ‘¤</span>
+                            <div style={{ padding: 12, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              <div style={{ fontWeight: 800, color: '#334155', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <svg className="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
                                 <span>{order.customer?.name} ({order.customer?.phone})</span>
                               </div>
                               {order.customer?.address && (
-                                <div style={{ color: '#64748b', fontSize: 11, display: 'flex', alignItems: 'flex-start', gap: 6, marginTop: 2 }}>
-                                  <span>ðŸ“</span>
+                                <div style={{ color: '#64748b', fontSize: 11, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                                  <svg className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
                                   <span>{order.customer.address}</span>
                                 </div>
                               )}
@@ -4002,7 +4010,7 @@ export default function SahilTraders() {
                                   )}
                                   <div style={{ minWidth: 0 }}>
                                     <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name)}</div>
-                                    <div style={{ fontSize: 11, color: '#64748b' }}>Qty {item.qty} Ã— Rs {Number(item.price || 0).toLocaleString()}</div>
+                                    <div style={{ fontSize: 11, color: '#64748b' }}>Qty {item.qty} x Rs {Number(item.price || 0).toLocaleString()}</div>
                                   </div>
                                   <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 900 }}>Rs {Number(item.total || 0).toLocaleString()}</div>
                                 </div>

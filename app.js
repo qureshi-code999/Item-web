@@ -183,12 +183,53 @@ function toTitleCase(str) {
   if (!str) return "";
   return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 }
+function getProductPricing(product) {
+  if (!product) return {
+    hasDiscount: false,
+    retailPrice: 0,
+    sellingPrice: 0,
+    savings: 0,
+    discountPercent: 0
+  };
+  const sellingPrice = Number(product.price) || 0;
+  let retailPrice = Number(product.retailPrice) || 0;
+  if (!retailPrice && product.name) {
+    const match = product.name.match(/(?:RS|RP|Rs|Rp)[\.,:\s]*(\d+)/i);
+    if (match && match[1]) {
+      const parsed = parseInt(match[1], 10);
+      if (!isNaN(parsed)) {
+        retailPrice = parsed;
+      }
+    }
+  }
+  if (retailPrice > sellingPrice && sellingPrice > 0) {
+    const savings = retailPrice - sellingPrice;
+    const discountPercent = Math.round(savings / retailPrice * 100);
+    return {
+      hasDiscount: true,
+      retailPrice,
+      sellingPrice,
+      savings,
+      discountPercent
+    };
+  }
+  return {
+    hasDiscount: false,
+    retailPrice: 0,
+    sellingPrice,
+    savings: 0,
+    discountPercent: 0
+  };
+}
 function getProductDisplayName(product, language) {
   if (!product) return "";
   if (language === "ur" && product.nameUrdu) {
     return product.nameUrdu;
   }
-  return toTitleCase(product.name || "");
+  let name = product.name || "";
+  // Clean off trailing price tags like RS,250 or RP,400 for neat display
+  name = name.replace(/\s*\(?\b(?:RS|RP|Rs|Rp)[\.,:\s]*\d+\)?\s*$/i, "").trim();
+  return toTitleCase(name);
 }
 // --- Lucide Icons Replacements (SVG Components) ---
 function Search({
@@ -1122,6 +1163,7 @@ function ProductDetailModal({
   if (!open || !product) return null;
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
+  const pricing = useMemo(() => getProductPricing(product), [product]);
 
   // Find 4-6 Related Products from the same category (excluding current product)
   const relatedProducts = useMemo(() => {
@@ -1139,8 +1181,9 @@ function ProductDetailModal({
   const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
   const handleDirectWhatsAppOrder = () => {
     const pName = getProductDisplayName(product, language);
-    const total = product.price * modalQty;
-    const msg = `Assalam U Alaikum Sahil Traders!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* Rs ${product.price.toLocaleString()} x ${modalQty} = *Rs ${total.toLocaleString()}*\n\nPlease confirm my order.`;
+    const total = pricing.sellingPrice * modalQty;
+    const discountInfo = pricing.hasDiscount ? `\n🏷️ *Retail:* ~Rs ${pricing.retailPrice.toLocaleString()}~ (Save Rs ${(pricing.savings * modalQty).toLocaleString()})` : '';
+    const msg = `Assalam U Alaikum Sahil Traders!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* Rs ${pricing.sellingPrice.toLocaleString()} x ${modalQty} = *Rs ${total.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
     window.open(`https://wa.me/923368945775?text=${encodeURIComponent(msg)}`, '_blank');
   };
   return /*#__PURE__*/React.createElement("div", {
@@ -1158,18 +1201,22 @@ function ProductDetailModal({
     className: "flex items-center gap-2"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-xs font-black tracking-widest uppercase text-gray-500 font-poppins"
-  }, isUrdu ? 'پروڈکٹ کی مکمل تفصیلات' : 'Product Details & Info'), /*#__PURE__*/React.createElement("span", {
+  }, isUrdu ? 'پروڈکٹ کی مکمل تفصیلات' : 'Product Details & Info'), pricing.hasDiscount ? /*#__PURE__*/React.createElement("span", {
+    className: "bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-red-200 flex items-center gap-1"
+  }, /*#__PURE__*/React.createElement("span", null, "🔥"), /*#__PURE__*/React.createElement("span", null, pricing.discountPercent, "% ", isUrdu ? 'رعایت' : 'OFF')) : /*#__PURE__*/React.createElement("span", {
     className: "bg-amber-100 text-amber-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-200"
   }, isUrdu ? 'بہترین ہول سیل ریٹ' : 'Wholesale Rate')), /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
     className: "w-8 h-8 rounded-full bg-gray-200 hover:bg-black hover:text-white text-gray-700 font-bold flex items-center justify-center transition-colors cursor-pointer"
   }, "✕")), /*#__PURE__*/React.createElement("div", {
-    className: "p-5 overflow-y-auto space-y-5 flex-1"
+    className: "p-4 sm:p-5 overflow-y-auto space-y-4 flex-1"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col sm:flex-row gap-4 items-center sm:items-start bg-gradient-to-br from-gray-50 to-amber-50/30 p-4 rounded-2xl border border-gray-200 shadow-xs"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "w-36 h-36 sm:w-40 sm:h-40 shrink-0 bg-white rounded-2xl p-2.5 border border-gray-200 flex items-center justify-center shadow-sm relative group"
-  }, hasFile ? /*#__PURE__*/React.createElement("img", {
+    className: "w-36 h-36 sm:w-40 sm:h-40 shrink-0 bg-white rounded-2xl p-2.5 border border-gray-200 flex items-center justify-center shadow-sm relative group overflow-hidden"
+  }, pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+    className: "absolute top-2 left-2 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 uppercase tracking-wider"
+  }, /*#__PURE__*/React.createElement("span", null, "🔥"), /*#__PURE__*/React.createElement("span", null, pricing.discountPercent, "% OFF")), hasFile ? /*#__PURE__*/React.createElement("img", {
     src: imageSrc,
     alt: product.name,
     loading: "lazy",
@@ -1177,10 +1224,10 @@ function ProductDetailModal({
     className: "w-full h-full object-contain"
   }) : /*#__PURE__*/React.createElement("div", {
     className: `w-full h-full rounded-xl bg-gradient-to-br ${product.gradient || 'from-amber-400 to-amber-600'} flex items-center justify-center text-white text-4xl font-black`
-  }, product.initial || 'P'), /*#__PURE__*/React.createElement("span", {
+  }, product.initial || 'P'), !pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
     className: "absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider"
   }, "Original")), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 space-y-2.5 text-center sm:text-left"
+    className: "flex-1 space-y-2.5 text-center sm:text-left w-full"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap gap-1.5 justify-center sm:justify-start items-center"
   }, /*#__PURE__*/React.createElement("span", {
@@ -1189,7 +1236,33 @@ function ProductDetailModal({
     className: "bg-gray-200 text-gray-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full"
   }, product.categoryName)), /*#__PURE__*/React.createElement("h3", {
     className: "text-base font-black text-gray-900 leading-snug"
-  }, getProductDisplayName(product, language)), /*#__PURE__*/React.createElement("div", {
+  }, getProductDisplayName(product, language)), pricing.hasDiscount ? /*#__PURE__*/React.createElement("div", {
+    className: "space-y-1.5 bg-gradient-to-r from-emerald-50/70 via-white to-red-50/50 p-3 rounded-2xl border border-emerald-200/80 shadow-2xs text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between flex-wrap gap-1"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-extrabold uppercase tracking-wider text-gray-500"
+  }, isUrdu ? 'ہماری ہول سیل قیمت' : 'Wholesale Selling Price'), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl sm:text-3xl font-black text-gray-950"
+  }, "Rs. ", pricing.sellingPrice.toLocaleString()), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm sm:text-base text-gray-400 line-through font-bold"
+  }, "Rs. ", pricing.retailPrice.toLocaleString()))), /*#__PURE__*/React.createElement("span", {
+    className: "inline-block bg-red-600 text-white text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl shadow-xs"
+  }, pricing.discountPercent, "% OFF")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100/90 px-2 py-1 rounded-lg border border-emerald-300"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-3.5 h-3.5 text-emerald-700 shrink-0",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+  })), /*#__PURE__*/React.createElement("span", null, isUrdu ? `آپ کی بچت: Rs. ${pricing.savings.toLocaleString()} فی آئٹم` : `You Save: Rs. ${pricing.savings.toLocaleString()} per item`))) : /*#__PURE__*/React.createElement("div", {
     className: "flex items-baseline justify-center sm:justify-start gap-2"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-2xl font-black text-black"
@@ -1210,7 +1283,7 @@ function ProductDetailModal({
     onClick: () => setModalQty(q => q + 1),
     className: "w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-sm flex items-center justify-center cursor-pointer transition-colors"
   }, "+"))), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2"
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       for (let i = 0; i < modalQty; i++) onAddToCart(product);
@@ -1247,7 +1320,7 @@ function ProductDetailModal({
   }, isUrdu ? 'دکان سے پک اپ' : 'Store Pickup'), /*#__PURE__*/React.createElement("div", {
     className: "text-[10px] text-gray-500"
   }, isUrdu ? 'BS Mart دکان سے لیں' : 'BS Mart Shop Karachi')))), relatedProducts.length > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "space-y-3 pt-2"
+    className: "space-y-3 pt-1"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1259,13 +1332,16 @@ function ProductDetailModal({
   }, relatedProducts.length, " ", isUrdu ? 'مصنوعات' : 'items')), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-2 sm:grid-cols-3 gap-2.5"
   }, relatedProducts.map(rel => {
+    const relPricing = getProductPricing(rel);
     const relHasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[rel.id];
     const relImgSrc = relHasFile ? `images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}` : null;
     return /*#__PURE__*/React.createElement("div", {
       key: rel.id,
       onClick: () => onSelectProduct && onSelectProduct(rel),
-      className: "bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-2.5 flex flex-col justify-between transition-all cursor-pointer group shadow-xs hover:shadow-md"
-    }, /*#__PURE__*/React.createElement("div", {
+      className: "bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-2.5 flex flex-col justify-between transition-all cursor-pointer group shadow-xs hover:shadow-md relative overflow-hidden"
+    }, relPricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+      className: "absolute top-1.5 left-1.5 z-10 bg-red-600 text-white text-[8.5px] font-black px-1.5 py-0.5 rounded shadow-2xs uppercase"
+    }, relPricing.discountPercent, "% OFF"), /*#__PURE__*/React.createElement("div", {
       className: "h-20 w-full bg-gray-50 rounded-xl p-1 mb-2 flex items-center justify-center overflow-hidden"
     }, relHasFile ? /*#__PURE__*/React.createElement("img", {
       src: relImgSrc,
@@ -1279,14 +1355,18 @@ function ProductDetailModal({
       className: "text-[11px] font-bold text-gray-800 line-clamp-2 leading-tight mb-1 group-hover:text-black"
     }, getProductDisplayName(rel, language)), /*#__PURE__*/React.createElement("div", {
       className: "flex items-center justify-between gap-1 mt-auto pt-1 border-t border-gray-100"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-col"
     }, /*#__PURE__*/React.createElement("span", {
       className: "text-xs font-extrabold text-black"
-    }, "Rs.", rel.price), /*#__PURE__*/React.createElement("button", {
+    }, "Rs.", relPricing.sellingPrice.toLocaleString()), relPricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+      className: "text-[9.5px] text-gray-400 line-through font-semibold"
+    }, "Rs.", relPricing.retailPrice.toLocaleString())), /*#__PURE__*/React.createElement("button", {
       onClick: e => {
         e.stopPropagation();
         onAddToCart(rel);
       },
-      className: "w-6 h-6 rounded-lg bg-gray-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center transition-colors cursor-pointer",
+      className: "w-6 h-6 rounded-lg bg-gray-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center transition-colors cursor-pointer shrink-0",
       title: "Quick Add to Cart"
     }, "+")));
   })))), /*#__PURE__*/React.createElement("div", {
@@ -2607,6 +2687,7 @@ function SahilTraders() {
     cart: cart,
     cartTotal: cartTotal,
     langData: langData,
+    language: language,
     onClose: () => setCartOpen(false),
     onUpdateQty: updateQty,
     onRemove: removeFromCart,
@@ -3755,7 +3836,8 @@ function ProductCard({
   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
   const [imgErr, setImgErr] = useState(!hasFile);
   const [imgType, setImgType] = useState('jpg'); // Try jpg first, then png
-
+  const isUrdu = language === 'ur';
+  const pricing = useMemo(() => getProductPricing(product), [product]);
   useEffect(() => {
     if (cartQty === 0) setAdded(false);
   }, [cartQty]);
@@ -3776,7 +3858,7 @@ function ProductCard({
   const isAdded = added || cartQty > 0;
   return /*#__PURE__*/React.createElement("div", {
     onClick: () => onSelectProduct && onSelectProduct(product),
-    className: "product-card rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group cursor-pointer",
+    className: "product-card rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group cursor-pointer relative",
     style: {
       background: '#ffffff',
       border: '1px solid #e5e7eb',
@@ -3793,11 +3875,17 @@ function ProductCard({
       e.currentTarget.style.transform = 'translateY(0)';
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-2.5 relative overflow-visible",
+    className: "product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-2.5 relative overflow-hidden",
     style: {
       background: 'transparent'
     }
-  }, !imgErr ? /*#__PURE__*/React.createElement("img", {
+  }, pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+    className: "absolute top-2 left-2 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[9.5px] sm:text-[10.5px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 uppercase tracking-wider"
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10
+    }
+  }, "🔥"), /*#__PURE__*/React.createElement("span", null, pricing.discountPercent, "% OFF")), !imgErr ? /*#__PURE__*/React.createElement("img", {
     src: imageSrc,
     onError: handleImgError,
     loading: "lazy",
@@ -3834,13 +3922,27 @@ function ProductCard({
       background: 'transparent'
     }
   }), /*#__PURE__*/React.createElement("div", {
-    className: "product-card-body p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-white"
+    className: "product-card-body p-3 sm:p-3.5 pt-2 flex flex-col gap-1.5 flex-1 bg-white"
   }, /*#__PURE__*/React.createElement("p", {
     className: "product-name-text text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight",
     style: {
       color: '#1a1a2e'
     }
-  }, getProductDisplayName(product, language)), /*#__PURE__*/React.createElement("p", {
+  }, getProductDisplayName(product, language)), pricing.hasDiscount ? /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-col gap-0.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline gap-1.5 flex-wrap"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "product-price-text font-black text-sm sm:text-base text-gray-950"
+  }, translate(langData, 'priceLabel', {
+    amount: pricing.sellingPrice.toLocaleString()
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "text-[11px] sm:text-xs text-gray-400 line-through font-semibold"
+  }, "Rs. ", pricing.retailPrice.toLocaleString())), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] sm:text-[11px] font-bold text-emerald-700 flex items-center gap-1 flex-wrap"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200"
+  }, isUrdu ? `بچت: Rs ${pricing.savings.toLocaleString()}` : `Save Rs ${pricing.savings.toLocaleString()}`))) : /*#__PURE__*/React.createElement("p", {
     className: "product-price-text font-extrabold text-sm sm:text-base",
     style: {
       color: '#000000'
@@ -3900,6 +4002,7 @@ function CartDrawer({
   cart,
   cartTotal,
   langData,
+  language,
   onClose,
   onUpdateQty,
   onRemove,
@@ -3907,6 +4010,16 @@ function CartDrawer({
   onSelectProduct
 }) {
   const [deleteConfirm, setDeleteConfirm] = React.useState(null);
+  const isUrdu = language === 'ur';
+  const totalSavings = useMemo(() => {
+    return cart.reduce((sum, {
+      product,
+      qty
+    }) => {
+      const pricing = getProductPricing(product);
+      return sum + (pricing.hasDiscount ? pricing.savings * qty : 0);
+    }, 0);
+  }, [cart]);
   useEffect(() => {
     if (open) document.body.style.overflow = 'hidden';else document.body.style.overflow = '';
     return () => {
@@ -4140,179 +4253,216 @@ function CartDrawer({
   }, cart.map(({
     product,
     qty
-  }) => /*#__PURE__*/React.createElement("div", {
-    key: product.id,
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 12,
-      padding: '12px 14px',
-      background: 'rgba(0,0,0,0.12)',
-      border: '1px solid rgba(0,0,0,0.12)',
-      borderRadius: 14
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    onClick: () => onSelectProduct && onSelectProduct(product),
-    style: {
-      cursor: 'pointer'
-    },
-    className: "shrink-0 transition-transform active:scale-95",
-    title: "Click to view product details"
-  }, window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? /*#__PURE__*/React.createElement("img", {
-    src: `images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`,
-    onError: e => {
-      e.target.onerror = null;
-    },
-    alt: product.name,
-    className: "w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-gray-200 hover:border-gray-300 transition-colors"
-  }) : /*#__PURE__*/React.createElement("div", {
-    className: `w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: '#1a1a2e',
-      fontWeight: 800,
-      fontSize: 16,
-      fontFamily: "'Poppins',sans-serif"
-    }
-  }, product.initial))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      minWidth: 0
-    }
-  }, /*#__PURE__*/React.createElement("p", {
-    onClick: () => onSelectProduct && onSelectProduct(product),
-    style: {
-      cursor: 'pointer',
-      fontSize: 13,
-      fontWeight: 600,
-      color: '#1a1a2e',
-      lineHeight: 1.3,
-      marginBottom: 4,
-      overflow: 'hidden',
-      display: '-webkit-box',
-      WebkitLineClamp: 2,
-      WebkitBoxOrient: 'vertical'
-    },
-    className: "hover:text-black hover:underline transition-colors",
-    title: "Click to view product details"
-  }, toTitleCase(product.name)), /*#__PURE__*/React.createElement("p", {
-    style: {
-      fontSize: 12,
-      color: '#000000',
-      fontWeight: 700
-    }
-  }, translate(langData, "priceLabel", {
-    amount: product.price.toLocaleString()
-  }), " × ", qty), /*#__PURE__*/React.createElement("p", {
-    style: {
-      display: 'inline-block',
-      fontSize: 11,
-      color: '#111111',
-      background: '#ffffff',
-      border: '1px solid rgba(0,0,0,0.18)',
-      borderRadius: 8,
-      padding: '2px 7px',
-      fontWeight: 800,
-      marginTop: 4
-    }
-  }, "= ", translate(langData, "priceLabel", {
-    amount: (product.price * qty).toLocaleString()
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flexShrink: 0
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 5,
-      background: 'rgba(0,0,0,0.12)',
-      borderRadius: 10,
-      padding: '4px 6px',
-      border: '1px solid rgba(0,0,0,0.12)'
-    }
-  }, qty === 1 ? /*#__PURE__*/React.createElement("button", {
-    onClick: () => handleMinusClick(product.id, qty),
-    title: "Remove item",
-    style: {
-      width: 28,
-      height: 28,
-      border: 'none',
-      background: 'rgba(239,68,68,0.12)',
-      color: 'rgba(239,68,68,0.9)',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 8,
-      transition: 'all 0.2s'
-    },
-    onMouseEnter: e => {
-      e.currentTarget.style.background = 'rgba(239,68,68,0.25)';
-      e.currentTarget.style.color = '#ef4444';
-    },
-    onMouseLeave: e => {
-      e.currentTarget.style.background = 'rgba(239,68,68,0.12)';
-      e.currentTarget.style.color = 'rgba(239,68,68,0.9)';
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: "13",
-    height: "13",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-  }))) : /*#__PURE__*/React.createElement("button", {
-    onClick: () => handleMinusClick(product.id, qty),
-    style: {
-      width: 28,
-      height: 28,
-      border: 'none',
-      background: 'none',
-      color: '#000000',
-      fontSize: 20,
-      fontWeight: 700,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 8,
-      transition: 'background 0.2s'
-    },
-    onMouseEnter: e => e.currentTarget.style.background = 'rgba(0,0,0,0.12)',
-    onMouseLeave: e => e.currentTarget.style.background = 'none'
-  }, "−"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      minWidth: 24,
-      textAlign: 'center',
-      fontSize: 14,
-      fontWeight: 700,
-      color: '#1a1a2e'
-    }
-  }, qty), /*#__PURE__*/React.createElement("button", {
-    onClick: () => onUpdateQty(product.id, 1),
-    style: {
-      width: 28,
-      height: 28,
-      border: 'none',
-      background: 'none',
-      color: '#000000',
-      fontSize: 20,
-      fontWeight: 700,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 8,
-      transition: 'background 0.2s'
-    },
-    onMouseEnter: e => e.currentTarget.style.background = 'rgba(0,0,0,0.12)',
-    onMouseLeave: e => e.currentTarget.style.background = 'none'
-  }, "+"))))))), deleteConfirm && /*#__PURE__*/React.createElement("div", {
+  }) => {
+    const pricing = getProductPricing(product);
+    return /*#__PURE__*/React.createElement("div", {
+      key: product.id,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '12px 14px',
+        background: 'rgba(0,0,0,0.12)',
+        border: '1px solid rgba(0,0,0,0.12)',
+        borderRadius: 14
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      onClick: () => onSelectProduct && onSelectProduct(product),
+      style: {
+        cursor: 'pointer'
+      },
+      className: "shrink-0 transition-transform active:scale-95 relative",
+      title: "Click to view product details"
+    }, pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+      className: "absolute -top-1.5 -left-1.5 z-10 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.2 rounded-md shadow-2xs uppercase"
+    }, pricing.discountPercent, "%"), window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? /*#__PURE__*/React.createElement("img", {
+      src: `images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`,
+      onError: e => {
+        e.target.onerror = null;
+      },
+      alt: product.name,
+      className: "w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-gray-200 hover:border-gray-300 transition-colors"
+    }) : /*#__PURE__*/React.createElement("div", {
+      className: `w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: '#1a1a2e',
+        fontWeight: 800,
+        fontSize: 16,
+        fontFamily: "'Poppins',sans-serif"
+      }
+    }, product.initial))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("p", {
+      onClick: () => onSelectProduct && onSelectProduct(product),
+      style: {
+        cursor: 'pointer',
+        fontSize: 13,
+        fontWeight: 600,
+        color: '#1a1a2e',
+        lineHeight: 1.3,
+        marginBottom: 4,
+        overflow: 'hidden',
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical'
+      },
+      className: "hover:text-black hover:underline transition-colors",
+      title: "Click to view product details"
+    }, getProductDisplayName(product, language)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        flexWrap: 'wrap'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 12,
+        color: '#000000',
+        fontWeight: 700
+      }
+    }, translate(langData, "priceLabel", {
+      amount: product.price.toLocaleString()
+    }), " × ", qty), pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 10,
+        color: '#9ca3af',
+        textDecoration: 'line-through',
+        fontWeight: 600
+      }
+    }, "Rs. ", pricing.retailPrice.toLocaleString())), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        flexWrap: 'wrap',
+        marginTop: 4
+      }
+    }, /*#__PURE__*/React.createElement("p", {
+      style: {
+        display: 'inline-block',
+        fontSize: 11,
+        color: '#111111',
+        background: '#ffffff',
+        border: '1px solid rgba(0,0,0,0.18)',
+        borderRadius: 8,
+        padding: '2px 7px',
+        fontWeight: 800,
+        margin: 0
+      }
+    }, "= ", translate(langData, "priceLabel", {
+      amount: (product.price * qty).toLocaleString()
+    })), pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9.5,
+        color: '#15803d',
+        background: '#dcfce7',
+        border: '1px solid #bbf7d0',
+        borderRadius: 6,
+        padding: '1px 5px',
+        fontWeight: 800
+      }
+    }, isUrdu ? `بچت: Rs ${(pricing.savings * qty).toLocaleString()}` : `Save Rs ${(pricing.savings * qty).toLocaleString()}`))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flexShrink: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 5,
+        background: 'rgba(0,0,0,0.12)',
+        borderRadius: 10,
+        padding: '4px 6px',
+        border: '1px solid rgba(0,0,0,0.12)'
+      }
+    }, qty === 1 ? /*#__PURE__*/React.createElement("button", {
+      onClick: () => handleMinusClick(product.id, qty),
+      title: "Remove item",
+      style: {
+        width: 28,
+        height: 28,
+        border: 'none',
+        background: 'rgba(239,68,68,0.12)',
+        color: 'rgba(239,68,68,0.9)',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 8,
+        transition: 'all 0.2s'
+      },
+      onMouseEnter: e => {
+        e.currentTarget.style.background = 'rgba(239,68,68,0.25)';
+        e.currentTarget.style.color = '#ef4444';
+      },
+      onMouseLeave: e => {
+        e.currentTarget.style.background = 'rgba(239,68,68,0.12)';
+        e.currentTarget.style.color = 'rgba(239,68,68,0.9)';
+      }
+    }, /*#__PURE__*/React.createElement("svg", {
+      width: "13",
+      height: "13",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "2",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      d: "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+    }))) : /*#__PURE__*/React.createElement("button", {
+      onClick: () => handleMinusClick(product.id, qty),
+      style: {
+        width: 28,
+        height: 28,
+        border: 'none',
+        background: 'none',
+        color: '#000000',
+        fontSize: 20,
+        fontWeight: 700,
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 8,
+        transition: 'background 0.2s'
+      },
+      onMouseEnter: e => e.currentTarget.style.background = 'rgba(0,0,0,0.12)',
+      onMouseLeave: e => e.currentTarget.style.background = 'none'
+    }, "−"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        minWidth: 24,
+        textAlign: 'center',
+        fontSize: 14,
+        fontWeight: 700,
+        color: '#1a1a2e'
+      }
+    }, qty), /*#__PURE__*/React.createElement("button", {
+      onClick: () => onUpdateQty(product.id, 1),
+      style: {
+        width: 28,
+        height: 28,
+        border: 'none',
+        background: 'none',
+        color: '#000000',
+        fontSize: 20,
+        fontWeight: 700,
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 8,
+        transition: 'background 0.2s'
+      },
+      onMouseEnter: e => e.currentTarget.style.background = 'rgba(0,0,0,0.12)',
+      onMouseLeave: e => e.currentTarget.style.background = 'none'
+    }, "+"))));
+  }))), deleteConfirm && /*#__PURE__*/React.createElement("div", {
     onClick: () => setDeleteConfirm(null),
     style: {
       position: 'fixed',
@@ -4426,7 +4576,37 @@ function CartDrawer({
       borderTop: '1px solid rgba(0,0,0,0.12)',
       flexShrink: 0
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, totalSavings > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 10,
+      padding: '8px 12px',
+      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+      border: '1px solid #86efac',
+      borderRadius: 12,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontWeight: 800,
+      color: '#166534',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "🎉"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'اس آرڈر پر آپ کی کل بچت:' : 'Total Savings on this order:')), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontWeight: 900,
+      color: '#15803d',
+      background: '#ffffff',
+      padding: '2px 8px',
+      borderRadius: 8,
+      border: '1px solid #bbf7d0'
+    }
+  }, "Rs. ", totalSavings.toLocaleString())), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       justifyContent: 'space-between',

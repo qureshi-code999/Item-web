@@ -148,12 +148,51 @@ function getTranslationValue(dictionary, key) {
       return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
     }
 
+    function getProductPricing(product) {
+      if (!product) return { hasDiscount: false, retailPrice: 0, sellingPrice: 0, savings: 0, discountPercent: 0 };
+      const sellingPrice = Number(product.price) || 0;
+      let retailPrice = Number(product.retailPrice) || 0;
+      
+      if (!retailPrice && product.name) {
+        const match = product.name.match(/(?:RS|RP|Rs|Rp)[\.,:\s]*(\d+)/i);
+        if (match && match[1]) {
+          const parsed = parseInt(match[1], 10);
+          if (!isNaN(parsed)) {
+            retailPrice = parsed;
+          }
+        }
+      }
+      
+      if (retailPrice > sellingPrice && sellingPrice > 0) {
+        const savings = retailPrice - sellingPrice;
+        const discountPercent = Math.round((savings / retailPrice) * 100);
+        return {
+          hasDiscount: true,
+          retailPrice,
+          sellingPrice,
+          savings,
+          discountPercent
+        };
+      }
+      
+      return {
+        hasDiscount: false,
+        retailPrice: 0,
+        sellingPrice,
+        savings: 0,
+        discountPercent: 0
+      };
+    }
+
     function getProductDisplayName(product, language) {
       if (!product) return "";
       if (language === "ur" && product.nameUrdu) {
         return product.nameUrdu;
       }
-      return toTitleCase(product.name || "");
+      let name = product.name || "";
+      // Clean off trailing price tags like RS,250 or RP,400 for neat display
+      name = name.replace(/\s*\(?\b(?:RS|RP|Rs|Rp)[\.,:\s]*\d+\)?\s*$/i, "").trim();
+      return toTitleCase(name);
     }
     // --- Lucide Icons Replacements (SVG Components) ---
     function Search({ className }) {
@@ -1940,6 +1979,8 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
 
+  const pricing = useMemo(() => getProductPricing(product), [product]);
+
   // Find 4-6 Related Products from the same category (excluding current product)
   const relatedProducts = useMemo(() => {
     if (!product || !products) return [];
@@ -1958,8 +1999,11 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
 
   const handleDirectWhatsAppOrder = () => {
     const pName = getProductDisplayName(product, language);
-    const total = product.price * modalQty;
-    const msg = `Assalam U Alaikum Sahil Traders!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* Rs ${product.price.toLocaleString()} x ${modalQty} = *Rs ${total.toLocaleString()}*\n\nPlease confirm my order.`;
+    const total = pricing.sellingPrice * modalQty;
+    const discountInfo = pricing.hasDiscount 
+      ? `\n🏷️ *Retail:* ~Rs ${pricing.retailPrice.toLocaleString()}~ (Save Rs ${(pricing.savings * modalQty).toLocaleString()})`
+      : '';
+    const msg = `Assalam U Alaikum Sahil Traders!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* Rs ${pricing.sellingPrice.toLocaleString()} x ${modalQty} = *Rs ${total.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
     window.open(`https://wa.me/923368945775?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -1979,9 +2023,16 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
             <span className="text-xs font-black tracking-widest uppercase text-gray-500 font-poppins">
               {isUrdu ? 'پروڈکٹ کی مکمل تفصیلات' : 'Product Details & Info'}
             </span>
-            <span className="bg-amber-100 text-amber-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-200">
-              {isUrdu ? 'بہترین ہول سیل ریٹ' : 'Wholesale Rate'}
-            </span>
+            {pricing.hasDiscount ? (
+              <span className="bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-red-200 flex items-center gap-1">
+                <span>🔥</span>
+                <span>{pricing.discountPercent}% {isUrdu ? 'رعایت' : 'OFF'}</span>
+              </span>
+            ) : (
+              <span className="bg-amber-100 text-amber-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-200">
+                {isUrdu ? 'بہترین ہول سیل ریٹ' : 'Wholesale Rate'}
+              </span>
+            )}
           </div>
           <button 
             onClick={onClose}
@@ -1992,11 +2043,17 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-5 overflow-y-auto space-y-5 flex-1">
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
           {/* Main Product Info Card */}
           <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start bg-gradient-to-br from-gray-50 to-amber-50/30 p-4 rounded-2xl border border-gray-200 shadow-xs">
             {/* Image */}
-            <div className="w-36 h-36 sm:w-40 sm:h-40 shrink-0 bg-white rounded-2xl p-2.5 border border-gray-200 flex items-center justify-center shadow-sm relative group">
+            <div className="w-36 h-36 sm:w-40 sm:h-40 shrink-0 bg-white rounded-2xl p-2.5 border border-gray-200 flex items-center justify-center shadow-sm relative group overflow-hidden">
+              {pricing.hasDiscount && (
+                <span className="absolute top-2 left-2 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 uppercase tracking-wider">
+                  <span>🔥</span>
+                  <span>{pricing.discountPercent}% OFF</span>
+                </span>
+              )}
               {hasFile ? (
                 <img 
                   src={imageSrc} 
@@ -2010,13 +2067,15 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                   {product.initial || 'P'}
                 </div>
               )}
-              <span className="absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
-                Original
-              </span>
+              {!pricing.hasDiscount && (
+                <span className="absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
+                  Original
+                </span>
+              )}
             </div>
 
             {/* Details */}
-            <div className="flex-1 space-y-2.5 text-center sm:text-left">
+            <div className="flex-1 space-y-2.5 text-center sm:text-left w-full">
               <div className="flex flex-wrap gap-1.5 justify-center sm:justify-start items-center">
                 <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase">
                   {isUrdu ? '✓ اسٹاک میں دستیاب' : '✓ In Stock'}
@@ -2032,14 +2091,48 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                 {getProductDisplayName(product, language)}
               </h3>
 
-              <div className="flex items-baseline justify-center sm:justify-start gap-2">
-                <span className="text-2xl font-black text-black">
-                  Rs. {product.price.toLocaleString()}
-                </span>
-                <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  {isUrdu ? 'سپر مارکیٹ سے سستا' : 'Cheaper than Supermarts'}
-                </span>
-              </div>
+              {/* Enhanced Price Section with Discount / Retail cut */}
+              {pricing.hasDiscount ? (
+                <div className="space-y-1.5 bg-gradient-to-r from-emerald-50/70 via-white to-red-50/50 p-3 rounded-2xl border border-emerald-200/80 shadow-2xs text-left">
+                  <div className="flex items-center justify-between flex-wrap gap-1">
+                    <div>
+                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500">
+                        {isUrdu ? 'ہماری ہول سیل قیمت' : 'Wholesale Selling Price'}
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl sm:text-3xl font-black text-gray-950">
+                          Rs. {pricing.sellingPrice.toLocaleString()}
+                        </span>
+                        <span className="text-sm sm:text-base text-gray-400 line-through font-bold">
+                          Rs. {pricing.retailPrice.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="inline-block bg-red-600 text-white text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl shadow-xs">
+                      {pricing.discountPercent}% OFF
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100/90 px-2 py-1 rounded-lg border border-emerald-300">
+                    <svg className="w-3.5 h-3.5 text-emerald-700 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>
+                      {isUrdu 
+                        ? `آپ کی بچت: Rs. ${pricing.savings.toLocaleString()} فی آئٹم` 
+                        : `You Save: Rs. ${pricing.savings.toLocaleString()} per item`}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-baseline justify-center sm:justify-start gap-2">
+                  <span className="text-2xl font-black text-black">
+                    Rs. {product.price.toLocaleString()}
+                  </span>
+                  <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    {isUrdu ? 'سپر مارکیٹ سے سستا' : 'Cheaper than Supermarts'}
+                  </span>
+                </div>
+              )}
 
               {/* Quantity Selector */}
               <div className="pt-1 flex items-center justify-center sm:justify-start gap-3">
@@ -2066,7 +2159,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                 <button
                   onClick={() => { 
                     for(let i=0; i<modalQty; i++) onAddToCart(product); 
@@ -2114,10 +2207,9 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
             </div>
           </div>
 
-
           {/* Related Products Section ("Ye Bhi Dekhein / یہ بھی دیکھیں") */}
           {relatedProducts.length > 0 && (
-            <div className="space-y-3 pt-2">
+            <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 font-black text-sm text-gray-900 uppercase tracking-wider">
                   <span className="text-amber-500 text-base">✨</span>
@@ -2131,14 +2223,20 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
               {/* Related Products Mini Horizontal Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {relatedProducts.map(rel => {
+                  const relPricing = getProductPricing(rel);
                   const relHasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[rel.id];
                   const relImgSrc = relHasFile ? `images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}` : null;
                   return (
                     <div 
                       key={rel.id}
                       onClick={() => onSelectProduct && onSelectProduct(rel)}
-                      className="bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-2.5 flex flex-col justify-between transition-all cursor-pointer group shadow-xs hover:shadow-md"
+                      className="bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-2.5 flex flex-col justify-between transition-all cursor-pointer group shadow-xs hover:shadow-md relative overflow-hidden"
                     >
+                      {relPricing.hasDiscount && (
+                        <span className="absolute top-1.5 left-1.5 z-10 bg-red-600 text-white text-[8.5px] font-black px-1.5 py-0.5 rounded shadow-2xs uppercase">
+                          {relPricing.discountPercent}% OFF
+                        </span>
+                      )}
                       <div className="h-20 w-full bg-gray-50 rounded-xl p-1 mb-2 flex items-center justify-center overflow-hidden">
                         {relHasFile ? (
                           <img 
@@ -2158,15 +2256,22 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                         {getProductDisplayName(rel, language)}
                       </p>
                       <div className="flex items-center justify-between gap-1 mt-auto pt-1 border-t border-gray-100">
-                        <span className="text-xs font-extrabold text-black">
-                          Rs.{rel.price}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-extrabold text-black">
+                            Rs.{relPricing.sellingPrice.toLocaleString()}
+                          </span>
+                          {relPricing.hasDiscount && (
+                            <span className="text-[9.5px] text-gray-400 line-through font-semibold">
+                              Rs.{relPricing.retailPrice.toLocaleString()}
+                            </span>
+                          )}
+                        </div>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onAddToCart(rel);
                           }}
-                          className="w-6 h-6 rounded-lg bg-gray-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center transition-colors cursor-pointer"
+                          className="w-6 h-6 rounded-lg bg-gray-900 hover:bg-black text-white font-bold text-xs flex items-center justify-center transition-colors cursor-pointer shrink-0"
                           title="Quick Add to Cart"
                         >
                           +
@@ -3290,6 +3395,7 @@ export default function SahilTraders() {
                 cart={cart}
                 cartTotal={cartTotal}
                 langData={langData}
+                language={language}
                 onClose={() => setCartOpen(false)}
                 onUpdateQty={updateQty}
                 onRemove={removeFromCart}
@@ -3764,6 +3870,9 @@ export default function SahilTraders() {
       const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
       const [imgErr, setImgErr] = useState(!hasFile);
       const [imgType, setImgType] = useState('jpg'); // Try jpg first, then png
+      const isUrdu = language === 'ur';
+
+      const pricing = useMemo(() => getProductPricing(product), [product]);
 
       useEffect(() => {
         if (cartQty === 0) setAdded(false);
@@ -3790,13 +3899,21 @@ export default function SahilTraders() {
       return (
         <div
           onClick={() => onSelectProduct && onSelectProduct(product)}
-          className="product-card rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group cursor-pointer"
+          className="product-card rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group cursor-pointer relative"
           style={{ background: '#ffffff', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor='#000000'; e.currentTarget.style.boxShadow='0 8px 20px rgba(0,0,0,0.08)'; e.currentTarget.style.transform='translateY(-3px)'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor='#e5e7eb'; e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform='translateY(0)'; }}
         >
           {/* Product Image Container */}
-          <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-2.5 relative overflow-visible" style={{ background: 'transparent' }}>
+          <div className="product-img-area h-44 sm:h-48 w-full flex items-center justify-center p-2.5 relative overflow-hidden" style={{ background: 'transparent' }}>
+            {/* Sale / Discount Badge */}
+            {pricing.hasDiscount && (
+              <span className="absolute top-2 left-2 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[9.5px] sm:text-[10.5px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 uppercase tracking-wider">
+                <span style={{ fontSize: 10 }}>🔥</span>
+                <span>{pricing.discountPercent}% OFF</span>
+              </span>
+            )}
+
             {!imgErr ? (
               <img
                 src={imageSrc}
@@ -3824,13 +3941,34 @@ export default function SahilTraders() {
           <div className="h-px mx-3" style={{ background: 'transparent' }} />
 
           {/* Balanced Compact Text & Action Details */}
-          <div className="product-card-body p-3.5 pt-2.5 flex flex-col gap-1.5 flex-1 bg-white">
+          <div className="product-card-body p-3 sm:p-3.5 pt-2 flex flex-col gap-1.5 flex-1 bg-white">
             <p className="product-name-text text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight" style={{ color: '#1a1a2e' }}>
               {getProductDisplayName(product, language)}
             </p>
-            <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#000000' }}>
-              {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
-            </p>
+
+            {/* Price & Savings Display */}
+            {pricing.hasDiscount ? (
+              <div className="flex flex-col gap-0.5">
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className="product-price-text font-black text-sm sm:text-base text-gray-950">
+                    {translate(langData, 'priceLabel', { amount: pricing.sellingPrice.toLocaleString() })}
+                  </span>
+                  <span className="text-[11px] sm:text-xs text-gray-400 line-through font-semibold">
+                    Rs. {pricing.retailPrice.toLocaleString()}
+                  </span>
+                </div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-emerald-700 flex items-center gap-1 flex-wrap">
+                  <span className="bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200">
+                    {isUrdu ? `بچت: Rs ${pricing.savings.toLocaleString()}` : `Save Rs ${pricing.savings.toLocaleString()}`}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#000000' }}>
+                {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
+              </p>
+            )}
+
             <button
               onClick={handleAdd}
               className="product-add-btn mt-auto w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2"
@@ -3863,8 +4001,16 @@ export default function SahilTraders() {
 
 
       // -----------------------------------------------------------------------------
-    function CartDrawer({ open, cart, cartTotal, langData, onClose, onUpdateQty, onRemove, onCheckout, onSelectProduct }) {
+    function CartDrawer({ open, cart, cartTotal, langData, language, onClose, onUpdateQty, onRemove, onCheckout, onSelectProduct }) {
       const [deleteConfirm, setDeleteConfirm] = React.useState(null);
+      const isUrdu = language === 'ur';
+
+      const totalSavings = useMemo(() => {
+        return cart.reduce((sum, { product, qty }) => {
+          const pricing = getProductPricing(product);
+          return sum + (pricing.hasDiscount ? pricing.savings * qty : 0);
+        }, 0);
+      }, [cart]);
 
       useEffect(() => {
         if (open) document.body.style.overflow = 'hidden';
@@ -3962,78 +4108,104 @@ export default function SahilTraders() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {cart.map(({ product, qty }) => (
-                    <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 14 }}>
-                      {/* Product Thumbnail - Clickable */}
-                      <div
-                        onClick={() => onSelectProduct && onSelectProduct(product)}
-                        style={{ cursor: 'pointer' }}
-                        className="shrink-0 transition-transform active:scale-95"
-                        title="Click to view product details"
-                      >
-                        {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
-                          <img
-                            src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
-                            onError={(e) => { e.target.onerror = null; }}
-                            alt={product.name}
-                            className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-gray-200 hover:border-gray-300 transition-colors"
-                          />
-                        ) : (
-                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`}>
-                            <span style={{ color: '#1a1a2e', fontWeight: 800, fontSize: 16, fontFamily: "'Poppins',sans-serif" }}>{product.initial}</span>
-                          </div>
-                        )}
-                      </div>
-                      {/* Info */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p
+                  {cart.map(({ product, qty }) => {
+                    const pricing = getProductPricing(product);
+                    return (
+                      <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 14 }}>
+                        {/* Product Thumbnail - Clickable */}
+                        <div
                           onClick={() => onSelectProduct && onSelectProduct(product)}
-                          style={{ cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#1a1a2e', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
-                          className="hover:text-black hover:underline transition-colors"
+                          style={{ cursor: 'pointer' }}
+                          className="shrink-0 transition-transform active:scale-95 relative"
                           title="Click to view product details"
                         >
-                          {toTitleCase(product.name)}
-                        </p>
-                        <p style={{ fontSize: 12, color: '#000000', fontWeight: 700 }}>{translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} &times; {qty}</p>
-                        <p style={{ display: 'inline-block', fontSize: 11, color: '#111111', background: '#ffffff', border: '1px solid rgba(0,0,0,0.18)', borderRadius: 8, padding: '2px 7px', fontWeight: 800, marginTop: 4 }}>= {translate(langData, "priceLabel", { amount: (product.price * qty).toLocaleString() })}</p>
-                      </div>
-
-                      {/* Smart Qty Controls */}
-                      <div style={{ flexShrink: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.12)', borderRadius: 10, padding: '4px 6px', border: '1px solid rgba(0,0,0,0.12)' }}>
-                          {/* Left: Trash if qty=1, Minus if qty>1 */}
-                          {qty === 1 ? (
-                            <button
-                              onClick={() => handleMinusClick(product.id, qty)}
-                              title="Remove item"
-                              style={{ width: 28, height: 28, border: 'none', background: 'rgba(239,68,68,0.12)', color: 'rgba(239,68,68,0.9)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'all 0.2s' }}
-                              onMouseEnter={e => { e.currentTarget.style.background='rgba(239,68,68,0.25)'; e.currentTarget.style.color='#ef4444'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background='rgba(239,68,68,0.12)'; e.currentTarget.style.color='rgba(239,68,68,0.9)'; }}
-                            >
-                              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
+                          {pricing.hasDiscount && (
+                            <span className="absolute -top-1.5 -left-1.5 z-10 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.2 rounded-md shadow-2xs uppercase">
+                              {pricing.discountPercent}%
+                            </span>
+                          )}
+                          {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
+                            <img
+                              src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
+                              onError={(e) => { e.target.onerror = null; }}
+                              alt={product.name}
+                              className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-gray-200 hover:border-gray-300 transition-colors"
+                            />
                           ) : (
+                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`}>
+                              <span style={{ color: '#1a1a2e', fontWeight: 800, fontSize: 16, fontFamily: "'Poppins',sans-serif" }}>{product.initial}</span>
+                            </div>
+                          )}
+                        </div>
+                        {/* Info */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p
+                            onClick={() => onSelectProduct && onSelectProduct(product)}
+                            style={{ cursor: 'pointer', fontSize: 13, fontWeight: 600, color: '#1a1a2e', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+                            className="hover:text-black hover:underline transition-colors"
+                            title="Click to view product details"
+                          >
+                            {getProductDisplayName(product, language)}
+                          </p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 12, color: '#000000', fontWeight: 700 }}>
+                              {translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} &times; {qty}
+                            </span>
+                            {pricing.hasDiscount && (
+                              <span style={{ fontSize: 10, color: '#9ca3af', textDecoration: 'line-through', fontWeight: 600 }}>
+                                Rs. {pricing.retailPrice.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                            <p style={{ display: 'inline-block', fontSize: 11, color: '#111111', background: '#ffffff', border: '1px solid rgba(0,0,0,0.18)', borderRadius: 8, padding: '2px 7px', fontWeight: 800, margin: 0 }}>
+                              = {translate(langData, "priceLabel", { amount: (product.price * qty).toLocaleString() })}
+                            </p>
+                            {pricing.hasDiscount && (
+                              <span style={{ fontSize: 9.5, color: '#15803d', background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 6, padding: '1px 5px', fontWeight: 800 }}>
+                                {isUrdu ? `بچت: Rs ${(pricing.savings * qty).toLocaleString()}` : `Save Rs ${(pricing.savings * qty).toLocaleString()}`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Smart Qty Controls */}
+                        <div style={{ flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.12)', borderRadius: 10, padding: '4px 6px', border: '1px solid rgba(0,0,0,0.12)' }}>
+                            {/* Left: Trash if qty=1, Minus if qty>1 */}
+                            {qty === 1 ? (
+                              <button
+                                onClick={() => handleMinusClick(product.id, qty)}
+                                title="Remove item"
+                                style={{ width: 28, height: 28, border: 'none', background: 'rgba(239,68,68,0.12)', color: 'rgba(239,68,68,0.9)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'all 0.2s' }}
+                                onMouseEnter={e => { e.currentTarget.style.background='rgba(239,68,68,0.25)'; e.currentTarget.style.color='#ef4444'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background='rgba(239,68,68,0.12)'; e.currentTarget.style.color='rgba(239,68,68,0.9)'; }}
+                              >
+                                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleMinusClick(product.id, qty)}
+                                style={{ width: 28, height: 28, border: 'none', background: 'none', color: '#000000', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'background 0.2s' }}
+                                onMouseEnter={e => e.currentTarget.style.background='rgba(0,0,0,0.12)'}
+                                onMouseLeave={e => e.currentTarget.style.background='none'}
+                              >−</button>
+                            )}
+                            <span style={{ minWidth: 24, textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>{qty}</span>
+                            {/* Right: always Plus */}
                             <button
-                              onClick={() => handleMinusClick(product.id, qty)}
+                              onClick={() => onUpdateQty(product.id, 1)}
                               style={{ width: 28, height: 28, border: 'none', background: 'none', color: '#000000', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'background 0.2s' }}
                               onMouseEnter={e => e.currentTarget.style.background='rgba(0,0,0,0.12)'}
                               onMouseLeave={e => e.currentTarget.style.background='none'}
-                            >−</button>
-                          )}
-                          <span style={{ minWidth: 24, textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#1a1a2e' }}>{qty}</span>
-                          {/* Right: always Plus */}
-                          <button
-                            onClick={() => onUpdateQty(product.id, 1)}
-                            style={{ width: 28, height: 28, border: 'none', background: 'none', color: '#000000', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, transition: 'background 0.2s' }}
-                            onMouseEnter={e => e.currentTarget.style.background='rgba(0,0,0,0.12)'}
-                            onMouseLeave={e => e.currentTarget.style.background='none'}
-                          >+</button>
+                            >+</button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -4075,6 +4247,17 @@ export default function SahilTraders() {
           )}            {/* Footer */}
             {cart.length > 0 && (
               <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(0,0,0,0.12)', flexShrink: 0 }}>
+                {totalSavings > 0 && (
+                  <div style={{ marginBottom: 10, padding: '8px 12px', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #86efac', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#166534', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span>🎉</span>
+                      <span>{isUrdu ? 'اس آرڈر پر آپ کی کل بچت:' : 'Total Savings on this order:'}</span>
+                    </span>
+                    <span style={{ fontSize: 12, fontWeight: 900, color: '#15803d', background: '#ffffff', padding: '2px 8px', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+                      Rs. {totalSavings.toLocaleString()}
+                    </span>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, padding: '13px 14px', background: 'linear-gradient(135deg,#f8fafc 0%,#ffffff 100%)', border: '1px solid rgba(0,0,0,0.16)', borderRadius: 14, boxShadow: '0 6px 18px rgba(0,0,0,0.08)' }}>
                   <span style={{ fontSize: 13, color: '#111111', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{translate(langData, "totalBill")}</span>
                   <span style={{ fontSize: 22, fontWeight: 900, color: '#ffffff', background: '#000000', borderRadius: 12, padding: '5px 12px', fontFamily: "'Poppins',sans-serif", boxShadow: '0 4px 12px rgba(0,0,0,0.18)' }}>{translate(langData, "priceLabel", { amount: cartTotal.toLocaleString() })}</span>

@@ -143,169 +143,18 @@ function getTranslationValue(dictionary, key) {
       return finalResult.replace(/\s+/g, " ").trim();
     }
 
-    function unusedTranslateItemNameToUrdu(text) {
-      if (!text) return "";
-      let result = text.toUpperCase();
-
-      // Pre-process common units and pricing patterns
-      result = result.replace(/(\d+)\s*ML/g, "$1 Ã˜Â§Ã›Å’Ã™â€¦ Ã˜Â§Ã›Å’Ã™â€ž");
-      result = result.replace(/(\d+)\s*G/g, "$1 ÃšÂ¯Ã˜Â±Ã˜Â§Ã™â€¦");
-      result = result.replace(/(\d+)\s*KG/g, "$1 ÃšÂ©Ã™â€žÃ™Ë†");
-      result = result.replace(/RS\.?\s*(\d+)/g, "Ã˜Â±Ã™Ë†Ã™Â¾Ã›â€™ $1");
-      result = result.replace(/RP\.?\s*(\d+)/g, "Ã˜Â±Ã™Ë†Ã™Â¾Ã›â€™ $1");
-      result = result.replace(/(\d+)\s*INCH/g, "$1 Ã˜Â§Ã™â€ Ãšâ€ ");
-
-      const wordMap = {
-        // Brands
-        "PEARS": "Ã™Â¾Ã›Å’Ã˜Â±Ã˜Â²",
-        "PONDS": "Ã™Â¾Ã™Ë†Ã™â€ ÃšË†Ã˜Â²",
-        "SAFEGUARD": "Ã˜Â³Ã›Å’Ã™Â ÃšÂ¯Ã˜Â§Ã˜Â±ÃšË†",
-        "SAFE GUARD": "Ã˜Â³Ã›Å’Ã™Â ÃšÂ¯Ã˜Â§Ã˜Â±ÃšË†",
-        "DETTOL": "ÃšË†Ã›Å’Ã™Â¹Ã™Ë†Ã™â€ž",
-        "DETOL": "ÃšË†Ã›Å’Ã™Â¹Ã™Ë†Ã™â€ž",
-        "LIFEBUOY": "Ã™â€žÃ˜Â§Ã˜Â¦Ã™Â Ã˜Â¨Ã™Ë†Ã˜Â§Ã˜Â¦Ã›â€™",
-        "LUX": "Ã™â€žÃšÂ©Ã˜Â³",
-        "MEDORA": "Ã™â€¦Ã›Å’ÃšË†Ã™Ë†Ã˜Â±Ã˜Â§",
-        "OLIVIA": "Ã˜Â§Ã™Ë†Ã™â€žÃ›Å’Ã™Ë†Ã›Å’Ã˜Â§",
-        "TIBET": "Ã˜ÂªÃ˜Â¨Ã˜Âª",
-        "CAPRI": "ÃšÂ©Ã›Å’Ã™Â¾Ã˜Â±Ã›Å’",
-        "MECLAY": "Ã™â€¦Ã›Å’ÃšÂ©Ã™â€žÃ›â€™",
-        "GARNIER": "ÃšÂ¯Ã˜Â§Ã˜Â±Ã™â€ Ã›Å’Ã˜Â¦Ã˜Â±",
-        "VEET": "Ã™Ë†Ã›Å’Ã™Â¹",
-        "FAIR & LOVELY": "Ã™ÂÃ›Å’Ã˜Â¦Ã˜Â± Ã˜Â§Ã›Å’Ã™â€ ÃšË† Ã™â€žÃ™Ë†Ã™â€žÃ›Å’",
-        "FAIR AND LOVELY": "Ã™ÂÃ›Å’Ã˜Â¦Ã˜Â± Ã˜Â§Ã›Å’Ã™â€ ÃšË† Ã™â€žÃ™Ë†Ã™â€žÃ›Å’",
-        "GOLDEN PEARL": "ÃšÂ¯Ã™Ë†Ã™â€žÃšË†Ã™â€  Ã™Â¾Ã˜Â±Ã™â€ž",
-        "BIO AMLA": "Ã˜Â¨Ã˜Â§Ã˜Â¦Ã›Å’Ã™Ë† Ã˜Â¢Ã™â€¦Ã™â€žÃ›Â",
-        "SUNSILK": "Ã˜Â³Ã™â€  Ã˜Â³Ã™â€žÃšÂ©",
-        "PANTENE": "Ã™Â¾Ã›Å’Ã™â€ Ã™Â¹Ã›Å’Ã™â€ ",
-        "DOVE": "ÃšË†Ã™Ë†",
-        "SENSODYNE": "Ã˜Â³Ã™â€ Ã˜Â³Ã™Ë†ÃšË†Ã˜Â§Ã˜Â¦Ã™â€ ",
-        "COLGATE": "ÃšÂ©Ã™Ë†Ã™â€žÃšÂ¯Ã›Å’Ã™Â¹",
-        "DENTONIC": "ÃšË†Ã›Å’Ã™â€ Ã™Â¹Ã™Ë†Ã™â€ ÃšÂ©",
-        "CLOSE UP": "ÃšÂ©Ã™â€žÃ™Ë†Ã˜Â² Ã˜Â§Ã™Â¾",
-        "GILLETTE": "Ã˜Â¬Ã™â€žÃ›Å’Ã™Â¹",
-        "LEMON MAX": "Ã™â€žÃ›Å’Ã™â€¦Ã™â€  Ã™â€¦Ã›Å’ÃšÂ©Ã˜Â³",
-        "ARIEL": "Ã˜Â§Ã›Å’Ã˜Â±Ã›Å’Ã™â€ž",
-        "SURF EXCEL": "Ã˜Â³Ã˜Â±Ã™Â Ã˜Â§Ã›Å’ÃšÂ©Ã˜Â³Ã™â€ž",
-        "BONUS": "Ã˜Â¨Ã™Ë†Ã™â€ Ã˜Â³",
-        "EXPRESS": "Ã˜Â§Ã›Å’ÃšÂ©Ã˜Â³Ã™Â¾Ã˜Â±Ã›Å’Ã˜Â³",
-        "BRITE": "Ã˜Â¨Ã˜Â±Ã˜Â§Ã˜Â¦Ã™Â¹",
-        "VIM": "Ã™Ë†Ã™ÂÃ™â€¦",
-        "HARPIC": "Ã›ÂÃ˜Â§Ã˜Â±Ã™Â¾ÃšÂ©",
-        "JOHNSONS": "Ã˜Â¬Ã˜Â§Ã™â€ Ã˜Â³Ã™â€ Ã˜Â²",
-        "JOHNSON'S": "Ã˜Â¬Ã˜Â§Ã™â€ Ã˜Â³Ã™â€ Ã˜Â²",
-        "ROSE PETAL": "Ã˜Â±Ã™Ë†Ã˜Â² Ã™Â¾Ã›Å’Ã™Â¹Ã™â€ž",
-        "LIPTON": "Ã™â€žÃ™Â¾Ã™Â¹Ã™â€ ",
-        "TAPAL": "Ã™Â¹Ã˜Â§Ã™Â¾Ã™â€ž",
-        "NESTLE": "Ã™â€ Ã›Å’Ã˜Â³Ã™â€žÃ›â€™",
-        "EVERYDAY": "Ã˜Â§Ã›Å’Ã™Ë†Ã˜Â±Ã›Å’ ÃšË†Ã›â€™",
-        "SMILE": "Ã˜Â§Ã˜Â³Ã™â€¦Ã˜Â§Ã˜Â¦Ã™â€ž",
-        "ALWAYS": "Ã˜Â¢Ã™â€žÃ™Ë†Ã›Å’Ã˜Â²",
-        "ACNO FIGHT": "Ã˜Â§Ã›Å’ÃšÂ©Ã™â€ Ã™Ë† Ã™ÂÃ˜Â§Ã˜Â¦Ã™Â¹",
-        "ACNO CLEAR": "Ã˜Â§Ã›Å’ÃšÂ©Ã™â€ Ã™Ë† ÃšÂ©Ã™â€žÃ›Å’Ã˜Â¦Ã˜Â±",
-        "DERMI COOL": "ÃšË†Ã˜Â±Ã™â€¦Ã›Å’ ÃšÂ©Ã™Ë†Ã™â€ž",
-        "EDEN ROCK": "Ã˜Â§Ã›Å’ÃšË†Ã™â€  Ã˜Â±Ã˜Â§ÃšÂ©",
-        "IMPERIAL LEATHER": "Ã˜Â§Ã™â€¦Ã™Â¾Ã›Å’Ã˜Â±Ã›Å’Ã™â€ž Ã™â€žÃ›Å’Ã˜Â¯Ã˜Â±",
-        "KOHE NOOR": "ÃšÂ©Ã™Ë†Ã›ÂÃ™Â Ã™â€ Ã™Ë†Ã˜Â±",
-        "CHANBALI": "Ãšâ€ Ã˜Â§Ã™â€ Ã˜Â¯ Ã˜Â¨Ã˜Â§Ã™â€žÃ›Å’",
-
-        // Product Types / Keywords
-        "SOAP": "Ã˜ÂµÃ˜Â§Ã˜Â¨Ã™Ë†Ã™â€ ",
-        "SHAMPOO": "Ã˜Â´Ã›Å’Ã™â€¦Ã™Â¾Ã™Ë†",
-        "CREAM": "ÃšÂ©Ã˜Â±Ã›Å’Ã™â€¦",
-        "LOTION": "Ã™â€žÃ™Ë†Ã˜Â´Ã™â€ ",
-        "FACE WASH": "Ã™ÂÃ›Å’Ã˜Â³ Ã™Ë†Ã˜Â§Ã˜Â´",
-        "FACEWASH": "Ã™ÂÃ›Å’Ã˜Â³ Ã™Ë†Ã˜Â§Ã˜Â´",
-        "TOOTHPASTE": "Ã™Â¹Ã™Ë†Ã˜ÂªÃšÂ¾ Ã™Â¾Ã›Å’Ã˜Â³Ã™Â¹",
-        "HAIR OIL": "Ã˜Â¨Ã˜Â§Ã™â€žÃ™Ë†ÃšÂº ÃšÂ©Ã˜Â§ Ã˜ÂªÃ›Å’Ã™â€ž",
-        "OIL": "Ã˜ÂªÃ›Å’Ã™â€ž",
-        "HAIR": "Ã˜Â¨Ã˜Â§Ã™â€ž",
-        "DEO": "Ã˜Â¨Ã˜Â§ÃšË†Ã›Å’ Ã˜Â³Ã™Â¾Ã˜Â±Ã›â€™ / Ã™Â¾Ã˜Â§Ã˜Â¤ÃšË†Ã˜Â±",
-        "DEODORANT": "ÃšË†Ã›Å’ Ã˜Â§Ã™Ë†ÃšË†Ã™Ë†Ã˜Â±Ã™â€ Ã™Â¹",
-        "TALCUM": "Ã™Â¹Ã˜Â§Ã™â€žÃšÂ©Ã™â€¦",
-        "POWDER": "Ã™Â¾Ã˜Â§Ã˜Â¤ÃšË†Ã˜Â±",
-        "PERFUME": "Ã™Â¾Ã˜Â±Ã™ÂÃ›Å’Ã™Ë†Ã™â€¦",
-        "BODY SPRAY": "Ã˜Â¨Ã˜Â§ÃšË†Ã›Å’ Ã˜Â³Ã™Â¾Ã˜Â±Ã›â€™",
-        "SPRAY": "Ã˜Â§Ã˜Â³Ã™Â¾Ã˜Â±Ã›â€™",
-        "DETERGENT": "Ã˜Â³Ã˜Â±Ã™Â",
-        "BABY": "Ã˜Â¨Ã›Å’Ã˜Â¨Ã›Å’",
-        "CARE": "ÃšÂ©Ã›Å’Ã˜Â¦Ã˜Â±",
-        "SHAVING": "Ã˜Â´Ã›Å’Ã™Ë†Ã™â€ ÃšÂ¯",
-        "BLADE": "Ã˜Â¨Ã™â€žÃ›Å’ÃšË†",
-        "RAZOR": "Ã˜Â±Ã›Å’Ã˜Â²Ã˜Â±",
-        "PAD": "Ã™Â¾Ã›Å’ÃšË†",
-        "PADS": "Ã™Â¾Ã›Å’ÃšË†Ã˜Â²",
-        "MAXI": "Ã™â€¦Ã›Å’ÃšÂ©Ã˜Â³Ã›Å’",
-        "BALLOON": "Ã˜ÂºÃ˜Â¨Ã˜Â§Ã˜Â±Ã›Â",
-        "TAPE": "Ã™Â¹Ã›Å’Ã™Â¾",
-        "PACKING": "Ã™Â¾Ã›Å’ÃšÂ©Ã™â€ ÃšÂ¯",
-        "GLYCERINE": "ÃšÂ¯Ã™â€žÃ›Å’Ã˜Â³Ã˜Â±Ã›Å’Ã™â€ ",
-        "LIQUID": "Ã™â€žÃ›Å’ÃšÂ©Ã™Ë†Ã›Å’ÃšË†",
-        "DISHWASH": "ÃšË†Ã˜Â´ Ã™Ë†Ã˜Â§Ã˜Â´",
-
-        // Sizes / Attributes
-        "SMALL": "Ãšâ€ ÃšÂ¾Ã™Ë†Ã™Â¹Ã˜Â§",
-        "MEDIUM": "Ã˜Â¯Ã˜Â±Ã™â€¦Ã›Å’Ã˜Â§Ã™â€ Ã›Â",
-        "LARGE": "Ã˜Â¨Ãšâ€˜Ã˜Â§",
-        "BOX": "ÃšË†Ã˜Â¨Ã›Â",
-        "PACK": "Ã™Â¾Ã›Å’ÃšÂ©",
-        "PACKET": "Ã™Â¾Ã›Å’ÃšÂ©Ã™Â¹",
-        "TUBE": "Ã™Â¹Ã›Å’Ã™Ë†Ã˜Â¨",
-        "ROLL": "Ã˜Â±Ã™Ë†Ã™â€ž",
-        "MIX": "Ã™â€¦ÃšÂ©Ã˜Â³",
-        "PINK": "ÃšÂ¯Ã™â€žÃ˜Â§Ã˜Â¨Ã›Å’",
-        "GREEN": "Ã˜Â³Ã˜Â¨Ã˜Â²",
-        "BROWN": "Ã˜Â¨Ã˜Â±Ã˜Â§Ã˜Â¤Ã™â€ ",
-        "BLUE": "Ã™â€ Ã›Å’Ã™â€žÃ˜Â§",
-        "YELLOW": "Ã™Â¾Ã›Å’Ã™â€žÃ˜Â§",
-        "RED": "Ã˜Â³Ã˜Â±Ã˜Â®",
-        "BLACK": "ÃšÂ©Ã˜Â§Ã™â€žÃ˜Â§",
-        "WHITE": "Ã˜Â³Ã™ÂÃ›Å’Ã˜Â¯",
-        "GOLD": "ÃšÂ¯Ã™Ë†Ã™â€žÃšË†",
-        "SILVER": "Ã˜Â³Ã™â€žÃ™Ë†Ã˜Â±",
-
-        // Connectors
-        "WITH": "ÃšÂ©Ã›â€™ Ã˜Â³Ã˜Â§Ã˜ÂªÃšÂ¾",
-        "FOR": "ÃšÂ©Ã›â€™ Ã™â€žÃ›Å’Ã›â€™",
-        "AND": "Ã˜Â§Ã™Ë†Ã˜Â±"
-      };
-
-    let words = result.split(/(\s+|,|\(|\)|\/|&)/);
-      let translatedWords = words.map(w => {
-        let trimmed = w.trim().toUpperCase();
-        if (wordMap[trimmed]) {
-          return wordMap[trimmed];
-        }
-        return w;
-      });
-
-      let textAfterWordReplacements = translatedWords.join("");
-
-      // Character-by-character fallback for remaining English letters/numbers to convert completely to Urdu script
-      const translitMap = {
-        'A': 'Ã˜Â§', 'B': 'Ã˜Â¨', 'C': 'ÃšÂ©', 'D': 'ÃšË†', 'E': 'Ã›Å’', 'F': 'Ã™Â', 'G': 'ÃšÂ¯', 'H': 'Ã›Â', 'I': 'Ã˜Â¢Ã˜Â¦Ã›Å’', 'J': 'Ã˜Â¬', 'K': 'ÃšÂ©', 'L': 'Ã™â€ž', 'M': 'Ã™â€¦', 'N': 'Ã™â€ ', 'O': 'Ã™Ë†', 'P': 'Ã™Â¾', 'Q': 'Ã™â€š', 'R': 'Ã˜Â±', 'S': 'Ã˜Â³', 'T': 'Ã™Â¹', 'U': 'Ã›Å’Ã™Ë†', 'V': 'Ã™Ë†', 'W': 'Ã™Ë†', 'X': 'Ã˜Â§Ã›Å’ÃšÂ©Ã˜Â³', 'Y': 'Ã™Ë†Ã˜Â§Ã˜Â¦Ã›â€™', 'Z': 'Ã˜Â²Ã›Å’ÃšË†',
-        '0': 'Ã›Â°', '1': 'Ã›Â±', '2': 'Ã›Â²', '3': 'Ã›Â³', '4': 'Ã›Â´', '5': 'Ã›Âµ', '6': 'Ã›Â¶', '7': 'Ã›Â·', '8': 'Ã›Â¸', '9': 'Ã›Â¹'
-      };
-
-      let finalResult = Array.from(textAfterWordReplacements).map(char => {
-        let upperChar = char.toUpperCase();
-        return translitMap[upperChar] || char;
-      }).join("");
-
-      return finalResult.replace(/\s+/g, " ").trim();
-    }
-
     function toTitleCase(str) {
+      if (!str) return "";
       return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
     }
 
     function getProductDisplayName(product, language) {
-      if (language === "ur") {
-        return translateItemNameToUrdu(product.name);
+      if (!product) return "";
+      if (language === "ur" && product.nameUrdu) {
+        return product.nameUrdu;
       }
-      return toTitleCase(product.name);
+      return toTitleCase(product.name || "");
     }
-
     // --- Lucide Icons Replacements (SVG Components) ---
     function Search({ className }) {
       return (

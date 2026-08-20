@@ -2626,7 +2626,7 @@ function SahilTraders() {
       setLanguage("ur");
     },
     className: `py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${language === 'ur' ? 'bg-black text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}`
-  }, /*#__PURE__*/React.createElement("span", null, "\\u0627\\u0631\\u062f\\u0648")))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, '\u0627\u0631\u062f\u0648')))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2.5"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -2729,7 +2729,7 @@ function SahilTraders() {
     className: "text-center text-[10px] text-gray-500 space-y-0.5"
   }, /*#__PURE__*/React.createElement("p", {
     className: "font-semibold text-gray-700"
-  }, language === 'ur' ? '\u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)' : '10:00 AM \u2013 8:00 PM (Mon \u2013 Sat)'), /*#__PURE__*/React.createElement("p", null, language === 'ur' ? '\u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646 \u0627\u0648\u0631 \u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645' : 'Muhammad Zubair Moin & Sahil Saleem'))))), exitModalOpen && /*#__PURE__*/React.createElement("div", {
+  }, language === 'ur' ? '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)' : 'Delivery Timing: 10:00 AM \u2013 8:00 PM (Mon \u2013 Sat)'), /*#__PURE__*/React.createElement("p", null, language === 'ur' ? '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646' : 'Sahil Saleem & Muhammad Zubair Moin'))))), exitModalOpen && /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4"

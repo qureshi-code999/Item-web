@@ -1,4 +1,4 @@
-﻿// =============================================================
+// =============================================================
 //  ✅ MASTER SOURCE FILE — SAHIL TRADERS WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
@@ -3339,7 +3339,7 @@ export default function SahilTraders() {
                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
                             }`}
                           >
-                            <span>\u0627\u0631\u062f\u0648</span>
+                            <span>{'\u0627\u0631\u062f\u0648'}</span>
                           </button>
                         </div>
                       </div>
@@ -3425,8 +3425,8 @@ export default function SahilTraders() {
                       </a>
 
                       <div className="text-center text-[10px] text-gray-500 space-y-0.5">
-                        <p className="font-semibold text-gray-700">{language === 'ur' ? '\u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)' : '10:00 AM \u2013 8:00 PM (Mon \u2013 Sat)'}</p>
-                        <p>{language === 'ur' ? '\u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646 \u0627\u0648\u0631 \u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645' : 'Muhammad Zubair Moin & Sahil Saleem'}</p>
+                        <p className="font-semibold text-gray-700">{language === 'ur' ? '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)' : 'Delivery Timing: 10:00 AM \u2013 8:00 PM (Mon \u2013 Sat)'}</p>
+                        <p>{language === 'ur' ? '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646' : 'Sahil Saleem & Muhammad Zubair Moin'}</p>
                       </div>
                     </div>
                   </div>

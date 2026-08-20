@@ -1,4 +1,4 @@
-﻿// =============================================================
+// =============================================================
 //  ✅ MASTER SOURCE FILE — SAHIL TRADERS WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
@@ -1735,18 +1735,19 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
         <div className="relative bg-gradient-to-r from-emerald-900 via-teal-900 to-gray-900 text-white p-6 pb-7 text-center">
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 text-gray-300 hover:text-white text-2xl font-bold w-9 h-9 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
+            className="absolute top-4 right-4 text-gray-300 hover:text-white w-9 h-9 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
+            aria-label="Close"
           >
-            Ã—
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/15 border border-white/20 p-2 shadow-lg flex items-center justify-center text-3xl">
-            ðŸ›¡ï¸
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/15 border border-white/20 p-2 shadow-lg flex items-center justify-center">
+            <svg className="w-8 h-8 text-emerald-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
           </div>
           <h2 className="text-xl sm:text-2xl font-black tracking-wider uppercase text-emerald-300 font-poppins">
             {isUrdu ? '\u0648\u0627\u067e\u0633\u06cc \u0627\u0648\u0631 \u062a\u0628\u062f\u06cc\u0644\u06cc \u06a9\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc' : 'Return & Exchange Policy'}
           </h2>
           <p className="text-xs text-emerald-100/90 font-semibold mt-1 tracking-wide">
-            {isUrdu ? '\u0633\u0627\u062d\u0644 \u0679\u0631\u06cc\u0688\u0631\u0632 â€” 100% \u062a\u0633\u0644\u06cc \u0627\u0648\u0631 \u0636\u0645\u0627\u0646\u062a' : '100% Guaranteed Customer Protection & Care'}
+            {isUrdu ? '\u0633\u0627\u062d\u0644 \u0679\u0631\u06cc\u0688\u0631\u0632 - 100% \u062a\u0633\u0644\u06cc \u0627\u0648\u0631 \u0636\u0645\u0627\u0646\u062a' : '100% Guaranteed Customer Protection & Care'}
           </p>
         </div>
 
@@ -1755,13 +1756,13 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
           {/* Main Guarantee Banner */}
           <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 text-emerald-950 shadow-sm space-y-1.5">
             <div className="flex items-center gap-2 font-black text-sm text-emerald-900">
-              <span className="text-xl">âœ…</span>
+              <svg className="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               <span>{isUrdu ? '\u0627\u06af\u0631 \u067e\u0631\u0648\u0688\u06a9\u067c \u062e\u0631\u0627\u0628 \u06cc\u0627 \u0644\u06cc\u06a9 \u0646\u06a9\u0644\u06d2 \u062a\u0648 \u06a9\u06cc\u0627 \u06c1\u0648\u06af\u0627\u061f' : 'What Happens If Product Is Damaged or Faulty?'}</span>
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose text-emerald-950 font-bold' : 'text-xs text-emerald-950 leading-relaxed font-semibold'}>
               {isUrdu
                 ? '\u0627\u06af\u0631 \u0622\u067e \u06a9\u0648 \u0645\u0648\u0635\u0648\u0644 \u06c1\u0648\u0646\u06d2 \u0648\u0627\u0644\u06cc \u06a9\u0648\u0626\u06cc \u0628\u06be\u06cc \u0686\u06cc\u0632 \u062e\u0631\u0627\u0628\u060c \u0644\u06cc\u06a9\u060c \u0627\u06cc\u06a9\u0633\u067e\u0627\u0626\u0631 \u06cc\u0627 \u063a\u0644\u0637 \u0646\u06a9\u0644\u06d2 \u062a\u0648 \u067e\u0631\u06cc\u0634\u0627\u0646 \u0628\u0644\u06a9\u0644 \u0646\u06c1 \u06c1\u0648\u06ba! \u06c1\u0645 \u0628\u0646\u0627 \u06a9\u0633\u06cc \u0628\u062d\u062b \u06a9\u06d2 \u0622\u067e \u06a9\u0648 \u0646\u0626\u06cc \u0686\u06cc\u0632 \u062a\u0628\u062f\u06cc\u0644 (Replace) \u06a9\u0631 \u06a9\u06d2 \u062f\u06cc\u06ba \u06af\u06d2 \u06cc\u0627 \u0622\u067e \u06a9\u06d2 \u0645\u06a9\u0645\u0644 \u067e\u06cc\u0633\u06d2 \u0648\u0627\u067e\u0633 (100% Money Refund) \u06a9\u0631\u06cc\u06ba \u06af\u06d2!'
-                : 'If any product received by you turns out to be damaged, leaked, expired, or incorrect â€” DO NOT WORRY AT ALL! We will immediately issue a 100% Free Replacement or Full Money Refund without any hassle.'}
+                : 'If any product received by you turns out to be damaged, leaked, expired, or incorrect - DO NOT WORRY AT ALL! We will immediately issue a 100% Free Replacement or Full Money Refund without any hassle.'}
             </p>
           </div>
 
@@ -1782,7 +1783,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
             {/* Point 2: Zero Delivery Fee */}
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-1">
               <div className="flex items-center gap-2 font-black text-gray-900">
-                <span className="text-base">ðŸšš</span>
+                <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.215-9.124l-2.005-2.005A2.25 2.25 0 0015.682 6H13.5m0 0V3.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v10.875" /></svg>
                 <span>{isUrdu ? '\u0645\u0641\u062a \u062a\u0628\u062f\u06cc\u0644\u06cc \u0688\u0644\u06cc\u0648\u0631\u06cc' : 'Free Pickup & Delivery'}</span>
               </div>
               <p className="text-[11px] text-gray-600 leading-relaxed font-medium">
@@ -1795,7 +1796,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
             {/* Point 3: Store Exchange */}
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-1">
               <div className="flex items-center gap-2 font-black text-gray-900">
-                <span className="text-base">ðŸ¬</span>
+                <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H21m-4.5 0H12m-9 0h4.5m0 0V9a2.25 2.25 0 012.25-2.25h1.372c.516 0 .966.351 1.091.852l1.106 4.423c.11.44.505.75.958.75h3.423a.75.75 0 00.75-.75V6.75A2.25 2.25 0 0017.25 4.5h-10.5A2.25 2.25 0 004.5 6.75V21" /></svg>
                 <span>{isUrdu ? '\u062f\u06a9\u0627\u0646 \u067e\u0631 \u0628\u0631\u0627\u06c1\u0650 \u0631\u0627\u0633\u062a \u062a\u0628\u062f\u06cc\u0644\u06cc' : 'In-Store Exchange'}</span>
               </div>
               <p className="text-[11px] text-gray-600 leading-relaxed font-medium">
@@ -1808,7 +1809,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
             {/* Point 4: Money Refund */}
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-1">
               <div className="flex items-center gap-2 font-black text-gray-900">
-                <span className="text-base">ðŸ’°</span>
+                <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <span>{isUrdu ? '\u0641\u0648\u0631\u06cc \u0631\u06cc \u0641\u0646\u0688 (Refund)' : 'Instant Refund Option'}</span>
               </div>
               <p className="text-[11px] text-gray-600 leading-relaxed font-medium">
@@ -1822,7 +1823,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
           {/* 3 Step Claim Guide */}
           <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-2.5">
             <div className="flex items-center gap-2 font-bold text-sm text-blue-950">
-              <span className="text-base">ðŸ“‹</span>
+              <svg className="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" /></svg>
               <span>{isUrdu ? '\u06a9\u0644\u06cc\u0645 \u06a9\u0631\u0646\u06d2 \u06a9\u0627 \u0622\u0633\u0627\u0646 \u0637\u0631\u06cc\u0642\u06c1 (How to Claim):' : 'Easy 3-Step Claim Process:'}</span>
             </div>
 
@@ -1857,12 +1858,12 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
         {/* Footer Actions */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
           <a
-            href={`https://wa.me/923368945775?text=${encodeURIComponent(isUrdu ? 'Ø³Ù„Ø§Ù…! Ù…Ø¬Ú¾Û’ Ù¾Ø±ÙˆÚˆÚ©Ù¹ Ú©ÛŒ ØªØ¨Ø¯ÛŒÙ„ÛŒ/ÙˆØ§Ù¾Ø³ÛŒ Ú©Ø§ Ú©Ù„ÛŒÙ… Ú©Ø±Ù†Ø§ ÛÛ’Û”' : 'Hi Sahil Traders! I want to claim a product return/exchange.')}`}
+            href={`https://wa.me/923368945775?text=${encodeURIComponent(isUrdu ? '\u0633\u0644\u0627\u0645! \u0645\u062c\u06be\u06d2 \u067e\u0631\u0648\u0688\u06a9\u0679 \u06a9\u06cc \u062a\u0628\u062f\u06cc\u0644\u06cc/\u0648\u0627\u067e\u0633\u06cc \u06a9\u0627 \u06a9\u0644\u06cc\u0645 \u06a9\u0631\u0646\u0627 \u06c1\u06d2\u06d4' : 'Hi Sahil Traders! I want to claim a product return/exchange.')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none shadow-sm"
           >
-            <span>ðŸ’¬</span>
+            <svg className="w-4 h-4 text-white fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             <span>{isUrdu ? '\u0648\u0627\u067e\u0633\u06cc \u06a9\u0627 \u06a9\u0644\u06cc\u0645 \u06a9\u0631\u06cc\u06ba' : 'Claim Return on WhatsApp'}</span>
           </a>
           <button
@@ -1876,7 +1877,6 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
     </div>
   );
 }
-
 function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
   if (!isOpen) return null;
   const isUrdu = language === 'ur';
@@ -2224,7 +2224,7 @@ export default function SahilTraders() {
       const [cartNotice, setCartNotice] = useState(false);
       const cartNoticeTimerRef = useRef(null);
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ CART STATE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+      // -----------------------------------------------------------------------------
       // Persistent Cart State via localStorage (reloads/refreshes won't lose items!)
       const [cart, setCart] = useState(() => {
         try {
@@ -2566,9 +2566,9 @@ export default function SahilTraders() {
           localStorage.removeItem("sahil_traders_order_history");
         } catch (e) {}
       }
-      // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+      // -----------------------------------------------------------------------------
 
-      // Ã¢â€â‚¬Ã¢â€â‚¬ CATEGORY VIEW STATE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+      // -----------------------------------------------------------------------------
       function handleGoBack() {
         setSearchTerm("");
         setSelectedCategory(null);
@@ -2589,7 +2589,7 @@ export default function SahilTraders() {
         }
         window.scrollTo({ top: 180, behavior: 'smooth' });
       }
-      // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+      // -----------------------------------------------------------------------------
 
       const langData = useMemo(() => {
         return window.TRANSLATIONS?.[language] || window.TRANSLATIONS?.en || {};
@@ -2603,7 +2603,7 @@ export default function SahilTraders() {
           const left = Math.random() * 90 + 5; // 5% to 95%
           const top = Math.random() * 90 + 5;  // 5% to 95%
           const scale = 0.4 + Math.random() * 0.7; // size variety
-          const opacity = 0.05 + Math.random() * 0.07; // very faint, barely visible (0.05Ã¢â‚¬â€œ0.12)
+          const opacity = 0.05 + Math.random() * 0.07; // very faint, barely visible (0.05–0.12)
           const duration = 20 + Math.random() * 25; // 20s to 45s
           const delay = -Math.random() * 25;
           const animType = Math.floor(Math.random() * 4) + 1; // float-drift-1 to 4
@@ -2836,13 +2836,13 @@ export default function SahilTraders() {
                 <span className="font-semibold text-white">{language === 'ur' ? 'صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : '10:00 AM – 8:00 PM (Mon – Sat)'}</span>
               </div>
               <div className="hidden sm:flex items-center gap-3 text-[10px] text-gray-400">
-                <span>ðŸ“ {language === "ur" ? "\u0688\u0644\u06cc\u0648\u0631\u06cc \u0635\u0631\u0641 \u06a9\u0631\u0627\u0686\u06cc \u06a9\u06d2 \u0644\u0626\u06d2 \u062f\u0633\u062a\u06cc\u0627\u0628 \u06c1\u06d2" : "Delivery in Karachi Only"}</span>
-                <span>â€¢</span>
+                <span>📍 {language === "ur" ? "ڈلیوری صرف کراچی کے لئے دستیاب ہے" : "Delivery in Karachi Only"}</span>
+                <span>•</span>
                 <span>🚚 {language === 'ur' ? 'مفت ڈیلیوری Rs. 2,000 سے زائد پر' : 'Free Shipping on Rs. 2,000+'}</span>
                 <span>•</span>
                 <span>💬 {language === 'ur' ? 'واٹس ایپ آرڈرز جاری' : 'WhatsApp Orders Active'}</span>
-                <span>â€¢</span>
-                <a href="tel:03368945775" className="hover:underline text-white font-bold flex items-center gap-1 text-decoration-none"><span>ðŸ“ž</span><span>{language === "ur" ? "\u06a9\u0627\u0644: 0336-8945775" : "Call: 0336-8945775"}</span></a>
+                <span>•</span>
+                <a href="tel:03368945775" className="hover:underline text-white font-bold flex items-center gap-1 text-decoration-none"><span>📞</span><span>{language === "ur" ? "\u06a9\u0627\u0644: 0336-8945775" : "Call: 0336-8945775"}</span></a>
               </div>
             </div>
           </div>
@@ -3483,7 +3483,7 @@ export default function SahilTraders() {
                       </div>
                     </div>
 
-                    {/* Drawer Footer â€” WhatsApp & Timing */}
+                    {/* Drawer Footer - WhatsApp & Timing */}
                     <div className="pt-4 border-t border-gray-100 mt-4 space-y-3">
                       <a
                         href="https://wa.me/923368945775"
@@ -3550,9 +3550,9 @@ export default function SahilTraders() {
 
 
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ CATEGORY META (icons + gradients per category) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+      // -----------------------------------------------------------------------------
     // To add a category image: set the `image` field to a URL or relative file path.
-    // Example: image: 'images/soaps.jpg'  or  image: 'https://...'  Ã¢â‚¬â€ leave as '' to use default gradient+icon.
+      // -----------------------------------------------------------------------------
     const CATEGORY_META = {
       soaps:        { image: '', gradient: 'linear-gradient(135deg,#667eea,#764ba2)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><circle cx="7" cy="12" r="1"/><circle cx="10.5" cy="9.5" r="1.5"/><circle cx="14.5" cy="14" r="1"/><circle cx="17" cy="11" r="2"/></svg>) },
       shampoo:      { image: '', gradient: 'linear-gradient(135deg,#f093fb,#f5576c)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M7 21a2 2 0 002 2h6a2 2 0 002-2V10a2 2 0 00-2-2H9a2 2 0 00-2 2v11z"/><path d="M12 2v6"/><path d="M9 5h6"/><path d="M10 13h4"/><path d="M10 17h4"/></svg>) },
@@ -3862,7 +3862,7 @@ export default function SahilTraders() {
     }
 
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ CART DRAWER Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+      // -----------------------------------------------------------------------------
     function CartDrawer({ open, cart, cartTotal, langData, onClose, onUpdateQty, onRemove, onCheckout, onSelectProduct }) {
       const [deleteConfirm, setDeleteConfirm] = React.useState(null);
 
@@ -4103,7 +4103,7 @@ export default function SahilTraders() {
       );
     }
 
-    // Ã¢â€â‚¬Ã¢â€â‚¬ CHECKOUT MODAL Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+      // -----------------------------------------------------------------------------
     function OrderHistoryModal({ open, orders, langData, language, onClose, onClear }) {
       if (!open) return null;
       const isUrdu = language === 'ur';
@@ -4177,7 +4177,7 @@ export default function SahilTraders() {
                                   <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
                                   <span>{order.dateText}</span>
                                 </div>
-                                <span style={{ color: '#d1d5db' }}>â€¢</span>
+                                <span style={{ color: '#d1d5db' }}>\u2022</span>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
                                   <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                                   <span>{totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</span>
@@ -4314,35 +4314,35 @@ export default function SahilTraders() {
 
         // Build item lines for WhatsApp message
         const itemLines = cart.map(({ product, qty }) =>
-          `â€¢ ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price*qty).toLocaleString()}`
+          `• ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price*qty).toLocaleString()}`
         ).join('\n\n');
 
         const deliveryText = deliveryMethod === 'pickup'
-          ? 'ðŸ¬ Store Pickup (BS Mart Shop)\n  â±ï¸ Pickup Time: Ready in 20 Mins to 1 Hour'
-          : `ðŸšš Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
+          ? '🏪 Store Pickup (BS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour'
+          : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
 
         const msg = [
-          'ðŸ›’ *NEW ORDER â€” Sahil Traders*',
-          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
+          '🛒 *NEW ORDER – Sahil Traders*',
+          '═════════════════════════',
           '',
-          '*ðŸ“¦ ORDER DETAILS:*',
+          '*📦 ORDER DETAILS:*',
           itemLines,
           '',
-          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
+          '═════════════════════════',
           `*Subtotal:* Rs ${cartTotal.toLocaleString()}`,
           `*Delivery:* ${deliveryText}`,
-          `*ðŸ’° TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`,
-          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
+          `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`,
+          '═════════════════════════',
           '',
-          '*ðŸ‘¤ CUSTOMER INFO:*',
-          `â€¢ Name: ${name.trim()}`,
-          `â€¢ Phone: ${phone.trim()}`,
+          '*👤 CUSTOMER INFO:*',
+          `• Name: ${name.trim()}`,
+          `• Phone: ${phone.trim()}`,
           deliveryMethod === 'home' 
-            ? `â€¢ Delivery Address: ${address.trim()}` 
-            : `â€¢ Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  â±ï¸ Note: Order will be ready for pickup in 20 mins to 1 hour`,
+            ? `• Delivery Address: ${address.trim()}` 
+            : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`,
           '',
-          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
-          `ðŸ“… Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
+          '═════════════════════════',
+          `📅 Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
         ].join('\n');
 
         const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;
@@ -4552,7 +4552,7 @@ export default function SahilTraders() {
                           background: deliveryMethod === 'home' ? '#f9fafb' : '#fff', cursor: 'pointer', textAlign: 'center'
                         }}
                       >
-                        <div style={{ fontSize: 18 }}>ðŸšš</div>
+                        <div style={{ fontSize: 18 }}>🚚</div>
                         <div style={{ fontSize: 12, fontWeight: 800, color: '#111', marginTop: 4 }}>Home Delivery</div>
                         <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{cartTotal >= 2000 ? 'FREE' : 'Rs 150'}</div>
                       </div>
@@ -4564,7 +4564,7 @@ export default function SahilTraders() {
                           background: deliveryMethod === 'pickup' ? '#f9fafb' : '#fff', cursor: 'pointer', textAlign: 'center'
                         }}
                       >
-                        <div style={{ fontSize: 18 }}>ðŸ¬</div>
+                        <div style={{ fontSize: 18 }}>🏪</div>
                         <div style={{ fontSize: 12, fontWeight: 800, color: '#111', marginTop: 4 }}>Store Pickup</div>
                         <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, marginTop: 2 }}>BS Mart (FREE)</div>
                       </div>
@@ -4615,11 +4615,11 @@ export default function SahilTraders() {
                     ) : (
                       <div style={{ padding: '14px', borderRadius: 14, background: '#f0fdf4', border: '1px solid #bbf7d0', display: 'flex', flexDirection: 'column', gap: 6 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#166534' }}>
-                          <span style={{ fontSize: 18 }}>â±ï¸</span>
-                          <span>Ù¾Ú© Ø§Ù¾ Ú©Ø§ ÙˆÙ‚Øª: 20 Ù…Ù†Ù¹ Ø³Û’ 1 Ú¯Ú¾Ù†Ù¹Û</span>
+                          <span style={{ fontSize: 18 }}>⏱️</span>
+                          <span>پک اپ کا وقت: 20 منٹ سے 1 گھنٹہ</span>
                         </div>
                         <p style={{ fontSize: 11, color: '#15803d', fontWeight: 600, lineHeight: 1.5, margin: 0 }}>
-                          Ø¢Ù¾ Ú©Ø§ Ø¢Ø±ÚˆØ± ØªÛŒØ§Ø± ÛÙˆÙ†Û’ Ù…ÛŒÚº 20 Ù…Ù†Ù¹ Ø³Û’ 1 Ú¯Ú¾Ù†Ù¹Û Ù„Ú¯ Ø³Ú©ØªØ§ ÛÛ’Û” Ø§Ø³ ÙˆÙ‚Øª Ú©Û’ Ø¨Ø¹Ø¯ Ø¢Ù¾ BS Mart Ø§Ø³Ù¹ÙˆØ± (Ù…Ø­Ù…Ø¯ Ø²Ø¨ÛŒØ± Ù…Ø¹ÛŒÙ† / Ù…Ø­Ù…Ø¯ Ø³ÛÛŒÙ„ Ø³Ù„ÛŒÙ…) Ø³Û’ Ø§Ù¾Ù†Ø§ Ø³Ø§Ù…Ø§Ù† Ù¾Ú© Ø§Ù¾ Ú©Ø± Ø³Ú©ØªÛ’ ÛÛŒÚºÛ”
+                          آپ کا آرڈر تیار ہونے میں 20 منٹ سے 1 گھنٹہ لگ سکتا ہے۔ اس وقت کے بعد آپ BS Mart اسٹور (محمد زبیر معین / محمد سہیل سلیم) سے اپنا سامان پک اپ کر سکتے ہیں۔
                         </p>
                       </div>
                     )}

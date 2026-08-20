@@ -879,6 +879,123 @@ function AboutUsModal({
     className: "py-3 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
   }, isUrdu ? 'بند کریں' : 'Close'))));
 }
+function ReturnPolicyModal({
+  isOpen,
+  onClose,
+  language
+}) {
+  if (!isOpen) return null;
+  const isUrdu = language === 'ur';
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 animate-scale-in relative",
+    style: {
+      maxHeight: '90vh',
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative bg-gradient-to-r from-emerald-900 via-teal-900 to-gray-900 text-white p-6 pb-7 text-center"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "absolute top-4 right-4 text-gray-300 hover:text-white text-2xl font-bold w-9 h-9 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
+  }, "Ã—"), /*#__PURE__*/React.createElement("div", {
+    className: "w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/15 border border-white/20 p-2 shadow-lg flex items-center justify-center text-3xl"
+  }, "ðŸ›¡ï¸"), /*#__PURE__*/React.createElement("h2", {
+    className: "text-xl sm:text-2xl font-black tracking-wider uppercase text-emerald-300 font-poppins"
+  }, isUrdu ? '\u0648\u0627\u067e\u0633\u06cc \u0627\u0648\u0631 \u062a\u0628\u062f\u06cc\u0644\u06cc \u06a9\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc' : 'Return & Exchange Policy'), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-emerald-100/90 font-semibold mt-1 tracking-wide"
+  }, isUrdu ? '\u0633\u0627\u062d\u0644 \u0679\u0631\u06cc\u0688\u0631\u0632 â€” 100% \u062a\u0633\u0644\u06cc \u0627\u0648\u0631 \u0636\u0645\u0627\u0646\u062a' : '100% Guaranteed Customer Protection & Care')), /*#__PURE__*/React.createElement("div", {
+    className: "p-6 overflow-y-auto space-y-4 flex-1 text-gray-800 text-sm leading-relaxed"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 text-emerald-950 shadow-sm space-y-1.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-black text-sm text-emerald-900"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xl"
+  }, "âœ…"), /*#__PURE__*/React.createElement("span", null, isUrdu ? '\u0627\u06af\u0631 \u067e\u0631\u0648\u0688\u06a9\u067c \u062e\u0631\u0627\u0628 \u06cc\u0627 \u0644\u06cc\u06a9 \u0646\u06a9\u0644\u06d2 \u062a\u0648 \u06a9\u06cc\u0627 \u06c1\u0648\u06af\u0627\u061f' : 'What Happens If Product Is Damaged or Faulty?')), /*#__PURE__*/React.createElement("p", {
+    className: isUrdu ? 'font-urdu text-right text-xs leading-loose text-emerald-950 font-bold' : 'text-xs text-emerald-950 leading-relaxed font-semibold'
+  }, isUrdu ? '\u0627\u06af\u0631 \u0622\u067e \u06a9\u0648 \u0645\u0648\u0635\u0648\u0644 \u06c1\u0648\u0646\u06d2 \u0648\u0627\u0644\u06cc \u06a9\u0648\u0626\u06cc \u0628\u06be\u06cc \u0686\u06cc\u0632 \u062e\u0631\u0627\u0628\u060c \u0644\u06cc\u06a9\u060c \u0627\u06cc\u06a9\u0633\u067e\u0627\u0626\u0631 \u06cc\u0627 \u063a\u0644\u0637 \u0646\u06a9\u0644\u06d2 \u062a\u0648 \u067e\u0631\u06cc\u0634\u0627\u0646 \u0628\u0644\u06a9\u0644 \u0646\u06c1 \u06c1\u0648\u06ba! \u06c1\u0645 \u0628\u0646\u0627 \u06a9\u0633\u06cc \u0628\u062d\u062b \u06a9\u06d2 \u0622\u067e \u06a9\u0648 \u0646\u0626\u06cc \u0686\u06cc\u0632 \u062a\u0628\u062f\u06cc\u0644 (Replace) \u06a9\u0631 \u06a9\u06d2 \u062f\u06cc\u06ba \u06af\u06d2 \u06cc\u0627 \u0622\u067e \u06a9\u06d2 \u0645\u06a9\u0645\u0644 \u067e\u06cc\u0633\u06d2 \u0648\u0627\u067e\u0633 (100% Money Refund) \u06a9\u0631\u06cc\u06ba \u06af\u06d2!' : 'If any product received by you turns out to be damaged, leaked, expired, or incorrect â€” DO NOT WORRY AT ALL! We will immediately issue a 100% Free Replacement or Full Money Refund without any hassle.')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-black text-gray-900"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-base"
+  }, "ðŸ“…"), /*#__PURE__*/React.createElement("span", null, isUrdu ? '7 \u062f\u0646 \u06a9\u06cc \u0645\u06c1\u0644\u062a' : '7-Day Return Window')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 leading-relaxed font-medium"
+  }, isUrdu ? '\u0622\u0631\u0688\u0631 \u0645\u0648\u0635\u0648\u0644 \u06c1\u0648\u0646\u06d2 \u06a9\u06d2 7 \u062f\u0646 \u06a9\u06d2 \u0627\u0646\u062f\u0631 \u0627\u0646\u062f\u0631 \u0622\u067e \u06a9\u0644\u06cc\u0645 \u06a9\u0631 \u0633\u06a9\u062a\u06d2 \u06c1\u06cc\u06ba\u06d5' : 'You can claim return or exchange anytime within 7 days of delivery.')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-black text-gray-900"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-base"
+  }, "ðŸšš"), /*#__PURE__*/React.createElement("span", null, isUrdu ? '\u0645\u0641\u062a \u062a\u0628\u062f\u06cc\u0644\u06cc \u0688\u0644\u06cc\u0648\u0631\u06cc' : 'Free Pickup & Delivery')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 leading-relaxed font-medium"
+  }, isUrdu ? '\u0627\u06af\u0631 \u0645\u0633\u0626\u0644\u06c1 \u06c1\u0645\u0627\u0631\u06cc \u0637\u0631\u0641 \u0633\u06d2 \u06c1\u0648 \u062a\u0648 \u062a\u0628\u062f\u06cc\u0644\u06cc \u06a9\u06d2 \u0688\u0644\u06cc\u0648\u0631\u06cc \u0686\u0627\u0631\u062c\u0632 \u0635\u0641\u0631 (\u0645\u0641\u062a) \u06c1\u0648\u06ba \u06af\u06d2!' : 'If the issue is from our side, exchange delivery charges will be 100% FREE.')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-black text-gray-900"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-base"
+  }, "ðŸ¬"), /*#__PURE__*/React.createElement("span", null, isUrdu ? '\u062f\u06a9\u0627\u0646 \u067e\u0631 \u0628\u0631\u0627\u06c1\u0650 \u0631\u0627\u0633\u062a \u062a\u0628\u062f\u06cc\u0644\u06cc' : 'In-Store Exchange')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 leading-relaxed font-medium"
+  }, isUrdu ? '\u06c1\u0645\u0627\u0631\u06cc \u0641\u0632\u06cc\u06a9\u0644 \u0634\u0627\u067e BS Mart (\u06a9\u0648\u0631\u0646\u06af\u06cc\u060c \u06a9\u0631\u0627\u0686\u06cc) \u0622\u06a9\u0631 \u0628\u06be\u06cc \u062a\u0628\u062f\u06cc\u0644 \u06a9\u0631\u0648\u0627 \u0633\u06a9\u062a\u06d2 \u06c1\u06cc\u06ba\u06d5' : 'You can also visit BS Mart (Korangi, Karachi) for immediate in-person exchange.')), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-black text-gray-900"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-base"
+  }, "ðŸ’°"), /*#__PURE__*/React.createElement("span", null, isUrdu ? '\u0641\u0648\u0631\u06cc \u0631\u06cc \u0641\u0646\u0688 (Refund)' : 'Instant Refund Option')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 leading-relaxed font-medium"
+  }, isUrdu ? '\u0627\u06af\u0631 \u0622\u067e \u062a\u0628\u062f\u06cc\u0644 \u0646\u06c1\u06cc\u06ba \u06a9\u0631\u0646\u0627 \u0686\u0627\u06c1\u062a\u06d2 \u062a\u0648 \u0622\u067e \u06a9\u06d2 \u067e\u06cc\u0633\u06d2 EasyPaisa / JazzCash / Bank \u0645\u06cc\u06ba \u0648\u0627\u067e\u0633 \u06a9\u0631 \u062f\u06cc\u06d2 \u062c\u0627\u0626\u06cc\u06ba \u06af\u06d2\u06d5' : 'Get 100% money back sent to your EasyPaisa, JazzCash, or Bank account.'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-bold text-sm text-blue-950"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-base"
+  }, "ðŸ“‹"), /*#__PURE__*/React.createElement("span", null, isUrdu ? '\u06a9\u0644\u06cc\u0645 \u06a9\u0631\u0646\u06d2 \u06a9\u0627 \u0622\u0633\u0627\u0646 \u0637\u0631\u06cc\u0642\u06c1 (How to Claim):' : 'Easy 3-Step Claim Process:')), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2 text-xs text-blue-900 font-medium"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-start gap-2.5 bg-white/80 p-2.5 rounded-xl border border-blue-100"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-5 h-5 rounded-full bg-blue-600 text-white font-black flex items-center justify-center text-[10px] shrink-0 mt-0.5"
+  }, "1"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "font-bold text-gray-900"
+  }, isUrdu ? '\u0648\u0627\u067e\u0633 \u06cc\u0627 \u062a\u0628\u062f\u06cc\u0644 \u06a9\u06cc \u062a\u0635\u0648\u06cc\u0631 \u0628\u06be\u06cc\u062c\u06cc\u06ba:' : 'Send Photo/Video on WhatsApp:'), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 mt-0.5"
+  }, isUrdu ? '\u062e\u0631\u0627\u0628 \u06cc\u0627 \u0644\u06cc\u06a9 \u0634\u062f\u06c1 \u0686\u06cc\u0632 \u06a9\u06cc \u062a\u0635\u0648\u06cc\u0631 \u06c1\u0645\u0627\u0631\u06d2 \u0648\u0627\u067e\u0633 \u0627\u06cc\u067e (03368945775) \u067e\u0631 \u0628\u06be\u06cc\u062c\u06cc\u06ba\u06d5' : 'Take a quick photo or video of the damaged item & WhatsApp to 03368945775.'))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-start gap-2.5 bg-white/80 p-2.5 rounded-xl border border-blue-100"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-5 h-5 rounded-full bg-blue-600 text-white font-black flex items-center justify-center text-[10px] shrink-0 mt-0.5"
+  }, "2"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "font-bold text-gray-900"
+  }, isUrdu ? '\u0641\u0648\u0631\u06cc \u062a\u0635\u062f\u06cc\u0642:' : 'Instant Verification:'), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 mt-0.5"
+  }, isUrdu ? '\u06c1\u0645\u0627\u0631\u06cc \u067c\u06cc\u0645 10 \u0645\u0646\u067c \u06a9\u06d2 \u0627\u0646\u062f\u0631 \u0622\u067e \u06a9\u0627 \u06a9\u0644\u06cc\u0645 \u0645\u0646\u0638\u0648\u0631 \u06a9\u0631\u06d2 \u06af\u06cc\u06d5' : 'Our customer support team will verify & approve your claim instantly.'))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-start gap-2.5 bg-white/80 p-2.5 rounded-xl border border-blue-100"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "w-5 h-5 rounded-full bg-blue-600 text-white font-black flex items-center justify-center text-[10px] shrink-0 mt-0.5"
+  }, "3"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "font-bold text-gray-900"
+  }, isUrdu ? '\u062a\u0628\u062f\u06cc\u0644\u06cc \u06cc\u0627 \u0631\u06cc \u0641\u0646\u0688:' : 'Replacement / Refund Sent:'), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 mt-0.5"
+  }, isUrdu ? '\u0631\u0627\u0626\u0688\u0631 \u0646\u0626\u06cc \u0686\u06cc\u0632 \u062f\u06d2 \u06a9\u0631 \u067e\u0631\u0627\u0646\u06cc \u0644\u06d2 \u062c\u0627\u0626\u06d2 \u06af\u0627 \u06cc\u0627 \u067e\u06cc\u0633\u06d2 \u0631\u06cc \u0641\u0646\u0688 \u06c1\u0648\u06ba \u06af\u06d2\u06d5' : 'Our rider will replace the item at your doorstep or send your money refund.')))))), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: `https://wa.me/923368945775?text=${encodeURIComponent(isUrdu ? 'Ø³Ù„Ø§Ù…! Ù…Ø¬Ú¾Û’ Ù¾Ø±ÙˆÚˆÚ©Ù¹ Ú©ÛŒ ØªØ¨Ø¯ÛŒÙ„ÛŒ/ÙˆØ§Ù¾Ø³ÛŒ Ú©Ø§ Ú©Ù„ÛŒÙ… Ú©Ø±Ù†Ø§ ÛÛ’Û”' : 'Hi Sahil Traders! I want to claim a product return/exchange.')}`,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none shadow-sm"
+  }, /*#__PURE__*/React.createElement("span", null, "ðŸ’¬"), /*#__PURE__*/React.createElement("span", null, isUrdu ? '\u0648\u0627\u067e\u0633\u06cc \u06a9\u0627 \u06a9\u0644\u06cc\u0645 \u06a9\u0631\u06cc\u06ba' : 'Claim Return on WhatsApp')), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "py-3 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
+  }, isUrdu ? '\u0628\u0646\u062f \u06a9\u0631\u06cc\u06ba' : 'Close'))));
+}
 function WelcomeDisclaimerModal({
   isOpen,
   onClose,
@@ -1108,6 +1225,7 @@ function ProductDetailModal({
 function SahilTraders() {
   const products = PRODUCTS;
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [returnPolicyOpen, setReturnPolicyOpen] = useState(false);
   const [language, setLanguage] = useState("en");
   const [welcomeOpen, setWelcomeOpen] = useState(() => {
     try {
@@ -1783,6 +1901,26 @@ function SahilTraders() {
       color: '#1a1a2e'
     }
   }, "اردو")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setReturnPolicyOpen(true),
+    className: "flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer",
+    style: {
+      background: '#ffffff',
+      borderColor: 'rgba(0,0,0,0.12)',
+      color: '#111111'
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4 text-emerald-600",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline"
+  }, language === 'ur' ? '\u0648\u0627\u067e\u0633\u06cc \u06a9\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc' : 'Return Policy')), /*#__PURE__*/React.createElement("button", {
     onClick: () => setAboutOpen(true),
     className: "flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer",
     style: {
@@ -2349,6 +2487,10 @@ function SahilTraders() {
     langData: langData,
     language: language,
     onSelectProduct: selectProductWithHash
+  }), /*#__PURE__*/React.createElement(ReturnPolicyModal, {
+    isOpen: returnPolicyOpen,
+    onClose: () => setReturnPolicyOpen(false),
+    language: language
   }), /*#__PURE__*/React.createElement(AboutUsModal, {
     isOpen: aboutOpen,
     onClose: () => setAboutOpen(false),
@@ -2479,6 +2621,32 @@ function SahilTraders() {
   }, language === 'ur' ? '\u067e\u0686\u06be\u0644\u06d2 \u0622\u0631\u0688\u0631\u0632 \u0627\u0648\u0631 \u0631\u0633\u06cc\u062f\u06cc\u06ba' : 'View past orders & receipts'))), orderHistory.length > 0 ? /*#__PURE__*/React.createElement("span", {
     className: "px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white"
   }, orderHistory.length) : /*#__PURE__*/React.createElement("span", {
+    className: "text-gray-400 text-xs"
+  }, "›")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setMobileMenuOpen(false);
+      setReturnPolicyOpen(true);
+    },
+    className: "w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-lg"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-5 h-5 text-emerald-700",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-bold text-gray-900"
+  }, language === 'ur' ? '\u0648\u0627\u067e\u0633\u06cc \u0627\u0648\u0631 \u062a\u0628\u062f\u06cc\u0644\u06cc \u06a9\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc' : 'Return & Exchange Policy'), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-500"
+  }, language === 'ur' ? '\u062e\u0631\u0627\u0628 \u0686\u06cc\u0632 \u06a9\u06cc 100% \u062a\u0628\u062f\u06cc\u0644\u06cc \u06cc\u0627 \u0631\u06cc \u0641\u0646\u0688' : '100% replacement or money refund'))), /*#__PURE__*/React.createElement("span", {
     className: "text-gray-400 text-xs"
   }, "›")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {

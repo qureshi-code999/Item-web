@@ -1,181 +1,125 @@
-# PowerShell Web Server for Sahil Traders Admin Portal
+$rootDir = "c:\Users\ALICOM4\Desktop\ITEMS WEB"
 $port = 8000
-$url = "http://localhost:$port/"
-$htmlFile = "c:\Users\ALICOM4\Desktop\ITEMS WEB\index.html"
-$jsxFile = "c:\Users\ALICOM4\Desktop\ITEMS WEB\INDEX.JSX"
+$url  = "http://localhost:$port/"
+
+# Kill any existing process on port 8000
+$existing = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
+if ($existing) {
+    $pid8000 = $existing[0].OwningProcess
+    Stop-Process -Id $pid8000 -Force -ErrorAction SilentlyContinue
+    Write-Host "Purana server band kiya (PID $pid8000)"
+    Start-Sleep -Seconds 1
+}
 
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add($url)
+$listener.Start()
+Write-Host "=========================================="
+Write-Host "  SERVER CHAL RAHA HAI: $url"
+Write-Host "  BAND KARNE KE LIYE: Ctrl+C"
+Write-Host "=========================================="
 
-try {
-    $listener.Start()
-} catch {
-    Write-Error "Could not start server on port $port. Check if port is already in use."
-    exit 1
+# Open browser
+Start-Process $url
+
+function Get-MimeType($ext) {
+    switch ($ext) {
+        ".html" { "text/html; charset=utf-8" }
+        ".js"   { "application/javascript; charset=utf-8" }
+        ".css"  { "text/css; charset=utf-8" }
+        ".json" { "application/json; charset=utf-8" }
+        ".png"  { "image/png" }
+        ".jpg"  { "image/jpeg" }
+        ".jpeg" { "image/jpeg" }
+        ".gif"  { "image/gif" }
+        ".ico"  { "image/x-icon" }
+        ".svg"  { "image/svg+xml" }
+        ".webp" { "image/webp" }
+        ".txt"  { "text/plain; charset=utf-8" }
+        default { "application/octet-stream" }
+    }
 }
 
-Write-Output "=================================================="
-Write-Output "   SAHIL TRADERS ADMIN PORTAL SERVER"
-Write-Output "=================================================="
-Write-Output "Running local server at: $url"
-Write-Output "Press Ctrl+C in this window to stop the server."
-Write-Output "=================================================="
-
-# Open default web browser
-Start-Process $url
+$ADMIN_TOKEN = "SAHIL-ADMIN-2026-SECURE"
 
 while ($listener.IsListening) {
     try {
-        $context = $listener.GetContext()
-        $request = $context.Request
-        $response = $context.Response
+        $ctx  = $listener.GetContext()
+        $req  = $ctx.Request
+        $res  = $ctx.Response
 
-        Write-Output "[$(Get-Date -Format 'HH:mm:ss')] $($request.HttpMethod) $($request.Url.AbsolutePath)"
+        $path = $req.Url.AbsolutePath
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] $($req.HttpMethod) $path"
 
-        # Handle API Save Request
-        if ($request.HttpMethod -eq "POST" -and $request.Url.AbsolutePath -eq "/api/save") {
-            $reader = New-Object System.IO.StreamReader($request.InputStream)
-            $body = $reader.ReadToEnd()
-            
-            # Parse JSON products array
-            $products = $body | ConvertFrom-Json
-            
-            # Format products array as javascript objects
-            $formattedLines = [System.Collections.Generic.List[string]]::new()
-            foreach ($p in $products) {
-                # Construct object keys dynamically
-                $props = [System.Collections.Generic.List[string]]::new()
-                $props.Add("id: $($p.id)")
-                $props.Add("name: `"$($p.name.Replace('"', '\"'))`"")
-                $props.Add("price: $($p.price)")
-                $props.Add("categoryId: `"$($p.categoryId)`"")
-                
-                if ($p.categoryName) { $props.Add("categoryName: `"$($p.categoryName)`"") }
-                if ($p.hasImage -eq $true -or $p.hasImage -eq "true") { $props.Add("hasImage: true") }
-                if ($p.gradient) { $props.Add("gradient: $($p.gradient)") }
-                if ($p.initial) { $props.Add("initial: `"$($p.initial)`"") }
-                
-                $line = "      { " + ($props -join ", ") + " },"
-                $formattedLines.Add($line)
-            }
-            $productsBlock = "`n" + ($formattedLines -join "`n") + "`n    "
-
-            # Update index.html
-            if (Test-Path $htmlFile) {
-                $html = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
-                $pattern = '(?s)(const\s+PRODUCTS\s*=\s*\[)(.*?)(?=\s*\];)'
-                if ($html -match $pattern) {
-                    $updatedHtml = [regex]::Replace($html, $pattern, "${1}$productsBlock")
-                    [System.IO.File]::WriteAllText($htmlFile, $updatedHtml, [System.Text.Encoding]::UTF8)
-                }
-            }
-
-            # Update INDEX.JSX
-            if (Test-Path $jsxFile) {
-                $jsx = [System.IO.File]::ReadAllText($jsxFile, [System.Text.Encoding]::UTF8)
-                $pattern = '(?s)(const\s+PRODUCTS\s*=\s*\[)(.*?)(?=\s*\];)'
-                if ($jsx -match $pattern) {
-                    $updatedJsx = [regex]::Replace($jsx, $pattern, "${1}$productsBlock")
-                    [System.IO.File]::WriteAllText($jsxFile, $updatedJsx, [System.Text.Encoding]::UTF8)
-                }
-            }
-
-            $responseBytes = [System.Text.Encoding]::UTF8.GetBytes("Changes saved successfully to index.html and INDEX.JSX!")
-            $response.StatusCode = 200
-            $response.ContentType = "text/plain"
-            $response.ContentLength64 = $responseBytes.Length
-            $response.OutputStream.Write($responseBytes, 0, $responseBytes.Length)
-            $response.Close()
-            
-            Write-Output "--> Saved $($products.Count) products to files."
+        # Handle POST /api/order
+        if ($req.HttpMethod -eq "POST" -and $path -eq "/api/order") {
+            $res.StatusCode = 200
+            $res.ContentType = "application/json"
+            $b = [System.Text.Encoding]::UTF8.GetBytes('{"ok":true}')
+            $res.ContentLength64 = $b.Length
+            $res.OutputStream.Write($b, 0, $b.Length)
+            $res.OutputStream.Close()
             continue
         }
 
-        # Handle API Order Logging Request
-        if ($request.HttpMethod -eq "POST" -and $request.Url.AbsolutePath -eq "/api/order") {
-            $reader = New-Object System.IO.StreamReader($request.InputStream)
-            $body = $reader.ReadToEnd()
-            $ordersFile = Join-Path "c:\Users\ALICOM4\Desktop\ITEMS WEB" "orders.json"
-            $existing = if (Test-Path $ordersFile) { Get-Content $ordersFile -Raw } else { "[]" }
-            $list = [System.Collections.ArrayList]::new()
-            try { $parsed = $existing | ConvertFrom-Json; if ($parsed) { $list.AddRange($parsed) } } catch {}
-            try {
-                $newOrder = $body | ConvertFrom-Json
-                $list.Insert(0, $newOrder)
-                $updatedJson = $list | ConvertTo-Json -Depth 5
-                [System.IO.File]::WriteAllText($ordersFile, $updatedJson, [System.Text.Encoding]::UTF8)
-                Write-Output "--> Logged new order $($newOrder.id) to orders.json"
-            } catch {}
-
-            $respBytes = [System.Text.Encoding]::UTF8.GetBytes("Order logged")
-            $response.StatusCode = 200
-            $response.ContentType = "text/plain"
-            $response.ContentLength64 = $respBytes.Length
-            $response.OutputStream.Write($respBytes, 0, $respBytes.Length)
-            $response.Close()
+        # Handle POST /api/save (protected)
+        if ($req.HttpMethod -eq "POST" -and $path -eq "/api/save") {
+            $auth = $req.Headers["Authorization"]
+            $tok  = $req.QueryString["token"]
+            if ($auth -ne "Bearer $ADMIN_TOKEN" -and $tok -ne $ADMIN_TOKEN) {
+                $b = [System.Text.Encoding]::UTF8.GetBytes('{"error":"Unauthorized"}')
+                $res.StatusCode = 401
+                $res.ContentType = "application/json"
+                $res.ContentLength64 = $b.Length
+                $res.OutputStream.Write($b, 0, $b.Length)
+                $res.OutputStream.Close()
+                continue
+            }
+            $reader = New-Object System.IO.StreamReader($req.InputStream)
+            $bodyStr = $reader.ReadToEnd()
+            $data = $bodyStr | ConvertFrom-Json
+            if ($data.html) {
+                [System.IO.File]::WriteAllText((Join-Path $rootDir "index.html"), $data.html, [System.Text.Encoding]::UTF8)
+            }
+            $b = [System.Text.Encoding]::UTF8.GetBytes('{"ok":true}')
+            $res.StatusCode = 200
+            $res.ContentType = "application/json"
+            $res.ContentLength64 = $b.Length
+            $res.OutputStream.Write($b, 0, $b.Length)
+            $res.OutputStream.Close()
             continue
         }
 
-        # Handle API Save Compiled JS Request
-        if ($request.HttpMethod -eq "POST" -and $request.Url.AbsolutePath -eq "/api/save_compiled_js") {
-            $reader = New-Object System.IO.StreamReader($request.InputStream)
-            $body = $reader.ReadToEnd()
-            $appJsFile = Join-Path "c:\Users\ALICOM4\Desktop\ITEMS WEB" "app.js"
-            [System.IO.File]::WriteAllText($appJsFile, $body, [System.Text.Encoding]::UTF8)
-            Write-Output "--> Saved pre-compiled app.js ($($body.Length) bytes)"
-
-            $respBytes = [System.Text.Encoding]::UTF8.GetBytes("app.js saved successfully")
-            $response.StatusCode = 200
-            $response.ContentType = "text/plain"
-            $response.ContentLength64 = $respBytes.Length
-            $response.OutputStream.Write($respBytes, 0, $respBytes.Length)
-            $response.Close()
-            continue
-        }
-
-        # Handle static files serving
-        $relPath = $request.Url.AbsolutePath.TrimStart('/')
-        if (-not $relPath) {
-            $relPath = "index.html"
-        }
-        
-        $filePath = Join-Path "c:\Users\ALICOM4\Desktop\ITEMS WEB" $relPath
-        if (-not (Test-Path $filePath -PathType Leaf)) {
-            # Fallback to index.html for virtual routing / SPA fallback
-            $filePath = $htmlFile
-        }
+        # Static files
+        $localPath = $path.TrimStart("/").Replace("/", "\")
+        if ($localPath -eq "" -or $localPath -eq "\") { $localPath = "index.html" }
+        $filePath = Join-Path $rootDir $localPath
 
         if (Test-Path $filePath -PathType Leaf) {
+            $ext   = [System.IO.Path]::GetExtension($filePath).ToLower()
+            $mime  = Get-MimeType $ext
             $bytes = [System.IO.File]::ReadAllBytes($filePath)
-            $ext = [System.IO.Path]::GetExtension($filePath).ToLower()
-            
-            $contentType = switch ($ext) {
-                ".html" { "text/html; charset=utf-8" }
-                ".js"   { "application/javascript" }
-                ".jsx"  { "application/javascript" }
-                ".css"  { "text/css" }
-                ".jpg"  { "image/jpeg" }
-                ".jpeg" { "image/jpeg" }
-                ".png"  { "image/png" }
-                ".webp" { "image/webp" }
-                ".ico"  { "image/x-icon" }
-                default { "application/octet-stream" }
+            $res.StatusCode = 200
+            $res.ContentType = $mime
+            # NO cache for JS and CSS
+            if ($ext -eq ".js" -or $ext -eq ".css") {
+                $res.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate")
+                $res.Headers.Add("Pragma", "no-cache")
+                $res.Headers.Add("Expires", "0")
             }
-
-            $response.StatusCode = 200
-            $response.ContentType = $contentType
-            $response.ContentLength64 = $bytes.Length
-            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $res.ContentLength64 = $bytes.Length
+            $res.OutputStream.Write($bytes, 0, $bytes.Length)
+            $res.OutputStream.Close()
         } else {
-            $response.StatusCode = 404
-            $responseBytes = [System.Text.Encoding]::UTF8.GetBytes("File Not Found")
-            $response.OutputStream.Write($responseBytes, 0, $responseBytes.Length)
+            $b = [System.Text.Encoding]::UTF8.GetBytes("404 Not Found: $path")
+            $res.StatusCode = 404
+            $res.ContentType = "text/plain"
+            $res.ContentLength64 = $b.Length
+            $res.OutputStream.Write($b, 0, $b.Length)
+            $res.OutputStream.Close()
         }
-        $response.Close()
+
     } catch {
-        Write-Output "[ERROR] $($_.Exception.Message)"
-        if ($response) {
-            try { $response.Close() } catch {}
-        }
+        # silently continue
     }
 }

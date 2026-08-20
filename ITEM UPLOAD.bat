@@ -15,10 +15,7 @@ echo  [Band karna = server band ho jaega]
 echo.
 echo  ==========================================
 echo.
-
-:: Server ready hone ke baad browser khud open ho jaega
-powershell -ExecutionPolicy Bypass -File "c:\Users\ALICOM4\Desktop\ITEMS WEB\upload_server.ps1"
-
+powershell -ExecutionPolicy Bypass -File "%~dp0upload_server.ps1"
 echo.
 echo Server band ho gaya.
 pause

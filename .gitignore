@@ -1,0 +1,46 @@
+# ================================================
+#  SAHIL TRADERS - Git Ignore File
+# ================================================
+
+# === BACKUPS (Large ZIP files - never push to GitHub) ===
+Backups/
+*.zip
+*.rar
+*.7z
+
+# === ARCHIVE (Old/deprecated files) ===
+archive/
+
+# === TEMPORARY BUILD FILES ===
+temp_*.html
+temp_*.txt
+js_test_temp.html
+test_b.html
+temp_build*.html
+
+# === LARGE IMAGES / PREPROCESSED ===
+*_preprocessed.png
+*_preprocessed.jpg
+temp_*.png
+sample_*.png
+
+# === OS FILES ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === VS CODE LOCAL SETTINGS (optional - keep if you want) ===
+# .vscode/
+
+# === LOGS ===
+*.log
+
+# === NODE MODULES (if ever added) ===
+node_modules/
+
+# === PYTHON CACHE ===
+__pycache__/
+*.pyc
+cloudflared.exe
+
+cloudflared.exe

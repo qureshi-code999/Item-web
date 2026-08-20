@@ -1,4 +1,13 @@
-﻿import React, { useState, useMemo, useEffect, useRef } from "react";
+﻿// =============================================================
+//  ✅ MASTER SOURCE FILE — SAHIL TRADERS WEBSITE
+//  Filename : INDEX.JSX
+//  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
+//  Build    : Edit karne ke baad compile_jsx.ps1 chalao jo
+//             INDEX.JSX → app.js generate karta hai.
+//  WARNING  : app.js ko KABHI directly edit mat karo — woh
+//             auto-generated file hai aur overwrite ho jaati hai.
+// =============================================================
+import React, { useState, useMemo, useEffect, useRef } from "react";
 
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
@@ -2218,6 +2227,7 @@ export default function SahilTraders() {
       const [cartOpen, setCartOpen] = useState(false);
       const [checkoutOpen, setCheckoutOpen] = useState(false);
       const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
+      const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
       const [orderHistory, setOrderHistory] = useState(() => {
         try {
           const saved = localStorage.getItem("sahil_traders_order_history");
@@ -2843,14 +2853,15 @@ export default function SahilTraders() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2.5">
+                {/* Desktop Navigation Items (Hidden on mobile) */}
+                <div className="hidden sm:flex items-center gap-2.5">
                   {/* Translator Dropdown */}
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="border rounded-xl px-2.5 py-2 text-xs font-semibold transition-all cursor-pointer language-select-mobile"
+                    className="border rounded-xl px-2.5 py-2 text-xs font-semibold transition-all cursor-pointer"
                     style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#111111' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'}
+                    onMouseEnter={e => e.currentTarget.style.borderColor='rgba(0,0,0,0.25)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'}
                   >
                     <option value="en" style={{background:'#ffffff', color:'#1a1a2e'}}>English</option>
@@ -2863,8 +2874,8 @@ export default function SahilTraders() {
                     className="flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer"
                     style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#111111' }}
                   >
-                    <span className="text-sm">🏬</span>
-                    <span className="hidden sm:inline">{language === 'ur' ? 'ہمارے بارے میں' : 'About Us'}</span>
+                    <span className="text-sm">ðŸ¬</span>
+                    <span className="hidden sm:inline">{language === 'ur' ? 'ÛÙ…Ø§Ø±Û’ Ø¨Ø§Ø±Û’ Ù…ÛŒÚº' : 'About Us'}</span>
                   </button>
 
                   {/* Order History Button */}
@@ -2873,8 +2884,8 @@ export default function SahilTraders() {
                     className="relative flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer"
                     style={{ background: '#ffffff', borderColor: orderHistory.length > 0 ? '#111111' : 'rgba(0,0,0,0.12)', color: '#111111' }}
                   >
-                    <span className="text-sm">🧾</span>
-                    <span className="hidden sm:inline">{language === 'ur' ? 'آرڈر ہسٹری' : 'Orders'}</span>
+                    <span className="text-sm">ðŸ§¾</span>
+                    <span className="hidden sm:inline">{language === 'ur' ? 'Ø¢Ø±ÚˆØ± ÛØ³Ù¹Ø±ÛŒ' : 'Orders'}</span>
                     {orderHistory.length > 0 && (
                       <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center" style={{ background: '#16a34a', color: '#ffffff' }}>
                         {orderHistory.length}
@@ -2882,23 +2893,60 @@ export default function SahilTraders() {
                     )}
                   </button>
 
-                  {/* Cart Button */}
+                  {/* Cart Button (Desktop) */}
                   <button
                     id="cart-btn"
                     onClick={() => setCartOpen(true)}
-                    className="relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all cart-btn-mobile"
+                    className="relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer"
                     style={{ background: '#ffffff', borderColor: cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.12)', color: '#111111' }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor=cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.18)'}
+                    onMouseEnter={e => e.currentTarget.style.borderColor=cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.25)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor=cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.12)'}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
-                    <span className="hidden sm:inline">Cart</span>
+                    <span className="hidden sm:inline">{language === 'ur' ? 'Ú©Ø§Ø±Ù¹' : 'Cart'}</span>
                     {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#000000,#000000)', color: '#ffffff' }}>
+                      <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black flex items-center justify-center" style={{ background: '#000000', color: '#ffffff' }}>
                         {cartCount}
                       </span>
+                    )}
+                  </button>
+                </div>
+
+                {/* Mobile Controls (Visible ONLY on mobile / small screens) */}
+                <div className="flex sm:hidden items-center gap-2">
+                  {/* Cart Button (Always prominently visible on mobile) */}
+                  <button
+                    id="cart-btn-mobile"
+                    onClick={() => setCartOpen(true)}
+                    className="relative flex items-center justify-center border px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                    style={{ background: cartCount > 0 ? '#000000' : '#ffffff', borderColor: cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.15)', color: cartCount > 0 ? '#ffffff' : '#111111' }}
+                    aria-label="View Shopping Cart"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                    </svg>
+                    {cartCount > 0 && <span className="ml-1 font-extrabold">{cartCount}</span>}
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center border-2 border-white shadow-xs" style={{ background: '#ef4444', color: '#ffffff' }}>
+                        {cartCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* 3-Line Hamburger Menu Button */}
+                  <button
+                    onClick={() => setMobileMenuOpen(prev => !prev)}
+                    className="relative flex items-center justify-center border p-2 rounded-xl transition-all hover:bg-gray-100 cursor-pointer shadow-xs"
+                    style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.15)', color: '#111111' }}
+                    aria-label="Open Navigation Menu"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                    {orderHistory.length > 0 && (
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"></span>
                     )}
                   </button>
                 </div>
@@ -3230,6 +3278,161 @@ export default function SahilTraders() {
                   onBack={() => { setCheckoutOpen(false); setCartOpen(true); }}
                   onOrderPlaced={(order) => { saveOrderHistory(order); clearCart(); setCheckoutOpen(false); }}
                 />
+              )}
+
+              {/* Mobile Navigation Drawer (3-Line Menu) */}
+              {mobileMenuOpen && (
+                <div
+                  className="fixed inset-0 z-50 flex justify-end sm:hidden animate-fade-in"
+                  style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+                >
+                  {/* Backdrop Click to Close */}
+                  <div className="absolute inset-0" onClick={() => setMobileMenuOpen(false)}></div>
+
+                  {/* Drawer Panel */}
+                  <div
+                    className="relative w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col justify-between p-5 overflow-y-auto animate-scale-in"
+                    style={{ zIndex: 60, borderLeft: '1px solid rgba(0,0,0,0.1)' }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <div>
+                      {/* Drawer Header */}
+                      <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-5">
+                        <div className="flex items-center gap-2.5">
+                          <img src="images/sahil-traders-logo.png" alt="Sahil Traders" className="w-9 h-9 object-contain" />
+                          <div>
+                            <h3 className="text-sm font-black tracking-wider uppercase text-black">Sahil Traders</h3>
+                            <p className="text-[11px] text-gray-500">{language === 'ur' ? 'Ù…ÛŒÙ† Ù…ÛŒÙ†Ùˆ' : 'Main Menu'}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-all cursor-pointer"
+                          aria-label="Close menu"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* 1. Language Switcher Section */}
+                      <div className="mb-5 p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div className="text-xs font-bold text-gray-800 mb-2.5 flex items-center justify-between">
+                          <span>ðŸŒ {language === 'ur' ? 'Ø²Ø¨Ø§Ù† ØªØ¨Ø¯ÛŒÙ„ Ú©Ø±ÛŒÚº' : 'Switch Language'}</span>
+                          <span className="text-[10px] text-gray-500 font-normal">{language === 'ur' ? 'Ø§Ø±Ø¯Ùˆ ÙØ¹Ø§Ù„ ÛÛ’' : 'English Active'}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => { setLanguage("en"); }}
+                            className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                              language === 'en'
+                                ? 'bg-black text-white shadow-sm'
+                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
+                            }`}
+                          >
+                            <span>ðŸ‡¬ðŸ‡§</span>
+                            <span>English</span>
+                          </button>
+                          <button
+                            onClick={() => { setLanguage("ur"); }}
+                            className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                              language === 'ur'
+                                ? 'bg-black text-white shadow-sm'
+                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
+                            }`}
+                          >
+                            <span>ðŸ‡µðŸ‡°</span>
+                            <span>Ø§Ø±Ø¯Ùˆ</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* 2. Menu Navigation Links */}
+                      <div className="space-y-2.5">
+                        {/* Order History */}
+                        <button
+                          onClick={() => { setMobileMenuOpen(false); setOrderHistoryOpen(true); }}
+                          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-lg">
+                              ðŸ§¾
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? 'Ø¢Ø±ÚˆØ± ÛØ³Ù¹Ø±ÛŒ' : 'Order History'}</p>
+                              <p className="text-[11px] text-gray-500">{language === 'ur' ? 'Ù¾Ú†Ú¾Ù„Û’ Ø¢Ø±ÚˆØ±Ø² Ø§ÙˆØ± Ø±Ø³ÛŒØ¯ÛŒÚº' : 'View past orders & receipts'}</p>
+                            </div>
+                          </div>
+                          {orderHistory.length > 0 ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white">
+                              {orderHistory.length}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 text-xs">â€º</span>
+                          )}
+                        </button>
+
+                        {/* About Us */}
+                        <button
+                          onClick={() => { setMobileMenuOpen(false); setAboutOpen(true); }}
+                          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-lg">
+                              ðŸ¬
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? 'ÛÙ…Ø§Ø±Û’ Ø¨Ø§Ø±Û’ Ù…ÛŒÚº' : 'About Us'}</p>
+                              <p className="text-[11px] text-gray-500">{language === 'ur' ? 'Ø¯Ú©Ø§Ù† Ú©ÛŒ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§ÙˆØ± Ø§ÙˆÙ‚Ø§Øª' : 'Shop info, timings & owners'}</p>
+                            </div>
+                          </div>
+                          <span className="text-gray-400 text-xs">â€º</span>
+                        </button>
+
+                        {/* View Cart in Menu */}
+                        <button
+                          onClick={() => { setMobileMenuOpen(false); setCartOpen(true); }}
+                          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-lg">
+                              ðŸ›’
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? 'Ø´Ø§Ù¾Ù†Ú¯ Ú©Ø§Ø±Ù¹' : 'Shopping Cart'}</p>
+                              <p className="text-[11px] text-gray-500">{cartCount > 0 ? (language === 'ur' ? `${cartCount} Ø§Ø´ÛŒØ§Ø¡ Ù…ÙˆØ¬ÙˆØ¯ ÛÛŒÚº` : `${cartCount} items in cart`) : (language === 'ur' ? 'Ú©Ø§Ø±Ù¹ Ø®Ø§Ù„ÛŒ ÛÛ’' : 'Cart is empty')}</p>
+                            </div>
+                          </div>
+                          {cartCount > 0 ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-black text-white">
+                              {cartCount}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 text-xs">â€º</span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Drawer Footer â€” WhatsApp & Timing */}
+                    <div className="pt-4 border-t border-gray-100 mt-4 space-y-3">
+                      <a
+                        href="https://wa.me/923368945775"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
+                        style={{ background: '#25D366' }}
+                      >
+                        <span>ðŸ’¬</span>
+                        <span>{language === 'ur' ? 'ÙˆØ§Ù¹Ø³ Ø§ÛŒÙ¾ Ù¾Ø± Ø±Ø§Ø¨Ø·Û Ú©Ø±ÛŒÚº' : 'WhatsApp (+92 336 8945775)'}</span>
+                      </a>
+
+                      <div className="text-center text-[10px] text-gray-500 space-y-0.5">
+                        <p className="font-semibold text-gray-700">â° {language === 'ur' ? 'ØµØ¨Ø­ 10:00 Ø¨Ø¬Û’ ØªØ§ Ø±Ø§Øª 8:00 Ø¨Ø¬Û’ (Ù¾ÛŒØ± ØªØ§ ÛÙØªÛ)' : '10:00 AM â€“ 8:00 PM (Mon â€“ Sat)'}</p>
+                        <p>{language === 'ur' ? 'Ù…Ø­Ù…Ø¯ Ø²Ø¨ÛŒØ± Ù…Ø¹ÛŒÙ† Ø§ÙˆØ± Ø³Ø§Ø­Ù„ Ø³Ù„ÛŒÙ…' : 'Muhammad Zubair Moin & Sahil Saleem'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {/* Exit Confirmation Modal */}

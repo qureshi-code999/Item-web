@@ -1,6 +1,9 @@
-User-agent: *
+﻿User-agent: *
 Allow: /
 Disallow: /admin_server.ps1
 Disallow: /upload_server.ps1
+Disallow: /archive/
+Disallow: /Backups/
 
-Sitemap: http://localhost:8000/sitemap.xml
+# NOTE: Jab aap domain khareedein, niche wali line update karein:
+# Sitemap: https://AAPKA-DOMAIN.com/sitemap.xml

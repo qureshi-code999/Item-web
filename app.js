@@ -1,4 +1,22 @@
-﻿const {
+﻿// âš ï¸ AUTO-GENERATED FILE â€” DO NOT EDIT DIRECTLY!
+// =====================================================
+//  Filename : app.js
+//  Generated: compile_jsx.ps1 se auto-build hoti hai
+//  Source   : INDEX.JSX (ORIGINAL source hai woh)
+//  WARNING  : Is file mein koi bhi manual edit karo
+//             to agli compile par OVERWRITE ho jayegi!
+//             Sirf INDEX.JSX edit karo â†’ compile karo.
+// =====================================================
+// =============================================================
+//  ✅ MASTER SOURCE FILE — SAHIL TRADERS WEBSITE
+//  Filename : INDEX.JSX
+//  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
+//  Build    : Edit karne ke baad compile_jsx.ps1 chalao jo
+//             INDEX.JSX → app.js generate karta hai.
+//  WARNING  : app.js ko KABHI directly edit mat karo — woh
+//             auto-generated file hai aur overwrite ho jaati hai.
+// =============================================================
+const {
   useState,
   useMemo,
   useEffect,
@@ -791,7 +809,7 @@ var CATEGORIES = [{
   name: "General Item & Others"
 }, {
   id: "babycare",
-  name: "Baby Care"
+  name: "Baby Care & Powders"
 }, {
   id: "mosquito",
   name: "Anti-Mosquito"
@@ -1303,6 +1321,7 @@ function SahilTraders() {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [orderHistory, setOrderHistory] = useState(() => {
     try {
       const saved = localStorage.getItem("sahil_traders_order_history");
@@ -1915,17 +1934,17 @@ function SahilTraders() {
       color: '#000000'
     }
   }, "Sahil Traders"))), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2.5"
+    className: "hidden sm:flex items-center gap-2.5"
   }, /*#__PURE__*/React.createElement("select", {
     value: language,
     onChange: e => setLanguage(e.target.value),
-    className: "border rounded-xl px-2.5 py-2 text-xs font-semibold transition-all cursor-pointer language-select-mobile",
+    className: "border rounded-xl px-2.5 py-2 text-xs font-semibold transition-all cursor-pointer",
     style: {
       background: '#ffffff',
       borderColor: 'rgba(0,0,0,0.12)',
       color: '#111111'
     },
-    onMouseEnter: e => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)',
+    onMouseEnter: e => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.25)',
     onMouseLeave: e => e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)'
   }, /*#__PURE__*/React.createElement("option", {
     value: "en",
@@ -1949,9 +1968,9 @@ function SahilTraders() {
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-sm"
-  }, "🏬"), /*#__PURE__*/React.createElement("span", {
+  }, "ðŸ¬"), /*#__PURE__*/React.createElement("span", {
     className: "hidden sm:inline"
-  }, language === 'ur' ? 'ہمارے بارے میں' : 'About Us')), /*#__PURE__*/React.createElement("button", {
+  }, language === 'ur' ? 'ÛÙ…Ø§Ø±Û’ Ø¨Ø§Ø±Û’ Ù…ÛŒÚº' : 'About Us')), /*#__PURE__*/React.createElement("button", {
     onClick: () => setOrderHistoryOpen(true),
     className: "relative flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer",
     style: {
@@ -1961,9 +1980,9 @@ function SahilTraders() {
     }
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-sm"
-  }, "🧾"), /*#__PURE__*/React.createElement("span", {
+  }, "ðŸ§¾"), /*#__PURE__*/React.createElement("span", {
     className: "hidden sm:inline"
-  }, language === 'ur' ? 'آرڈر ہسٹری' : 'Orders'), orderHistory.length > 0 && /*#__PURE__*/React.createElement("span", {
+  }, language === 'ur' ? 'Ø¢Ø±ÚˆØ± ÛØ³Ù¹Ø±ÛŒ' : 'Orders'), orderHistory.length > 0 && /*#__PURE__*/React.createElement("span", {
     className: "absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center",
     style: {
       background: '#16a34a',
@@ -1972,13 +1991,13 @@ function SahilTraders() {
   }, orderHistory.length)), /*#__PURE__*/React.createElement("button", {
     id: "cart-btn",
     onClick: () => setCartOpen(true),
-    className: "relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all cart-btn-mobile",
+    className: "relative flex items-center gap-2 border px-3 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer",
     style: {
       background: '#ffffff',
       borderColor: cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.12)',
       color: '#111111'
     },
-    onMouseEnter: e => e.currentTarget.style.borderColor = cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.18)',
+    onMouseEnter: e => e.currentTarget.style.borderColor = cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.25)',
     onMouseLeave: e => e.currentTarget.style.borderColor = cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.12)'
   }, /*#__PURE__*/React.createElement("svg", {
     className: "w-5 h-5",
@@ -1992,13 +2011,64 @@ function SahilTraders() {
     d: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
   })), /*#__PURE__*/React.createElement("span", {
     className: "hidden sm:inline"
-  }, "Cart"), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
+  }, language === 'ur' ? 'Ú©Ø§Ø±Ù¹' : 'Cart'), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
     className: "absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black flex items-center justify-center",
     style: {
-      background: 'linear-gradient(135deg,#000000,#000000)',
+      background: '#000000',
       color: '#ffffff'
     }
-  }, cartCount)))), /*#__PURE__*/React.createElement("div", {
+  }, cartCount))), /*#__PURE__*/React.createElement("div", {
+    className: "flex sm:hidden items-center gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    id: "cart-btn-mobile",
+    onClick: () => setCartOpen(true),
+    className: "relative flex items-center justify-center border px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs",
+    style: {
+      background: cartCount > 0 ? '#000000' : '#ffffff',
+      borderColor: cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.15)',
+      color: cartCount > 0 ? '#ffffff' : '#111111'
+    },
+    "aria-label": "View Shopping Cart"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+  })), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "ml-1 font-extrabold"
+  }, cartCount), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center border-2 border-white shadow-xs",
+    style: {
+      background: '#ef4444',
+      color: '#ffffff'
+    }
+  }, cartCount)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMobileMenuOpen(prev => !prev),
+    className: "relative flex items-center justify-center border p-2 rounded-xl transition-all hover:bg-gray-100 cursor-pointer shadow-xs",
+    style: {
+      background: '#ffffff',
+      borderColor: 'rgba(0,0,0,0.15)',
+      color: '#111111'
+    },
+    "aria-label": "Open Navigation Menu"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-5 h-5",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+  })), orderHistory.length > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "mt-3 relative search-wrapper-mobile",
     ref: searchBoxRef
   }, /*#__PURE__*/React.createElement("div", {
@@ -2487,7 +2557,128 @@ function SahilTraders() {
       clearCart();
       setCheckoutOpen(false);
     }
-  }), exitModalOpen && /*#__PURE__*/React.createElement("div", {
+  }), mobileMenuOpen && /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex justify-end sm:hidden animate-fade-in",
+    style: {
+      background: 'rgba(0,0,0,0.6)',
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "absolute inset-0",
+    onClick: () => setMobileMenuOpen(false)
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "relative w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col justify-between p-5 overflow-y-auto animate-scale-in",
+    style: {
+      zIndex: 60,
+      borderLeft: '1px solid rgba(0,0,0,0.1)'
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between pb-4 border-b border-gray-100 mb-5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2.5"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "images/sahil-traders-logo.png",
+    alt: "Sahil Traders",
+    className: "w-9 h-9 object-contain"
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "text-sm font-black tracking-wider uppercase text-black"
+  }, "Sahil Traders"), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-500"
+  }, language === 'ur' ? 'Ù…ÛŒÙ† Ù…ÛŒÙ†Ùˆ' : 'Main Menu'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setMobileMenuOpen(false),
+    className: "w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-all cursor-pointer",
+    "aria-label": "Close menu"
+  }, /*#__PURE__*/React.createElement(X, {
+    className: "w-4 h-4"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "mb-5 p-3.5 bg-gray-50 rounded-2xl border border-gray-100"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-bold text-gray-800 mb-2.5 flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("span", null, "ðŸŒ ", language === 'ur' ? 'Ø²Ø¨Ø§Ù† ØªØ¨Ø¯ÛŒÙ„ Ú©Ø±ÛŒÚº' : 'Switch Language'), /*#__PURE__*/React.createElement("span", {
+    className: "text-[10px] text-gray-500 font-normal"
+  }, language === 'ur' ? 'Ø§Ø±Ø¯Ùˆ ÙØ¹Ø§Ù„ ÛÛ’' : 'English Active')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setLanguage("en");
+    },
+    className: `py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${language === 'en' ? 'bg-black text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}`
+  }, /*#__PURE__*/React.createElement("span", null, "ðŸ‡¬ðŸ‡§"), /*#__PURE__*/React.createElement("span", null, "English")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setLanguage("ur");
+    },
+    className: `py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${language === 'ur' ? 'bg-black text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}`
+  }, /*#__PURE__*/React.createElement("span", null, "ðŸ‡µðŸ‡°"), /*#__PURE__*/React.createElement("span", null, "Ø§Ø±Ø¯Ùˆ")))), /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2.5"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setMobileMenuOpen(false);
+      setOrderHistoryOpen(true);
+    },
+    className: "w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-lg"
+  }, "ðŸ§¾"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-bold text-gray-900"
+  }, language === 'ur' ? 'Ø¢Ø±ÚˆØ± ÛØ³Ù¹Ø±ÛŒ' : 'Order History'), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-500"
+  }, language === 'ur' ? 'Ù¾Ú†Ú¾Ù„Û’ Ø¢Ø±ÚˆØ±Ø² Ø§ÙˆØ± Ø±Ø³ÛŒØ¯ÛŒÚº' : 'View past orders & receipts'))), orderHistory.length > 0 ? /*#__PURE__*/React.createElement("span", {
+    className: "px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white"
+  }, orderHistory.length) : /*#__PURE__*/React.createElement("span", {
+    className: "text-gray-400 text-xs"
+  }, "â€º")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setMobileMenuOpen(false);
+      setAboutOpen(true);
+    },
+    className: "w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-lg"
+  }, "ðŸ¬"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-bold text-gray-900"
+  }, language === 'ur' ? 'ÛÙ…Ø§Ø±Û’ Ø¨Ø§Ø±Û’ Ù…ÛŒÚº' : 'About Us'), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-500"
+  }, language === 'ur' ? 'Ø¯Ú©Ø§Ù† Ú©ÛŒ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§ÙˆØ± Ø§ÙˆÙ‚Ø§Øª' : 'Shop info, timings & owners'))), /*#__PURE__*/React.createElement("span", {
+    className: "text-gray-400 text-xs"
+  }, "â€º")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setMobileMenuOpen(false);
+      setCartOpen(true);
+    },
+    className: "w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-lg"
+  }, "ðŸ›’"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-bold text-gray-900"
+  }, language === 'ur' ? 'Ø´Ø§Ù¾Ù†Ú¯ Ú©Ø§Ø±Ù¹' : 'Shopping Cart'), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-500"
+  }, cartCount > 0 ? language === 'ur' ? `${cartCount} Ø§Ø´ÛŒØ§Ø¡ Ù…ÙˆØ¬ÙˆØ¯ ÛÛŒÚº` : `${cartCount} items in cart` : language === 'ur' ? 'Ú©Ø§Ø±Ù¹ Ø®Ø§Ù„ÛŒ ÛÛ’' : 'Cart is empty'))), cartCount > 0 ? /*#__PURE__*/React.createElement("span", {
+    className: "px-2 py-0.5 rounded-full text-[10px] font-black bg-black text-white"
+  }, cartCount) : /*#__PURE__*/React.createElement("span", {
+    className: "text-gray-400 text-xs"
+  }, "â€º")))), /*#__PURE__*/React.createElement("div", {
+    className: "pt-4 border-t border-gray-100 mt-4 space-y-3"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "https://wa.me/923368945775",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer",
+    style: {
+      background: '#25D366'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "ðŸ’¬"), /*#__PURE__*/React.createElement("span", null, language === 'ur' ? 'ÙˆØ§Ù¹Ø³ Ø§ÛŒÙ¾ Ù¾Ø± Ø±Ø§Ø¨Ø·Û Ú©Ø±ÛŒÚº' : 'WhatsApp (+92 336 8945775)')), /*#__PURE__*/React.createElement("div", {
+    className: "text-center text-[10px] text-gray-500 space-y-0.5"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "font-semibold text-gray-700"
+  }, "â° ", language === 'ur' ? 'ØµØ¨Ø­ 10:00 Ø¨Ø¬Û’ ØªØ§ Ø±Ø§Øª 8:00 Ø¨Ø¬Û’ (Ù¾ÛŒØ± ØªØ§ ÛÙØªÛ)' : '10:00 AM â€“ 8:00 PM (Mon â€“ Sat)'), /*#__PURE__*/React.createElement("p", null, language === 'ur' ? 'Ù…Ø­Ù…Ø¯ Ø²Ø¨ÛŒØ± Ù…Ø¹ÛŒÙ† Ø§ÙˆØ± Ø³Ø§Ø­Ù„ Ø³Ù„ÛŒÙ…' : 'Muhammad Zubair Moin & Sahil Saleem'))))), exitModalOpen && /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4"
@@ -4156,13 +4347,13 @@ function CartDrawer({
 function OrderHistoryModal({
   open,
   orders,
+  langData,
   language,
   onClose,
   onClear
 }) {
   if (!open) return null;
   const isUrdu = language === 'ur';
-  const hasOrders = orders.length > 0;
   return /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'fixed',
@@ -4263,7 +4454,7 @@ function OrderHistoryModal({
       padding: 18,
       overflowY: 'auto'
     }
-  }, !hasOrders ? /*#__PURE__*/React.createElement("div", {
+  }, orders.length === 0 ? /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '44px 18px',
       textAlign: 'center',
@@ -4409,7 +4600,7 @@ function OrderHistoryModal({
       color: '#111827',
       fontWeight: 900
     }
-  }, "Rs ", Number(item.total || 0).toLocaleString()))))))), hasOrders && /*#__PURE__*/React.createElement("div", {
+  }, "Rs ", Number(item.total || 0).toLocaleString())))))))), orders.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '14px 18px',
       borderTop: '1px solid #e5e7eb',
@@ -4439,7 +4630,7 @@ function OrderHistoryModal({
       textTransform: 'uppercase',
       letterSpacing: '0.08em'
     }
-  }, isUrdu ? 'ہسٹری صاف کریں' : 'Clear History')))));
+  }, isUrdu ? 'ہسٹری صاف کریں' : 'Clear History'))));
 }
 function CheckoutModal({
   cart,

@@ -1,9 +1,10 @@
 param([switch]$NoBrowser)
 
 # PowerShell Web Server for Sahil Traders - Item Upload Portal
+# $PSScriptRoot = script ki apni folder, kisi bhi PC par kaam karega
 $port     = 8888
 $url      = "http://localhost:$port/"
-$rootDir  = "c:\Users\ALICOM4\Desktop\ITEMS WEB"
+$rootDir  = $PSScriptRoot
 $htmlFile = Join-Path $rootDir "index.html"
 $jsxFile  = Join-Path $rootDir "INDEX.JSX"
 $imgDir   = Join-Path $rootDir "images"

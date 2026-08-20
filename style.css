@@ -362,3 +362,21 @@ html, body { overflow-x: hidden; max-width: 100vw; }
   .sm\:text-xl { font-size: 1.25rem !important; }
   .sm\:inline { display: inline !important; }
 }
+
+/* ============================================================
+   MODAL BACKGROUND SCROLL LOCKING (Mobile & Desktop)
+   ============================================================ */
+html.modal-open,
+body.modal-open {
+  overflow: hidden !important;
+  touch-action: none !important;
+  overscroll-behavior: none !important;
+}
+
+/* Contain scroll leakage inside modal bodies */
+.overflow-y-auto,
+[style*="overflowY: 'auto'"],
+[style*="overflow-y: auto"] {
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
+}

@@ -2841,6 +2841,8 @@ export default function SahilTraders() {
                 <span>🚚 {language === 'ur' ? 'مفت ڈیلیوری Rs. 2,000 سے زائد پر' : 'Free Shipping on Rs. 2,000+'}</span>
                 <span>•</span>
                 <span>💬 {language === 'ur' ? 'واٹس ایپ آرڈرز جاری' : 'WhatsApp Orders Active'}</span>
+                <span>â€¢</span>
+                <a href="tel:03368945775" className="hover:underline text-white font-bold flex items-center gap-1 text-decoration-none"><span>ðŸ“ž</span><span>{language === "ur" ? "\u06a9\u0627\u0644: 0336-8945775" : "Call: 0336-8945775"}</span></a>
               </div>
             </div>
           </div>
@@ -2889,6 +2891,15 @@ export default function SahilTraders() {
                     <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
                     <span className="hidden sm:inline">{language === 'ur' ? '\u0648\u0627\u067e\u0633\u06cc \u06a9\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc' : 'Return Policy'}</span>
                   </button>
+                  {/* Direct Call Button */}
+                  <a
+                    href="tel:03368945775"
+                    className="flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer text-decoration-none"
+                    style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#111111' }}
+                  >
+                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106a1.15 1.15 0 00-1.01.258l-1.589 1.589a13.385 13.385 0 01-6.697-6.697l1.589-1.589a1.15 1.15 0 00.258-1.01L7.544 3.102A1.125 1.125 0 006.453 2.25H5.08A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
+                    <span className="hidden sm:inline">{language === 'ur' ? '\u06a9\u0627\u0644: 0336-8945775' : 'Call: 0336-8945775'}</span>
+                  </a>
                   {/* About Us Button */}
                   <button
                     onClick={() => setAboutOpen(true)}
@@ -3412,6 +3423,22 @@ export default function SahilTraders() {
                           </div>
                           <span className="text-gray-400 text-xs">&rsaquo;</span>
                         </button>
+                        {/* Direct Call */}
+                        <a
+                          href="tel:03368945775"
+                          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs text-decoration-none"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-lg">
+                              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106a1.15 1.15 0 00-1.01.258l-1.589 1.589a13.385 13.385 0 01-6.697-6.697l1.589-1.589a1.15 1.15 0 00.258-1.01L7.544 3.102A1.125 1.125 0 006.453 2.25H5.08A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u0628\u0631\u0627\u06c1\u0650 \u0631\u0627\u0633\u062a \u0641\u0648\u0646 \u06a9\u0627\u0644 (0336-8945775)' : 'Direct Phone Call (0336-8945775)'}</p>
+                              <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u0641\u0648\u0631\u06cc \u06a9\u0627\u0644 \u06a9\u0631 \u06a9\u06d2 \u0645\u0639\u0644\u0648\u0645\u0627\u0622 \u06cc\u0627 \u0622\u0631\u0688\u0631 \u062f\u06cc\u06ba' : 'Tap to call us directly'}</p>
+                            </div>
+                          </div>
+                          <span className="text-gray-400 text-xs">&rsaquo;</span>
+                        </a>
                         {/* About Us */}
                         <button
                           onClick={() => { setMobileMenuOpen(false); setAboutOpen(true); }}

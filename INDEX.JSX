@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 //  ✅ MASTER SOURCE FILE — SAHIL TRADERS WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
@@ -2874,8 +2874,8 @@ export default function SahilTraders() {
                     className="flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer"
                     style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#111111' }}
                   >
-                    <span className="text-sm">ðŸ¬</span>
-                    <span className="hidden sm:inline">{language === 'ur' ? 'ÛÙ…Ø§Ø±Û’ Ø¨Ø§Ø±Û’ Ù…ÛŒÚº' : 'About Us'}</span>
+                    <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H21m-4.5 0H12m-9 0h4.5m0 0V9a2.25 2.25 0 012.25-2.25h1.372c.516 0 .966.351 1.091.852l1.106 4.423c.11.44.505.75.958.75h3.423a.75.75 0 00.75-.75V6.75A2.25 2.25 0 0017.25 4.5h-10.5A2.25 2.25 0 004.5 6.75V21" /></svg>
+                    <span className="hidden sm:inline">{language === 'ur' ? '\u06c1\u0645\u0627\u0631\u06d2 \u0628\u0627\u0631\u06d2 \u0645\u06cc\u06ba' : 'About Us'}</span>
                   </button>
 
                   {/* Order History Button */}
@@ -2884,8 +2884,8 @@ export default function SahilTraders() {
                     className="relative flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer"
                     style={{ background: '#ffffff', borderColor: orderHistory.length > 0 ? '#111111' : 'rgba(0,0,0,0.12)', color: '#111111' }}
                   >
-                    <span className="text-sm">ðŸ§¾</span>
-                    <span className="hidden sm:inline">{language === 'ur' ? 'Ø¢Ø±ÚˆØ± ÛØ³Ù¹Ø±ÛŒ' : 'Orders'}</span>
+                    <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <span className="hidden sm:inline">{language === 'ur' ? '\u0622\u0631\u0688\u0631 \u06c1\u0633\u0679\u0631\u06cc' : 'Orders'}</span>
                     {orderHistory.length > 0 && (
                       <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center" style={{ background: '#16a34a', color: '#ffffff' }}>
                         {orderHistory.length}
@@ -2905,7 +2905,7 @@ export default function SahilTraders() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
-                    <span className="hidden sm:inline">{language === 'ur' ? 'Ú©Ø§Ø±Ù¹' : 'Cart'}</span>
+                    <span className="hidden sm:inline">{language === 'ur' ? '\u06a9\u0627\u0631\u0679' : 'Cart'}</span>
                     {cartCount > 0 && (
                       <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black flex items-center justify-center" style={{ background: '#000000', color: '#ffffff' }}>
                         {cartCount}
@@ -3302,7 +3302,7 @@ export default function SahilTraders() {
                           <img src="images/sahil-traders-logo.png" alt="Sahil Traders" className="w-9 h-9 object-contain" />
                           <div>
                             <h3 className="text-sm font-black tracking-wider uppercase text-black">Sahil Traders</h3>
-                            <p className="text-[11px] text-gray-500">{language === 'ur' ? 'Ù…ÛŒÙ† Ù…ÛŒÙ†Ùˆ' : 'Main Menu'}</p>
+                            <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u0645\u06cc\u06ba \u0645\u06cc\u0646\u0648' : 'Main Menu'}</p>
                           </div>
                         </div>
                         <button
@@ -3317,8 +3317,8 @@ export default function SahilTraders() {
                       {/* 1. Language Switcher Section */}
                       <div className="mb-5 p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
                         <div className="text-xs font-bold text-gray-800 mb-2.5 flex items-center justify-between">
-                          <span>ðŸŒ {language === 'ur' ? 'Ø²Ø¨Ø§Ù† ØªØ¨Ø¯ÛŒÙ„ Ú©Ø±ÛŒÚº' : 'Switch Language'}</span>
-                          <span className="text-[10px] text-gray-500 font-normal">{language === 'ur' ? 'Ø§Ø±Ø¯Ùˆ ÙØ¹Ø§Ù„ ÛÛ’' : 'English Active'}</span>
+                          <span>{language === 'ur' ? '\u0632\u0628\u0627\u0646 \u062a\u0628\u062f\u06cc\u0644 \u06a9\u0631\u06cc\u06ba' : 'Switch Language'}</span>
+                          <span className="text-[10px] text-gray-500 font-normal">{language === 'ur' ? '\u0627\u0631\u062f\u0648 \u0641\u0639\u0627\u0644 \u06c1\u06d2' : 'English Active'}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <button
@@ -3329,7 +3329,6 @@ export default function SahilTraders() {
                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
                             }`}
                           >
-                            <span>ðŸ‡¬ðŸ‡§</span>
                             <span>English</span>
                           </button>
                           <button
@@ -3340,8 +3339,7 @@ export default function SahilTraders() {
                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
                             }`}
                           >
-                            <span>ðŸ‡µðŸ‡°</span>
-                            <span>Ø§Ø±Ø¯Ùˆ</span>
+                            <span>\u0627\u0631\u062f\u0648</span>
                           </button>
                         </div>
                       </div>
@@ -3355,11 +3353,11 @@ export default function SahilTraders() {
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-lg">
-                              ðŸ§¾
+                              <svg className="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? 'Ø¢Ø±ÚˆØ± ÛØ³Ù¹Ø±ÛŒ' : 'Order History'}</p>
-                              <p className="text-[11px] text-gray-500">{language === 'ur' ? 'Ù¾Ú†Ú¾Ù„Û’ Ø¢Ø±ÚˆØ±Ø² Ø§ÙˆØ± Ø±Ø³ÛŒØ¯ÛŒÚº' : 'View past orders & receipts'}</p>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u0622\u0631\u0688\u0631 \u06c1\u0633\u0679\u0631\u06cc' : 'Order History'}</p>
+                              <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u067e\u0686\u06be\u0644\u06d2 \u0622\u0631\u0688\u0631\u0632 \u0627\u0648\u0631 \u0631\u0633\u06cc\u062f\u06cc\u06ba' : 'View past orders & receipts'}</p>
                             </div>
                           </div>
                           {orderHistory.length > 0 ? (
@@ -3367,7 +3365,7 @@ export default function SahilTraders() {
                               {orderHistory.length}
                             </span>
                           ) : (
-                            <span className="text-gray-400 text-xs">â€º</span>
+                            <span className="text-gray-400 text-xs">&rsaquo;</span>
                           )}
                         </button>
 
@@ -3378,14 +3376,14 @@ export default function SahilTraders() {
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-lg">
-                              ðŸ¬
+                              <svg className="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H21m-4.5 0H12m-9 0h4.5m0 0V9a2.25 2.25 0 012.25-2.25h1.372c.516 0 .966.351 1.091.852l1.106 4.423c.11.44.505.75.958.75h3.423a.75.75 0 00.75-.75V6.75A2.25 2.25 0 0017.25 4.5h-10.5A2.25 2.25 0 004.5 6.75V21" /></svg>
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? 'ÛÙ…Ø§Ø±Û’ Ø¨Ø§Ø±Û’ Ù…ÛŒÚº' : 'About Us'}</p>
-                              <p className="text-[11px] text-gray-500">{language === 'ur' ? 'Ø¯Ú©Ø§Ù† Ú©ÛŒ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§ÙˆØ± Ø§ÙˆÙ‚Ø§Øª' : 'Shop info, timings & owners'}</p>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u06c1\u0645\u0627\u0631\u06d2 \u0628\u0627\u0631\u06d2 \u0645\u06cc\u06ba' : 'About Us'}</p>
+                              <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u062f\u06a9\u0627\u0646 \u06a9\u06cc \u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0627\u0648\u0631 \u0627\u0648\u0642\u0627\u062a' : 'Shop info, timings & owners'}</p>
                             </div>
                           </div>
-                          <span className="text-gray-400 text-xs">â€º</span>
+                          <span className="text-gray-400 text-xs">&rsaquo;</span>
                         </button>
 
                         {/* View Cart in Menu */}
@@ -3395,11 +3393,11 @@ export default function SahilTraders() {
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center text-lg">
-                              ðŸ›’
+                              <svg className="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? 'Ø´Ø§Ù¾Ù†Ú¯ Ú©Ø§Ø±Ù¹' : 'Shopping Cart'}</p>
-                              <p className="text-[11px] text-gray-500">{cartCount > 0 ? (language === 'ur' ? `${cartCount} Ø§Ø´ÛŒØ§Ø¡ Ù…ÙˆØ¬ÙˆØ¯ ÛÛŒÚº` : `${cartCount} items in cart`) : (language === 'ur' ? 'Ú©Ø§Ø±Ù¹ Ø®Ø§Ù„ÛŒ ÛÛ’' : 'Cart is empty')}</p>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u0634\u0627\u067e\u0646\u06af \u06a9\u0627\u0631\u0679' : 'Shopping Cart'}</p>
+                              <p className="text-[11px] text-gray-500">{cartCount > 0 ? (language === 'ur' ? `${cartCount} \u0627\u0634\u06cc\u0627\u0621 \u0645\u0648\u062c\u0648\u062f \u06c1\u06cc\u06ba` : `${cartCount} items in cart`) : (language === 'ur' ? '\u06a9\u0627\u0631\u0679 \u062e\u0627\u0644\u06cc \u06c1\u06d2' : 'Cart is empty')}</p>
                             </div>
                           </div>
                           {cartCount > 0 ? (
@@ -3407,7 +3405,7 @@ export default function SahilTraders() {
                               {cartCount}
                             </span>
                           ) : (
-                            <span className="text-gray-400 text-xs">â€º</span>
+                            <span className="text-gray-400 text-xs">&rsaquo;</span>
                           )}
                         </button>
                       </div>
@@ -3422,13 +3420,13 @@ export default function SahilTraders() {
                         className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
                         style={{ background: '#25D366' }}
                       >
-                        <span>ðŸ’¬</span>
-                        <span>{language === 'ur' ? 'ÙˆØ§Ù¹Ø³ Ø§ÛŒÙ¾ Ù¾Ø± Ø±Ø§Ø¨Ø·Û Ú©Ø±ÛŒÚº' : 'WhatsApp (+92 336 8945775)'}</span>
+                        <svg className="w-4 h-4 text-white fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        <span>{language === 'ur' ? '\u0648\u0627\u067c\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0631\u0627\u0628\u0637\u06c1 \u06a9\u0631\u06cc\u06ba' : 'WhatsApp (+92 336 8945775)'}</span>
                       </a>
 
                       <div className="text-center text-[10px] text-gray-500 space-y-0.5">
-                        <p className="font-semibold text-gray-700">â° {language === 'ur' ? 'ØµØ¨Ø­ 10:00 Ø¨Ø¬Û’ ØªØ§ Ø±Ø§Øª 8:00 Ø¨Ø¬Û’ (Ù¾ÛŒØ± ØªØ§ ÛÙØªÛ)' : '10:00 AM â€“ 8:00 PM (Mon â€“ Sat)'}</p>
-                        <p>{language === 'ur' ? 'Ù…Ø­Ù…Ø¯ Ø²Ø¨ÛŒØ± Ù…Ø¹ÛŒÙ† Ø§ÙˆØ± Ø³Ø§Ø­Ù„ Ø³Ù„ÛŒÙ…' : 'Muhammad Zubair Moin & Sahil Saleem'}</p>
+                        <p className="font-semibold text-gray-700">{language === 'ur' ? '\u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)' : '10:00 AM \u2013 8:00 PM (Mon \u2013 Sat)'}</p>
+                        <p>{language === 'ur' ? '\u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646 \u0627\u0648\u0631 \u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645' : 'Muhammad Zubair Moin & Sahil Saleem'}</p>
                       </div>
                     </div>
                   </div>

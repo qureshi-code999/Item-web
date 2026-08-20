@@ -2665,10 +2665,10 @@ export default function SahilTraders() {
             </div>
           )}
           {/* Background — Pure Clean White */}
-          <div className="fixed inset-0 -z-10 bg-white" />
+          <div className="fixed inset-0 -z-10" style={{ background: "#f9fafb" }} />
 
           {/* Top Delivery Timing & Info Bar */}
-          <div className="bg-gray-900 text-white text-[11px] font-medium py-1.5 px-4 shadow-inner border-b border-gray-800">
+          <div className="text-white text-[11px] font-medium py-1.5 px-4" style={{ background: "#b45309", borderBottom: "1px solid rgba(0,0,0,0.1)" }}>
             <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap text-gray-200">
               <div className="flex items-center gap-2">
                 <span className="text-amber-400 font-bold">⏰ {language === 'ur' ? 'ڈیلیوری ٹائمنگ:' : 'Delivery Timing:'}</span>
@@ -2683,7 +2683,7 @@ export default function SahilTraders() {
           </div>
 
           {/* Header — Clean Minimalist White */}
-          <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
+          <header className="sticky top-0 z-30 shadow-lg" style={{ background: "#0f0f0f", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
             <div className="max-w-6xl mx-auto px-4 py-3 mobile-header-row">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -2695,7 +2695,7 @@ export default function SahilTraders() {
                   <div>
                     <h1
                       className="mobile-logo-title text-lg sm:text-xl font-black leading-tight tracking-widest uppercase"
-                      style={{ fontFamily: "'Poppins', sans-serif", color: '#000000' }}
+                      style={{ fontFamily: "'Poppins', sans-serif", color: '#ffffff' }}
                     >
                       Sahil Traders
                     </h1>
@@ -2804,7 +2804,7 @@ export default function SahilTraders() {
               {/* Search — Gold Glow */}
               <div className="mt-3 relative search-wrapper-mobile" ref={searchBoxRef}>
                 <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 " style={{ color: "#9ca3af" }} />
                   <input
                     type="text"
                     value={searchTerm}
@@ -2815,9 +2815,9 @@ export default function SahilTraders() {
                     onKeyDown={handleSearchKeyDown}
                     placeholder={translate(langData, "searchPlaceholder")}
                     className="w-full border rounded-xl pl-10 pr-9 py-2.5 text-sm transition-all focus:outline-none"
-                    style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#1a1a2e', caretColor: '#000000' }}
-                    onFocus={e => { setSuggestOpen(true); e.target.style.borderColor='rgba(0,0,0,0.12)'; e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.12)'; }}
-                    onBlur={e => { e.target.style.borderColor='rgba(0,0,0,0.12)'; e.target.style.boxShadow='none'; }}
+                    style={{ background: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.14)', color: '#ffffff', caretColor: '#ffffff' }}
+                    onFocus={e => { setSuggestOpen(true); e.target.style.borderColor='rgba(217,119,6,0.7)'; e.target.style.boxShadow='0 0 0 3px rgba(217,119,6,0.2)'; }}
+                    onBlur={e => { e.target.style.borderColor='rgba(255,255,255,0.14)'; e.target.style.boxShadow='none'; }}
                   />
                   {searchTerm && (
                     <button
@@ -2856,6 +2856,31 @@ export default function SahilTraders() {
 
           {/* Body */}
           <main className="max-w-6xl mx-auto px-4 py-6 main-content-area">
+            {/* HERO */}
+            {showCategoryHome && (
+              <div style={{ margin: '-24px -16px 28px -16px', background: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 60%, #0f0f0f 100%)', padding: '36px 24px 32px', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: '-40%', right: '-5%', width: 350, height: 350, borderRadius: '50%', background: 'radial-gradient(circle, rgba(217,119,6,0.14) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(217,119,6,0.15)', border: '1px solid rgba(217,119,6,0.3)', borderRadius: 999, padding: '4px 12px', marginBottom: 14 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d97706', display: 'inline-block' }} />
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#fbbf24', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Pakistan Ka Trusted Store</span>
+                  </div>
+                  <h2 style={{ fontSize: 26, fontWeight: 900, color: '#ffffff', lineHeight: 1.25, marginBottom: 10 }}>
+                    <span>Beauty &amp; Daily Essentials</span><br/><span style={{ color: '#fbbf24' }}>At Wholesale Prices</span>
+                  </h2>
+                  <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 20, lineHeight: 1.7 }}>1000+ products: Soaps, Shampoos, Baby Care, Creams and more.</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <button onClick={() => { const el = document.querySelector('.cat-home-grid'); if(el) el.scrollIntoView({ behavior: 'smooth' }); }} style={{ background: 'linear-gradient(135deg, #d97706, #f59e0b)', color: '#000000', border: 'none', borderRadius: 12, padding: '11px 20px', fontSize: 13, fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 20px rgba(217,119,6,0.4)' }}>Shop Now</button>
+                    <a href={'https://wa.me/923368945775?text=' + encodeURIComponent('Assalam Alaikum! I want to order.')} target="_blank" rel="noopener noreferrer" style={{ color: '#4ade80', border: '1.5px solid rgba(74,222,128,0.5)', borderRadius: 12, padding: '10px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none', background: 'rgba(74,222,128,0.06)' }}>WhatsApp Order</a>
+                  </div>
+                  <div style={{ display: 'flex', gap: 24, marginTop: 22 }}>
+                    <div style={{ textAlign: 'center' }}><div style={{ fontSize: 17, fontWeight: 900, color: '#fbbf24' }}>1000+</div><div style={{ fontSize: 10, color: '#6b7280', fontWeight: 600 }}>Products</div></div>
+                    <div style={{ textAlign: 'center' }}><div style={{ fontSize: 17, fontWeight: 900, color: '#fbbf24' }}>Rs 150</div><div style={{ fontSize: 10, color: '#6b7280', fontWeight: 600 }}>Delivery</div></div>
+                    <div style={{ textAlign: 'center' }}><div style={{ fontSize: 17, fontWeight: 900, color: '#fbbf24' }}>Free</div><div style={{ fontSize: 10, color: '#6b7280', fontWeight: 600 }}>on Rs 2000+</div></div>
+                  </div>
+                </div>
+              </div>
+            )}
             {showCategoryHome ? (
               <CategoryHome
                 products={products}
@@ -2981,7 +3006,7 @@ export default function SahilTraders() {
 
                 {filtered.length === 0 ? (
                   <div className="text-center py-16 bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-                    <ShoppingBag className="w-12 h-12 mx-auto mb-3 text-gray-700" />
+                    <ShoppingBag className="w-12 h-12 mx-auto mb-3 " style={{ color: "#9ca3af" }} />
                     <p className="text-base font-bold text-black mb-2">No items found matching "{searchTerm}"</p>
                     <p className="text-xs text-gray-700 mb-6">Try searching with a different item name or go back to main categories.</p>
                     <button
@@ -3605,7 +3630,7 @@ export default function SahilTraders() {
             <p className="product-name-text text-xs sm:text-sm font-bold leading-snug line-clamp-2 tracking-tight" style={{ color: '#1a1a2e' }}>
               {getProductDisplayName(product, language)}
             </p>
-            <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#000000' }}>
+            <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#d97706' }}>
               {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
             </p>
             <button

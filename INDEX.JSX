@@ -2836,6 +2836,8 @@ export default function SahilTraders() {
                 <span className="font-semibold text-white">{language === 'ur' ? 'صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : '10:00 AM – 8:00 PM (Mon – Sat)'}</span>
               </div>
               <div className="hidden sm:flex items-center gap-3 text-[10px] text-gray-400">
+                <span>ðŸ“ {language === "ur" ? "\u0688\u0644\u06cc\u0648\u0631\u06cc \u0635\u0631\u0641 \u06a9\u0631\u0627\u0686\u06cc \u06a9\u06d2 \u0644\u0626\u06d2 \u062f\u0633\u062a\u06cc\u0627\u0628 \u06c1\u06d2" : "Delivery in Karachi Only"}</span>
+                <span>â€¢</span>
                 <span>🚚 {language === 'ur' ? 'مفت ڈیلیوری Rs. 2,000 سے زائد پر' : 'Free Shipping on Rs. 2,000+'}</span>
                 <span>•</span>
                 <span>💬 {language === 'ur' ? 'واٹس ایپ آرڈرز جاری' : 'WhatsApp Orders Active'}</span>
@@ -4417,6 +4419,7 @@ export default function SahilTraders() {
 
                   {/* Delivery Option Selection */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ padding: "10px 12px", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12, display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "#1e40af", fontWeight: 800 }}><span>ðŸ“</span><span>{isUrdu ? "\u0646\u0648\u067c\u0633: \u06c1\u0648\u0645 \u0688\u0644\u06cc\u0648\u0631\u06cc \u0635\u0631\u0641 \u06a9\u0631\u0627\u0686\u06cc \u06a9\u06d2 \u0634\u06c1\u0631 \u06a9\u06d2 \u0644\u0626\u06d2 \u062f\u0633\u062a\u06cc\u0627\u0628 \u06c1\u06d2\u06d5" : "Notice: Home Delivery is ONLY available within Karachi city."}</span></div>
                     <p style={{ fontSize: 11, fontWeight: 900, color: '#111111', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Delivery Option</p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       <div 

@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 //  ✅ MASTER SOURCE FILE — SAHIL TRADERS WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
@@ -2875,7 +2875,7 @@ export default function SahilTraders() {
                     style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#111111' }}
                   >
                     <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H21m-4.5 0H12m-9 0h4.5m0 0V9a2.25 2.25 0 012.25-2.25h1.372c.516 0 .966.351 1.091.852l1.106 4.423c.11.44.505.75.958.75h3.423a.75.75 0 00.75-.75V6.75A2.25 2.25 0 0017.25 4.5h-10.5A2.25 2.25 0 004.5 6.75V21" /></svg>
-                    <span className="hidden sm:inline">{language === 'ur' ? '\u06c1\u0645\u0627\u0631\u06d2 \u0628\u0627\u0631\u06d2 \u0645\u06cc\u06ba' : 'About Us'}</span>
+                    <span className="hidden sm:inline">{language === 'ur' ? 'ÛÙ…Ø§Ø±Û’ Ø¨Ø§Ø±Û’ Ù…ÛŒÚº' : 'About Us'}</span>
                   </button>
 
                   {/* Order History Button */}
@@ -2885,7 +2885,7 @@ export default function SahilTraders() {
                     style={{ background: '#ffffff', borderColor: orderHistory.length > 0 ? '#111111' : 'rgba(0,0,0,0.12)', color: '#111111' }}
                   >
                     <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    <span className="hidden sm:inline">{language === 'ur' ? '\u0622\u0631\u0688\u0631 \u06c1\u0633\u0679\u0631\u06cc' : 'Orders'}</span>
+                    <span className="hidden sm:inline">{language === 'ur' ? 'Ø¢Ø±ÚˆØ± ÛØ³Ù¹Ø±ÛŒ' : 'Orders'}</span>
                     {orderHistory.length > 0 && (
                       <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center" style={{ background: '#16a34a', color: '#ffffff' }}>
                         {orderHistory.length}
@@ -2905,7 +2905,7 @@ export default function SahilTraders() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
-                    <span className="hidden sm:inline">{language === 'ur' ? '\u06a9\u0627\u0631\u0679' : 'Cart'}</span>
+                    <span className="hidden sm:inline">{language === 'ur' ? 'Ú©Ø§Ø±Ù¹' : 'Cart'}</span>
                     {cartCount > 0 && (
                       <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full text-[11px] font-black flex items-center justify-center" style={{ background: '#000000', color: '#ffffff' }}>
                         {cartCount}
@@ -3302,7 +3302,7 @@ export default function SahilTraders() {
                           <img src="images/sahil-traders-logo.png" alt="Sahil Traders" className="w-9 h-9 object-contain" />
                           <div>
                             <h3 className="text-sm font-black tracking-wider uppercase text-black">Sahil Traders</h3>
-                            <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u0645\u06cc\u06ba \u0645\u06cc\u0646\u0648' : 'Main Menu'}</p>
+                            <p className="text-[11px] text-gray-500">{language === 'ur' ? 'Ù…ÛŒÙ† Ù…ÛŒÙ†Ùˆ' : 'Main Menu'}</p>
                           </div>
                         </div>
                         <button
@@ -3317,8 +3317,8 @@ export default function SahilTraders() {
                       {/* 1. Language Switcher Section */}
                       <div className="mb-5 p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
                         <div className="text-xs font-bold text-gray-800 mb-2.5 flex items-center justify-between">
-                          <span>{language === 'ur' ? '\u0632\u0628\u0627\u0646 \u062a\u0628\u062f\u06cc\u0644 \u06a9\u0631\u06cc\u06ba' : 'Switch Language'}</span>
-                          <span className="text-[10px] text-gray-500 font-normal">{language === 'ur' ? '\u0627\u0631\u062f\u0648 \u0641\u0639\u0627\u0644 \u06c1\u06d2' : 'English Active'}</span>
+                          <span>ðŸŒ {language === 'ur' ? 'Ø²Ø¨Ø§Ù† ØªØ¨Ø¯ÛŒÙ„ Ú©Ø±ÛŒÚº' : 'Switch Language'}</span>
+                          <span className="text-[10px] text-gray-500 font-normal">{language === 'ur' ? 'Ø§Ø±Ø¯Ùˆ ÙØ¹Ø§Ù„ ÛÛ’' : 'English Active'}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <button
@@ -3339,7 +3339,7 @@ export default function SahilTraders() {
                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
                             }`}
                           >
-                            <span>{'\u0627\u0631\u062f\u0648'}</span>
+                            <span>Ø§Ø±Ø¯Ùˆ</span>
                           </button>
                         </div>
                       </div>
@@ -3356,8 +3356,8 @@ export default function SahilTraders() {
                               <svg className="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u0622\u0631\u0688\u0631 \u06c1\u0633\u0679\u0631\u06cc' : 'Order History'}</p>
-                              <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u067e\u0686\u06be\u0644\u06d2 \u0622\u0631\u0688\u0631\u0632 \u0627\u0648\u0631 \u0631\u0633\u06cc\u062f\u06cc\u06ba' : 'View past orders & receipts'}</p>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? 'Ø¢Ø±ÚˆØ± ÛØ³Ù¹Ø±ÛŒ' : 'Order History'}</p>
+                              <p className="text-[11px] text-gray-500">{language === 'ur' ? 'Ù¾Ú†Ú¾Ù„Û’ Ø¢Ø±ÚˆØ±Ø² Ø§ÙˆØ± Ø±Ø³ÛŒØ¯ÛŒÚº' : 'View past orders & receipts'}</p>
                             </div>
                           </div>
                           {orderHistory.length > 0 ? (
@@ -3379,8 +3379,8 @@ export default function SahilTraders() {
                               <svg className="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H21m-4.5 0H12m-9 0h4.5m0 0V9a2.25 2.25 0 012.25-2.25h1.372c.516 0 .966.351 1.091.852l1.106 4.423c.11.44.505.75.958.75h3.423a.75.75 0 00.75-.75V6.75A2.25 2.25 0 0017.25 4.5h-10.5A2.25 2.25 0 004.5 6.75V21" /></svg>
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u06c1\u0645\u0627\u0631\u06d2 \u0628\u0627\u0631\u06d2 \u0645\u06cc\u06ba' : 'About Us'}</p>
-                              <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u062f\u06a9\u0627\u0646 \u06a9\u06cc \u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0627\u0648\u0631 \u0627\u0648\u0642\u0627\u062a' : 'Shop info, timings & owners'}</p>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? 'ÛÙ…Ø§Ø±Û’ Ø¨Ø§Ø±Û’ Ù…ÛŒÚº' : 'About Us'}</p>
+                              <p className="text-[11px] text-gray-500">{language === 'ur' ? 'Ø¯Ú©Ø§Ù† Ú©ÛŒ Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§ÙˆØ± Ø§ÙˆÙ‚Ø§Øª' : 'Shop info, timings & owners'}</p>
                             </div>
                           </div>
                           <span className="text-gray-400 text-xs">&rsaquo;</span>
@@ -3396,8 +3396,8 @@ export default function SahilTraders() {
                               <svg className="w-5 h-5 text-purple-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u0634\u0627\u067e\u0646\u06af \u06a9\u0627\u0631\u0679' : 'Shopping Cart'}</p>
-                              <p className="text-[11px] text-gray-500">{cartCount > 0 ? (language === 'ur' ? `${cartCount} \u0627\u0634\u06cc\u0627\u0621 \u0645\u0648\u062c\u0648\u062f \u06c1\u06cc\u06ba` : `${cartCount} items in cart`) : (language === 'ur' ? '\u06a9\u0627\u0631\u0679 \u062e\u0627\u0644\u06cc \u06c1\u06d2' : 'Cart is empty')}</p>
+                              <p className="text-xs font-bold text-gray-900">{language === 'ur' ? 'Ø´Ø§Ù¾Ù†Ú¯ Ú©Ø§Ø±Ù¹' : 'Shopping Cart'}</p>
+                              <p className="text-[11px] text-gray-500">{cartCount > 0 ? (language === 'ur' ? `${cartCount} Ø§Ø´ÛŒØ§Ø¡ Ù…ÙˆØ¬ÙˆØ¯ ÛÛŒÚº` : `${cartCount} items in cart`) : (language === 'ur' ? 'Ú©Ø§Ø±Ù¹ Ø®Ø§Ù„ÛŒ ÛÛ’' : 'Cart is empty')}</p>
                             </div>
                           </div>
                           {cartCount > 0 ? (
@@ -3421,12 +3421,12 @@ export default function SahilTraders() {
                         style={{ background: '#25D366' }}
                       >
                         <svg className="w-4 h-4 text-white fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        <span>{language === 'ur' ? '\u0648\u0627\u067c\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0631\u0627\u0628\u0637\u06c1 \u06a9\u0631\u06cc\u06ba' : 'WhatsApp (+92 336 8945775)'}</span>
+                        <span>{language === 'ur' ? 'ÙˆØ§Ù¹Ø³ Ø§ÛŒÙ¾ Ù¾Ø± Ø±Ø§Ø¨Ø·Û Ú©Ø±ÛŒÚº' : 'WhatsApp (+92 336 8945775)'}</span>
                       </a>
 
                       <div className="text-center text-[10px] text-gray-500 space-y-0.5">
-                        <p className="font-semibold text-gray-700">{language === 'ur' ? '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)' : 'Delivery Timing: 10:00 AM \u2013 8:00 PM (Mon \u2013 Sat)'}</p>
-                        <p>{language === 'ur' ? '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646' : 'Sahil Saleem & Muhammad Zubair Moin'}</p>
+                        <p className="font-semibold text-gray-700">{language === 'ur' ? 'ÚˆÙ„ÛŒÙˆØ±ÛŒ Ú©Û’ Ø§ÙˆÙ‚Ø§Øª: ØµØ¨Ø­ 10:00 Ø¨Ø¬Û’ ØªØ§ Ø±Ø§Øª 8:00 Ø¨Ø¬Û’ (Ù¾ÛŒØ± ØªØ§ ÛÙØªÛ)' : 'Delivery Timing: 10:00 AM â€“ 8:00 PM (Mon â€“ Sat)'}</p>
+                        <p>{language === 'ur' ? 'Ø³Ø§Ø­Ù„ Ø³Ù„ÛŒÙ… Ø§ÙˆØ± Ù…Ø­Ù…Ø¯ Ø²Ø¨ÛŒØ± Ù…Ø¹ÛŒÙ†' : 'Sahil Saleem & Muhammad Zubair Moin'}</p>
                       </div>
                     </div>
                   </div>
@@ -4036,70 +4036,160 @@ export default function SahilTraders() {
       if (!open) return null;
       const isUrdu = language === 'ur';
 
+      // Default expand the first (latest) order
+      const [expandedId, setExpandedId] = useState(orders.length > 0 ? orders[0].id : null);
+
+      const toggleOrder = (id) => {
+        setExpandedId(prev => (prev === id ? null : id));
+      };
+
       return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div style={{ width: '100%', maxWidth: 560, maxHeight: '88vh', overflow: 'hidden', background: '#ffffff', borderRadius: 22, border: '1px solid rgba(0,0,0,0.12)', boxShadow: '0 24px 70px rgba(0,0,0,0.45)', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} className="animate-fade-in">
+          <div style={{ width: '100%', maxWidth: 580, maxHeight: '88vh', overflow: 'hidden', background: '#ffffff', borderRadius: 22, border: '1px solid rgba(0,0,0,0.12)', boxShadow: '0 24px 70px rgba(0,0,0,0.45)', display: 'flex', flexDirection: 'column' }}>
+
+            {/* Modal Header */}
+            <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, background: '#ffffff' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 12, background: '#f3f4f6', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🧾</div>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#fffbeb', border: '1px solid #fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#b45309' }}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                </div>
                 <div>
-                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#111827', letterSpacing: '0.08em', textTransform: 'uppercase', margin: 0 }}>{isUrdu ? 'آرڈر ہسٹری' : 'Order History'}</h3>
-                  <p style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{isUrdu ? 'یہ اسی browser میں محفوظ ہے' : 'Saved in this browser'}</p>
+                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#111827', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>{isUrdu ? 'Ø¢Ø±ÚˆØ± ÛØ³Ù¹Ø±ÛŒ' : 'Order History'}</h3>
+                  <p style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{isUrdu ? 'ØªÙ¾Ø´ Ú©Ø±ÛŒÚº Ø§ÙˆØ± Ù…Ú©Ù…Ù„ Ø¢Ø±ÚˆØ± Ø¯ÛŒÚ©Ú¾ÛŒÚº' : 'Tap an order card to view full items'}</p>
                 </div>
               </div>
-              <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: 10, border: '1px solid rgba(0,0,0,0.18)', background: '#f3f4f6', color: '#111827', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: 10, border: '1px solid rgba(0,0,0,0.18)', background: '#f3f4f6', color: '#111827', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Close modal">
                 <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
+            {/* Modal Scroll Body */}
             <div style={{ padding: 18, overflowY: 'auto' }}>
               {orders.length === 0 ? (
                 <div style={{ padding: '44px 18px', textAlign: 'center', background: '#f9fafb', border: '1px dashed #d1d5db', borderRadius: 16 }}>
-                  <div style={{ fontSize: 34, marginBottom: 10 }}>🛒</div>
-                  <p style={{ fontSize: 15, fontWeight: 900, color: '#111827', margin: 0 }}>{isUrdu ? 'ابھی کوئی آرڈر محفوظ نہیں' : 'No saved orders yet'}</p>
-                  <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{isUrdu ? 'آپ کا اگلا آرڈر یہاں نظر آئے گا' : 'Your next placed order will appear here.'}</p>
+                  <div style={{ fontSize: 36, marginBottom: 10 }}>ðŸ›’</div>
+                  <p style={{ fontSize: 15, fontWeight: 900, color: '#111827', margin: 0 }}>{isUrdu ? 'Ø§Ø¨Ú¾ÛŒ Ú©ÙˆØ¦ÛŒ Ø¢Ø±ÚˆØ± Ù…Ø­ÙÙˆØ¸ Ù†ÛÛŒÚº' : 'No saved orders yet'}</p>
+                  <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{isUrdu ? 'Ø¢Ù¾ Ú©Ø§ Ø§Ú¯Ù„Ø§ Ø¢Ø±ÚˆØ± ÛŒÛØ§Úº Ù†Ø¸Ø± Ø¢Ø¦Û’ Ú¯Ø§' : 'Your placed orders will appear here automatically.'}</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {orders.map(order => (
-                    <div key={order.id} style={{ border: '1px solid #e5e7eb', borderRadius: 16, overflow: 'hidden', background: '#ffffff', boxShadow: '0 8px 22px rgba(0,0,0,0.06)' }}>
-                      <div style={{ padding: '12px 14px', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 900, color: '#111827' }}>#{order.id}</div>
-                          <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{order.dateText}</div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 18, fontWeight: 900, color: '#ffffff', background: '#111827', borderRadius: 10, padding: '4px 10px' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
-                          <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 800, marginTop: 4 }}>{order.deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}</div>
-                        </div>
-                      </div>
-                      <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 9 }}>
-                        {order.items.map(item => (
-                          <div key={`${order.id}-${item.id}`} style={{ display: 'grid', gridTemplateColumns: '34px 1fr auto', alignItems: 'center', gap: 10 }}>
-                            {item.imageExt ? (
-                              <img src={`images/${item.id}.${item.imageExt}`} alt={item.name} style={{ width: 34, height: 34, objectFit: 'contain', borderRadius: 8, background: '#f3f4f6', border: '1px solid #e5e7eb' }} />
-                            ) : (
-                              <div style={{ width: 34, height: 34, borderRadius: 8, background: '#f3f4f6', border: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900 }}>{item.initial || 'S'}</div>
-                            )}
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ fontSize: 13, color: '#111827', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name)}</div>
-                              <div style={{ fontSize: 11, color: '#6b7280' }}>Qty {item.qty} x Rs {Number(item.price || 0).toLocaleString()}</div>
+                  {orders.map((order, idx) => {
+                    const isExpanded = expandedId === order.id;
+                    const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
+                    const itemsSummaryNames = order.items ? order.items.slice(0, 2).map(i => toTitleCase(i.name)).join(', ') + (order.items.length > 2 ? ` +${order.items.length - 2} more` : '') : '';
+
+                    return (
+                      <div key={order.id} style={{ border: isExpanded ? '1.5px solid #111827' : '1px solid #e5e7eb', borderRadius: 16, overflow: 'hidden', background: '#ffffff', boxShadow: isExpanded ? '0 10px 25px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s ease' }}>
+
+                        {/* Collapsible Header Bar (Clickable) */}
+                        <div
+                          onClick={() => toggleOrder(order.id)}
+                          style={{ padding: '14px 16px', background: isExpanded ? '#f8fafc' : '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
+                          className="hover:bg-gray-50 transition-colors"
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: isExpanded ? '#111827' : '#f3f4f6', color: isExpanded ? '#ffffff' : '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>
+                              #{orders.length - idx}
                             </div>
-                            <div style={{ fontSize: 12, color: '#111827', fontWeight: 900 }}>Rs {Number(item.total || 0).toLocaleString()}</div>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: 13, fontWeight: 900, color: '#111827' }}>#{order.id}</span>
+                                <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 12, background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#f0fdf4', color: order.deliveryMethod === 'pickup' ? '#1d4ed8' : '#15803d', border: `1px solid ${order.deliveryMethod === 'pickup' ? '#bfdbfe' : '#bbf7d0'}` }}>
+                                  {order.deliveryMethod === 'pickup' ? (isUrdu ? 'Ø§Ø³Ù¹ÙˆØ± Ù¾Ú© Ø§Ù¾' : 'Store Pickup') : (isUrdu ? 'ÛÙˆÙ… ÚˆÙ„ÛŒÙˆØ±ÛŒ' : 'Home Delivery')}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 3, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <span>ðŸ“… {order.dateText}</span>
+                                <span>â€¢</span>
+                                <span style={{ fontWeight: 600 }}>ðŸ“¦ {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</span>
+                              </div>
+                              {!isExpanded && (
+                                <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '240px' }}>
+                                  {itemsSummaryNames}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        ))}
+
+                          {/* Right Side: Total Amount & Expand Arrow */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: 15, fontWeight: 900, color: '#111827' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
+                              <span style={{ fontSize: 10, fontWeight: 700, color: isExpanded ? '#2563eb' : '#9ca3af' }}>
+                                {isExpanded ? (isUrdu ? 'Ø¨Ù†Ø¯ Ú©Ø±ÛŒÚº â–²' : 'Collapse â–²') : (isUrdu ? 'ØªÙØµÛŒÙ„ Ø¯ÛŒÚ©Ú¾ÛŒÚº â–¼' : 'View Details â–¼')}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Collapsible Content Body */}
+                        {isExpanded && (
+                          <div style={{ borderTop: '1px solid #e5e7eb', background: '#ffffff', padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                            {/* Customer Info Card */}
+                            <div style={{ padding: 12, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              <div style={{ fontWeight: 800, color: '#334155', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span>ðŸ‘¤</span>
+                                <span>{order.customer?.name} ({order.customer?.phone})</span>
+                              </div>
+                              {order.customer?.address && (
+                                <div style={{ color: '#64748b', fontSize: 11, display: 'flex', alignItems: 'flex-start', gap: 6, marginTop: 2 }}>
+                                  <span>ðŸ“</span>
+                                  <span>{order.customer.address}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Itemized Order List */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                              <p style={{ fontSize: 11, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                                {isUrdu ? 'Ø§Ø´ÛŒØ§Ø¡ Ú©ÛŒ ÙÛØ±Ø³Øª:' : 'Itemized Receipt:'}
+                              </p>
+                              {order.items.map(item => (
+                                <div key={`${order.id}-${item.id}`} style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto', alignItems: 'center', gap: 12, padding: '6px 0', borderBottom: '1px border-dashed #f1f5f9' }}>
+                                  {item.imageExt ? (
+                                    <img src={`images/${item.id}.${item.imageExt}`} alt={item.name} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
+                                  ) : (
+                                    <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#475569' }}>{item.initial || 'S'}</div>
+                                  )}
+                                  <div style={{ minWidth: 0 }}>
+                                    <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name)}</div>
+                                    <div style={{ fontSize: 11, color: '#64748b' }}>Qty {item.qty} Ã— Rs {Number(item.price || 0).toLocaleString()}</div>
+                                  </div>
+                                  <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 900 }}>Rs {Number(item.total || 0).toLocaleString()}</div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Bill Breakdown */}
+                            <div style={{ padding: '10px 14px', background: '#f8fafc', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, border: '1px solid #f1f5f9' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                                <span>Subtotal</span>
+                                <span>Rs {Number(order.subtotal || 0).toLocaleString()}</span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
+                                <span>Delivery Fee</span>
+                                <span>{order.deliveryFee === 0 ? 'FREE' : `Rs ${order.deliveryFee}`}</span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, color: '#0f172a', fontSize: 14, paddingTop: 4, borderTop: '1px solid #e2e8f0', marginTop: 2 }}>
+                                <span>Total Paid</span>
+                                <span style={{ color: '#16a34a' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
 
+            {/* Modal Footer */}
             {orders.length > 0 && (
-              <div style={{ padding: '14px 18px', borderTop: '1px solid #e5e7eb', background: '#f9fafb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+              <div style={{ padding: '14px 18px', borderTop: '1px solid #e5e7eb', background: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 11, color: '#6b7280', fontWeight: 700 }}>{orders.length} {orders.length === 1 ? 'order' : 'orders'} saved</span>
-                <button onClick={onClear} style={{ border: '1px solid #fecaca', background: '#fee2e2', color: '#991b1b', borderRadius: 10, padding: '8px 12px', fontSize: 11, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  {isUrdu ? 'ہسٹری صاف کریں' : 'Clear History'}
+                <button onClick={onClear} style={{ border: '1px solid #fecaca', background: '#fee2e2', color: '#991b1b', borderRadius: 10, padding: '8px 14px', fontSize: 11, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {isUrdu ? 'ÛØ³Ù¹Ø±ÛŒ ØµØ§Ù Ú©Ø±ÛŒÚº' : 'Clear History'}
                 </button>
               </div>
             )}
@@ -4139,37 +4229,37 @@ export default function SahilTraders() {
         if (Object.keys(e).length > 0) { setErrors(e); return; }
         setPlacing(true);
 
-        // Build WhatsApp message
+        // Build WhatsApp message with rich UTF-8 emojis
         const itemLines = cart.map(({ product, qty }) =>
-          `\u{2022} ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price*qty).toLocaleString()}`
+          `â€¢ *${product.name}*\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price*qty).toLocaleString()}`
         ).join('\n\n');
 
         const deliveryText = deliveryMethod === 'pickup'
-          ? '\u{1F3EC} Store Pickup (BS Mart Shop)\n  \u{23F1}\u{FE0F} Pickup Time: Ready in 20 Mins to 1 Hour'
-          : `\u{1F69A} Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
+          ? 'ðŸ¬ Store Pickup (BS Mart Shop)\n  â±ï¸ Pickup Time: Ready in 20 Mins to 1 Hour'
+          : `ðŸšš Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
 
         const msg = [
-          '\u{1F6D2} *NEW ORDER — Sahil Traders*',
-          '═════════════════════════',
+          'ðŸ›’ *NEW ORDER â€” Sahil Traders*',
+          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
           '',
-          '*\u{1F4E6} ORDER DETAILS:*',
+          '*ðŸ“¦ ORDER DETAILS:*',
           itemLines,
           '',
-          '═════════════════════════',
+          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
           `*Subtotal:* Rs ${cartTotal.toLocaleString()}`,
           `*Delivery:* ${deliveryText}`,
-          `*\u{1F4B0} TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`,
-          '═════════════════════════',
+          `*ðŸ’° TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`,
+          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
           '',
-          '*\u{1F464} CUSTOMER INFO:*',
-          `\u{2022} Name: ${name.trim()}`,
-          `\u{2022} Phone: ${phone.trim()}`,
+          '*ðŸ‘¤ CUSTOMER INFO:*',
+          `â€¢ Name: ${name.trim()}`,
+          `â€¢ Phone: ${phone.trim()}`,
           deliveryMethod === 'home' 
-            ? `\u{2022} Delivery Address: ${address.trim()}` 
-            : `\u{2022} Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  \u{23F1}\u{FE0F} Note: Order will be ready for pickup in 20 mins to 1 hour`,
+            ? `ðŸ“ Delivery Address: ${address.trim()}` 
+            : `ðŸ¬ Store Location: BS Mart Shop (Sahil Saleem & Muhammad Zubair Moin)\n  â±ï¸ Note: Order will be ready for pickup in 20 mins to 1 hour`,
           '',
-          '═════════════════════════',
-          `\u{1F4C5} Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
+          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
+          `ðŸ“… Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
         ].join('\n');
 
         const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;

@@ -4982,6 +4982,7 @@ function CheckoutModal({
   cart,
   cartTotal,
   langData,
+  language,
   onClose,
   onBack,
   onOrderPlaced
@@ -4993,6 +4994,9 @@ function CheckoutModal({
   const [errors, setErrors] = useState({});
   const [placing, setPlacing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [placedOrder, setPlacedOrder] = useState(null);
+  const [waUrlState, setWaUrlState] = useState("");
+  const isUrdu = language === 'ur';
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -5020,9 +5024,9 @@ function CheckoutModal({
     const itemLines = cart.map(({
       product,
       qty
-    }) => `• ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
-    const deliveryText = deliveryMethod === 'pickup' ? '🏬 Store Pickup (BS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
-    const msg = ['🛒 *NEW ORDER — Sahil Traders*', '═════════════════════════', '', '*📦 ORDER DETAILS:*', itemLines, '', '═════════════════════════', `*Subtotal:* Rs ${cartTotal.toLocaleString()}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '═════════════════════════', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}` : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '═════════════════════════', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
+    }) => `â€¢ ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
+    const deliveryText = deliveryMethod === 'pickup' ? 'ðŸ¬ Store Pickup (BS Mart Shop)\n  â±ï¸ Pickup Time: Ready in 20 Mins to 1 Hour' : `ðŸšš Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
+    const msg = ['ðŸ›’ *NEW ORDER â€” Sahil Traders*', 'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•', '', '*ðŸ“¦ ORDER DETAILS:*', itemLines, '', 'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•', `*Subtotal:* Rs ${cartTotal.toLocaleString()}`, `*Delivery:* ${deliveryText}`, `*ðŸ’° TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, 'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•', '', '*ðŸ‘¤ CUSTOMER INFO:*', `â€¢ Name: ${name.trim()}`, `â€¢ Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `â€¢ Delivery Address: ${address.trim()}` : `â€¢ Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  â±ï¸ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', 'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•', `ðŸ“… Date: ${new Date().toLocaleDateString('en-PK', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
@@ -5065,11 +5069,11 @@ function CheckoutModal({
 
     // Open WhatsApp immediately on user action to avoid browser popup blocker freeze
     window.open(waUrl, '_blank');
+    setWaUrlState(waUrl);
+    setPlacedOrder(orderRecord);
     setPlacing(false);
     setSuccess(true);
-    setTimeout(() => {
-      onOrderPlaced(orderRecord);
-    }, 1500);
+    onOrderPlaced(orderRecord);
   }
   const inputStyle = hasErr => ({
     width: '100%',
@@ -5110,32 +5114,43 @@ function CheckoutModal({
       display: 'flex',
       flexDirection: 'column'
     }
-  }, success ? /*#__PURE__*/React.createElement("div", {
+  }, success && placedOrder ? /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: 48,
-      textAlign: 'center'
+      padding: 22,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 16
+    },
+    className: "animate-fade-in"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+      border: '1px solid #bbf7d0',
+      borderRadius: 20,
+      padding: '20px 16px'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 72,
-      height: 72,
+      width: 60,
+      height: 60,
       borderRadius: '50%',
-      background: 'rgba(34,197,94,0.15)',
-      border: '2px solid rgba(34,197,94,0.5)',
+      background: '#16a34a',
+      color: '#ffffff',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      margin: '0 auto 20px'
+      margin: '0 auto 10px',
+      boxShadow: '0 8px 20px rgba(22,163,74,0.3)'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 36,
-      height: 36,
-      color: '#4ade80'
+      width: 32,
+      height: 32
     },
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: "2.5",
+    strokeWidth: "3",
     viewBox: "0 0 24 24"
   }, /*#__PURE__*/React.createElement("path", {
     strokeLinecap: "round",
@@ -5143,19 +5158,187 @@ function CheckoutModal({
     d: "M4.5 12.75l6 6 9-13.5"
   }))), /*#__PURE__*/React.createElement("h3", {
     style: {
-      fontSize: 22,
-      fontWeight: 800,
-      color: '#000000',
-      fontFamily: "'Poppins',sans-serif",
-      marginBottom: 10
+      fontSize: 19,
+      fontWeight: 900,
+      color: '#14532d',
+      margin: 0
     }
-  }, translate(langData, "orderPlacedSuccess")), /*#__PURE__*/React.createElement("p", {
+  }, isUrdu ? '\u0622\u0631\u0688\u0631 \u06a9\u0627\u0645\u06cc\u0627\u0628\u06cc \u0633\u06d2 \u0645\u062d\u0641\u0648\u0638 \u06c1\u0648 \u06af\u06cc\u0627! ðŸŽ‰' : 'Thank You! Order Placed! ðŸŽ‰'), /*#__PURE__*/React.createElement("p", {
     style: {
-      fontSize: 14,
-      color: '#555555',
-      lineHeight: 1.6
+      fontSize: 12,
+      color: '#166534',
+      fontWeight: 700,
+      margin: '4px 0 0'
     }
-  }, translate(langData, "successNotice"))) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  }, isUrdu ? '\u0622\u067e \u06a9\u0627 \u0622\u0631\u0688\u0631 \u06c1\u0645\u0627\u0631\u06d2 \u0633\u0633\u067c\u0645 \u0645\u06cc\u06ba \u0645\u062d\u0641\u0648\u0638 \u06c1\u0648 \u0686\u06a9\u0627 \u06c1\u06d2 \u0627\u0648\u0631 \u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0628\u06be\u06cc\u062c \u062f\u06cc\u0627 \u06af\u06cc\u0627 \u06c1\u06d2\u06d5' : 'Your order receipt is saved below and sent to WhatsApp.'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      background: '#ffffff',
+      border: '1px solid #86efac',
+      borderRadius: 10,
+      padding: '4px 12px',
+      marginTop: 10,
+      fontSize: 12,
+      fontWeight: 900,
+      color: '#166534'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "Order Ref #:"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#111827'
+    }
+  }, "#", placedOrder.id))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: '#f8fafc',
+      border: '1px solid #e2e8f0',
+      borderRadius: 18,
+      padding: 14,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderBottom: '1px solid #e2e8f0',
+      paddingBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      fontWeight: 800,
+      color: '#334155'
+    }
+  }, "ðŸ‘¤ ", placedOrder.customer.name, " (", placedOrder.customer.phone, ")"), placedOrder.customer.address && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: '#64748b',
+      marginTop: 2
+    }
+  }, "ðŸ“ ", placedOrder.customer.address)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      fontWeight: 900,
+      padding: '3px 8px',
+      borderRadius: 8,
+      background: placedOrder.deliveryMethod === 'pickup' ? '#eff6ff' : '#f0fdf4',
+      color: placedOrder.deliveryMethod === 'pickup' ? '#1d4ed8' : '#15803d',
+      border: `1px solid ${placedOrder.deliveryMethod === 'pickup' ? '#bfdbfe' : '#bbf7d0'}`
+    }
+  }, placedOrder.deliveryMethod === 'pickup' ? isUrdu ? '\u0627\u0633\u067c\u0648\u0631 \u067e\u06a9 \u0627\u067e' : 'Store Pickup' : isUrdu ? '\u06c1\u0648\u0645 \u0688\u0644\u06cc\u0648\u0631\u06cc' : 'Home Delivery')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 6,
+      maxHeight: 150,
+      overflowY: 'auto'
+    }
+  }, placedOrder.items.map(item => /*#__PURE__*/React.createElement("div", {
+    key: item.id,
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: 8,
+      fontSize: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontWeight: 700,
+      color: '#0f172a',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  }, toTitleCase(item.name)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#475569',
+      fontWeight: 800,
+      whiteSpace: 'nowrap'
+    }
+  }, "Qty ", item.qty, " Ã— Rs ", Number(item.price).toLocaleString(), " = ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#0f172a'
+    }
+  }, "Rs ", Number(item.total).toLocaleString()))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderTop: '1px solid #e2e8f0',
+      paddingTop: 8,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      fontWeight: 900,
+      fontSize: 13
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#334155'
+    }
+  }, "Total Bill Amount:"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#16a34a',
+      fontSize: 17
+    }
+  }, "Rs ", Number(placedOrder.grandTotal).toLocaleString()))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '10px 12px',
+      background: '#fffbeb',
+      border: '1px solid #fef3c7',
+      borderRadius: 12,
+      fontSize: 11,
+      color: '#92400e',
+      lineHeight: 1.4,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 16
+    }
+  }, "ðŸ’¬"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("strong", null, isUrdu ? '\u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u0686\u0627\u067c \u06a9\u06be\u0648\u0644\u06cc\u06ba:' : 'WhatsApp Chat:'), " ", isUrdu ? '\u0627\u06af\u0631 \u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u062e\u0648\u062f \u0628\u062e\u0648\u062f \u0646\u06c1\u06cc\u06ba \u062e\u0644\u0627 \u062a\u0648 \u0646\u06cc\u0686\u06d2 \u0628\u067c\u0646 \u062f\u0628\u0627\u0626\u06cc\u06ba\u06d5' : 'If chat did not open automatically, click button below.')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8
+    }
+  }, waUrlState && /*#__PURE__*/React.createElement("a", {
+    href: waUrlState,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      background: '#25d366',
+      color: '#ffffff',
+      borderRadius: 12,
+      padding: '11px 16px',
+      fontSize: 13,
+      fontWeight: 900,
+      textAlign: 'center',
+      textDecoration: 'none',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      boxShadow: '0 4px 14px rgba(37,211,102,0.3)'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "ðŸ’¬"), /*#__PURE__*/React.createElement("span", null, isUrdu ? '\u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0686\u0627\u067c \u06a9\u06be\u0648\u0644\u06cc\u06ba' : 'Open WhatsApp Chat')), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    style: {
+      background: '#111827',
+      color: '#ffffff',
+      border: 'none',
+      borderRadius: 12,
+      padding: '11px 16px',
+      fontSize: 12,
+      fontWeight: 900,
+      cursor: 'pointer',
+      textTransform: 'uppercase',
+      letterSpacing: '0.05em'
+    }
+  }, isUrdu ? '\u0645\u06a9\u0645\u0644 \u06a9\u0631\u06cc\u06ba (Done)' : 'Done & Continue Shopping'))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '20px 24px',
       borderBottom: '1px solid rgba(0,0,0,0.12)',
@@ -5393,7 +5576,7 @@ function CheckoutModal({
     style: {
       fontSize: 18
     }
-  }, "🚚"), /*#__PURE__*/React.createElement("div", {
+  }, "ðŸšš"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
       fontWeight: 800,
@@ -5420,7 +5603,7 @@ function CheckoutModal({
     style: {
       fontSize: 18
     }
-  }, "🏬"), /*#__PURE__*/React.createElement("div", {
+  }, "ðŸ¬"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
       fontWeight: 800,
@@ -5580,7 +5763,7 @@ function CheckoutModal({
     style: {
       fontSize: 18
     }
-  }, "⏱️"), /*#__PURE__*/React.createElement("span", null, "پک اپ کا وقت: 20 منٹ سے 1 گھنٹہ")), /*#__PURE__*/React.createElement("p", {
+  }, "â±ï¸"), /*#__PURE__*/React.createElement("span", null, "Ù¾Ú© Ø§Ù¾ Ú©Ø§ ÙˆÙ‚Øª: 20 Ù…Ù†Ù¹ Ø³Û’ 1 Ú¯Ú¾Ù†Ù¹Û")), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 11,
       color: '#15803d',
@@ -5588,7 +5771,7 @@ function CheckoutModal({
       lineHeight: 1.5,
       margin: 0
     }
-  }, "آپ کا آرڈر تیار ہونے میں 20 منٹ سے 1 گھنٹہ لگ سکتا ہے۔ اس وقت کے بعد آپ BS Mart اسٹور (محمد زبیر معین / محمد سہیل سلیم) سے اپنا سامان پک اپ کر سکتے ہیں۔"))), /*#__PURE__*/React.createElement("div", {
+  }, "Ø¢Ù¾ Ú©Ø§ Ø¢Ø±ÚˆØ± ØªÛŒØ§Ø± ÛÙˆÙ†Û’ Ù…ÛŒÚº 20 Ù…Ù†Ù¹ Ø³Û’ 1 Ú¯Ú¾Ù†Ù¹Û Ù„Ú¯ Ø³Ú©ØªØ§ ÛÛ’Û” Ø§Ø³ ÙˆÙ‚Øª Ú©Û’ Ø¨Ø¹Ø¯ Ø¢Ù¾ BS Mart Ø§Ø³Ù¹ÙˆØ± (Ù…Ø­Ù…Ø¯ Ø²Ø¨ÛŒØ± Ù…Ø¹ÛŒÙ† / Ù…Ø­Ù…Ø¯ Ø³ÛÛŒÙ„ Ø³Ù„ÛŒÙ…) Ø³Û’ Ø§Ù¾Ù†Ø§ Ø³Ø§Ù…Ø§Ù† Ù¾Ú© Ø§Ù¾ Ú©Ø± Ø³Ú©ØªÛ’ ÛÛŒÚºÛ”"))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'flex-start',

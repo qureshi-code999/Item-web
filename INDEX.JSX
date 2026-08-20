@@ -4275,7 +4275,7 @@ export default function SahilTraders() {
         </div>
       );
     }
-    function CheckoutModal({ cart, cartTotal, langData, onClose, onBack, onOrderPlaced }) {
+    function CheckoutModal({ cart, cartTotal, langData, language, onClose, onBack, onOrderPlaced }) {
       const [name, setName] = useState("");
       const [phone, setPhone] = useState("");
       const [address, setAddress] = useState("");
@@ -4283,6 +4283,10 @@ export default function SahilTraders() {
       const [errors, setErrors] = useState({});
       const [placing, setPlacing] = useState(false);
       const [success, setSuccess] = useState(false);
+      const [placedOrder, setPlacedOrder] = useState(null);
+      const [waUrlState, setWaUrlState] = useState("");
+
+      const isUrdu = language === 'ur';
 
       useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -4308,35 +4312,35 @@ export default function SahilTraders() {
 
         // Build WhatsApp message
         const itemLines = cart.map(({ product, qty }) =>
-          `• ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price*qty).toLocaleString()}`
+          `â€¢ ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price*qty).toLocaleString()}`
         ).join('\n\n');
 
         const deliveryText = deliveryMethod === 'pickup'
-          ? '🏬 Store Pickup (BS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour'
-          : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
+          ? 'ðŸ¬ Store Pickup (BS Mart Shop)\n  â±ï¸ Pickup Time: Ready in 20 Mins to 1 Hour'
+          : `ðŸšš Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
 
         const msg = [
-          '🛒 *NEW ORDER — Sahil Traders*',
-          '═════════════════════════',
+          'ðŸ›’ *NEW ORDER â€” Sahil Traders*',
+          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
           '',
-          '*📦 ORDER DETAILS:*',
+          '*ðŸ“¦ ORDER DETAILS:*',
           itemLines,
           '',
-          '═════════════════════════',
+          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
           `*Subtotal:* Rs ${cartTotal.toLocaleString()}`,
           `*Delivery:* ${deliveryText}`,
-          `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`,
-          '═════════════════════════',
+          `*ðŸ’° TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`,
+          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
           '',
-          '*👤 CUSTOMER INFO:*',
-          `• Name: ${name.trim()}`,
-          `• Phone: ${phone.trim()}`,
+          '*ðŸ‘¤ CUSTOMER INFO:*',
+          `â€¢ Name: ${name.trim()}`,
+          `â€¢ Phone: ${phone.trim()}`,
           deliveryMethod === 'home' 
-            ? `• Delivery Address: ${address.trim()}` 
-            : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`,
+            ? `â€¢ Delivery Address: ${address.trim()}` 
+            : `â€¢ Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  â±ï¸ Note: Order will be ready for pickup in 20 mins to 1 hour`,
           '',
-          '═════════════════════════',
-          `📅 Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
+          'â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•',
+          `ðŸ“… Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
         ].join('\n');
 
         const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;
@@ -4363,11 +4367,11 @@ export default function SahilTraders() {
         // Open WhatsApp immediately on user action to avoid browser popup blocker freeze
         window.open(waUrl, '_blank');
 
+        setWaUrlState(waUrl);
+        setPlacedOrder(orderRecord);
         setPlacing(false);
         setSuccess(true);
-        setTimeout(() => {
-          onOrderPlaced(orderRecord);
-        }, 1500);
+        onOrderPlaced(orderRecord);
       }
 
       const inputStyle = (hasErr) => ({
@@ -4385,16 +4389,86 @@ export default function SahilTraders() {
         <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
           <div style={{ width: '100%', maxWidth: 500, background: '#ffffff', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 24, boxShadow: '0 24px 80px rgba(0,0,0,0.9)', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
 
-            {success ? (
-              <div style={{ padding: 48, textAlign: 'center' }}>
-                <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '2px solid rgba(34,197,94,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                  <svg style={{ width: 36, height: 36, color: '#4ade80' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+            {success && placedOrder ? (
+              <div style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 16 }} className="animate-fade-in">
+                {/* Header Badge */}
+                <div style={{ textAlign: 'center', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #bbf7d0', borderRadius: 20, padding: '20px 16px' }}>
+                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#16a34a', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', boxShadow: '0 8px 20px rgba(22,163,74,0.3)' }}>
+                    <svg style={{ width: 32, height: 32 }} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                  </div>
+                  <h3 style={{ fontSize: 19, fontWeight: 900, color: '#14532d', margin: 0 }}>
+                    {isUrdu ? '\u0622\u0631\u0688\u0631 \u06a9\u0627\u0645\u06cc\u0627\u0628\u06cc \u0633\u06d2 \u0645\u062d\u0641\u0648\u0638 \u06c1\u0648 \u06af\u06cc\u0627! ðŸŽ‰' : 'Thank You! Order Placed! ðŸŽ‰'}
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#166534', fontWeight: 700, margin: '4px 0 0' }}>
+                    {isUrdu ? '\u0622\u067e \u06a9\u0627 \u0622\u0631\u0688\u0631 \u06c1\u0645\u0627\u0631\u06d2 \u0633\u0633\u067c\u0645 \u0645\u06cc\u06ba \u0645\u062d\u0641\u0648\u0638 \u06c1\u0648 \u0686\u06a9\u0627 \u06c1\u06d2 \u0627\u0648\u0631 \u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0628\u06be\u06cc\u062c \u062f\u06cc\u0627 \u06af\u06cc\u0627 \u06c1\u06d2\u06d5' : 'Your order receipt is saved below and sent to WhatsApp.'}
+                  </p>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ffffff', border: '1px solid #86efac', borderRadius: 10, padding: '4px 12px', marginTop: 10, fontSize: 12, fontWeight: 900, color: '#166534' }}>
+                    <span>Order Ref #:</span>
+                    <span style={{ color: '#111827' }}>#{placedOrder.id}</span>
+                  </div>
                 </div>
-                <h3 style={{ fontSize: 22, fontWeight: 800, color: '#000000', fontFamily: "'Poppins',sans-serif", marginBottom: 10 }}>{translate(langData, "orderPlacedSuccess")}</h3>
-                <p style={{ fontSize: 14, color: '#555555', lineHeight: 1.6 }}>{translate(langData, "successNotice")}</p>
+
+                {/* Receipt Card */}
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 18, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: '#334155' }}>ðŸ‘¤ {placedOrder.customer.name} ({placedOrder.customer.phone})</div>
+                      {placedOrder.customer.address && <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>ðŸ“ {placedOrder.customer.address}</div>}
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 900, padding: '3px 8px', borderRadius: 8, background: placedOrder.deliveryMethod === 'pickup' ? '#eff6ff' : '#f0fdf4', color: placedOrder.deliveryMethod === 'pickup' ? '#1d4ed8' : '#15803d', border: `1px solid ${placedOrder.deliveryMethod === 'pickup' ? '#bfdbfe' : '#bbf7d0'}` }}>
+                      {placedOrder.deliveryMethod === 'pickup' ? (isUrdu ? '\u0627\u0633\u067c\u0648\u0631 \u067e\u06a9 \u0627\u067e' : 'Store Pickup') : (isUrdu ? '\u06c1\u0648\u0645 \u0688\u0644\u06cc\u0648\u0631\u06cc' : 'Home Delivery')}
+                    </span>
+                  </div>
+
+                  {/* Items List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 150, overflowY: 'auto' }}>
+                    {placedOrder.items.map(item => (
+                      <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                        <span style={{ fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{toTitleCase(item.name)}</span>
+                        <span style={{ color: '#475569', fontWeight: 800, whiteSpace: 'nowrap' }}>Qty {item.qty} Ã— Rs {Number(item.price).toLocaleString()} = <span style={{ color: '#0f172a' }}>Rs {Number(item.total).toLocaleString()}</span></span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Total Bill */}
+                  <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 900, fontSize: 13 }}>
+                    <span style={{ color: '#334155' }}>Total Bill Amount:</span>
+                    <span style={{ color: '#16a34a', fontSize: 17 }}>Rs {Number(placedOrder.grandTotal).toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* WhatsApp Notice Box */}
+                <div style={{ padding: '10px 12px', background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: 12, fontSize: 11, color: '#92400e', lineHeight: 1.4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>ðŸ’¬</span>
+                  <div>
+                    <strong>{isUrdu ? '\u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u0686\u0627\u067c \u06a9\u06be\u0648\u0644\u06cc\u06ba:' : 'WhatsApp Chat:'}</strong> {isUrdu ? '\u0627\u06af\u0631 \u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u062e\u0648\u062f \u0628\u062e\u0648\u062f \u0646\u06c1\u06cc\u06ba \u062e\u0644\u0627 \u062a\u0648 \u0646\u06cc\u0686\u06d2 \u0628\u067c\u0646 \u062f\u0628\u0627\u0626\u06cc\u06ba\u06d5' : 'If chat did not open automatically, click button below.'}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {waUrlState && (
+                    <a
+                      href={waUrlState}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ background: '#25d366', color: '#ffffff', borderRadius: 12, padding: '11px 16px', fontSize: 13, fontWeight: 900, textAlign: 'center', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 14px rgba(37,211,102,0.3)' }}
+                    >
+                      <span>ðŸ’¬</span>
+                      <span>{isUrdu ? '\u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0686\u0627\u067c \u06a9\u06be\u0648\u0644\u06cc\u06ba' : 'Open WhatsApp Chat'}</span>
+                    </a>
+                  )}
+
+                  <button
+                    onClick={onClose}
+                    style={{ background: '#111827', color: '#ffffff', border: 'none', borderRadius: 12, padding: '11px 16px', fontSize: 12, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                  >
+                    {isUrdu ? '\u0645\u06a9\u0645\u0644 \u06a9\u0631\u06cc\u06ba (Done)' : 'Done & Continue Shopping'}
+                  </button>
+                </div>
               </div>
             ) : (
-              <>
+              <div>
                 {/* Modal Header */}
                 <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -4456,7 +4530,7 @@ export default function SahilTraders() {
                           background: deliveryMethod === 'home' ? '#f9fafb' : '#fff', cursor: 'pointer', textAlign: 'center'
                         }}
                       >
-                        <div style={{ fontSize: 18 }}>🚚</div>
+                        <div style={{ fontSize: 18 }}>ðŸšš</div>
                         <div style={{ fontSize: 12, fontWeight: 800, color: '#111', marginTop: 4 }}>Home Delivery</div>
                         <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{cartTotal >= 2000 ? 'FREE' : 'Rs 150'}</div>
                       </div>
@@ -4468,7 +4542,7 @@ export default function SahilTraders() {
                           background: deliveryMethod === 'pickup' ? '#f9fafb' : '#fff', cursor: 'pointer', textAlign: 'center'
                         }}
                       >
-                        <div style={{ fontSize: 18 }}>🏬</div>
+                        <div style={{ fontSize: 18 }}>ðŸ¬</div>
                         <div style={{ fontSize: 12, fontWeight: 800, color: '#111', marginTop: 4 }}>Store Pickup</div>
                         <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, marginTop: 2 }}>BS Mart (FREE)</div>
                       </div>
@@ -4519,11 +4593,11 @@ export default function SahilTraders() {
                     ) : (
                       <div style={{ padding: '14px', borderRadius: 14, background: '#f0fdf4', border: '1px solid #bbf7d0', display: 'flex', flexDirection: 'column', gap: 6 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#166534' }}>
-                          <span style={{ fontSize: 18 }}>⏱️</span>
-                          <span>پک اپ کا وقت: 20 منٹ سے 1 گھنٹہ</span>
+                          <span style={{ fontSize: 18 }}>â±ï¸</span>
+                          <span>Ù¾Ú© Ø§Ù¾ Ú©Ø§ ÙˆÙ‚Øª: 20 Ù…Ù†Ù¹ Ø³Û’ 1 Ú¯Ú¾Ù†Ù¹Û</span>
                         </div>
                         <p style={{ fontSize: 11, color: '#15803d', fontWeight: 600, lineHeight: 1.5, margin: 0 }}>
-                          آپ کا آرڈر تیار ہونے میں 20 منٹ سے 1 گھنٹہ لگ سکتا ہے۔ اس وقت کے بعد آپ BS Mart اسٹور (محمد زبیر معین / محمد سہیل سلیم) سے اپنا سامان پک اپ کر سکتے ہیں۔
+                          Ø¢Ù¾ Ú©Ø§ Ø¢Ø±ÚˆØ± ØªÛŒØ§Ø± ÛÙˆÙ†Û’ Ù…ÛŒÚº 20 Ù…Ù†Ù¹ Ø³Û’ 1 Ú¯Ú¾Ù†Ù¹Û Ù„Ú¯ Ø³Ú©ØªØ§ ÛÛ’Û” Ø§Ø³ ÙˆÙ‚Øª Ú©Û’ Ø¨Ø¹Ø¯ Ø¢Ù¾ BS Mart Ø§Ø³Ù¹ÙˆØ± (Ù…Ø­Ù…Ø¯ Ø²Ø¨ÛŒØ± Ù…Ø¹ÛŒÙ† / Ù…Ø­Ù…Ø¯ Ø³ÛÛŒÙ„ Ø³Ù„ÛŒÙ…) Ø³Û’ Ø§Ù¾Ù†Ø§ Ø³Ø§Ù…Ø§Ù† Ù¾Ú© Ø§Ù¾ Ú©Ø± Ø³Ú©ØªÛ’ ÛÛŒÚºÛ”
                         </p>
                       </div>
                     )}
@@ -4569,12 +4643,9 @@ export default function SahilTraders() {
                     )}
                   </button>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
       );
     }
-
-
-

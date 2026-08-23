@@ -721,6 +721,45 @@ function getBrandFilters(items) {
     count
   }));
 }
+function matchProductTokens(product, query) {
+  if (!query || !product) return 0;
+  const cleanQuery = query.trim().toLowerCase();
+  if (!cleanQuery) return 0;
+  const tokens = cleanQuery.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return 0;
+  const name = (product.name || "").toLowerCase();
+  const nameUrdu = (product.nameUrdu || "").toLowerCase();
+  const catName = (product.categoryName || "").toLowerCase();
+  const catId = (product.categoryId || "").toLowerCase();
+  const brand = (getProductFilterName(product) || "").toLowerCase();
+
+  // Full concatenated searchable text
+  const fullText = `${name} ${nameUrdu} ${catName} ${catId} ${brand}`;
+  // Punctuation-stripped version (replaces commas, brackets, hyphens, colons with spaces)
+  const cleanText = fullText.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
+
+  // Every single token must match somewhere in fullText or cleanText
+  const allTokensMatch = tokens.every(t => cleanText.includes(t) || fullText.includes(t));
+  if (!allTokensMatch) return 0;
+
+  // Calculate relevance score
+  let score = 10;
+  if (name === cleanQuery) {
+    score += 100; // Exact full match
+  } else if (name.startsWith(cleanQuery)) {
+    score += 80; // Starts with full query
+  } else if (name.includes(cleanQuery)) {
+    score += 60; // Contains full query consecutively
+  } else {
+    score += 40; // All tokens present (out-of-order / partial word)
+  }
+
+  // Bonus if matched inside the product name specifically
+  const cleanNameOnly = name.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
+  const inName = tokens.every(t => name.includes(t) || cleanNameOnly.includes(t));
+  if (inName) score += 20;
+  return score;
+}
 function AboutUsModal({
   isOpen,
   onClose,
@@ -1856,12 +1895,24 @@ function SahilTraders() {
     setVisibleCount(24);
   }, [selectedCategory, searchTerm]);
   const baseFiltered = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
+    const term = searchTerm.trim();
     if (term === "") {
       if (selectedCategory) return products.filter(p => p.categoryId === selectedCategory);
       return products;
     }
-    return products.filter(p => p.name.toLowerCase().includes(term));
+    const scored = [];
+    for (let i = 0; i < products.length; i++) {
+      const p = products[i];
+      const score = matchProductTokens(p, term);
+      if (score > 0) {
+        scored.push({
+          product: p,
+          score
+        });
+      }
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored.map(item => item.product);
   }, [products, selectedCategory, searchTerm]);
   const brandFilters = useMemo(() => {
     if (!selectedCategory || isSearching) return [];
@@ -1882,6 +1933,9 @@ function SahilTraders() {
     } else if (sortBy === "price_desc") {
       return list.sort((a, b) => b.price - a.price);
     } else if (sortBy === "popularity") {
+      if (isSearching) {
+        return list;
+      }
       return list.sort((a, b) => {
         const aHasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[a.id] || a.hasImage ? 1 : 0;
         const bHasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[b.id] || b.hasImage ? 1 : 0;
@@ -1892,11 +1946,23 @@ function SahilTraders() {
       return list.sort((a, b) => a.name.localeCompare(b.name));
     }
     return list;
-  }, [filtered, sortBy]);
+  }, [filtered, sortBy, isSearching]);
   const suggestions = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
+    const term = searchTerm.trim();
     if (term === "") return [];
-    return products.filter(p => p.name.toLowerCase().includes(term)).slice(0, 6);
+    const scored = [];
+    for (let i = 0; i < products.length; i++) {
+      const p = products[i];
+      const score = matchProductTokens(p, term);
+      if (score > 0) {
+        scored.push({
+          product: p,
+          score
+        });
+      }
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, 6).map(item => item.product);
   }, [products, searchTerm]);
   function recordSearch(product) {
     if (!product) return;

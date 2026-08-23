@@ -1,4 +1,4 @@
-$rootDir = "c:\Users\ALICOM4\Desktop\ITEMS WEB"
+$rootDir = if ($PSScriptRoot) { $PSScriptRoot } else { "c:\Users\ALICOM4\Desktop\ITEMS WEB" }
 $port = 8000
 $url  = "http://localhost:$port/"
 

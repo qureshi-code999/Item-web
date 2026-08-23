@@ -2,7 +2,7 @@
 # Then re-apply ONLY safe crop+zoom WITHOUT any white-pixel removal
 Add-Type -AssemblyName System.Drawing
 
-$imgDir = "c:\Users\ALICOM4\Desktop\ITEMS WEB\images"
+$imgDir = if ($PSScriptRoot) { Join-Path $PSScriptRoot "images" } else { "c:\Users\ALICOM4\Desktop\ITEMS WEB\images" }
 $files  = Get-ChildItem $imgDir -File | Where-Object { $_.Extension -match '^\.(png|jpg|jpeg|webp)$' }
 
 Write-Host "RECOVERY: Fixing $($files.Count) damaged images..." -ForegroundColor Yellow

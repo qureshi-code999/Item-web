@@ -3,8 +3,8 @@ param(
     [int]$endId = 1266
 )
 
-$imagesFolder = "c:\Users\ALICOM4\Desktop\ITEMS WEB\images"
-$htmlFile = "c:\Users\ALICOM4\Desktop\ITEMS WEB\index.html"
+$imagesFolder = if ($PSScriptRoot) { Join-Path $PSScriptRoot "images" } else { "c:\Users\ALICOM4\Desktop\ITEMS WEB\images" }
+$htmlFile = if ($PSScriptRoot) { Join-Path $PSScriptRoot "index.html" } else { "c:\Users\ALICOM4\Desktop\ITEMS WEB\index.html" }
 $ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 $html = Get-Content $htmlFile -Raw

@@ -1,5 +1,5 @@
 # Parse existing products directly from index.html
-$htmlPath = "c:\Users\ALICOM4\Desktop\ITEMS WEB\index.html"
+$htmlPath = if ($PSScriptRoot) { Join-Path $PSScriptRoot "index.html" } else { "c:\Users\ALICOM4\Desktop\ITEMS WEB\index.html" }
 $htmlContent = Get-Content $htmlPath -Raw
 $productsBlock = [regex]::Match($htmlContent, '(?ms)const PRODUCTS = \[(.*?)\];').Groups[1].Value
 

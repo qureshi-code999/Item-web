@@ -4,7 +4,8 @@
 #  Taake PC start hone par automatically server chal jaye
 # ================================================================
 
-$scriptPath = "c:\Users\ALICOM4\Desktop\ITEMS WEB\admin_server.ps1"
+$rootPath   = if ($PSScriptRoot) { $PSScriptRoot } else { "c:\Users\ALICOM4\Desktop\ITEMS WEB" }
+$scriptPath = Join-Path $rootPath "admin_server.ps1"
 $taskName   = "SahilTradersServer"
 
 # Purani task hati to pehle remove karo
@@ -13,7 +14,7 @@ Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction Silent
 $action = New-ScheduledTaskAction `
     -Execute "powershell.exe" `
     -Argument "-ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File `"$scriptPath`"" `
-    -WorkingDirectory "c:\Users\ALICOM4\Desktop\ITEMS WEB"
+    -WorkingDirectory $rootPath
 
 $trigger = New-ScheduledTaskTrigger -AtLogOn
 

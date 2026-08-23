@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Sahil Traders - Architecture Flow Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- NOTE: images_map.js and products.js no longer exist.
+       Data is embedded directly in index.html as PRODUCT_IMAGE_MAP and PRODUCTS.
+       This test file loads app.js which expects these globals from index.html.
+       Use index.html (served via admin_server.ps1 port 8000) for real testing. -->
+</head>
+<body style="background:#111;color:#fff;padding:20px;font-family:monospace;">
+  <h2 style="color:#f90">&#9888; Architecture Test - READ BEFORE USE</h2>
+  <div style="background:#222;border:1px solid #f90;padding:16px;border-radius:8px;max-width:640px;margin-top:16px;">
+    <p><strong>Ye file seedha open karne se test FAIL hogi.</strong></p>
+    <p style="margin-top:8px;">Current architecture mein <code>images_map.js</code> aur <code>products.js</code> alag files nahi hain &mdash; yeh data <code>index.html</code> ke andar inline script mein hai:</p>
+    <ul style="margin-top:8px;padding-left:20px;line-height:1.8;">
+      <li><code>window.PRODUCT_IMAGE_MAP</code> &mdash; product ID to extension map</li>
+      <li><code>window.PRODUCT_IMAGES</code> &mdash; Set of all product IDs</li>
+      <li><code>const PRODUCTS = [...]</code> &mdash; full product array</li>
+    </ul>
+    <p style="margin-top:12px;color:#0f0">&#10003; <strong>Sahih tarika:</strong> Server chalao aur browser mein kholein:</p>
+    <code style="display:block;margin-top:6px;background:#000;padding:8px;border-radius:4px;">
+      START WEBSITE.bat chalao<br>
+      http://localhost:8000 kholein
+    </code>
+  </div>
+  <div id="flow-log" style="background:#000;color:#0f0;padding:12px;border-radius:4px;margin-top:16px;font-family:monospace;">
+    This file is for documentation only. Open index.html via server to test.
+  </div>
+</body>
+</html>

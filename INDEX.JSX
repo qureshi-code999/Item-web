@@ -3043,6 +3043,7 @@ export default function SahilTraders() {
                     onMouseLeave={e => e.currentTarget.style.borderColor='rgba(0,0,0,0.12)'}
                   >
                     <option value="en" style={{background:'#ffffff', color:'#1a1a2e'}}>English</option>
+                    <option value="ro" style={{background:'#ffffff', color:'#1a1a2e'}}>Roman Urdu</option>
                     <option value="ur" style={{background:'#ffffff', color:'#1a1a2e'}}>&#x627;&#x631;&#x62F;&#x648;</option>
                   </select>
 
@@ -3522,13 +3523,13 @@ export default function SahilTraders() {
                       {/* 1. Language Switcher Section */}
                       <div className="mb-5 p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
                         <div className="text-xs font-bold text-gray-800 mb-2.5 flex items-center justify-between">
-                          <span>{language === 'ur' ? '\u0632\u0628\u0627\u0646 \u062a\u0628\u062f\u06cc\u0644 \u06a9\u0631\u06cc\u06ba' : 'Switch Language'}</span>
-                          <span className="text-[10px] text-gray-500 font-normal">{language === 'ur' ? '\u0627\u0631\u062f\u0648 \u0641\u0639\u0627\u0644 \u06c1\u06d2' : 'English Active'}</span>
+                          <span>{language === 'ur' ? '\u0632\u0628\u0627\u0646 \u062a\u0628\u062f\u06cc\u0644 \u06a9\u0631\u06cc\u06ba' : language === 'ro' ? 'Zaban Tabdeel Karein' : 'Switch Language'}</span>
+                          <span className="text-[10px] text-gray-500 font-normal">{language === 'ur' ? '\u0627\u0631\u062f\u0648 \u0641\u0639\u0627\u0644 \u06c1\u06d2' : language === 'ro' ? 'Roman Urdu Active' : 'English Active'}</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-3 gap-1.5">
                           <button
                             onClick={() => { setLanguage("en"); }}
-                            className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                            className={`py-2 px-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                               language === 'en'
                                 ? 'bg-black text-white shadow-sm'
                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
@@ -3537,8 +3538,18 @@ export default function SahilTraders() {
                             <span>English</span>
                           </button>
                           <button
+                            onClick={() => { setLanguage("ro"); }}
+                            className={`py-2 px-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                              language === 'ro'
+                                ? 'bg-black text-white shadow-sm'
+                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
+                            }`}
+                          >
+                            <span>Roman</span>
+                          </button>
+                          <button
                             onClick={() => { setLanguage("ur"); }}
-                            className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                            className={`py-2 px-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
                               language === 'ur'
                                 ? 'bg-black text-white shadow-sm'
                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'

@@ -2122,6 +2122,12 @@ function SahilTraders() {
       color: '#1a1a2e'
     }
   }, "English"), /*#__PURE__*/React.createElement("option", {
+    value: "ro",
+    style: {
+      background: '#ffffff',
+      color: '#1a1a2e'
+    }
+  }, "Roman Urdu"), /*#__PURE__*/React.createElement("option", {
     value: "ur",
     style: {
       background: '#ffffff',
@@ -2824,20 +2830,25 @@ function SahilTraders() {
     className: "mb-5 p-3.5 bg-gray-50 rounded-2xl border border-gray-100"
   }, /*#__PURE__*/React.createElement("div", {
     className: "text-xs font-bold text-gray-800 mb-2.5 flex items-center justify-between"
-  }, /*#__PURE__*/React.createElement("span", null, language === 'ur' ? '\u0632\u0628\u0627\u0646 \u062a\u0628\u062f\u06cc\u0644 \u06a9\u0631\u06cc\u06ba' : 'Switch Language'), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, language === 'ur' ? '\u0632\u0628\u0627\u0646 \u062a\u0628\u062f\u06cc\u0644 \u06a9\u0631\u06cc\u06ba' : language === 'ro' ? 'Zaban Tabdeel Karein' : 'Switch Language'), /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-gray-500 font-normal"
-  }, language === 'ur' ? '\u0627\u0631\u062f\u0648 \u0641\u0639\u0627\u0644 \u06c1\u06d2' : 'English Active')), /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 gap-2"
+  }, language === 'ur' ? '\u0627\u0631\u062f\u0648 \u0641\u0639\u0627\u0644 \u06c1\u06d2' : language === 'ro' ? 'Roman Urdu Active' : 'English Active')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-3 gap-1.5"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setLanguage("en");
     },
-    className: `py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${language === 'en' ? 'bg-black text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}`
+    className: `py-2 px-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${language === 'en' ? 'bg-black text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}`
   }, /*#__PURE__*/React.createElement("span", null, "English")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setLanguage("ro");
+    },
+    className: `py-2 px-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${language === 'ro' ? 'bg-black text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}`
+  }, /*#__PURE__*/React.createElement("span", null, "Roman")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       setLanguage("ur");
     },
-    className: `py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${language === 'ur' ? 'bg-black text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}`
+    className: `py-2 px-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${language === 'ur' ? 'bg-black text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'}`
   }, /*#__PURE__*/React.createElement("span", null, '\u0627\u0631\u062f\u0648')))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2.5"
   }, /*#__PURE__*/React.createElement("button", {

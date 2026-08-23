@@ -356,12 +356,17 @@
     @media (max-width: 480px) {
       .cat-img-reel-area { height: 82px !important; }
       .cat-img-box { width: 66px !important; height: 66px !important; padding: 3px !important; border-radius: 10px !important; }
-      .cat-card-container > div:last-child { padding: 8px 5px !important; gap: 2px !important; align-items: flex-start !important; }
+      /* Footer row: compact padding and no gap */
+      .cat-card-container > div:last-child { padding: 7px 8px !important; gap: 4px !important; align-items: center !important; }
       .cat-card-container > div:last-child > div:first-child { min-width: 0 !important; flex: 1 1 auto !important; }
-      .cat-card-container > div:last-child > div:last-child { width: 18px !important; height: 18px !important; flex-shrink: 0 !important; }
-      .cat-card-title { font-size: 10.5px !important; line-height: 1.12 !important; overflow-wrap: normal !important; word-break: normal !important; hyphens: none !important; text-wrap: balance; }
+      /* Arrow icon button: smaller on mobile */
+      .cat-card-container > div:last-child > div:last-child { width: 22px !important; height: 22px !important; flex-shrink: 0 !important; border-radius: 8px !important; }
+      /* Category title: slightly bigger, full width */
+      .cat-card-title { font-size: 11px !important; line-height: 1.2 !important; overflow-wrap: normal !important; word-break: normal !important; hyphens: none !important; text-wrap: balance; }
       .cat-card-subtitle { font-size: 8px !important; }
       .cat-count-badge { font-size: 7px !important; padding: 1px 5px !important; top: 6px !important; right: 6px !important; }
+      /* Hide "View Products" pill button on mobile — whole card is already clickable */
+      .cat-view-pill { display: none !important; }
     }
 
     /* ---- MAIN CONTENT PADDING MOBILE ---- */
@@ -1457,6 +1462,6 @@
 
   <!-- PRODUCT_IMAGE_MAP already defined in head -->
 
-  <script src="app.js?v=6.6"></script>
+  <script src="app.js?v=6.7"></script>
 </body>
 </html>

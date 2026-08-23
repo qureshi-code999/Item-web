@@ -3839,7 +3839,7 @@ function CategoryHome({
         marginBottom: 4
       }
     }, langData.categories?.[cat.id] || cat.name), /*#__PURE__*/React.createElement("div", {
-      className: "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-900 group-hover:bg-amber-600 text-white transition-all duration-300 shadow-2xs"
+      className: "cat-view-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-900 group-hover:bg-amber-600 text-white transition-all duration-300 shadow-2xs"
     }, /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 9.5,

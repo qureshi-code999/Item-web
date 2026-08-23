@@ -1,4 +1,4 @@
-﻿// =============================================================
+// =============================================================
 //  ✅ MASTER SOURCE FILE — SAHIL TRADERS WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
@@ -2366,12 +2366,11 @@ export default function SahilTraders() {
           exitModalOpen,
           selectedCategory,
           selectedBrand,
-          filterMenuOpen,
           searchTerm,
           isSearching,
           activeCategory
         };
-      }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, selectedBrand, filterMenuOpen, searchTerm, isSearching, activeCategory]);
+      }, [checkoutOpen, cartOpen, exitModalOpen, selectedCategory, selectedBrand, searchTerm, isSearching, activeCategory]);
       // App Back Button Controller: browser/device Back restores the previous store screen first.
       useEffect(() => {
         const getSnapshot = (state) => ({
@@ -2379,7 +2378,6 @@ export default function SahilTraders() {
           cartOpen: !!state.cartOpen,
           selectedCategory: state.selectedCategory || null,
           selectedBrand: state.selectedBrand || "all",
-          filterMenuOpen: !!state.filterMenuOpen,
           searchTerm: state.searchTerm || "",
           activeCategory: state.activeCategory || "all"
         });
@@ -2415,12 +2413,13 @@ export default function SahilTraders() {
         const restoreSnapshot = (snapshot) => {
           restoringHistoryRef.current = true;
           setExitModalOpen(false);
+          setFilterMenuOpen(false);
+          setSuggestOpen(false);
           setCheckoutOpen(!!snapshot.checkoutOpen);
           setCartOpen(!!snapshot.cartOpen);
           setSearchTerm(snapshot.searchTerm || "");
           setSelectedCategory(snapshot.selectedCategory || null);
           setSelectedBrand(snapshot.selectedBrand || "all");
-          setFilterMenuOpen(!!snapshot.filterMenuOpen);
           setActiveCategory(snapshot.activeCategory || "all");
           setTimeout(() => { restoringHistoryRef.current = false; }, 0);
         };
@@ -2459,7 +2458,7 @@ export default function SahilTraders() {
         lastSearchActiveRef.current = searchingNow;
         const timer = setTimeout(() => restoreBackGuardRef.current(replaceSearchTyping, false), 0);
         return () => clearTimeout(timer);
-      }, [checkoutOpen, cartOpen, selectedCategory, selectedBrand, filterMenuOpen, searchTerm, activeCategory, exitModalOpen]);
+      }, [checkoutOpen, cartOpen, selectedCategory, selectedBrand, searchTerm, activeCategory, exitModalOpen]);
       const cartCount = cart.reduce((sum, i) => sum + i.qty, 0);
       const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.qty, 0);
       function addToCart(product) {
@@ -2613,10 +2612,14 @@ export default function SahilTraders() {
       // -----------------------------------------------------------------------------
       // -----------------------------------------------------------------------------
       function handleGoBack() {
+        setFilterMenuOpen(false);
+        if (selectedBrand !== "all") {
+          setSelectedBrand("all");
+          return;
+        }
         setSearchTerm("");
         setSelectedCategory(null);
         setSelectedBrand("all");
-        setFilterMenuOpen(false);
         setActiveCategory("all");
       }
       function handleSelectProductFromCart(product) {
@@ -3115,15 +3118,29 @@ export default function SahilTraders() {
                     </select>
                   </div>
                   {brandFilters.length > 1 && (
-                    <div style={{ position: 'relative' }}>
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <button
                         onClick={() => setFilterMenuOpen(v => !v)}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid #111111', background: '#ffffff', color: '#111111', borderRadius: 999, padding: '9px 14px', fontSize: 12, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 5px 16px rgba(0,0,0,0.08)' }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 7, border: selectedBrand !== "all" ? '1.5px solid #000000' : '1px solid #111111', background: selectedBrand !== "all" ? '#000000' : '#ffffff', color: selectedBrand !== "all" ? '#ffffff' : '#111111', borderRadius: 999, padding: '8px 14px', fontSize: 12, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 5px 16px rgba(0,0,0,0.08)' }}
                       >
-                        <svg style={{ width: 15, height: 15 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 12h10M10 19h4" /></svg>
-                        Filter
-                        <span style={{ fontSize: 10, color: '#666666', letterSpacing: 0, textTransform: 'none' }}>{selectedBrand === "all" ? 'All' : selectedBrand}</span>
+                        <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 12h10M10 19h4" /></svg>
+                        <span>Filter</span>
+                        {selectedBrand !== "all" && (
+                          <span style={{ fontSize: 11, background: '#ffffff', color: '#000000', borderRadius: 999, padding: '1px 8px', fontWeight: 800, letterSpacing: 0, textTransform: 'none' }}>
+                            {selectedBrand}
+                          </span>
+                        )}
                       </button>
+                      {selectedBrand !== "all" && (
+                        <button
+                          onClick={() => { setSelectedBrand("all"); setFilterMenuOpen(false); }}
+                          title="Clear Brand Filter"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', borderRadius: 999, padding: '7px 11px', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}
+                        >
+                          <span>✕</span>
+                          <span>Reset</span>
+                        </button>
+                      )}
                     {filterMenuOpen && (
                       <>
                         <div onClick={() => setFilterMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 49, background: 'rgba(0,0,0,0.3)' }} />

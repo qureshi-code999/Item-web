@@ -3608,11 +3608,13 @@ const CATEGORY_META = {
 function CategoryHome({
   products,
   onSelectCategory,
-  langData
+  langData,
+  language
 }) {
+  const isUrdu = language === 'ur';
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
-      marginBottom: 14,
+      marginBottom: 10,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -3640,6 +3642,18 @@ function CategoryHome({
       whiteSpace: 'nowrap'
     }
   }, CATEGORIES.length, " Categories · ", products.length.toLocaleString(), "+ Items")), /*#__PURE__*/React.createElement("div", {
+    className: "mb-4 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 via-white to-amber-50/60 border border-amber-200/80 flex items-center justify-between gap-3 shadow-xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xl sm:text-2xl animate-bounce"
+  }, "👇"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs sm:text-sm font-black text-gray-950 uppercase tracking-wide"
+  }, isUrdu ? 'کیٹیگری منتخب کریں اور تمام پراڈکٹس دیکھیں' : 'Tap Any Category to Browse Products'), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-amber-900 font-semibold mt-0.5"
+  }, isUrdu ? 'کسی بھی کارڈ پر کلک کریں، اس کے اندر کی تمام چیزیں اور ریٹ کھل جائیں گے' : 'Click on any card below to open full list of items & wholesale rates'))), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline-flex items-center gap-1.5 bg-black text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl uppercase tracking-wider shadow-xs shrink-0"
+  }, /*#__PURE__*/React.createElement("span", null, "👆"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'کلک کریں' : 'Click to Open'))), /*#__PURE__*/React.createElement("div", {
     className: "cat-home-grid"
   }, CATEGORIES.map(cat => {
     const catProducts = products.filter(p => p.categoryId === cat.id);
@@ -3699,6 +3713,26 @@ function CategoryHome({
         background: '#ffffff'
       }
     }, /*#__PURE__*/React.createElement("div", {
+      className: "cat-tap-hint",
+      style: {
+        position: 'absolute',
+        top: 10,
+        left: 10,
+        zIndex: 20,
+        padding: '3px 8px',
+        borderRadius: 8,
+        fontSize: 9.5,
+        fontWeight: 900,
+        letterSpacing: '0.04em',
+        background: '#000000',
+        color: '#ffffff',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+        textTransform: 'uppercase',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4
+      }
+    }, /*#__PURE__*/React.createElement("span", null, "👆"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'کھولیں' : 'Click to Open')), /*#__PURE__*/React.createElement("div", {
       className: "cat-count-badge",
       style: {
         position: 'absolute',
@@ -3784,42 +3818,52 @@ function CategoryHome({
       }
     }, meta.icon || '🛍️'))), /*#__PURE__*/React.createElement("div", {
       style: {
-        padding: '14px 16px',
+        padding: '12px 14px',
         background: '#ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderTop: '1px solid rgba(0,0,0,0.12)'
+        gap: 6,
+        borderTop: '1px solid #f3f4f6'
       }
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        minWidth: 0,
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("h3", {
       className: "cat-card-title",
       style: {
         fontSize: '13px',
-        fontWeight: 800,
+        fontWeight: 900,
         fontFamily: "'Poppins', sans-serif",
         letterSpacing: '0.02em',
-        color: '#1a1a2e',
-        lineHeight: 1.3,
-        marginBottom: 3
+        color: '#111827',
+        lineHeight: 1.25,
+        marginBottom: 4
       }
-    }, langData.categories?.[cat.id] || cat.name), /*#__PURE__*/React.createElement("p", {
-      className: "cat-card-subtitle",
+    }, langData.categories?.[cat.id] || cat.name), /*#__PURE__*/React.createElement("div", {
+      className: "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-900 group-hover:bg-amber-600 text-white transition-all duration-300 shadow-2xs"
+    }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 12,
-        color: '#555555',
-        fontWeight: 600,
-        letterSpacing: '0.03em',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 4
+        fontSize: 9.5,
+        fontWeight: 800,
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase'
       }
-    }, "Explore Catalog →")), /*#__PURE__*/React.createElement("div", {
-      className: "w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white group-hover:border-black transition-all duration-300"
+    }, isUrdu ? 'چیزیں دیکھیں' : 'View Products'), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 10,
+        fontWeight: 900
+      },
+      className: "transform group-hover:translate-x-1 transition-transform"
+    }, "➔"))), /*#__PURE__*/React.createElement("div", {
+      className: "w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white group-hover:border-black transition-all duration-300 shrink-0"
     }, /*#__PURE__*/React.createElement("svg", {
-      className: "w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform",
+      className: "w-4 h-4 transform group-hover:translate-x-0.5 transition-transform",
       fill: "none",
       stroke: "currentColor",
-      strokeWidth: "3",
+      strokeWidth: "2.5",
       viewBox: "0 0 24 24"
     }, /*#__PURE__*/React.createElement("path", {
       strokeLinecap: "round",

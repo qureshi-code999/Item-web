@@ -3744,10 +3744,13 @@ export default function SahilTraders() {
     };
 
     // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
-    function CategoryHome({ products, onSelectCategory, langData }) {
+    function CategoryHome({ products, onSelectCategory, langData, language }) {
+      const isUrdu = language === 'ur';
+
       return (
         <div>
-          <div style={{ marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.12)', paddingBottom: 8 }}>
+          {/* Categories Top Title & Count */}
+          <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.12)', paddingBottom: 8 }}>
             <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#000000', fontFamily: "'Poppins', sans-serif" }}>
               {translate(langData, "categoriesLabel")}
             </h2>
@@ -3755,6 +3758,26 @@ export default function SahilTraders() {
               {CATEGORIES.length} Categories &middot; {products.length.toLocaleString()}+ Items
             </span>
           </div>
+
+          {/* User Guide / Clear Tap Instruction Banner */}
+          <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 via-white to-amber-50/60 border border-amber-200/80 flex items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl sm:text-2xl animate-bounce">👇</span>
+              <div>
+                <p className="text-xs sm:text-sm font-black text-gray-950 uppercase tracking-wide">
+                  {isUrdu ? 'کیٹیگری منتخب کریں اور تمام پراڈکٹس دیکھیں' : 'Tap Any Category to Browse Products'}
+                </p>
+                <p className="text-[11px] text-amber-900 font-semibold mt-0.5">
+                  {isUrdu ? 'کسی بھی کارڈ پر کلک کریں، اس کے اندر کی تمام چیزیں اور ریٹ کھل جائیں گے' : 'Click on any card below to open full list of items & wholesale rates'}
+                </p>
+              </div>
+            </div>
+            <span className="hidden sm:inline-flex items-center gap-1.5 bg-black text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl uppercase tracking-wider shadow-xs shrink-0">
+              <span>👆</span>
+              <span>{isUrdu ? 'کلک کریں' : 'Click to Open'}</span>
+            </span>
+          </div>
+
           <div className="cat-home-grid">
             {CATEGORIES.map(cat => {
               const catProducts = products.filter(p => p.categoryId === cat.id);
@@ -3804,6 +3827,12 @@ export default function SahilTraders() {
                   {/* Top Image Reel Area */}
                   <div className="cat-img-reel-area" style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#ffffff' }}>
 
+                    {/* Top Left "Tap / Open" Badge */}
+                    <div className="cat-tap-hint" style={{ position: 'absolute', top: 10, left: 10, zIndex: 20, padding: '3px 8px', borderRadius: 8, fontSize: 9.5, fontWeight: 900, letterSpacing: '0.04em', background: '#000000', color: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.25)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span>👆</span>
+                      <span>{isUrdu ? 'کھولیں' : 'Click to Open'}</span>
+                    </div>
+
                     {/* Top Right Item Count Badge */}
                     <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: '#f3f4f6', border: '1px solid #e5e7eb', color: '#111111' }}>
                       {count} {translate(langData, "itemsLabel")}
@@ -3843,27 +3872,32 @@ export default function SahilTraders() {
                     )}
                   </div>
 
-                  {/* Info Footer */}
-                  <div style={{ padding: '14px 16px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.12)' }}>
-                    <div>
+                  {/* Info Footer with Obvious Action Button */}
+                  <div style={{ padding: '12px 14px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, borderTop: '1px solid #f3f4f6' }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
                       <h3 className="cat-card-title" style={{
                         fontSize: '13px',
-                        fontWeight: 800,
+                        fontWeight: 900,
                         fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '0.02em',
-                        color: '#1a1a2e',
-                        lineHeight: 1.3,
-                        marginBottom: 3
+                        color: '#111827',
+                        lineHeight: 1.25,
+                        marginBottom: 4
                       }}>
                         {langData.categories?.[cat.id] || cat.name}
                       </h3>
-                      <p className="cat-card-subtitle" style={{ fontSize: 12, color: '#555555', fontWeight: 600, letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        Explore Catalog &rarr;
-                      </p>
+                      
+                      {/* Prominent Action Button / Pill */}
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-900 group-hover:bg-amber-600 text-white transition-all duration-300 shadow-2xs">
+                        <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                          {isUrdu ? 'چیزیں دیکھیں' : 'View Products'}
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 900 }} className="transform group-hover:translate-x-1 transition-transform">➔</span>
+                      </div>
                     </div>
 
-                    <div className="w-8 h-8 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white group-hover:border-black transition-all duration-300">
-                      <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                    <div className="w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white group-hover:border-black transition-all duration-300 shrink-0">
+                      <svg className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                       </svg>
                     </div>

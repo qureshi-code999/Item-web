@@ -1858,17 +1858,13 @@ function SahilTraders() {
   // Intelligent Asset & Image Preloader during Intro Animation
   useEffect(() => {
     if (!showSplash) return;
-    // Only preload first 20 images eagerly — rest load lazily as user scrolls
-    // This dramatically speeds up mobile load time
-    const allIds = Array.from(window.PRODUCT_IMAGES || []);
-    const eagerIds = allIds.slice(0, 20);
+    // Preload first 20 product images eagerly with mapped extension
+    const imageMap = window.PRODUCT_IMAGE_MAP || {};
+    const eagerIds = Object.keys(imageMap).slice(0, 20);
     eagerIds.forEach(id => {
+      const ext = imageMap[id] || 'png';
       const img = new Image();
-      img.src = `images/${id}.jpg`;
-      img.onerror = () => {
-        const fallback = new Image();
-        fallback.src = `images/${id}.png`;
-      };
+      img.src = `images/${id}.${ext}`;
     });
     const fadeTimer = setTimeout(() => {
       setFadeSplash(true);

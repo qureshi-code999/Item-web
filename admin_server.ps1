@@ -78,8 +78,16 @@ while ($listener.IsListening) {
             $reader = New-Object System.IO.StreamReader($req.InputStream)
             $bodyStr = $reader.ReadToEnd()
             $data = $bodyStr | ConvertFrom-Json
-            if ($data.html) {
-                [System.IO.File]::WriteAllText((Join-Path $rootDir "index.html"), $data.html, [System.Text.Encoding]::UTF8)
+            if ($data.html -and $data.html.Length -gt 1000 -and $data.html -match '<!DOCTYPE html>') {
+                $target = Join-Path $rootDir "index.html"
+                $backupDir = Join-Path $rootDir "Backups"
+                if (-not (Test-Path $backupDir)) { New-Item -ItemType Directory -Path $backupDir -Force | Out-Null }
+                $ts = (Get-Date).ToString("yyyyMMdd_HHmmss")
+                Copy-Item -Path $target -Destination (Join-Path $backupDir "index_backup_adminsave_$ts.html") -Force -ErrorAction SilentlyContinue
+                
+                $tmpPath = "$target.tmp"
+                [System.IO.File]::WriteAllText($tmpPath, $data.html, (New-Object System.Text.UTF8Encoding $false))
+                Move-Item -Path $tmpPath -Destination $target -Force
             }
             $b = [System.Text.Encoding]::UTF8.GetBytes('{"ok":true}')
             $res.StatusCode = 200

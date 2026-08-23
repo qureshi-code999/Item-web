@@ -2684,15 +2684,9 @@ export default function SahilTraders() {
 
       function handleSelectProductFromCart(product) {
         setCartOpen(false);
-        if (product && product.categoryId) {
-          setSelectedCategory(product.categoryId);
-          setSelectedBrand("all");
-          setFilterMenuOpen(false);
+        if (product) {
+          setSelectedProduct(product);
         }
-        if (product && product.name) {
-          setSearchTerm(product.name);
-        }
-        window.scrollTo({ top: 180, behavior: 'smooth' });
       }
       // -----------------------------------------------------------------------------
 

@@ -1597,10 +1597,11 @@ function AboutUsModal({ isOpen, onClose, language }) {
 
           {/* Guaranteed Lowest Price Highlight Card (سب سے منفرد بات - شرطیہ سب سے کم قیمت) */}
           <div className="relative overflow-hidden bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white rounded-2xl p-4 shadow-lg border-2 border-amber-300">
-            <div className="absolute top-2 right-2 bg-yellow-300 text-amber-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+            {/* Badge - now inline above heading, not absolute positioned */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fde047', color: '#451a03', fontWeight: 900, fontSize: 10, padding: '3px 10px', borderRadius: 999, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>
               🔥 {isUrdu ? 'سب سے منفرد بات — شرطیہ' : 'Guaranteed Lowest Rates'}
             </div>
-            <div className="flex items-center gap-2.5 mb-2 font-black text-base pr-20">
+            <div className="flex items-center gap-2.5 mb-2 font-black text-base">
               <span className="text-2xl">⚡</span>
               <span className="tracking-wide">{isUrdu ? 'پاکستان کے بڑے سے بڑے سپر مارٹ سے سستا!' : 'Lower Rates Than Any Supermart'}</span>
             </div>
@@ -3759,25 +3760,6 @@ export default function SahilTraders() {
             </span>
           </div>
 
-          {/* User Guide / Clear Tap Instruction Banner */}
-          <div className="mb-4 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 via-white to-amber-50/60 border border-amber-200/80 flex items-center justify-between gap-3 shadow-xs">
-            <div className="flex items-center gap-2.5">
-              <span className="text-xl sm:text-2xl animate-bounce">👇</span>
-              <div>
-                <p className="text-xs sm:text-sm font-black text-gray-950 uppercase tracking-wide">
-                  {isUrdu ? 'کیٹیگری منتخب کریں اور تمام پراڈکٹس دیکھیں' : 'Tap Any Category to Browse Products'}
-                </p>
-                <p className="text-[11px] text-amber-900 font-semibold mt-0.5">
-                  {isUrdu ? 'کسی بھی کارڈ پر کلک کریں، اس کے اندر کی تمام چیزیں اور ریٹ کھل جائیں گے' : 'Click on any card below to open full list of items & wholesale rates'}
-                </p>
-              </div>
-            </div>
-            <span className="hidden sm:inline-flex items-center gap-1.5 bg-black text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl uppercase tracking-wider shadow-xs shrink-0">
-              <span>👆</span>
-              <span>{isUrdu ? 'کلک کریں' : 'Click to Open'}</span>
-            </span>
-          </div>
-
           <div className="cat-home-grid">
             {CATEGORIES.map(cat => {
               const catProducts = products.filter(p => p.categoryId === cat.id);
@@ -3826,12 +3808,6 @@ export default function SahilTraders() {
                 >
                   {/* Top Image Reel Area */}
                   <div className="cat-img-reel-area" style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#ffffff' }}>
-
-                    {/* Top Left "Tap / Open" Badge */}
-                    <div className="cat-tap-hint" style={{ position: 'absolute', top: 10, left: 10, zIndex: 20, padding: '3px 8px', borderRadius: 8, fontSize: 9.5, fontWeight: 900, letterSpacing: '0.04em', background: '#000000', color: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.25)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span>👆</span>
-                      <span>{isUrdu ? 'کھولیں' : 'Click to Open'}</span>
-                    </div>
 
                     {/* Top Right Item Count Badge */}
                     <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: '#f3f4f6', border: '1px solid #e5e7eb', color: '#111111' }}>

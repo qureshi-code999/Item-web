@@ -814,9 +814,22 @@ function AboutUsModal({
   }, isUrdu ? 'ساحل ٹریڈرز کا آغاز 2021 میں کراچی سے ایک قابلِ اعتماد خاندانی ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات باضابطہ برانڈز سے براہِ راست ہول سیل قیمتوں پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔' : 'Established in 2021 in Karachi, Sahil Traders started as a trusted family wholesale business. Our mission is simple: bringing direct wholesale prices to retail customers across Pakistan on 4,000+ daily essentials and branded products.')), /*#__PURE__*/React.createElement("div", {
     className: "relative overflow-hidden bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white rounded-2xl p-4 shadow-lg border-2 border-amber-300"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "absolute top-2 right-2 bg-yellow-300 text-amber-950 font-black text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm"
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      background: '#fde047',
+      color: '#451a03',
+      fontWeight: 900,
+      fontSize: 10,
+      padding: '3px 10px',
+      borderRadius: 999,
+      letterSpacing: '0.06em',
+      textTransform: 'uppercase',
+      marginBottom: 8
+    }
   }, "🔥 ", isUrdu ? 'سب سے منفرد بات — شرطیہ' : 'Guaranteed Lowest Rates'), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2.5 mb-2 font-black text-base pr-20"
+    className: "flex items-center gap-2.5 mb-2 font-black text-base"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-2xl"
   }, "⚡"), /*#__PURE__*/React.createElement("span", {
@@ -3642,18 +3655,6 @@ function CategoryHome({
       whiteSpace: 'nowrap'
     }
   }, CATEGORIES.length, " Categories · ", products.length.toLocaleString(), "+ Items")), /*#__PURE__*/React.createElement("div", {
-    className: "mb-4 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 via-white to-amber-50/60 border border-amber-200/80 flex items-center justify-between gap-3 shadow-xs"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2.5"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-xl sm:text-2xl animate-bounce"
-  }, "👇"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
-    className: "text-xs sm:text-sm font-black text-gray-950 uppercase tracking-wide"
-  }, isUrdu ? 'کیٹیگری منتخب کریں اور تمام پراڈکٹس دیکھیں' : 'Tap Any Category to Browse Products'), /*#__PURE__*/React.createElement("p", {
-    className: "text-[11px] text-amber-900 font-semibold mt-0.5"
-  }, isUrdu ? 'کسی بھی کارڈ پر کلک کریں، اس کے اندر کی تمام چیزیں اور ریٹ کھل جائیں گے' : 'Click on any card below to open full list of items & wholesale rates'))), /*#__PURE__*/React.createElement("span", {
-    className: "hidden sm:inline-flex items-center gap-1.5 bg-black text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-xl uppercase tracking-wider shadow-xs shrink-0"
-  }, /*#__PURE__*/React.createElement("span", null, "👆"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'کلک کریں' : 'Click to Open'))), /*#__PURE__*/React.createElement("div", {
     className: "cat-home-grid"
   }, CATEGORIES.map(cat => {
     const catProducts = products.filter(p => p.categoryId === cat.id);
@@ -3713,26 +3714,6 @@ function CategoryHome({
         background: '#ffffff'
       }
     }, /*#__PURE__*/React.createElement("div", {
-      className: "cat-tap-hint",
-      style: {
-        position: 'absolute',
-        top: 10,
-        left: 10,
-        zIndex: 20,
-        padding: '3px 8px',
-        borderRadius: 8,
-        fontSize: 9.5,
-        fontWeight: 900,
-        letterSpacing: '0.04em',
-        background: '#000000',
-        color: '#ffffff',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
-        textTransform: 'uppercase',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 4
-      }
-    }, /*#__PURE__*/React.createElement("span", null, "👆"), /*#__PURE__*/React.createElement("span", null, isUrdu ? 'کھولیں' : 'Click to Open')), /*#__PURE__*/React.createElement("div", {
       className: "cat-count-badge",
       style: {
         position: 'absolute',

@@ -3708,7 +3708,7 @@ export default function SahilTraders() {
                         {langData.categories?.[cat.id] || cat.name}
                       </h3>
                       
-                      {/* Prominent Action Button / Pill — hidden on mobile via CSS */}
+                      {/* Action Button / Pill — compact & responsive on mobile via CSS */}
                       <div className="cat-view-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-900 group-hover:bg-amber-600 text-white transition-all duration-300 shadow-2xs">
                         <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
                           {tr(language, 'View Products', 'Cheezein Dekhein', 'چیزیں دیکھیں')}

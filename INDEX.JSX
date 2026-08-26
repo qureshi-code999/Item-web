@@ -2340,6 +2340,13 @@ export default function SahilTraders() {
           localStorage.setItem("sahil_traders_cart", JSON.stringify(cart));
         } catch (e) {}
       }, [cart]);
+
+      // Auto-scroll to absolute top of page whenever category or brand selection changes
+      useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+      }, [selectedCategory, activeCategory, selectedBrand]);
       function persistCartSnapshot(nextCart) {
         try {
           if (!nextCart || nextCart.length === 0) {
@@ -3633,7 +3640,12 @@ export default function SahilTraders() {
               return (
                 <div
                   key={cat.id}
-                  onClick={() => onSelectCategory(cat.id)}
+                  onClick={() => {
+                    onSelectCategory(cat.id);
+                    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                  }}
                   className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300"
                   style={{
                     background: '#ffffff',

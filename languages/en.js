@@ -44,21 +44,20 @@ window.TRANSLATIONS.en = {
   itemsLabel: "items",
   categories: {
     soaps: "Soaps",
-    shampoo: "Shampoo & Conditioner",
-    creams: "Creams & Lotions",
+    shampoo: "Shampoo & Conditioners",
+    creams: "Creams & Lotions & Bleach",
     stationary: "Stationary & Tapes",
-    sports: "Sports & Toys",
-    birthday: "Birthday",
-    shaving: "Shaving & Razers & Blades",
-    haircolour: "Hair Colour & Care & Oil",
+    sports: "Sports & Toys & Birthday",
+shaving: "Shaving & Razers & Blades",
+    haircolour: "Hair Colors & Care & Oils",
     condemn: "Condoms",
-    lock: "Lock & Cells",
-    general: "General Item & Others",
+    lock: "Locks & Cells & Lighters",
+    general: "General Items & Others",
     babycare: "Baby Care & Powders",
-    mosquito: "Anti-Mosquito",
+    mosquito: "Anti- Mosquitoes",
     personalcare: "Personal Care",
-    fragnances: "Fragnances",
-    toothpasteandbrush: "Tooth Paste & Brush",
-    facewash: "Face Wash"
+    fragnances: "Fragnances & Roll on",
+    toothpasteandbrush: "Dental Cares",
+    facewash: "Face Wash & Body Washes"
   }
 };

@@ -1,0 +1,22 @@
+﻿15 : if (language === "ur") return ur;
+16 : if (language === "ro") return (ro !== undefined && ro !== null) ? ro : en;
+178 : if (language === "ur" && product.nameUrdu) {
+1489 : const isUrdu = language === 'ur';
+1529 : <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose text-red-950 font-bold' : 'text-xs text-red-950 leading-relaxed font-semibold'}>
+1543 : <p className={isUrdu ? 'font-urdu text-right text-sm leading-loose' : 'text-xs sm:text-sm text-gray-700 leading-normal'}>
+1560 : <p className={isUrdu ? 'font-urdu text-right text-xs sm:text-sm font-semibold leading-relaxed text-amber-50' : 'text-xs sm:text-sm font-medium leading-relaxed text-amber-50'}>
+1611 : <p className={isUrdu ? 'font-urdu text-right text-xs text-amber-200/90 pt-1 leading-relaxed' : 'text-xs text-amber-200/90 pt-1 leading-relaxed'}>
+1630 : <p className={isUrdu ? 'font-urdu text-right text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold' : 'text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold'}>
+1751 : const isUrdu = language === 'ur';
+1789 : <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose text-emerald-950 font-bold' : 'text-xs text-emerald-950 leading-relaxed font-semibold'}>
+1885 : const isUrdu = language === 'ur';
+1908 : <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose' : 'text-xs text-gray-700 leading-normal text-left'}>
+1940 : const isUrdu = language === 'ur';
+2757 : <div className="min-h-screen relative text-gray-900 overflow-x-hidden" style={{ fontFamily: language === 'ur' ? "'Noto Sans Urdu', 'Inter', sans-serif" : "'Inter', system-ui, sans-serif" }}>
+3342 : language === 'en'
+3352 : language === 'ro'
+3362 : language === 'ur'
+3559 : const isUrdu = language === 'ur';
+3684 : const isUrdu = language === 'ur';
+3781 : const isUrdu = language === 'ur';
+4224 : const isUrdu = language === 'ur';

@@ -43,21 +43,20 @@ window.TRANSLATIONS.ur = {
   itemsLabel: "چیزیں",
   categories: {
     soaps:        "صابن (Soaps)",
-    shampoo:      "شیمپو اور کنڈیشنر (Shampoo & Conditioner)",
-    creams:       "کریم (Creams)",
+    shampoo:      "Shampoo & Conditioners",
+    creams:       "Creams & Lotions & Bleach",
     stationary:   "Stationary & Tapes",
-    sports:       "کھیل کا سامان (Sports)",
-    birthday:     "برتھ ڈی سامان (Birthday)",
-    shaving:      "شیونگ، ریزر اور بلیڈ (Shaving & Razers & Blades)",
-    haircolour:   "بالوں کا کلر، کیئر اور آئل (Hair Colour & Care & Oil)",
+    sports:       "Sports & Toys & Birthday",
+shaving:      "شیونگ، ریزر اور بلیڈ (Shaving & Razers & Blades)",
+    haircolour:   "Hair Colors & Care & Oils",
     condemn:      "کنڈم (Condoms)",
-    lock:         "Lock & Cells",
-    general:      "عام سامان (General Items)",
+    lock:         "Locks & Cells & Lighters",
+    general:      "General Items & Others",
     babycare:     "Baby Care & Powders",
-    mosquito:     "مچھر بھگانے کا سامان (Anti-Mosquito)",
+    mosquito:     "Anti- Mosquitoes",
     personalcare: "ذاتی صفائی (Personal Care)",
-    fragnances:   "خوشبوئیں (Fragnances)",
-    toothpasteandbrush: "ٹوتھ پیسٹ اور برش (Tooth Paste & Brush)",
-    facewash:     "فیس واش (Face Wash)"
+    fragnances:   "Fragnances & Roll on",
+    toothpasteandbrush: "Dental Cares",
+    facewash:     "Face Wash & Body Washes"
   }
 };

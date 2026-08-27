@@ -192,10 +192,12 @@ function getProductPricing(product) {
     retailPrice: 0,
     sellingPrice: 0,
     savings: 0,
-    discountPercent: 0
+    discountPercent: 0,
+    isAutoMarket: false
   };
   const sellingPrice = Number(product.price) || 0;
   let retailPrice = Number(product.retailPrice) || 0;
+  let isAutoMarket = false;
   if (!retailPrice && product.name) {
     const match = product.name.match(/(?:RS|RP|Rs|Rp)[\.,:\s]*(\d+)/i);
     if (match && match[1]) {
@@ -203,6 +205,50 @@ function getProductPricing(product) {
       if (!isNaN(parsed)) {
         retailPrice = parsed;
       }
+    }
+  }
+
+  // AUTO ESTIMATED MARKET PRICE — Category-specific inverse-scaled markup
+  if (!retailPrice && sellingPrice > 0) {
+    isAutoMarket = true;
+    const idNum = Number(product.id) || 1;
+    const catId = product.categoryId || '';
+    let markupPercent;
+    if (catId === 'sports') {
+      // Sports & Toys & Birthday: 25% to 38%, INVERSE — cheap = higher %, expensive = lower %
+      // Price range roughly Rs 20 to Rs 1500 for sports items
+      // Higher price → lower markup (approaching 25%), Lower price → higher markup (approaching 38%)
+      const priceClamp = Math.max(20, Math.min(sellingPrice, 1500));
+      const ratio = (priceClamp - 20) / (1500 - 20); // 0 (cheap) to 1 (expensive)
+      const baseMarkup = 38 - Math.round(ratio * 13); // 38% → 25%
+      const jitter = (idNum * 17 + 7) % 3; // 0, 1, or 2 for natural variation
+      markupPercent = baseMarkup + jitter;
+      markupPercent = Math.max(25, Math.min(38, markupPercent));
+    } else if (catId === 'stationary') {
+      // Stationary & Tapes: 25% to 39%, INVERSE — cheap = higher %, expensive = lower %
+      // Price range roughly Rs 10 to Rs 600 for stationary items
+      const priceClamp = Math.max(10, Math.min(sellingPrice, 600));
+      const ratio = (priceClamp - 10) / (600 - 10); // 0 (cheap) to 1 (expensive)
+      const baseMarkup = 39 - Math.round(ratio * 14); // 39% → 25%
+      const jitter = (idNum * 23 + 11) % 3; // 0, 1, or 2 variation
+      markupPercent = baseMarkup + jitter;
+      markupPercent = Math.max(25, Math.min(39, markupPercent));
+    } else {
+      // All other categories: 14% to 26% varied by product ID
+      markupPercent = 14 + (idNum * 37 + 13) % 13; // 14% to 26%
+    }
+    const rawMarket = sellingPrice * (1 + markupPercent / 100);
+    if (sellingPrice < 50) {
+      retailPrice = Math.ceil(rawMarket / 5) * 5;
+    } else if (sellingPrice < 200) {
+      retailPrice = Math.ceil(rawMarket / 10) * 10;
+    } else if (sellingPrice < 1000) {
+      retailPrice = Math.ceil(rawMarket / 10) * 10;
+    } else {
+      retailPrice = Math.ceil(rawMarket / 50) * 50;
+    }
+    if (retailPrice <= sellingPrice) {
+      retailPrice = sellingPrice + 10;
     }
   }
   if (retailPrice > sellingPrice && sellingPrice > 0) {
@@ -213,7 +259,8 @@ function getProductPricing(product) {
       retailPrice,
       sellingPrice,
       savings,
-      discountPercent
+      discountPercent,
+      isAutoMarket
     };
   }
   return {
@@ -221,7 +268,8 @@ function getProductPricing(product) {
     retailPrice: 0,
     sellingPrice,
     savings: 0,
-    discountPercent: 0
+    discountPercent: 0,
+    isAutoMarket: false
   };
 }
 function getProductDisplayName(product, language) {
@@ -641,15 +689,15 @@ function PerfumeIcon({
   }));
 }
 // --- Product Categories and Data ---
-var CATEGORIES = [{
+var DEFAULT_CATEGORIES = [{
   id: "soaps",
   name: "Soaps"
 }, {
   id: "shampoo",
-  name: "Shampoo & Conditioner"
+  name: "Shampoo & Conditioners"
 }, {
   id: "creams",
-  name: "Creams & Lotions"
+  name: "Creams & Lotions & Bleach"
 }, {
   id: "stationary",
   name: "Stationary & Tapes"
@@ -657,42 +705,43 @@ var CATEGORIES = [{
   id: "sports",
   name: "Sports & Toys"
 }, {
-  id: "birthday",
-  name: "Birthday"
-}, {
   id: "shaving",
   name: "Shaving & Razers & Blades"
 }, {
   id: "haircolour",
-  name: "Hair Colour & Care & Oil"
+  name: "Hair Colors & Care & Oils"
 }, {
   id: "condemn",
   name: "Condoms"
 }, {
   id: "lock",
-  name: "Lock & Cells"
+  name: "Locks & Cells & Lighters"
 }, {
   id: "general",
-  name: "General Item & Others"
+  name: "General Items & Others"
 }, {
   id: "babycare",
   name: "Baby Care & Powders"
 }, {
   id: "mosquito",
-  name: "Anti-Mosquito"
+  name: "Anti- Mosquitoes"
 }, {
   id: "personalcare",
   name: "Personal Care"
 }, {
   id: "fragnances",
-  name: "Fragnances"
+  name: "Fragnances & Roll on"
 }, {
   id: "toothpasteandbrush",
-  name: "Tooth Paste & Brush"
+  name: "Dental Cares"
 }, {
   id: "facewash",
-  name: "Face Wash"
+  name: "Face Wash & Body Washes"
 }];
+function getGlobalCategories() {
+  return typeof window !== 'undefined' && Array.isArray(window.CATEGORIES) && window.CATEGORIES.length > 0 ? window.CATEGORIES : DEFAULT_CATEGORIES;
+}
+var CATEGORIES = DEFAULT_CATEGORIES;
 var PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
 const BRAND_STOP_WORDS = new Set(["SOAP", "SOAPS", "SHAMPOO", "CONDITIONER", "CREAM", "LOTION", "POWDER", "SPRAY", "BODY", "FACE", "WASH", "TOOTH", "PASTE", "BRUSH", "RAZOR", "BLADE", "OIL", "HAIR", "COLOUR", "COLOR", "BALL", "PEN", "TOY", "TAPE", "CELL", "LOCK", "CANDLE", "PAD", "WIPES", "PERFUME", "PERFUMES", "DEO", "DEODORANT", "TALCUM", "ROOM", "FRESHNER", "FRESHENER", "ROLL", "ON", "AIR", "LARGE", "MEDIUM", "SMALL", "SACHET", "PACK", "PCS", "PIECE", "SIZE", "FULL", "HALF", "MIX", "ALL", "GOOD", "QUALITY", "ORIGINAL", "NON", "IMP", "PK", "RS", "RP", "ML", "G", "GM", "KG", "INCH", "BLACK", "WHITE", "BLUE", "GREEN", "RED", "PINK", "YELLOW", "GOLDEN", "BROWN", "ORANGE", "PURPLE", "DARK", "LIGHT"]);
@@ -1420,8 +1469,110 @@ function ProductDetailModal({
     className: "w-full py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
   }, tr(language, 'Close', 'Band Karein', 'بند کریں')))));
 }
+
+// -----------------------------------------------------------------------------
+// Variant Selection Modal (for Hair Colour Shades and options)
+// -----------------------------------------------------------------------------
+function VariantSelectionModal({
+  product,
+  open,
+  onClose,
+  onConfirm,
+  language,
+  langData
+}) {
+  if (!open || !product) return null;
+  const config = window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id] || {
+    title: "Select Option",
+    options: []
+  };
+  const [selectedOption, setSelectedOption] = useState(() => config.options[0] || "");
+  const [qty, setQty] = useState(1);
+  useEffect(() => {
+    if (config.options && config.options.length > 0) {
+      setSelectedOption(config.options[0]);
+    }
+    setQty(1);
+  }, [product]);
+  const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full max-w-lg bg-white rounded-3xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, ext ? /*#__PURE__*/React.createElement("img", {
+    src: `images/${product.id}.${ext}`,
+    alt: "",
+    className: "w-12 h-12 rounded-xl object-contain bg-white border border-gray-200 p-1 shrink-0"
+  }) : /*#__PURE__*/React.createElement("div", {
+    className: `w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient || 'from-gray-400 to-gray-600'} flex items-center justify-center shrink-0 text-slate-800 font-bold text-lg`
+  }, product.initial || 'P'), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "font-black text-slate-900 text-sm sm:text-base leading-snug"
+  }, toTitleCase(product.name)), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-extrabold text-emerald-600 mt-0.5"
+  }, "Rs ", product.price.toLocaleString()))), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100 transition-colors shrink-0 font-bold"
+  }, "✕")), /*#__PURE__*/React.createElement("div", {
+    className: "px-4 py-3 bg-amber-50 border-b border-amber-100 flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-base"
+  }, "🎨"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-black text-amber-900"
+  }, tr(language, 'Select Hair Colour Shade', 'Colour Shade / Number Chunain:', '\u06a9\u0644\u0631 \u0634\u06cc\u0688 \u0645\u0646\u062a\u062e\u0628 \u06a9\u0631\u06cc\u06ba:')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[10.5px] font-bold text-amber-700"
+  }, tr(language, 'Choose your preferred shade number before adding to cart', 'Cart mein add karne se pehle apna pasandida colour number select karein', '\u06a9\u0627\u0631\u067c \u0645\u06cc\u06ba \u0634\u0627\u0645\u0644 \u06a9\u0631\u0646\u06d2 \u0633\u06d2 \u067e\u06c1\u0644\u06d2 \u0627\u067e\u0646\u0627 \u06a9\u0644\u0631 \u0646\u0645\u0628\u0631 \u0645\u0646\u062a\u062e\u0628 \u06a9\u0631\u06cc\u06ba'))))), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 overflow-y-auto flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2"
+  }, config.options.map(opt => {
+    const isSelected = selectedOption === opt;
+    const spaceIdx = opt.indexOf(' ');
+    const num = spaceIdx > -1 ? opt.substring(0, spaceIdx) : '';
+    const label = spaceIdx > -1 ? opt.substring(spaceIdx + 1) : opt;
+    return /*#__PURE__*/React.createElement("button", {
+      key: opt,
+      type: "button",
+      onClick: () => setSelectedOption(opt),
+      className: `p-3 rounded-2xl border text-left flex items-center justify-between gap-2.5 transition-all duration-200 cursor-pointer ${isSelected ? 'border-emerald-600 bg-emerald-50/80 shadow-md ring-2 ring-emerald-500/20' : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'}`
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-2.5 min-w-0"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: `w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${isSelected ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 text-slate-700'}`
+    }, num || '•'), /*#__PURE__*/React.createElement("span", {
+      className: `text-xs font-bold truncate ${isSelected ? 'text-emerald-950 font-black' : 'text-slate-700'}`
+    }, label)), /*#__PURE__*/React.createElement("div", {
+      className: `w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-gray-300 bg-white'}`
+    }, isSelected && /*#__PURE__*/React.createElement("span", {
+      className: "text-[10px] font-bold"
+    }, "✓")));
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-t border-gray-100 bg-white flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 bg-slate-100 border border-slate-200 rounded-xl p-1 shrink-0"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setQty(q => Math.max(1, q - 1)),
+    className: "w-7 h-7 rounded-lg bg-white text-slate-800 font-black text-sm flex items-center justify-center hover:bg-slate-200 shadow-2xs cursor-pointer"
+  }, "-"), /*#__PURE__*/React.createElement("span", {
+    className: "w-6 text-center font-black text-xs text-slate-900"
+  }, qty), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setQty(q => q + 1),
+    className: "w-7 h-7 rounded-lg bg-white text-slate-800 font-black text-sm flex items-center justify-center hover:bg-slate-200 shadow-2xs cursor-pointer"
+  }, "+")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      if (!selectedOption) return;
+      onConfirm(product, selectedOption, qty);
+    },
+    className: "flex-1 py-3 px-4 rounded-2xl bg-black hover:bg-emerald-700 text-white font-black text-xs sm:text-sm tracking-wide uppercase shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+  }, /*#__PURE__*/React.createElement("span", null, "+ ", translate(langData, "addToCart")), /*#__PURE__*/React.createElement("span", {
+    className: "opacity-75 font-normal text-[11px]"
+  }, "(", selectedOption, ")")))));
+}
 function SahilTraders() {
-  const products = PRODUCTS;
+  const products = typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : PRODUCTS;
   const [aboutOpen, setAboutOpen] = useState(false);
   const [returnPolicyOpen, setReturnPolicyOpen] = useState(false);
   const [language, setLanguage] = useState("en");
@@ -1439,6 +1590,7 @@ function SahilTraders() {
   const [selectedCategory, setSelectedCategory] = useState(null); // null = show category home
   const [selectedBrand, setSelectedBrand] = useState("all");
   const [sortBy, setSortBy] = useState("default");
+  const [variantModalProduct, setVariantModalProduct] = useState(null);
   const [filterMenuOpen, setFilterMenuOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [catMenuOpen, setCatMenuOpen] = useState(false);
@@ -1629,25 +1781,33 @@ function SahilTraders() {
   }, [checkoutOpen, cartOpen, selectedCategory, selectedBrand, searchTerm, activeCategory, exitModalOpen]);
   const cartCount = cart.reduce((sum, i) => sum + i.qty, 0);
   const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.qty, 0);
-  function addToCart(product) {
+  function addToCart(product, variant = null, qtyToAdd = 1, sourceElement = null) {
+    if (window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id] && !variant) {
+      setVariantModalProduct(product);
+      return;
+    }
     setCart(prev => {
-      const existing = prev.find(i => i.product.id === product.id);
+      const existing = prev.find(i => i.product.id === product.id && (i.variant || null) === (variant || null));
       let next;
       if (existing) {
-        next = prev.map(i => i.product.id === product.id ? {
+        next = prev.map(i => i.product.id === product.id && (i.variant || null) === (variant || null) ? {
           ...i,
-          qty: i.qty + 1
+          qty: i.qty + qtyToAdd
         } : i);
       } else {
         next = [...prev, {
           product,
-          qty: 1
+          qty: qtyToAdd,
+          variant: variant || null
         }];
       }
       persistCartSnapshot(next);
       return next;
     });
     showCartNotice();
+    if (sourceElement) {
+      flyProductToCart(product, sourceElement);
+    }
   }
   function flyProductToCart(product, sourceElement) {
     const cartBtn = document.getElementById('cart-btn');
@@ -1777,9 +1937,9 @@ function SahilTraders() {
       setTimeout(finish, 2920);
     }
   }
-  function updateQty(productId, delta) {
+  function updateQty(productId, delta, variant = null) {
     setCart(prev => {
-      const updated = prev.map(i => i.product.id === productId ? {
+      const updated = prev.map(i => i.product.id === productId && (i.variant || null) === (variant || null) ? {
         ...i,
         qty: Math.max(0, i.qty + delta)
       } : i).filter(i => i.qty > 0);
@@ -1787,9 +1947,9 @@ function SahilTraders() {
       return updated;
     });
   }
-  function removeFromCart(productId) {
+  function removeFromCart(productId, variant = null) {
     setCart(prev => {
-      const updated = prev.filter(i => i.product.id !== productId);
+      const updated = prev.filter(i => !(i.product.id === productId && (i.variant || null) === (variant || null)));
       persistCartSnapshot(updated);
       return updated;
     });
@@ -1992,7 +2152,8 @@ function SahilTraders() {
   }
   // Show search results if searching, else show category home or products
   const showCategoryHome = !isSearching && !selectedCategory;
-  const selectedCategoryName = selectedCategory ? langData.categories?.[selectedCategory] || CATEGORIES.find(c => c.id === selectedCategory)?.name || selectedCategory : null;
+  const categoriesList = getGlobalCategories();
+  const selectedCategoryName = selectedCategory ? langData.categories?.[selectedCategory] || categoriesList.find(c => c.id === selectedCategory)?.name || selectedCategory : null;
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen relative text-gray-900 overflow-x-hidden",
     style: {
@@ -2652,7 +2813,7 @@ function SahilTraders() {
     product: p,
     langData: langData,
     language: language,
-    cartQty: cart.find(i => i.product.id === p.id)?.qty || 0,
+    cartQty: cart.filter(i => i.product.id === p.id).reduce((s, i) => s + i.qty, 0),
     onAddToCart: addToCart,
     onFlyToCart: flyProductToCart,
     onSelectProduct: selectProductWithHash
@@ -2760,6 +2921,16 @@ function SahilTraders() {
     langData: langData,
     language: language,
     onSelectProduct: selectProductWithHash
+  }), /*#__PURE__*/React.createElement(VariantSelectionModal, {
+    product: variantModalProduct,
+    open: !!variantModalProduct,
+    onClose: () => setVariantModalProduct(null),
+    language: language,
+    langData: langData,
+    onConfirm: (product, shade, qty) => {
+      setVariantModalProduct(null);
+      addToCart(product, shade, qty);
+    }
   }), /*#__PURE__*/React.createElement(ReturnPolicyModal, {
     isOpen: returnPolicyOpen,
     onClose: () => setReturnPolicyOpen(false),
@@ -3296,29 +3467,6 @@ const CATEGORY_META = {
       d: "M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"
     }))
   },
-  birthday: {
-    image: '',
-    gradient: 'linear-gradient(135deg,#ff9a9e,#fecfef)',
-    icon: /*#__PURE__*/React.createElement("svg", {
-      style: {
-        width: 40,
-        height: 40,
-        color: 'white'
-      },
-      fill: "none",
-      stroke: "currentColor",
-      strokeWidth: "1.8",
-      viewBox: "0 0 24 24"
-    }, /*#__PURE__*/React.createElement("path", {
-      d: "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"
-    }), /*#__PURE__*/React.createElement("circle", {
-      cx: "12",
-      cy: "7",
-      r: "4"
-    }), /*#__PURE__*/React.createElement("path", {
-      d: "M12 1v3M10 2h4"
-    }))
-  },
   tapes: {
     image: '',
     gradient: 'linear-gradient(135deg,#a1c4fd,#c2e9fb)',
@@ -3654,6 +3802,7 @@ function CategoryHome({
   language
 }) {
   const isUrdu = language === 'ur';
+  const categoriesList = getGlobalCategories();
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 10,
@@ -3683,9 +3832,9 @@ function CategoryHome({
       padding: '2px 8px',
       whiteSpace: 'nowrap'
     }
-  }, CATEGORIES.length, " Categories · ", products.length.toLocaleString(), "+ Items")), /*#__PURE__*/React.createElement("div", {
+  }, categoriesList.length, " Categories · ", products.length.toLocaleString(), "+ Items")), /*#__PURE__*/React.createElement("div", {
     className: "cat-home-grid"
-  }, CATEGORIES.map(cat => {
+  }, categoriesList.map(cat => {
     const catProducts = products.filter(p => p.categoryId === cat.id);
     const count = catProducts.length;
     const meta = CATEGORY_META[cat.id] || {
@@ -3896,6 +4045,7 @@ function CategoryDropdown({
   langData,
   language
 }) {
+  const categoriesList = getGlobalCategories();
   return /*#__PURE__*/React.createElement("div", {
     className: `absolute mt-2 ${fullWidth ? "w-full" : "w-64 right-0"} backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-40 max-h-80 overflow-y-auto border`,
     style: {
@@ -4070,16 +4220,19 @@ function CartDrawer({
       document.body.style.overflow = '';
     };
   }, [open]);
-  function handleMinusClick(productId, qty) {
+  function handleMinusClick(productId, qty, variant = null) {
     if (qty === 1) {
-      setDeleteConfirm(productId);
+      setDeleteConfirm({
+        id: productId,
+        variant
+      });
     } else {
-      onUpdateQty(productId, -1);
+      onUpdateQty(productId, -1, variant);
     }
   }
   function confirmDelete() {
     if (deleteConfirm) {
-      onRemove(deleteConfirm);
+      onRemove(deleteConfirm.id, deleteConfirm.variant);
       setDeleteConfirm(null);
     }
   }
@@ -4296,11 +4449,12 @@ function CartDrawer({
     }
   }, cart.map(({
     product,
-    qty
+    qty,
+    variant
   }) => {
     const pricing = getProductPricing(product);
     return /*#__PURE__*/React.createElement("div", {
-      key: product.id,
+      key: `${product.id}-${variant || ''}`,
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -4348,7 +4502,7 @@ function CartDrawer({
         fontWeight: 600,
         color: '#1a1a2e',
         lineHeight: 1.3,
-        marginBottom: 4,
+        marginBottom: 2,
         overflow: 'hidden',
         display: '-webkit-box',
         WebkitLineClamp: 2,
@@ -4356,7 +4510,23 @@ function CartDrawer({
       },
       className: "hover:text-black hover:underline transition-colors",
       title: "Click to view product details"
-    }, getProductDisplayName(product, language)), /*#__PURE__*/React.createElement("div", {
+    }, getProductDisplayName(product, language)), variant && /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 1,
+        marginBottom: 3
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 10.5,
+        fontWeight: 800,
+        color: '#92400e',
+        background: '#fef3c7',
+        border: '1px solid #fde68a',
+        borderRadius: 6,
+        padding: '2px 7px',
+        display: 'inline-block'
+      }
+    }, "🎨 Shade: ", variant)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -4425,7 +4595,7 @@ function CartDrawer({
         border: '1px solid rgba(0,0,0,0.12)'
       }
     }, qty === 1 ? /*#__PURE__*/React.createElement("button", {
-      onClick: () => handleMinusClick(product.id, qty),
+      onClick: () => handleMinusClick(product.id, qty, variant),
       title: "Remove item",
       style: {
         width: 28,
@@ -4460,51 +4630,49 @@ function CartDrawer({
       strokeLinejoin: "round",
       d: "M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
     }))) : /*#__PURE__*/React.createElement("button", {
-      onClick: () => handleMinusClick(product.id, qty),
+      onClick: () => onUpdateQty(product.id, -1, variant),
+      title: "Decrease quantity",
       style: {
         width: 28,
         height: 28,
         border: 'none',
-        background: 'none',
-        color: '#000000',
-        fontSize: 20,
-        fontWeight: 700,
+        background: '#ffffff',
+        color: '#111827',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 8,
-        transition: 'background 0.2s'
-      },
-      onMouseEnter: e => e.currentTarget.style.background = 'rgba(0,0,0,0.12)',
-      onMouseLeave: e => e.currentTarget.style.background = 'none'
-    }, "−"), /*#__PURE__*/React.createElement("span", {
+        fontWeight: 900,
+        fontSize: 15,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      }
+    }, "-"), /*#__PURE__*/React.createElement("span", {
       style: {
-        minWidth: 24,
-        textAlign: 'center',
-        fontSize: 14,
-        fontWeight: 700,
-        color: '#1a1a2e'
+        fontSize: 13,
+        fontWeight: 900,
+        color: '#111827',
+        width: 20,
+        textAlign: 'center'
       }
     }, qty), /*#__PURE__*/React.createElement("button", {
-      onClick: () => onUpdateQty(product.id, 1),
+      onClick: () => onUpdateQty(product.id, 1, variant),
+      title: "Increase quantity",
       style: {
         width: 28,
         height: 28,
         border: 'none',
-        background: 'none',
-        color: '#000000',
-        fontSize: 20,
-        fontWeight: 700,
+        background: '#ffffff',
+        color: '#111827',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 8,
-        transition: 'background 0.2s'
-      },
-      onMouseEnter: e => e.currentTarget.style.background = 'rgba(0,0,0,0.12)',
-      onMouseLeave: e => e.currentTarget.style.background = 'none'
+        fontWeight: 900,
+        fontSize: 15,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      }
     }, "+"))));
   }))), deleteConfirm && /*#__PURE__*/React.createElement("div", {
     onClick: () => setDeleteConfirm(null),
@@ -5304,11 +5472,14 @@ function CheckoutModal({
       return;
     }
     setPlacing(true);
-    // Build item lines for WhatsApp message
     const itemLines = cart.map(({
       product,
-      qty
-    }) => `• ${product.name}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`).join('\n\n');
+      qty,
+      variant
+    }) => {
+      const shadeText = variant ? `\n   🎨 Shade / Colour: ${variant}` : '';
+      return `• ${product.name}${shadeText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`;
+    }).join('\n\n');
     const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (BS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
     const msg = ['🛒 *NEW ORDER – Sahil Traders*', '═════════════════════════', '', '*📦 ORDER DETAILS:*', itemLines, '', '═════════════════════════', `*Subtotal:* Rs ${cartTotal.toLocaleString()}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '═════════════════════════', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}` : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '═════════════════════════', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
       day: '2-digit',
@@ -5339,22 +5510,22 @@ function CheckoutModal({
       grandTotal,
       items: cart.map(({
         product,
-        qty
+        qty,
+        variant
       }) => ({
         id: product.id,
         name: product.name,
         price: product.price,
         qty,
+        variant: variant || null,
         total: product.price * qty,
         initial: product.initial,
         imageExt: window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? window.PRODUCT_IMAGE_MAP[product.id] : null
       }))
     };
-    // Open WhatsApp immediately
     try {
       window.open(waUrl, '_blank');
     } catch (err) {}
-    // Save order to history & clear cart
     if (typeof saveOrderHistory === 'function') {
       saveOrderHistory(orderRecord);
     }
@@ -5557,8 +5728,8 @@ function CheckoutModal({
       maxHeight: 150,
       overflowY: 'auto'
     }
-  }, placedOrder.items.map(item => /*#__PURE__*/React.createElement("div", {
-    key: item.id,
+  }, placedOrder.items.map((item, idx) => /*#__PURE__*/React.createElement("div", {
+    key: idx,
     style: {
       display: 'flex',
       justifyContent: 'space-between',
@@ -5566,15 +5737,31 @@ function CheckoutModal({
       gap: 8,
       fontSize: 12
     }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       fontWeight: 700,
       color: '#0f172a',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      display: 'block'
     }
-  }, toTitleCase(item.name)), /*#__PURE__*/React.createElement("span", {
+  }, toTitleCase(item.name)), item.variant && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      fontWeight: 800,
+      color: '#92400e',
+      background: '#fef3c7',
+      padding: '1px 5px',
+      borderRadius: 4,
+      display: 'inline-block',
+      marginTop: 1
+    }
+  }, "Shade: ", item.variant)), /*#__PURE__*/React.createElement("span", {
     style: {
       color: '#475569',
       fontWeight: 800,
@@ -5661,7 +5848,7 @@ function CheckoutModal({
     fill: "currentColor"
   }, /*#__PURE__*/React.createElement("path", {
     d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
-  })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Open WhatsApp Chat', 'WhatsApp par Chat Kholein', '\u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0686\u0627\u067c \u06a9\u06be\u0648\u0644\u06cc\u06ba'))), /*#__PURE__*/React.createElement("button", {
+  })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Open WhatsApp Chat', 'WhatsApp par Chat Kholein', '\u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0686\u0627\u067c \u06a9\u06be\u0644\u06cc\u06ba'))), /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
     style: {
       background: '#111827',
@@ -5784,9 +5971,10 @@ function CheckoutModal({
     }
   }, cart.map(({
     product,
-    qty
+    qty,
+    variant
   }) => /*#__PURE__*/React.createElement("div", {
-    key: product.id,
+    key: `${product.id}-${variant || ''}`,
     style: {
       display: 'flex',
       justifyContent: 'space-between',
@@ -5815,15 +6003,31 @@ function CheckoutModal({
       fontSize: 10,
       fontWeight: 800
     }
-  }, product.initial)), /*#__PURE__*/React.createElement("span", {
+  }, product.initial)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 12,
       color: '#1a1a2e',
+      margin: 0,
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap'
     }
-  }, toTitleCase(product.name))), /*#__PURE__*/React.createElement("span", {
+  }, toTitleCase(product.name)), variant && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9.5,
+      fontWeight: 800,
+      color: '#92400e',
+      background: '#fef3c7',
+      border: '1px solid #fde68a',
+      borderRadius: 4,
+      padding: '0.5px 4px',
+      display: 'inline-block'
+    }
+  }, "Shade: ", variant))), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 12,
       color: '#000000',

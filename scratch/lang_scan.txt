@@ -1,0 +1,227 @@
+﻿189:       if (language === "ur" && product.nameUrdu) {
+1536:   const isUrdu = language === 'ur';
+1567:             {isUrdu ? 'کراچی کا قابلِ اعتماد ہول سیل و پرچون اسٹور — قائم شدہ 2021' : 'Trusted Wholesale & Retail Store — Est. 2021, Karachi'}
+1576:               ⚠️ {isUrdu ? 'قیمتوں اور اسٹاک سے متعلق ضروری اعلان' : 'Important Notice — Please Read!'}
+1578:             <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose text-red-950 font-bold' : 'text-xs text-red-950 leading-relaxed font-semibold'}>
+1579:               {isUrdu
+1589:               <span>{isUrdu ? 'ہماری کہانی (Our Story)' : 'Our Story Since 2021'}</span>
+1591:             <p className={isUrdu ? 'font-urdu text-right text-sm leading-loose' : 'text-xs sm:text-sm text-gray-700 leading-normal'}>
+1592:               {isUrdu 
+1602:               🔥 {isUrdu ? 'سب سے منفرد بات — شرطیہ' : 'Guaranteed Lowest Rates'}
+1606:               <span className="tracking-wide">{isUrdu ? 'پاکستان کے بڑے سے بڑے سپر مارٹ سے سستا!' : 'Lower Rates Than Any Supermart'}</span>
+1608:             <p className={isUrdu ? 'font-urdu text-right text-xs sm:text-sm font-semibold leading-relaxed text-amber-50' : 'text-xs sm:text-sm font-medium leading-relaxed text-amber-50'}>
+1609:               {isUrdu
+1619:               <span>{isUrdu ? 'قیادت اور پارٹنرشپ (Leadership & Partnership)' : 'Leadership & Partnership'}</span>
+1630:                     {isUrdu ? 'دکان کے مالکان (بڑے بھائی)' : 'Shop Owner (Elder Brother)'}
+1636:                     {isUrdu ? 'آنر BS Mart' : 'Owner — BS Mart'}
+1648:                     {isUrdu ? 'ویب سائٹ میکر اور پارٹنر' : 'Website Creator & Partner'}
+1654:                     {isUrdu ? 'بانی و ڈیولپر' : 'Founder & Developer'}
+1660:             <p className={isUrdu ? 'font-urdu text-right text-xs text-amber-200/90 pt-1 leading-relaxed' : 'text-xs text-amber-200/90 pt-1 leading-relaxed'}>
+1661:               {isUrdu 
+1672:                 <span>{isUrdu ? 'ہماری فزیکل دکان (BS Mart)' : 'Visit Our Physical Shop (BS Mart)'}</span>
+1675:                 {isUrdu ? 'BS مارٹ' : 'BS Mart'}
+1678:             <p className={isUrdu ? 'font-urdu text-right text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold' : 'text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold'}>
+1679:               {isUrdu 
+1690:               <div className="text-[11px] text-gray-600 font-medium mt-0.5">{isUrdu ? 'مصنوعات کی ورائٹی' : 'Total Products'}</div>
+1694:               <div className="font-black text-gray-900 text-sm">{isUrdu ? 'ہول سیل ریٹس' : 'Wholesale Rates'}</div>
+1695:               <div className="text-[11px] text-gray-600 font-medium mt-0.5">{isUrdu ? 'عام گاہکوں کے لیے' : 'For Everyone'}</div>
+1700:               <div className="text-[11px] text-gray-600 font-medium mt-0.5">{isUrdu ? 'اصلی برانڈز' : 'Genuine Brands'}</div>
+1704:               <div className="font-black text-gray-900 text-sm">{isUrdu ? 'فاسٹ ڈیلیوری' : 'Fast Delivery'}</div>
+1705:               <div className="text-[11px] text-gray-600 font-medium mt-0.5">{isUrdu ? 'پورے پاکستان میں' : 'Across Pakistan'}</div>
+1713:               <span>{isUrdu ? 'اوقاتِ کار (Business Hours)' : 'Store Business Hours'}</span>
+1717:                 <div className="font-bold text-gray-900">{isUrdu ? 'پیر تا ہفتہ (Monday to Saturday):' : 'Monday to Saturday:'}</div>
+1718:                 <div className="text-purple-700 font-extrabold text-sm mt-0.5">{isUrdu ? 'صبح 8:00 بجے سے رات 11:30 بجے تک' : '8:00 AM – 11:30 PM'}</div>
+1721:                 {isUrdu ? 'کھلا ہے' : 'Open'}
+1730:               <span>{isUrdu ? 'ہماری خصوصیات (Why Choose Us)' : 'Why Customers Trust Us'}</span>
+1733:               <li>{isUrdu ? '2021 سے خاندانی اعتماد کے ساتھ خدمت' : 'Family business serving with trust since 2021'}</li>
+1734:               <li>{isUrdu ? 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)' : 'Free delivery on orders above Rs. 2,000'}</li>
+1735:               <li>{isUrdu ? 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)' : 'Same-day return & exchange policy'}</li>
+1736:               <li>{isUrdu ? 'براہِ راست واٹس ایپ پر فوری سپورٹ' : 'Direct WhatsApp customer support'}</li>
+1745:                 <span>{isUrdu ? 'دکان کا مکمل پتہ اور نقشہ' : 'Store Address & Exact Location'}</span>
+1753:                 {isUrdu ? 'نقشہ کھولیں ↗' : 'Open Map ↗'}
+1762:                   {isUrdu ? 'R4C4+RV6، سفید مسجد روڈ، اللہ والا ٹاؤن سیکٹر ایچ، کورنگی، کراچی، پاکستان' : 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan'}
+1783:             href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(isUrdu ? 'سلام! میں ساحل ٹریڈرز کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔' : 'Hi Sahil Traders! I have an inquiry about your store.')}`}
+1789:             <span>{isUrdu ? 'واٹس ایپ پر رابطہ کریں' : 'Chat on WhatsApp'}</span>
+1795:             {isUrdu ? 'بند کریں' : 'Close'}
+1805:   const isUrdu = language === 'ur';
+1830:             {isUrdu ? '\u0648\u0627\u067e\u0633\u06cc \u0627\u0648\u0631 \u062a\u0628\u062f\u06cc\u0644\u06cc \u06a9\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc' : 'Return & Exchange Policy'}
+1833:             {isUrdu ? '\u0633\u0627\u062d\u0644 \u0679\u0631\u06cc\u0688\u0631\u0632 - 100% \u062a\u0633\u0644\u06cc \u0627\u0648\u0631 \u0636\u0645\u0627\u0646\u062a' : '100% Guaranteed Customer Protection & Care'}
+1843:               <span>{isUrdu ? '\u0627\u06af\u0631 \u067e\u0631\u0648\u0688\u06a9\u067c \u062e\u0631\u0627\u0628 \u06cc\u0627 \u0644\u06cc\u06a9 \u0646\u06a9\u0644\u06d2 \u062a\u0648 \u06a9\u06cc\u0627 \u06c1\u0648\u06af\u0627\u061f' : 'What Happens If Product Is Damaged or Faulty?'}</span>
+1845:             <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose text-emerald-950 font-bold' : 'text-xs text-emerald-950 leading-relaxed font-semibold'}>
+1846:               {isUrdu
+1858:                 <span>{isUrdu ? '\u0627\u0633\u06cc \u062f\u0646 (Same Day) \u06a9\u06cc \u0633\u06c1\u0648\u0644\u062a' : 'Same-Day Return & Exchange'}</span>
+1861:                 {isUrdu
+1870:                 <span>{isUrdu ? '\u0645\u0641\u062a \u062a\u0628\u062f\u06cc\u0644\u06cc \u0688\u0644\u06cc\u0648\u0631\u06cc' : 'Free Pickup & Delivery'}</span>
+1873:                 {isUrdu
+1883:                 <span>{isUrdu ? '\u062f\u06a9\u0627\u0646 \u067e\u0631 \u0628\u0631\u0627\u06c1\u0650 \u0631\u0627\u0633\u062a \u062a\u0628\u062f\u06cc\u0644\u06cc' : 'In-Store Exchange'}</span>
+1886:                 {isUrdu
+1896:                 <span>{isUrdu ? '\u0641\u0648\u0631\u06cc \u0631\u06cc \u0641\u0646\u0688 (Refund)' : 'Instant Refund Option'}</span>
+1899:                 {isUrdu
+1910:               <span>{isUrdu ? '\u06a9\u0644\u06cc\u0645 \u06a9\u0631\u0646\u06d2 \u06a9\u0627 \u0622\u0633\u0627\u0646 \u0637\u0631\u06cc\u0642\u06c1 (How to Claim):' : 'Easy 3-Step Claim Process:'}</span>
+1917:                   <span className="font-bold text-gray-900">{isUrdu ? '\u0648\u0627\u067e\u0633 \u06cc\u0627 \u062a\u0628\u062f\u06cc\u0644 \u06a9\u06cc \u062a\u0635\u0648\u06cc\u0631 \u0628\u06be\u06cc\u062c\u06cc\u06ba:' : 'Send Photo/Video on WhatsApp:'}</span>
+1918:                   <p className="text-[11px] text-gray-600 mt-0.5">{isUrdu ? '\u062e\u0631\u0627\u0628 \u06cc\u0627 \u0644\u06cc\u06a9 \u0634\u062f\u06c1 \u0686\u06cc\u0632 \u06a9\u06cc \u062a\u0635\u0648\u06cc\u0631 \u06c1\u0645\u0627\u0631\u06d2 \u0648\u0627\u067e\u0633 \u0627\u06cc\u067e (03368945775) \u067e\u0631 \u0628\u06be\u06cc\u062c\u06cc\u06ba\u06d5' : 'Take a quick photo or video of the damaged item & WhatsApp to 03368945775.'}</p>
+1925:                   <span className="font-bold text-gray-900">{isUrdu ? '\u0641\u0648\u0631\u06cc \u062a\u0635\u062f\u06cc\u0642:' : 'Instant Verification:'}</span>
+1926:                   <p className="text-[11px] text-gray-600 mt-0.5">{isUrdu ? '\u06c1\u0645\u0627\u0631\u06cc \u067c\u06cc\u0645 10 \u0645\u0646\u067c \u06a9\u06d2 \u0627\u0646\u062f\u0631 \u0622\u067e \u06a9\u0627 \u06a9\u0644\u06cc\u0645 \u0645\u0646\u0638\u0648\u0631 \u06a9\u0631\u06d2 \u06af\u06cc\u06d5' : 'Our customer support team will verify & approve your claim instantly.'}</p>
+1933:                   <span className="font-bold text-gray-900">{isUrdu ? '\u062a\u0628\u062f\u06cc\u0644\u06cc \u06cc\u0627 \u0631\u06cc \u0641\u0646\u0688:' : 'Replacement / Refund Sent:'}</span>
+1934:                   <p className="text-[11px] text-gray-600 mt-0.5">{isUrdu ? '\u0631\u0627\u0626\u0688\u0631 \u0646\u0626\u06cc \u0686\u06cc\u0632 \u062f\u06d2 \u06a9\u0631 \u067e\u0631\u0627\u0646\u06cc \u0644\u06d2 \u062c\u0627\u0626\u06d2 \u06af\u0627 \u06cc\u0627 \u067e\u06cc\u0633\u06d2 \u0631\u06cc \u0641\u0646\u0688 \u06c1\u0648\u06ba \u06af\u06d2\u06d5' : 'Our rider will replace the item at your doorstep or send your money refund.'}</p>
+1944:             href={`https://wa.me/923368945775?text=${encodeURIComponent(isUrdu ? '\u0633\u0644\u0627\u0645! \u0645\u062c\u06be\u06d2 \u067e\u0631\u0648\u0688\u06a9\u0679 \u06a9\u06cc \u062a\u0628\u062f\u06cc\u0644\u06cc/\u0648\u0627\u067e\u0633\u06cc \u06a9\u0627 \u06a9\u0644\u06cc\u0645 \u06a9\u0631\u0646\u0627 \u06c1\u06d2\u06d4' : 'Hi Sahil Traders! I want to claim a product return/exchange.')}`}
+1950:             <span>{isUrdu ? '\u0648\u0627\u067e\u0633\u06cc \u06a9\u0627 \u06a9\u0644\u06cc\u0645 \u06a9\u0631\u06cc\u06ba' : 'Claim Return on WhatsApp'}</span>
+1956:             {isUrdu ? '\u0628\u0646\u062f \u06a9\u0631\u06cc\u06ba' : 'Close'}
+1965:   const isUrdu = language === 'ur';
+1981:           {isUrdu ? 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ' : 'Assalam U alaikum!'}
+1984:           {isUrdu ? 'ساحل ٹریڈرز میں خوش آمدید' : 'Welcome to Sahil Traders'}
+1989:             📢 {isUrdu ? 'ضروری گزارش / اعلان' : 'Important Notice'}
+1991:           <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose' : 'text-xs text-gray-700 leading-normal text-left'}>
+1992:             {isUrdu 
+2006:             📖 {isUrdu ? 'ہماری معلومات پڑھیں (Read About Us)' : 'Read About Us'}
+2013:             {isUrdu ? 'ٹھیک ہے، آگے بڑھیں' : 'Understood, Continue'}
+2021: function ProductDetailModal({ product, open, onClose, onAddToCart, products, langData, language, onSelectProduct }) {
+2023:   const isUrdu = language === 'ur';
+2068:               {isUrdu ? 'پروڈکٹ کی مکمل تفصیلات' : 'Product Details & Info'}
+2073:                 <span>{pricing.discountPercent}% {isUrdu ? 'رعایت' : 'OFF'}</span>
+2077:                 {isUrdu ? 'بہترین ہول سیل ریٹ' : 'Wholesale Rate'}
+2125:                   {isUrdu ? '✓ اسٹاک میں دستیاب' : '✓ In Stock'}
+2144:                         {isUrdu ? 'ہماری ہول سیل قیمت' : 'Wholesale Selling Price'}
+2164:                       {isUrdu 
+2176:                     {isUrdu ? 'سپر مارکیٹ سے سستا' : 'Cheaper than Supermarts'}
+2184:                   {isUrdu ? 'تعداد (Quantity):' : 'Quantity:'}
+2215:                   <span>{translate(langData, "addToCart")}</span>
+2223:                   <span>{isUrdu ? 'واٹس ایپ پر آرڈر کریں' : 'Buy on WhatsApp'}</span>
+2234:                 <div className="font-bold text-gray-900">{isUrdu ? '100% اصلی آئٹم' : '100% Original'}</div>
+2235:                 <div className="text-[10px] text-gray-500">{isUrdu ? 'گارنٹی شدہ معیار' : 'Guaranteed Quality'}</div>
+2241:                 <div className="font-bold text-gray-900">{isUrdu ? 'ہوم ڈیلیوری' : 'Home Delivery'}</div>
+2242:                 <div className="text-[10px] text-gray-500">{isUrdu ? 'Rs. 2000+ پر مفت' : 'Free on Rs 2000+'}</div>
+2248:                 <div className="font-bold text-gray-900">{isUrdu ? 'دکان سے پک اپ' : 'Store Pickup'}</div>
+2249:                 <div className="text-[10px] text-gray-500">{isUrdu ? 'BS Mart دکان سے لیں' : 'BS Mart Shop Karachi'}</div>
+2260:                   <span>{isUrdu ? 'یہ بھی دیکھیں (Related Products)' : 'You May Also Like'}</span>
+2263:                   {relatedProducts.length} {isUrdu ? 'مصنوعات' : 'items'}
+2338:             {isUrdu ? 'بند کریں' : 'Close'}
+2737:       const langData = useMemo(() => {
+2908:         ? (langData.categories?.[selectedCategory] || CATEGORIES.find(c => c.id === selectedCategory)?.name || selectedCategory)
+2912:         <div className="min-h-screen relative text-gray-900 overflow-x-hidden" style={{ fontFamily: language === 'ur' ? "'Noto Sans Urdu', 'Inter', sans-serif" : "'Inter', system-ui, sans-serif" }}>
+2956:                 {translate(langData, "skipIntro")}
+2999:                 <span className="text-amber-400 font-bold">⏰ {language === 'ur' ? 'ڈیلیوری ٹائمنگ:' : 'Delivery Timing:'}</span>
+3000:                 <span className="font-semibold text-white">{language === 'ur' ? 'صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : '10:00 AM – 8:00 PM (Mon – Sat)'}</span>
+3003:                 <span>📍 {language === "ur" ? "ڈلیوری صرف کراچی کے لئے دستیاب ہے" : "Delivery in Karachi Only"}</span>
+3005:                 <span>🚚 {language === 'ur' ? 'مفت ڈیلیوری Rs. 2,000 سے زائد پر' : 'Free Shipping on Rs. 2,000+'}</span>
+3007:                 <span>💬 {language === 'ur' ? 'واٹس ایپ آرڈرز جاری' : 'WhatsApp Orders Active'}</span>
+3009:                 <a href="tel:03368945775" className="hover:underline text-white font-bold flex items-center gap-1 text-decoration-none"><span>📞</span><span>{language === "ur" ? "\u06a9\u0627\u0644: 0336-8945775" : "Call: 0336-8945775"}</span></a>
+3057:                     <span className="hidden sm:inline">{language === 'ur' ? '\u0648\u0627\u067e\u0633\u06cc \u06a9\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc' : 'Return Policy'}</span>
+3066:                     <span className="hidden sm:inline">{language === 'ur' ? '\u06a9\u0627\u0644: 0336-8945775' : 'Call: 0336-8945775'}</span>
+3075:                     <span className="hidden sm:inline">{language === 'ur' ? '\u06c1\u0645\u0627\u0631\u06d2 \u0628\u0627\u0631\u06d2 \u0645\u06cc\u06ba' : 'About Us'}</span>
+3085:                     <span className="hidden sm:inline">{language === 'ur' ? '\u0622\u0631\u0688\u0631 \u06c1\u0633\u0679\u0631\u06cc' : 'Orders'}</span>
+3105:                     <span className="hidden sm:inline">{language === 'ur' ? '\u06a9\u0627\u0631\u0679' : 'Cart'}</span>
+3164:                     placeholder={translate(langData, "searchPlaceholder")}
+3193:                           <span className="font-bold whitespace-nowrap ml-3" style={{ color: '#000000' }}>{translate(langData, 'priceLabel', { amount: s.price.toLocaleString() })}</span>
+3197:                       <p className="px-4 py-3 text-sm" style={{ color: '#777777' }}>{translate(langData, "noMatch")}</p>
+3211:                 langData={langData}
+3229:                       <span>{translate(langData, "backBtn") || "BACK"}</span>
+3237:                       {filtered.length} {translate(langData, "itemsLabel")}
+3250:                       {language === 'ur' ? 'ترتیب:' : 'Sort:'}
+3257:                       <option value="default">{language === 'ur' ? 'عام ترتیب (Default)' : 'Default Order'}</option>
+3258:                       <option value="price_asc">{language === 'ur' ? 'قیمت: کم سے زیادہ (Low to High)' : 'Price: Low to High'}</option>
+3259:                       <option value="price_desc">{language === 'ur' ? 'قیمت: زیادہ سے کم (High to Low)' : 'Price: High to Low'}</option>
+3260:                       <option value="popularity">{language === 'ur' ? 'مقبول ترین (Popularity)' : 'Popularity / Featured'}</option>
+3261:                       <option value="name_asc">{language === 'ur' ? 'نام: A سے Z (Name: A-Z)' : 'Name: A to Z'}</option>
+3347:                         <ProductCard key={p.id} product={p} langData={langData} language={language} cartQty={cart.find(i => i.product.id === p.id)?.qty || 0} onAddToCart={addToCart} onFlyToCart={flyProductToCart} onSelectProduct={selectProductWithHash} />
+3369:                             {language === 'ur'
+3385:                   <span>{language === 'ur' ? 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)' : 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)'}</span>
+3393:                     <span>{language === 'ur' ? 'ہمارے بارے میں (About Sahil Traders)' : 'About Sahil Traders'}</span>
+3396:                 <p className="text-xs tracking-[0.3em] uppercase" style={{ color: 'rgba(0,0,0,0.12)' }}>{translate(langData, "footer")}</p>
+3408:                       {translate(langData, "added")}
+3421:                 langData={langData}
+3457:                 langData={langData}
+3469:                 langData={langData}
+3480:                   langData={langData}
+3511:                             <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u0645\u06cc\u06ba \u0645\u06cc\u0646\u0648' : 'Main Menu'}</p>
+3526:                           <span>{language === 'ur' ? '\u0632\u0628\u0627\u0646 \u062a\u0628\u062f\u06cc\u0644 \u06a9\u0631\u06cc\u06ba' : language === 'ro' ? 'Zaban Tabdeel Karein' : 'Switch Language'}</span>
+3527:                           <span className="text-[10px] text-gray-500 font-normal">{language === 'ur' ? '\u0627\u0631\u062f\u0648 \u0641\u0639\u0627\u0644 \u06c1\u06d2' : language === 'ro' ? 'Roman Urdu Active' : 'English Active'}</span>
+3533:                               language === 'en'
+3543:                               language === 'ro'
+3553:                               language === 'ur'
+3575:                               <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u0622\u0631\u0688\u0631 \u06c1\u0633\u0679\u0631\u06cc' : 'Order History'}</p>
+3576:                               <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u067e\u0686\u06be\u0644\u06d2 \u0622\u0631\u0688\u0631\u0632 \u0627\u0648\u0631 \u0631\u0633\u06cc\u062f\u06cc\u06ba' : 'View past orders & receipts'}</p>
+3598:                               <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u0648\u0627\u067e\u0633\u06cc \u0627\u0648\u0631 \u062a\u0628\u062f\u06cc\u0644\u06cc \u06a9\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc' : 'Return & Exchange Policy'}</p>
+3599:                               <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u062e\u0631\u0627\u0628 \u0686\u06cc\u0632 \u06a9\u06cc 100% \u062a\u0628\u062f\u06cc\u0644\u06cc \u06cc\u0627 \u0631\u06cc \u0641\u0646\u0688' : '100% replacement or money refund'}</p>
+3614:                               <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u0628\u0631\u0627\u06c1\u0650 \u0631\u0627\u0633\u062a \u0641\u0648\u0646 \u06a9\u0627\u0644 (0336-8945775)' : 'Direct Phone Call (0336-8945775)'}</p>
+3615:                               <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u0641\u0648\u0631\u06cc \u06a9\u0627\u0644 \u06a9\u0631 \u06a9\u06d2 \u0645\u0639\u0644\u0648\u0645\u0627\u0622 \u06cc\u0627 \u0622\u0631\u0688\u0631 \u062f\u06cc\u06ba' : 'Tap to call us directly'}</p>
+3630:                               <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u06c1\u0645\u0627\u0631\u06d2 \u0628\u0627\u0631\u06d2 \u0645\u06cc\u06ba' : 'About Us'}</p>
+3631:                               <p className="text-[11px] text-gray-500">{language === 'ur' ? '\u062f\u06a9\u0627\u0646 \u06a9\u06cc \u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0627\u0648\u0631 \u0627\u0648\u0642\u0627\u062a' : 'Shop info, timings & owners'}</p>
+3647:                               <p className="text-xs font-bold text-gray-900">{language === 'ur' ? '\u0634\u0627\u067e\u0646\u06af \u06a9\u0627\u0631\u0679' : 'Shopping Cart'}</p>
+3648:                               <p className="text-[11px] text-gray-500">{cartCount > 0 ? (language === 'ur' ? `${cartCount} \u0627\u0634\u06cc\u0627\u0621 \u0645\u0648\u062c\u0648\u062f \u06c1\u06cc\u06ba` : `${cartCount} items in cart`) : (language === 'ur' ? '\u06a9\u0627\u0631\u0679 \u062e\u0627\u0644\u06cc \u06c1\u06d2' : 'Cart is empty')}</p>
+3672:                         <span>{language === 'ur' ? '\u0648\u0627\u067c\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0631\u0627\u0628\u0637\u06c1 \u06a9\u0631\u06cc\u06ba' : 'WhatsApp (+92 336 8945775)'}</span>
+3676:                         <p className="font-semibold text-gray-700">{language === 'ur' ? '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)' : 'Delivery Timing: 10:00 AM \u2013 8:00 PM (Mon \u2013 Sat)'}</p>
+3677:                         <p>{language === 'ur' ? '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646' : 'Sahil Saleem & Muhammad Zubair Moin'}</p>
+3695:                         {language === 'ur' ? 'ویب سائٹ سے باہر جانا چاہتے ہیں؟' : 'Exit Sahil Traders?'}
+3698:                         {language === 'ur' ? 'کیا آپ واقعی Sahil Traders بند کرنا چاہتے ہیں؟' : 'Are you sure you want to leave the store?'}
+3709:                         {language === 'ur' ? 'نہیں، واپس رہیں' : 'No, Stay'}
+3717:                         {language === 'ur' ? 'ہاں، باہر جائیں' : 'Yes, Exit'}
+3759:     function CategoryHome({ products, onSelectCategory, langData, language }) {
+3760:       const isUrdu = language === 'ur';
+3767:               {translate(langData, "categoriesLabel")}
+3825:                       {count} {translate(langData, "itemsLabel")}
+3874:                         {langData.categories?.[cat.id] || cat.name}
+3880:                           {isUrdu ? 'چیزیں دیکھیں' : 'View Products'}
+3900:     function CategoryDropdown({ activeCategory, setActiveCategory, setCatMenuOpen, fullWidth, langData }) {
+3920:             {translate(langData, "allCategories")}
+3939:               {langData.categories?.[c.id] || c.name}
+3946:     function ProductCard({ product, langData, language, cartQty = 0, onAddToCart, onFlyToCart, onSelectProduct }) {
+3952:       const isUrdu = language === 'ur';
+4014:                 <span className="text-[9px] font-medium" style={{ color: 'rgba(0,0,0,0.12)' }}>{translate(langData, "noPhoto")}</span>
+4033:                     {translate(langData, 'priceLabel', { amount: pricing.sellingPrice.toLocaleString() })}
+4041:                     {isUrdu ? `بچت: Rs ${pricing.savings.toLocaleString()}` : `Save Rs ${pricing.savings.toLocaleString()}`}
+4047:                 {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
+4067:                   {translate(langData, "added")}
+4072:                   {translate(langData, "addToCart")}
+4083:     function CartDrawer({ open, cart, cartTotal, langData, language, onClose, onUpdateQty, onRemove, onCheckout, onSelectProduct }) {
+4085:       const isUrdu = language === 'ur';
+4146:                 <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#000000', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "cartTitle")}</span>
+4149:                     {cart.reduce((s,i)=>s+i.qty,0)} {translate(langData, "itemsLabel")}
+4184:                   <p style={{ fontSize: 14, fontWeight: 600 }}>{translate(langData, "cartEmpty")}</p>
+4185:                   <p style={{ fontSize: 12, marginTop: 6, color: '#888888' }}>{translate(langData, "noProducts")}</p>
+4186:                   <button onClick={onClose} style={{ marginTop: 20, background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12, padding: '10px 24px', color: '#000000', fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{translate(langData, "continueShopping")}</button>
+4231:                               {translate(langData, "priceLabel", { amount: product.price.toLocaleString() })} &times; {qty}
+4241:                               = {translate(langData, "priceLabel", { amount: (product.price * qty).toLocaleString() })}
+4245:                                 {isUrdu ? `بچت: Rs ${(pricing.savings * qty).toLocaleString()}` : `Save Rs ${(pricing.savings * qty).toLocaleString()}`}
+4333:                       <span>{isUrdu ? 'اس آرڈر پر آپ کی کل بچت:' : 'Total Savings on this order:'}</span>
+4341:                   <span style={{ fontSize: 13, color: '#111111', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{translate(langData, "totalBill")}</span>
+4342:                   <span style={{ fontSize: 22, fontWeight: 900, color: '#ffffff', background: '#000000', borderRadius: 12, padding: '5px 12px', fontFamily: "'Poppins',sans-serif", boxShadow: '0 4px 12px rgba(0,0,0,0.18)' }}>{translate(langData, "priceLabel", { amount: cartTotal.toLocaleString() })}</span>
+4359:                   {translate(langData, "proceedOrder")}
+4369:     function OrderHistoryModal({ open, orders, langData, language, onClose, onClear }) {
+4371:       const isUrdu = language === 'ur';
+4391:                   <h3 style={{ fontSize: 16, fontWeight: 900, color: '#111827', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>{isUrdu ? '\u0622\u0631\u0688\u0631 \u06c1\u0633\u067c\u0631\u06cc' : 'Order History'}</h3>
+4392:                   <p style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{isUrdu ? '\u06a9\u0644\u06a9 \u06a9\u0631\u06cc\u06ba \u0627\u0648\u0631 \u0645\u06a9\u0645\u0644 \u0622\u0631\u0688\u0631 \u062f\u06cc\u06a9\u06be\u06cc\u06ba' : 'Tap an order card to view full items'}</p>
+4407:                   <p style={{ fontSize: 15, fontWeight: 900, color: '#111827', margin: 0 }}>{isUrdu ? '\u0627\u0628\u06be\u06cc \u06a9\u0648\u0626\u06cc \u0622\u0631\u0688\u0631 \u0645\u062d\u0641\u0648\u0638 \u0646\u06c1\u06cc\u06ba' : 'No saved orders yet'}</p>
+4408:                   <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{isUrdu ? '\u0622\u067e \u06a9\u0627 \u0627\u06af\u0644\u0627 \u0622\u0631\u0688\u0631 \u06cc\u06c1\u0627\u06ba \u0646\u0630\u0631 \u0622\u0624 \u06af\u0627' : 'Your placed orders will appear here automatically.'}</p>
+4434:                                   {order.deliveryMethod === 'pickup' ? (isUrdu ? '\u0627\u0633\u067c\u0648\u0631 \u067e\u06a9 \u0627\u067e' : 'Store Pickup') : (isUrdu ? '\u06c1\u0648\u0645 \u0688\u0644\u06cc\u0648\u0631\u06cc' : 'Home Delivery')}
+4461:                                 {isExpanded ? (isUrdu ? '\u0628\u0646\u062f \u06a9\u0631\u06cc\u06ba \u25b2' : 'Collapse \u25b2') : (isUrdu ? '\u062a\u0641\u0635\u06cc\u0644 \u062f\u06cc\u06a9\u06be\u06cc\u06ba \u25bc' : 'View Details \u25bc')}
+4487:                                 {isUrdu ? '\u0627\u0634\u06cc\u0622 \u06a9\u06cc \u0641\u06c1\u0631\u0633\u067c:' : 'Itemized Receipt:'}
+4534:                   {isUrdu ? '\u06c1\u0633\u067c\u0631\u06cc \u0635\u0627\u0641 \u06a9\u0631\u06cc\u06ba' : 'Clear History'}
+4542:     function CheckoutModal({ cart, cartTotal, langData, language, saveOrderHistory, clearCart, onClose, onBack }) {
+4553:       const isUrdu = language === 'ur';
+4565:         if (!name.trim()) e.name = translate(langData, "validationName") || 'Name is required';
+4566:         if (!phone.trim()) e.phone = translate(langData, "validationPhone") || 'Phone number is required';
+4567:         else if (!/^[0-9]{10,11}$/.test(phone.replace(/\s/g,''))) e.phone = translate(langData, "validationPhone") || 'Enter valid 10-11 digit number';
+4568:         if (deliveryMethod === 'home' && !address.trim()) e.address = translate(langData, "validationAddress") || 'Address is required';
+4673:                     {isUrdu ? '\u0622\u0631\u0688\u0631 \u06a9\u0627\u0645\u06cc\u0627\u0628\u06cc \u0633\u06d2 \u0645\u062d\u0641\u0648\u0638 \u06c1\u0648 \u06af\u06cc\u0627!' : 'Thank You! Order Placed!'}
+4676:                     {isUrdu ? '\u0622\u067e \u06a9\u0627 \u0622\u0631\u0688\u0631 \u06c1\u0645\u0627\u0631\u06d2 \u0633\u0633\u067c\u0645 \u0645\u06cc\u06ba \u0645\u062d\u0641\u0648\u0638 \u06c1\u0648 \u0686\u06a9\u0627 \u06c1\u06d2' : 'Your order receipt is saved below and sent to WhatsApp.'}
+4700:                       {placedOrder.deliveryMethod === 'pickup' ? (isUrdu ? '\u0627\u0633\u067c\u0648\u0631 \u067e\u06a9 \u0627\u067e' : 'Store Pickup') : (isUrdu ? '\u06c1\u0648\u0645 \u0688\u0644\u06cc\u0648\u0631\u06cc' : 'Home Delivery')}
+4725:                     <strong>{isUrdu ? '\u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u0686\u0627\u067c:' : 'WhatsApp Chat:'}</strong> {isUrdu ? '\u0627\u06af\u0631 \u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u062e\u0648\u062f \u0628\u062e\u0648\u062f \u0646\u06c1\u06cc\u06ba \u06a9\u06be\u0644\u0627 \u062a\u0648 \u0646\u06cc\u0686\u06d2 \u0628\u067c\u0646 \u062f\u0628\u0627\u0626\u06cc\u06ba\u06d5' : 'If chat did not open automatically, click button below.'}
+4739:                       <span>{isUrdu ? '\u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0686\u0627\u067c \u06a9\u06be\u0648\u0644\u06cc\u06ba' : 'Open WhatsApp Chat'}</span>
+4747:                     {isUrdu ? '\u0645\u06a9\u0645\u0644 \u06a9\u0631\u06cc\u06ba (Done)' : 'Done & Continue Shopping'}
+4758:                       {translate(langData, "backBtn")}
+4760:                     <span style={{ fontSize: 16, fontWeight: 800, color: '#000000', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "checkoutTitle")}</span>
+4773:                     <p style={{ fontSize: 11, fontWeight: 900, color: '#111111', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>{translate(langData, "orderSummary")}</p>
+4792:                           <span style={{ fontSize: 12, color: '#000000', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>&times; {qty} = {translate(langData, "priceLabel", { amount: (product.price*qty).toLocaleString() })}</span>
+4797:                       <span style={{ fontSize: 13, color: '#111111', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{translate(langData, "totalBill")}</span>
+4798:                       <span style={{ fontSize: 20, fontWeight: 900, color: '#ffffff', background: '#000000', borderRadius: 12, padding: '5px 12px', fontFamily: "'Poppins',sans-serif", boxShadow: '0 4px 12px rgba(0,0,0,0.18)' }}>{translate(langData, "priceLabel", { amount: cartTotal.toLocaleString() })}</span>
+4806:                       <span>{isUrdu ? "\u0646\u0648\u067c\u0633: \u06c1\u0648\u0645 \u0688\u0644\u06cc\u0648\u0631\u06cc \u0635\u0631\u0641 \u06a9\u0631\u0627\u0686\u06cc \u06a9\u06d2 \u0634\u06c1\u0631 \u06a9\u06d2 \u0644\u0626\u06d2 \u062f\u0633\u062a\u06cc\u0627\u0628 \u06c1\u06d2\u06d5" : "Notice: Home Delivery is ONLY available within Karachi city."}</span>
+4838:                     <p style={{ fontSize: 11, fontWeight: 900, color: '#111111', letterSpacing: '0.2em', textTransform: 'uppercase' }}>{translate(langData, "yourDetails")}</p>
+4841:                       <label style={{ fontSize: 12, color: '#444444', fontWeight: 600, display: 'block', marginBottom: 6 }}>{translate(langData, "fullName")}</label>
+4843:                         type="text" placeholder={translate(langData, "fullNamePlaceholder")}
+4853:                       <label style={{ fontSize: 12, color: '#444444', fontWeight: 600, display: 'block', marginBottom: 6 }}>{translate(langData, "mobileNumber")}</label>
+4866:                         <label style={{ fontSize: 12, color: '#444444', fontWeight: 600, display: 'block', marginBottom: 6 }}>{translate(langData, "deliveryAddress")}</label>
+4868:                           placeholder={translate(langData, "addressPlaceholder")}
+4895:                     <p style={{ fontSize: 12, color: '#444444', lineHeight: 1.5 }}>{translate(langData, "whatsappNotice")}</p>
+4918:                         {translate(langData, "placingOrder")}
+4925:                         {translate(langData, "placeOrderBtn")}

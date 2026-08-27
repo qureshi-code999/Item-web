@@ -1362,28 +1362,95 @@ function ProductDetailModal({
   }, "Rs. ", product.price.toLocaleString()), /*#__PURE__*/React.createElement("span", {
     className: "text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"
   }, tr(language, 'Cheaper than Supermarts', 'Supermarket se Sasta', 'سپر مارکیٹ سے سستا'))), /*#__PURE__*/React.createElement("div", {
-    className: "pt-1 flex items-center justify-center sm:justify-start gap-3"
+    className: "space-y-2.5 pt-2 border-t border-gray-100"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-bold text-gray-700"
-  }, tr(language, 'Quantity:', 'Tadaad (Quantity):', 'تعداد (Quantity):')), /*#__PURE__*/React.createElement("div", {
+    className: "text-xs font-bold text-gray-700 flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", null, "📦"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Select Quantity / Wholesale Pack:', 'Tadaad / Wholesale Pack Chunain:', 'تعداد / ہول سیل پیک منتخب کریں:'))), /*#__PURE__*/React.createElement("span", {
+    className: "text-[11px] font-black text-amber-900 bg-amber-100/90 px-2.5 py-0.5 rounded-lg border border-amber-300"
+  }, modalQty, " ", modalQty > 1 ? tr(language, 'Items', 'Cheezein', 'اشیاء') : tr(language, 'Item', 'Cheez', 'چیز'))), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-2"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-2xs"
   }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: () => setModalQty(q => Math.max(1, q - 1)),
-    className: "w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-sm flex items-center justify-center cursor-pointer transition-colors"
-  }, "-"), /*#__PURE__*/React.createElement("span", {
-    className: "w-10 text-center font-black text-sm text-black"
-  }, modalQty), /*#__PURE__*/React.createElement("button", {
+    className: "w-8 h-9 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors",
+    title: "Minus 1"
+  }, "-"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "1",
+    value: modalQty,
+    onChange: e => {
+      const val = parseInt(e.target.value, 10);
+      setModalQty(isNaN(val) || val < 1 ? 1 : val);
+    },
+    className: "w-12 text-center font-black text-sm text-black border-none focus:outline-hidden py-1"
+  }), /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: () => setModalQty(q => q + 1),
-    className: "w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-sm flex items-center justify-center cursor-pointer transition-colors"
-  }, "+"))), /*#__PURE__*/React.createElement("div", {
+    className: "w-8 h-9 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors",
+    title: "Plus 1"
+  }, "+")), /*#__PURE__*/React.createElement("div", {
+    className: "relative flex-1 min-w-[170px]"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: [1, 6, 12, 24, 36, 48, 60].includes(modalQty) ? modalQty : "custom",
+    onChange: e => {
+      if (e.target.value !== "custom") {
+        setModalQty(Number(e.target.value));
+      }
+    },
+    className: "w-full bg-slate-50 border border-slate-300 hover:border-slate-800 text-slate-900 font-extrabold text-xs rounded-xl px-3 py-2 pr-7 focus:outline-hidden focus:ring-2 focus:ring-black cursor-pointer shadow-2xs transition-colors"
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "1"
+  }, "1 Pc (Single Item)"), /*#__PURE__*/React.createElement("option", {
+    value: "6"
+  }, "6 Pcs (Half Dozen / آدھا درجن)"), /*#__PURE__*/React.createElement("option", {
+    value: "12"
+  }, "12 Pcs (1 Dozen / 1 درجن)"), /*#__PURE__*/React.createElement("option", {
+    value: "24"
+  }, "24 Pcs (2 Dozen / 2 درجن)"), /*#__PURE__*/React.createElement("option", {
+    value: "36"
+  }, "36 Pcs (3 Dozen / 3 درجن)"), /*#__PURE__*/React.createElement("option", {
+    value: "48"
+  }, "48 Pcs (4 Dozen / 4 درجن)"), /*#__PURE__*/React.createElement("option", {
+    value: "60"
+  }, "60 Pcs (5 Dozen / Wholesale Carton)"), ![1, 6, 12, 24, 36, 48, 60].includes(modalQty) && /*#__PURE__*/React.createElement("option", {
+    value: "custom"
+  }, "✓ ", modalQty, " Pcs (Selected Custom Qty)")))), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center gap-1.5 pt-0.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1"
+  }, tr(language, 'Wholesale Packs:', 'Packs:', 'پیک:')), [1, 6, 12, 24, 48, 60].map(qtyOpt => {
+    const isCurrent = modalQty === qtyOpt;
+    return /*#__PURE__*/React.createElement("button", {
+      key: qtyOpt,
+      type: "button",
+      onClick: () => setModalQty(qtyOpt),
+      className: `text-[11px] font-black px-2.5 py-1 rounded-lg border transition-all cursor-pointer shadow-2xs ${isCurrent ? 'bg-black text-white border-black scale-105 shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:bg-gray-50'}`
+    }, qtyOpt === 1 ? '1' : qtyOpt === 12 ? '12 (1 Doz)' : qtyOpt === 24 ? '24 (2 Doz)' : qtyOpt);
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "bg-amber-50/70 border border-amber-200/80 rounded-xl px-3 py-2 flex items-center justify-between text-xs shadow-2xs"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: "text-gray-500 font-bold block text-[10px] uppercase tracking-wider"
+  }, tr(language, 'Total for', 'Kul Qeemat Baraye', 'کل قیمت برائے'), " ", modalQty, " ", modalQty > 1 ? tr(language, 'items', 'cheezein', 'اشیاء') : tr(language, 'item', 'cheez', 'چیز'), ":"), /*#__PURE__*/React.createElement("span", {
+    className: "text-base font-black text-gray-950 font-poppins"
+  }, "Rs. ", (pricing.sellingPrice * modalQty).toLocaleString())), pricing.hasDiscount && /*#__PURE__*/React.createElement("div", {
+    className: "text-right"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[10px] text-emerald-700 font-bold block"
+  }, tr(language, 'Total Savings', 'Kul Bachat', 'کل بچت')), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-300"
+  }, "Rs. ", (pricing.savings * modalQty).toLocaleString())))), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      for (let i = 0; i < modalQty; i++) onAddToCart(product);
+      onAddToCart(product, null, modalQty);
       onClose();
     },
     className: "w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
-  }, /*#__PURE__*/React.createElement("span", null, "🛒"), /*#__PURE__*/React.createElement("span", null, translate(langData, "addToCart"))), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("span", null, "🛒"), /*#__PURE__*/React.createElement("span", null, translate(langData, "addToCart"), " (", modalQty, ")")), /*#__PURE__*/React.createElement("button", {
     onClick: handleDirectWhatsAppOrder,
     className: "w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
   }, /*#__PURE__*/React.createElement("span", null, "💬"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Buy on WhatsApp', 'WhatsApp par Order Karein', 'واٹس ایپ پر آرڈر کریں')))))), /*#__PURE__*/React.createElement("div", {
@@ -1550,26 +1617,49 @@ function VariantSelectionModal({
       className: "text-[10px] font-bold"
     }, "✓")));
   })), /*#__PURE__*/React.createElement("div", {
-    className: "p-4 border-t border-gray-100 bg-white flex items-center gap-3"
+    className: "p-4 border-t border-gray-100 bg-white space-y-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between gap-1 text-xs"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[10px] font-bold text-gray-400 uppercase tracking-wider"
+  }, tr(language, 'Wholesale Packs:', 'Bulk Packs:', 'ہول سیل پیک:')), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1 overflow-x-auto py-0.5"
+  }, [1, 6, 12, 24, 36, 48, 60].map(qOpt => /*#__PURE__*/React.createElement("button", {
+    key: qOpt,
+    type: "button",
+    onClick: () => setQty(qOpt),
+    className: `text-[10.5px] font-black px-2 py-0.5 rounded-md border transition-all cursor-pointer ${qty === qOpt ? 'bg-black text-white border-black shadow-xs' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`
+  }, qOpt)))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-1.5 bg-slate-100 border border-slate-200 rounded-xl p-1 shrink-0"
   }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: () => setQty(q => Math.max(1, q - 1)),
     className: "w-7 h-7 rounded-lg bg-white text-slate-800 font-black text-sm flex items-center justify-center hover:bg-slate-200 shadow-2xs cursor-pointer"
-  }, "-"), /*#__PURE__*/React.createElement("span", {
-    className: "w-6 text-center font-black text-xs text-slate-900"
-  }, qty), /*#__PURE__*/React.createElement("button", {
+  }, "-"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "1",
+    value: qty,
+    onChange: e => {
+      const val = parseInt(e.target.value, 10);
+      setQty(isNaN(val) || val < 1 ? 1 : val);
+    },
+    className: "w-8 text-center font-black text-xs text-slate-900 bg-transparent border-none focus:outline-hidden"
+  }), /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: () => setQty(q => q + 1),
     className: "w-7 h-7 rounded-lg bg-white text-slate-800 font-black text-sm flex items-center justify-center hover:bg-slate-200 shadow-2xs cursor-pointer"
   }, "+")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: () => {
       if (!selectedOption) return;
       onConfirm(product, selectedOption, qty);
     },
     className: "flex-1 py-3 px-4 rounded-2xl bg-black hover:bg-emerald-700 text-white font-black text-xs sm:text-sm tracking-wide uppercase shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-  }, /*#__PURE__*/React.createElement("span", null, "+ ", translate(langData, "addToCart")), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "+ ", translate(langData, "addToCart"), " (", qty, ")"), /*#__PURE__*/React.createElement("span", {
     className: "opacity-75 font-normal text-[11px]"
-  }, "(", selectedOption, ")")))));
+  }, "(", selectedOption, ")"))))));
 }
 function SahilTraders() {
   const products = typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : PRODUCTS;

@@ -272,6 +272,57 @@ function getProductPricing(product) {
     isAutoMarket: false
   };
 }
+// --- Wholesale Bulk Quantity Discount Tiers ---
+function getBulkDiscountTier(qty) {
+  const q = Math.max(0, Number(qty) || 0);
+  if (q >= 60) return {
+    percent: 3.2,
+    label: '3.2% Extra Bulk Discount'
+  };
+  if (q >= 48) return {
+    percent: 2.8,
+    label: '2.8% Extra Bulk Discount'
+  };
+  if (q >= 36) return {
+    percent: 2.2,
+    label: '2.2% Extra Bulk Discount'
+  };
+  if (q >= 24) return {
+    percent: 1.8,
+    label: '1.8% Extra Bulk Discount'
+  };
+  if (q >= 12) return {
+    percent: 1.2,
+    label: '1.2% Extra Bulk Discount'
+  };
+  if (q >= 6) return {
+    percent: 0.6,
+    label: '0.6% Extra Bulk Discount'
+  };
+  return {
+    percent: 0,
+    label: ''
+  };
+}
+function calculateBulkPricing(sellingPrice, qty) {
+  const q = Math.max(1, Number(qty) || 1);
+  const sp = Number(sellingPrice) || 0;
+  const baseTotal = sp * q;
+  const tier = getBulkDiscountTier(q);
+  const extraPercent = tier.percent;
+  const extraSavings = extraPercent > 0 ? Math.round(baseTotal * (extraPercent / 100)) : 0;
+  const finalTotal = baseTotal - extraSavings;
+  const effectiveUnitPrice = q > 0 ? Math.round(finalTotal / q) : sp;
+  return {
+    qty: q,
+    baseTotal,
+    extraPercent,
+    extraSavings,
+    finalTotal,
+    effectiveUnitPrice,
+    tierLabel: tier.label
+  };
+}
 function getProductDisplayName(product, language) {
   if (!product) return "";
   if (language === "ur" && product.nameUrdu) {
@@ -1258,6 +1309,7 @@ function ProductDetailModal({
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
   const pricing = useMemo(() => getProductPricing(product), [product]);
+  const bulkPricing = useMemo(() => calculateBulkPricing(pricing.sellingPrice, modalQty), [pricing.sellingPrice, modalQty]);
   // Find 4-6 Related Products from the same category (excluding current product)
   const relatedProducts = useMemo(() => {
     if (!product || !products) return [];
@@ -1274,9 +1326,14 @@ function ProductDetailModal({
   const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
   const handleDirectWhatsAppOrder = () => {
     const pName = getProductDisplayName(product, language);
-    const total = pricing.sellingPrice * modalQty;
-    const discountInfo = pricing.hasDiscount ? `\n🏷️ *Retail:* ~Rs ${pricing.retailPrice.toLocaleString()}~ (Save Rs ${(pricing.savings * modalQty).toLocaleString()})` : '';
-    const msg = `Assalam U Alaikum Sahil Traders!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* Rs ${pricing.sellingPrice.toLocaleString()} x ${modalQty} = *Rs ${total.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
+    let discountInfo = '';
+    if (bulkPricing.extraPercent > 0) {
+      discountInfo += `\n🎁 *Bulk Volume Discount (${bulkPricing.extraPercent}%):* -Rs ${bulkPricing.extraSavings.toLocaleString()}`;
+    }
+    if (pricing.hasDiscount) {
+      discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${(pricing.savings * modalQty + bulkPricing.extraSavings).toLocaleString()})`;
+    }
+    const msg = `Assalam U Alaikum Sahil Traders!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
     window.open(`https://wa.me/923368945775?text=${encodeURIComponent(msg)}`, '_blank');
   };
   return /*#__PURE__*/React.createElement("div", {
@@ -1362,21 +1419,15 @@ function ProductDetailModal({
   }, "Rs. ", product.price.toLocaleString()), /*#__PURE__*/React.createElement("span", {
     className: "text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"
   }, tr(language, 'Cheaper than Supermarts', 'Supermarket se Sasta', 'سپر مارکیٹ سے سستا'))), /*#__PURE__*/React.createElement("div", {
-    className: "space-y-2.5 pt-2 border-t border-gray-100"
+    className: "space-y-2 pt-2 border-t border-gray-100"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-bold text-gray-700 flex items-center gap-1.5"
-  }, /*#__PURE__*/React.createElement("span", null, "📦"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Select Quantity / Wholesale Pack:', 'Tadaad / Wholesale Pack Chunain:', 'تعداد / ہول سیل پیک منتخب کریں:'))), /*#__PURE__*/React.createElement("span", {
-    className: "text-[11px] font-black text-amber-900 bg-amber-100/90 px-2.5 py-0.5 rounded-lg border border-amber-300"
-  }, modalQty, " ", modalQty > 1 ? tr(language, 'Items', 'Cheezein', 'اشیاء') : tr(language, 'Item', 'Cheez', 'چیز'))), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap items-center gap-2"
+    className: "flex items-center justify-between gap-2.5"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-2xs"
+    className: "flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-2xs shrink-0"
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: () => setModalQty(q => Math.max(1, q - 1)),
-    className: "w-8 h-9 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors",
+    className: "w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors",
     title: "Minus 1"
   }, "-"), /*#__PURE__*/React.createElement("input", {
     type: "number",
@@ -1386,63 +1437,135 @@ function ProductDetailModal({
       const val = parseInt(e.target.value, 10);
       setModalQty(isNaN(val) || val < 1 ? 1 : val);
     },
-    className: "w-12 text-center font-black text-sm text-black border-none focus:outline-hidden py-1"
+    className: "w-12 text-center font-black text-sm text-black border-none focus:outline-hidden py-0.5"
   }), /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: () => setModalQty(q => q + 1),
-    className: "w-8 h-9 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors",
+    className: "w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors",
     title: "Plus 1"
   }, "+")), /*#__PURE__*/React.createElement("div", {
-    className: "relative flex-1 min-w-[170px]"
+    className: "flex-1 min-w-0"
   }, /*#__PURE__*/React.createElement("select", {
-    value: [1, 6, 12, 24, 36, 48, 60].includes(modalQty) ? modalQty : "custom",
+    value: [6, 12, 24, 36, 48, 60].includes(modalQty) ? modalQty : "custom",
     onChange: e => {
       if (e.target.value !== "custom") {
         setModalQty(Number(e.target.value));
       }
     },
-    className: "w-full bg-slate-50 border border-slate-300 hover:border-slate-800 text-slate-900 font-extrabold text-xs rounded-xl px-3 py-2 pr-7 focus:outline-hidden focus:ring-2 focus:ring-black cursor-pointer shadow-2xs transition-colors"
+    className: "w-full bg-slate-50 border border-slate-300 hover:border-slate-800 text-slate-900 font-extrabold text-xs rounded-xl px-2.5 py-1.5 focus:outline-hidden focus:ring-2 focus:ring-black cursor-pointer shadow-2xs transition-colors truncate"
   }, /*#__PURE__*/React.createElement("option", {
-    value: "1"
-  }, "1 Pc (Single Item)"), /*#__PURE__*/React.createElement("option", {
-    value: "6"
-  }, "6 Pcs (Half Dozen / آدھا درجن)"), /*#__PURE__*/React.createElement("option", {
-    value: "12"
-  }, "12 Pcs (1 Dozen / 1 درجن)"), /*#__PURE__*/React.createElement("option", {
-    value: "24"
-  }, "24 Pcs (2 Dozen / 2 درجن)"), /*#__PURE__*/React.createElement("option", {
-    value: "36"
-  }, "36 Pcs (3 Dozen / 3 درجن)"), /*#__PURE__*/React.createElement("option", {
-    value: "48"
-  }, "48 Pcs (4 Dozen / 4 درجن)"), /*#__PURE__*/React.createElement("option", {
-    value: "60"
-  }, "60 Pcs (5 Dozen / Wholesale Carton)"), ![1, 6, 12, 24, 36, 48, 60].includes(modalQty) && /*#__PURE__*/React.createElement("option", {
     value: "custom"
-  }, "✓ ", modalQty, " Pcs (Selected Custom Qty)")))), /*#__PURE__*/React.createElement("div", {
-    className: "flex flex-wrap items-center gap-1.5 pt-0.5"
+  }, "📦 ", tr(language, 'Wholesale Packs', 'Wholesale Pack Chunain', 'ہول سیل پیک')), /*#__PURE__*/React.createElement("option", {
+    value: "6"
+  }, "6 Pcs (Half Dozen - Extra 0.6% OFF)"), /*#__PURE__*/React.createElement("option", {
+    value: "12"
+  }, "12 Pcs (1 Dozen - Extra 1.2% OFF)"), /*#__PURE__*/React.createElement("option", {
+    value: "24"
+  }, "24 Pcs (2 Dozen - Extra 1.8% OFF)"), /*#__PURE__*/React.createElement("option", {
+    value: "36"
+  }, "36 Pcs (3 Dozen - Extra 2.2% OFF)"), /*#__PURE__*/React.createElement("option", {
+    value: "48"
+  }, "48 Pcs (4 Dozen - Extra 2.8% OFF)"), /*#__PURE__*/React.createElement("option", {
+    value: "60"
+  }, "60 Pcs (5 Dozen - Extra 3.2% OFF)")))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: 'linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)',
+      border: '1px solid #6ee7b7',
+      borderRadius: 12,
+      padding: '7px 10px'
+    }
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1"
-  }, tr(language, 'Wholesale Packs:', 'Packs:', 'پیک:')), [1, 6, 12, 24, 48, 60].map(qtyOpt => {
-    const isCurrent = modalQty === qtyOpt;
+    style: {
+      fontSize: 9,
+      fontWeight: 900,
+      color: '#065f46',
+      textTransform: 'uppercase',
+      letterSpacing: '0.12em',
+      display: 'block',
+      marginBottom: 5
+    }
+  }, "🎁 Bulk Extra Discount"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(6, 1fr)',
+      gap: 3
+    }
+  }, [{
+    qty: 6,
+    pct: 0.6
+  }, {
+    qty: 12,
+    pct: 1.2
+  }, {
+    qty: 24,
+    pct: 1.8
+  }, {
+    qty: 36,
+    pct: 2.2
+  }, {
+    qty: 48,
+    pct: 2.8
+  }, {
+    qty: 60,
+    pct: 3.2
+  }].map(({
+    qty: q,
+    pct
+  }) => {
+    const isCurrent = getBulkDiscountTier(modalQty).percent === pct && modalQty >= q;
     return /*#__PURE__*/React.createElement("button", {
-      key: qtyOpt,
+      key: q,
       type: "button",
-      onClick: () => setModalQty(qtyOpt),
-      className: `text-[11px] font-black px-2.5 py-1 rounded-lg border transition-all cursor-pointer shadow-2xs ${isCurrent ? 'bg-black text-white border-black scale-105 shadow-xs' : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:bg-gray-50'}`
-    }, qtyOpt === 1 ? '1' : qtyOpt === 12 ? '12 (1 Doz)' : qtyOpt === 24 ? '24 (2 Doz)' : qtyOpt);
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "bg-amber-50/70 border border-amber-200/80 rounded-xl px-3 py-2 flex items-center justify-between text-xs shadow-2xs"
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
-    className: "text-gray-500 font-bold block text-[10px] uppercase tracking-wider"
-  }, tr(language, 'Total for', 'Kul Qeemat Baraye', 'کل قیمت برائے'), " ", modalQty, " ", modalQty > 1 ? tr(language, 'items', 'cheezein', 'اشیاء') : tr(language, 'item', 'cheez', 'چیز'), ":"), /*#__PURE__*/React.createElement("span", {
-    className: "text-base font-black text-gray-950 font-poppins"
-  }, "Rs. ", (pricing.sellingPrice * modalQty).toLocaleString())), pricing.hasDiscount && /*#__PURE__*/React.createElement("div", {
+      onClick: () => setModalQty(q),
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '3px 2px',
+        borderRadius: 8,
+        border: isCurrent ? '2px solid #059669' : '1px solid #a7f3d0',
+        background: isCurrent ? '#059669' : '#ffffff',
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+        boxShadow: isCurrent ? '0 2px 6px rgba(5,150,105,0.3)' : 'none'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        fontWeight: 900,
+        color: isCurrent ? '#ffffff' : '#111827',
+        lineHeight: 1.2
+      }
+    }, q), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 8.5,
+        fontWeight: 800,
+        color: isCurrent ? '#bbf7d0' : '#059669',
+        lineHeight: 1.3
+      }
+    }, "+", pct, "%"));
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: `border rounded-xl px-3 py-1.5 flex items-center justify-between text-xs shadow-2xs ${bulkPricing.extraPercent > 0 ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-emerald-300' : 'bg-amber-50/70 border-amber-200/80'}`
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-gray-500 font-bold text-[10px] uppercase tracking-wider"
+  }, tr(language, 'Total for', 'Kul Qeemat Baraye', 'کل قیمت برائے'), " ", modalQty, " ", modalQty > 1 ? tr(language, 'items', 'cheezein', 'اشیاء') : tr(language, 'item', 'cheez', 'چیز'), ":"), bulkPricing.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "bg-emerald-600 text-white text-[9.5px] font-black px-1.5 py-0.2 rounded-md uppercase"
+  }, "🔥 +", bulkPricing.extraPercent, "% OFF")), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-sm sm:text-base font-black text-gray-950 font-poppins"
+  }, "Rs. ", bulkPricing.finalTotal.toLocaleString()), bulkPricing.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "text-xs text-gray-400 line-through font-bold"
+  }, "Rs. ", bulkPricing.baseTotal.toLocaleString()))), (pricing.hasDiscount || bulkPricing.extraPercent > 0) && /*#__PURE__*/React.createElement("div", {
     className: "text-right"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-[10px] text-emerald-700 font-bold block"
   }, tr(language, 'Total Savings', 'Kul Bachat', 'کل بچت')), /*#__PURE__*/React.createElement("span", {
-    className: "text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-300"
-  }, "Rs. ", (pricing.savings * modalQty).toLocaleString())))), /*#__PURE__*/React.createElement("div", {
+    className: "text-[11px] font-black text-emerald-700 bg-white/90 px-1.5 py-0.5 rounded-md border border-emerald-300 shadow-2xs"
+  }, "Rs. ", (pricing.savings * modalQty + bulkPricing.extraSavings).toLocaleString())))), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -1624,11 +1747,11 @@ function VariantSelectionModal({
     className: "text-[10px] font-bold text-gray-400 uppercase tracking-wider"
   }, tr(language, 'Wholesale Packs:', 'Bulk Packs:', 'ہول سیل پیک:')), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-1 overflow-x-auto py-0.5"
-  }, [1, 6, 12, 24, 36, 48, 60].map(qOpt => /*#__PURE__*/React.createElement("button", {
+  }, [6, 12, 24, 36, 48, 60].map(qOpt => /*#__PURE__*/React.createElement("button", {
     key: qOpt,
     type: "button",
     onClick: () => setQty(qOpt),
-    className: `text-[10.5px] font-black px-2 py-0.5 rounded-md border transition-all cursor-pointer ${qty === qOpt ? 'bg-black text-white border-black shadow-xs' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`
+    className: `text-[11px] font-black px-2.5 py-0.5 rounded-md border transition-all cursor-pointer ${qty === qOpt ? 'bg-black text-white border-black shadow-xs' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`
   }, qOpt)))), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-3"
   }, /*#__PURE__*/React.createElement("div", {
@@ -1870,7 +1993,8 @@ function SahilTraders() {
     return () => clearTimeout(timer);
   }, [checkoutOpen, cartOpen, selectedCategory, selectedBrand, searchTerm, activeCategory, exitModalOpen]);
   const cartCount = cart.reduce((sum, i) => sum + i.qty, 0);
-  const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.qty, 0);
+  const cartTotal = cart.reduce((sum, i) => sum + calculateBulkPricing(i.product.price, i.qty).finalTotal, 0);
+  const cartBulkSavings = cart.reduce((sum, i) => sum + calculateBulkPricing(i.product.price, i.qty).extraSavings, 0);
   function addToCart(product, variant = null, qtyToAdd = 1, sourceElement = null) {
     if (window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id] && !variant) {
       setVariantModalProduct(product);
@@ -4301,7 +4425,9 @@ function CartDrawer({
       qty
     }) => {
       const pricing = getProductPricing(product);
-      return sum + (pricing.hasDiscount ? pricing.savings * qty : 0);
+      const bulk = calculateBulkPricing(product.price, qty);
+      const normalSavings = pricing.hasDiscount ? pricing.savings * qty : 0;
+      return sum + normalSavings + bulk.extraSavings;
     }, 0);
   }, [cart]);
   useEffect(() => {
@@ -4543,6 +4669,7 @@ function CartDrawer({
     variant
   }) => {
     const pricing = getProductPricing(product);
+    const bulk = calculateBulkPricing(product.price, qty);
     return /*#__PURE__*/React.createElement("div", {
       key: `${product.id}-${variant || ''}`,
       style: {
@@ -4659,16 +4786,26 @@ function CartDrawer({
         margin: 0
       }
     }, "= ", translate(langData, "priceLabel", {
-      amount: (product.price * qty).toLocaleString()
-    })), pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+      amount: bulk.finalTotal.toLocaleString()
+    })), bulk.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 9.5,
-        color: '#15803d',
+        color: '#166534',
         background: '#dcfce7',
         border: '1px solid #bbf7d0',
         borderRadius: 6,
         padding: '1px 5px',
         fontWeight: 800
+      }
+    }, "🎁 +", bulk.extraPercent, "% Bulk OFF (-Rs ", bulk.extraSavings.toLocaleString(), ")"), pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9.5,
+        color: '#15803d',
+        background: '#f0fdf4',
+        border: '1px solid #bbf7d0',
+        borderRadius: 6,
+        padding: '1px 5px',
+        fontWeight: 700
       }
     }, tr(language, `Save Rs ${(pricing.savings * qty).toLocaleString()}`, `Bachat: Rs ${(pricing.savings * qty).toLocaleString()}`, `بچت: Rs ${(pricing.savings * qty).toLocaleString()}`)))), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -5567,8 +5704,10 @@ function CheckoutModal({
       qty,
       variant
     }) => {
+      const bulk = calculateBulkPricing(product.price, qty);
       const shadeText = variant ? `\n   🎨 Shade / Colour: ${variant}` : '';
-      return `• ${product.name}${shadeText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${(product.price * qty).toLocaleString()}`;
+      const bulkText = bulk.extraPercent > 0 ? `\n   🎁 Extra Bulk Discount (${bulk.extraPercent}%): -Rs ${bulk.extraSavings.toLocaleString()}` : '';
+      return `• ${product.name}${shadeText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
     }).join('\n\n');
     const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (BS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
     const msg = ['🛒 *NEW ORDER – Sahil Traders*', '═════════════════════════', '', '*📦 ORDER DETAILS:*', itemLines, '', '═════════════════════════', `*Subtotal:* Rs ${cartTotal.toLocaleString()}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '═════════════════════════', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}` : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '═════════════════════════', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
@@ -5602,16 +5741,21 @@ function CheckoutModal({
         product,
         qty,
         variant
-      }) => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        qty,
-        variant: variant || null,
-        total: product.price * qty,
-        initial: product.initial,
-        imageExt: window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? window.PRODUCT_IMAGE_MAP[product.id] : null
-      }))
+      }) => {
+        const bulk = calculateBulkPricing(product.price, qty);
+        return {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          qty,
+          variant: variant || null,
+          extraPercent: bulk.extraPercent,
+          extraSavings: bulk.extraSavings,
+          total: bulk.finalTotal,
+          initial: product.initial,
+          imageExt: window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? window.PRODUCT_IMAGE_MAP[product.id] : null
+        };
+      })
     };
     try {
       window.open(waUrl, '_blank');
@@ -6063,71 +6207,90 @@ function CheckoutModal({
     product,
     qty,
     variant
-  }) => /*#__PURE__*/React.createElement("div", {
-    key: `${product.id}-${variant || ''}`,
-    style: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      minWidth: 0
-    }
-  }, window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? /*#__PURE__*/React.createElement("img", {
-    src: `images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`,
-    onError: e => {
-      e.target.onerror = null;
-    },
-    alt: product.name,
-    className: "w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-gray-200"
-  }) : /*#__PURE__*/React.createElement("div", {
-    className: `w-7 h-7 rounded-lg bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: '#1a1a2e',
-      fontSize: 10,
-      fontWeight: 800
-    }
-  }, product.initial)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      minWidth: 0
-    }
-  }, /*#__PURE__*/React.createElement("p", {
-    style: {
-      fontSize: 12,
-      color: '#1a1a2e',
-      margin: 0,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }
-  }, toTitleCase(product.name)), variant && /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 9.5,
-      fontWeight: 800,
-      color: '#92400e',
-      background: '#fef3c7',
-      border: '1px solid #fde68a',
-      borderRadius: 4,
-      padding: '0.5px 4px',
-      display: 'inline-block'
-    }
-  }, "Shade: ", variant))), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: '#000000',
-      fontWeight: 700,
-      whiteSpace: 'nowrap',
-      flexShrink: 0
-    }
-  }, "× ", qty, " = ", translate(langData, "priceLabel", {
-    amount: (product.price * qty).toLocaleString()
-  }))))), /*#__PURE__*/React.createElement("div", {
+  }) => {
+    const bulk = calculateBulkPricing(product.price, qty);
+    return /*#__PURE__*/React.createElement("div", {
+      key: `${product.id}-${variant || ''}`,
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        minWidth: 0
+      }
+    }, window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? /*#__PURE__*/React.createElement("img", {
+      src: `images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`,
+      onError: e => {
+        e.target.onerror = null;
+      },
+      alt: product.name,
+      className: "w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-gray-200"
+    }) : /*#__PURE__*/React.createElement("div", {
+      className: `w-7 h-7 rounded-lg bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: '#1a1a2e',
+        fontSize: 10,
+        fontWeight: 800
+      }
+    }, product.initial)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement("p", {
+      style: {
+        fontSize: 12,
+        color: '#1a1a2e',
+        margin: 0,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, toTitleCase(product.name)), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        flexWrap: 'wrap'
+      }
+    }, variant && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9.5,
+        fontWeight: 800,
+        color: '#92400e',
+        background: '#fef3c7',
+        border: '1px solid #fde68a',
+        borderRadius: 4,
+        padding: '0.5px 4px',
+        display: 'inline-block'
+      }
+    }, "Shade: ", variant), bulk.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9,
+        fontWeight: 800,
+        color: '#166534',
+        background: '#dcfce7',
+        borderRadius: 4,
+        padding: '0.5px 4px'
+      }
+    }, "🎁 -", bulk.extraPercent, "% Bulk OFF")))), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 12,
+        color: '#000000',
+        fontWeight: 700,
+        whiteSpace: 'nowrap',
+        flexShrink: 0
+      }
+    }, "× ", qty, " = ", translate(langData, "priceLabel", {
+      amount: bulk.finalTotal.toLocaleString()
+    })));
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 14,
       padding: '12px 14px',

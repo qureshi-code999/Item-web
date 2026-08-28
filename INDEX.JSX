@@ -3272,73 +3272,76 @@ export default function SahilTraders() {
         : null;
       return (
         <div className="min-h-screen relative text-gray-900 overflow-x-hidden" style={{ fontFamily: language === 'ur' ? "'Noto Sans Urdu', 'Inter', sans-serif" : "'Inter', system-ui, sans-serif" }}>
-          {/* Splash Screen */}
+          {/* 🌟 Luxury Brand Splash Intro */}
           {showSplash && (
-            <div className={`fixed inset-0 z-50 bg-[#020205] flex flex-col items-center justify-center transition-all duration-1000 ${fadeSplash ? "opacity-0 scale-105 pointer-events-none" : "opacity-100"}`}>
-              {/* Premium Grid Background */}
-              <div className="absolute inset-0 splash-grid opacity-40 pointer-events-none" />
-              {/* Luxury Silhouette Floating Vectors (no text labels, raw golden outlines) */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-                {floatingSilhouettes.map((item) => {
-                  return (
-                    <div
-                      key={item.id}
-                      className="absolute transform-gpu text-black"
-                      style={{
-                        left: `${item.left}%`,
-                        top: `${item.top}%`,
-                        opacity: item.opacity,
-                        transform: `scale(${item.scale})`,
-                        animation: `float-drift-${item.animType} ${item.duration}s ease-in-out infinite`,
-                        animationDelay: `${item.delay}s`,
-                      }}
-                    >
-                      <item.Icon className="w-16 h-16 sm:w-20 sm:h-20" />
-                    </div>
-                  );
-                })}
-              </div>
-              {/* Central Gold Laser Opening Line */}
-              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[1px] bg-gradient-to-r from-transparent via-amber-400 to-transparent w-0 opacity-0 laser-line z-20" />
-              {/* Portal Glow Split */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] rounded-full bg-gradient-to-br from-amber-500/20 to-transparent blur-[50px] portal-glow pointer-events-none" />
+            <div
+              className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-700 select-none overflow-hidden ${
+                fadeSplash ? "opacity-0 scale-105 pointer-events-none" : "opacity-100"
+              }`}
+              style={{
+                background: 'radial-gradient(ellipse at center, #0f172a 0%, #090d16 60%, #030712 100%)',
+              }}
+            >
+              {/* Luminous Ambient Light Spheres */}
+              <div className="absolute w-[300px] h-[300px] sm:w-[450px] sm:h-[450px] rounded-full bg-emerald-500/15 luxury-aura pointer-events-none -translate-y-8" />
+              <div className="absolute w-[260px] h-[260px] sm:w-[380px] sm:h-[380px] rounded-full bg-amber-500/10 luxury-aura pointer-events-none translate-y-12" style={{ animationDelay: '2s' }} />
+
               {/* Skip Intro Button */}
               <button
                 onClick={() => {
                   setFadeSplash(true);
-                  setTimeout(() => setShowSplash(false), 500);
+                  setTimeout(() => setShowSplash(false), 400);
                 }}
-                className="absolute bottom-6 right-6 z-[60] bg-black/60 hover:bg-black/90 border border-gray-200 px-4 py-2 rounded-full text-[10px] sm:text-xs font-semibold tracking-widest text-gray-700 hover:text-black hover:border-gray-200 transition-all cursor-pointer pointer-events-auto flex items-center gap-1.5 shadow-lg backdrop-blur-sm"
+                className="absolute top-6 right-6 z-30 bg-white/10 hover:bg-white/20 active:scale-95 border border-white/15 px-3.5 py-1.5 rounded-full text-[11px] font-bold tracking-wider text-slate-300 hover:text-white transition-all cursor-pointer backdrop-blur-md flex items-center gap-1.5 shadow-lg"
               >
-                {translate(langData, "skipIntro")}
-                <svg className="w-3.5 h-3.5 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                <span>{translate(langData, "skipIntro")}</span>
+                <svg className="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                 </svg>
               </button>
-              <div className="relative flex flex-col items-center gap-7 max-w-sm px-4 z-10">
-                {/* Brand logo */}
-                <div className="relative flex items-center justify-center w-40 h-32 sm:w-48 sm:h-40 group logo-emerge">
-                  <img
-                    src="images/sahil-traders-logo.png"
-                    alt="Sahil Traders"
-                    className="w-full h-full object-contain drop-shadow-xl"
-                  />
+
+              {/* Central Content Card */}
+              <div className="relative flex flex-col items-center px-6 z-10 max-w-sm text-center">
+                {/* Glassmorphic Glowing Logo Container */}
+                <div className="luxury-logo-box">
+                  <div className="luxury-float relative w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-white/10 border border-white/20 backdrop-blur-xl p-4 flex items-center justify-center shadow-2xl shadow-emerald-950/60">
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-emerald-500/20 via-transparent to-amber-500/20 pointer-events-none" />
+                    <img
+                      src="images/sahil-traders-logo.png"
+                      alt="Sahil Traders"
+                      className="w-full h-full object-contain filter drop-shadow-md"
+                    />
+                  </div>
                 </div>
-                {/* Brand Name Text with Cinematic Shimmer Sweep */}
-                <div className="text-center text-carve">
+
+                {/* Brand Name with Radiant Typography */}
+                <div className="luxury-text-anim-1 mt-6">
                   <h1
-                    className="text-4xl sm:text-5xl font-black tracking-[0.2em] uppercase gold-shimmer"
+                    className="text-3xl sm:text-4xl font-black tracking-[0.2em] uppercase text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-300 drop-shadow-sm"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
                     Sahil Traders
                   </h1>
                 </div>
-                {/* Progress Loader bar */}
-                <div className="w-48 h-[2px] bg-white/5 rounded-full overflow-hidden mt-3 relative text-carve">
-                  <div className="h-full bg-gradient-to-r from-amber-500 to-amber-300 rounded-full gold-progress-bar" />
+
+                {/* Subtitle Pill Badge */}
+                <div className="luxury-text-anim-2 mt-3">
+                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 backdrop-blur-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="text-[11px] font-extrabold tracking-[0.15em] text-emerald-400 uppercase">
+                      Wholesale & Retail Pakistan
+                    </span>
+                  </div>
                 </div>
-                <div className="text-[10px] text-gray-700 font-semibold tracking-widest uppercase mt-1.5 animate-pulse">
-                  Pre-caching Store Catalog & Images...
+
+                {/* Modern Progress Line & Status */}
+                <div className="luxury-text-anim-3 mt-8 flex flex-col items-center w-full max-w-[200px]">
+                  <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/5 backdrop-blur-sm">
+                    <div className="h-full bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-400 rounded-full luxury-progress shadow-sm shadow-emerald-400/50" />
+                  </div>
+                  <span className="text-[10px] font-semibold text-slate-400 tracking-widest uppercase mt-2.5">
+                    Loading Store Catalog...
+                  </span>
                 </div>
               </div>
             </div>

@@ -1,4 +1,4 @@
-﻿{
+{
   "appId": "com.sahiltraders.app",
   "appName": "Sahil Traders",
   "webDir": "www",
@@ -17,6 +17,11 @@
       "launchShowDuration": 1500,
       "backgroundColor": "#000000",
       "showSpinner": false
+    },
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DARK",
+      "backgroundColor": "#000000"
     }
   }
 }

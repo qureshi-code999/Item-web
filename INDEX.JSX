@@ -1569,7 +1569,8 @@ function getTranslationValue(dictionary, key) {
     }
 function AboutUsModal({ isOpen, onClose, language }) {
   if (!isOpen) return null;
-  const isUrdu = language === 'ur';
+  const [modalLang, setModalLang] = React.useState('ro');
+  const isUrdu = modalLang === 'ur';
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
@@ -1581,7 +1582,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
         onClick={e => e.stopPropagation()}
       >
         {/* Header Banner */}
-        <div className="relative bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white p-6 pb-8 text-center">
+        <div className="relative bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white p-6 pb-6 text-center">
           <button 
             onClick={onClose}
             className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold w-9 h-9 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
@@ -1599,18 +1600,48 @@ function AboutUsModal({ isOpen, onClose, language }) {
           </div>
           <h2 className="text-2xl font-black tracking-wider uppercase text-amber-400 font-poppins">Sahil Traders</h2>
           <p className="text-xs text-gray-300 font-medium mt-1 tracking-widest uppercase">
-            {tr(language, 'Trusted Wholesale & Retail Store — Est. 2021, Karachi', 'Karachi ka Qabil-e-Aitemad Wholesale Store — Qayam Shuda 2021', 'کراچی کا قابلِ اعتماد ہول سیل و پرچون اسٹور — قائم شدہ 2021')}
+            {tr(modalLang, 'Trusted Wholesale & Retail Store — Est. 2021, Karachi', 'Karachi ka Qabil-e-Aitemad Wholesale Store — Qayam Shuda 2021', 'کراچی کا قابلِ اعتماد ہول سیل و پرچون اسٹور — قائم شدہ 2021')}
           </p>
+          {/* Language Switcher Tabs */}
+          <div className="flex items-center justify-center gap-1.5 mt-3 pt-2 border-t border-white/10">
+            <button
+              type="button"
+              onClick={() => setModalLang('ro')}
+              className={`px-3 py-1 rounded-full text-xs font-black transition-all cursor-pointer ${
+                modalLang === 'ro' ? 'bg-amber-400 text-gray-950 shadow-md scale-105' : 'bg-white/15 text-white hover:bg-white/25'
+              }`}
+            >
+              🇵🇰 Roman Urdu
+            </button>
+            <button
+              type="button"
+              onClick={() => setModalLang('en')}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                modalLang === 'en' ? 'bg-amber-400 text-gray-950 shadow-md scale-105' : 'bg-white/15 text-white hover:bg-white/25'
+              }`}
+            >
+              🇬🇧 English
+            </button>
+            <button
+              type="button"
+              onClick={() => setModalLang('ur')}
+              className={`px-3 py-1 rounded-full text-xs font-bold font-urdu transition-all cursor-pointer ${
+                modalLang === 'ur' ? 'bg-amber-400 text-gray-950 shadow-md scale-105' : 'bg-white/15 text-white hover:bg-white/25'
+              }`}
+            >
+              اردو
+            </button>
+          </div>
         </div>
         {/* Scrollable Content Body */}
         <div className="p-6 overflow-y-auto space-y-5 flex-1 text-gray-800 text-sm leading-relaxed">
           {/* Top Price Fluctuation Disclaimer */}
           <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-950 space-y-1">
             <div className="flex items-center gap-2 font-black text-xs text-red-900 uppercase tracking-wide">
-              ⚠️ {tr(language, 'Important Notice — Please Read!', 'Zaroori Ailaan — Lazmi Parhein!', 'قیمتوں اور اسٹاک سے متعلق ضروری اعلان')}
+              ⚠️ {tr(modalLang, 'Important Notice — Please Read!', 'Zaroori Ailaan — Lazmi Parhein!', 'قیمتوں اور اسٹاک سے متعلق ضروری اعلان')}
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose text-red-950 font-bold' : 'text-xs text-red-950 leading-relaxed font-semibold'}>
-              {tr(language,
+              {tr(modalLang,
                 'We have thousands of different items — so some prices may go slightly up or down depending on the market. But we promise you: our prices will always be the cheapest you can find anywhere!',
                 'Hamare paas hazaron qisam ki cheezein hain — is wajah se kuch cheezon ka rate market ke hisab se kam ya ziada ho sakta hai. Lekin hamara wada hai ke hamara rate hamesha sabse sasta hoga!',
                 'ہمارے پاس ہزاروں قسم کی چیزیں ہیں — اس وجہ سے کچھ چیزوں کا ریٹ مارکیٹ کے حساب سے کم یا زیادہ ہو سکتا ہے۔ لیکن ہم آپ سے وعدہ کرتے ہیں کہ ہمارا ریٹ ہمیشہ سب سے سستا ہوگا!'
@@ -1621,27 +1652,27 @@ function AboutUsModal({ isOpen, onClose, language }) {
           <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-amber-950 shadow-sm">
             <div className="flex items-center gap-2 font-bold text-base mb-2 text-amber-900">
               <span className="text-xl">🏬</span>
-              <span>{tr(language, 'Our Story Since 2021', 'Hamari Kahani (Our Story)', 'ہماری کہانی (Our Story)')}</span>
+              <span>{tr(modalLang, 'Our Story Since 2021', 'Hamari Kahani (Our Story)', 'ہماری کہانی (Our Story)')}</span>
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-sm leading-loose' : 'text-xs sm:text-sm text-gray-700 leading-normal'}>
-              {tr(language,
-                'Established in 2021 in Karachi, Sahil Traders started as a trusted family wholesale business. Our mission is simple: bringing direct wholesale prices to retail customers across Pakistan on 4,000+ daily essentials and branded products.',
-                'Sahil Traders ka aaghaz 2021 mein Karachi se ek qabil-e-aitemad khandani wholesale business ke tor par hua. Hamara maqsad tamam customers ko 4,000+ products direct wholesale qeematon par faraham karna hai, chahe aap 1 item hi kyun na le rahe hon.',
-                'ساحل ٹریڈرز کا آغاز 2021 میں کراچی سے ایک قابلِ اعتماد خاندانی ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات باضابطہ برانڈز سے براہِ راست ہول سیل قیمتوں پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔'
+              {tr(modalLang,
+                'Established in 2021 in Karachi, Sahil Traders brings direct wholesale prices to customers on 4,000+ daily essentials and branded products, even if you are buying just 1 item.',
+                'Sahil Traders ka aaghaz 2021 mein Karachi se wholesale business ke tor par hua. Hamara maqsad har customer ko 4,000+ products direct wholesale rates par faraham karna hai, chahe aap 1 item hi kyun na le rahe hon.',
+                'ساحل ٹریڈرز کا آغاز 2021 میں کراچی سے ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات براہِ راست ہول سیل ریٹس پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔'
               )}
             </p>
           </div>
           {/* Guaranteed Lowest Price Highlight Card */}
           <div className="relative overflow-hidden bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white rounded-2xl p-4 shadow-lg border-2 border-amber-300">
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fde047', color: '#451a03', fontWeight: 900, fontSize: 10, padding: '3px 10px', borderRadius: 999, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>
-              🔥 {tr(language, 'Guaranteed Lowest Rates', 'Sabse Munfarid Baat — Shartiya Kam Rate', 'سب سے منفرد بات — شرطیہ')}
+              🔥 {tr(modalLang, 'Guaranteed Lowest Rates', 'Sabse Munfarid Baat — Shartiya Kam Rate', 'سب سے منفرد بات — شرطیہ')}
             </div>
             <div className="flex items-center gap-2.5 mb-2 font-black text-base">
               <span className="text-2xl">⚡</span>
-              <span className="tracking-wide">{tr(language, 'Lower Rates Than Any Supermart', 'Pakistan ke Baray se Baray Supermart se Sasta!', 'پاکستان کے بڑے سے بڑے سپر مارٹ سے سستا!')}</span>
+              <span className="tracking-wide">{tr(modalLang, 'Lower Rates Than Any Supermart', 'Pakistan ke Baray se Baray Supermart se Sasta!', 'پاکستان کے بڑے سے بڑے سپر مارٹ سے سستا!')}</span>
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-xs sm:text-sm font-semibold leading-relaxed text-amber-50' : 'text-xs sm:text-sm font-medium leading-relaxed text-amber-50'}>
-              {tr(language,
+              {tr(modalLang,
                 'Over 90% of our product prices are strictly lower than any big supermart across Pakistan — Guaranteed! This unique commitment to direct wholesale pricing and huge variety is the core reason why we started Sahil Traders.',
                 'Hamare 90% se ziada products ke rates Pakistan ke baray se baray supermart se bhi kam hote hain — Shartiya! Yahi hamari sabse bari khasiyat hai. Itni ziada variety aur itni kam qeemat aapko aur kahin nahi milegi!',
                 'ہمارے 90% سے زائد پروڈکٹس کے ریٹس پاکستان کے بڑے سے بڑے سپر مارٹ سے بھی کم ہوتے ہیں — شرطیہ! یہی ہماری سب سے بڑی خصوصیت اور منفرد بات ہے جس کی وجہ سے ہم نے یہ کام شروع کیا۔ اتنی زیادہ ورائٹی اور اتنی کم قیمت آپ کو اور کہیں نہیں ملے گی!'
@@ -1652,7 +1683,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
           <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-800 rounded-2xl p-4 text-white shadow-md space-y-3">
             <div className="flex items-center gap-2 font-black text-sm text-amber-400 uppercase tracking-wider border-b border-gray-800 pb-2">
               <span>🤝</span>
-              <span>{tr(language, 'Leadership & Partnership', 'Qayadat aur Partnership', 'قیادت اور پارٹنرشپ (Leadership & Partnership)')}</span>
+              <span>{tr(modalLang, 'Leadership & Partnership', 'Qayadat aur Partnership', 'قیادت اور پارٹنرشپ (Leadership & Partnership)')}</span>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -1663,13 +1694,13 @@ function AboutUsModal({ isOpen, onClose, language }) {
                 </div>
                 <div>
                   <div className="text-[10px] font-extrabold uppercase text-amber-300 tracking-wider">
-                    {tr(language, 'Shop Owner (Elder Brother)', 'Dukan ke Malik (Barray Bhai)', 'دکان کے مالکان (بڑے بھائی)')}
+                    {tr(modalLang, 'Shop Owner (Elder Brother)', 'Dukan ke Malik (Barray Bhai)', 'دکان کے مالکان (بڑے بھائی)')}
                   </div>
                   <div className="font-black text-sm text-white">
                     Muhammad Zubair Moin
                   </div>
                   <div className="text-[11px] text-gray-300 font-medium">
-                    {tr(language, 'Owner — BS Mart', 'Owner — BS Mart', 'آنر BS Mart')}
+                    {tr(modalLang, 'Owner — BS Mart', 'Owner — BS Mart', 'آنر BS Mart')}
                   </div>
                 </div>
               </div>
@@ -1680,19 +1711,19 @@ function AboutUsModal({ isOpen, onClose, language }) {
                 </div>
                 <div>
                   <div className="text-[10px] font-extrabold uppercase text-yellow-300 tracking-wider">
-                    {tr(language, 'Website Creator & Partner', 'Website Creator aur Partner', 'ویب سائٹ میکر اور پارٹنر')}
+                    {tr(modalLang, 'Website Creator & Partner', 'Website Creator aur Partner', 'ویب سائٹ میکر اور پارٹنر')}
                   </div>
                   <div className="font-black text-sm text-white">
                     Muhammad Sahil Saleem
                   </div>
                   <div className="text-[11px] text-gray-300 font-medium">
-                    {tr(language, 'Founder & Developer', 'Founder aur Developer', 'بانی و ڈیولپر')}
+                    {tr(modalLang, 'Founder & Developer', 'Founder aur Developer', 'بانی و ڈیولپر')}
                   </div>
                 </div>
               </div>
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-xs text-amber-200/90 pt-1 leading-relaxed' : 'text-xs text-amber-200/90 pt-1 leading-relaxed'}>
-              {tr(language,
+              {tr(modalLang,
                 '💡 This complete business setup is jointly managed by both brothers, Muhammad Zubair Moin (Owner, BS Mart) & Muhammad Sahil Saleem.',
                 '💡 Ye pura business setup dono bhai Muhammad Zubair Moin (Owner, BS Mart) aur Muhammad Sahil Saleem mil kar chala rahe hain.',
                 '💡 یہ تمام تر سیٹ اپ اور بزنس محمد زبیر معین (مالک BS Mart) اور محمد ساحل سلیم دونوں بھائی مل کر مشترکہ طور پر چلا رہے ہیں۔'
@@ -1704,14 +1735,14 @@ function AboutUsModal({ isOpen, onClose, language }) {
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 font-bold text-sm text-emerald-900">
                 <span className="text-lg">🏬</span>
-                <span>{tr(language, 'Visit Our Physical Shop (BS Mart)', 'Hamari Dukan par Tashreef Layein (BS Mart)', 'ہماری فزیکل دکان (BS Mart)')}</span>
+                <span>{tr(modalLang, 'Visit Our Physical Shop (BS Mart)', 'Hamari Dukan par Tashreef Layein (BS Mart)', 'ہماری فزیکل دکان (BS Mart)')}</span>
               </div>
               <span className="bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                {tr(language, 'BS Mart', 'BS Mart', 'BS مارٹ')}
+                {tr(modalLang, 'BS Mart', 'BS Mart', 'BS مارٹ')}
               </span>
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold' : 'text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold'}>
-              {tr(language,
+              {tr(modalLang,
                 'Visit our physical shop BS Mart! Almost all items listed on this website are available in person at our store. (Note: Due to high demand or market shortage, certain items may temporarily be out of stock, but we restock continuously!)',
                 'Aap hamari physical dukan BS Mart par bhi aa sakte hain! Website ki taqreeban tamam cheezein dukan par dastyab hain. (Note: Market shortage ki wajah se kuch cheezein temporary out of stock ho sakti hain, lekin hum daily restock karte hain!)',
                 'ہے۔ ویب سائٹ پر موجود تقریباً تمام تر مصنوعات آپ کو ہماری دکان (BS Mart) پر بھی مل جائیں گی۔ (نوٹ: شارٹیج یا زیادہ ڈیمانڈ کی صورت میں شاید کچھ پروڈکٹس عارضی طور پر دکان پر اسٹاک میں نہ ہوں، لیکن ہم مسلسل ری اسٹاک کرتے ہیں!)'
@@ -1723,37 +1754,37 @@ function AboutUsModal({ isOpen, onClose, language }) {
             <div className="bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center">
               <div className="text-2xl mb-1">📦</div>
               <div className="font-black text-gray-900 text-sm">4,000+</div>
-              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{tr(language, 'Total Products', 'Variety', 'مصنوعات کی ورائٹی')}</div>
+              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{tr(modalLang, 'Total Products', 'Variety', 'مصنوعات کی ورائٹی')}</div>
             </div>
             <div className="bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center">
               <div className="text-2xl mb-1">🏷️</div>
-              <div className="font-black text-gray-900 text-sm">{tr(language, 'Wholesale Rates', 'Wholesale Rates', 'ہول سیل ریٹس')}</div>
-              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{tr(language, 'For Everyone', 'Sab Customers ke Liye', 'عام گاہکوں کے لیے')}</div>
+              <div className="font-black text-gray-900 text-sm">{tr(modalLang, 'Wholesale Rates', 'Wholesale Rates', 'ہول سیل ریٹس')}</div>
+              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{tr(modalLang, 'For Everyone', 'Sab Customers ke Liye', 'عام گاہکوں کے لیے')}</div>
             </div>
             <div className="bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center">
               <div className="text-2xl mb-1">💯</div>
               <div className="font-black text-gray-900 text-sm">100% Original</div>
-              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{tr(language, 'Genuine Brands', 'Asli Brands', 'اصلی برانڈز')}</div>
+              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{tr(modalLang, 'Genuine Brands', 'Asli Brands', 'اصلی برانڈز')}</div>
             </div>
             <div className="bg-gray-50 border border-gray-200/70 p-3 rounded-2xl text-center flex flex-col items-center">
               <div className="text-2xl mb-1">🚚</div>
-              <div className="font-black text-gray-900 text-sm">{tr(language, 'Fast Delivery', 'Fast Delivery', 'فاسٹ ڈیلیوری')}</div>
-              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{tr(language, 'Across Pakistan', 'Poore Pakistan Mein', 'پورے پاکستان میں')}</div>
+              <div className="font-black text-gray-900 text-sm">{tr(modalLang, 'Fast Delivery', 'Fast Delivery', 'فاسٹ ڈیلیوری')}</div>
+              <div className="text-[11px] text-gray-600 font-medium mt-0.5">{tr(modalLang, 'All Over Karachi', 'Poore Karachi Mein', 'پورے کراچی میں')}</div>
             </div>
           </div>
           {/* Business Hours Card */}
           <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 text-purple-950 space-y-2">
             <div className="flex items-center gap-2 font-bold text-sm text-purple-900">
               <span className="text-lg">⏰</span>
-              <span>{tr(language, 'Store Business Hours', 'Dukan ke Auqat (Timings)', 'اوقاتِ کار (Business Hours)')}</span>
+              <span>{tr(modalLang, 'Store Business Hours', 'Dukan ke Auqat (Timings)', 'اوقاتِ کار (Business Hours)')}</span>
             </div>
             <div className="bg-white/90 border border-purple-100 rounded-xl p-3 text-xs flex justify-between items-center shadow-xs">
               <div>
-                <div className="font-bold text-gray-900">{tr(language, 'Monday to Saturday:', 'Peer ta Hafta (Mon to Sat):', 'پیر تا ہفتہ (Monday to Saturday):')}</div>
-                <div className="text-purple-700 font-extrabold text-sm mt-0.5">{tr(language, '8:00 AM – 11:30 PM', 'Subha 8:00 se Raat 11:30 tak', 'صبح 8:00 بجے سے رات 11:30 بجے تک')}</div>
+                <div className="font-bold text-gray-900">{tr(modalLang, 'Monday to Saturday:', 'Peer ta Hafta (Mon to Sat):', 'پیر تا ہفتہ (Monday to Saturday):')}</div>
+                <div className="text-purple-700 font-extrabold text-sm mt-0.5">{tr(modalLang, '8:00 AM – 11:30 PM', 'Subha 8:00 se Raat 11:30 tak', 'صبح 8:00 بجے سے رات 11:30 بجے تک')}</div>
               </div>
               <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase">
-                {tr(language, 'Open', 'Khula Hai', 'کھلا ہے')}
+                {tr(modalLang, 'Open', 'Khula Hai', 'کھلا ہے')}
               </span>
             </div>
           </div>
@@ -1761,13 +1792,13 @@ function AboutUsModal({ isOpen, onClose, language }) {
           <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 text-emerald-950 text-xs space-y-2">
             <div className="flex items-center gap-2 font-bold text-sm text-emerald-900">
               <span>✨</span>
-              <span>{tr(language, 'Why Customers Trust Us', 'Khandani Aitemad aur Khasiyat', 'ہماری خصوصیات (Why Choose Us)')}</span>
+              <span>{tr(modalLang, 'Why Customers Trust Us', 'Khandani Aitemad aur Khasiyat', 'ہماری خصوصیات (Why Choose Us)')}</span>
             </div>
             <ul className="space-y-1.5 list-disc list-inside text-emerald-900">
-              <li>{tr(language, 'Family business serving with trust since 2021', '2021 se khandani aitemad ke sath khidmat', '2021 سے خاندانی اعتماد کے ساتھ خدمت')}</li>
-              <li>{tr(language, 'Free delivery on orders above Rs. 2,000', 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')}</li>
-              <li>{tr(language, 'Same-day return & exchange policy', 'Usi din tabdeeli aur wapsi ki sahulat (Same-Day Return)', 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)')}</li>
-              <li>{tr(language, 'Direct WhatsApp customer support', 'Direct WhatsApp par fori support', 'براہِ راست واٹس ایپ پر فوری سپورٹ')}</li>
+              <li>{tr(modalLang, 'Family business serving with trust since 2021', '2021 se khandani aitemad ke sath khidmat', '2021 سے خاندانی اعتماد کے ساتھ خدمت')}</li>
+              <li>{tr(modalLang, 'Free delivery on orders above Rs. 2,000', 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')}</li>
+              <li>{tr(modalLang, 'Same-day return & exchange policy', 'Usi din tabdeeli aur wapsi ki sahulat (Same-Day Return)', 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)')}</li>
+              <li>{tr(modalLang, 'Direct WhatsApp customer support', 'Direct WhatsApp par fori support', 'براہِ راست واٹس ایپ پر فوری سپورٹ')}</li>
             </ul>
           </div>
           {/* Google Maps Exact Plus Code Location Card */}
@@ -1775,7 +1806,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 font-bold text-sm text-blue-950">
                 <span className="text-lg">📍</span>
-                <span>{tr(language, 'Store Address & Exact Location', 'Dukan ka Pura Pata aur Map', 'دکان کا مکمل پتہ اور نقشہ')}</span>
+                <span>{tr(modalLang, 'Store Address & Exact Location', 'Dukan ka Pura Pata aur Map', 'دکان کا مکمل پتہ اور نقشہ')}</span>
               </div>
               <a 
                 href="https://www.google.com/maps/search/?api=1&query=R4C4%2BRV6%2C+Safaid+White+Masjid+Rd%2C+Allah+Wala+Town+Sector+H+Korangi%2C+Karachi%2C+Pakistan" 
@@ -1783,7 +1814,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
                 rel="noopener noreferrer" 
                 className="text-[11px] font-bold text-blue-700 hover:text-blue-900 underline flex items-center gap-1 text-decoration-none"
               >
-                {tr(language, 'Open Map ↗', 'Map Kholein ↗', 'نقشہ کھولیں ↗')}
+                {tr(modalLang, 'Open Map ↗', 'Map Kholein ↗', 'نقشہ کھولیں ↗')}
               </a>
             </div>
             <div className="bg-white/90 border border-blue-100 rounded-xl p-3 text-xs text-gray-800 font-medium leading-relaxed flex items-start gap-2 shadow-xs">
@@ -1791,7 +1822,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
               <div>
                 <div className="font-bold text-gray-900">Sahil Traders (Wholesale & Retail)</div>
                 <div className="text-gray-600 mt-0.5">
-                  {tr(language, 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan', 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan', 'R4C4+RV6، سفید مسجد روڈ، اللہ والا ٹاؤن سیکٹر ایچ، کورنگی، کراچی، پاکستان')}
+                  {tr(modalLang, 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan', 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan', 'R4C4+RV6، سفید مسجد روڈ، اللہ والا ٹاؤن سیکٹر ایچ، کورنگی، کراچی، پاکستان')}
                 </div>
               </div>
             </div>
@@ -1810,19 +1841,19 @@ function AboutUsModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
           <a
-            href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(tr(language, 'Hi Sahil Traders! I have an inquiry about your store.', 'Salam Sahil Traders! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ساحل ٹریڈرز کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`}
+            href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(tr(modalLang, 'Hi Sahil Traders! I have an inquiry about your store.', 'Salam Sahil Traders! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ساحل ٹریڈرز کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
           >
             <span>💬</span>
-            <span>{tr(language, 'Chat on WhatsApp', 'WhatsApp par Rabta Karein', 'واٹس ایپ پر رابطہ کریں')}</span>
+            <span>{tr(modalLang, 'Chat on WhatsApp', 'WhatsApp par Rabta Karein', 'واٹس ایپ پر رابطہ کریں')}</span>
           </a>
           <button
             onClick={onClose}
             className="py-3 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
           >
-            {tr(language, 'Close', 'Band Karein', 'بند کریں')}
+            {tr(modalLang, 'Close', 'Band Karein', 'بند کریں')}
           </button>
         </div>
       </div>
@@ -1993,7 +2024,8 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
 
 function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
   if (!isOpen) return null;
-  const isUrdu = language === 'ur';
+  const [modalLang, setModalLang] = React.useState('ro');
+  const isUrdu = modalLang === 'ur';
   return (
     <div 
       className="fixed inset-0 z-[99] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in"
@@ -2007,17 +2039,17 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
           👋
         </div>
         <h3 className="text-xl font-black text-gray-900 tracking-wide">
-          {tr(language, 'Assalam U alaikum!', 'Assalam-o-Alaikum!', 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ')}
+          {tr(modalLang, 'Assalam U alaikum!', 'Assalam-o-Alaikum!', 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ')}
         </h3>
         <h4 className="text-lg font-extrabold text-amber-600 mt-1 font-poppins">
-          {tr(language, 'Welcome to Sahil Traders', 'Sahil Traders mein Khush Amdeed', 'ساحل ٹریڈرز میں خوش آمدید')}
+          {tr(modalLang, 'Welcome to Sahil Traders', 'Sahil Traders mein Khush Amdeed', 'ساحل ٹریڈرز میں خوش آمدید')}
         </h4>
         <div className="my-5 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-950">
           <div className="flex items-center justify-center gap-1.5 font-bold text-sm text-amber-900 mb-1.5">
-            📢 {tr(language, 'Important Notice', 'Zaroori Guzarish / Ailaan', 'ضروری گزارش / اعلان')}
+            📢 {tr(modalLang, 'Important Notice', 'Zaroori Guzarish / Ailaan', 'ضروری گزارش / اعلان')}
           </div>
-          <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose' : 'text-xs text-gray-700 leading-normal text-left'}>
-            {tr(language,
+          <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose' : 'text-xs text-gray-700 leading-normal text-center'}>
+            {tr(modalLang,
               'We kindly request you to please read our "About Us" section at least once so you get all the essential information and shop with complete clarity.',
               'Hamari aapse guzarish hai ke ek baar hamara "About Us" section lazmi parh lein, taake aapko tamam zaroori aur ahem maloomat mil sakein aur shopping mein koi masla na aaye.',
               'ہماری آپ سے گزارش ہے کہ ایک بار ہمارا "About Us (ہماری معلومات)" سیکشن لازمی پڑھ لیں، تاکہ آپ کو تمام ضروری اور اہم معلومات مل سکیں اور خریداری میں کوئی مسئلہ پیش نہ آئے۔'
@@ -2032,14 +2064,14 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
             }}
             className="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs tracking-wider uppercase transition-all shadow-md hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
           >
-            📖 {tr(language, 'Read About Us', 'Hamare Baare Mein Parhein (About Us)', 'ہماری معلومات پڑھیں (Read About Us)')}
+            📖 {tr(modalLang, 'Read About Us', 'Hamare Baare Mein Parhein (About Us)', 'ہماری معلومات پڑھیں (Read About Us)')}
           </button>
           
           <button
             onClick={onClose}
             className="w-full py-2.5 px-5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
           >
-            {tr(language, 'Understood, Continue', 'Theek Hai, Aage Barhein', 'ٹھیک ہے، آگے بڑھیں')}
+            {tr(modalLang, 'Understood, Continue', 'Theek Hai, Aage Barhein', 'ٹھیک ہے، آگے بڑھیں')}
           </button>
         </div>
       </div>
@@ -2115,93 +2147,98 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
         {/* Scrollable Body */}
         <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
           {/* Main Product Info Card */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start bg-gradient-to-br from-gray-50 to-amber-50/30 p-4 rounded-2xl border border-gray-200 shadow-xs">
-            {/* Image */}
-            <div className="w-36 h-36 sm:w-40 sm:h-40 shrink-0 bg-white rounded-2xl p-2.5 border border-gray-200 flex items-center justify-center shadow-sm relative group overflow-hidden">
-              {pricing.hasDiscount && (
-                <span className="absolute top-2 left-2 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 uppercase tracking-wider">
-                  <span>🔥</span>
-                  <span>{pricing.discountPercent}% OFF</span>
-                </span>
-              )}
-              {hasFile ? (
-                <img 
-                  src={imageSrc} 
-                  alt={product.name} 
-                  loading="lazy" 
-                  decoding="async" 
-                  className="w-full h-full object-contain" 
-                />
-              ) : (
-                <div className={`w-full h-full rounded-xl bg-gradient-to-br ${product.gradient || 'from-amber-400 to-amber-600'} flex items-center justify-center text-white text-4xl font-black`}>
-                  {product.initial || 'P'}
-                </div>
-              )}
-              {!pricing.hasDiscount && (
-                <span className="absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
-                  Original
-                </span>
-              )}
-            </div>
-            {/* Details */}
-            <div className="flex-1 space-y-2.5 text-center sm:text-left w-full">
-              <div className="flex flex-wrap gap-1.5 justify-center sm:justify-start items-center">
-                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase">
-                  {tr(language, '✓ In Stock', '✓ Stock mein Dastyab Hai', '✓ اسٹاک میں دستیاب')}
-                </span>
-                {product.categoryName && (
-                  <span className="bg-gray-200 text-gray-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                    {product.categoryName}
+          <div className="flex flex-col gap-3 bg-gradient-to-br from-gray-50 to-amber-50/30 p-4 rounded-2xl border border-gray-200 shadow-xs">
+            {/* Top Row: Image on Left, Title + Wholesale Selling Price on Right */}
+            <div className="flex flex-col sm:flex-row gap-3.5 items-center sm:items-start">
+              {/* Image */}
+              <div className="w-36 h-36 sm:w-40 sm:h-40 shrink-0 bg-white rounded-2xl p-2.5 border border-gray-200 flex items-center justify-center shadow-sm relative group overflow-hidden">
+                {pricing.hasDiscount && (
+                  <span className="absolute top-2 left-2 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 uppercase tracking-wider">
+                    <span>🔥</span>
+                    <span>{pricing.discountPercent}% OFF</span>
+                  </span>
+                )}
+                {hasFile ? (
+                  <img 
+                    src={imageSrc} 
+                    alt={product.name} 
+                    loading="lazy" 
+                    decoding="async" 
+                    className="w-full h-full object-contain" 
+                  />
+                ) : (
+                  <div className={`w-full h-full rounded-xl bg-gradient-to-br ${product.gradient || 'from-amber-400 to-amber-600'} flex items-center justify-center text-white text-4xl font-black`}>
+                    {product.initial || 'P'}
+                  </div>
+                )}
+                {!pricing.hasDiscount && (
+                  <span className="absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
+                    Original
                   </span>
                 )}
               </div>
-              <h3 className="text-base font-black text-gray-900 leading-snug">
-                {getProductDisplayName(product, language)}
-              </h3>
-              {/* Enhanced Price Section with Discount / Retail cut */}
-              {pricing.hasDiscount ? (
-                <div className="space-y-1.5 bg-gradient-to-r from-emerald-50/70 via-white to-red-50/50 p-3 rounded-2xl border border-emerald-200/80 shadow-2xs text-left">
-                  <div className="flex items-center justify-between flex-wrap gap-1">
-                    <div>
-                      <div className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500">
-                        {tr(language, 'Wholesale Selling Price', 'Hamari Wholesale Qeemat', 'ہماری ہول سیل قیمت')}
+              {/* Right Side: Name, In-Stock Tag & Wholesale Price Card */}
+              <div className="flex-1 space-y-2 text-center sm:text-left w-full">
+                <div className="flex flex-wrap gap-1.5 justify-center sm:justify-start items-center">
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 uppercase">
+                    {tr(language, '✓ In Stock', '✓ Stock mein Dastyab Hai', '✓ اسٹاک میں دستیاب')}
+                  </span>
+                  {product.categoryName && (
+                    <span className="bg-gray-200 text-gray-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                      {product.categoryName}
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-base sm:text-lg font-black text-gray-900 leading-snug">
+                  {getProductDisplayName(product, language)}
+                </h3>
+                {/* Wholesale Selling Price Card (side by side with image) */}
+                {pricing.hasDiscount ? (
+                  <div className="space-y-1.5 bg-gradient-to-r from-emerald-50/70 via-white to-red-50/50 p-2.5 sm:p-3 rounded-2xl border border-emerald-200/80 shadow-2xs text-left">
+                    <div className="flex items-center justify-between flex-wrap gap-1">
+                      <div>
+                        <div className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500">
+                          {tr(language, 'Wholesale Selling Price', 'Hamari Wholesale Qeemat', 'ہماری ہول سیل قیمت')}
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl sm:text-3xl font-black text-gray-950">
+                            Rs. {pricing.sellingPrice.toLocaleString()}
+                          </span>
+                          <span className="text-sm sm:text-base text-gray-400 line-through font-bold">
+                            Rs. {pricing.retailPrice.toLocaleString()}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl sm:text-3xl font-black text-gray-950">
-                          Rs. {pricing.sellingPrice.toLocaleString()}
-                        </span>
-                        <span className="text-sm sm:text-base text-gray-400 line-through font-bold">
-                          Rs. {pricing.retailPrice.toLocaleString()}
-                        </span>
-                      </div>
+                      <span className="inline-block bg-red-600 text-white text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl shadow-xs">
+                        {pricing.discountPercent}% OFF
+                      </span>
                     </div>
-                    <span className="inline-block bg-red-600 text-white text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl shadow-xs">
-                      {pricing.discountPercent}% OFF
+                    <div className="flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100/90 px-2 py-1 rounded-lg border border-emerald-300">
+                      <svg className="w-3.5 h-3.5 text-emerald-700 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span>
+                        {tr(language,
+                          `You Save: Rs. ${pricing.savings.toLocaleString()} per item`,
+                          `Apki Bachat: Rs. ${pricing.savings.toLocaleString()} fi item`,
+                          `آپ کی بچت: Rs. ${pricing.savings.toLocaleString()} فی آئٹم`
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline justify-center sm:justify-start gap-2">
+                    <span className="text-2xl font-black text-black">
+                      Rs. {product.price.toLocaleString()}
+                    </span>
+                    <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      {tr(language, 'Cheaper than Supermarts', 'Supermarket se Sasta', 'سپر مارکیٹ سے سستا')}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100/90 px-2 py-1 rounded-lg border border-emerald-300">
-                    <svg className="w-3.5 h-3.5 text-emerald-700 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>
-                      {tr(language,
-                        `You Save: Rs. ${pricing.savings.toLocaleString()} per item`,
-                        `Apki Bachat: Rs. ${pricing.savings.toLocaleString()} fi item`,
-                        `آپ کی بچت: Rs. ${pricing.savings.toLocaleString()} فی آئٹم`
-                      )}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-baseline justify-center sm:justify-start gap-2">
-                  <span className="text-2xl font-black text-black">
-                    Rs. {product.price.toLocaleString()}
-                  </span>
-                  <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    {tr(language, 'Cheaper than Supermarts', 'Supermarket se Sasta', 'سپر مارکیٹ سے سستا')}
-                  </span>
-                </div>
-              )}
-              {/* Quantity Section with Wholesale Bulk Selector (Compact Responsive Row) */}
-              <div className="space-y-2 pt-2 border-t border-gray-100">
+                )}
+              </div>
+            </div>
+
+            {/* Below Top Row: Full-width Quantity Controls, Bulk Chips, Live Total & Savings */}
+            <div className="space-y-2.5 pt-2 border-t border-gray-200/80 w-full">
                 {/* Stepper on Left, Wholesale Dropdown on Right */}
                 <div className="flex items-center justify-between gap-2.5">
                   <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-2xs shrink-0">
@@ -2290,45 +2327,75 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                 </div>
 
                 {/* Live Total / Subtotal Calculation with Bulk Discount */}
-                <div className={`border rounded-xl px-3 py-1.5 flex items-center justify-between text-xs shadow-2xs ${
+                <div className={`border rounded-xl px-3 py-2 shadow-2xs ${
                   bulkPricing.extraPercent > 0 
                     ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-emerald-300' 
                     : 'bg-amber-50/70 border-amber-200/80'
                 }`}>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-gray-500 font-bold text-[10px] uppercase tracking-wider">
-                        {tr(language, 'Total for', 'Kul Qeemat Baraye', 'کل قیمت برائے')} {modalQty} {modalQty > 1 ? tr(language, 'items', 'cheezein', 'اشیاء') : tr(language, 'item', 'cheez', 'چیز')}:
-                      </span>
-                      {bulkPricing.extraPercent > 0 && (
-                        <span className="bg-emerald-600 text-white text-[9.5px] font-black px-1.5 py-0.2 rounded-md uppercase">
-                          🔥 +{bulkPricing.extraPercent}% OFF
+                  {/* Top row: total label + price */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: (pricing.hasDiscount || bulkPricing.extraPercent > 0) ? 6 : 0 }}>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-500 font-bold text-[10px] uppercase tracking-wider">
+                          {tr(language, 'Total for', 'Kul Qeemat Baraye', 'کل قیمت برائے')} {modalQty} {modalQty > 1 ? tr(language, 'items', 'cheezein', 'اشیاء') : tr(language, 'item', 'cheez', 'چیز')}:
                         </span>
-                      )}
-                    </div>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-sm sm:text-base font-black text-gray-950 font-poppins">
-                        Rs. {bulkPricing.finalTotal.toLocaleString()}
-                      </span>
-                      {bulkPricing.extraPercent > 0 && (
-                        <span className="text-xs text-gray-400 line-through font-bold">
-                          Rs. {bulkPricing.baseTotal.toLocaleString()}
+                        {bulkPricing.extraPercent > 0 && (
+                          <span className="bg-emerald-600 text-white text-[9.5px] font-black px-1.5 py-0.2 rounded-md uppercase">
+                            🔥 +{bulkPricing.extraPercent}% OFF
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-sm sm:text-base font-black text-gray-950 font-poppins">
+                          Rs. {bulkPricing.finalTotal.toLocaleString()}
                         </span>
-                      )}
+                        {bulkPricing.extraPercent > 0 && (
+                          <span className="text-xs text-gray-400 line-through font-bold">
+                            Rs. {bulkPricing.baseTotal.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  {(pricing.hasDiscount || bulkPricing.extraPercent > 0) && (
-                    <div className="text-right">
-                      <span className="text-[10px] text-emerald-700 font-bold block">
-                        {tr(language, 'Total Savings', 'Kul Bachat', 'کل بچت')}
-                      </span>
-                      <span className="text-[11px] font-black text-emerald-700 bg-white/90 px-1.5 py-0.5 rounded-md border border-emerald-300 shadow-2xs">
-                        Rs. {((pricing.savings * modalQty) + bulkPricing.extraSavings).toLocaleString()}
-                      </span>
-                    </div>
-                  )}
+                  {/* Savings breakdown: show per-line */}
+                  {(pricing.hasDiscount || bulkPricing.extraPercent > 0) && (() => {
+                    const itemSaving = pricing.savings * modalQty;
+                    const bulkSaving = bulkPricing.extraSavings;
+                    const totalSaving = itemSaving + bulkSaving;
+                    return (
+                      <div style={{ borderTop: '1px dashed #6ee7b7', paddingTop: 6, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        {pricing.hasDiscount && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: 9.5, color: '#065f46', fontWeight: 700 }}>
+                              🏷️ Item Discount ({pricing.discountPercent}% OFF × {modalQty})
+                            </span>
+                            <span style={{ fontSize: 10, fontWeight: 900, color: '#065f46', background: '#d1fae5', borderRadius: 5, padding: '1px 6px' }}>
+                              -Rs. {itemSaving.toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        {bulkSaving > 0 && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: 9.5, color: '#065f46', fontWeight: 700 }}>
+                              🎁 Bulk Discount (+{bulkPricing.extraPercent}% for {modalQty} pcs)
+                            </span>
+                            <span style={{ fontSize: 10, fontWeight: 900, color: '#065f46', background: '#d1fae5', borderRadius: 5, padding: '1px 6px' }}>
+                              -Rs. {bulkSaving.toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #6ee7b7', paddingTop: 4, marginTop: 2 }}>
+                          <span style={{ fontSize: 10, color: '#065f46', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                            💰 {tr(language, 'Total Savings', 'Kul Bachat', 'کل بچت')}
+                          </span>
+                          <span style={{ fontSize: 12, fontWeight: 900, color: '#ffffff', background: '#059669', borderRadius: 7, padding: '2px 8px', boxShadow: '0 2px 6px rgba(5,150,105,0.3)' }}>
+                            Rs. {totalSaving.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
-              </div>
 
               {/* Action Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">

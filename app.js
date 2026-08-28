@@ -2540,7 +2540,11 @@ function SahilTraders() {
   }, "Pre-caching Store Catalog & Images..."))), /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 -z-10 bg-white"
   }), /*#__PURE__*/React.createElement("div", {
-    className: "top-delivery-bar bg-gray-900 text-white text-[11px] font-medium py-1.5 px-4 shadow-inner border-b border-gray-800"
+    className: "top-delivery-bar bg-gray-900 text-white text-[11px] font-medium px-4 shadow-inner border-b border-gray-800",
+    style: {
+      paddingTop: 'max(env(safe-area-inset-top, 0px), 36px)',
+      paddingBottom: '6px'
+    }
   }, /*#__PURE__*/React.createElement("div", {
     className: "max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap text-gray-200"
   }, /*#__PURE__*/React.createElement("div", {

@@ -8,6 +8,13 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Fix mobile status bar overlap */
+@media (max-width: 639px) {
+  .top-delivery-bar {
+    padding-top: max(env(safe-area-inset-top, 0px), 32px) !important;
+  }
+}
+
 /* Custom Utility Animations */
 @keyframes fadeInUp {
   0% { opacity: 0; transform: translateY(20px); }

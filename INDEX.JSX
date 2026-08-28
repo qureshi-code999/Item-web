@@ -3313,7 +3313,7 @@ export default function SahilTraders() {
           {/* Background — Pure Clean White */}
           <div className="fixed inset-0 -z-10 bg-white" />
           {/* Top Delivery Timing & Info Bar */}
-          <div className="bg-gray-900 text-white text-[11px] font-medium px-4 shadow-inner border-b border-gray-800 pt-[max(env(safe-area-inset-top,0px),30px)] pb-1.5 sm:py-1.5">
+          <div className="top-delivery-bar bg-gray-900 text-white text-[11px] font-medium py-1.5 px-4 shadow-inner border-b border-gray-800">
             <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap text-gray-200">
               <div className="flex items-center gap-2">
                 <span className="text-amber-400 font-bold">⏰ {tr(language, 'Delivery Timing:', 'Delivery Timing:', 'ڈیلیوری ٹائمنگ:')}</span>

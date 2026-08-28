@@ -2349,20 +2349,24 @@ function SahilTraders() {
   // Intelligent Asset & Image Preloader during Intro Animation
   useEffect(() => {
     if (!showSplash) return;
-    // Preload first 20 product images eagerly with mapped extension
+    // Preload first 40 product images from Vercel CDN (fastest possible, cloud-cached)
     const imageMap = window.PRODUCT_IMAGE_MAP || {};
-    const eagerIds = Object.keys(imageMap).slice(0, 20);
-    eagerIds.forEach(id => {
+    const eagerIds = Object.keys(imageMap).slice(0, 40);
+    eagerIds.forEach((id, i) => {
       const ext = imageMap[id] || 'png';
       const img = new Image();
-      img.src = `images/${id}.${ext}`;
+      // Stagger start slightly so we don't DDoS burst 40 at once
+      setTimeout(() => {
+        img.src = `https://sahiltraders.vercel.app/images/${id}.${ext}`;
+      }, i * 30);
     });
+    // +700ms added to both timers (total: 3200ms fade, 3900ms remove)
     const fadeTimer = setTimeout(() => {
       setFadeSplash(true);
-    }, 2500);
+    }, 3200);
     const removeTimer = setTimeout(() => {
       setShowSplash(false);
-    }, 3200);
+    }, 3900);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
@@ -2565,14 +2569,22 @@ function SahilTraders() {
   }), /*#__PURE__*/React.createElement("span", {
     className: "text-[11px] font-extrabold tracking-[0.15em] text-emerald-400 uppercase"
   }, "Wholesale & Retail Pakistan"))), /*#__PURE__*/React.createElement("div", {
-    className: "luxury-text-anim-3 mt-8 flex flex-col items-center w-full max-w-[200px]"
+    className: "luxury-text-anim-3 mt-8 flex flex-col items-center gap-3"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "w-full h-1 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/5 backdrop-blur-sm"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "h-full bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-400 rounded-full luxury-progress shadow-sm shadow-emerald-400/50"
-  })), /*#__PURE__*/React.createElement("span", {
-    className: "text-[10px] font-semibold text-slate-400 tracking-widest uppercase mt-2.5"
-  }, "Loading Store Catalog...")))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-[5px]"
+  }, [0, 1, 2, 3, 4, 5, 6, 7].map(i => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    className: "splash-segment-bar",
+    style: {
+      animationDelay: `${i * 0.18}s`
+    }
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-[10px] font-bold text-slate-400 tracking-[0.18em] uppercase"
+  }, "Loading"), /*#__PURE__*/React.createElement("span", {
+    className: "splash-dots-anim text-emerald-400 font-extrabold text-[14px] leading-none"
+  }))))), /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 -z-10 bg-white"
   }), /*#__PURE__*/React.createElement("div", {
     className: "top-delivery-bar bg-gray-900 text-white text-[11px] font-medium py-1.5 px-4 shadow-inner border-b border-gray-800"

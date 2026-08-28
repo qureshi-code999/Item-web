@@ -1,4 +1,4 @@
-﻿{
+{
   "appId": "com.sahiltraders.app",
   "appName": "Sahil Traders",
   "webDir": "www",
@@ -15,8 +15,8 @@
     },
     "StatusBar": {
       "overlaysWebView": false,
-      "style": "DARK",
-      "backgroundColor": "#000000"
+      "style": "LIGHT",
+      "backgroundColor": "#ffffff"
     }
   }
 }

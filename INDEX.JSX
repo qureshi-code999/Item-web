@@ -18,7 +18,8 @@ function getTranslationValue(dictionary, key) {
     }
     function getImgUrl(path) {
       if (!path) return '';
-      return path;
+      if (path.startsWith('http://') || path.startsWith('https://')) return path;
+      return `https://sahiltraders.vercel.app/${path}`;
     }
     function translate(dictionary, key, params = {}) {
       let value = getTranslationValue(dictionary, key);
@@ -3153,6 +3154,34 @@ export default function SahilTraders() {
         setFilterMenuOpen(false);
         setVisibleCount(24);
       }, [selectedCategory, searchTerm]);
+      // Automatic background image pre-caching to user phone internal storage
+      useEffect(() => {
+        if (typeof window !== 'undefined' && window.PRODUCT_IMAGE_MAP) {
+          const timer = setTimeout(() => {
+            const ids = Object.keys(window.PRODUCT_IMAGE_MAP);
+            let idx = 0;
+            const preloadBatch = () => {
+              if (idx >= ids.length) return;
+              const batch = ids.slice(idx, idx + 6);
+              idx += 6;
+              batch.forEach(id => {
+                const ext = window.PRODUCT_IMAGE_MAP[id];
+                const img = new Image();
+                img.src = `https://sahiltraders.vercel.app/images/${id}.${ext}`;
+              });
+              if (idx < ids.length) {
+                if ('requestIdleCallback' in window) {
+                  window.requestIdleCallback(preloadBatch, { timeout: 2000 });
+                } else {
+                  setTimeout(preloadBatch, 400);
+                }
+              }
+            };
+            preloadBatch();
+          }, 1500);
+          return () => clearTimeout(timer);
+        }
+      }, []);
       const baseFiltered = useMemo(() => {
         const term = searchTerm.trim();
         if (term === "") {

@@ -27,7 +27,14 @@
       address: 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan'
     };
   </script>
-  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sahil Traders">
   
   <!-- Open Graph & Social Sharing -->
   <meta property="og:title" content="Sahil Traders | Wholesale &amp; Retail Pakistan">
@@ -1552,5 +1559,14 @@
   <!-- PRODUCT_IMAGE_MAP already defined in head -->
 
   <script src="app.js?v=8.7"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js')
+          .then(function(reg) { console.log('Sahil Traders App ServiceWorker registered:', reg.scope); })
+          .catch(function(err) { console.warn('ServiceWorker registration failed:', err); });
+      });
+    }
+  </script>
 </body>
 </html>

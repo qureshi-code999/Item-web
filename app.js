@@ -32,8 +32,7 @@ function tr(language, en, ro, ur) {
 }
 function getImgUrl(path) {
   if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  return `https://sahiltraders.vercel.app/${path}`;
+  return path;
 }
 function translate(dictionary, key, params = {}) {
   let value = getTranslationValue(dictionary, key);

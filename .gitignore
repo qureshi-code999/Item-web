@@ -41,6 +41,12 @@ node_modules/
 # === PYTHON CACHE ===
 __pycache__/
 *.pyc
-cloudflared.exe
+# === ANDROID BUILDS & BINARIES (Never push binaries > 100MB to GitHub) ===
+*.apk
+*.aab
+android/app/build/
+android/.gradle/
+.idea/
+www/
 
 cloudflared.exe

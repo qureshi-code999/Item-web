@@ -30,6 +30,11 @@ function tr(language, en, ro, ur) {
   if (language === "ro") return ro !== undefined && ro !== null ? ro : en;
   return en;
 }
+function getImgUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  return `https://sahiltraders.vercel.app/${path}`;
+}
 function translate(dictionary, key, params = {}) {
   let value = getTranslationValue(dictionary, key);
   if (!value) value = key;
@@ -1339,7 +1344,7 @@ function ProductDetailModal({
     return combined.slice(0, 6);
   }, [product, products]);
   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-  const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
+  const imageSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
   const handleDirectWhatsAppOrder = () => {
     const pName = getProductDisplayName(product, language);
     let discountInfo = '';
@@ -1718,7 +1723,7 @@ function ProductDetailModal({
   }, relatedProducts.map(rel => {
     const relPricing = getProductPricing(rel);
     const relHasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[rel.id];
-    const relImgSrc = relHasFile ? `images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}` : null;
+    const relImgSrc = relHasFile ? getImgUrl(`images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}`) : null;
     return /*#__PURE__*/React.createElement("div", {
       key: rel.id,
       onClick: () => onSelectProduct && onSelectProduct(rel),
@@ -1795,7 +1800,7 @@ function VariantSelectionModal({
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-3"
   }, ext ? /*#__PURE__*/React.createElement("img", {
-    src: `images/${product.id}.${ext}`,
+    src: getImgUrl(`images/${product.id}.${ext}`),
     alt: "",
     className: "w-12 h-12 rounded-xl object-contain bg-white border border-gray-200 p-1 shrink-0"
   }) : /*#__PURE__*/React.createElement("div", {
@@ -2540,7 +2545,7 @@ function SahilTraders() {
   }, "Pre-caching Store Catalog & Images..."))), /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 -z-10 bg-white"
   }), /*#__PURE__*/React.createElement("div", {
-    className: "bg-gray-900 text-white text-[11px] font-medium px-4 shadow-inner border-b border-gray-800 pt-[max(env(safe-area-inset-top,0px),30px)] pb-1.5 sm:py-1.5"
+    className: "top-delivery-bar bg-gray-900 text-white text-[11px] font-medium py-1.5 px-4 shadow-inner border-b border-gray-800"
   }, /*#__PURE__*/React.createElement("div", {
     className: "max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap text-gray-200"
   }, /*#__PURE__*/React.createElement("div", {
@@ -4270,7 +4275,7 @@ function CategoryHome({
         key: idx,
         className: "cat-img-box"
       }, ext && /*#__PURE__*/React.createElement("img", {
-        src: `images/${item.id}.${ext}`,
+        src: getImgUrl(`images/${item.id}.${ext}`),
         alt: "",
         loading: "lazy",
         onError: e => {
@@ -4418,7 +4423,7 @@ function ProductCard({
     setTimeout(() => setIsAdded(false), 900);
   };
   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-  const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
+  const imageSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
   return /*#__PURE__*/React.createElement("div", {
     onClick: () => onSelectProduct && onSelectProduct(product),
     className: "product-card group bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-3 sm:p-4 flex flex-col justify-between transition-all duration-300 cursor-pointer shadow-xs hover:shadow-lg relative overflow-hidden"
@@ -4792,7 +4797,7 @@ function CartDrawer({
     }, pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
       className: "absolute -top-1.5 -left-1.5 z-10 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.2 rounded-md shadow-2xs uppercase"
     }, pricing.discountPercent, "%"), window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? /*#__PURE__*/React.createElement("img", {
-      src: `images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`,
+      src: getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`),
       onError: e => {
         e.target.onerror = null;
       },
@@ -5537,7 +5542,18 @@ function OrderHistoryModal({
         gap: 10,
         flexShrink: 0
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("img", {
+      src: getImgUrl(`images/${item.id}.${item.imageExt}`),
+      alt: item.name,
+      style: {
+        width: 36,
+        height: 36,
+        objectFit: 'contain',
+        borderRadius: 8,
+        background: '#f8fafc',
+        border: '1px solid #e2e8f0'
+      }
+    }), /*#__PURE__*/React.createElement("div", {
       style: {
         textAlign: 'right'
       }
@@ -6326,7 +6342,7 @@ function CheckoutModal({
         minWidth: 0
       }
     }, window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? /*#__PURE__*/React.createElement("img", {
-      src: `images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`,
+      src: getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`),
       onError: e => {
         e.target.onerror = null;
       },

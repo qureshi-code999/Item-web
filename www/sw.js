@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'sahil-traders-v1';
+const CACHE_NAME = 'sahil-traders-v9.0';
 const STATIC_ASSETS = [
   './',
   './index.html',

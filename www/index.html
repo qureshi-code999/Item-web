@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="google" content="notranslate">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Sahil Traders | ہول سیل اور پرچون | Wholesale &amp; Retail</title>
   <meta name="description" content="Sahil Traders — Pakistan ka trusted wholesale aur retail store. 1000+ products: soaps, shampoos, creams, baby care, stationary aur bahut kuch. آرڈر کے لیے WhatsApp کریں۔">
   <meta name="keywords" content="sahil traders, wholesale, retail, pakistan, soap, shampoo, cream, baby care, stationary">
@@ -11,8 +11,17 @@
   <link rel="canonical" href="https://sahiltraders.com/">
   <!-- Tailwind CSS CDN (load FIRST so our style.css can override) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css?v=3.0">
+  <link rel="stylesheet" href="style.css?v=3.2">
   
+  <style>
+    /* Mobile Status Bar Clearance Fix */
+    @media (max-width: 768px) {
+      html, body {
+        padding-top: max(env(safe-area-inset-top, 0px), 36px) !important;
+        background-color: #111827 !important;
+      }
+    }
+  </style>
   
   <script>
     if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
@@ -1558,7 +1567,7 @@
 
   <!-- PRODUCT_IMAGE_MAP already defined in head -->
 
-  <script src="app.js?v=8.7"></script>
+  <script src="app.js?v=9.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {

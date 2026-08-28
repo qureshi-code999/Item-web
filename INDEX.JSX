@@ -16,6 +16,11 @@ function getTranslationValue(dictionary, key) {
       if (language === "ro") return (ro !== undefined && ro !== null) ? ro : en;
       return en;
     }
+    function getImgUrl(path) {
+      if (!path) return '';
+      if (path.startsWith('http://') || path.startsWith('https://')) return path;
+      return `https://sahiltraders.vercel.app/${path}`;
+    }
     function translate(dictionary, key, params = {}) {
       let value = getTranslationValue(dictionary, key);
       if (!value) value = key;
@@ -2097,7 +2102,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
     return combined.slice(0, 6);
   }, [product, products]);
   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-  const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
+  const imageSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
   const handleDirectWhatsAppOrder = () => {
     const pName = getProductDisplayName(product, language);
     let discountInfo = '';
@@ -2461,7 +2466,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                 {relatedProducts.map(rel => {
                   const relPricing = getProductPricing(rel);
                   const relHasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[rel.id];
-                  const relImgSrc = relHasFile ? `images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}` : null;
+                  const relImgSrc = relHasFile ? getImgUrl(`images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}`) : null;
                   return (
                     <div 
                       key={rel.id}
@@ -2563,7 +2568,7 @@ function VariantSelectionModal({ product, open, onClose, onConfirm, language, la
           <div className="flex items-center gap-3">
             {ext ? (
               <img
-                src={`images/${product.id}.${ext}`}
+                src={getImgUrl(`images/${product.id}.${ext}`)}
                 alt=""
                 className="w-12 h-12 rounded-xl object-contain bg-white border border-gray-200 p-1 shrink-0"
               />
@@ -4147,7 +4152,7 @@ export default function SahilTraders() {
                               <div key={idx} className="cat-img-box">
                                 {ext && (
                                   <img
-                                    src={`images/${item.id}.${ext}`}
+                                    src={getImgUrl(`images/${item.id}.${ext}`)}
                                     alt=""
                                     loading="lazy"
                                     onError={(e) => { e.target.style.display = 'none'; }}
@@ -4259,7 +4264,7 @@ export default function SahilTraders() {
         setTimeout(() => setIsAdded(false), 900);
       };
       const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-      const imageSrc = hasFile ? `images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}` : null;
+      const imageSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
       return (
         <div
           onClick={() => onSelectProduct && onSelectProduct(product)}
@@ -4466,7 +4471,7 @@ export default function SahilTraders() {
                           )}
                           {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
                             <img
-                              src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
+                              src={getImgUrl(`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`)}
                               onError={(e) => { e.target.onerror = null; }}
                               alt={product.name}
                               className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-gray-200 hover:border-gray-300 transition-colors"
@@ -4718,6 +4723,7 @@ export default function SahilTraders() {
                           </div>
                           {/* Right Side: Total Amount & Expand Arrow */}
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                            <img src={getImgUrl(`images/${item.id}.${item.imageExt}`)} alt={item.name} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
                             <div style={{ textAlign: 'right' }}>
                               <div style={{ fontSize: 15, fontWeight: 900, color: '#111827' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
                               <span style={{ fontSize: 10, fontWeight: 700, color: isExpanded ? '#2563eb' : '#9ca3af' }}>
@@ -5017,7 +5023,7 @@ export default function SahilTraders() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
                               {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
                                 <img
-                                  src={`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`}
+                                  src={getImgUrl(`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`)}
                                   onError={(e) => { e.target.onerror = null; }}
                                   alt={product.name}
                                   className="w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-gray-200"

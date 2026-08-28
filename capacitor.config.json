@@ -1,13 +1,8 @@
-{
+﻿{
   "appId": "com.sahiltraders.app",
   "appName": "Sahil Traders",
   "webDir": "www",
   "bundledWebRuntime": false,
-  "server": {
-    "url": "https://sahiltraders.vercel.app",
-    "cleartext": false,
-    "androidScheme": "https"
-  },
   "android": {
     "allowMixedContent": true,
     "backgroundColor": "#000000"

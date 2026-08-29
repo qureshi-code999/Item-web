@@ -11152,21 +11152,25 @@ function SahilTraders() {
     className: "fixed inset-0 -z-10 bg-white"
   }), /*#__PURE__*/React.createElement("div", {
     style: {
-      background: 'linear-gradient(90deg, #0a0e1a 0%, #0d1528 50%, #0a0e1a 100%)',
-      borderBottom: '1px solid rgba(16,185,129,0.15)'
+      background: 'linear-gradient(90deg, #08101a 0%, #0b1828 50%, #08101a 100%)',
+      borderBottom: '1px solid rgba(16,185,129,0.18)'
     },
-    className: "text-white text-[10.5px] font-medium py-1.5 px-4"
+    className: "text-white text-[10.5px] font-medium py-1.5 px-3 sm:px-4"
   }, /*#__PURE__*/React.createElement("div", {
     className: "max-w-7xl mx-auto flex items-center justify-between gap-2"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-3 overflow-hidden"
+    className: "flex items-center gap-2 sm:gap-3 overflow-hidden"
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       color: '#f59e0b',
       fontWeight: 700,
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4
     }
-  }, "\u23F0 ", tr(language, '10:00 AM – 8:00 PM', '10:00 AM – 8:00 PM', 'صبح 10 – رات 8')), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: 10:00 AM – 8:00 PM (Peer ta Hafta)', 'ڈیلیوری کے اوقات: صبح 10 تا رات 8 (پیر تا ہفتہ)'))), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline",
     style: {
       color: 'rgba(255,255,255,0.25)'
     }
@@ -11190,29 +11194,35 @@ function SahilTraders() {
   }, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC ", tr(language, 'WhatsApp Orders Active', 'WhatsApp Orders Active', 'واٹس ایپ آرڈرز جاری')))), /*#__PURE__*/React.createElement("a", {
     href: "tel:03368945775",
     style: {
-      color: '#ffffff',
-      fontWeight: 700,
+      color: '#10b981',
+      background: 'rgba(16,185,129,0.12)',
+      border: '1px solid rgba(16,185,129,0.3)',
+      borderRadius: '6px',
+      padding: '2px 8px',
+      fontWeight: 800,
       whiteSpace: 'nowrap',
       textDecoration: 'none',
       display: 'flex',
       alignItems: 'center',
       gap: '4px',
-      fontSize: '10.5px'
+      fontSize: '10px',
+      flexShrink: 0
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("span", null, "0336-8945775")))), /*#__PURE__*/React.createElement("header", {
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Call Helpline', 'Call Karen', 'کال کریں'))))), /*#__PURE__*/React.createElement("header", {
     className: "sticky top-0 z-30 backdrop-blur-xl",
     style: {
-      background: 'linear-gradient(180deg, #0d1528 0%, #0a1020 100%)',
-      borderBottom: '1px solid rgba(255,255,255,0.07)',
-      boxShadow: '0 4px 32px rgba(0,0,0,0.45)'
+      background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)',
+      borderBottom: '1px solid rgba(16,185,129,0.22)',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.35)'
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3"
+    className: "max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between gap-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2.5 shrink-0 cursor-pointer",
     onClick: () => {
+      setActiveTab('home');
       setSelectedCategory(null);
       setSearchTerm('');
       setActiveCategory('all');
@@ -11225,28 +11235,28 @@ function SahilTraders() {
       inset: '-2px',
       borderRadius: '12px',
       background: 'linear-gradient(135deg, #10b981, #059669)',
-      opacity: 0.4,
+      opacity: 0.5,
       filter: 'blur(5px)'
     }
   }), /*#__PURE__*/React.createElement("img", {
     src: "images/sahil-traders-logo.png",
     alt: "Sahil Traders",
     style: {
-      width: '38px',
-      height: '38px',
+      width: '36px',
+      height: '36px',
       objectFit: 'contain',
       borderRadius: '10px',
       position: 'relative',
       background: 'rgba(255,255,255,0.06)',
-      padding: '3px',
-      border: '1px solid rgba(16,185,129,0.3)'
+      padding: '2px',
+      border: '1px solid rgba(16,185,129,0.4)'
     }
   })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "'Poppins', sans-serif",
       fontWeight: 900,
       fontSize: '15px',
-      letterSpacing: '0.08em',
+      letterSpacing: '0.06em',
       textTransform: 'uppercase',
       color: '#ffffff',
       lineHeight: 1.1
@@ -11255,7 +11265,7 @@ function SahilTraders() {
     style: {
       fontSize: '8.5px',
       fontWeight: 700,
-      letterSpacing: '0.15em',
+      letterSpacing: '0.14em',
       textTransform: 'uppercase',
       color: '#10b981',
       marginTop: '1px'
@@ -11767,129 +11777,38 @@ function SahilTraders() {
       border: '2px solid #0a1020'
     }
   }, cartCount))), /*#__PURE__*/React.createElement("div", {
-    className: "flex sm:hidden items-center gap-2 shrink-0"
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      triggerHaptic('medium');
-      setParchiModalOpen(true);
-    },
+    className: "flex sm:hidden items-center gap-1.5 shrink-0"
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "https://wa.me/923368945775",
+    target: "_blank",
+    rel: "noopener noreferrer",
     style: {
-      background: 'linear-gradient(135deg, #059669, #0d9488)',
-      border: 'none',
-      borderRadius: '10px',
-      padding: '6px 10px',
+      background: 'rgba(37,211,102,0.14)',
+      border: '1px solid rgba(37,211,102,0.35)',
+      borderRadius: '8px',
+      padding: '5px 9px',
       fontSize: '11px',
       fontWeight: 800,
-      color: '#ffffff',
-      cursor: 'pointer',
+      color: '#25d366',
       display: 'flex',
       alignItems: 'center',
       gap: '4px',
-      boxShadow: '0 2px 10px rgba(16,185,129,0.35)'
-    },
-    title: "Parchi Slip Order"
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCF8"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: '11px'
+      textDecoration: 'none',
+      boxShadow: '0 2px 8px rgba(37,211,102,0.2)'
     }
-  }, "Parchi")), /*#__PURE__*/React.createElement("button", {
-    id: "cart-btn-mobile",
-    onClick: () => setCartOpen(true),
-    style: {
-      position: 'relative',
-      background: cartCount > 0 ? '#ffffff' : 'rgba(255,255,255,0.08)',
-      border: cartCount > 0 ? '1px solid #ffffff' : '1px solid rgba(255,255,255,0.12)',
-      borderRadius: '10px',
-      padding: '7px 11px',
-      color: cartCount > 0 ? '#0a1020' : '#ffffff',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    "aria-label": "View Shopping Cart"
-  }, /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: '17px',
-      height: '17px'
-    },
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.2",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-  })), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      position: 'absolute',
-      top: '-6px',
-      right: '-6px',
-      minWidth: '18px',
-      height: '18px',
-      borderRadius: '9px',
-      background: '#ef4444',
-      color: '#ffffff',
-      fontSize: '10px',
-      fontWeight: 900,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: '2px solid #0a1020'
-    }
-  }, cartCount)), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setMobileMenuOpen(prev => !prev),
-    style: {
-      position: 'relative',
-      background: 'rgba(255,255,255,0.08)',
-      border: '1px solid rgba(255,255,255,0.12)',
-      borderRadius: '10px',
-      padding: '7px 10px',
-      color: '#ffffff',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    "aria-label": "Open Navigation Menu"
-  }, /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: '18px',
-      height: '18px'
-    },
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.2",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-  })), orderHistory.length > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      position: 'absolute',
-      top: '-2px',
-      right: '-2px',
-      width: '8px',
-      height: '8px',
-      borderRadius: '50%',
-      background: '#10b981',
-      border: '1.5px solid #0a1020'
-    }
-  })))), /*#__PURE__*/React.createElement("div", {
-    className: "block sm:hidden mt-2.5 relative"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC"), /*#__PURE__*/React.createElement("span", null, "WhatsApp")))), /*#__PURE__*/React.createElement("div", {
+    className: "block sm:hidden mt-2 relative"
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative flex items-center"
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
       position: 'absolute',
-      left: '13px',
+      left: '12px',
       top: '50%',
       transform: 'translateY(-50%)',
       width: '15px',
       height: '15px',
-      color: 'rgba(255,255,255,0.4)',
+      color: 'rgba(255,255,255,0.45)',
       pointerEvents: 'none'
     },
     fill: "none",
@@ -11911,14 +11830,14 @@ function SahilTraders() {
     placeholder: isListening ? tr(language, "🎙️ Listening... Speak now...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder"),
     style: {
       width: '100%',
-      background: isListening ? 'rgba(16,185,129,0.14)' : 'rgba(255,255,255,0.08)',
-      border: isListening ? '1.5px solid #10b981' : '1.5px solid rgba(255,255,255,0.12)',
-      borderRadius: '11px',
-      paddingLeft: '38px',
-      paddingRight: searchTerm ? '68px' : '38px',
-      paddingTop: '9px',
-      paddingBottom: '9px',
-      fontSize: '12.5px',
+      background: isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)',
+      border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.16)',
+      borderRadius: '10px',
+      paddingLeft: '36px',
+      paddingRight: searchTerm ? '64px' : '36px',
+      paddingTop: '8px',
+      paddingBottom: '8px',
+      fontSize: '12px',
       color: '#ffffff',
       outline: 'none',
       transition: 'all 0.2s',
@@ -11926,16 +11845,18 @@ function SahilTraders() {
     },
     onFocus: e => {
       e.target.style.borderColor = '#10b981';
-      e.target.style.background = 'rgba(255,255,255,0.12)';
+      e.target.style.background = 'rgba(255,255,255,0.14)';
+      e.target.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.2)';
     },
     onBlur: e => {
-      e.target.style.borderColor = isListening ? '#10b981' : 'rgba(255,255,255,0.12)';
-      e.target.style.background = isListening ? 'rgba(16,185,129,0.14)' : 'rgba(255,255,255,0.08)';
+      e.target.style.borderColor = isListening ? '#10b981' : 'rgba(255,255,255,0.16)';
+      e.target.style.background = isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)';
+      e.target.style.boxShadow = 'none';
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      right: '7px',
+      right: '6px',
       top: '50%',
       transform: 'translateY(-50%)',
       display: 'flex',
@@ -11949,13 +11870,13 @@ function SahilTraders() {
       setSearchTerm('');
     },
     style: {
-      background: 'rgba(255,255,255,0.12)',
+      background: 'rgba(255,255,255,0.15)',
       border: 'none',
       borderRadius: '6px',
-      padding: '3px 6px',
-      color: 'rgba(255,255,255,0.6)',
+      padding: '2px 5px',
+      color: 'rgba(255,255,255,0.7)',
       cursor: 'pointer',
-      fontSize: '11px',
+      fontSize: '10px',
       fontWeight: 700
     },
     title: "Clear"
@@ -11966,8 +11887,8 @@ function SahilTraders() {
     style: {
       background: isListening ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)',
       border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.12)',
-      borderRadius: '7px',
-      padding: '5px 7px',
+      borderRadius: '6px',
+      padding: '4px 6px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
@@ -11975,9 +11896,9 @@ function SahilTraders() {
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: '13px',
-      height: '13px',
-      color: isListening ? '#10b981' : 'rgba(255,255,255,0.55)'
+      width: '12px',
+      height: '12px',
+      color: isListening ? '#10b981' : 'rgba(255,255,255,0.6)'
     },
     fill: "none",
     stroke: "currentColor",
@@ -11990,26 +11911,26 @@ function SahilTraders() {
   }))))), suggestOpen && suggestions.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      top: 'calc(100% + 6px)',
+      top: 'calc(100% + 4px)',
       left: 0,
       right: 0,
-      background: '#0d1528',
-      border: '1.5px solid rgba(255,255,255,0.1)',
-      borderRadius: '12px',
-      boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+      background: '#09131e',
+      border: '1.5px solid rgba(16,185,129,0.3)',
+      borderRadius: '10px',
+      boxShadow: '0 16px 48px rgba(0,0,0,0.7)',
       zIndex: 50,
       overflow: 'hidden',
-      maxHeight: '300px',
+      maxHeight: '280px',
       overflowY: 'auto'
     }
   }, recentSearches.length > 0 && !searchTerm && /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: '8px 14px 4px',
-      fontSize: '10px',
+      padding: '7px 12px 3px',
+      fontSize: '9.5px',
       fontWeight: 700,
       letterSpacing: '0.1em',
       textTransform: 'uppercase',
-      color: 'rgba(255,255,255,0.3)'
+      color: 'rgba(255,255,255,0.4)'
     }
   }, "Recent"), suggestions.slice(0, 8).map(product => /*#__PURE__*/React.createElement("button", {
     key: product.id,
@@ -12018,25 +11939,25 @@ function SahilTraders() {
     style: {
       width: '100%',
       textAlign: 'left',
-      padding: '9px 12px',
+      padding: '8px 12px',
       background: 'transparent',
       border: 'none',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
-      gap: '10px',
+      gap: '9px',
       borderBottom: '1px solid rgba(255,255,255,0.05)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: '26px',
-      height: '26px',
-      borderRadius: '7px',
+      width: '24px',
+      height: '24px',
+      borderRadius: '6px',
       background: `linear-gradient(135deg, ${product.gradient?.replace('from-', '').replace(' to-', ', ') || '#10b981, #059669'})`,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '10.5px',
+      fontSize: '10px',
       fontWeight: 800,
       color: 'white',
       flexShrink: 0
@@ -12048,7 +11969,7 @@ function SahilTraders() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '12px',
+      fontSize: '11.5px',
       fontWeight: 600,
       color: '#ffffff',
       lineHeight: 1.3,
@@ -12058,16 +11979,654 @@ function SahilTraders() {
     }
   }, product.name), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '10.5px',
+      fontSize: '10px',
       color: '#10b981',
       fontWeight: 700
     }
   }, "Rs. ", product.price)))))))), /*#__PURE__*/React.createElement("main", {
-    className: "max-w-6xl mx-auto px-4 py-6 main-content-area",
+    className: "max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 main-content-area",
     style: {
-      paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))'
+      paddingBottom: 'calc(58px + env(safe-area-inset-bottom, 0px))'
     }
-  }, showCategoryHome ? /*#__PURE__*/React.createElement(CategoryHome, {
+  }, activeTab === 'account' ?
+  /*#__PURE__*/
+  /* ══════════ FULL-PAGE GLOSSY WHITE & BLACK "ME / ACCOUNT" VIEW ══════════ */
+  React.createElement("div", {
+    className: "max-w-2xl mx-auto space-y-4 animate-fade-in pb-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '10px 14px',
+      background: '#ffffff',
+      borderRadius: '16px',
+      border: '1px solid #e2e8f0',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('light');
+      setActiveTab('home');
+    },
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      background: '#f8fafc',
+      border: '1px solid #e2e8f0',
+      borderRadius: '10px',
+      padding: '6px 12px',
+      fontSize: '11.5px',
+      fontWeight: 800,
+      color: '#0f172a',
+      cursor: 'pointer'
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      width: 14,
+      height: 14
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+  })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Back to Shop', 'Wapis Shop', 'واپس شاپ'))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '13px',
+      fontWeight: 900,
+      color: '#0f172a',
+      letterSpacing: '0.04em',
+      textTransform: 'uppercase'
+    }
+  }, tr(language, 'My Account', 'Mera Account', 'میرا اکاؤنٹ')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '32px'
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: 'linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)',
+      borderRadius: '20px',
+      border: '1.5px solid #dcfce7',
+      padding: '16px 18px',
+      boxShadow: '0 4px 16px rgba(16,185,129,0.07)',
+      position: 'relative',
+      overflow: 'hidden'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '14px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '52px',
+      height: '52px',
+      borderRadius: '16px',
+      background: 'linear-gradient(135deg, #10b981, #059669)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '24px',
+      boxShadow: '0 4px 14px rgba(16,185,129,0.3)',
+      flexShrink: 0
+    }
+  }, "\uD83D\uDECD\uFE0F"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      flexWrap: 'wrap'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '15px',
+      fontWeight: 900,
+      color: '#0f172a',
+      fontFamily: "'Poppins', sans-serif"
+    }
+  }, "Sahil Traders Customer"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '9px',
+      fontWeight: 800,
+      background: '#dcfce7',
+      color: '#166534',
+      padding: '2px 7px',
+      borderRadius: '6px',
+      border: '1px solid #bbf7d0'
+    }
+  }, "\u2713 Verified Buyer")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '11px',
+      color: '#64748b',
+      fontWeight: 600,
+      marginTop: '2px'
+    }
+  }, tr(language, 'Wholesale & Retail Buyer • Karachi, Pakistan', 'Wholesale & Retail Customer • Karachi', 'تھوک و پرچون کسٹمر • کراچی'))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: '10px'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('light');
+      setOrderHistoryOpen(true);
+    },
+    style: {
+      background: '#ffffff',
+      borderRadius: '16px',
+      border: '1.5px solid #e2e8f0',
+      padding: '14px 8px',
+      textAlign: 'center',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+      cursor: 'pointer',
+      transition: 'all 0.15s'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '20px',
+      marginBottom: '2px'
+    }
+  }, "\uD83D\uDCE6"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '18px',
+      fontWeight: 900,
+      color: '#10b981'
+    }
+  }, orderHistory.length), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10.5px',
+      fontWeight: 800,
+      color: '#0f172a',
+      marginTop: '2px'
+    }
+  }, tr(language, 'Orders', 'Orders', 'آرڈرز')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '9px',
+      color: '#94a3b8',
+      fontWeight: 600
+    }
+  }, tr(language, 'Receipts', 'Receipts', 'رسیدیں'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('light');
+      setWishlistOpen(true);
+    },
+    style: {
+      background: '#ffffff',
+      borderRadius: '16px',
+      border: '1.5px solid #e2e8f0',
+      padding: '14px 8px',
+      textAlign: 'center',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+      cursor: 'pointer',
+      transition: 'all 0.15s'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '20px',
+      marginBottom: '2px'
+    }
+  }, "\u2764\uFE0F"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '18px',
+      fontWeight: 900,
+      color: '#f43f5e'
+    }
+  }, wishlist.length), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10.5px',
+      fontWeight: 800,
+      color: '#0f172a',
+      marginTop: '2px'
+    }
+  }, tr(language, 'Wishlist', 'Pasandida', 'پسندیدہ')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '9px',
+      color: '#94a3b8',
+      fontWeight: 600
+    }
+  }, tr(language, 'Saved', 'Saved', 'محفوظ'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('medium');
+      setCartOpen(true);
+    },
+    style: {
+      background: '#ffffff',
+      borderRadius: '16px',
+      border: '1.5px solid #e2e8f0',
+      padding: '14px 8px',
+      textAlign: 'center',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+      cursor: 'pointer',
+      transition: 'all 0.15s'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '20px',
+      marginBottom: '2px'
+    }
+  }, "\uD83D\uDED2"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '18px',
+      fontWeight: 900,
+      color: '#3b82f6'
+    }
+  }, cartCount), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10.5px',
+      fontWeight: 800,
+      color: '#0f172a',
+      marginTop: '2px'
+    }
+  }, tr(language, 'Cart', 'Cart', 'کارٹ')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '9px',
+      color: '#94a3b8',
+      fontWeight: 600
+    }
+  }, tr(language, 'In Bag', 'Items', 'اشیاء')))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '10px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => {
+      triggerHaptic('medium');
+      setParchiModalOpen(true);
+    },
+    style: {
+      background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+      borderRadius: '18px',
+      padding: '14px 16px',
+      color: '#ffffff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '12px',
+      cursor: 'pointer',
+      boxShadow: '0 4px 14px rgba(16,185,129,0.3)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '42px',
+      height: '42px',
+      borderRadius: '12px',
+      background: 'rgba(255,255,255,0.2)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '20px',
+      flexShrink: 0
+    }
+  }, "\uD83D\uDCF8"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '13.5px',
+      fontWeight: 900
+    }
+  }, tr(language, 'Parchi / Photo Order', 'Parchi ya Photo Order', 'پرچی / فوٹو آرڈر')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10.5px',
+      color: 'rgba(255,255,255,0.9)',
+      marginTop: '2px'
+    }
+  }, tr(language, 'Upload slip photo for instant order', 'Handwritten slip ki photo upload karen', 'ہاتھ کی پرچی کی تصویر سے فوری آرڈر')))), /*#__PURE__*/React.createElement("span", {
+    style: {
+      background: '#ffffff',
+      color: '#059669',
+      fontSize: '10.5px',
+      fontWeight: 900,
+      padding: '6px 12px',
+      borderRadius: '8px',
+      whiteSpace: 'nowrap'
+    }
+  }, tr(language, 'Upload', 'Bhejen', 'بھیجیں'))), /*#__PURE__*/React.createElement("a", {
+    href: "https://wa.me/923368945775",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+      borderRadius: '18px',
+      padding: '14px 16px',
+      color: '#ffffff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '12px',
+      cursor: 'pointer',
+      textDecoration: 'none',
+      boxShadow: '0 4px 14px rgba(37,211,102,0.3)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '42px',
+      height: '42px',
+      borderRadius: '12px',
+      background: 'rgba(255,255,255,0.2)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '20px',
+      flexShrink: 0
+    }
+  }, "\uD83D\uDCAC"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '13.5px',
+      fontWeight: 900
+    }
+  }, "WhatsApp Helpline & Orders"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10.5px',
+      color: 'rgba(255,255,255,0.9)',
+      marginTop: '2px'
+    }
+  }, "0336-8945775 \u2022 ", tr(language, 'Direct Chat with Store', 'Store se Direct Rabta', 'دکان سے براہ راست رابطہ')))), /*#__PURE__*/React.createElement("span", {
+    style: {
+      background: '#ffffff',
+      color: '#128C7E',
+      fontSize: '10.5px',
+      fontWeight: 900,
+      padding: '6px 12px',
+      borderRadius: '8px',
+      whiteSpace: 'nowrap'
+    }
+  }, tr(language, 'Chat', 'Chat', 'چیٹ'))), /*#__PURE__*/React.createElement("a", {
+    href: "tel:03368945775",
+    style: {
+      background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+      borderRadius: '18px',
+      padding: '14px 16px',
+      color: '#ffffff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '12px',
+      cursor: 'pointer',
+      textDecoration: 'none',
+      boxShadow: '0 4px 14px rgba(0,0,0,0.2)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '42px',
+      height: '42px',
+      borderRadius: '12px',
+      background: 'rgba(255,255,255,0.15)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '20px',
+      flexShrink: 0
+    }
+  }, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '13.5px',
+      fontWeight: 900
+    }
+  }, tr(language, 'Call Official Helpline', 'Helpline par Call Karen', 'ہیلپ لائن پر کال کریں')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10.5px',
+      color: '#38bdf8',
+      fontWeight: 800,
+      marginTop: '2px'
+    }
+  }, "0336-8945775 (10:00 AM \u2013 8:00 PM)"))), /*#__PURE__*/React.createElement("span", {
+    style: {
+      background: '#38bdf8',
+      color: '#0f172a',
+      fontSize: '10.5px',
+      fontWeight: 900,
+      padding: '6px 12px',
+      borderRadius: '8px',
+      whiteSpace: 'nowrap'
+    }
+  }, tr(language, 'Call Now', 'Call Karen', 'کال کریں')))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: '#ffffff',
+      borderRadius: '18px',
+      border: '1.5px solid #e2e8f0',
+      padding: '14px 16px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '11.5px',
+      fontWeight: 800,
+      color: '#0f172a',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      marginBottom: '10px'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDF10"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Select App Language', 'Zaban Muntakhab Karen', 'ایپ کی زبان منتخب کریں'))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: '8px'
+    }
+  }, [['en', '🇬🇧 English'], ['ro', '🇵🇰 Roman'], ['ur', '🇵🇰 اردو']].map(([code, label]) => /*#__PURE__*/React.createElement("button", {
+    key: code,
+    onClick: () => {
+      setLanguage(code);
+      triggerHaptic('light');
+    },
+    style: {
+      padding: '8px 4px',
+      borderRadius: '10px',
+      border: language === code ? '2px solid #10b981' : '1.5px solid #e2e8f0',
+      background: language === code ? '#f0fdf4' : '#f8fafc',
+      color: language === code ? '#166534' : '#475569',
+      fontSize: '11.5px',
+      fontWeight: language === code ? 900 : 700,
+      cursor: 'pointer',
+      boxShadow: language === code ? '0 2px 6px rgba(16,185,129,0.12)' : 'none',
+      transition: 'all 0.15s'
+    }
+  }, label)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: '#ffffff',
+      borderRadius: '18px',
+      border: '1.5px solid #e2e8f0',
+      padding: '4px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('light');
+      setReturnPolicyOpen(true);
+    },
+    style: {
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '12px 14px',
+      background: 'transparent',
+      border: 'none',
+      borderBottom: '1px solid #f1f5f9',
+      cursor: 'pointer',
+      textAlign: 'left'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '34px',
+      height: '34px',
+      borderRadius: '10px',
+      background: '#f0fdf4',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '16px',
+      flexShrink: 0
+    }
+  }, "\uD83D\uDEE1\uFE0F"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '12.5px',
+      fontWeight: 800,
+      color: '#0f172a'
+    }
+  }, tr(language, 'Return & Exchange Policy', 'Wapsi Policy', 'واپسی اور تبدیلی کی پالیسی')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10px',
+      color: '#64748b',
+      marginTop: '1px'
+    }
+  }, tr(language, '7-day easy returns & exchange guarantee', '7 din me asan wapsi guarantee', '7 دن میں آسان واپسی کی گارنٹی'))), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '16px',
+      color: '#94a3b8'
+    }
+  }, "\u203A")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('light');
+      setAboutOpen(true);
+    },
+    style: {
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '12px 14px',
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      textAlign: 'left'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '34px',
+      height: '34px',
+      borderRadius: '10px',
+      background: '#eff6ff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '16px',
+      flexShrink: 0
+    }
+  }, "\u2139\uFE0F"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '12.5px',
+      fontWeight: 800,
+      color: '#0f172a'
+    }
+  }, tr(language, 'About Sahil Traders', 'Sahil Traders ke Baare Mein', 'ساحل ٹریڈرز کے بارے میں')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10px',
+      color: '#64748b',
+      marginTop: '1px'
+    }
+  }, tr(language, 'Owners, wholesale history & store info', 'Malikan aur dukan ki maloomat', 'مالکان اور دکان کی تفصیلات'))), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '16px',
+      color: '#94a3b8'
+    }
+  }, "\u203A"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: '#ffffff',
+      borderRadius: '18px',
+      border: '1.5px solid #e2e8f0',
+      padding: '14px 16px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '11.5px',
+      fontWeight: 800,
+      color: '#0f172a',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      marginBottom: '8px'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Store Details & Location', 'Dukan ki Location aur Timings', 'دکان کا پتہ اور اوقات'))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+      fontSize: '11px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      color: '#334155'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCCD"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontWeight: 600
+    }
+  }, "BS Mart, Karachi, Sindh, Pakistan")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      color: '#059669',
+      fontWeight: 700
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, "10:00 AM \u2013 8:00 PM (Monday to Saturday)")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      color: '#2563eb',
+      fontWeight: 700
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("span", null, "Official Helpline: 0336-8945775")))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      padding: '6px 0 16px'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10.5px',
+      fontWeight: 800,
+      color: '#64748b'
+    }
+  }, "Sahil Traders Official App v9.4"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '9.5px',
+      color: '#94a3b8',
+      marginTop: '2px'
+    }
+  }, "Sahil Saleem & Muhammad Zubair Moin \u2022 Karachi \uD83C\uDDF5\uD83C\uDDF0"))) : showCategoryHome ? /*#__PURE__*/React.createElement(CategoryHome, {
     products: products,
     onSelectCategory: setSelectedCategory,
     langData: langData,
@@ -12828,17 +13387,16 @@ function SahilTraders() {
       bottom: 0,
       left: 0,
       right: 0,
-      background: 'rgba(10, 16, 32, 0.97)',
-      backdropFilter: 'blur(24px)',
-      WebkitBackdropFilter: 'blur(24px)',
+      background: 'rgba(8, 14, 24, 0.98)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
       borderTop: '1px solid rgba(255,255,255,0.08)',
-      boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
+      boxShadow: '0 -4px 20px rgba(0,0,0,0.4)',
       zIndex: 45,
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       display: 'flex',
-      alignItems: 'stretch',
-      height: 'auto',
-      minHeight: 62
+      alignItems: 'center',
+      height: '50px'
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -12850,15 +13408,16 @@ function SahilTraders() {
     },
     style: {
       flex: 1,
+      height: '100%',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 3,
+      gap: 2,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '10px 4px 8px',
+      padding: '4px 2px',
       position: 'relative'
     }
   }, activeTab === 'home' && /*#__PURE__*/React.createElement("span", {
@@ -12867,15 +13426,15 @@ function SahilTraders() {
       top: 0,
       left: '50%',
       transform: 'translateX(-50%)',
-      width: 28,
-      height: 3,
-      borderRadius: '0 0 4px 4px',
+      width: 20,
+      height: 2.5,
+      borderRadius: '0 0 3px 3px',
       background: '#10b981'
     }
   }), /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 22,
-      height: 22,
+      width: 18,
+      height: 18,
       color: activeTab === 'home' ? '#10b981' : 'rgba(255,255,255,0.45)'
     },
     fill: activeTab === 'home' ? '#10b981' : 'none',
@@ -12888,50 +13447,38 @@ function SahilTraders() {
     d: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 10,
-      fontWeight: 700,
-      color: activeTab === 'home' ? '#10b981' : 'rgba(255,255,255,0.4)',
-      letterSpacing: '0.02em'
+      fontSize: 9.5,
+      fontWeight: activeTab === 'home' ? 800 : 600,
+      color: activeTab === 'home' ? '#10b981' : 'rgba(255,255,255,0.45)'
     }
   }, tr(language, 'Home', 'Home', 'ہوم'))), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       triggerHaptic('light');
-      setActiveTab('orders');
       setOrderHistoryOpen(true);
     },
     style: {
       flex: 1,
+      height: '100%',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 3,
+      gap: 2,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '10px 4px 8px',
+      padding: '4px 2px',
       position: 'relative'
     }
-  }, activeTab === 'orders' && /*#__PURE__*/React.createElement("span", {
-    style: {
-      position: 'absolute',
-      top: 0,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: 28,
-      height: 3,
-      borderRadius: '0 0 4px 4px',
-      background: '#10b981'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 22,
-      height: 22,
-      color: activeTab === 'orders' ? '#10b981' : 'rgba(255,255,255,0.45)'
+      width: 18,
+      height: 18,
+      color: 'rgba(255,255,255,0.45)'
     },
     fill: "none",
     stroke: "currentColor",
@@ -12944,61 +13491,58 @@ function SahilTraders() {
   })), orderHistory.length > 0 && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      top: -4,
+      top: -3,
       right: -6,
-      minWidth: 15,
-      height: 15,
-      borderRadius: 8,
+      minWidth: 14,
+      height: 14,
+      borderRadius: 7,
       background: '#10b981',
       color: '#fff',
-      fontSize: 9,
+      fontSize: 8.5,
       fontWeight: 900,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      border: '1.5px solid #0a1020'
+      border: '1px solid #080e18'
     }
   }, orderHistory.length > 9 ? '9+' : orderHistory.length)), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 10,
-      fontWeight: 700,
-      color: activeTab === 'orders' ? '#10b981' : 'rgba(255,255,255,0.4)',
-      letterSpacing: '0.02em'
+      fontSize: 9.5,
+      fontWeight: 600,
+      color: 'rgba(255,255,255,0.45)'
     }
   }, tr(language, 'Orders', 'Orders', 'آرڈرز'))), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1,
+      height: '100%',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0 4px'
+      justifyContent: 'center'
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       triggerHaptic('medium');
-      setActiveTab('cart');
       setCartOpen(true);
     },
     style: {
-      width: 60,
-      height: 60,
+      width: 44,
+      height: 44,
       borderRadius: '50%',
-      background: cartCount > 0 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #1e2940, #0d1528)',
-      border: cartCount > 0 ? '3px solid rgba(16,185,129,0.5)' : '2px solid rgba(255,255,255,0.12)',
-      boxShadow: cartCount > 0 ? '0 4px 20px rgba(16,185,129,0.55), 0 0 0 6px rgba(16,185,129,0.08)' : '0 4px 16px rgba(0,0,0,0.4)',
+      background: cartCount > 0 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #1e293b, #0f172a)',
+      border: cartCount > 0 ? '2px solid rgba(16,185,129,0.6)' : '1.5px solid rgba(255,255,255,0.15)',
+      boxShadow: cartCount > 0 ? '0 3px 12px rgba(16,185,129,0.45)' : '0 2px 8px rgba(0,0,0,0.35)',
       display: 'flex',
-      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       cursor: 'pointer',
       position: 'relative',
-      transform: 'translateY(-12px)',
+      transform: 'translateY(-7px)',
       transition: 'all 0.2s'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 22,
-      height: 22,
+      width: 18,
+      height: 18,
       color: '#ffffff'
     },
     fill: "none",
@@ -13012,55 +13556,44 @@ function SahilTraders() {
   })), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      top: -3,
-      right: -3,
-      minWidth: 18,
-      height: 18,
-      borderRadius: 10,
+      top: -2,
+      right: -2,
+      minWidth: 16,
+      height: 16,
+      borderRadius: 8,
       background: '#ef4444',
       color: '#fff',
-      fontSize: 10,
+      fontSize: 9,
       fontWeight: 900,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      border: '2px solid #0a1020'
+      border: '1.5px solid #080e18'
     }
   }, cartCount > 9 ? '9+' : cartCount))), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       triggerHaptic('medium');
-      setActiveTab('parchi');
       setParchiModalOpen(true);
     },
     style: {
       flex: 1,
+      height: '100%',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 3,
+      gap: 2,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '10px 4px 8px',
+      padding: '4px 2px',
       position: 'relative'
     }
-  }, activeTab === 'parchi' && /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      position: 'absolute',
-      top: 0,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: 28,
-      height: 3,
-      borderRadius: '0 0 4px 4px',
-      background: '#10b981'
-    }
-  }), /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: 22,
-      height: 22,
-      color: activeTab === 'parchi' ? '#10b981' : 'rgba(255,255,255,0.45)'
+      width: 18,
+      height: 18,
+      color: 'rgba(255,255,255,0.45)'
     },
     fill: "none",
     stroke: "currentColor",
@@ -13076,28 +13609,27 @@ function SahilTraders() {
     d: "M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 10,
-      fontWeight: 700,
-      color: activeTab === 'parchi' ? '#10b981' : 'rgba(255,255,255,0.4)',
-      letterSpacing: '0.02em'
+      fontSize: 9.5,
+      fontWeight: 600,
+      color: 'rgba(255,255,255,0.45)'
     }
   }, "Parchi")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       triggerHaptic('light');
       setActiveTab('account');
-      setAccountDrawerOpen(true);
     },
     style: {
       flex: 1,
+      height: '100%',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 3,
+      gap: 2,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '10px 4px 8px',
+      padding: '4px 2px',
       position: 'relative'
     }
   }, activeTab === 'account' && /*#__PURE__*/React.createElement("span", {
@@ -13106,29 +13638,18 @@ function SahilTraders() {
       top: 0,
       left: '50%',
       transform: 'translateX(-50%)',
-      width: 28,
-      height: 3,
-      borderRadius: '0 0 4px 4px',
+      width: 20,
+      height: 2.5,
+      borderRadius: '0 0 3px 3px',
       background: '#10b981'
     }
-  }), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 24,
-      height: 24,
-      borderRadius: '50%',
-      background: activeTab === 'account' ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.1)',
-      border: activeTab === 'account' ? 'none' : '1px solid rgba(255,255,255,0.15)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: 14,
-      height: 14,
-      color: '#ffffff'
+      width: 18,
+      height: 18,
+      color: activeTab === 'account' ? '#10b981' : 'rgba(255,255,255,0.45)'
     },
-    fill: "none",
+    fill: activeTab === 'account' ? '#10b981' : 'none',
     stroke: "currentColor",
     strokeWidth: "2",
     viewBox: "0 0 24 24"
@@ -13136,672 +13657,13 @@ function SahilTraders() {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-  }))), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
-      fontWeight: 700,
-      color: activeTab === 'account' ? '#10b981' : 'rgba(255,255,255,0.4)',
-      letterSpacing: '0.02em'
-    }
-  }, tr(language, 'Me', 'Mein', 'میں')))), accountDrawerOpen && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 sm:hidden",
-    style: {
-      background: 'rgba(0,0,0,0.7)',
-      backdropFilter: 'blur(6px)',
-      WebkitBackdropFilter: 'blur(6px)'
-    },
-    onClick: () => setAccountDrawerOpen(false)
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "absolute bottom-0 left-0 right-0",
-    style: {
-      background: 'linear-gradient(180deg, #0d1528 0%, #0a1020 100%)',
-      borderRadius: '24px 24px 0 0',
-      maxHeight: '88vh',
-      overflowY: 'auto',
-      paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))'
-    },
-    onClick: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      justifyContent: 'center',
-      paddingTop: 12,
-      paddingBottom: 6
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 36,
-      height: 4,
-      borderRadius: 2,
-      background: 'rgba(255,255,255,0.15)'
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '10px 20px 18px',
-      borderBottom: '1px solid rgba(255,255,255,0.07)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 52,
-      height: 52,
-      borderRadius: '50%',
-      background: 'linear-gradient(135deg, #10b981, #059669)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxShadow: '0 4px 16px rgba(16,185,129,0.4)'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 22
-    }
-  }, "\uD83D\uDECD\uFE0F")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 16,
-      fontWeight: 900,
-      color: '#ffffff',
-      letterSpacing: '0.04em'
-    }
-  }, "Sahil Traders"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: '#10b981',
-      fontWeight: 700,
-      letterSpacing: '0.08em'
-    }
-  }, "WHOLESALE & RETAIL \u2022 KARACHI"))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setAccountDrawerOpen(false),
-    style: {
-      width: 32,
-      height: 32,
-      borderRadius: '50%',
-      background: 'rgba(255,255,255,0.08)',
-      border: '1px solid rgba(255,255,255,0.12)',
-      color: '#fff',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: 14
-    }
-  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: 8,
-      marginTop: 16
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 12,
-      padding: '10px 8px',
-      textAlign: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 18,
-      fontWeight: 900,
-      color: '#10b981'
-    }
-  }, orderHistory.length), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 9.5,
-      color: 'rgba(255,255,255,0.5)',
-      fontWeight: 600,
-      marginTop: 2
+      fontWeight: activeTab === 'account' ? 800 : 600,
+      color: activeTab === 'account' ? '#10b981' : 'rgba(255,255,255,0.45)'
     }
-  }, tr(language, 'Orders', 'Orders', 'آرڈرز'))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 12,
-      padding: '10px 8px',
-      textAlign: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 18,
-      fontWeight: 900,
-      color: '#fb7185'
-    }
-  }, wishlist.length), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 9.5,
-      color: 'rgba(255,255,255,0.5)',
-      fontWeight: 600,
-      marginTop: 2
-    }
-  }, tr(language, 'Wishlist', 'Pasandida', 'پسندیدہ'))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 12,
-      padding: '10px 8px',
-      textAlign: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 18,
-      fontWeight: 900,
-      color: '#60a5fa'
-    }
-  }, cartCount), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 9.5,
-      color: 'rgba(255,255,255,0.5)',
-      fontWeight: 600,
-      marginTop: 2
-    }
-  }, tr(language, 'In Cart', 'Cart Mein', 'کارٹ میں'))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '12px 16px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 8
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'rgba(255,255,255,0.04)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 16,
-      padding: '12px 14px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      fontWeight: 700,
-      color: 'rgba(255,255,255,0.4)',
-      letterSpacing: '0.12em',
-      textTransform: 'uppercase',
-      marginBottom: 10
-    }
-  }, "\uD83C\uDF10 ", tr(language, 'Language', 'Zaban', 'زبان')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: 6
-    }
-  }, [['en', 'English'], ['ro', 'Roman'], ['ur', 'اردو']].map(([code, label]) => /*#__PURE__*/React.createElement("button", {
-    key: code,
-    onClick: () => {
-      setLanguage(code);
-      triggerHaptic('light');
-    },
-    style: {
-      padding: '8px 4px',
-      borderRadius: 10,
-      border: language === code ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
-      background: language === code ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.04)',
-      color: language === code ? '#10b981' : 'rgba(255,255,255,0.65)',
-      fontSize: 12,
-      fontWeight: language === code ? 800 : 600,
-      cursor: 'pointer'
-    }
-  }, label)))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setAccountDrawerOpen(false);
-      setOrderHistoryOpen(true);
-      triggerHaptic('light');
-    },
-    style: {
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 14,
-      padding: '14px',
-      background: 'rgba(255,255,255,0.04)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 16,
-      cursor: 'pointer',
-      textAlign: 'left'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 40,
-      height: 40,
-      borderRadius: 12,
-      background: 'rgba(16,185,129,0.15)',
-      border: '1px solid rgba(16,185,129,0.25)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: 18,
-      height: 18,
-      color: '#10b981'
-    },
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      fontWeight: 700,
-      color: '#ffffff'
-    }
-  }, tr(language, 'My Orders', 'Mere Orders', 'میرے آرڈرز')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 2
-    }
-  }, tr(language, 'View history & receipts', 'Order history aur receipt', 'آرڈر ہسٹری اور رسید'))), orderHistory.length > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      background: '#10b981',
-      color: '#fff',
-      fontSize: 10,
-      fontWeight: 900,
-      padding: '2px 8px',
-      borderRadius: 8
-    }
-  }, orderHistory.length)), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setAccountDrawerOpen(false);
-      setWishlistOpen(true);
-      triggerHaptic('light');
-    },
-    style: {
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 14,
-      padding: '14px',
-      background: 'rgba(255,255,255,0.04)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 16,
-      cursor: 'pointer',
-      textAlign: 'left'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 40,
-      height: 40,
-      borderRadius: 12,
-      background: 'rgba(251,113,133,0.15)',
-      border: '1px solid rgba(251,113,133,0.25)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: 18,
-      height: 18,
-      color: '#fb7185',
-      fill: '#fb7185'
-    },
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      fontWeight: 700,
-      color: '#ffffff'
-    }
-  }, tr(language, 'My Wishlist', 'Meri Wishlist', 'میری پسندیدہ فہرست')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 2
-    }
-  }, tr(language, 'Saved & favourite items', 'Pasandida products', 'پسندیدہ پروڈکٹس'))), wishlist.length > 0 && /*#__PURE__*/React.createElement("span", {
-    style: {
-      background: '#e11d48',
-      color: '#fff',
-      fontSize: 10,
-      fontWeight: 900,
-      padding: '2px 8px',
-      borderRadius: 8
-    }
-  }, wishlist.length)), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setAccountDrawerOpen(false);
-      setParchiModalOpen(true);
-      triggerHaptic('medium');
-    },
-    style: {
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 14,
-      padding: '14px',
-      background: 'rgba(16,185,129,0.08)',
-      border: '1px solid rgba(16,185,129,0.2)',
-      borderRadius: 16,
-      cursor: 'pointer',
-      textAlign: 'left'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 40,
-      height: 40,
-      borderRadius: 12,
-      background: 'rgba(16,185,129,0.2)',
-      border: '1px solid rgba(16,185,129,0.3)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 18
-    }
-  }, "\uD83D\uDCF8")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      fontWeight: 800,
-      color: '#10b981'
-    }
-  }, tr(language, 'Parchi / Photo Order', 'Parchi ya Photo Order', 'پرچی / فوٹو آرڈر')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 2
-    }
-  }, tr(language, 'Send handwritten slip photo', 'Handwritten parchi ki photo bhejen', 'ہاتھ سے لکھی پرچی کی تصویر بھیجیں')))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setAccountDrawerOpen(false);
-      setReturnPolicyOpen(true);
-      triggerHaptic('light');
-    },
-    style: {
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 14,
-      padding: '14px',
-      background: 'rgba(255,255,255,0.04)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 16,
-      cursor: 'pointer',
-      textAlign: 'left'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 40,
-      height: 40,
-      borderRadius: 12,
-      background: 'rgba(16,185,129,0.12)',
-      border: '1px solid rgba(16,185,129,0.2)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: 18,
-      height: 18,
-      color: '#10b981'
-    },
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      fontWeight: 700,
-      color: '#ffffff'
-    }
-  }, tr(language, 'Return & Exchange Policy', 'Wapsi Policy', 'واپسی پالیسی')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 2
-    }
-  }, tr(language, '7-day hassle-free returns', '7 din mein wapsi', '7 دن میں واپسی')))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setAccountDrawerOpen(false);
-      setAboutOpen(true);
-      triggerHaptic('light');
-    },
-    style: {
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 14,
-      padding: '14px',
-      background: 'rgba(255,255,255,0.04)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 16,
-      cursor: 'pointer',
-      textAlign: 'left'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 40,
-      height: 40,
-      borderRadius: 12,
-      background: 'rgba(96,165,250,0.12)',
-      border: '1px solid rgba(96,165,250,0.2)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: 18,
-      height: 18,
-      color: '#60a5fa'
-    },
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      fontWeight: 700,
-      color: '#ffffff'
-    }
-  }, tr(language, 'About Sahil Traders', 'Hamare Baare Mein', 'ہمارے بارے میں')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 2
-    }
-  }, tr(language, 'Our story & store info', 'Hamari dukan ki maloomat', 'ہماری دکان کی معلومات')))), /*#__PURE__*/React.createElement("a", {
-    href: "https://wa.me/923368945775",
-    target: "_blank",
-    rel: "noopener noreferrer",
-    style: {
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 14,
-      padding: '14px',
-      background: 'rgba(37,211,102,0.08)',
-      border: '1px solid rgba(37,211,102,0.2)',
-      borderRadius: 16,
-      cursor: 'pointer',
-      textDecoration: 'none'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 40,
-      height: 40,
-      borderRadius: 12,
-      background: 'rgba(37,211,102,0.15)',
-      border: '1px solid rgba(37,211,102,0.3)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: 18,
-      height: 18,
-      color: '#25d366',
-      fill: '#25d366'
-    },
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13,
-      fontWeight: 800,
-      color: '#25d366'
-    }
-  }, tr(language, 'WhatsApp Helpline', 'WhatsApp Helpline', 'واٹس ایپ ہیلپ لائن')), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 2
-    }
-  }, "0336-8945775"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.06)',
-      borderRadius: 16,
-      padding: '14px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      marginBottom: 10
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 16
-    }
-  }, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 12,
-      fontWeight: 800,
-      color: 'rgba(255,255,255,0.7)',
-      letterSpacing: '0.06em'
-    }
-  }, tr(language, 'Store Information', 'Dukan ki Maloomat', 'دکان کی معلومات'))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8,
-      alignItems: 'flex-start'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11
-    }
-  }, "\uD83D\uDCCD"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: 'rgba(255,255,255,0.5)',
-      lineHeight: 1.5
-    }
-  }, "BS Mart, Karachi")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8,
-      alignItems: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11
-    }
-  }, "\u23F0"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: '#10b981',
-      fontWeight: 700
-    }
-  }, "10:00 AM \u2013 8:00 PM")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8,
-      alignItems: 'center'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 11
-    }
-  }, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("a", {
-    href: "tel:03368945775",
-    style: {
-      fontSize: 11,
-      color: '#60a5fa',
-      fontWeight: 700,
-      textDecoration: 'none'
-    }
-  }, "0336-8945775")))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: 'center',
-      padding: '8px 0 4px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      color: 'rgba(255,255,255,0.2)',
-      fontWeight: 600
-    }
-  }, "Sahil Traders App v9.4 \u2022 Made in Karachi \uD83C\uDDF5\uD83C\uDDF0"))))));
+  }, tr(language, 'Me', 'Mein', 'میں')))));
 }
 // -----------------------------------------------------------------------------
 // To add a category image: set the `image` field to a URL or relative file path.

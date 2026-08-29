@@ -11205,11 +11205,11 @@ function SahilTraders() {
       boxShadow: '0 4px 32px rgba(0,0,0,0.45)'
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto px-4 py-3"
+    className: "max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-4"
+    className: "flex items-center justify-between gap-3"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-3 shrink-0 cursor-pointer",
+    className: "flex items-center gap-2.5 shrink-0 cursor-pointer",
     onClick: () => {
       setSelectedCategory(null);
       setSearchTerm('');
@@ -11220,48 +11220,46 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      inset: '-3px',
-      borderRadius: '14px',
+      inset: '-2px',
+      borderRadius: '12px',
       background: 'linear-gradient(135deg, #10b981, #059669)',
-      opacity: 0.35,
-      filter: 'blur(6px)'
+      opacity: 0.4,
+      filter: 'blur(5px)'
     }
   }), /*#__PURE__*/React.createElement("img", {
     src: "images/sahil-traders-logo.png",
     alt: "Sahil Traders",
     style: {
-      width: '44px',
-      height: '44px',
+      width: '38px',
+      height: '38px',
       objectFit: 'contain',
-      borderRadius: '12px',
+      borderRadius: '10px',
       position: 'relative',
       background: 'rgba(255,255,255,0.06)',
-      padding: '4px',
+      padding: '3px',
       border: '1px solid rgba(16,185,129,0.3)'
     }
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "hidden sm:block"
-  }, /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "'Poppins', sans-serif",
       fontWeight: 900,
-      fontSize: '17px',
-      letterSpacing: '0.12em',
+      fontSize: '15px',
+      letterSpacing: '0.08em',
       textTransform: 'uppercase',
       color: '#ffffff',
       lineHeight: 1.1
     }
   }, "Sahil Traders"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: '9px',
-      fontWeight: 600,
-      letterSpacing: '0.18em',
+      fontSize: '8.5px',
+      fontWeight: 700,
+      letterSpacing: '0.15em',
       textTransform: 'uppercase',
       color: '#10b981',
       marginTop: '1px'
     }
   }, "Wholesale & Retail"))), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 relative",
+    className: "hidden sm:block flex-1 relative max-w-xl mx-2",
     ref: searchBoxRef
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative flex items-center"
@@ -11808,19 +11806,52 @@ function SahilTraders() {
       border: '2px solid #0a1020'
     }
   }, cartCount))), /*#__PURE__*/React.createElement("div", {
-    className: "flex sm:hidden items-center gap-2"
+    className: "flex sm:hidden items-center gap-2 shrink-0"
   }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('medium');
+      setParchiModalOpen(true);
+    },
+    style: {
+      background: 'linear-gradient(135deg, #059669, #0d9488)',
+      border: 'none',
+      borderRadius: '10px',
+      padding: '6px 10px',
+      fontSize: '11px',
+      fontWeight: 800,
+      color: '#ffffff',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '4px',
+      boxShadow: '0 2px 10px rgba(16,185,129,0.35)'
+    },
+    title: "Parchi Slip Order"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCF8"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '11px'
+    }
+  }, "Parchi")), /*#__PURE__*/React.createElement("button", {
     id: "cart-btn-mobile",
     onClick: () => setCartOpen(true),
-    className: "relative flex items-center justify-center border px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs",
     style: {
-      background: cartCount > 0 ? '#000000' : '#ffffff',
-      borderColor: cartCount > 0 ? '#000000' : 'rgba(0,0,0,0.15)',
-      color: cartCount > 0 ? '#ffffff' : '#111111'
+      position: 'relative',
+      background: cartCount > 0 ? '#ffffff' : 'rgba(255,255,255,0.08)',
+      border: cartCount > 0 ? '1px solid #ffffff' : '1px solid rgba(255,255,255,0.12)',
+      borderRadius: '10px',
+      padding: '7px 11px',
+      color: cartCount > 0 ? '#0a1020' : '#ffffff',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     "aria-label": "View Shopping Cart"
   }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-4 h-4",
+    style: {
+      width: '17px',
+      height: '17px'
+    },
     fill: "none",
     stroke: "currentColor",
     strokeWidth: "2.2",
@@ -11830,24 +11861,42 @@ function SahilTraders() {
     strokeLinejoin: "round",
     d: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
   })), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
-    className: "ml-1 font-extrabold"
-  }, cartCount), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
-    className: "absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center border-2 border-white shadow-xs",
     style: {
+      position: 'absolute',
+      top: '-6px',
+      right: '-6px',
+      minWidth: '18px',
+      height: '18px',
+      borderRadius: '9px',
       background: '#ef4444',
-      color: '#ffffff'
+      color: '#ffffff',
+      fontSize: '10px',
+      fontWeight: 900,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '2px solid #0a1020'
     }
   }, cartCount)), /*#__PURE__*/React.createElement("button", {
     onClick: () => setMobileMenuOpen(prev => !prev),
-    className: "relative flex items-center justify-center border p-2 rounded-xl transition-all hover:bg-gray-100 cursor-pointer shadow-xs",
     style: {
-      background: '#ffffff',
-      borderColor: 'rgba(0,0,0,0.15)',
-      color: '#111111'
+      position: 'relative',
+      background: 'rgba(255,255,255,0.08)',
+      border: '1px solid rgba(255,255,255,0.12)',
+      borderRadius: '10px',
+      padding: '7px 10px',
+      color: '#ffffff',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     "aria-label": "Open Navigation Menu"
   }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-5 h-5",
+    style: {
+      width: '18px',
+      height: '18px'
+    },
     fill: "none",
     stroke: "currentColor",
     strokeWidth: "2.2",
@@ -11857,8 +11906,202 @@ function SahilTraders() {
     strokeLinejoin: "round",
     d: "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
   })), orderHistory.length > 0 && /*#__PURE__*/React.createElement("span", {
-    className: "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"
-  })))))), /*#__PURE__*/React.createElement("main", {
+    style: {
+      position: 'absolute',
+      top: '-2px',
+      right: '-2px',
+      width: '8px',
+      height: '8px',
+      borderRadius: '50%',
+      background: '#10b981',
+      border: '1.5px solid #0a1020'
+    }
+  })))), /*#__PURE__*/React.createElement("div", {
+    className: "block sm:hidden mt-2.5 relative"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative flex items-center"
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      position: 'absolute',
+      left: '13px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: '15px',
+      height: '15px',
+      color: 'rgba(255,255,255,0.4)',
+      pointerEvents: 'none'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"
+  })), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: searchTerm,
+    onChange: e => {
+      setSearchTerm(e.target.value);
+      setSuggestOpen(true);
+    },
+    onKeyDown: handleSearchKeyDown,
+    placeholder: isListening ? tr(language, "🎙️ Listening... Speak now...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder"),
+    style: {
+      width: '100%',
+      background: isListening ? 'rgba(16,185,129,0.14)' : 'rgba(255,255,255,0.08)',
+      border: isListening ? '1.5px solid #10b981' : '1.5px solid rgba(255,255,255,0.12)',
+      borderRadius: '11px',
+      paddingLeft: '38px',
+      paddingRight: searchTerm ? '68px' : '38px',
+      paddingTop: '9px',
+      paddingBottom: '9px',
+      fontSize: '12.5px',
+      color: '#ffffff',
+      outline: 'none',
+      transition: 'all 0.2s',
+      caretColor: '#10b981'
+    },
+    onFocus: e => {
+      e.target.style.borderColor = '#10b981';
+      e.target.style.background = 'rgba(255,255,255,0.12)';
+    },
+    onBlur: e => {
+      e.target.style.borderColor = isListening ? '#10b981' : 'rgba(255,255,255,0.12)';
+      e.target.style.background = isListening ? 'rgba(16,185,129,0.14)' : 'rgba(255,255,255,0.08)';
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      right: '7px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '3px'
+    }
+  }, searchTerm && /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => {
+      triggerHaptic('light');
+      setSearchTerm('');
+    },
+    style: {
+      background: 'rgba(255,255,255,0.12)',
+      border: 'none',
+      borderRadius: '6px',
+      padding: '3px 6px',
+      color: 'rgba(255,255,255,0.6)',
+      cursor: 'pointer',
+      fontSize: '11px',
+      fontWeight: 700
+    },
+    title: "Clear"
+  }, "\u2715"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: handleVoiceSearch,
+    title: tr(language, "Voice Search", "Voice Search", "آواز سے تلاش"),
+    style: {
+      background: isListening ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)',
+      border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.12)',
+      borderRadius: '7px',
+      padding: '5px 7px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      width: '13px',
+      height: '13px',
+      color: isListening ? '#10b981' : 'rgba(255,255,255,0.55)'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
+  }))))), suggestOpen && suggestions.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      top: 'calc(100% + 6px)',
+      left: 0,
+      right: 0,
+      background: '#0d1528',
+      border: '1.5px solid rgba(255,255,255,0.1)',
+      borderRadius: '12px',
+      boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+      zIndex: 50,
+      overflow: 'hidden',
+      maxHeight: '300px',
+      overflowY: 'auto'
+    }
+  }, recentSearches.length > 0 && !searchTerm && /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '8px 14px 4px',
+      fontSize: '10px',
+      fontWeight: 700,
+      letterSpacing: '0.1em',
+      textTransform: 'uppercase',
+      color: 'rgba(255,255,255,0.3)'
+    }
+  }, "Recent"), suggestions.slice(0, 8).map(product => /*#__PURE__*/React.createElement("button", {
+    key: product.id,
+    type: "button",
+    onMouseDown: () => handleSuggestionClick(product),
+    style: {
+      width: '100%',
+      textAlign: 'left',
+      padding: '9px 12px',
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      borderBottom: '1px solid rgba(255,255,255,0.05)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '26px',
+      height: '26px',
+      borderRadius: '7px',
+      background: `linear-gradient(135deg, ${product.gradient?.replace('from-', '').replace(' to-', ', ') || '#10b981, #059669'})`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '10.5px',
+      fontWeight: 800,
+      color: 'white',
+      flexShrink: 0
+    }
+  }, product.initial || product.name[0]), /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 0,
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '12px',
+      fontWeight: 600,
+      color: '#ffffff',
+      lineHeight: 1.3,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, product.name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10.5px',
+      color: '#10b981',
+      fontWeight: 700
+    }
+  }, "Rs. ", product.price)))))))), /*#__PURE__*/React.createElement("main", {
     className: "max-w-6xl mx-auto px-4 py-6 main-content-area"
   }, showCategoryHome ? /*#__PURE__*/React.createElement(CategoryHome, {
     products: products,

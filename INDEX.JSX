@@ -4000,6 +4000,8 @@ export default function SahilTraders() {
       const [checkoutOpen, setCheckoutOpen] = useState(false);
       const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
       const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+      const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
+      const [activeTab, setActiveTab] = useState('home');
       const [isListening, setIsListening] = useState(false);
       const [wishlistOpen, setWishlistOpen] = useState(false);
       const [parchiModalOpen, setParchiModalOpen] = useState(false);
@@ -5041,7 +5043,7 @@ export default function SahilTraders() {
             </div>
           </header>
           {/* Body */}
-          <main className="max-w-6xl mx-auto px-4 py-6 main-content-area">
+          <main className="max-w-6xl mx-auto px-4 py-6 main-content-area" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
             {showCategoryHome ? (
               <CategoryHome
                 products={products}
@@ -5581,6 +5583,7 @@ export default function SahilTraders() {
                   </div>
                 </div>
               )}
+
               {/* Exit Confirmation Modal */}
               {exitModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
@@ -5609,9 +5612,7 @@ export default function SahilTraders() {
                         {tr(language, 'No, Stay', 'Nahi, Wapis Rahein', 'نہیں، واپس رہیں')}
                       </button>
                       <button
-                        onClick={() => {
-                          if (window.sahilExitStore) window.sahilExitStore();
-                        }}
+                        onClick={() => { if (window.sahilExitStore) window.sahilExitStore(); }}
                         className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-extrabold uppercase tracking-wider hover:brightness-110 transition-all shadow-md cursor-pointer"
                       >
                         {tr(language, 'Yes, Exit', 'Haan, Bahar Jaein', 'ہاں، باہر جائیں')}
@@ -5620,6 +5621,274 @@ export default function SahilTraders() {
                   </div>
                 </div>
               )}
+
+              {/* ══════════ LUXURY 5-TAB BOTTOM NAVIGATION BAR (Mobile / App Only) ══════════ */}
+              <nav className="sm:hidden" style={{
+                position: 'fixed', bottom: 0, left: 0, right: 0,
+                background: 'rgba(10, 16, 32, 0.97)',
+                backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+                borderTop: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
+                zIndex: 45,
+                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                display: 'flex', alignItems: 'stretch', height: 'auto', minHeight: 62,
+              }}>
+                {/* HOME TAB */}
+                <button
+                  onClick={() => { triggerHaptic('light'); setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '10px 4px 8px', position: 'relative' }}
+                >
+                  {activeTab === 'home' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 28, height: 3, borderRadius: '0 0 4px 4px', background: '#10b981' }} />}
+                  <svg style={{ width: 22, height: 22, color: activeTab === 'home' ? '#10b981' : 'rgba(255,255,255,0.45)' }} fill={activeTab === 'home' ? '#10b981' : 'none'} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                  </svg>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: activeTab === 'home' ? '#10b981' : 'rgba(255,255,255,0.4)', letterSpacing: '0.02em' }}>{tr(language, 'Home', 'Home', 'ہوم')}</span>
+                </button>
+
+                {/* ORDERS TAB */}
+                <button
+                  onClick={() => { triggerHaptic('light'); setActiveTab('orders'); setOrderHistoryOpen(true); }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '10px 4px 8px', position: 'relative' }}
+                >
+                  {activeTab === 'orders' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 28, height: 3, borderRadius: '0 0 4px 4px', background: '#10b981' }} />}
+                  <div style={{ position: 'relative' }}>
+                    <svg style={{ width: 22, height: 22, color: activeTab === 'orders' ? '#10b981' : 'rgba(255,255,255,0.45)' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    {orderHistory.length > 0 && (
+                      <span style={{ position: 'absolute', top: -4, right: -6, minWidth: 15, height: 15, borderRadius: 8, background: '#10b981', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #0a1020' }}>
+                        {orderHistory.length > 9 ? '9+' : orderHistory.length}
+                      </span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: activeTab === 'orders' ? '#10b981' : 'rgba(255,255,255,0.4)', letterSpacing: '0.02em' }}>{tr(language, 'Orders', 'Orders', 'آرڈرز')}</span>
+                </button>
+
+                {/* CART TAB — ELEVATED CENTER BUTTON */}
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                  <button
+                    onClick={() => { triggerHaptic('medium'); setActiveTab('cart'); setCartOpen(true); }}
+                    style={{
+                      width: 60, height: 60,
+                      borderRadius: '50%',
+                      background: cartCount > 0 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #1e2940, #0d1528)',
+                      border: cartCount > 0 ? '3px solid rgba(16,185,129,0.5)' : '2px solid rgba(255,255,255,0.12)',
+                      boxShadow: cartCount > 0 ? '0 4px 20px rgba(16,185,129,0.55), 0 0 0 6px rgba(16,185,129,0.08)' : '0 4px 16px rgba(0,0,0,0.4)',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', position: 'relative',
+                      transform: 'translateY(-12px)',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <svg style={{ width: 22, height: 22, color: '#ffffff' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                    </svg>
+                    {cartCount > 0 && (
+                      <span style={{ position: 'absolute', top: -3, right: -3, minWidth: 18, height: 18, borderRadius: 10, background: '#ef4444', color: '#fff', fontSize: 10, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0a1020' }}>
+                        {cartCount > 9 ? '9+' : cartCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                {/* PARCHI TAB */}
+                <button
+                  onClick={() => { triggerHaptic('medium'); setActiveTab('parchi'); setParchiModalOpen(true); }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '10px 4px 8px', position: 'relative' }}
+                >
+                  {activeTab === 'parchi' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 28, height: 3, borderRadius: '0 0 4px 4px', background: '#10b981' }} />}
+                  <svg style={{ width: 22, height: 22, color: activeTab === 'parchi' ? '#10b981' : 'rgba(255,255,255,0.45)' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                  </svg>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: activeTab === 'parchi' ? '#10b981' : 'rgba(255,255,255,0.4)', letterSpacing: '0.02em' }}>Parchi</span>
+                </button>
+
+                {/* ACCOUNT / ME TAB */}
+                <button
+                  onClick={() => { triggerHaptic('light'); setActiveTab('account'); setAccountDrawerOpen(true); }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '10px 4px 8px', position: 'relative' }}
+                >
+                  {activeTab === 'account' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 28, height: 3, borderRadius: '0 0 4px 4px', background: '#10b981' }} />}
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: activeTab === 'account' ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.1)', border: activeTab === 'account' ? 'none' : '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg style={{ width: 14, height: 14, color: '#ffffff' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: activeTab === 'account' ? '#10b981' : 'rgba(255,255,255,0.4)', letterSpacing: '0.02em' }}>{tr(language, 'Me', 'Mein', 'میں')}</span>
+                </button>
+              </nav>
+
+              {/* ══════════ ACCOUNT / ME DRAWER (Mobile Only) ══════════ */}
+              {accountDrawerOpen && (
+                <div
+                  className="fixed inset-0 z-50 sm:hidden"
+                  style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)' }}
+                  onClick={() => setAccountDrawerOpen(false)}
+                >
+                  <div
+                    className="absolute bottom-0 left-0 right-0"
+                    style={{ background: 'linear-gradient(180deg, #0d1528 0%, #0a1020 100%)', borderRadius: '24px 24px 0 0', maxHeight: '88vh', overflowY: 'auto', paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {/* Handle bar */}
+                    <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, paddingBottom: 6 }}>
+                      <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)' }} />
+                    </div>
+
+                    {/* Header */}
+                    <div style={{ padding: '10px 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(16,185,129,0.4)' }}>
+                            <span style={{ fontSize: 22 }}>🛍️</span>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 16, fontWeight: 900, color: '#ffffff', letterSpacing: '0.04em' }}>Sahil Traders</div>
+                            <div style={{ fontSize: 11, color: '#10b981', fontWeight: 700, letterSpacing: '0.08em' }}>WHOLESALE & RETAIL • KARACHI</div>
+                          </div>
+                        </div>
+                        <button onClick={() => setAccountDrawerOpen(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>✕</button>
+                      </div>
+
+                      {/* Stats Row */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 16 }}>
+                        <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '10px 8px', textAlign: 'center' }}>
+                          <div style={{ fontSize: 18, fontWeight: 900, color: '#10b981' }}>{orderHistory.length}</div>
+                          <div style={{ fontSize: 9.5, color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginTop: 2 }}>{tr(language, 'Orders', 'Orders', 'آرڈرز')}</div>
+                        </div>
+                        <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '10px 8px', textAlign: 'center' }}>
+                          <div style={{ fontSize: 18, fontWeight: 900, color: '#fb7185' }}>{wishlist.length}</div>
+                          <div style={{ fontSize: 9.5, color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginTop: 2 }}>{tr(language, 'Wishlist', 'Pasandida', 'پسندیدہ')}</div>
+                        </div>
+                        <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '10px 8px', textAlign: 'center' }}>
+                          <div style={{ fontSize: 18, fontWeight: 900, color: '#60a5fa' }}>{cartCount}</div>
+                          <div style={{ fontSize: 9.5, color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginTop: 2 }}>{tr(language, 'In Cart', 'Cart Mein', 'کارٹ میں')}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+                      {/* Language Switcher */}
+                      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '12px 14px' }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>🌐 {tr(language, 'Language', 'Zaban', 'زبان')}</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+                          {[['en', 'English'], ['ro', 'Roman'], ['ur', 'اردو']].map(([code, label]) => (
+                            <button key={code} onClick={() => { setLanguage(code); triggerHaptic('light'); }}
+                              style={{ padding: '8px 4px', borderRadius: 10, border: language === code ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.1)', background: language === code ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.04)', color: language === code ? '#10b981' : 'rgba(255,255,255,0.65)', fontSize: 12, fontWeight: language === code ? 800 : 600, cursor: 'pointer' }}>
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Order History */}
+                      <button onClick={() => { setAccountDrawerOpen(false); setOrderHistoryOpen(true); triggerHaptic('light'); }}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, cursor: 'pointer', textAlign: 'left' }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg style={{ width: 18, height: 18, color: '#10b981' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff' }}>{tr(language, 'My Orders', 'Mere Orders', 'میرے آرڈرز')}</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{tr(language, 'View history & receipts', 'Order history aur receipt', 'آرڈر ہسٹری اور رسید')}</div>
+                        </div>
+                        {orderHistory.length > 0 && <span style={{ background: '#10b981', color: '#fff', fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 8 }}>{orderHistory.length}</span>}
+                      </button>
+
+                      {/* Wishlist */}
+                      <button onClick={() => { setAccountDrawerOpen(false); setWishlistOpen(true); triggerHaptic('light'); }}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, cursor: 'pointer', textAlign: 'left' }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(251,113,133,0.15)', border: '1px solid rgba(251,113,133,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg style={{ width: 18, height: 18, color: '#fb7185', fill: '#fb7185' }} viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/></svg>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff' }}>{tr(language, 'My Wishlist', 'Meri Wishlist', 'میری پسندیدہ فہرست')}</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{tr(language, 'Saved & favourite items', 'Pasandida products', 'پسندیدہ پروڈکٹس')}</div>
+                        </div>
+                        {wishlist.length > 0 && <span style={{ background: '#e11d48', color: '#fff', fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 8 }}>{wishlist.length}</span>}
+                      </button>
+
+                      {/* Parchi Order */}
+                      <button onClick={() => { setAccountDrawerOpen(false); setParchiModalOpen(true); triggerHaptic('medium'); }}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 16, cursor: 'pointer', textAlign: 'left' }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span style={{ fontSize: 18 }}>📸</span>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#10b981' }}>{tr(language, 'Parchi / Photo Order', 'Parchi ya Photo Order', 'پرچی / فوٹو آرڈر')}</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{tr(language, 'Send handwritten slip photo', 'Handwritten parchi ki photo bhejen', 'ہاتھ سے لکھی پرچی کی تصویر بھیجیں')}</div>
+                        </div>
+                      </button>
+
+                      {/* Return Policy */}
+                      <button onClick={() => { setAccountDrawerOpen(false); setReturnPolicyOpen(true); triggerHaptic('light'); }}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, cursor: 'pointer', textAlign: 'left' }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg style={{ width: 18, height: 18, color: '#10b981' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff' }}>{tr(language, 'Return & Exchange Policy', 'Wapsi Policy', 'واپسی پالیسی')}</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{tr(language, '7-day hassle-free returns', '7 din mein wapsi', '7 دن میں واپسی')}</div>
+                        </div>
+                      </button>
+
+                      {/* About */}
+                      <button onClick={() => { setAccountDrawerOpen(false); setAboutOpen(true); triggerHaptic('light'); }}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, cursor: 'pointer', textAlign: 'left' }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg style={{ width: 18, height: 18, color: '#60a5fa' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff' }}>{tr(language, 'About Sahil Traders', 'Hamare Baare Mein', 'ہمارے بارے میں')}</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{tr(language, 'Our story & store info', 'Hamari dukan ki maloomat', 'ہماری دکان کی معلومات')}</div>
+                        </div>
+                      </button>
+
+                      {/* WhatsApp Contact */}
+                      <a href="https://wa.me/923368945775" target="_blank" rel="noopener noreferrer"
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px', background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.2)', borderRadius: 16, cursor: 'pointer', textDecoration: 'none' }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(37,211,102,0.15)', border: '1px solid rgba(37,211,102,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg style={{ width: 18, height: 18, color: '#25d366', fill: '#25d366' }} viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, color: '#25d366' }}>{tr(language, 'WhatsApp Helpline', 'WhatsApp Helpline', 'واٹس ایپ ہیلپ لائن')}</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>0336-8945775</div>
+                        </div>
+                      </a>
+
+                      {/* Store Info Card */}
+                      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                          <span style={{ fontSize: 16 }}>🏬</span>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.06em' }}>{tr(language, 'Store Information', 'Dukan ki Maloomat', 'دکان کی معلومات')}</span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                            <span style={{ fontSize: 11 }}>📍</span>
+                            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>BS Mart, Karachi</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <span style={{ fontSize: 11 }}>⏰</span>
+                            <span style={{ fontSize: 11, color: '#10b981', fontWeight: 700 }}>10:00 AM – 8:00 PM</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <span style={{ fontSize: 11 }}>📞</span>
+                            <a href="tel:03368945775" style={{ fontSize: 11, color: '#60a5fa', fontWeight: 700, textDecoration: 'none' }}>0336-8945775</a>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* App Version */}
+                      <div style={{ textAlign: 'center', padding: '8px 0 4px' }}>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>Sahil Traders App v9.4 • Made in Karachi 🇵🇰</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
         </div>
       );
     }

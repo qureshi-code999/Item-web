@@ -5848,97 +5848,99 @@ export default function SahilTraders() {
                 </div>
               )}
 
-              {/* ══════════ FROSTED GLASS 5-TAB BOTTOM NAVIGATION BAR (Mobile / App Only) ══════════ */}
+              {/* ══════════ ULTRA-GLOSSY FROSTED GLASS 5-TAB BOTTOM NAVIGATION BAR (Mobile / App Only) ══════════ */}
               <nav className="sm:hidden" style={{
                 position: 'fixed', bottom: 0, left: 0, right: 0,
-                background: 'rgba(255, 255, 255, 0.88)',
-                backdropFilter: 'blur(24px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-                borderTop: '1px solid rgba(0, 0, 0, 0.08)',
-                boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.08)',
+                background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.45) 100%)',
+                backdropFilter: 'blur(32px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(32px) saturate(200%)',
+                borderTop: '1.5px solid rgba(255, 255, 255, 0.85)',
+                boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.10), inset 0 1px 1px rgba(255, 255, 255, 0.9)',
                 zIndex: 45,
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-                display: 'flex', alignItems: 'center', height: '58px',
+                display: 'flex', alignItems: 'stretch', height: '60px',
               }}>
-                {/* HOME TAB */}
+                {/* 1. HOME TAB */}
                 <button
                   onClick={() => { triggerHaptic('light'); setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}
-                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 2px', position: 'relative' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
                 >
                   {activeTab === 'home' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 22, height: 3, borderRadius: '0 0 3px 3px', background: '#059669' }} />}
-                  <svg style={{ width: 20, height: 20, color: activeTab === 'home' ? '#059669' : '#475569' }} fill={activeTab === 'home' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg style={{ width: 20, height: 20, color: activeTab === 'home' ? '#059669' : '#0f172a' }} fill={activeTab === 'home' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                   </svg>
-                  <span style={{ fontSize: 10.5, fontWeight: activeTab === 'home' ? 800 : 700, color: activeTab === 'home' ? '#059669' : '#334155' }}>{tr(language, 'Home', 'Home', 'ہوم')}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: activeTab === 'home' ? '#059669' : '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Home', 'Home', 'ہوم')}</span>
                 </button>
 
-                {/* ORDERS TAB */}
+                {/* 2. ORDERS TAB */}
                 <button
                   onClick={() => { triggerHaptic('light'); setOrderHistoryOpen(true); }}
-                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 2px', position: 'relative' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
                 >
                   <div style={{ position: 'relative' }}>
-                    <svg style={{ width: 20, height: 20, color: '#475569' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg style={{ width: 20, height: 20, color: '#0f172a' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     {orderHistory.length > 0 && (
-                      <span style={{ position: 'absolute', top: -3, right: -6, minWidth: 15, height: 15, borderRadius: 8, background: '#10b981', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #ffffff' }}>
+                      <span style={{ position: 'absolute', top: -4, right: -7, minWidth: 15, height: 15, borderRadius: 8, background: '#10b981', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #ffffff' }}>
                         {orderHistory.length > 9 ? '9+' : orderHistory.length}
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: 10.5, fontWeight: 700, color: '#334155' }}>{tr(language, 'Orders', 'Orders', 'آرڈرز')}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Orders', 'Orders', 'آرڈرز')}</span>
                 </button>
 
-                {/* CART TAB — HIGHLIGHTED ELEVATED FLOATING BUTTON */}
-                <div style={{ flex: 1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <button
-                    onClick={() => { triggerHaptic('medium'); setCartOpen(true); }}
+                {/* 3. CART TAB (HIGHLIGHTED ELEVATED BUTTON + "CART" NAME) */}
+                <button
+                  onClick={() => { triggerHaptic('medium'); setCartOpen(true); }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 2px', position: 'relative' }}
+                >
+                  <div
                     style={{
-                      width: 50, height: 50,
+                      width: 44, height: 44,
                       borderRadius: '50%',
                       background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-                      border: 'none',
-                      boxShadow: '0 6px 18px rgba(16,185,129,0.45), 0 0 0 4px rgba(255,255,255,0.9)',
+                      boxShadow: '0 6px 18px rgba(16,185,129,0.5), 0 0 0 3.5px rgba(255,255,255,0.9)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      cursor: 'pointer', position: 'relative',
-                      transform: 'translateY(-10px)',
+                      position: 'relative',
+                      transform: 'translateY(-8px)',
                       transition: 'all 0.2s',
                     }}
                   >
-                    <svg style={{ width: 21, height: 21, color: '#ffffff' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <svg style={{ width: 20, height: 20, color: '#ffffff' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
                     {cartCount > 0 && (
-                      <span style={{ position: 'absolute', top: -3, right: -3, minWidth: 18, height: 18, borderRadius: 9, background: '#ef4444', color: '#fff', fontSize: 9.5, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff' }}>
+                      <span style={{ position: 'absolute', top: -3, right: -3, minWidth: 17, height: 17, borderRadius: 9, background: '#ef4444', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff' }}>
                         {cartCount > 9 ? '9+' : cartCount}
                       </span>
                     )}
-                  </button>
-                </div>
+                  </div>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#0f172a', marginTop: '-6px', letterSpacing: '0.01em' }}>{tr(language, 'Cart', 'Cart', 'کارٹ')}</span>
+                </button>
 
-                {/* PARCHI TAB */}
+                {/* 4. PARCHI TAB */}
                 <button
                   onClick={() => { triggerHaptic('medium'); setParchiModalOpen(true); }}
-                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 2px', position: 'relative' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
                 >
-                  <svg style={{ width: 20, height: 20, color: '#475569' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg style={{ width: 20, height: 20, color: '#0f172a' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
                   </svg>
-                  <span style={{ fontSize: 10.5, fontWeight: 700, color: '#334155' }}>Parchi</span>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.01em' }}>Parchi</span>
                 </button>
 
-                {/* ACCOUNT / ME TAB */}
+                {/* 5. ACCOUNT / ME TAB */}
                 <button
                   onClick={() => { triggerHaptic('light'); setActiveTab('account'); }}
-                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 2px', position: 'relative' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
                 >
                   {activeTab === 'account' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 22, height: 3, borderRadius: '0 0 3px 3px', background: '#059669' }} />}
-                  <svg style={{ width: 20, height: 20, color: activeTab === 'account' ? '#059669' : '#475569' }} fill={activeTab === 'account' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg style={{ width: 20, height: 20, color: activeTab === 'account' ? '#059669' : '#0f172a' }} fill={activeTab === 'account' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   </svg>
-                  <span style={{ fontSize: 10.5, fontWeight: activeTab === 'account' ? 800 : 700, color: activeTab === 'account' ? '#059669' : '#334155' }}>{tr(language, 'Me', 'Mein', 'میں')}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: activeTab === 'account' ? '#059669' : '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Me', 'Mein', 'میں')}</span>
                 </button>
               </nav>
 

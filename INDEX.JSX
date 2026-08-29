@@ -2213,17 +2213,20 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
 function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   if (!open) return null;
   const [photo, setPhoto] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState("home");
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submittedOrderId, setSubmittedOrderId] = useState(null);
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
       triggerHaptic('medium');
+      setPhotoFile(file);
       const reader = new FileReader();
       reader.onload = (ev) => {
         setPhoto(ev.target.result);
@@ -2232,7 +2235,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
       alert(tr(language, 'Please enter your name.', 'Apna naam darj karein.', 'براہ کرم اپنا نام درج کریں۔'));
@@ -2249,6 +2252,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
     triggerHaptic('success');
     const orderId = Math.floor(100000 + Math.random() * 900000);
+    setSubmittedOrderId(orderId);
     const now = new Date();
     const dateText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -2283,9 +2287,32 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
     const waText = `*Salam Sahil Traders!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (BS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
 
-    const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(waText)}`;
+    // Try direct native Web Share with photo file (opens WhatsApp with actual photo attached on mobile)
+    let sharedWithFile = false;
+    if (photoFile && navigator.canShare && navigator.canShare({ files: [photoFile] })) {
+      try {
+        await navigator.share({
+          files: [photoFile],
+          title: `Sahil Traders Parchi Order #${orderId}`,
+          text: waText
+        });
+        sharedWithFile = true;
+      } catch (err) {
+        // User cancelled share sheet or share failed
+      }
+    }
+
+    if (!sharedWithFile) {
+      const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(waText)}`;
+      window.open(waUrl, '_blank');
+    }
+
     setSubmitted(true);
-    window.open(waUrl, '_blank');
+  };
+
+  const handleOpenWhatsAppDirect = () => {
+    const waText = `*Salam Sahil Traders!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}`;
+    window.open(`https://wa.me/923368945775?text=${encodeURIComponent(waText)}`, '_blank');
   };
 
   return (
@@ -2314,21 +2341,50 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
         <div className="p-4 sm:p-5 overflow-y-auto space-y-4">
           {submitted ? (
-            <div className="text-center py-6 space-y-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-3xl shadow-sm">
+            <div className="text-center py-4 space-y-3.5">
+              <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-2xl shadow-sm">
                 ✓
               </div>
-              <h4 className="font-black text-lg text-gray-900">
-                {tr(language, 'Parchi Order Sent Successfully! 🎉', 'Parchi Order Kamiyabi se Bhej Diya Gaya! 🎉', 'پرچی آرڈر کامیابی سے بھیج دیا گیا!')}
+              <h4 className="font-black text-base sm:text-lg text-gray-900 leading-tight">
+                {tr(language, 'Parchi Order Registered! 🎉', 'Parchi Order Darj Ho Gaya! 🎉', 'پرچی آرڈر درج ہو گیا!')}
               </h4>
-              <p className="text-xs text-gray-600">
-                {tr(language, 'Your slip order has been saved in Order History and submitted to WhatsApp.', 'Apka parchi order save ho chuka hai aur WhatsApp par bhej diya gaya hai.', 'آپ کا پرچی آرڈر محفوظ ہو گیا ہے۔')}
-              </p>
-              <div className="pt-2">
+              
+              {/* Photo Preview in Success Screen */}
+              {photo && (
+                <div className="w-28 h-28 mx-auto rounded-2xl border-2 border-emerald-400 overflow-hidden bg-gray-50 shadow-sm flex items-center justify-center p-1">
+                  <img src={photo} alt="Slip" className="w-full h-full object-contain rounded-xl" />
+                </div>
+              )}
+
+              {/* Photo Attachment Guidance Notice */}
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left text-xs text-amber-900 space-y-1 shadow-2xs">
+                <p className="font-black flex items-center gap-1.5 text-amber-950">
+                  <span>💡</span>
+                  <span>{tr(language, 'WhatsApp Photo Reminder', 'Zaroori Baat (Photo Attach Karein)', 'ضروری نوٹ: تصویر منسلک کریں')}</span>
+                </p>
+                <p className="leading-relaxed text-[11px] text-amber-900/90">
+                  {tr(
+                    language,
+                    'WhatsApp chat is now open! Please tap the Attach (📎) or Camera icon in WhatsApp to send this slip photo so we can prepare your order.',
+                    'WhatsApp chat khul chuki hai! WhatsApp mein Attach (📎) ya Camera button daba kar yeh parchi ki photo lazmi send kar dein.',
+                    'واٹس ایپ چیٹ کھل چکی ہے۔ واٹس ایپ میں اٹیچ (📎) کے بٹن سے پرچی کی تصویر بھیج دیں۔'
+                  )}
+                </p>
+              </div>
+
+              <div className="pt-2 flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={handleOpenWhatsAppDirect}
+                  className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                >
+                  <span>💬</span>
+                  <span>{tr(language, 'Open WhatsApp Chat Again', 'WhatsApp Chat Dobara Kholein', 'دوبارہ واٹس ایپ کھولیں')}</span>
+                </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full py-3 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl uppercase tracking-wider cursor-pointer"
+                  className="w-full py-2.5 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl uppercase tracking-wider cursor-pointer"
                 >
                   {tr(language, 'Continue Shopping', 'Kharidari Jari Rakhein', 'خریداری جاری رکھیں')}
                 </button>

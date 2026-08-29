@@ -33,17 +33,47 @@ function triggerHaptic(type = 'light') {
     }
   } catch (e) {}
 }
+function buildWhatsAppUrl(phoneNumber, message) {
+  const cleanPhone = String(phoneNumber || '923368945775').replace(/[^0-9]/g, '');
+  const encodedText = encodeURIComponent(message || '');
+  const isMobile = typeof navigator !== 'undefined' && (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  if (isMobile) {
+    return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;
+  } else {
+    return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;
+  }
+}
 function generatePDFReceipt(order, language) {
   triggerHaptic('success');
-  const itemsRows = (order.items || []).map((item, idx) => `
+  const totalBulkSaved = order.totalSavings || (order.items || []).reduce((acc, it) => acc + (it.extraSavings || 0), 0);
+  const itemsRows = (order.items || []).map((item, idx) => {
+    const itemExtraSavings = Number(item.extraSavings || 0);
+    const itemExtraPercent = Number(item.extraPercent || 0);
+    const variantText = item.variant ? `<div style="font-size: 11px; color: #b45309; font-weight: 700; margin-top: 2px;">🎨 Shade/Colour: ${item.variant}</div>` : '';
+    const discountBadge = itemExtraPercent > 0 ? `
+          <div style="font-size: 11px; color: #15803d; font-weight: 700; margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 6px; border-radius: 4px;">
+            🎁 Bulk Discount (${itemExtraPercent}% OFF): Saved Rs ${itemExtraSavings.toLocaleString()}
+          </div>
+        ` : '';
+    return `
         <tr>
-          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; text-align: center; color: #64748b;">${idx + 1}</td>
-          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; font-weight: 600; color: #0f172a;">${item.name}</td>
-          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center; color: #0f172a;">${item.qty || 1}</td>
-          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; color: #0f172a;">Rs ${Number(item.price || 0).toLocaleString()}</td>
-          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; font-weight: 700; text-align: right; color: #0f172a;">Rs ${Number(item.total || item.qty * item.price || 0).toLocaleString()}</td>
+          <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; text-align: center; color: #64748b; vertical-align: top;">${idx + 1}</td>
+          <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; font-weight: 600; color: #0f172a; vertical-align: top;">
+            <div>${item.name}</div>
+            ${variantText}
+            ${discountBadge}
+          </td>
+          <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center; color: #0f172a; vertical-align: top; font-weight: 700;">${item.qty || 1}</td>
+          <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; color: #0f172a; vertical-align: top;">
+            <div>Rs ${Number(item.price || 0).toLocaleString()}</div>
+            ${itemExtraPercent > 0 ? `<div style="font-size: 10.5px; color: #16a34a; font-weight: 700;">(Effective: Rs ${Math.round(item.total / (item.qty || 1)).toLocaleString()}/pc)</div>` : ''}
+          </td>
+          <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; font-weight: 700; text-align: right; color: #0f172a; vertical-align: top;">
+            Rs ${Number(item.total || item.qty * item.price || 0).toLocaleString()}
+          </td>
         </tr>
-      `).join('');
+      `;
+  }).join('');
   const printHtml = `
         <!DOCTYPE html>
         <html>
@@ -52,7 +82,7 @@ function generatePDFReceipt(order, language) {
           <title>Invoice #${order.id} - Sahil Traders</title>
           <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: #fff; margin: 0; padding: 24px; }
-            .invoice-card { max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+            .invoice-card { max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
             .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 20px; }
             .brand-title { font-size: 22px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: #0f172a; margin: 0; }
             .brand-sub { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 3px; }
@@ -62,11 +92,11 @@ function generatePDFReceipt(order, language) {
             .meta-val { color: #0f172a; font-weight: 700; margin-top: 2px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
             th { background: #f1f5f9; padding: 8px 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; text-align: left; }
-            .totals { margin-left: auto; width: 250px; font-size: 13px; }
+            .totals { margin-left: auto; width: 280px; font-size: 13px; }
             .totals-row { display: flex; justify-content: space-between; padding: 4px 0; color: #64748b; }
             .totals-row.grand { font-size: 16px; font-weight: 900; color: #0f172a; border-top: 2px solid #0f172a; padding-top: 8px; margin-top: 6px; }
             .footer { text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px dashed #cbd5e1; font-size: 11px; color: #64748b; }
-            .print-btn { display: block; width: 100%; max-width: 600px; margin: 16px auto 0; padding: 12px; background: #0f172a; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; }
+            .print-btn { display: block; width: 100%; max-width: 620px; margin: 16px auto 0; padding: 12px; background: #0f172a; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; }
             @media print { .print-btn { display: none; } body { padding: 0; } .invoice-card { border: none; box-shadow: none; padding: 0; } }
           </style>
         </head>
@@ -76,7 +106,7 @@ function generatePDFReceipt(order, language) {
               <div>
                 <h1 class="brand-title">Sahil Traders</h1>
                 <div class="brand-sub">Wholesale & Retail Store • Karachi</div>
-                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 0336-8945775 / 0335-3004071</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 0336-8945775</div>
               </div>
               <div style="text-align: right;">
                 <span class="inv-badge">OFFICIAL INVOICE</span>
@@ -101,11 +131,11 @@ function generatePDFReceipt(order, language) {
             <table>
               <thead>
                 <tr>
-                  <th style="width: 30px; text-align: center;">#</th>
+                  <th style="width: 25px; text-align: center;">#</th>
                   <th>Item Description</th>
-                  <th style="width: 50px; text-align: center;">Qty</th>
-                  <th style="width: 90px; text-align: right;">Unit Price</th>
-                  <th style="width: 90px; text-align: right;">Total</th>
+                  <th style="width: 45px; text-align: center;">Qty</th>
+                  <th style="width: 100px; text-align: right;">Unit Price</th>
+                  <th style="width: 85px; text-align: right;">Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -118,6 +148,12 @@ function generatePDFReceipt(order, language) {
                 <span>Subtotal:</span>
                 <span>Rs ${Number(order.subtotal || 0).toLocaleString()}</span>
               </div>
+              ${totalBulkSaved > 0 ? `
+              <div class="totals-row" style="color: #15803d; font-weight: 700;">
+                <span>🎁 Total Bulk Saved:</span>
+                <span>-Rs ${Number(totalBulkSaved).toLocaleString()}</span>
+              </div>
+              ` : ''}
               <div class="totals-row">
                 <span>Delivery Fee:</span>
                 <span>${order.deliveryFee === 0 ? 'FREE' : `Rs ${order.deliveryFee}`}</span>
@@ -8926,14 +8962,15 @@ function ParchiOrderModal({
       }
     }
     if (!sharedWithFile) {
-      const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(waText)}`;
+      const waUrl = buildWhatsAppUrl('923368945775', waText);
       window.open(waUrl, '_blank');
     }
     setSubmitted(true);
   };
   const handleOpenWhatsAppDirect = () => {
     const waText = `*Salam Sahil Traders!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}`;
-    window.open(`https://wa.me/923368945775?text=${encodeURIComponent(waText)}`, '_blank');
+    const waUrl = buildWhatsAppUrl('923368945775', waText);
+    window.open(waUrl, '_blank');
   };
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in",
@@ -14195,10 +14232,27 @@ function OrderHistoryModal({
         }
       }, toTitleCase(item.name || '')), /*#__PURE__*/React.createElement("div", {
         style: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          flexWrap: 'wrap',
+          marginTop: 2
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
           fontSize: 11,
           color: '#64748b'
         }
-      }, "Qty ", item.qty, " x Rs ", Number(item.price || 0).toLocaleString())), /*#__PURE__*/React.createElement("div", {
+      }, "Qty ", item.qty, " x Rs ", Number(item.price || 0).toLocaleString()), item.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 10,
+          fontWeight: 800,
+          color: '#166534',
+          background: '#dcfce7',
+          padding: '1px 6px',
+          borderRadius: 4
+        }
+      }, "\uD83C\uDF81 -", item.extraPercent, "% Bulk OFF (-Rs ", Number(item.extraSavings).toLocaleString(), ")"))), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 13,
           color: '#0f172a',
@@ -14222,7 +14276,14 @@ function OrderHistoryModal({
         justifyContent: 'space-between',
         color: '#64748b'
       }
-    }, /*#__PURE__*/React.createElement("span", null, "Subtotal"), /*#__PURE__*/React.createElement("span", null, "Rs ", Number(order.subtotal || 0).toLocaleString())), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("span", null, "Subtotal"), /*#__PURE__*/React.createElement("span", null, "Rs ", Number(order.subtotal || 0).toLocaleString())), (order.totalSavings || (order.items || []).reduce((acc, it) => acc + (it.extraSavings || 0), 0)) > 0 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        color: '#166534',
+        fontWeight: 700
+      }
+    }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDF81 Total Bulk Discount Saved"), /*#__PURE__*/React.createElement("span", null, "-Rs ", Number(order.totalSavings || (order.items || []).reduce((acc, it) => acc + (it.extraSavings || 0), 0)).toLocaleString())), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         justifyContent: 'space-between',
@@ -14367,6 +14428,13 @@ function CheckoutModal({
       return;
     }
     setPlacing(true);
+    const totalBulkSavings = cart.reduce((sum, {
+      product,
+      qty
+    }) => {
+      const bulk = calculateBulkPricing(product.price, qty);
+      return sum + (bulk.extraSavings || 0);
+    }, 0);
     const itemLines = cart.map(({
       product,
       qty,
@@ -14374,18 +14442,19 @@ function CheckoutModal({
     }) => {
       const bulk = calculateBulkPricing(product.price, qty);
       const shadeText = variant ? `\n   🎨 Shade / Colour: ${variant}` : '';
-      const bulkText = bulk.extraPercent > 0 ? `\n   🎁 Extra Bulk Discount (${bulk.extraPercent}%): -Rs ${bulk.extraSavings.toLocaleString()}` : '';
+      const bulkText = bulk.extraPercent > 0 ? `\n   🎁 Extra Bulk Discount (${bulk.extraPercent}% OFF): -Rs ${bulk.extraSavings.toLocaleString()} (Effective: Rs ${Math.round(bulk.finalTotal / qty)}/pc)` : '';
       return `• ${product.name}${shadeText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
     }).join('\n\n');
     const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (BS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
-    const msg = ['🛒 *NEW ORDER – Sahil Traders*', '═════════════════════════', '', '*📦 ORDER DETAILS:*', itemLines, '', '═════════════════════════', `*Subtotal:* Rs ${cartTotal.toLocaleString()}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '═════════════════════════', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}` : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '═════════════════════════', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
+    const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
+    const msg = ['🛒 *NEW ORDER – Sahil Traders*', '-----------------------------------------', '', '*📦 ORDER DETAILS:*', itemLines, '', '-----------------------------------------', `*Subtotal:* Rs ${cartTotal.toLocaleString()}${bulkSavingsSummary}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '-----------------------------------------', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}` : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '-----------------------------------------', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     })}`].join('\n');
-    const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(msg)}`;
+    const waUrl = buildWhatsAppUrl('923368945775', msg);
     const orderDate = new Date();
     const orderRecord = {
       id: `${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${String(orderDate.getHours()).padStart(2, '0')}${String(orderDate.getMinutes()).padStart(2, '0')}${String(orderDate.getSeconds()).padStart(2, '0')}`,
@@ -14403,6 +14472,7 @@ function CheckoutModal({
       },
       deliveryMethod,
       subtotal: cartTotal,
+      totalSavings: totalBulkSavings,
       deliveryFee,
       grandTotal,
       items: cart.map(({
@@ -14652,7 +14722,14 @@ function CheckoutModal({
       whiteSpace: 'nowrap',
       display: 'block'
     }
-  }, toTitleCase(item.name)), item.variant && /*#__PURE__*/React.createElement("span", {
+  }, toTitleCase(item.name)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4,
+      flexWrap: 'wrap'
+    }
+  }, item.variant && /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 10,
       fontWeight: 800,
@@ -14663,7 +14740,18 @@ function CheckoutModal({
       display: 'inline-block',
       marginTop: 1
     }
-  }, "Shade: ", item.variant)), /*#__PURE__*/React.createElement("span", {
+  }, "Shade: ", item.variant), item.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9.5,
+      fontWeight: 800,
+      color: '#166534',
+      background: '#dcfce7',
+      padding: '1px 5px',
+      borderRadius: 4,
+      display: 'inline-block',
+      marginTop: 1
+    }
+  }, "\uD83C\uDF81 -", item.extraPercent, "% Bulk OFF (-Rs ", Number(item.extraSavings).toLocaleString(), ")"))), /*#__PURE__*/React.createElement("span", {
     style: {
       color: '#475569',
       fontWeight: 800,
@@ -14673,7 +14761,18 @@ function CheckoutModal({
     style: {
       color: '#0f172a'
     }
-  }, "Rs ", Number(item.total).toLocaleString()))))), /*#__PURE__*/React.createElement("div", {
+  }, "Rs ", Number(item.total).toLocaleString()))))), (placedOrder.totalSavings || 0) > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderTop: '1px dashed #e2e8f0',
+      paddingTop: 6,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      fontSize: 12,
+      color: '#166534',
+      fontWeight: 800
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDF81 Total Bulk Discount Saved:"), /*#__PURE__*/React.createElement("span", null, "-Rs ", Number(placedOrder.totalSavings).toLocaleString())), /*#__PURE__*/React.createElement("div", {
     style: {
       borderTop: '1px solid #e2e8f0',
       paddingTop: 8,

@@ -41,5 +41,15 @@ public class MainActivity extends BridgeActivity {
                 return insets;
             });
         }
+
+        // Request microphone and camera permissions for Voice Search & Parchi Photo
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                    android.Manifest.permission.RECORD_AUDIO,
+                    android.Manifest.permission.CAMERA
+                }, 101);
+            }
+        }
     }
 }

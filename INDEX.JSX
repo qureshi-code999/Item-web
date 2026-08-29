@@ -3341,6 +3341,7 @@ export default function SahilTraders() {
       const [suggestOpen, setSuggestOpen] = useState(false);
       const [recentSearches, setRecentSearches] = useState([]);
       const searchBoxRef = useRef(null);
+      const searchInputRef = useRef(null);
       const [cartNotice, setCartNotice] = useState(false);
       const cartNoticeTimerRef = useRef(null);
       // -----------------------------------------------------------------------------
@@ -3701,37 +3702,55 @@ export default function SahilTraders() {
       function handleVoiceSearch() {
         triggerHaptic('medium');
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRec) {
-          alert(tr(language, 'Voice search is not supported on this device/browser.', 'Aapke device/browser par voice search support nahi hai.', 'آپ کے براؤزر میں وائس سرچ دستیاب نہیں ہے۔'));
-          return;
-        }
-        try {
-          const rec = new SpeechRec();
-          rec.lang = language === 'ur' ? 'ur-PK' : (language === 'ro' ? 'ur-PK' : 'en-US');
-          rec.interimResults = false;
-          rec.maxAlternatives = 1;
+        if (SpeechRec) {
+          try {
+            const rec = new SpeechRec();
+            rec.lang = language === 'ur' ? 'ur-PK' : (language === 'ro' ? 'ur-PK' : 'en-US');
+            rec.interimResults = false;
+            rec.maxAlternatives = 1;
 
-          rec.onstart = () => {
-            setIsListening(true);
-          };
-          rec.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            if (transcript) {
-              triggerHaptic('success');
-              setSearchTerm(transcript);
-              setSuggestOpen(true);
-            }
-          };
-          rec.onerror = () => {
+            rec.onstart = () => {
+              setIsListening(true);
+            };
+            rec.onresult = (event) => {
+              const transcript = event.results && event.results[0] && event.results[0][0] && event.results[0][0].transcript;
+              if (transcript) {
+                triggerHaptic('success');
+                setSearchTerm(transcript);
+                setSuggestOpen(true);
+                if (searchInputRef.current) {
+                  searchInputRef.current.focus();
+                }
+              }
+            };
+            rec.onerror = (err) => {
+              setIsListening(false);
+              if (searchInputRef.current) {
+                searchInputRef.current.focus();
+                setSuggestOpen(true);
+              }
+            };
+            rec.onend = () => {
+              setIsListening(false);
+            };
+            rec.start();
+            return;
+          } catch (e) {
             setIsListening(false);
-          };
-          rec.onend = () => {
-            setIsListening(false);
-          };
-          rec.start();
-        } catch (e) {
-          setIsListening(false);
+          }
         }
+        
+        // Fallback for Android WebView where SpeechRecognition is not bundled:
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          setSuggestOpen(true);
+        }
+        alert(tr(
+          language,
+          '🎙️ Voice Search Active! Please speak using the Microphone 🎤 on your keyboard.',
+          '🎙️ Voice Search: Apne mobile keyboard ke Mic 🎤 button se bol kar search karein.',
+          '🎙️ وائس سرچ: موبائل کی بورڈ کے مائیک 🎤 سے بول کر سرچ کریں۔'
+        ));
       }
       function handleReorder(items) {
         triggerHaptic('success');
@@ -4238,6 +4257,7 @@ export default function SahilTraders() {
                 <div className="relative flex items-center">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                   <input
+                    ref={searchInputRef}
                     type="text"
                     value={searchTerm}
                     onChange={(e) => {

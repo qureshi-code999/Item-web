@@ -37,6 +37,279 @@ function getTranslationValue(dictionary, key) {
       }
     }
 
+    function saveInvoiceAsImage(order, language) {
+      triggerHaptic('success');
+      const canvas = document.createElement('canvas');
+      const scale = 2;
+      const width = 640;
+      const items = order.items || [];
+      let dynamicRowsHeight = 0;
+      items.forEach(it => {
+        dynamicRowsHeight += 44;
+        if (it.variant) dynamicRowsHeight += 18;
+        if (it.extraPercent > 0) dynamicRowsHeight += 24;
+      });
+      const totalBulkSaved = order.totalSavings || items.reduce((acc, it) => acc + (it.extraSavings || 0), 0);
+      const totalBlockHeight = totalBulkSaved > 0 ? 140 : 115;
+      const height = Math.max(680, 130 + 95 + 40 + dynamicRowsHeight + totalBlockHeight + 110);
+      
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(scale, scale);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(16, 16, width - 32, height - 32);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '900 22px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+      ctx.fillText('SAHIL TRADERS', 36, 52);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '600 10.5px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+      ctx.fillText('WHOLESALE & RETAIL STORE • KARACHI', 36, 70);
+
+      ctx.fillStyle = '#475569';
+      ctx.font = '600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+      ctx.fillText('📞 0336-8945775', 36, 88);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(width - 165, 34, 130, 24, 6);
+      else ctx.rect(width - 165, 34, 130, 24);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 10.5px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('OFFICIAL INVOICE', width - 100, 50);
+
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '800 13px system-ui, sans-serif';
+      ctx.fillText('#ST-' + (order.id || ''), width - 36, 76);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '500 10.5px system-ui, sans-serif';
+      ctx.fillText(order.dateText || new Date().toLocaleDateString(), width - 36, 92);
+      ctx.textAlign = 'left';
+
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(36, 110);
+      ctx.lineTo(width - 36, 110);
+      ctx.stroke();
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(36, 122, width - 72, 70, 8);
+      else ctx.rect(36, 122, width - 72, 70);
+      ctx.fill();
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '700 9.5px system-ui, sans-serif';
+      ctx.fillText('CUSTOMER DETAILS', 50, 140);
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '800 13px system-ui, sans-serif';
+      ctx.fillText(order.customer?.name || 'Walk-in Customer', 50, 158);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '600 11px system-ui, sans-serif';
+      ctx.fillText(order.customer?.phone || '', 50, 174);
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '700 9.5px system-ui, sans-serif';
+      ctx.fillText('DELIVERY DESTINATION', width / 2 + 10, 140);
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '800 12.5px system-ui, sans-serif';
+      ctx.fillText(order.deliveryMethod === 'pickup' ? '🏬 Store Pickup (BS Mart Karachi)' : '🚚 Home Delivery', width / 2 + 10, 158);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '500 10.5px system-ui, sans-serif';
+      const addr = order.customer?.address || (order.deliveryMethod === 'pickup' ? 'BS Mart Karachi Store' : '');
+      ctx.fillText(addr.length > 32 ? addr.substring(0, 32) + '...' : addr, width / 2 + 10, 174);
+
+      let curY = 205;
+      ctx.fillStyle = '#f1f5f9';
+      ctx.fillRect(36, curY, width - 72, 28);
+      ctx.fillStyle = '#475569';
+      ctx.font = '800 10px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('#', 50, curY + 18);
+      ctx.textAlign = 'left';
+      ctx.fillText('ITEM DESCRIPTION', 72, curY + 18);
+      ctx.textAlign = 'center';
+      ctx.fillText('QTY', width - 195, curY + 18);
+      ctx.textAlign = 'right';
+      ctx.fillText('UNIT PRICE', width - 110, curY + 18);
+      ctx.fillText('TOTAL', width - 46, curY + 18);
+      ctx.textAlign = 'left';
+
+      curY += 28;
+      items.forEach((it, idx) => {
+        const rowStartY = curY;
+        ctx.fillStyle = '#64748b';
+        ctx.font = '600 11px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText((idx + 1).toString(), 50, curY + 20);
+
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '700 12px system-ui, sans-serif';
+        const nameText = (it.name || '').length > 36 ? (it.name || '').substring(0, 34) + '...' : (it.name || '');
+        ctx.fillText(nameText, 72, curY + 20);
+        curY += 22;
+
+        if (it.variant) {
+          ctx.fillStyle = '#b45309';
+          ctx.font = '700 10px system-ui, sans-serif';
+          ctx.fillText('🎨 Shade: ' + it.variant, 72, curY + 13);
+          curY += 16;
+        }
+
+        if (it.extraPercent > 0) {
+          ctx.fillStyle = '#f0fdf4';
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(72, curY + 2, 260, 18, 4);
+          else ctx.rect(72, curY + 2, 260, 18);
+          ctx.fill();
+          ctx.strokeStyle = '#bbf7d0';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.fillStyle = '#15803d';
+          ctx.font = '800 9.5px system-ui, sans-serif';
+          ctx.fillText('🎁 Bulk Discount (' + it.extraPercent + '% OFF): Saved Rs ' + Number(it.extraSavings || 0).toLocaleString(), 78, curY + 14);
+          curY += 22;
+        }
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '800 12px system-ui, sans-serif';
+        ctx.fillText((it.qty || 1).toString(), width - 195, rowStartY + 20);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '600 12px system-ui, sans-serif';
+        ctx.fillText('Rs ' + Number(it.price || 0).toLocaleString(), width - 110, rowStartY + 20);
+        if (it.extraPercent > 0) {
+          ctx.fillStyle = '#16a34a';
+          ctx.font = '700 9.5px system-ui, sans-serif';
+          ctx.fillText('(Rs ' + Math.round(it.total / (it.qty || 1)).toLocaleString() + '/pc)', width - 110, rowStartY + 33);
+        }
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '800 12.5px system-ui, sans-serif';
+        ctx.fillText('Rs ' + Number(it.total || (it.qty * it.price)).toLocaleString(), width - 46, rowStartY + 20);
+        ctx.textAlign = 'left';
+
+        curY += 6;
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(36, curY);
+        ctx.lineTo(width - 36, curY);
+        ctx.stroke();
+        curY += 6;
+      });
+
+      curY += 10;
+      const totalsLeft = width - 290;
+      
+      ctx.fillStyle = '#64748b';
+      ctx.font = '600 12px system-ui, sans-serif';
+      ctx.fillText('Subtotal:', totalsLeft, curY + 14);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '700 12px system-ui, sans-serif';
+      ctx.fillText('Rs ' + Number(order.subtotal || 0).toLocaleString(), width - 46, curY + 14);
+      ctx.textAlign = 'left';
+      curY += 22;
+
+      if (totalBulkSaved > 0) {
+        ctx.fillStyle = '#15803d';
+        ctx.font = '800 12px system-ui, sans-serif';
+        ctx.fillText('🎁 Total Bulk Saved:', totalsLeft, curY + 14);
+        ctx.textAlign = 'right';
+        ctx.fillText('-Rs ' + Number(totalBulkSaved).toLocaleString(), width - 46, curY + 14);
+        ctx.textAlign = 'left';
+        curY += 22;
+      }
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '600 12px system-ui, sans-serif';
+      ctx.fillText('Delivery Fee:', totalsLeft, curY + 14);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '700 12px system-ui, sans-serif';
+      ctx.fillText(order.deliveryFee === 0 ? 'FREE' : 'Rs ' + order.deliveryFee, width - 46, curY + 14);
+      ctx.textAlign = 'left';
+      curY += 22;
+
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(totalsLeft, curY + 4);
+      ctx.lineTo(width - 46, curY + 4);
+      ctx.stroke();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '900 13px system-ui, sans-serif';
+      ctx.fillText('Total Payable:', totalsLeft, curY + 22);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#16a34a';
+      ctx.font = '900 16px system-ui, sans-serif';
+      ctx.fillText('Rs ' + Number(order.grandTotal || 0).toLocaleString(), width - 46, curY + 22);
+      ctx.textAlign = 'left';
+      curY += 40;
+
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(36, curY);
+      ctx.lineTo(width - 36, curY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      curY += 22;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '700 11.5px system-ui, sans-serif';
+      ctx.fillText('❤️ Thank you for choosing Sahil Traders!', width / 2, curY);
+      curY += 18;
+      ctx.fillStyle = '#64748b';
+      ctx.font = '500 10.5px system-ui, sans-serif';
+      ctx.fillText('For exchanges or inquiries, WhatsApp us at +92 336 8945775', width / 2, curY);
+
+      canvas.toBlob(async function(blob) {
+        if (!blob) return;
+        const fileName = `Sahil_Traders_Invoice_#ST-${order.id}.png`;
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: `Sahil Traders Invoice #${order.id}`,
+              text: 'Official Invoice - Sahil Traders Karachi'
+            });
+            return;
+          } catch(e) {}
+        }
+
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = URL.createObjectURL(blob);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }, 'image/png');
+    }
+
     function generatePDFReceipt(order, language) {
       triggerHaptic('success');
       const totalBulkSaved = order.totalSavings || (order.items || []).reduce((acc, it) => acc + (it.extraSavings || 0), 0);
@@ -70,30 +343,38 @@ function getTranslationValue(dictionary, key) {
       `;
       }).join('');
 
+      const orderJsonEscaped = JSON.stringify(order).replace(/</g, '\\u003c');
+
       const printHtml = `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Invoice #${order.id} - Sahil Traders</title>
           <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: #fff; margin: 0; padding: 24px; }
-            .invoice-card { max-width: 620px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 20px; }
+            * { box-sizing: border-box; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: #f8fafc; margin: 0; padding: 16px; }
+            .invoice-card { max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 18px; }
             .brand-title { font-size: 22px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: #0f172a; margin: 0; }
             .brand-sub { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 3px; }
             .inv-badge { background: #0f172a; color: #fff; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
-            .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; font-size: 12px; background: #f8fafc; padding: 12px 16px; border-radius: 8px; }
+            .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; font-size: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0; }
             .meta-label { color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; }
             .meta-val { color: #0f172a; font-weight: 700; margin-top: 2px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
             th { background: #f1f5f9; padding: 8px 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; text-align: left; }
             .totals { margin-left: auto; width: 280px; font-size: 13px; }
             .totals-row { display: flex; justify-content: space-between; padding: 4px 0; color: #64748b; }
             .totals-row.grand { font-size: 16px; font-weight: 900; color: #0f172a; border-top: 2px solid #0f172a; padding-top: 8px; margin-top: 6px; }
-            .footer { text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px dashed #cbd5e1; font-size: 11px; color: #64748b; }
-            .print-btn { display: block; width: 100%; max-width: 620px; margin: 16px auto 0; padding: 12px; background: #0f172a; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; }
-            @media print { .print-btn { display: none; } body { padding: 0; } .invoice-card { border: none; box-shadow: none; padding: 0; } }
+            .footer { text-align: center; margin-top: 22px; padding-top: 14px; border-top: 1px dashed #cbd5e1; font-size: 11px; color: #64748b; }
+            .action-btn-container { display: flex; gap: 10px; max-width: 620px; margin: 16px auto 0; flex-wrap: wrap; }
+            .save-gallery-btn { flex: 1; min-width: 180px; padding: 13px 16px; background: linear-gradient(135deg, #059669, #0d9488); color: #ffffff; border: none; border-radius: 10px; font-weight: 900; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(5,150,105,0.35); transition: transform 0.15s; }
+            .save-gallery-btn:active { transform: scale(0.98); }
+            .print-btn { flex: 1; min-width: 160px; padding: 13px 16px; background: #0f172a; color: #ffffff; border: none; border-radius: 10px; font-weight: 800; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(15,23,42,0.2); }
+            .print-btn:active { transform: scale(0.98); }
+            @media print { .action-btn-container { display: none; } body { padding: 0; background: #fff; } .invoice-card { border: none; box-shadow: none; padding: 0; } }
           </style>
         </head>
         <body>
@@ -165,9 +446,305 @@ function getTranslationValue(dictionary, key) {
               <div style="margin-top: 4px;">For exchanges or inquiries, WhatsApp us at <strong>+92 336 8945775</strong></div>
             </div>
           </div>
-          <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+
+          <div class="action-btn-container">
+            <button class="save-gallery-btn" onclick="saveToGallery()">
+              <span>📸</span>
+              <span>Save to Gallery (تصویر محفوظ کریں)</span>
+            </button>
+            <button class="print-btn" onclick="window.print()">
+              <span>🖨️</span>
+              <span>Print / Save as PDF</span>
+            </button>
+          </div>
+
           <script>
-            window.onload = function() { setTimeout(function() { window.print(); }, 400); };
+            const orderData = ${orderJsonEscaped};
+            window.saveToGallery = async function() {
+              const btn = document.querySelector('.save-gallery-btn');
+              if (btn) btn.innerHTML = '<span>⏳</span><span>Saving to Gallery...</span>';
+
+              try {
+                const canvas = document.createElement('canvas');
+                const scale = 2;
+                const width = 640;
+                const items = orderData.items || [];
+                let dynamicRowsHeight = 0;
+                items.forEach(it => {
+                  dynamicRowsHeight += 44;
+                  if (it.variant) dynamicRowsHeight += 18;
+                  if (it.extraPercent > 0) dynamicRowsHeight += 24;
+                });
+                const totalBulkSaved = orderData.totalSavings || items.reduce((acc, it) => acc + (it.extraSavings || 0), 0);
+                const totalBlockHeight = totalBulkSaved > 0 ? 140 : 115;
+                const height = Math.max(680, 130 + 95 + 40 + dynamicRowsHeight + totalBlockHeight + 110);
+                
+                canvas.width = width * scale;
+                canvas.height = height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.scale(scale, scale);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(16, 16, width - 32, height - 32);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '900 22px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+                ctx.fillText('SAHIL TRADERS', 36, 52);
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '600 10.5px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+                ctx.fillText('WHOLESALE & RETAIL STORE • KARACHI', 36, 70);
+
+                ctx.fillStyle = '#475569';
+                ctx.font = '600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+                ctx.fillText('📞 0336-8945775', 36, 88);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(width - 165, 34, 130, 24, 6);
+                else ctx.rect(width - 165, 34, 130, 24);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 10.5px system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('OFFICIAL INVOICE', width - 100, 50);
+
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '800 13px system-ui, sans-serif';
+                ctx.fillText('#ST-' + (orderData.id || ''), width - 36, 76);
+                ctx.fillStyle = '#64748b';
+                ctx.font = '500 10.5px system-ui, sans-serif';
+                ctx.fillText(orderData.dateText || new Date().toLocaleDateString(), width - 36, 92);
+                ctx.textAlign = 'left';
+
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(36, 110);
+                ctx.lineTo(width - 36, 110);
+                ctx.stroke();
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(36, 122, width - 72, 70, 8);
+                else ctx.rect(36, 122, width - 72, 70);
+                ctx.fill();
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '700 9.5px system-ui, sans-serif';
+                ctx.fillText('CUSTOMER DETAILS', 50, 140);
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '800 13px system-ui, sans-serif';
+                ctx.fillText(orderData.customer?.name || 'Walk-in Customer', 50, 158);
+                ctx.fillStyle = '#64748b';
+                ctx.font = '600 11px system-ui, sans-serif';
+                ctx.fillText(orderData.customer?.phone || '', 50, 174);
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '700 9.5px system-ui, sans-serif';
+                ctx.fillText('DELIVERY DESTINATION', width / 2 + 10, 140);
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '800 12.5px system-ui, sans-serif';
+                ctx.fillText(orderData.deliveryMethod === 'pickup' ? '🏬 Store Pickup (BS Mart Karachi)' : '🚚 Home Delivery', width / 2 + 10, 158);
+                ctx.fillStyle = '#64748b';
+                ctx.font = '500 10.5px system-ui, sans-serif';
+                const addr = orderData.customer?.address || (orderData.deliveryMethod === 'pickup' ? 'BS Mart Karachi Store' : '');
+                ctx.fillText(addr.length > 32 ? addr.substring(0, 32) + '...' : addr, width / 2 + 10, 174);
+
+                let curY = 205;
+                ctx.fillStyle = '#f1f5f9';
+                ctx.fillRect(36, curY, width - 72, 28);
+                ctx.fillStyle = '#475569';
+                ctx.font = '800 10px system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('#', 50, curY + 18);
+                ctx.textAlign = 'left';
+                ctx.fillText('ITEM DESCRIPTION', 72, curY + 18);
+                ctx.textAlign = 'center';
+                ctx.fillText('QTY', width - 195, curY + 18);
+                ctx.textAlign = 'right';
+                ctx.fillText('UNIT PRICE', width - 110, curY + 18);
+                ctx.fillText('TOTAL', width - 46, curY + 18);
+                ctx.textAlign = 'left';
+
+                curY += 28;
+                items.forEach((it, idx) => {
+                  const rowStartY = curY;
+                  ctx.fillStyle = '#64748b';
+                  ctx.font = '600 11px system-ui, sans-serif';
+                  ctx.textAlign = 'center';
+                  ctx.fillText((idx + 1).toString(), 50, curY + 20);
+
+                  ctx.textAlign = 'left';
+                  ctx.fillStyle = '#0f172a';
+                  ctx.font = '700 12px system-ui, sans-serif';
+                  const nameText = (it.name || '').length > 36 ? (it.name || '').substring(0, 34) + '...' : (it.name || '');
+                  ctx.fillText(nameText, 72, curY + 20);
+                  curY += 22;
+
+                  if (it.variant) {
+                    ctx.fillStyle = '#b45309';
+                    ctx.font = '700 10px system-ui, sans-serif';
+                    ctx.fillText('🎨 Shade: ' + it.variant, 72, curY + 13);
+                    curY += 16;
+                  }
+
+                  if (it.extraPercent > 0) {
+                    ctx.fillStyle = '#f0fdf4';
+                    ctx.beginPath();
+                    if (ctx.roundRect) ctx.roundRect(72, curY + 2, 260, 18, 4);
+                    else ctx.rect(72, curY + 2, 260, 18);
+                    ctx.fill();
+                    ctx.strokeStyle = '#bbf7d0';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    ctx.fillStyle = '#15803d';
+                    ctx.font = '800 9.5px system-ui, sans-serif';
+                    ctx.fillText('🎁 Bulk Discount (' + it.extraPercent + '% OFF): Saved Rs ' + Number(it.extraSavings || 0).toLocaleString(), 78, curY + 14);
+                    curY += 22;
+                  }
+
+                  ctx.textAlign = 'center';
+                  ctx.fillStyle = '#0f172a';
+                  ctx.font = '800 12px system-ui, sans-serif';
+                  ctx.fillText((it.qty || 1).toString(), width - 195, rowStartY + 20);
+
+                  ctx.textAlign = 'right';
+                  ctx.fillStyle = '#0f172a';
+                  ctx.font = '600 12px system-ui, sans-serif';
+                  ctx.fillText('Rs ' + Number(it.price || 0).toLocaleString(), width - 110, rowStartY + 20);
+                  if (it.extraPercent > 0) {
+                    ctx.fillStyle = '#16a34a';
+                    ctx.font = '700 9.5px system-ui, sans-serif';
+                    ctx.fillText('(Rs ' + Math.round(it.total / (it.qty || 1)).toLocaleString() + '/pc)', width - 110, rowStartY + 33);
+                  }
+
+                  ctx.fillStyle = '#0f172a';
+                  ctx.font = '800 12.5px system-ui, sans-serif';
+                  ctx.fillText('Rs ' + Number(it.total || (it.qty * it.price)).toLocaleString(), width - 46, rowStartY + 20);
+                  ctx.textAlign = 'left';
+
+                  curY += 6;
+                  ctx.strokeStyle = '#e2e8f0';
+                  ctx.lineWidth = 1;
+                  ctx.beginPath();
+                  ctx.moveTo(36, curY);
+                  ctx.lineTo(width - 36, curY);
+                  ctx.stroke();
+                  curY += 6;
+                });
+
+                curY += 10;
+                const totalsLeft = width - 290;
+                
+                ctx.fillStyle = '#64748b';
+                ctx.font = '600 12px system-ui, sans-serif';
+                ctx.fillText('Subtotal:', totalsLeft, curY + 14);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '700 12px system-ui, sans-serif';
+                ctx.fillText('Rs ' + Number(orderData.subtotal || 0).toLocaleString(), width - 46, curY + 14);
+                ctx.textAlign = 'left';
+                curY += 22;
+
+                if (totalBulkSaved > 0) {
+                  ctx.fillStyle = '#15803d';
+                  ctx.font = '800 12px system-ui, sans-serif';
+                  ctx.fillText('🎁 Total Bulk Saved:', totalsLeft, curY + 14);
+                  ctx.textAlign = 'right';
+                  ctx.fillText('-Rs ' + Number(totalBulkSaved).toLocaleString(), width - 46, curY + 14);
+                  ctx.textAlign = 'left';
+                  curY += 22;
+                }
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '600 12px system-ui, sans-serif';
+                ctx.fillText('Delivery Fee:', totalsLeft, curY + 14);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '700 12px system-ui, sans-serif';
+                ctx.fillText(orderData.deliveryFee === 0 ? 'FREE' : 'Rs ' + orderData.deliveryFee, width - 46, curY + 14);
+                ctx.textAlign = 'left';
+                curY += 22;
+
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(totalsLeft, curY + 4);
+                ctx.lineTo(width - 46, curY + 4);
+                ctx.stroke();
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '900 13px system-ui, sans-serif';
+                ctx.fillText('Total Payable:', totalsLeft, curY + 22);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#16a34a';
+                ctx.font = '900 16px system-ui, sans-serif';
+                ctx.fillText('Rs ' + Number(orderData.grandTotal || 0).toLocaleString(), width - 46, curY + 22);
+                ctx.textAlign = 'left';
+                curY += 40;
+
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(36, curY);
+                ctx.lineTo(width - 36, curY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                curY += 22;
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '700 11.5px system-ui, sans-serif';
+                ctx.fillText('❤️ Thank you for choosing Sahil Traders!', width / 2, curY);
+                curY += 18;
+                ctx.fillStyle = '#64748b';
+                ctx.font = '500 10.5px system-ui, sans-serif';
+                ctx.fillText('For exchanges or inquiries, WhatsApp us at +92 336 8945775', width / 2, curY);
+
+                canvas.toBlob(async function(blob) {
+                  if (!blob) return;
+                  const fileName = 'Sahil_Traders_Invoice_#ST-' + (orderData.id || '') + '.png';
+                  const file = new File([blob], fileName, { type: 'image/png' });
+
+                  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                      await navigator.share({
+                        files: [file],
+                        title: 'Sahil Traders Invoice #' + (orderData.id || ''),
+                        text: 'Official Invoice - Sahil Traders Karachi'
+                      });
+                      if (btn) btn.innerHTML = '<span>✅</span><span>Shared / Saved!</span>';
+                      setTimeout(() => { if (btn) btn.innerHTML = '<span>📸</span><span>Save to Gallery (تصویر محفوظ کریں)</span>'; }, 3000);
+                      return;
+                    } catch(e) {}
+                  }
+
+                  const link = document.createElement('a');
+                  link.download = fileName;
+                  link.href = URL.createObjectURL(blob);
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+
+                  if (btn) btn.innerHTML = '<span>✅</span><span>Saved to Gallery / Photos!</span>';
+                  setTimeout(() => { if (btn) btn.innerHTML = '<span>📸</span><span>Save to Gallery (تصویر محفوظ کریں)</span>'; }, 3000);
+                }, 'image/png');
+
+              } catch(err) {
+                alert('Error saving image: ' + err.message);
+                if (btn) btn.innerHTML = '<span>📸</span><span>Save to Gallery (تصویر محفوظ کریں)</span>';
+              }
+            };
           </script>
         </body>
         </html>
@@ -5999,15 +6576,26 @@ export default function SahilTraders() {
                       <span>{tr(language, 'Open WhatsApp Chat', 'WhatsApp par Chat Kholein', '\u0648\u0627\u067e\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0686\u0627\u067c \u06a9\u06be\u0644\u06cc\u06ba')}</span>
                     </a>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => generatePDFReceipt(placedOrder, language)}
-                    style={{ background: '#0f172a', color: '#ffffff', borderRadius: 12, padding: '11px 16px', fontSize: 13, fontWeight: 900, textAlign: 'center', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 14px rgba(15,23,42,0.25)' }}
-                    className="hover:bg-black transition-all active:scale-95 cursor-pointer"
-                  >
-                    <span>🧾</span>
-                    <span>{tr(language, 'Print / Save PDF Receipt', 'PDF Bill Print / Save Karein', 'پی ڈی ایف بل پرنٹ کریں')}</span>
-                  </button>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={() => saveInvoiceAsImage(placedOrder, language)}
+                      style={{ flex: 1, minWidth: 160, background: 'linear-gradient(135deg, #059669, #0d9488)', color: '#ffffff', borderRadius: 12, padding: '11px 14px', fontSize: 13, fontWeight: 900, textAlign: 'center', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 14px rgba(5,150,105,0.35)' }}
+                      className="hover:from-emerald-700 hover:to-teal-800 transition-all active:scale-95 cursor-pointer"
+                    >
+                      <span>📸</span>
+                      <span>{tr(language, 'Save to Gallery', 'Gallery Mein Save Karein', 'تصویر محفوظ کریں')}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => generatePDFReceipt(placedOrder, language)}
+                      style={{ flex: 1, minWidth: 130, background: '#0f172a', color: '#ffffff', borderRadius: 12, padding: '11px 14px', fontSize: 13, fontWeight: 900, textAlign: 'center', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 14px rgba(15,23,42,0.25)' }}
+                      className="hover:bg-black transition-all active:scale-95 cursor-pointer"
+                    >
+                      <span>🖨️</span>
+                      <span>{tr(language, 'Print / PDF', 'Print / PDF Bill', 'پی ڈی ایف بل')}</span>
+                    </button>
+                  </div>
                   <button
                     onClick={onClose}
                     style={{ background: '#f1f5f9', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: 12, padding: '11px 16px', fontSize: 12, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}

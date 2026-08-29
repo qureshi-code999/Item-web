@@ -5851,11 +5851,11 @@ export default function SahilTraders() {
               {/* ══════════ ULTRA-GLOSSY FROSTED GLASS 5-TAB BOTTOM NAVIGATION BAR (Mobile / App Only) ══════════ */}
               <nav className="sm:hidden" style={{
                 position: 'fixed', bottom: 0, left: 0, right: 0,
-                background: 'rgba(255, 255, 255, 0.78)',
-                backdropFilter: 'blur(24px) saturate(190%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(190%)',
-                borderTop: '1px solid rgba(255, 255, 255, 0.85)',
-                boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
+                background: 'rgba(255, 255, 255, 0.42)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.65)',
+                boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85)',
                 zIndex: 45,
                 transform: 'translateZ(0)',
                 WebkitTransform: 'translateZ(0)',
@@ -5984,15 +5984,15 @@ export default function SahilTraders() {
       return (
         <div>
           {/* Categories Top Title & Count */}
-          <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.12)', paddingBottom: 8 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#000000', fontFamily: "'Poppins', sans-serif" }}>
+          <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: 8 }}>
+            <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#0f172a', fontFamily: "'Poppins', sans-serif" }}>
               {translate(langData, "categoriesLabel")}
             </h2>
-            <span style={{ fontSize: 10, fontWeight: 800, color: '#333333', background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12, padding: '2px 8px', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: '#059669', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 12, padding: '2px 8px', whiteSpace: 'nowrap' }}>
               {categoriesList.length} Categories &middot; {products.length.toLocaleString()}+ Items
             </span>
           </div>
-          <div className="cat-home-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
             {categoriesList.map(cat => {
               const catProducts = products.filter(p => p.categoryId === cat.id);
               const count = catProducts.length;
@@ -6027,23 +6027,23 @@ export default function SahilTraders() {
                   style={{
                     background: '#ffffff',
                     border: '1.5px solid #e2e8f0',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
                     display: 'flex',
                     flexDirection: 'column'
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.borderColor = '#10b981';
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.boxShadow = '0 10px 24px rgba(16,185,129,0.12)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.12)';
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.borderColor = '#e2e8f0';
                     e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.03)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.03)';
                   }}
                 >
                   {/* Top Image Reel Area */}
-                  <div className="cat-img-reel-area" style={{ height: 140, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#fafbfc' }}>
+                  <div className="cat-img-reel-area" style={{ height: 115, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#fafbfc' }}>
 
                     {/* Top Right Item Count Badge */}
                     <div className="cat-count-badge" style={{ position: 'absolute', top: 8, right: 8, zIndex: 20, padding: '3px 8px', borderRadius: 8, fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', background: 'rgba(15, 23, 42, 0.82)', backdropFilter: 'blur(4px)', color: '#ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>

@@ -4257,9 +4257,6 @@ export default function SahilTraders() {
                 onSelectCategory={setSelectedCategory}
                 langData={langData}
                 language={language}
-                onParchiOrder={() => { triggerHaptic('medium'); setParchiModalOpen(true); }}
-                onWishlist={() => { triggerHaptic('light'); setWishlistOpen(true); }}
-                wishlistCount={wishlist.length}
               />
             ) : (
               <>
@@ -4863,41 +4860,11 @@ export default function SahilTraders() {
       personalcare: { image: '', gradient: 'linear-gradient(135deg,#ee9ca7,#ffdde1)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>) },
     };
     // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
-    function CategoryHome({ products, onSelectCategory, langData, language, onParchiOrder, onWishlist, wishlistCount }) {
+    function CategoryHome({ products, onSelectCategory, langData, language }) {
       const isUrdu = language === 'ur';
       const categoriesList = getGlobalCategories();
       return (
         <div>
-          {/* Quick Action Banners — Parchi & Wishlist */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <button
-              type="button"
-              onClick={() => onParchiOrder && onParchiOrder()}
-              className="flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-600/20 transition-all active:scale-95 cursor-pointer text-left"
-            >
-              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">📸</div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-black text-white leading-tight">{tr(language, 'Parchi Order', 'Parchi Order', 'پرچی آرڈر')}</p>
-                <p className="text-[10px] text-emerald-100 leading-tight mt-0.5">{tr(language, 'Photo slip in 5 sec', '5 sec mein order', '5 سیکنڈ میں آرڈر')}</p>
-              </div>
-            </button>
-            <button
-              type="button"
-              onClick={() => onWishlist && onWishlist()}
-              className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-rose-200 shadow-lg shadow-rose-100/40 transition-all active:scale-95 cursor-pointer text-left relative"
-            >
-              <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-xl shrink-0">❤️</div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-black text-gray-900 leading-tight">{tr(language, 'My Wishlist', 'Meri List', 'میری لسٹ')}</p>
-                <p className="text-[10px] text-gray-500 leading-tight mt-0.5">{wishlistCount > 0 ? tr(language, `${wishlistCount} saved items`, `${wishlistCount} items save hain`, `${wishlistCount} اشیاء محفوظ`) : tr(language, 'Save favorites', 'Pasand save karein', 'پسندیدہ محفوظ کریں')}</p>
-              </div>
-              {wishlistCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full text-[10px] font-black flex items-center justify-center bg-rose-600 text-white border-2 border-white shadow-2xs">
-                  {wishlistCount}
-                </span>
-              )}
-            </button>
-          </div>
           {/* Categories Top Title & Count */}
           <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.12)', paddingBottom: 8 }}>
             <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#000000', fontFamily: "'Poppins', sans-serif" }}>

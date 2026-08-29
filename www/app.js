@@ -3457,16 +3457,7 @@ function SahilTraders() {
     products: products,
     onSelectCategory: setSelectedCategory,
     langData: langData,
-    language: language,
-    onParchiOrder: () => {
-      triggerHaptic('medium');
-      setParchiModalOpen(true);
-    },
-    onWishlist: () => {
-      triggerHaptic('light');
-      setWishlistOpen(true);
-    },
-    wishlistCount: wishlist.length
+    language: language
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 14,
@@ -4790,42 +4781,11 @@ function CategoryHome({
   products,
   onSelectCategory,
   langData,
-  language,
-  onParchiOrder,
-  onWishlist,
-  wishlistCount
+  language
 }) {
   const isUrdu = language === 'ur';
   const categoriesList = getGlobalCategories();
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-2 gap-3 mb-5"
-  }, /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => onParchiOrder && onParchiOrder(),
-    className: "flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-600/20 transition-all active:scale-95 cursor-pointer text-left"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0"
-  }, "📸"), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-[11px] font-black text-white leading-tight"
-  }, tr(language, 'Parchi Order', 'Parchi Order', 'پرچی آرڈر')), /*#__PURE__*/React.createElement("p", {
-    className: "text-[10px] text-emerald-100 leading-tight mt-0.5"
-  }, tr(language, 'Photo slip in 5 sec', '5 sec mein order', '5 سیکنڈ میں آرڈر')))), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: () => onWishlist && onWishlist(),
-    className: "flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-rose-200 shadow-lg shadow-rose-100/40 transition-all active:scale-95 cursor-pointer text-left relative"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-xl shrink-0"
-  }, "❤️"), /*#__PURE__*/React.createElement("div", {
-    className: "min-w-0"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "text-[11px] font-black text-gray-900 leading-tight"
-  }, tr(language, 'My Wishlist', 'Meri List', 'میری لسٹ')), /*#__PURE__*/React.createElement("p", {
-    className: "text-[10px] text-gray-500 leading-tight mt-0.5"
-  }, wishlistCount > 0 ? tr(language, `${wishlistCount} saved items`, `${wishlistCount} items save hain`, `${wishlistCount} اشیاء محفوظ`) : tr(language, 'Save favorites', 'Pasand save karein', 'پسندیدہ محفوظ کریں'))), wishlistCount > 0 && /*#__PURE__*/React.createElement("span", {
-    className: "absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full text-[10px] font-black flex items-center justify-center bg-rose-600 text-white border-2 border-white shadow-2xs"
-  }, wishlistCount))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 10,
       display: 'flex',

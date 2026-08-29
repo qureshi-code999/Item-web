@@ -5634,7 +5634,6 @@ export default function SahilTraders() {
                           </div>
                           {/* Right Side: Total Amount & Expand Arrow */}
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                            <img src={getImgUrl(`images/${item.id}.${item.imageExt}`)} alt={item.name} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
                             <div style={{ textAlign: 'right' }}>
                               <div style={{ fontSize: 15, fontWeight: 900, color: '#111827' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
                               <span style={{ fontSize: 10, fontWeight: 700, color: isExpanded ? '#2563eb' : '#9ca3af' }}>
@@ -5662,20 +5661,24 @@ export default function SahilTraders() {
                               <p style={{ fontSize: 11, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
                                 {tr(language, 'Itemized Receipt:', 'Ashya ki List (Receipt):', '\u0627\u0634\u06cc\u0622 \u06a9\u06cc \u0641\u06c1\u0631\u0633\u067c:')}
                               </p>
-                              {order.items.map(item => (
-                                <div key={`${order.id}-${item.id}`} style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto', alignItems: 'center', gap: 12, padding: '6px 0', borderBottom: '1px border-dashed #f1f5f9' }}>
-                                  {item.imageExt ? (
-                                    <img src={`images/${item.id}.${item.imageExt}`} alt={item.name} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
-                                  ) : (
-                                    <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#475569' }}>{item.initial || 'S'}</div>
-                                  )}
-                                  <div style={{ minWidth: 0 }}>
-                                    <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name)}</div>
-                                    <div style={{ fontSize: 11, color: '#64748b' }}>Qty {item.qty} x Rs {Number(item.price || 0).toLocaleString()}</div>
+                              {order.items && order.items.map(item => {
+                                const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
+                                const imgSrc = hasFile ? getImgUrl(`images/${item.id}.${window.PRODUCT_IMAGE_MAP[item.id]}`) : (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
+                                return (
+                                  <div key={`${order.id}-${item.id}`} style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto', alignItems: 'center', gap: 12, padding: '6px 0', borderBottom: '1px border-dashed #f1f5f9' }}>
+                                    {imgSrc ? (
+                                      <img src={imgSrc} alt={item.name} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
+                                    ) : (
+                                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#475569' }}>{item.initial || 'S'}</div>
+                                    )}
+                                    <div style={{ minWidth: 0 }}>
+                                      <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name || '')}</div>
+                                      <div style={{ fontSize: 11, color: '#64748b' }}>Qty {item.qty} x Rs {Number(item.price || 0).toLocaleString()}</div>
+                                    </div>
+                                    <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 900 }}>Rs {Number(item.total || ((item.price || 0) * (item.qty || 1))).toLocaleString()}</div>
                                   </div>
-                                  <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 900 }}>Rs {Number(item.total || 0).toLocaleString()}</div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                             <div style={{ padding: '10px 14px', background: '#f8fafc', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, border: '1px solid #f1f5f9' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>

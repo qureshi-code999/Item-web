@@ -2397,35 +2397,61 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
                   {tr(language, '1. Take or Upload Photo of Slip *', '1. Parchi ki Photo Khainchein ya Select Karein *', '1. پرچی کی تصویر لیں یا اپلوڈ کریں *')}
                 </label>
                 {photo ? (
-                  <div className="relative rounded-2xl border-2 border-emerald-500 overflow-hidden bg-gray-50 h-48 flex items-center justify-center group">
+                  <div className="relative rounded-2xl border-2 border-emerald-500 overflow-hidden bg-gray-50 h-48 flex items-center justify-center group shadow-sm">
                     <img src={photo} alt="Parchi Slip Preview" className="w-full h-full object-contain" />
                     <button
                       type="button"
-                      onClick={() => setPhoto(null)}
-                      className="absolute top-2 right-2 bg-red-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold shadow-md cursor-pointer hover:bg-red-700 transition-colors"
+                      onClick={() => {
+                        setPhoto(null);
+                        setPhotoFile(null);
+                      }}
+                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded-lg text-xs font-bold shadow-md cursor-pointer transition-colors flex items-center gap-1"
                     >
-                      🗑️ {tr(language, 'Retake', 'Dobara Lein', 'دوبارہ لیں')}
+                      <span>🗑️</span>
+                      <span>{tr(language, 'Remove / Retake', 'Dobara Lein', 'دوبارہ لیں')}</span>
                     </button>
                   </div>
                 ) : (
-                  <label className="border-2 border-dashed border-emerald-400 hover:border-emerald-600 bg-emerald-50/40 hover:bg-emerald-50/70 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      onChange={handlePhotoUpload}
-                      className="hidden"
-                    />
-                    <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mb-2">
-                      📷
-                    </div>
-                    <span className="text-xs font-black text-emerald-800">
-                      {tr(language, 'Tap to Open Camera / Gallery', 'Camera se Photo Lein ya Gallery se Chunin', 'کیمرہ سے تصویر لیں یا گیلری سے منتخب کریں')}
-                    </span>
-                    <span className="text-[10px] text-gray-500 mt-1">
-                      {tr(language, 'Clear photo of handwritten item list', 'Saaf photo jahan saman ki list dikh sake', 'واضح تصویر منتخب کریں')}
-                    </span>
-                  </label>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {/* Option 1: Live Camera */}
+                    <label className="border-2 border-dashed border-emerald-400 hover:border-emerald-600 bg-emerald-50/40 hover:bg-emerald-50/70 rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all active:scale-95 shadow-2xs group">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                      <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-xl mb-2 shadow-sm group-hover:scale-110 transition-transform">
+                        📷
+                      </div>
+                      <span className="text-xs font-black text-gray-900 leading-tight">
+                        {tr(language, 'Take Photo', 'Camera Se Khainchein', 'کیمرہ سے تصویر لیں')}
+                      </span>
+                      <span className="text-[10px] text-emerald-800 font-semibold mt-1">
+                        {tr(language, 'Open Camera', 'Live Camera', 'لائیو کیمرہ')}
+                      </span>
+                    </label>
+
+                    {/* Option 2: Mobile Gallery / Files */}
+                    <label className="border-2 border-dashed border-teal-400 hover:border-teal-600 bg-teal-50/40 hover:bg-teal-50/70 rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all active:scale-95 shadow-2xs group">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                      />
+                      <div className="w-11 h-11 rounded-2xl bg-teal-600 text-white flex items-center justify-center text-xl mb-2 shadow-sm group-hover:scale-110 transition-transform">
+                        🖼️
+                      </div>
+                      <span className="text-xs font-black text-gray-900 leading-tight">
+                        {tr(language, 'Upload Gallery', 'Gallery Se Chunin', 'گیلری سے منتخب کریں')}
+                      </span>
+                      <span className="text-[10px] text-teal-800 font-semibold mt-1">
+                        {tr(language, 'Phone Photos', 'Mobile Gallery', 'موبائل گیلری')}
+                      </span>
+                    </label>
+                  </div>
                 )}
               </div>
 

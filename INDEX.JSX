@@ -16,6 +16,132 @@ function getTranslationValue(dictionary, key) {
       if (language === "ro") return (ro !== undefined && ro !== null) ? ro : en;
       return en;
     }
+    function triggerHaptic(type = 'light') {
+      try {
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          if (type === 'light') navigator.vibrate(15);
+          else if (type === 'medium') navigator.vibrate(35);
+          else if (type === 'success') navigator.vibrate([25, 45, 25]);
+          else if (type === 'error') navigator.vibrate([40, 40, 40]);
+        }
+      } catch (e) {}
+    }
+    function generatePDFReceipt(order, language) {
+      triggerHaptic('success');
+      const itemsRows = (order.items || []).map((item, idx) => `
+        <tr>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; text-align: center; color: #64748b;">${idx + 1}</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; font-weight: 600; color: #0f172a;">${item.name}</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center; color: #0f172a;">${item.qty || 1}</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; color: #0f172a;">Rs ${Number(item.price || 0).toLocaleString()}</td>
+          <td style="padding: 8px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; font-weight: 700; text-align: right; color: #0f172a;">Rs ${Number(item.total || (item.qty * item.price) || 0).toLocaleString()}</td>
+        </tr>
+      `).join('');
+
+      const printHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Invoice #${order.id} - Sahil Traders</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: #fff; margin: 0; padding: 24px; }
+            .invoice-card { max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+            .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 20px; }
+            .brand-title { font-size: 22px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: #0f172a; margin: 0; }
+            .brand-sub { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 3px; }
+            .inv-badge { background: #0f172a; color: #fff; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
+            .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; font-size: 12px; background: #f8fafc; padding: 12px 16px; border-radius: 8px; }
+            .meta-label { color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+            .meta-val { color: #0f172a; font-weight: 700; margin-top: 2px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th { background: #f1f5f9; padding: 8px 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; text-align: left; }
+            .totals { margin-left: auto; width: 250px; font-size: 13px; }
+            .totals-row { display: flex; justify-content: space-between; padding: 4px 0; color: #64748b; }
+            .totals-row.grand { font-size: 16px; font-weight: 900; color: #0f172a; border-top: 2px solid #0f172a; padding-top: 8px; margin-top: 6px; }
+            .footer { text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px dashed #cbd5e1; font-size: 11px; color: #64748b; }
+            .print-btn { display: block; width: 100%; max-width: 600px; margin: 16px auto 0; padding: 12px; background: #0f172a; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; }
+            @media print { .print-btn { display: none; } body { padding: 0; } .invoice-card { border: none; box-shadow: none; padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-card">
+            <div class="header">
+              <div>
+                <h1 class="brand-title">Sahil Traders</h1>
+                <div class="brand-sub">Wholesale & Retail Store • Karachi</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 0336-8945775 / 0335-3004071</div>
+              </div>
+              <div style="text-align: right;">
+                <span class="inv-badge">OFFICIAL INVOICE</span>
+                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 6px;">#ST-${order.id}</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${order.dateText || new Date().toLocaleDateString()}</div>
+              </div>
+            </div>
+
+            <div class="meta-grid">
+              <div>
+                <div class="meta-label">Customer Details</div>
+                <div class="meta-val">${order.customer?.name || 'Walk-in Customer'}</div>
+                <div style="color: #64748b; font-size: 11px;">${order.customer?.phone || ''}</div>
+              </div>
+              <div>
+                <div class="meta-label">Delivery Destination</div>
+                <div class="meta-val">${order.deliveryMethod === 'pickup' ? '🏬 Store Pickup (BS Mart Karachi)' : '🚚 Home Delivery'}</div>
+                <div style="color: #64748b; font-size: 11px;">${order.customer?.address || 'BS Mart Karachi Store'}</div>
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 30px; text-align: center;">#</th>
+                  <th>Item Description</th>
+                  <th style="width: 50px; text-align: center;">Qty</th>
+                  <th style="width: 90px; text-align: right;">Unit Price</th>
+                  <th style="width: 90px; text-align: right;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsRows}
+              </tbody>
+            </table>
+
+            <div class="totals">
+              <div class="totals-row">
+                <span>Subtotal:</span>
+                <span>Rs ${Number(order.subtotal || 0).toLocaleString()}</span>
+              </div>
+              <div class="totals-row">
+                <span>Delivery Fee:</span>
+                <span>${order.deliveryFee === 0 ? 'FREE' : `Rs ${order.deliveryFee}`}</span>
+              </div>
+              <div class="totals-row grand">
+                <span>Total Payable:</span>
+                <span style="color: #16a34a;">Rs ${Number(order.grandTotal || 0).toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div class="footer">
+              <div>❤️ <strong>Thank you for choosing Sahil Traders!</strong></div>
+              <div style="margin-top: 4px;">For exchanges or inquiries, WhatsApp us at <strong>+92 336 8945775</strong></div>
+            </div>
+          </div>
+          <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+          <script>
+            window.onload = function() { setTimeout(function() { window.print(); }, 400); };
+          </script>
+        </body>
+        </html>
+      `;
+
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.open();
+        printWindow.document.write(printHtml);
+        printWindow.document.close();
+      }
+    }
     function getImgUrl(path) {
       if (!path) return '';
       if (path.startsWith('http://') || path.startsWith('https://')) return path;
@@ -2759,6 +2885,7 @@ export default function SahilTraders() {
       const [checkoutOpen, setCheckoutOpen] = useState(false);
       const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
       const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+      const [isListening, setIsListening] = useState(false);
       const [orderHistory, setOrderHistory] = useState(() => {
         try {
           const saved = localStorage.getItem("sahil_traders_order_history");
@@ -2916,6 +3043,7 @@ export default function SahilTraders() {
       const cartTotal = cart.reduce((sum, i) => sum + calculateBulkPricing(i.product.price, i.qty).finalTotal, 0);
       const cartBulkSavings = cart.reduce((sum, i) => sum + calculateBulkPricing(i.product.price, i.qty).extraSavings, 0);
       function addToCart(product, variant = null, qtyToAdd = 1, sourceElement = null) {
+        triggerHaptic('medium');
         if (window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id] && !variant) {
           setVariantModalProduct(product);
           return;
@@ -2937,7 +3065,7 @@ export default function SahilTraders() {
         }
       }
       function flyProductToCart(product, sourceElement) {
-        const cartBtn = document.getElementById('cart-btn');
+        const cartBtn = document.getElementById('cart-btn') || document.getElementById('cart-btn-mobile');
         if (!cartBtn || !sourceElement) return;
         const sourceCard = sourceElement.closest('.product-card');
         const sourceImage = sourceCard?.querySelector('.product-card-main-img');
@@ -2956,13 +3084,13 @@ export default function SahilTraders() {
           top: `${startY - flyerSize / 2}px`,
           width: `${flyerSize}px`,
           height: `${flyerSize}px`,
-          zIndex: 120,
+          zIndex: '9999',
           pointerEvents: 'none',
           borderRadius: '16px',
-          background: '#ffffff',
-          border: '1px solid rgba(22,163,74,0.35)',
-          boxShadow: '0 18px 40px rgba(0,0,0,0.24)',
           overflow: 'hidden',
+          boxShadow: '0 12px 28px rgba(0,0,0,0.3)',
+          border: '2px solid #10b981',
+          background: '#ffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -2970,45 +3098,43 @@ export default function SahilTraders() {
         });
         if (ext) {
           const img = document.createElement('img');
-          img.src = `images/${product.id}.${ext}`;
-          img.alt = '';
+          img.src = getImgUrl(`images/${product.id}.${ext}`);
+          img.alt = product.name;
           Object.assign(img.style, {
             width: '100%',
             height: '100%',
             objectFit: 'contain',
-            padding: '5px'
+            background: '#ffffff'
           });
           flyer.appendChild(img);
         } else {
-          flyer.textContent = product.initial || product.name?.charAt(0) || '+';
-          Object.assign(flyer.style, {
-            color: '#16a34a',
-            fontWeight: 900,
-            fontFamily: "'Poppins', sans-serif",
-            fontSize: '22px'
+          const fallback = document.createElement('div');
+          fallback.innerText = product.initial || 'S';
+          Object.assign(fallback.style, {
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: '900',
+            color: '#ffffff',
+            background: '#0f172a'
           });
+          flyer.appendChild(fallback);
         }
         document.body.appendChild(flyer);
         const dx = endX - startX;
         const dy = endY - startY;
-        const rightExitX = Math.max(44, Math.min(96, sourceRect.width * 0.45));
-        const downSweepY = Math.max(92, Math.min(170, Math.abs(dy) * 0.25 + 70));
-        const leftSweepX = -Math.max(80, Math.min(175, Math.abs(dx) * 0.18 + 60));
-        const leftOfCartX = dx - Math.max(72, cartRect.width * 1.2);
-        const rightOfCartX = dx + Math.max(48, cartRect.width * 0.75);
-        const overCartY = dy - Math.max(92, cartRect.height * 2.2);
-        const underCartY = dy + Math.max(30, cartRect.height * 0.55);
         const keyframes = [
-          { transform: 'translate3d(0,0,0) scale(1) rotate(0deg)', opacity: 1, offset: 0 },
-          { transform: `translate3d(${rightExitX}px, ${downSweepY * 0.18}px, 0) scale(1.05) rotate(20deg)`, opacity: 1, offset: 0.12 },
-          { transform: `translate3d(${leftSweepX}px, ${downSweepY}px, 0) scale(1) rotate(-95deg)`, opacity: 1, offset: 0.3 },
-          { transform: `translate3d(${leftOfCartX}px, ${overCartY}px, 0) scale(0.82) rotate(230deg)`, opacity: 1, offset: 0.54 },
-          { transform: `translate3d(${rightOfCartX}px, ${dy - 24}px, 0) scale(0.62) rotate(470deg)`, opacity: 0.96, offset: 0.72 },
-          { transform: `translate3d(${dx - 28}px, ${underCartY}px, 0) scale(0.42) rotate(690deg)`, opacity: 0.9, offset: 0.86 },
-          { transform: `translate3d(${dx + 10}px, ${dy - 10}px, 0) scale(0.24) rotate(820deg)`, opacity: 0.7, offset: 0.95 },
-          { transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.12) rotate(900deg)`, opacity: 0, offset: 1 }
+          { transform: 'translate3d(0, 0, 0) scale(1) rotate(0deg)', opacity: 1 },
+          { transform: `translate3d(${dx * 0.55}px, ${dy * 0.45 - 60}px, 0) scale(0.75) rotate(180deg)`, opacity: 0.95, offset: 0.55 },
+          { transform: `translate3d(${dx}px, ${dy}px, 0) scale(0.18) rotate(360deg)`, opacity: 0 }
         ];
-        const timing = { duration: 2900, easing: 'cubic-bezier(.18,.72,.2,1)', fill: 'forwards' };
+        const timing = {
+          duration: 720,
+          easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)',
+          fill: 'forwards'
+        };
         const finish = () => {
           flyer.remove();
           if (cartBtn.animate) {
@@ -3033,6 +3159,7 @@ export default function SahilTraders() {
         }
       }
       function updateQty(productId, delta, variant = null) {
+        triggerHaptic('light');
         setCart(prev => {
           const updated = prev.map(i =>
             (i.product.id === productId && (i.variant || null) === (variant || null)) ? { ...i, qty: Math.max(0, i.qty + delta) } : i
@@ -3042,6 +3169,7 @@ export default function SahilTraders() {
         });
       }
       function removeFromCart(productId, variant = null) {
+        triggerHaptic('light');
         setCart(prev => {
           const updated = prev.filter(i => !(i.product.id === productId && (i.variant || null) === (variant || null)));
           persistCartSnapshot(updated);
@@ -3049,6 +3177,7 @@ export default function SahilTraders() {
         });
       }
       function clearCart() {
+        triggerHaptic('light');
         setCart([]);
         try {
           localStorage.removeItem("sahil_traders_cart");
@@ -3065,10 +3194,76 @@ export default function SahilTraders() {
         });
       }
       function clearOrderHistory() {
+        triggerHaptic('light');
         setOrderHistory([]);
         try {
           localStorage.removeItem("sahil_traders_order_history");
         } catch (e) {}
+      }
+      function handleVoiceSearch() {
+        triggerHaptic('medium');
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          alert(tr(language, 'Voice search is not supported on this device/browser.', 'Aapke device/browser par voice search support nahi hai.', 'آپ کے براؤزر میں وائس سرچ دستیاب نہیں ہے۔'));
+          return;
+        }
+        try {
+          const rec = new SpeechRec();
+          rec.lang = language === 'ur' ? 'ur-PK' : (language === 'ro' ? 'ur-PK' : 'en-US');
+          rec.interimResults = false;
+          rec.maxAlternatives = 1;
+
+          rec.onstart = () => {
+            setIsListening(true);
+          };
+          rec.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            if (transcript) {
+              triggerHaptic('success');
+              setSearchTerm(transcript);
+              setSuggestOpen(true);
+            }
+          };
+          rec.onerror = () => {
+            setIsListening(false);
+          };
+          rec.onend = () => {
+            setIsListening(false);
+          };
+          rec.start();
+        } catch (e) {
+          setIsListening(false);
+        }
+      }
+      function handleReorder(items) {
+        triggerHaptic('success');
+        if (!items || items.length === 0) return;
+        setCart(prev => {
+          let next = [...prev];
+          items.forEach(item => {
+            const existing = next.find(i => i.product?.id === item.id);
+            if (existing) {
+              existing.qty += (item.qty || 1);
+            } else {
+              const fullProduct = products.find(p => p.id === item.id) || {
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                categoryId: item.categoryId || 'soaps',
+                hasImage: !!item.imageExt
+              };
+              next.push({
+                product: fullProduct,
+                qty: item.qty || 1,
+                variant: item.variant || null
+              });
+            }
+          });
+          persistCartSnapshot(next);
+          return next;
+        });
+        setOrderHistoryOpen(false);
+        setCartOpen(true);
       }
       // -----------------------------------------------------------------------------
       // -----------------------------------------------------------------------------
@@ -3510,10 +3705,10 @@ export default function SahilTraders() {
                   </button>
                 </div>
               </div>
-              {/* Search — Gold Glow */}
+              {/* Search — Clean with Smart Voice Search & Haptics */}
               <div className="mt-3 relative search-wrapper-mobile" ref={searchBoxRef}>
-                <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />
+                <div className="relative flex items-center">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                   <input
                     type="text"
                     value={searchTerm}
@@ -3522,20 +3717,41 @@ export default function SahilTraders() {
                       setSuggestOpen(true);
                     }}
                     onKeyDown={handleSearchKeyDown}
-                    placeholder={translate(langData, "searchPlaceholder")}
-                    className="w-full border rounded-xl pl-10 pr-9 py-2.5 text-sm transition-all focus:outline-none"
-                    style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)', color: '#1a1a2e', caretColor: '#000000' }}
+                    placeholder={isListening ? tr(language, "🎙️ Listening... Speak now...", "🎙️ Sun raha hoon... Bolain...", "🎙️ سن رہا ہوں... اب بولیں...") : translate(langData, "searchPlaceholder")}
+                    className={`w-full border rounded-xl pl-10 ${searchTerm ? 'pr-16' : 'pr-10'} py-2.5 text-sm transition-all focus:outline-none ${isListening ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/50' : ''}`}
+                    style={{ background: isListening ? '#f0fdf4' : '#ffffff', borderColor: isListening ? '#10b981' : 'rgba(0,0,0,0.12)', color: '#1a1a2e', caretColor: '#000000' }}
                     onFocus={e => { setSuggestOpen(true); e.target.style.borderColor='rgba(0,0,0,0.12)'; e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.12)'; }}
                     onBlur={e => { e.target.style.borderColor='rgba(0,0,0,0.12)'; e.target.style.boxShadow='none'; }}
                   />
-                  {searchTerm && (
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    {searchTerm && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic('light');
+                          setSearchTerm("");
+                        }}
+                        className="text-gray-500 hover:text-black transition-colors p-1 cursor-pointer"
+                        title="Clear Search"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
                     <button
-                      onClick={() => setSearchTerm("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 hover:text-black transition-colors"
+                      type="button"
+                      onClick={handleVoiceSearch}
+                      title="Voice Search (Bol kar search karein)"
+                      className={`p-1.5 rounded-lg transition-all active:scale-90 flex items-center justify-center cursor-pointer ${
+                        isListening 
+                          ? 'bg-red-500 text-white animate-pulse shadow-md shadow-red-500/50' 
+                          : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-50'
+                      }`}
                     >
-                      <X className="w-4 h-4" />
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 1.5a3 3 0 00-3 3v6a3 3 0 006 0v-6a3 3 0 00-3-3z" />
+                      </svg>
                     </button>
-                  )}
+                  </div>
                 </div>
                 {suggestOpen && searchTerm && (
                   <div className="absolute mt-2 w-full backdrop-blur-xl rounded-xl shadow-2xl overflow-hidden z-40 border" style={{ background: '#ffffff', borderColor: 'rgba(0,0,0,0.12)' }}>
@@ -3842,6 +4058,7 @@ export default function SahilTraders() {
                 language={language}
                 onClose={() => setOrderHistoryOpen(false)}
                 onClear={clearOrderHistory}
+                onReorder={handleReorder}
               />
               {/* Checkout Modal */}
               {checkoutOpen && (
@@ -4687,7 +4904,7 @@ export default function SahilTraders() {
         </>
       );
     }
-    function OrderHistoryModal({ open, orders, langData, language, onClose, onClear }) {
+    function OrderHistoryModal({ open, orders, langData, language, onClose, onClear, onReorder }) {
       if (!open) return null;
       // Default expand the first (latest) order
       const [expandedId, setExpandedId] = useState(orders.length > 0 ? orders[0].id : null);
@@ -4823,6 +5040,29 @@ export default function SahilTraders() {
                                 <span>Total Paid</span>
                                 <span style={{ color: '#16a34a' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</span>
                               </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  triggerHaptic('success');
+                                  if (onReorder) onReorder(order.items);
+                                }}
+                                style={{ flex: 1, minWidth: 150, padding: '10px 14px', borderRadius: 12, background: '#0f172a', color: '#ffffff', fontSize: 12, fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 12px rgba(15,23,42,0.2)' }}
+                                className="hover:bg-black transition-all active:scale-95 cursor-pointer"
+                              >
+                                <span>🔄</span>
+                                <span>{tr(language, 'Re-order All Items', 'Dobara Mangwayein (Re-order)', 'دوبارہ منگوائیں (Re-order)')}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => generatePDFReceipt(order, language)}
+                                style={{ padding: '10px 14px', borderRadius: 12, background: '#f8fafc', color: '#0f172a', fontSize: 12, fontWeight: 800, border: '1px solid #cbd5e1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                                className="hover:bg-slate-200 transition-all active:scale-95 cursor-pointer"
+                              >
+                                <span>🧾</span>
+                                <span>{tr(language, 'Print / PDF Bill', 'PDF Bill Print Karein', 'بل پرنٹ کریں')}</span>
+                              </button>
                             </div>
                           </div>
                         )}
@@ -5032,8 +5272,17 @@ export default function SahilTraders() {
                     </a>
                   )}
                   <button
+                    type="button"
+                    onClick={() => generatePDFReceipt(placedOrder, language)}
+                    style={{ background: '#0f172a', color: '#ffffff', borderRadius: 12, padding: '11px 16px', fontSize: 13, fontWeight: 900, textAlign: 'center', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 14px rgba(15,23,42,0.25)' }}
+                    className="hover:bg-black transition-all active:scale-95 cursor-pointer"
+                  >
+                    <span>🧾</span>
+                    <span>{tr(language, 'Print / Save PDF Receipt', 'PDF Bill Print / Save Karein', 'پی ڈی ایف بل پرنٹ کریں')}</span>
+                  </button>
+                  <button
                     onClick={onClose}
-                    style={{ background: '#111827', color: '#ffffff', border: 'none', borderRadius: 12, padding: '11px 16px', fontSize: 12, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                    style={{ background: '#f1f5f9', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: 12, padding: '11px 16px', fontSize: 12, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                   >
                     {tr(language, 'Done & Continue Shopping', 'Mukammal Karein (Done)', '\u0645\u06a9\u0645\u0644 \u06a9\u0631\u06cc\u06ba (Done)')}
                   </button>

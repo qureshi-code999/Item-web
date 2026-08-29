@@ -382,6 +382,19 @@ html, body { overflow-x: hidden; max-width: 100vw; }
 .hover\:bg-gray-50:hover  { background-color: #f9fafb; }
 .hover\:bg-gray-100:hover { background-color: #f3f4f6; }
 .hover\:bg-gray-200:hover { background-color: #e5e7eb; }
+
+/* Tactile Micro-Interactions */
+button:active, a:active {
+  transform: scale(0.96);
+  transition: transform 0.08s ease;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
 .active\:scale-95:active  { transform: scale(0.95); }
 .z-50 { z-index: 50; }
 

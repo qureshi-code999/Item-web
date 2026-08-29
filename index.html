@@ -488,8 +488,14 @@
   </style>
   <script>
     window.onerror = function(msg, url, line, col, error) {
+      var d = document.createElement('div');
+      d.id = 'browser-runtime-error-box';
+      d.style.cssText = 'background:red;color:white;padding:20px;font-size:16px;position:fixed;top:0;left:0;right:0;z-index:999999;word-break:break-all;';
+      d.innerHTML = '<b>JS ERROR:</b> ' + msg + '<br><b>URL:</b> ' + url + '<br><b>Line:</b> ' + line + '<br><pre>' + (error ? error.stack : '') + '</pre>';
+      if (document.body) document.body.appendChild(d);
+      else if (document.documentElement) document.documentElement.appendChild(d);
       console.error('JS Error:', msg, 'at', url + ':' + line + ':' + col, error);
-      return true;
+      return false;
     };
     window.addEventListener('unhandledrejection', function(event) {
       console.error('Unhandled Promise Rejection:', event.reason);
@@ -1557,14 +1563,29 @@
 
   <!-- PRODUCT_IMAGE_MAP already defined in head -->
 
-  <script src="app.js?v=9.2"></script>
+  <script src="app.js?v=9.3"></script>
   <script>
-    if ('serviceWorker' in navigator) {
+    // Only register service worker if running on live HTTPS web, NEVER in native Android App / localhost!
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:' && !window.Capacitor) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('./sw.js')
           .then(function(reg) { console.log('Sahil Traders App ServiceWorker registered:', reg.scope); })
           .catch(function(err) { console.warn('ServiceWorker registration failed:', err); });
       });
+    } else if ('serviceWorker' in navigator) {
+      // In native Android APK, unregister all old service workers and clear caches!
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (var i = 0; i < registrations.length; i++) {
+          registrations[i].unregister();
+        }
+      });
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (var i = 0; i < names.length; i++) {
+            caches.delete(names[i]);
+          }
+        });
+      }
     }
   </script>
 </body>

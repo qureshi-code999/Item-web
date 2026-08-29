@@ -4717,336 +4717,341 @@ export default function SahilTraders() {
           )}
           {/* Background — Pure Clean White */}
           <div className="fixed inset-0 -z-10 bg-white" />
-          {/* ━━━ TOP INFO BAR ━━━ */}
-          <div style={{ background: 'linear-gradient(90deg, #08101a 0%, #0b1828 50%, #08101a 100%)', borderBottom: '1px solid rgba(16,185,129,0.18)' }} className="text-white text-[10.5px] font-medium py-1.5 px-3 sm:px-4">
-            <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
-                <span style={{ color: '#f59e0b', fontWeight: 700, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span>⏰</span>
-                  <span>{tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: 10:00 AM – 8:00 PM (Peer ta Hafta)', 'ڈیلیوری کے اوقات: صبح 10 تا رات 8 (پیر تا ہفتہ)')}</span>
-                </span>
-                <span className="hidden sm:inline" style={{ color: 'rgba(255,255,255,0.25)' }}>|</span>
-                <div className="hidden sm:flex items-center gap-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                  <span>📍 {tr(language, 'Karachi Only', 'Sirf Karachi', 'صرف کراچی')}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
-                  <span style={{ color: '#10b981' }}>🚚 {tr(language, 'Free Shipping on Rs 2000+', 'Rs 2000+ par Free Delivery', 'Rs 2000+ پر مفت ڈیلیوری')}</span>
-                  <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
-                  <span>💬 {tr(language, 'WhatsApp Orders Active', 'WhatsApp Orders Active', 'واٹس ایپ آرڈرز جاری')}</span>
-                </div>
-              </div>
-              <a
-                href="tel:03368945775"
-                style={{
-                  color: '#10b981',
-                  background: 'rgba(16,185,129,0.12)',
-                  border: '1px solid rgba(16,185,129,0.3)',
-                  borderRadius: '6px',
-                  padding: '2px 8px',
-                  fontWeight: 800,
-                  whiteSpace: 'nowrap',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  fontSize: '10px',
-                  flexShrink: 0
-                }}
-              >
-                <span>📞</span>
-                <span>{tr(language, 'Call Helpline', 'Call Karen', 'کال کریں')}</span>
-              </a>
-            </div>
-          </div>
-
-          {/* ━━━ PREMIUM MAIN HEADER (Responsive 2-Row Mobile, 1-Row Desktop) ━━━ */}
-          <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)', borderBottom: '1px solid rgba(16,185,129,0.22)', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
-            <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
-              
-              {/* ── TOP ROW: Logo & Actions ── */}
-              <div className="flex items-center justify-between gap-3">
-
-                {/* ── LOGO (Visible with text on both mobile & desktop) ── */}
-                <div className="flex items-center gap-2.5 shrink-0 cursor-pointer" onClick={() => { setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}>
-                  <div className="relative">
-                    <div style={{ position: 'absolute', inset: '-2px', borderRadius: '12px', background: 'linear-gradient(135deg, #10b981, #059669)', opacity: 0.5, filter: 'blur(5px)' }} />
-                    <img
-                      src="images/sahil-traders-logo.png"
-                      alt="Sahil Traders"
-                      style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '10px', position: 'relative', background: 'rgba(255,255,255,0.06)', padding: '2px', border: '1px solid rgba(16,185,129,0.4)' }}
-                    />
-                  </div>
-                  <div>
-                    <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, fontSize: '15px', letterSpacing: '0.06em', textTransform: 'uppercase', color: '#ffffff', lineHeight: 1.1 }}>
-                      Sahil Traders
-                    </div>
-                    <div style={{ fontSize: '8.5px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#10b981', marginTop: '1px' }}>
-                      Wholesale &amp; Retail
+          
+          {/* ━━━ TOP INFO BAR & HEADER (Hidden on Account/Me view) ━━━ */}
+          {activeTab !== 'account' && (
+            <>
+              {/* ━━━ TOP INFO BAR ━━━ */}
+              <div style={{ background: 'linear-gradient(90deg, #08101a 0%, #0b1828 50%, #08101a 100%)', borderBottom: '1px solid rgba(16,185,129,0.18)' }} className="text-white text-[10.5px] font-medium py-1.5 px-3 sm:px-4">
+                <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+                    <span style={{ color: '#f59e0b', fontWeight: 700, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span>⏰</span>
+                      <span>{tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: 10:00 AM – 8:00 PM (Peer ta Hafta)', 'ڈیلیوری کے اوقات: صبح 10 تا رات 8 (پیر تا ہفتہ)')}</span>
+                    </span>
+                    <span className="hidden sm:inline" style={{ color: 'rgba(255,255,255,0.25)' }}>|</span>
+                    <div className="hidden sm:flex items-center gap-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                      <span>📍 {tr(language, 'Karachi Only', 'Sirf Karachi', 'صرف کراچی')}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+                      <span style={{ color: '#10b981' }}>🚚 {tr(language, 'Free Shipping on Rs 2000+', 'Rs 2000+ par Free Delivery', 'Rs 2000+ پر مفت ڈیلیوری')}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
+                      <span>💬 {tr(language, 'WhatsApp Orders Active', 'WhatsApp Orders Active', 'واٹس ایپ آرڈرز جاری')}</span>
                     </div>
                   </div>
-                </div>
-
-                {/* ── DESKTOP CENTER SEARCH BAR (Hidden on Mobile) ── */}
-                <div className="hidden sm:block flex-1 relative max-w-xl mx-2" ref={searchBoxRef}>
-                  <div className="relative flex items-center">
-                    <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"/>
-                    </svg>
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => { setSearchTerm(e.target.value); setSuggestOpen(true); }}
-                      onKeyDown={handleSearchKeyDown}
-                      placeholder={isListening ? tr(language, "🎙️ Listening... Speak now...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder")}
-                      style={{
-                        width: '100%',
-                        background: isListening ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.07)',
-                        border: isListening ? '1.5px solid #10b981' : '1.5px solid rgba(255,255,255,0.1)',
-                        borderRadius: '12px',
-                        paddingLeft: '42px',
-                        paddingRight: searchTerm ? '72px' : '42px',
-                        paddingTop: '10px',
-                        paddingBottom: '10px',
-                        fontSize: '13px',
-                        color: '#ffffff',
-                        outline: 'none',
-                        transition: 'all 0.2s',
-                        caretColor: '#10b981',
-                      }}
-                      className="search-input"
-                      onFocus={e => { e.target.style.borderColor = '#10b981'; e.target.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.18)'; e.target.style.background = 'rgba(255,255,255,0.10)'; }}
-                      onBlur={e => { e.target.style.borderColor = isListening ? '#10b981' : 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; e.target.style.background = isListening ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.07)'; }}
-                    />
-                    <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      {searchTerm && (
-                        <button type="button" onClick={() => { triggerHaptic('light'); setSearchTerm(''); }} style={{ background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '6px', padding: '3px 6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '11px', fontWeight: 700 }} title="Clear">✕</button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={handleVoiceSearch}
-                        title={tr(language, "Voice Search", "Voice Search", "آواز سے تلاش")}
-                        style={{ background: isListening ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)', border: isListening ? '1.5px solid #10b981' : '1.5px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '5px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                      >
-                        <svg style={{ width: '14px', height: '14px', color: isListening ? '#10b981' : 'rgba(255,255,255,0.45)' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  {/* Desktop Suggestions */}
-                  {suggestOpen && suggestions.length > 0 && (
-                    <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: '#0d1528', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 16px 48px rgba(0,0,0,0.6)', zIndex: 50, overflow: 'hidden', maxHeight: '320px', overflowY: 'auto' }}>
-                      {recentSearches.length > 0 && !searchTerm && (
-                        <div style={{ padding: '8px 14px 4px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>Recent</div>
-                      )}
-                      {suggestions.slice(0, 8).map((product) => (
-                        <button
-                          key={product.id}
-                          type="button"
-                          onMouseDown={() => handleSuggestionClick(product)}
-                          style={{ width: '100%', textAlign: 'left', padding: '10px 14px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.15s' }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(16,185,129,0.1)'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                        >
-                          <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: 'white', flexShrink: 0 }}>{product.initial || product.name[0]}</div>
-                          <div>
-                            <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#ffffff', lineHeight: 1.3 }}>{product.name}</div>
-                            <div style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>Rs. {product.price}</div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* ── DESKTOP ACTION BUTTONS ── */}
-                <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-                  <select
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    style={{ background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '7px 8px', fontSize: '11.5px', fontWeight: 700, color: 'rgba(255,255,255,0.8)', cursor: 'pointer', outline: 'none' }}
-                  >
-                    <option value="en" style={{background:'#0d1528', color:'#fff'}}>EN</option>
-                    <option value="ro" style={{background:'#0d1528', color:'#fff'}}>RO</option>
-                    <option value="ur" style={{background:'#0d1528', color:'#fff'}}>اردو</option>
-                  </select>
-
-                  <button onClick={() => setReturnPolicyOpen(true)} title={tr(language,'Return Policy','Wapsi Policy','واپسی پالیسی')} style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
-                    <svg style={{width:'14px',height:'14px',color:'#10b981'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
-                    <span>{tr(language,'Policy','Policy','پالیسی')}</span>
-                  </button>
-
-                  <button onClick={() => setAboutOpen(true)} title={tr(language,'About Us','Hamare Baare Mein','ہمارے بارے میں')} style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
-                    <svg style={{width:'14px',height:'14px'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
-                    <span>{tr(language,'About','About','ہمارے بارے')}</span>
-                  </button>
-
-                  <div style={{ width: '1px', height: '28px', background: 'rgba(255,255,255,0.1)', margin: '0 2px' }} />
-
-                  <button
-                    onClick={() => { triggerHaptic('medium'); setParchiModalOpen(true); }}
-                    title="Handwritten Slip Photo Order"
-                    style={{ background: 'linear-gradient(135deg, #059669, #0d9488)', border: 'none', borderRadius: '10px', padding: '7px 13px', fontSize: '11.5px', fontWeight: 800, color: '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', boxShadow: '0 3px 14px rgba(16,185,129,0.4)', transition: 'all 0.18s', whiteSpace: 'nowrap', letterSpacing: '0.02em' }}
-                    onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 6px 20px rgba(16,185,129,0.55)';}}
-                    onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 3px 14px rgba(16,185,129,0.4)';}}
-                  >
-                    <span>📸</span>
-                    <span>{tr(language, 'Parchi Order', 'Parchi Order', 'پرچی آرڈر')}</span>
-                  </button>
-
-                  <button
-                    onClick={() => { triggerHaptic('light'); setWishlistOpen(true); }}
-                    title={tr(language,'Wishlist','Wishlist','پسندیدہ')}
-                    style={{ position: 'relative', background: 'rgba(255,255,255,0.06)', border: wishlist.length > 0 ? '1.5px solid rgba(225,29,72,0.5)' : '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '12px', fontWeight: 700, color: '#fb7185', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }}
-                    onMouseEnter={e=>{e.currentTarget.style.background='rgba(225,29,72,0.12)';}}
-                    onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';}}
-                  >
-                    <svg style={{width:'15px',height:'15px',fill:'#fb7185'}} viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/></svg>
-                    <span>{tr(language,'Wishlist','Wishlist','پسندیدہ')}</span>
-                    {wishlist.length > 0 && (
-                      <span style={{ position: 'absolute', top: '-8px', right: '-8px', minWidth: '18px', height: '18px', borderRadius: '9px', background: '#e11d48', color: '#fff', fontSize: '10px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '2px solid #0a1020' }}>
-                        {wishlist.length}
-                      </span>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => setOrderHistoryOpen(true)}
-                    title={tr(language,'Order History','Orders','آرڈر ہسٹری')}
-                    style={{ position: 'relative', background: 'rgba(255,255,255,0.06)', border: orderHistory.length > 0 ? '1.5px solid rgba(16,185,129,0.4)' : '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }}
-                    onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}}
-                    onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}
-                  >
-                    <svg style={{width:'15px',height:'15px'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    <span>{tr(language,'Orders','Orders','آرڈرز')}</span>
-                    {orderHistory.length > 0 && (
-                      <span style={{ position: 'absolute', top: '-8px', right: '-8px', minWidth: '18px', height: '18px', borderRadius: '9px', background: '#10b981', color: '#fff', fontSize: '10px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '2px solid #0a1020' }}>
-                        {orderHistory.length}
-                      </span>
-                    )}
-                  </button>
-
-                  <button
-                    id="cart-btn"
-                    onClick={() => setCartOpen(true)}
-                    style={{ position: 'relative', background: cartCount > 0 ? 'linear-gradient(135deg, #ffffff, #f1f5f9)' : 'rgba(255,255,255,0.07)', border: cartCount > 0 ? '1.5px solid rgba(255,255,255,0.8)' : '1.5px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '7px 13px', fontSize: '12px', fontWeight: 800, color: cartCount > 0 ? '#0a1020' : 'rgba(255,255,255,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.18s', boxShadow: cartCount > 0 ? '0 3px 14px rgba(255,255,255,0.15)' : 'none', whiteSpace: 'nowrap' }}
-                    onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-1px)';}}
-                    onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';}}
-                  >
-                    <svg style={{width:'16px',height:'16px'}} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
-                    </svg>
-                    <span>{tr(language, 'Cart', 'Cart', '\u06a9\u0627\u0631\u0679')}</span>
-                    {cartCount > 0 && (
-                      <span style={{ position: 'absolute', top: '-8px', right: '-8px', minWidth: '20px', height: '20px', borderRadius: '10px', background: '#e11d48', color: '#fff', fontSize: '10.5px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '2px solid #0a1020' }}>
-                        {cartCount}
-                      </span>
-                    )}
-                  </button>
-                </div>
-
-                {/* ── MOBILE ROW 1 RIGHT ACTION (Clean direct WhatsApp Support link) ── */}
-                <div className="flex sm:hidden items-center gap-1.5 shrink-0">
                   <a
-                    href="https://wa.me/923368945775"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="tel:03368945775"
                     style={{
-                      background: 'rgba(37,211,102,0.14)',
-                      border: '1px solid rgba(37,211,102,0.35)',
-                      borderRadius: '8px',
-                      padding: '5px 9px',
-                      fontSize: '11px',
+                      color: '#10b981',
+                      background: 'rgba(16,185,129,0.12)',
+                      border: '1px solid rgba(16,185,129,0.3)',
+                      borderRadius: '6px',
+                      padding: '2px 8px',
                       fontWeight: 800,
-                      color: '#25d366',
+                      whiteSpace: 'nowrap',
+                      textDecoration: 'none',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '4px',
-                      textDecoration: 'none',
-                      boxShadow: '0 2px 8px rgba(37,211,102,0.2)'
+                      fontSize: '10px',
+                      flexShrink: 0
                     }}
                   >
-                    <span>💬</span>
-                    <span>WhatsApp</span>
+                    <span>📞</span>
+                    <span>{tr(language, 'Call Helpline', 'Call Karen', 'کال کریں')}</span>
                   </a>
                 </div>
-
               </div>
 
-              {/* ── ROW 2 (MOBILE ONLY): Clean Modern Search Bar ── */}
-              <div className="block sm:hidden mt-2 relative">
-                <div className="relative flex items-center">
-                  <svg style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '15px', height: '15px', color: 'rgba(255,255,255,0.45)', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"/>
-                  </svg>
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => { setSearchTerm(e.target.value); setSuggestOpen(true); }}
-                    onKeyDown={handleSearchKeyDown}
-                    placeholder={isListening ? tr(language, "🎙️ Listening... Speak now...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder")}
-                    style={{
-                      width: '100%',
-                      background: isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)',
-                      border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.16)',
-                      borderRadius: '10px',
-                      paddingLeft: '36px',
-                      paddingRight: searchTerm ? '64px' : '36px',
-                      paddingTop: '8px',
-                      paddingBottom: '8px',
-                      fontSize: '12px',
-                      color: '#ffffff',
-                      outline: 'none',
-                      transition: 'all 0.2s',
-                      caretColor: '#10b981',
-                    }}
-                    onFocus={e => { e.target.style.borderColor = '#10b981'; e.target.style.background = 'rgba(255,255,255,0.14)'; e.target.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.2)'; }}
-                    onBlur={e => { e.target.style.borderColor = isListening ? '#10b981' : 'rgba(255,255,255,0.16)'; e.target.style.background = isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)'; e.target.style.boxShadow = 'none'; }}
-                  />
-                  <div style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                    {searchTerm && (
-                      <button type="button" onClick={() => { triggerHaptic('light'); setSearchTerm(''); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '6px', padding: '2px 5px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '10px', fontWeight: 700 }} title="Clear">✕</button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={handleVoiceSearch}
-                      title={tr(language, "Voice Search", "Voice Search", "آواز سے تلاش")}
-                      style={{ background: isListening ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)', border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', padding: '4px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >
-                      <svg style={{ width: '12px', height: '12px', color: isListening ? '#10b981' : 'rgba(255,255,255,0.6)' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                {/* Mobile Suggestions Dropdown */}
-                {suggestOpen && suggestions.length > 0 && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#09131e', border: '1.5px solid rgba(16,185,129,0.3)', borderRadius: '10px', boxShadow: '0 16px 48px rgba(0,0,0,0.7)', zIndex: 50, overflow: 'hidden', maxHeight: '280px', overflowY: 'auto' }}>
-                    {recentSearches.length > 0 && !searchTerm && (
-                      <div style={{ padding: '7px 12px 3px', fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>Recent</div>
-                    )}
-                    {suggestions.slice(0, 8).map((product) => (
-                      <button
-                        key={product.id}
-                        type="button"
-                        onMouseDown={() => handleSuggestionClick(product)}
-                        style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '9px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
-                      >
-                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, color: 'white', flexShrink: 0 }}>{product.initial || product.name[0]}</div>
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#ffffff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
-                          <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 700 }}>Rs. {product.price}</div>
+              {/* ━━━ PREMIUM MAIN HEADER (Responsive 2-Row Mobile, 1-Row Desktop) ━━━ */}
+              <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)', borderBottom: '1px solid rgba(16,185,129,0.22)', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
+                <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
+                  
+                  {/* ── TOP ROW: Logo & Actions ── */}
+                  <div className="flex items-center justify-between gap-3">
+
+                    {/* ── LOGO (Visible with text on both mobile & desktop) ── */}
+                    <div className="flex items-center gap-2.5 shrink-0 cursor-pointer" onClick={() => { setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}>
+                      <div className="relative">
+                        <div style={{ position: 'absolute', inset: '-2px', borderRadius: '12px', background: 'linear-gradient(135deg, #10b981, #059669)', opacity: 0.5, filter: 'blur(5px)' }} />
+                        <img
+                          src="images/sahil-traders-logo.png"
+                          alt="Sahil Traders"
+                          style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '10px', position: 'relative', background: 'rgba(255,255,255,0.06)', padding: '2px', border: '1px solid rgba(16,185,129,0.4)' }}
+                        />
+                      </div>
+                      <div>
+                        <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, fontSize: '15px', letterSpacing: '0.06em', textTransform: 'uppercase', color: '#ffffff', lineHeight: 1.1 }}>
+                          Sahil Traders
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                        <div style={{ fontSize: '8.5px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#10b981', marginTop: '1px' }}>
+                          Wholesale &amp; Retail
+                        </div>
+                      </div>
+                    </div>
 
-            </div>
-          </header>
-          {/* Body */}
-          <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 main-content-area" style={{ paddingBottom: 'calc(58px + env(safe-area-inset-bottom, 0px))' }}>
+                    {/* ── DESKTOP CENTER SEARCH BAR (Hidden on Mobile) ── */}
+                    <div className="hidden sm:block flex-1 relative max-w-xl mx-2" ref={searchBoxRef}>
+                      <div className="relative flex items-center">
+                        <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"/>
+                        </svg>
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => { setSearchTerm(e.target.value); setSuggestOpen(true); }}
+                          onKeyDown={handleSearchKeyDown}
+                          placeholder={isListening ? tr(language, "🎙️ Listening... Speak now...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder")}
+                          style={{
+                            width: '100%',
+                            background: isListening ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.07)',
+                            border: isListening ? '1.5px solid #10b981' : '1.5px solid rgba(255,255,255,0.1)',
+                            borderRadius: '12px',
+                            paddingLeft: '42px',
+                            paddingRight: searchTerm ? '72px' : '42px',
+                            paddingTop: '10px',
+                            paddingBottom: '10px',
+                            fontSize: '13px',
+                            color: '#ffffff',
+                            outline: 'none',
+                            transition: 'all 0.2s',
+                            caretColor: '#10b981',
+                          }}
+                          className="search-input"
+                          onFocus={e => { e.target.style.borderColor = '#10b981'; e.target.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.18)'; e.target.style.background = 'rgba(255,255,255,0.10)'; }}
+                          onBlur={e => { e.target.style.borderColor = isListening ? '#10b981' : 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; e.target.style.background = isListening ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.07)'; }}
+                        />
+                        <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {searchTerm && (
+                            <button type="button" onClick={() => { triggerHaptic('light'); setSearchTerm(''); }} style={{ background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '6px', padding: '3px 6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '11px', fontWeight: 700 }} title="Clear">✕</button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={handleVoiceSearch}
+                            title={tr(language, "Voice Search", "Voice Search", "آواز سے تلاش")}
+                            style={{ background: isListening ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)', border: isListening ? '1.5px solid #10b981' : '1.5px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '5px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          >
+                            <svg style={{ width: '14px', height: '14px', color: isListening ? '#10b981' : 'rgba(255,255,255,0.45)' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                      {/* Desktop Suggestions */}
+                      {suggestOpen && suggestions.length > 0 && (
+                        <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: '#0d1528', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 16px 48px rgba(0,0,0,0.6)', zIndex: 50, overflow: 'hidden', maxHeight: '320px', overflowY: 'auto' }}>
+                          {recentSearches.length > 0 && !searchTerm && (
+                            <div style={{ padding: '8px 14px 4px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>Recent</div>
+                          )}
+                          {suggestions.slice(0, 8).map((product) => (
+                            <button
+                              key={product.id}
+                              type="button"
+                              onMouseDown={() => handleSuggestionClick(product)}
+                              style={{ width: '100%', textAlign: 'left', padding: '10px 14px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.15s' }}
+                              onMouseEnter={e => e.currentTarget.style.background = 'rgba(16,185,129,0.1)'}
+                              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                            >
+                              <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: 'white', flexShrink: 0 }}>{product.initial || product.name[0]}</div>
+                              <div>
+                                <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#ffffff', lineHeight: 1.3 }}>{product.name}</div>
+                                <div style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>Rs. {product.price}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* ── DESKTOP ACTION BUTTONS ── */}
+                    <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+                      <select
+                        value={language}
+                        onChange={(e) => setLanguage(e.target.value)}
+                        style={{ background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '7px 8px', fontSize: '11.5px', fontWeight: 700, color: 'rgba(255,255,255,0.8)', cursor: 'pointer', outline: 'none' }}
+                      >
+                        <option value="en" style={{background:'#0d1528', color:'#fff'}}>EN</option>
+                        <option value="ro" style={{background:'#0d1528', color:'#fff'}}>RO</option>
+                        <option value="ur" style={{background:'#0d1528', color:'#fff'}}>اردو</option>
+                      </select>
+
+                      <button onClick={() => setReturnPolicyOpen(true)} title={tr(language,'Return Policy','Wapsi Policy','واپسی پالیسی')} style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
+                        <svg style={{width:'14px',height:'14px',color:'#10b981'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+                        <span>{tr(language,'Policy','Policy','پالیسی')}</span>
+                      </button>
+
+                      <button onClick={() => setAboutOpen(true)} title={tr(language,'About Us','Hamare Baare Mein','ہمارے بارے میں')} style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
+                        <svg style={{width:'14px',height:'14px'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+                        <span>{tr(language,'About','About','ہمارے بارے')}</span>
+                      </button>
+
+                      <div style={{ width: '1px', height: '28px', background: 'rgba(255,255,255,0.1)', margin: '0 2px' }} />
+
+                      <button
+                        onClick={() => { triggerHaptic('medium'); setParchiModalOpen(true); }}
+                        title="Handwritten Slip Photo Order"
+                        style={{ background: 'linear-gradient(135deg, #059669, #0d9488)', border: 'none', borderRadius: '10px', padding: '7px 13px', fontSize: '11.5px', fontWeight: 800, color: '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', boxShadow: '0 3px 14px rgba(16,185,129,0.4)', transition: 'all 0.18s', whiteSpace: 'nowrap', letterSpacing: '0.02em' }}
+                        onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 6px 20px rgba(16,185,129,0.55)';}}
+                        onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.boxShadow='0 3px 14px rgba(16,185,129,0.4)';}}
+                      >
+                        <span>📸</span>
+                        <span>{tr(language, 'Parchi Order', 'Parchi Order', 'پرچی آرڈر')}</span>
+                      </button>
+
+                      <button
+                        onClick={() => { triggerHaptic('light'); setWishlistOpen(true); }}
+                        title={tr(language,'Wishlist','Wishlist','پسندیدہ')}
+                        style={{ position: 'relative', background: 'rgba(255,255,255,0.06)', border: wishlist.length > 0 ? '1.5px solid rgba(225,29,72,0.5)' : '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '12px', fontWeight: 700, color: '#fb7185', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }}
+                        onMouseEnter={e=>{e.currentTarget.style.background='rgba(225,29,72,0.12)';}}
+                        onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';}}
+                      >
+                        <svg style={{width:'15px',height:'15px',fill:'#fb7185'}} viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/></svg>
+                        <span>{tr(language,'Wishlist','Wishlist','پسندیدہ')}</span>
+                        {wishlist.length > 0 && (
+                          <span style={{ position: 'absolute', top: '-8px', right: '-8px', minWidth: '18px', height: '18px', borderRadius: '9px', background: '#e11d48', color: '#fff', fontSize: '10px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '2px solid #0a1020' }}>
+                            {wishlist.length}
+                          </span>
+                        )}
+                      </button>
+
+                      <button
+                        onClick={() => setOrderHistoryOpen(true)}
+                        title={tr(language,'Order History','Orders','آرڈر ہسٹری')}
+                        style={{ position: 'relative', background: 'rgba(255,255,255,0.06)', border: orderHistory.length > 0 ? '1.5px solid rgba(16,185,129,0.4)' : '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }}
+                        onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}}
+                        onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}
+                      >
+                        <svg style={{width:'15px',height:'15px'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span>{tr(language,'Orders','Orders','آرڈرز')}</span>
+                        {orderHistory.length > 0 && (
+                          <span style={{ position: 'absolute', top: '-8px', right: '-8px', minWidth: '18px', height: '18px', borderRadius: '9px', background: '#10b981', color: '#fff', fontSize: '10px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '2px solid #0a1020' }}>
+                            {orderHistory.length}
+                          </span>
+                        )}
+                      </button>
+
+                      <button
+                        id="cart-btn"
+                        onClick={() => setCartOpen(true)}
+                        style={{ position: 'relative', background: cartCount > 0 ? 'linear-gradient(135deg, #ffffff, #f1f5f9)' : 'rgba(255,255,255,0.07)', border: cartCount > 0 ? '1.5px solid rgba(255,255,255,0.8)' : '1.5px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '7px 13px', fontSize: '12px', fontWeight: 800, color: cartCount > 0 ? '#0a1020' : 'rgba(255,255,255,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.18s', boxShadow: cartCount > 0 ? '0 3px 14px rgba(255,255,255,0.15)' : 'none', whiteSpace: 'nowrap' }}
+                        onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-1px)';}}
+                        onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';}}
+                      >
+                        <svg style={{width:'16px',height:'16px'}} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+                        </svg>
+                        <span>{tr(language, 'Cart', 'Cart', '\u06a9\u0627\u0631\u0679')}</span>
+                        {cartCount > 0 && (
+                          <span style={{ position: 'absolute', top: '-8px', right: '-8px', minWidth: '20px', height: '20px', borderRadius: '10px', background: '#e11d48', color: '#fff', fontSize: '10.5px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '2px solid #0a1020' }}>
+                            {cartCount}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* ── MOBILE ROW 1 RIGHT ACTION (Clean direct WhatsApp Support link) ── */}
+                    <div className="flex sm:hidden items-center gap-1.5 shrink-0">
+                      <a
+                        href="https://wa.me/923368945775"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          background: 'rgba(37,211,102,0.14)',
+                          border: '1px solid rgba(37,211,102,0.35)',
+                          borderRadius: '8px',
+                          padding: '5px 9px',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          color: '#25d366',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          textDecoration: 'none',
+                          boxShadow: '0 2px 8px rgba(37,211,102,0.2)'
+                        }}
+                      >
+                        <span>💬</span>
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
+
+                  </div>
+
+                  {/* ── ROW 2 (MOBILE ONLY): Clean Modern Search Bar ── */}
+                  <div className="block sm:hidden mt-2 relative">
+                    <div className="relative flex items-center">
+                      <svg style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '15px', height: '15px', color: 'rgba(255,255,255,0.45)', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"/>
+                      </svg>
+                      <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => { setSearchTerm(e.target.value); setSuggestOpen(true); }}
+                        onKeyDown={handleSearchKeyDown}
+                        placeholder={isListening ? tr(language, "🎙️ Listening... Speak now...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder")}
+                        style={{
+                          width: '100%',
+                          background: isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)',
+                          border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.16)',
+                          borderRadius: '10px',
+                          paddingLeft: '36px',
+                          paddingRight: searchTerm ? '64px' : '36px',
+                          paddingTop: '8px',
+                          paddingBottom: '8px',
+                          fontSize: '12px',
+                          color: '#ffffff',
+                          outline: 'none',
+                          transition: 'all 0.2s',
+                          caretColor: '#10b981',
+                        }}
+                        onFocus={e => { e.target.style.borderColor = '#10b981'; e.target.style.background = 'rgba(255,255,255,0.14)'; e.target.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.2)'; }}
+                        onBlur={e => { e.target.style.borderColor = isListening ? '#10b981' : 'rgba(255,255,255,0.16)'; e.target.style.background = isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)'; e.target.style.boxShadow = 'none'; }}
+                      />
+                      <div style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        {searchTerm && (
+                          <button type="button" onClick={() => { triggerHaptic('light'); setSearchTerm(''); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '6px', padding: '2px 5px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '10px', fontWeight: 700 }} title="Clear">✕</button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleVoiceSearch}
+                          title={tr(language, "Voice Search", "Voice Search", "آواز سے تلاش")}
+                          style={{ background: isListening ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)', border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', padding: '4px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <svg style={{ width: '12px', height: '12px', color: isListening ? '#10b981' : 'rgba(255,255,255,0.6)' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    {/* Mobile Suggestions Dropdown */}
+                    {suggestOpen && suggestions.length > 0 && (
+                      <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#09131e', border: '1.5px solid rgba(16,185,129,0.3)', borderRadius: '10px', boxShadow: '0 16px 48px rgba(0,0,0,0.7)', zIndex: 50, overflow: 'hidden', maxHeight: '280px', overflowY: 'auto' }}>
+                        {recentSearches.length > 0 && !searchTerm && (
+                          <div style={{ padding: '7px 12px 3px', fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>Recent</div>
+                        )}
+                        {suggestions.slice(0, 8).map((product) => (
+                          <button
+                            key={product.id}
+                            type="button"
+                            onMouseDown={() => handleSuggestionClick(product)}
+                            style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '9px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                          >
+                            <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, color: 'white', flexShrink: 0 }}>{product.initial || product.name[0]}</div>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#ffffff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
+                              <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 700 }}>Rs. {product.price}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </header>
+            </>
+          )}
+          <main className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area" style={{ paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))', paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined }}>
             {activeTab === 'account' ? (
               /* ══════════ FULL-PAGE GLOSSY WHITE & BLACK "ME / ACCOUNT" VIEW ══════════ */
               <div className="max-w-2xl mx-auto space-y-4 animate-fade-in pb-8">
@@ -5864,68 +5869,69 @@ export default function SahilTraders() {
                 </div>
               )}
 
-              {/* ══════════ SLEEK 5-TAB BOTTOM NAVIGATION BAR (Mobile / App Only) ══════════ */}
+              {/* ══════════ FROSTED GLASS 5-TAB BOTTOM NAVIGATION BAR (Mobile / App Only) ══════════ */}
               <nav className="sm:hidden" style={{
                 position: 'fixed', bottom: 0, left: 0, right: 0,
-                background: 'rgba(8, 14, 24, 0.98)',
-                backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-                borderTop: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 -4px 20px rgba(0,0,0,0.4)',
+                background: 'rgba(255, 255, 255, 0.88)',
+                backdropFilter: 'blur(24px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+                boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.08)',
                 zIndex: 45,
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-                display: 'flex', alignItems: 'center', height: '50px',
+                display: 'flex', alignItems: 'center', height: '58px',
               }}>
                 {/* HOME TAB */}
                 <button
                   onClick={() => { triggerHaptic('light'); setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}
-                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
+                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 2px', position: 'relative' }}
                 >
-                  {activeTab === 'home' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2.5, borderRadius: '0 0 3px 3px', background: '#10b981' }} />}
-                  <svg style={{ width: 18, height: 18, color: activeTab === 'home' ? '#10b981' : 'rgba(255,255,255,0.45)' }} fill={activeTab === 'home' ? '#10b981' : 'none'} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  {activeTab === 'home' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 22, height: 3, borderRadius: '0 0 3px 3px', background: '#059669' }} />}
+                  <svg style={{ width: 20, height: 20, color: activeTab === 'home' ? '#059669' : '#475569' }} fill={activeTab === 'home' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                   </svg>
-                  <span style={{ fontSize: 9.5, fontWeight: activeTab === 'home' ? 800 : 600, color: activeTab === 'home' ? '#10b981' : 'rgba(255,255,255,0.45)' }}>{tr(language, 'Home', 'Home', 'ہوم')}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: activeTab === 'home' ? 800 : 700, color: activeTab === 'home' ? '#059669' : '#334155' }}>{tr(language, 'Home', 'Home', 'ہوم')}</span>
                 </button>
 
                 {/* ORDERS TAB */}
                 <button
                   onClick={() => { triggerHaptic('light'); setOrderHistoryOpen(true); }}
-                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
+                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 2px', position: 'relative' }}
                 >
                   <div style={{ position: 'relative' }}>
-                    <svg style={{ width: 18, height: 18, color: 'rgba(255,255,255,0.45)' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <svg style={{ width: 20, height: 20, color: '#475569' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     {orderHistory.length > 0 && (
-                      <span style={{ position: 'absolute', top: -3, right: -6, minWidth: 14, height: 14, borderRadius: 7, background: '#10b981', color: '#fff', fontSize: 8.5, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #080e18' }}>
+                      <span style={{ position: 'absolute', top: -3, right: -6, minWidth: 15, height: 15, borderRadius: 8, background: '#10b981', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #ffffff' }}>
                         {orderHistory.length > 9 ? '9+' : orderHistory.length}
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: 9.5, fontWeight: 600, color: 'rgba(255,255,255,0.45)' }}>{tr(language, 'Orders', 'Orders', 'آرڈرز')}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: '#334155' }}>{tr(language, 'Orders', 'Orders', 'آرڈرز')}</span>
                 </button>
 
-                {/* CART TAB — COMPACT ELEVATED CENTER BUTTON */}
+                {/* CART TAB — HIGHLIGHTED ELEVATED FLOATING BUTTON */}
                 <div style={{ flex: 1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <button
                     onClick={() => { triggerHaptic('medium'); setCartOpen(true); }}
                     style={{
-                      width: 44, height: 44,
+                      width: 50, height: 50,
                       borderRadius: '50%',
-                      background: cartCount > 0 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #1e293b, #0f172a)',
-                      border: cartCount > 0 ? '2px solid rgba(16,185,129,0.6)' : '1.5px solid rgba(255,255,255,0.15)',
-                      boxShadow: cartCount > 0 ? '0 3px 12px rgba(16,185,129,0.45)' : '0 2px 8px rgba(0,0,0,0.35)',
+                      background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+                      border: 'none',
+                      boxShadow: '0 6px 18px rgba(16,185,129,0.45), 0 0 0 4px rgba(255,255,255,0.9)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       cursor: 'pointer', position: 'relative',
-                      transform: 'translateY(-7px)',
+                      transform: 'translateY(-10px)',
                       transition: 'all 0.2s',
                     }}
                   >
-                    <svg style={{ width: 18, height: 18, color: '#ffffff' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <svg style={{ width: 21, height: 21, color: '#ffffff' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
                     {cartCount > 0 && (
-                      <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, borderRadius: 8, background: '#ef4444', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #080e18' }}>
+                      <span style={{ position: 'absolute', top: -3, right: -3, minWidth: 18, height: 18, borderRadius: 9, background: '#ef4444', color: '#fff', fontSize: 9.5, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff' }}>
                         {cartCount > 9 ? '9+' : cartCount}
                       </span>
                     )}
@@ -5935,25 +5941,25 @@ export default function SahilTraders() {
                 {/* PARCHI TAB */}
                 <button
                   onClick={() => { triggerHaptic('medium'); setParchiModalOpen(true); }}
-                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
+                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 2px', position: 'relative' }}
                 >
-                  <svg style={{ width: 18, height: 18, color: 'rgba(255,255,255,0.45)' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg style={{ width: 20, height: 20, color: '#475569' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
                   </svg>
-                  <span style={{ fontSize: 9.5, fontWeight: 600, color: 'rgba(255,255,255,0.45)' }}>Parchi</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: '#334155' }}>Parchi</span>
                 </button>
 
                 {/* ACCOUNT / ME TAB */}
                 <button
                   onClick={() => { triggerHaptic('light'); setActiveTab('account'); }}
-                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
+                  style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 2px', position: 'relative' }}
                 >
-                  {activeTab === 'account' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2.5, borderRadius: '0 0 3px 3px', background: '#10b981' }} />}
-                  <svg style={{ width: 18, height: 18, color: activeTab === 'account' ? '#10b981' : 'rgba(255,255,255,0.45)' }} fill={activeTab === 'account' ? '#10b981' : 'none'} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  {activeTab === 'account' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 22, height: 3, borderRadius: '0 0 3px 3px', background: '#059669' }} />}
+                  <svg style={{ width: 20, height: 20, color: activeTab === 'account' ? '#059669' : '#475569' }} fill={activeTab === 'account' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   </svg>
-                  <span style={{ fontSize: 9.5, fontWeight: activeTab === 'account' ? 800 : 600, color: activeTab === 'account' ? '#10b981' : 'rgba(255,255,255,0.45)' }}>{tr(language, 'Me', 'Mein', 'میں')}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: activeTab === 'account' ? 800 : 700, color: activeTab === 'account' ? '#059669' : '#334155' }}>{tr(language, 'Me', 'Mein', 'میں')}</span>
                 </button>
               </nav>
 

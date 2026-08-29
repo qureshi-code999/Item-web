@@ -11150,7 +11150,7 @@ function SahilTraders() {
     className: "splash-dots-anim text-emerald-400 font-extrabold text-[14px] leading-none"
   }))))), /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 -z-10 bg-white"
-  }), /*#__PURE__*/React.createElement("div", {
+  }), activeTab !== 'account' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'linear-gradient(90deg, #08101a 0%, #0b1828 50%, #08101a 100%)',
       borderBottom: '1px solid rgba(16,185,129,0.18)'
@@ -11983,10 +11983,11 @@ function SahilTraders() {
       color: '#10b981',
       fontWeight: 700
     }
-  }, "Rs. ", product.price)))))))), /*#__PURE__*/React.createElement("main", {
-    className: "max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 main-content-area",
+  }, "Rs. ", product.price))))))))), /*#__PURE__*/React.createElement("main", {
+    className: "max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area",
     style: {
-      paddingBottom: 'calc(58px + env(safe-area-inset-bottom, 0px))'
+      paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
+      paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined
     }
   }, activeTab === 'account' ?
   /*#__PURE__*/
@@ -13387,16 +13388,16 @@ function SahilTraders() {
       bottom: 0,
       left: 0,
       right: 0,
-      background: 'rgba(8, 14, 24, 0.98)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      borderTop: '1px solid rgba(255,255,255,0.08)',
-      boxShadow: '0 -4px 20px rgba(0,0,0,0.4)',
+      background: 'rgba(255, 255, 255, 0.88)',
+      backdropFilter: 'blur(24px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+      borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+      boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.08)',
       zIndex: 45,
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       display: 'flex',
       alignItems: 'center',
-      height: '50px'
+      height: '58px'
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -13413,11 +13414,11 @@ function SahilTraders() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 3,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '6px 2px',
       position: 'relative'
     }
   }, activeTab === 'home' && /*#__PURE__*/React.createElement("span", {
@@ -13426,18 +13427,18 @@ function SahilTraders() {
       top: 0,
       left: '50%',
       transform: 'translateX(-50%)',
-      width: 20,
-      height: 2.5,
+      width: 22,
+      height: 3,
       borderRadius: '0 0 3px 3px',
-      background: '#10b981'
+      background: '#059669'
     }
   }), /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 18,
-      height: 18,
-      color: activeTab === 'home' ? '#10b981' : 'rgba(255,255,255,0.45)'
+      width: 20,
+      height: 20,
+      color: activeTab === 'home' ? '#059669' : '#475569'
     },
-    fill: activeTab === 'home' ? '#10b981' : 'none',
+    fill: activeTab === 'home' ? '#059669' : 'none',
     stroke: "currentColor",
     strokeWidth: "2",
     viewBox: "0 0 24 24"
@@ -13447,9 +13448,9 @@ function SahilTraders() {
     d: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 9.5,
-      fontWeight: activeTab === 'home' ? 800 : 600,
-      color: activeTab === 'home' ? '#10b981' : 'rgba(255,255,255,0.45)'
+      fontSize: 10.5,
+      fontWeight: activeTab === 'home' ? 800 : 700,
+      color: activeTab === 'home' ? '#059669' : '#334155'
     }
   }, tr(language, 'Home', 'Home', 'ہوم'))), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -13463,11 +13464,11 @@ function SahilTraders() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 3,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '6px 2px',
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -13476,9 +13477,9 @@ function SahilTraders() {
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 18,
-      height: 18,
-      color: 'rgba(255,255,255,0.45)'
+      width: 20,
+      height: 20,
+      color: '#475569'
     },
     fill: "none",
     stroke: "currentColor",
@@ -13493,23 +13494,23 @@ function SahilTraders() {
       position: 'absolute',
       top: -3,
       right: -6,
-      minWidth: 14,
-      height: 14,
-      borderRadius: 7,
+      minWidth: 15,
+      height: 15,
+      borderRadius: 8,
       background: '#10b981',
       color: '#fff',
-      fontSize: 8.5,
+      fontSize: 9,
       fontWeight: 900,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      border: '1px solid #080e18'
+      border: '1.5px solid #ffffff'
     }
   }, orderHistory.length > 9 ? '9+' : orderHistory.length)), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 9.5,
-      fontWeight: 600,
-      color: 'rgba(255,255,255,0.45)'
+      fontSize: 10.5,
+      fontWeight: 700,
+      color: '#334155'
     }
   }, tr(language, 'Orders', 'Orders', 'آرڈرز'))), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -13525,24 +13526,24 @@ function SahilTraders() {
       setCartOpen(true);
     },
     style: {
-      width: 44,
-      height: 44,
+      width: 50,
+      height: 50,
       borderRadius: '50%',
-      background: cartCount > 0 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #1e293b, #0f172a)',
-      border: cartCount > 0 ? '2px solid rgba(16,185,129,0.6)' : '1.5px solid rgba(255,255,255,0.15)',
-      boxShadow: cartCount > 0 ? '0 3px 12px rgba(16,185,129,0.45)' : '0 2px 8px rgba(0,0,0,0.35)',
+      background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+      border: 'none',
+      boxShadow: '0 6px 18px rgba(16,185,129,0.45), 0 0 0 4px rgba(255,255,255,0.9)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       cursor: 'pointer',
       position: 'relative',
-      transform: 'translateY(-7px)',
+      transform: 'translateY(-10px)',
       transition: 'all 0.2s'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 18,
-      height: 18,
+      width: 21,
+      height: 21,
       color: '#ffffff'
     },
     fill: "none",
@@ -13556,19 +13557,19 @@ function SahilTraders() {
   })), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      top: -2,
-      right: -2,
-      minWidth: 16,
-      height: 16,
-      borderRadius: 8,
+      top: -3,
+      right: -3,
+      minWidth: 18,
+      height: 18,
+      borderRadius: 9,
       background: '#ef4444',
       color: '#fff',
-      fontSize: 9,
+      fontSize: 9.5,
       fontWeight: 900,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      border: '1.5px solid #080e18'
+      border: '2px solid #ffffff'
     }
   }, cartCount > 9 ? '9+' : cartCount))), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -13582,18 +13583,18 @@ function SahilTraders() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 3,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '6px 2px',
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 18,
-      height: 18,
-      color: 'rgba(255,255,255,0.45)'
+      width: 20,
+      height: 20,
+      color: '#475569'
     },
     fill: "none",
     stroke: "currentColor",
@@ -13609,9 +13610,9 @@ function SahilTraders() {
     d: "M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 9.5,
-      fontWeight: 600,
-      color: 'rgba(255,255,255,0.45)'
+      fontSize: 10.5,
+      fontWeight: 700,
+      color: '#334155'
     }
   }, "Parchi")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -13625,11 +13626,11 @@ function SahilTraders() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 3,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '6px 2px',
       position: 'relative'
     }
   }, activeTab === 'account' && /*#__PURE__*/React.createElement("span", {
@@ -13638,18 +13639,18 @@ function SahilTraders() {
       top: 0,
       left: '50%',
       transform: 'translateX(-50%)',
-      width: 20,
-      height: 2.5,
+      width: 22,
+      height: 3,
       borderRadius: '0 0 3px 3px',
-      background: '#10b981'
+      background: '#059669'
     }
   }), /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 18,
-      height: 18,
-      color: activeTab === 'account' ? '#10b981' : 'rgba(255,255,255,0.45)'
+      width: 20,
+      height: 20,
+      color: activeTab === 'account' ? '#059669' : '#475569'
     },
-    fill: activeTab === 'account' ? '#10b981' : 'none',
+    fill: activeTab === 'account' ? '#059669' : 'none',
     stroke: "currentColor",
     strokeWidth: "2",
     viewBox: "0 0 24 24"
@@ -13659,9 +13660,9 @@ function SahilTraders() {
     d: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 9.5,
-      fontWeight: activeTab === 'account' ? 800 : 600,
-      color: activeTab === 'account' ? '#10b981' : 'rgba(255,255,255,0.45)'
+      fontSize: 10.5,
+      fontWeight: activeTab === 'account' ? 800 : 700,
+      color: activeTab === 'account' ? '#059669' : '#334155'
     }
   }, tr(language, 'Me', 'Mein', 'میں')))));
 }

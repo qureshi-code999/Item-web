@@ -5851,12 +5851,15 @@ export default function SahilTraders() {
               {/* ══════════ ULTRA-GLOSSY FROSTED GLASS 5-TAB BOTTOM NAVIGATION BAR (Mobile / App Only) ══════════ */}
               <nav className="sm:hidden" style={{
                 position: 'fixed', bottom: 0, left: 0, right: 0,
-                background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.45) 100%)',
-                backdropFilter: 'blur(32px) saturate(200%)',
-                WebkitBackdropFilter: 'blur(32px) saturate(200%)',
-                borderTop: '1.5px solid rgba(255, 255, 255, 0.85)',
-                boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.10), inset 0 1px 1px rgba(255, 255, 255, 0.9)',
+                background: 'rgba(255, 255, 255, 0.78)',
+                backdropFilter: 'blur(24px) saturate(190%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(190%)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.85)',
+                boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)',
                 zIndex: 45,
+                transform: 'translateZ(0)',
+                WebkitTransform: 'translateZ(0)',
+                willChange: 'transform',
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
                 display: 'flex', alignItems: 'stretch', height: '60px',
               }}>

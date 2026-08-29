@@ -11159,7 +11159,7 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "max-w-7xl mx-auto flex items-center justify-between gap-2"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2 sm:gap-3 overflow-hidden"
+    className: "flex items-center gap-2 sm:gap-3 overflow-hidden w-full justify-center sm:justify-start"
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       color: '#f59e0b',
@@ -11191,24 +11191,7 @@ function SahilTraders() {
     style: {
       color: 'rgba(255,255,255,0.2)'
     }
-  }, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC ", tr(language, 'WhatsApp Orders Active', 'WhatsApp Orders Active', 'واٹس ایپ آرڈرز جاری')))), /*#__PURE__*/React.createElement("a", {
-    href: "tel:03368945775",
-    style: {
-      color: '#10b981',
-      background: 'rgba(16,185,129,0.12)',
-      border: '1px solid rgba(16,185,129,0.3)',
-      borderRadius: '6px',
-      padding: '2px 8px',
-      fontWeight: 800,
-      whiteSpace: 'nowrap',
-      textDecoration: 'none',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '4px',
-      fontSize: '10px',
-      flexShrink: 0
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Call Helpline', 'Call Karen', 'کال کریں'))))), /*#__PURE__*/React.createElement("header", {
+  }, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC ", tr(language, 'WhatsApp Orders Active', 'WhatsApp Orders Active', 'واٹس ایپ آرڈرز جاری')))))), /*#__PURE__*/React.createElement("header", {
     className: "sticky top-0 z-30 backdrop-blur-xl",
     style: {
       background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)',

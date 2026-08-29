@@ -4724,7 +4724,7 @@ export default function SahilTraders() {
               {/* ━━━ TOP INFO BAR ━━━ */}
               <div style={{ background: 'linear-gradient(90deg, #08101a 0%, #0b1828 50%, #08101a 100%)', borderBottom: '1px solid rgba(16,185,129,0.18)' }} className="text-white text-[10.5px] font-medium py-1.5 px-3 sm:px-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+                  <div className="flex items-center gap-2 sm:gap-3 overflow-hidden w-full justify-center sm:justify-start">
                     <span style={{ color: '#f59e0b', fontWeight: 700, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
                       <span>⏰</span>
                       <span>{tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: 10:00 AM – 8:00 PM (Peer ta Hafta)', 'ڈیلیوری کے اوقات: صبح 10 تا رات 8 (پیر تا ہفتہ)')}</span>
@@ -4738,27 +4738,6 @@ export default function SahilTraders() {
                       <span>💬 {tr(language, 'WhatsApp Orders Active', 'WhatsApp Orders Active', 'واٹس ایپ آرڈرز جاری')}</span>
                     </div>
                   </div>
-                  <a
-                    href="tel:03368945775"
-                    style={{
-                      color: '#10b981',
-                      background: 'rgba(16,185,129,0.12)',
-                      border: '1px solid rgba(16,185,129,0.3)',
-                      borderRadius: '6px',
-                      padding: '2px 8px',
-                      fontWeight: 800,
-                      whiteSpace: 'nowrap',
-                      textDecoration: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '10px',
-                      flexShrink: 0
-                    }}
-                  >
-                    <span>📞</span>
-                    <span>{tr(language, 'Call Helpline', 'Call Karen', 'کال کریں')}</span>
-                  </a>
                 </div>
               </div>
 

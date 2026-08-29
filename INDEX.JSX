@@ -6014,41 +6014,44 @@ export default function SahilTraders() {
                 <div
                   key={cat.id}
                   onClick={() => {
+                    triggerHaptic('light');
                     onSelectCategory(cat.id);
                     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
                     document.body.scrollTop = 0;
                     document.documentElement.scrollTop = 0;
                   }}
-                  className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300"
+                  className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200"
                   style={{
                     background: '#ffffff',
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    border: '1.5px solid #e2e8f0',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+                    display: 'flex',
+                    flexDirection: 'column'
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = '#000000';
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.08)';
+                    e.currentTarget.style.borderColor = '#10b981';
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.boxShadow = '0 10px 24px rgba(16,185,129,0.12)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = '#e5e7eb';
+                    e.currentTarget.style.borderColor = '#e2e8f0';
                     e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+                    e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.03)';
                   }}
                 >
                   {/* Top Image Reel Area */}
-                  <div className="cat-img-reel-area" style={{ height: 180, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#ffffff' }}>
+                  <div className="cat-img-reel-area" style={{ height: 140, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#fafbfc' }}>
 
                     {/* Top Right Item Count Badge */}
-                    <div className="cat-count-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, padding: '3px 10px', borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', background: '#f3f4f6', border: '1px solid #e5e7eb', color: '#111111' }}>
+                    <div className="cat-count-badge" style={{ position: 'absolute', top: 8, right: 8, zIndex: 20, padding: '3px 8px', borderRadius: 8, fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', background: 'rgba(15, 23, 42, 0.82)', backdropFilter: 'blur(4px)', color: '#ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
                       {count} {translate(langData, "itemsLabel")}
                     </div>
 
                     {imageProducts.length > 0 ? (
                       <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
                         {/* Side Fade Shading for Glassy Framing */}
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 28, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, #ffffff, transparent)' }} />
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 28, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, #ffffff, transparent)' }} />
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 24, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, #fafbfc, transparent)' }} />
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 24, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, #fafbfc, transparent)' }} />
 
                         {/* Infinite Sliding Track */}
                         <div className="cat-marquee-track" style={{ animation: `catSlideTrack ${animSpeed} linear infinite` }}>
@@ -6078,34 +6081,32 @@ export default function SahilTraders() {
                     )}
                   </div>
 
-                  {/* Info Footer with Obvious Action Button */}
-                  <div style={{ padding: '12px 14px', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, borderTop: '1px solid #f3f4f6' }}>
-                    <div style={{ minWidth: 0, flex: 1 }}>
+                  {/* Clean Full-Width Info Footer */}
+                  <div style={{ padding: '10px 12px 12px', background: '#ffffff', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: 4, flex: 1, justifyContent: 'space-between' }}>
+                    <div>
                       <h3 className="cat-card-title" style={{
-                        fontSize: '13px',
-                        fontWeight: 900,
+                        fontSize: '13.5px',
+                        fontWeight: 800,
                         fontFamily: "'Poppins', sans-serif",
-                        letterSpacing: '0.02em',
-                        color: '#111827',
-                        lineHeight: 1.25,
-                        marginBottom: 4
+                        color: '#0f172a',
+                        lineHeight: 1.3,
+                        margin: 0,
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word'
                       }}>
                         {langData.categories?.[cat.id] || cat.name}
                       </h3>
-                      
-                      {/* Action Button / Pill — compact & responsive on mobile via CSS */}
-                      <div className="cat-view-pill inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-900 group-hover:bg-amber-600 text-white transition-all duration-300 shadow-2xs">
-                        <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                          {tr(language, 'View Products', 'Cheezein Dekhein', 'چیزیں دیکھیں')}
-                        </span>
-                        <span style={{ fontSize: 10, fontWeight: 900 }} className="transform group-hover:translate-x-1 transition-transform">➔</span>
-                      </div>
                     </div>
-
-                    <div className="w-8 h-8 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-black group-hover:bg-black group-hover:text-white group-hover:border-black transition-all duration-300 shrink-0">
-                      <svg className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                      </svg>
+                    
+                    {/* Interactive Action Line */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, paddingTop: 4, borderTop: '1px dashed #f1f5f9' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <span>{tr(language, 'Explore', 'Dekhein', 'دیکھیں')}</span>
+                        <span style={{ fontSize: '11px', transition: 'transform 0.2s' }} className="group-hover:translate-x-1">➔</span>
+                      </span>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8' }}>
+                        {count} items
+                      </span>
                     </div>
                   </div>
                 </div>

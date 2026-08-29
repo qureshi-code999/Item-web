@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="notranslate" translate="no">
 <head>
   <meta charset="UTF-8">
@@ -423,51 +423,25 @@
     /* ---- CATEGORY GRID MOBILE & LAPTOP ---- */
     .cat-home-grid {
       display: grid !important;
-      grid-template-columns: repeat(3, 1fr) !important; /* 3 columns on mobile */
-      gap: 8px !important;
+      grid-template-columns: repeat(2, 1fr) !important; /* 2 spacious columns on mobile */
+      gap: 10px !important;
     }
     @media (min-width: 640px) {
-      .cat-home-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 12px !important; }
+      .cat-home-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 14px !important; }
     }
     @media (min-width: 900px) {
-      .cat-home-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 14px !important; } /* 4 columns on laptop */
+      .cat-home-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 16px !important; }
     }
     @media (min-width: 1280px) {
-      .cat-home-grid { grid-template-columns: repeat(5, 1fr) !important; gap: 16px !important; }
+      .cat-home-grid { grid-template-columns: repeat(5, 1fr) !important; gap: 18px !important; }
     }
 
     /* ---- CATEGORY CARD MOBILE ---- */
     @media (max-width: 640px) {
-      .cat-img-reel-area { height: 82px !important; }
-      .cat-img-box { width: 66px !important; height: 66px !important; padding: 3px !important; border-radius: 10px !important; }
-      /* Footer row: compact padding and gap */
-      .cat-card-container > div:last-child { padding: 6px 6px !important; gap: 3px !important; align-items: center !important; }
-      .cat-card-container > div:last-child > div:first-child { min-width: 0 !important; flex: 1 1 auto !important; }
-      /* Arrow icon button: smaller on mobile */
-      .cat-card-container > div:last-child > div:last-child { width: 20px !important; height: 20px !important; flex-shrink: 0 !important; border-radius: 6px !important; }
-      .cat-card-container > div:last-child > div:last-child svg { width: 11px !important; height: 11px !important; }
-      /* Category title: compact, crisp size */
-      .cat-card-title { font-size: 10.5px !important; line-height: 1.15 !important; margin-bottom: 2px !important; overflow-wrap: normal !important; word-break: normal !important; hyphens: none !important; text-wrap: balance; }
-      .cat-card-subtitle { font-size: 8px !important; }
-      .cat-count-badge { font-size: 7px !important; padding: 1px 5px !important; top: 6px !important; right: 6px !important; }
-      /* "View Products" pill button: responsive & compact for small screens */
-      .cat-view-pill {
-        display: inline-flex !important;
-        padding: 1.5px 5px !important;
-        gap: 2.5px !important;
-        border-radius: 5px !important;
-        max-width: 100% !important;
-      }
-      .cat-view-pill span:first-child {
-        font-size: 7.5px !important;
-        letter-spacing: 0.01em !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-      }
-      .cat-view-pill span:last-child {
-        font-size: 8px !important;
-      }
+      .cat-img-reel-area { height: 110px !important; }
+      .cat-img-box { width: 84px !important; height: 84px !important; padding: 4px !important; border-radius: 12px !important; }
+      .cat-card-title { font-size: 12.5px !important; line-height: 1.25 !important; font-weight: 800 !important; color: #0f172a !important; }
+      .cat-count-badge { font-size: 9px !important; padding: 2px 7px !important; top: 6px !important; right: 6px !important; }
     }
 
     /* ---- MAIN CONTENT PADDING MOBILE ---- */

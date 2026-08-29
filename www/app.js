@@ -11517,48 +11517,7 @@ function SahilTraders() {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-  })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Policy', 'Policy', 'پالیسی'))), /*#__PURE__*/React.createElement("a", {
-    href: "tel:03368945775",
-    title: "Call Us",
-    style: {
-      background: 'rgba(255,255,255,0.06)',
-      border: '1.5px solid rgba(255,255,255,0.09)',
-      borderRadius: '10px',
-      padding: '7px 11px',
-      fontSize: '11.5px',
-      fontWeight: 600,
-      color: 'rgba(255,255,255,0.7)',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '5px',
-      transition: 'all 0.18s',
-      textDecoration: 'none',
-      whiteSpace: 'nowrap'
-    },
-    onMouseEnter: e => {
-      e.currentTarget.style.background = 'rgba(255,255,255,0.12)';
-      e.currentTarget.style.color = '#fff';
-    },
-    onMouseLeave: e => {
-      e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-      e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    style: {
-      width: '14px',
-      height: '14px',
-      color: '#60a5fa'
-    },
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106a1.15 1.15 0 00-1.01.258l-1.589 1.589a13.385 13.385 0 01-6.697-6.697l1.589-1.589a1.15 1.15 0 00.258-1.01L7.544 3.102A1.125 1.125 0 006.453 2.25H5.08A2.25 2.25 0 002.25 4.5v2.25z"
-  })), /*#__PURE__*/React.createElement("span", null, "0336-8945775")), /*#__PURE__*/React.createElement("button", {
+  })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Policy', 'Policy', 'پالیسی'))), /*#__PURE__*/React.createElement("button", {
     onClick: () => setAboutOpen(true),
     title: tr(language, 'About Us', 'Hamare Baare Mein', 'ہمارے بارے میں'),
     style: {

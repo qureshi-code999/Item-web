@@ -1437,6 +1437,309 @@ function WelcomeDisclaimerModal({
     className: "w-full py-2.5 px-5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
   }, tr(modalLang, 'Understood, Continue', 'Theek Hai, Aage Barhein', 'ٹھیک ہے، آگے بڑھیں')))));
 }
+function ParchiOrderModal({
+  open,
+  onClose,
+  language,
+  saveOrderHistory
+}) {
+  if (!open) return null;
+  const [photo, setPhoto] = useState(null);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("home");
+  const [notes, setNotes] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const handlePhotoUpload = e => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      triggerHaptic('medium');
+      const reader = new FileReader();
+      reader.onload = ev => {
+        setPhoto(ev.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (!name.trim()) {
+      alert(tr(language, 'Please enter your name.', 'Apna naam darj karein.', 'براہ کرم اپنا نام درج کریں۔'));
+      return;
+    }
+    if (!phone.trim()) {
+      alert(tr(language, 'Please enter your WhatsApp phone number.', 'Apna WhatsApp number darj karein.', 'براہ کرم اپنا واٹس ایپ نمبر درج کریں۔'));
+      return;
+    }
+    if (!photo) {
+      alert(tr(language, 'Please upload or capture a photo of your slip.', 'Parchi ki photo upload ya capture karein.', 'براہ کرم پرچی کی تصویر لیں۔'));
+      return;
+    }
+    triggerHaptic('success');
+    const orderId = Math.floor(100000 + Math.random() * 900000);
+    const now = new Date();
+    const dateText = now.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    const orderRecord = {
+      id: orderId,
+      dateText: dateText,
+      deliveryMethod: deliveryMethod,
+      customer: {
+        name: name.trim(),
+        phone: phone.trim(),
+        address: deliveryMethod === 'home' ? address.trim() : 'BS Mart Store Pickup Karachi'
+      },
+      items: [{
+        id: 'parchi-slip',
+        name: `📸 Parchi Slip Order (${notes ? notes.substring(0, 30) : 'Handwritten List'})`,
+        qty: 1,
+        price: 0,
+        total: 0
+      }],
+      subtotal: 0,
+      deliveryFee: deliveryMethod === 'home' ? 150 : 0,
+      grandTotal: 0,
+      isParchi: true,
+      notes: notes.trim()
+    };
+    if (typeof saveOrderHistory === 'function') {
+      saveOrderHistory(orderRecord);
+    }
+    const waText = `*Salam Sahil Traders!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (BS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
+    const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(waText)}`;
+    setSubmitted(true);
+    window.open(waUrl, '_blank');
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col",
+    style: {
+      maxHeight: '92vh'
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-700 text-white"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xl"
+  }, "📸"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "font-extrabold text-sm sm:text-base leading-tight"
+  }, tr(language, 'Parchi / Photo Order', 'Parchi / Photo Order', 'پرچی / فوٹو آرڈر')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[10px] text-emerald-100 font-medium"
+  }, tr(language, 'Upload written slip & order in 5 seconds', 'Haath se likhi list upload karein aur 5 sec mein order bhein', 'ہاتھ سے لکھی پرچی بھیجیں')))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onClose,
+    className: "w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center cursor-pointer transition-colors"
+  }, "✕")), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 sm:p-5 overflow-y-auto space-y-4"
+  }, submitted ? /*#__PURE__*/React.createElement("div", {
+    className: "text-center py-6 space-y-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-3xl shadow-sm"
+  }, "✓"), /*#__PURE__*/React.createElement("h4", {
+    className: "font-black text-lg text-gray-900"
+  }, tr(language, 'Parchi Order Sent Successfully! 🎉', 'Parchi Order Kamiyabi se Bhej Diya Gaya! 🎉', 'پرچی آرڈر کامیابی سے بھیج دیا گیا!')), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-gray-600"
+  }, tr(language, 'Your slip order has been saved in Order History and submitted to WhatsApp.', 'Apka parchi order save ho chuka hai aur WhatsApp par bhej diya gaya hai.', 'آپ کا پرچی آرڈر محفوظ ہو گیا ہے۔')), /*#__PURE__*/React.createElement("div", {
+    className: "pt-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onClose,
+    className: "w-full py-3 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl uppercase tracking-wider cursor-pointer"
+  }, tr(language, 'Continue Shopping', 'Kharidari Jari Rakhein', 'خریداری جاری رکھیں')))) : /*#__PURE__*/React.createElement("form", {
+    onSubmit: handleSubmit,
+    className: "space-y-3.5"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "block text-xs font-extrabold text-gray-800 mb-1.5 uppercase tracking-wider"
+  }, tr(language, '1. Take or Upload Photo of Slip *', '1. Parchi ki Photo Khainchein ya Select Karein *', '1. پرچی کی تصویر لیں یا اپلوڈ کریں *')), photo ? /*#__PURE__*/React.createElement("div", {
+    className: "relative rounded-2xl border-2 border-emerald-500 overflow-hidden bg-gray-50 h-48 flex items-center justify-center group"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: photo,
+    alt: "Parchi Slip Preview",
+    className: "w-full h-full object-contain"
+  }), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setPhoto(null),
+    className: "absolute top-2 right-2 bg-red-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold shadow-md cursor-pointer hover:bg-red-700 transition-colors"
+  }, "🗑️ ", tr(language, 'Retake', 'Dobara Lein', 'دوبارہ لیں'))) : /*#__PURE__*/React.createElement("label", {
+    className: "border-2 border-dashed border-emerald-400 hover:border-emerald-600 bg-emerald-50/40 hover:bg-emerald-50/70 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "file",
+    accept: "image/*",
+    capture: "environment",
+    onChange: handlePhotoUpload,
+    className: "hidden"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mb-2"
+  }, "📷"), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-black text-emerald-800"
+  }, tr(language, 'Tap to Open Camera / Gallery', 'Camera se Photo Lein ya Gallery se Chunin', 'کیمرہ سے تصویر لیں یا گیلری سے منتخب کریں')), /*#__PURE__*/React.createElement("span", {
+    className: "text-[10px] text-gray-500 mt-1"
+  }, tr(language, 'Clear photo of handwritten item list', 'Saaf photo jahan saman ki list dikh sake', 'واضح تصویر منتخب کریں')))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "block text-[11px] font-bold text-gray-700 mb-1"
+  }, tr(language, 'Your Name *', 'Apka Naam *', 'آپ کا نام *')), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    required: true,
+    value: name,
+    onChange: e => setName(e.target.value),
+    placeholder: "e.g. Ali Khan",
+    className: "w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "block text-[11px] font-bold text-gray-700 mb-1"
+  }, tr(language, 'WhatsApp Phone *', 'WhatsApp Number *', 'واٹس ایپ نمبر *')), /*#__PURE__*/React.createElement("input", {
+    type: "tel",
+    required: true,
+    value: phone,
+    onChange: e => setPhone(e.target.value),
+    placeholder: "0336-XXXXXXX",
+    className: "w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "block text-[11px] font-bold text-gray-700 mb-1"
+  }, tr(language, 'Delivery Option', 'Delivery Ka Tareeqa', 'ڈلیوری کا طریقہ')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setDeliveryMethod('home'),
+    className: `p-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${deliveryMethod === 'home' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-gray-200 bg-white text-gray-600'}`
+  }, /*#__PURE__*/React.createElement("span", null, "🚚"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Home Delivery', 'Home Delivery', 'ہوم ڈلیوری'))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => setDeliveryMethod('pickup'),
+    className: `p-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${deliveryMethod === 'pickup' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-gray-200 bg-white text-gray-600'}`
+  }, /*#__PURE__*/React.createElement("span", null, "🏬"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Store Pickup', 'Store Pickup', 'اسٹور پک اپ'))))), deliveryMethod === 'home' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "block text-[11px] font-bold text-gray-700 mb-1"
+  }, tr(language, 'Delivery Address in Karachi', 'Karachi Ka Pura Pata', 'کراچی کا پتہ')), /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: address,
+    onChange: e => setAddress(e.target.value),
+    placeholder: "Area, Street, Shop / House #",
+    className: "w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+    className: "block text-[11px] font-bold text-gray-700 mb-1"
+  }, tr(language, 'Special Instructions / Notes (Optional)', 'Koi Khaas Baat (Optional)', 'اضافی ہدایات (اختیاری)')), /*#__PURE__*/React.createElement("textarea", {
+    rows: "2",
+    value: notes,
+    onChange: e => setNotes(e.target.value),
+    placeholder: "e.g. Bhai 2 peti Lux aur 1 carton Surf bhej dena...",
+    className: "w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 resize-none"
+  })), /*#__PURE__*/React.createElement("button", {
+    type: "submit",
+    className: "w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all active:scale-95 cursor-pointer mt-2"
+  }, /*#__PURE__*/React.createElement("span", null, "💬"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Submit & Send on WhatsApp', 'Parchi Order WhatsApp Par Bhejein', 'پرچی آرڈر واٹس ایپ پر بھیجیں')))))));
+}
+function WishlistDrawer({
+  open,
+  onClose,
+  wishlist,
+  products,
+  onAddToCart,
+  onRemoveWishlist,
+  language,
+  langData
+}) {
+  if (!open) return null;
+  const wishlistedProducts = useMemo(() => {
+    if (!products || !wishlist) return [];
+    return products.filter(p => wishlist.includes(p.id));
+  }, [products, wishlist]);
+  const handleAddAll = () => {
+    triggerHaptic('success');
+    wishlistedProducts.forEach(p => {
+      onAddToCart(p);
+    });
+    onClose();
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fade-in",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-full max-w-md bg-white h-full flex flex-col shadow-2xl border-l border-gray-200 animate-slide-left relative",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-b border-gray-100 flex items-center justify-between bg-white"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-xl text-rose-600"
+  }, "❤️"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "font-extrabold text-base text-gray-900 leading-tight"
+  }, tr(language, 'My Wishlist (Favorites)', 'Meri Pasandeeda Ashya', 'میری پسندیدہ اشیاء')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-500"
+  }, wishlistedProducts.length, " ", tr(language, 'saved items', 'items save hain', 'اشیاء محفوظ ہیں')))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onClose,
+    className: "w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center cursor-pointer transition-colors"
+  }, "✕")), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 overflow-y-auto p-4 space-y-3"
+  }, wishlistedProducts.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "text-center py-16 space-y-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-16 h-16 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center text-3xl mx-auto"
+  }, "🤍"), /*#__PURE__*/React.createElement("h4", {
+    className: "font-black text-gray-900 text-base"
+  }, tr(language, 'Your wishlist is empty', 'Wishlist abhi khali hai', 'آپ کی وش لسٹ خالی ہے')), /*#__PURE__*/React.createElement("p", {
+    className: "text-xs text-gray-500 max-w-xs mx-auto"
+  }, tr(language, 'Tap the heart icon on any product to save it here for quick repeat orders.', 'Kisi bhi product par dil (heart) daba kar save karein.', 'پروڈکٹ پر دل کے نشان کو دبا کر محفوظ کریں۔'))) : wishlistedProducts.map(product => {
+    const pricing = getProductPricing(product);
+    const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+    const imgSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+    return /*#__PURE__*/React.createElement("div", {
+      key: product.id,
+      className: "flex items-center gap-3 p-2.5 rounded-2xl border border-gray-100 hover:border-gray-300 bg-white transition-all shadow-2xs"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "w-14 h-14 bg-gray-50 rounded-xl p-1 flex items-center justify-center shrink-0"
+    }, hasFile ? /*#__PURE__*/React.createElement("img", {
+      src: imgSrc,
+      alt: product.name,
+      className: "w-full h-full object-contain"
+    }) : /*#__PURE__*/React.createElement("div", {
+      className: "w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center font-bold text-gray-700 text-sm"
+    }, product.initial || 'P')), /*#__PURE__*/React.createElement("div", {
+      className: "flex-1 min-w-0"
+    }, /*#__PURE__*/React.createElement("h5", {
+      className: "font-bold text-xs text-gray-900 truncate"
+    }, getProductDisplayName(product, language)), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-baseline gap-1.5 mt-0.5"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "font-black text-xs text-gray-950"
+    }, "Rs. ", pricing.sellingPrice.toLocaleString()), pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
+      className: "text-[10px] text-gray-400 line-through"
+    }, "Rs. ", pricing.retailPrice.toLocaleString()))), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-center gap-1.5 shrink-0"
+    }, /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: () => {
+        triggerHaptic('medium');
+        onAddToCart(product);
+      },
+      className: "px-2.5 py-1.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-lg cursor-pointer transition-colors shadow-2xs"
+    }, "+ Cart"), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: () => {
+        triggerHaptic('light');
+        if (onRemoveWishlist) onRemoveWishlist(product);
+      },
+      className: "p-1.5 text-gray-400 hover:text-red-500 rounded-lg cursor-pointer transition-colors",
+      title: "Remove"
+    }, "✕")));
+  })), wishlistedProducts.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "p-4 border-t border-gray-100 bg-gray-50 space-y-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: handleAddAll,
+    className: "w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl uppercase tracking-wider flex items-center justify-center gap-2 shadow-md shadow-rose-600/20 active:scale-95 transition-all cursor-pointer"
+  }, /*#__PURE__*/React.createElement("span", null, "🛒"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Add All to Cart', 'Saari Ashya Cart Mein Daalein', 'تمام اشیاء کارٹ میں شامل کریں'), " (", wishlistedProducts.length, ")")))));
+}
 function ProductDetailModal({
   product,
   open,
@@ -1445,7 +1748,9 @@ function ProductDetailModal({
   products,
   langData,
   language,
-  onSelectProduct
+  onSelectProduct,
+  isWishlisted,
+  onToggleWishlist
 }) {
   if (!open || !product) return null;
   const isUrdu = language === 'ur';
@@ -1497,10 +1802,27 @@ function ProductDetailModal({
     className: "bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-red-200 flex items-center gap-1"
   }, /*#__PURE__*/React.createElement("span", null, "🔥"), /*#__PURE__*/React.createElement("span", null, pricing.discountPercent, "% ", tr(language, 'OFF', 'OFF', 'رعایت'))) : /*#__PURE__*/React.createElement("span", {
     className: "bg-amber-100 text-amber-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-200"
-  }, tr(language, 'Wholesale Rate', 'Behtareen Wholesale Rate', 'بہترین ہول سیل ریٹ'))), /*#__PURE__*/React.createElement("button", {
+  }, tr(language, 'Wholesale Rate', 'Behtareen Wholesale Rate', 'بہترین ہول سیل ریٹ'))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => onToggleWishlist && onToggleWishlist(product),
+    className: `w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${isWishlisted ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105 shadow-2xs' : 'bg-white border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'}`,
+    title: isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-4 h-4",
+    fill: isWishlisted ? 'currentColor' : 'none',
+    stroke: "currentColor",
+    strokeWidth: isWishlisted ? '0' : '2',
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+  }))), /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
     className: "w-8 h-8 rounded-full bg-gray-200 hover:bg-black hover:text-white text-gray-700 font-bold flex items-center justify-center transition-colors cursor-pointer"
-  }, "✕")), /*#__PURE__*/React.createElement("div", {
+  }, "✕"))), /*#__PURE__*/React.createElement("div", {
     className: "p-4 sm:p-5 overflow-y-auto space-y-4 flex-1"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col gap-3 bg-gradient-to-br from-gray-50 to-amber-50/30 p-4 rounded-2xl border border-gray-200 shadow-xs"
@@ -2054,6 +2376,32 @@ function SahilTraders() {
   const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [parchiModalOpen, setParchiModalOpen] = useState(false);
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const saved = localStorage.getItem("sahil_traders_wishlist");
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("sahil_traders_wishlist", JSON.stringify(wishlist));
+    } catch (e) {}
+  }, [wishlist]);
+  function toggleWishlist(product) {
+    triggerHaptic('medium');
+    setWishlist(prev => {
+      const exists = prev.some(id => id === product.id);
+      if (exists) {
+        return prev.filter(id => id !== product.id);
+      } else {
+        return [...prev, product.id];
+      }
+    });
+  }
   const [orderHistory, setOrderHistory] = useState(() => {
     try {
       const saved = localStorage.getItem("sahil_traders_order_history");
@@ -2879,6 +3227,33 @@ function SahilTraders() {
   })), /*#__PURE__*/React.createElement("span", {
     className: "hidden sm:inline"
   }, tr(language, 'About Us', 'Hamare Baare Mein', '\u06c1\u0645\u0627\u0631\u06d2 \u0628\u0627\u0631\u06d2 \u0645\u06cc\u06ba'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('medium');
+      setParchiModalOpen(true);
+    },
+    className: "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-sm hover:from-emerald-700 hover:to-teal-800 transition-all cursor-pointer active:scale-95",
+    title: "Handwritten Slip Photo Order"
+  }, /*#__PURE__*/React.createElement("span", null, "📸"), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline"
+  }, tr(language, 'Parchi Order', 'Parchi Order', 'پرچی آرڈر'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('light');
+      setWishlistOpen(true);
+    },
+    className: "relative flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer",
+    style: {
+      background: '#ffffff',
+      borderColor: wishlist.length > 0 ? '#e11d48' : 'rgba(0,0,0,0.12)',
+      color: '#111111'
+    },
+    title: "My Wishlist"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-rose-600 font-bold"
+  }, "❤️"), /*#__PURE__*/React.createElement("span", {
+    className: "hidden sm:inline"
+  }, tr(language, 'Wishlist', 'Wishlist', 'پسندیدہ')), wishlist.length > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center bg-rose-600 text-white shadow-2xs"
+  }, wishlist.length)), /*#__PURE__*/React.createElement("button", {
     onClick: () => setOrderHistoryOpen(true),
     className: "relative flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer",
     style: {
@@ -3082,7 +3457,16 @@ function SahilTraders() {
     products: products,
     onSelectCategory: setSelectedCategory,
     langData: langData,
-    language: language
+    language: language,
+    onParchiOrder: () => {
+      triggerHaptic('medium');
+      setParchiModalOpen(true);
+    },
+    onWishlist: () => {
+      triggerHaptic('light');
+      setWishlistOpen(true);
+    },
+    wishlistCount: wishlist.length
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 14,
@@ -3368,7 +3752,9 @@ function SahilTraders() {
     cartQty: cart.filter(i => i.product.id === p.id).reduce((s, i) => s + i.qty, 0),
     onAddToCart: addToCart,
     onFlyToCart: flyProductToCart,
-    onSelectProduct: selectProductWithHash
+    onSelectProduct: selectProductWithHash,
+    isWishlisted: wishlist.includes(p.id),
+    onToggleWishlist: toggleWishlist
   }))), visibleCount < sortedProducts.length && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 32,
@@ -3472,7 +3858,23 @@ function SahilTraders() {
     products: products,
     langData: langData,
     language: language,
-    onSelectProduct: selectProductWithHash
+    onSelectProduct: selectProductWithHash,
+    isWishlisted: selectedProduct ? wishlist.includes(selectedProduct.id) : false,
+    onToggleWishlist: toggleWishlist
+  }), /*#__PURE__*/React.createElement(ParchiOrderModal, {
+    open: parchiModalOpen,
+    onClose: () => setParchiModalOpen(false),
+    language: language,
+    saveOrderHistory: saveOrderHistory
+  }), /*#__PURE__*/React.createElement(WishlistDrawer, {
+    open: wishlistOpen,
+    onClose: () => setWishlistOpen(false),
+    wishlist: wishlist,
+    products: products,
+    onAddToCart: addToCart,
+    onRemoveWishlist: toggleWishlist,
+    language: language,
+    langData: langData
   }), /*#__PURE__*/React.createElement(VariantSelectionModal, {
     product: variantModalProduct,
     open: !!variantModalProduct,
@@ -3622,6 +4024,42 @@ function SahilTraders() {
   }, tr(language, 'View past orders & receipts', 'Pichle orders aur receipt dekhein', '\u067e\u0686\u06be\u0644\u06d2 \u0622\u0631\u0688\u0631\u0632 \u0627\u0648\u0631 \u0631\u0633\u06cc\u062f\u06cc\u06ba')))), orderHistory.length > 0 ? /*#__PURE__*/React.createElement("span", {
     className: "px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white"
   }, orderHistory.length) : /*#__PURE__*/React.createElement("span", {
+    className: "text-gray-400 text-xs"
+  }, "›")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setMobileMenuOpen(false);
+      triggerHaptic('medium');
+      setParchiModalOpen(true);
+    },
+    className: "w-full flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white transition-all text-left cursor-pointer shadow-md shadow-emerald-600/20 active:scale-95"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl"
+  }, "📸"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-black text-white"
+  }, tr(language, 'Parchi / Photo Order', 'Parchi / Photo Order', 'پرچی / فوٹو آرڈر')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-emerald-100"
+  }, tr(language, 'Upload slip, order in 5 seconds!', 'Slip upload karein, 5 sec mein order!', 'پرچی اپلوڈ کریں، 5 سیکنڈ میں آرڈر!')))), /*#__PURE__*/React.createElement("span", {
+    className: "text-white/70 text-xs"
+  }, "›")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setMobileMenuOpen(false);
+      triggerHaptic('light');
+      setWishlistOpen(true);
+    },
+    className: "w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-rose-200 hover:bg-rose-50 transition-all text-left cursor-pointer shadow-2xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-xl"
+  }, "❤️"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-bold text-gray-900"
+  }, tr(language, 'My Wishlist (Favorites)', 'Meri Pasandeeda Ashya', 'میری پسندیدہ اشیاء')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-500"
+  }, tr(language, 'Save items & order monthly groceries', 'Monthly saman save karein', 'ماہانہ سامان محفوظ کریں')))), wishlist.length > 0 ? /*#__PURE__*/React.createElement("span", {
+    className: "px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white"
+  }, wishlist.length) : /*#__PURE__*/React.createElement("span", {
     className: "text-gray-400 text-xs"
   }, "›")), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -4352,11 +4790,42 @@ function CategoryHome({
   products,
   onSelectCategory,
   langData,
-  language
+  language,
+  onParchiOrder,
+  onWishlist,
+  wishlistCount
 }) {
   const isUrdu = language === 'ur';
   const categoriesList = getGlobalCategories();
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 gap-3 mb-5"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => onParchiOrder && onParchiOrder(),
+    className: "flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-600/20 transition-all active:scale-95 cursor-pointer text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0"
+  }, "📸"), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] font-black text-white leading-tight"
+  }, tr(language, 'Parchi Order', 'Parchi Order', 'پرچی آرڈر')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[10px] text-emerald-100 leading-tight mt-0.5"
+  }, tr(language, 'Photo slip in 5 sec', '5 sec mein order', '5 سیکنڈ میں آرڈر')))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => onWishlist && onWishlist(),
+    className: "flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-rose-200 shadow-lg shadow-rose-100/40 transition-all active:scale-95 cursor-pointer text-left relative"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-xl shrink-0"
+  }, "❤️"), /*#__PURE__*/React.createElement("div", {
+    className: "min-w-0"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] font-black text-gray-900 leading-tight"
+  }, tr(language, 'My Wishlist', 'Meri List', 'میری لسٹ')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[10px] text-gray-500 leading-tight mt-0.5"
+  }, wishlistCount > 0 ? tr(language, `${wishlistCount} saved items`, `${wishlistCount} items save hain`, `${wishlistCount} اشیاء محفوظ`) : tr(language, 'Save favorites', 'Pasand save karein', 'پسندیدہ محفوظ کریں'))), wishlistCount > 0 && /*#__PURE__*/React.createElement("span", {
+    className: "absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full text-[10px] font-black flex items-center justify-center bg-rose-600 text-white border-2 border-white shadow-2xs"
+  }, wishlistCount))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 10,
       display: 'flex',
@@ -4644,7 +5113,9 @@ function ProductCard({
   onAddToCart,
   langData,
   language,
-  onSelectProduct
+  onSelectProduct,
+  isWishlisted,
+  onToggleWishlist
 }) {
   const [isAdded, setIsAdded] = useState(false);
   const isUrdu = language === 'ur';
@@ -4662,7 +5133,25 @@ function ProductCard({
     className: "product-card group bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-3 sm:p-4 flex flex-col justify-between transition-all duration-300 cursor-pointer shadow-xs hover:shadow-lg relative overflow-hidden"
   }, pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
     className: "absolute top-2 left-2 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 uppercase tracking-wider"
-  }, /*#__PURE__*/React.createElement("span", null, "🔥"), /*#__PURE__*/React.createElement("span", null, pricing.discountPercent, "% OFF")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "🔥"), /*#__PURE__*/React.createElement("span", null, pricing.discountPercent, "% OFF")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: e => {
+      e.stopPropagation();
+      if (onToggleWishlist) onToggleWishlist(product);
+    },
+    className: `absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-2xs ${isWishlisted ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105' : 'bg-white/90 backdrop-blur-xs border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'}`,
+    title: isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-3.5 h-3.5",
+    fill: isWishlisted ? 'currentColor' : 'none',
+    stroke: "currentColor",
+    strokeWidth: isWishlisted ? '0' : '2',
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "product-image-box h-32 sm:h-40 w-full bg-gray-50 rounded-xl p-2 mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-amber-50/30 transition-colors"
   }, hasFile ? /*#__PURE__*/React.createElement("img", {
     src: imageSrc,

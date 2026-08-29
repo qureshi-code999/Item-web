@@ -2209,7 +2209,407 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
     </div>
   );
 }
-function ProductDetailModal({ product, open, onClose, onAddToCart, products, langData, language, onSelectProduct }) {
+
+function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
+  if (!open) return null;
+  const [photo, setPhoto] = useState(null);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("home");
+  const [notes, setNotes] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      triggerHaptic('medium');
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setPhoto(ev.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      alert(tr(language, 'Please enter your name.', 'Apna naam darj karein.', 'براہ کرم اپنا نام درج کریں۔'));
+      return;
+    }
+    if (!phone.trim()) {
+      alert(tr(language, 'Please enter your WhatsApp phone number.', 'Apna WhatsApp number darj karein.', 'براہ کرم اپنا واٹس ایپ نمبر درج کریں۔'));
+      return;
+    }
+    if (!photo) {
+      alert(tr(language, 'Please upload or capture a photo of your slip.', 'Parchi ki photo upload ya capture karein.', 'براہ کرم پرچی کی تصویر لیں۔'));
+      return;
+    }
+
+    triggerHaptic('success');
+    const orderId = Math.floor(100000 + Math.random() * 900000);
+    const now = new Date();
+    const dateText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    const orderRecord = {
+      id: orderId,
+      dateText: dateText,
+      deliveryMethod: deliveryMethod,
+      customer: {
+        name: name.trim(),
+        phone: phone.trim(),
+        address: deliveryMethod === 'home' ? address.trim() : 'BS Mart Store Pickup Karachi'
+      },
+      items: [
+        {
+          id: 'parchi-slip',
+          name: `📸 Parchi Slip Order (${notes ? notes.substring(0, 30) : 'Handwritten List'})`,
+          qty: 1,
+          price: 0,
+          total: 0
+        }
+      ],
+      subtotal: 0,
+      deliveryFee: deliveryMethod === 'home' ? 150 : 0,
+      grandTotal: 0,
+      isParchi: true,
+      notes: notes.trim()
+    };
+
+    if (typeof saveOrderHistory === 'function') {
+      saveOrderHistory(orderRecord);
+    }
+
+    const waText = `*Salam Sahil Traders!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (BS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
+
+    const waUrl = `https://wa.me/923368945775?text=${encodeURIComponent(waText)}`;
+    setSubmitted(true);
+    window.open(waUrl, '_blank');
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in" onClick={onClose}>
+      <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col" style={{ maxHeight: '92vh' }} onClick={e => e.stopPropagation()}>
+        <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-700 text-white">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">📸</span>
+            <div>
+              <h3 className="font-extrabold text-sm sm:text-base leading-tight">
+                {tr(language, 'Parchi / Photo Order', 'Parchi / Photo Order', 'پرچی / فوٹو آرڈر')}
+              </h3>
+              <p className="text-[10px] text-emerald-100 font-medium">
+                {tr(language, 'Upload written slip & order in 5 seconds', 'Haath se likhi list upload karein aur 5 sec mein order bhein', 'ہاتھ سے لکھی پرچی بھیجیں')}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center cursor-pointer transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-4">
+          {submitted ? (
+            <div className="text-center py-6 space-y-4">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-3xl shadow-sm">
+                ✓
+              </div>
+              <h4 className="font-black text-lg text-gray-900">
+                {tr(language, 'Parchi Order Sent Successfully! 🎉', 'Parchi Order Kamiyabi se Bhej Diya Gaya! 🎉', 'پرچی آرڈر کامیابی سے بھیج دیا گیا!')}
+              </h4>
+              <p className="text-xs text-gray-600">
+                {tr(language, 'Your slip order has been saved in Order History and submitted to WhatsApp.', 'Apka parchi order save ho chuka hai aur WhatsApp par bhej diya gaya hai.', 'آپ کا پرچی آرڈر محفوظ ہو گیا ہے۔')}
+              </p>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full py-3 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl uppercase tracking-wider cursor-pointer"
+                >
+                  {tr(language, 'Continue Shopping', 'Kharidari Jari Rakhein', 'خریداری جاری رکھیں')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-extrabold text-gray-800 mb-1.5 uppercase tracking-wider">
+                  {tr(language, '1. Take or Upload Photo of Slip *', '1. Parchi ki Photo Khainchein ya Select Karein *', '1. پرچی کی تصویر لیں یا اپلوڈ کریں *')}
+                </label>
+                {photo ? (
+                  <div className="relative rounded-2xl border-2 border-emerald-500 overflow-hidden bg-gray-50 h-48 flex items-center justify-center group">
+                    <img src={photo} alt="Parchi Slip Preview" className="w-full h-full object-contain" />
+                    <button
+                      type="button"
+                      onClick={() => setPhoto(null)}
+                      className="absolute top-2 right-2 bg-red-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold shadow-md cursor-pointer hover:bg-red-700 transition-colors"
+                    >
+                      🗑️ {tr(language, 'Retake', 'Dobara Lein', 'دوبارہ لیں')}
+                    </button>
+                  </div>
+                ) : (
+                  <label className="border-2 border-dashed border-emerald-400 hover:border-emerald-600 bg-emerald-50/40 hover:bg-emerald-50/70 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                    <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mb-2">
+                      📷
+                    </div>
+                    <span className="text-xs font-black text-emerald-800">
+                      {tr(language, 'Tap to Open Camera / Gallery', 'Camera se Photo Lein ya Gallery se Chunin', 'کیمرہ سے تصویر لیں یا گیلری سے منتخب کریں')}
+                    </span>
+                    <span className="text-[10px] text-gray-500 mt-1">
+                      {tr(language, 'Clear photo of handwritten item list', 'Saaf photo jahan saman ki list dikh sake', 'واضح تصویر منتخب کریں')}
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                    {tr(language, 'Your Name *', 'Apka Naam *', 'آپ کا نام *')}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Ali Khan"
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                    {tr(language, 'WhatsApp Phone *', 'WhatsApp Number *', 'واٹس ایپ نمبر *')}
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="0336-XXXXXXX"
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                  {tr(language, 'Delivery Option', 'Delivery Ka Tareeqa', 'ڈلیوری کا طریقہ')}
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryMethod('home')}
+                    className={`p-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      deliveryMethod === 'home'
+                        ? 'border-emerald-600 bg-emerald-50 text-emerald-800'
+                        : 'border-gray-200 bg-white text-gray-600'
+                    }`}
+                  >
+                    <span>🚚</span>
+                    <span>{tr(language, 'Home Delivery', 'Home Delivery', 'ہوم ڈلیوری')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryMethod('pickup')}
+                    className={`p-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      deliveryMethod === 'pickup'
+                        ? 'border-emerald-600 bg-emerald-50 text-emerald-800'
+                        : 'border-gray-200 bg-white text-gray-600'
+                    }`}
+                  >
+                    <span>🏬</span>
+                    <span>{tr(language, 'Store Pickup', 'Store Pickup', 'اسٹور پک اپ')}</span>
+                  </button>
+                </div>
+              </div>
+
+              {deliveryMethod === 'home' && (
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                    {tr(language, 'Delivery Address in Karachi', 'Karachi Ka Pura Pata', 'کراچی کا پتہ')}
+                  </label>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Area, Street, Shop / House #"
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                  {tr(language, 'Special Instructions / Notes (Optional)', 'Koi Khaas Baat (Optional)', 'اضافی ہدایات (اختیاری)')}
+                </label>
+                <textarea
+                  rows="2"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="e.g. Bhai 2 peti Lux aur 1 carton Surf bhej dena..."
+                  className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all active:scale-95 cursor-pointer mt-2"
+              >
+                <span>💬</span>
+                <span>{tr(language, 'Submit & Send on WhatsApp', 'Parchi Order WhatsApp Par Bhejein', 'پرچی آرڈر واٹس ایپ پر بھیجیں')}</span>
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WishlistDrawer({ open, onClose, wishlist, products, onAddToCart, onRemoveWishlist, language, langData }) {
+  if (!open) return null;
+  const wishlistedProducts = useMemo(() => {
+    if (!products || !wishlist) return [];
+    return products.filter(p => wishlist.includes(p.id));
+  }, [products, wishlist]);
+
+  const handleAddAll = () => {
+    triggerHaptic('success');
+    wishlistedProducts.forEach(p => {
+      onAddToCart(p);
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fade-in" onClick={onClose}>
+      <div
+        className="w-full max-w-md bg-white h-full flex flex-col shadow-2xl border-l border-gray-200 animate-slide-left relative"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white">
+          <div className="flex items-center gap-2">
+            <span className="text-xl text-rose-600">❤️</span>
+            <div>
+              <h3 className="font-extrabold text-base text-gray-900 leading-tight">
+                {tr(language, 'My Wishlist (Favorites)', 'Meri Pasandeeda Ashya', 'میری پسندیدہ اشیاء')}
+              </h3>
+              <p className="text-[11px] text-gray-500">
+                {wishlistedProducts.length} {tr(language, 'saved items', 'items save hain', 'اشیاء محفوظ ہیں')}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center cursor-pointer transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {wishlistedProducts.length === 0 ? (
+            <div className="text-center py-16 space-y-3">
+              <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center text-3xl mx-auto">
+                🤍
+              </div>
+              <h4 className="font-black text-gray-900 text-base">
+                {tr(language, 'Your wishlist is empty', 'Wishlist abhi khali hai', 'آپ کی وش لسٹ خالی ہے')}
+              </h4>
+              <p className="text-xs text-gray-500 max-w-xs mx-auto">
+                {tr(language, 'Tap the heart icon on any product to save it here for quick repeat orders.', 'Kisi bhi product par dil (heart) daba kar save karein.', 'پروڈکٹ پر دل کے نشان کو دبا کر محفوظ کریں۔')}
+              </p>
+            </div>
+          ) : (
+            wishlistedProducts.map(product => {
+              const pricing = getProductPricing(product);
+              const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+              const imgSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+              return (
+                <div key={product.id} className="flex items-center gap-3 p-2.5 rounded-2xl border border-gray-100 hover:border-gray-300 bg-white transition-all shadow-2xs">
+                  <div className="w-14 h-14 bg-gray-50 rounded-xl p-1 flex items-center justify-center shrink-0">
+                    {hasFile ? (
+                      <img src={imgSrc} alt={product.name} className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center font-bold text-gray-700 text-sm">
+                        {product.initial || 'P'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h5 className="font-bold text-xs text-gray-900 truncate">
+                      {getProductDisplayName(product, language)}
+                    </h5>
+                    <div className="flex items-baseline gap-1.5 mt-0.5">
+                      <span className="font-black text-xs text-gray-950">
+                        Rs. {pricing.sellingPrice.toLocaleString()}
+                      </span>
+                      {pricing.hasDiscount && (
+                        <span className="text-[10px] text-gray-400 line-through">
+                          Rs. {pricing.retailPrice.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic('medium');
+                        onAddToCart(product);
+                      }}
+                      className="px-2.5 py-1.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-lg cursor-pointer transition-colors shadow-2xs"
+                    >
+                      + Cart
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic('light');
+                        if (onRemoveWishlist) onRemoveWishlist(product);
+                      }}
+                      className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg cursor-pointer transition-colors"
+                      title="Remove"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {wishlistedProducts.length > 0 && (
+          <div className="p-4 border-t border-gray-100 bg-gray-50 space-y-2">
+            <button
+              type="button"
+              onClick={handleAddAll}
+              className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl uppercase tracking-wider flex items-center justify-center gap-2 shadow-md shadow-rose-600/20 active:scale-95 transition-all cursor-pointer"
+            >
+              <span>🛒</span>
+              <span>{tr(language, 'Add All to Cart', 'Saari Ashya Cart Mein Daalein', 'تمام اشیاء کارٹ میں شامل کریں')} ({wishlistedProducts.length})</span>
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProductDetailModal({ product, open, onClose, onAddToCart, products, langData, language, onSelectProduct, isWishlisted, onToggleWishlist }) {
   if (!open || !product) return null;
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
@@ -2268,12 +2668,28 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
               </span>
             )}
           </div>
-          <button 
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-200 hover:bg-black hover:text-white text-gray-700 font-bold flex items-center justify-center transition-colors cursor-pointer"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onToggleWishlist && onToggleWishlist(product)}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                isWishlisted
+                  ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105 shadow-2xs'
+                  : 'bg-white border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'
+              }`}
+              title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+            >
+              <svg className="w-4 h-4" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={isWishlisted ? '0' : '2'} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+              </svg>
+            </button>
+            <button 
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-gray-200 hover:bg-black hover:text-white text-gray-700 font-bold flex items-center justify-center transition-colors cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
         </div>
         {/* Scrollable Body */}
         <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
@@ -2886,6 +3302,32 @@ export default function SahilTraders() {
       const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
       const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
       const [isListening, setIsListening] = useState(false);
+      const [wishlistOpen, setWishlistOpen] = useState(false);
+      const [parchiModalOpen, setParchiModalOpen] = useState(false);
+      const [wishlist, setWishlist] = useState(() => {
+        try {
+          const saved = localStorage.getItem("sahil_traders_wishlist");
+          return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+          return [];
+        }
+      });
+      useEffect(() => {
+        try {
+          localStorage.setItem("sahil_traders_wishlist", JSON.stringify(wishlist));
+        } catch (e) {}
+      }, [wishlist]);
+      function toggleWishlist(product) {
+        triggerHaptic('medium');
+        setWishlist(prev => {
+          const exists = prev.some(id => id === product.id);
+          if (exists) {
+            return prev.filter(id => id !== product.id);
+          } else {
+            return [...prev, product.id];
+          }
+        });
+      }
       const [orderHistory, setOrderHistory] = useState(() => {
         try {
           const saved = localStorage.getItem("sahil_traders_order_history");
@@ -3635,6 +4077,36 @@ export default function SahilTraders() {
                     <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H21m-4.5 0H12m-9 0h4.5m0 0V9a2.25 2.25 0 012.25-2.25h1.372c.516 0 .966.351 1.091.852l1.106 4.423c.11.44.505.75.958.75h3.423a.75.75 0 00.75-.75V6.75A2.25 2.25 0 0017.25 4.5h-10.5A2.25 2.25 0 004.5 6.75V21" /></svg>
                     <span className="hidden sm:inline">{tr(language, 'About Us', 'Hamare Baare Mein', '\u06c1\u0645\u0627\u0631\u06d2 \u0628\u0627\u0631\u06d2 \u0645\u06cc\u06ba')}</span>
                   </button>
+                  {/* Parchi / Slip Order Quick Button */}
+                  <button
+                    onClick={() => {
+                      triggerHaptic('medium');
+                      setParchiModalOpen(true);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-sm hover:from-emerald-700 hover:to-teal-800 transition-all cursor-pointer active:scale-95"
+                    title="Handwritten Slip Photo Order"
+                  >
+                    <span>📸</span>
+                    <span className="hidden sm:inline">{tr(language, 'Parchi Order', 'Parchi Order', 'پرچی آرڈر')}</span>
+                  </button>
+                  {/* Wishlist Button */}
+                  <button
+                    onClick={() => {
+                      triggerHaptic('light');
+                      setWishlistOpen(true);
+                    }}
+                    className="relative flex items-center gap-1.5 border px-2.5 py-2 rounded-xl text-xs font-semibold transition-all hover:bg-gray-50 cursor-pointer"
+                    style={{ background: '#ffffff', borderColor: wishlist.length > 0 ? '#e11d48' : 'rgba(0,0,0,0.12)', color: '#111111' }}
+                    title="My Wishlist"
+                  >
+                    <span className="text-rose-600 font-bold">❤️</span>
+                    <span className="hidden sm:inline">{tr(language, 'Wishlist', 'Wishlist', 'پسندیدہ')}</span>
+                    {wishlist.length > 0 && (
+                      <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-black flex items-center justify-center bg-rose-600 text-white shadow-2xs">
+                        {wishlist.length}
+                      </span>
+                    )}
+                  </button>
                   {/* Order History Button */}
                   <button
                     onClick={() => setOrderHistoryOpen(true)}
@@ -3785,6 +4257,9 @@ export default function SahilTraders() {
                 onSelectCategory={setSelectedCategory}
                 langData={langData}
                 language={language}
+                onParchiOrder={() => { triggerHaptic('medium'); setParchiModalOpen(true); }}
+                onWishlist={() => { triggerHaptic('light'); setWishlistOpen(true); }}
+                wishlistCount={wishlist.length}
               />
             ) : (
               <>
@@ -3930,7 +4405,7 @@ export default function SahilTraders() {
                   <>
                     <div className="product-grid">
                       {sortedProducts.slice(0, visibleCount).map((p) => (
-                        <ProductCard key={p.id} product={p} langData={langData} language={language} cartQty={cart.filter(i => i.product.id === p.id).reduce((s, i) => s + i.qty, 0)} onAddToCart={addToCart} onFlyToCart={flyProductToCart} onSelectProduct={selectProductWithHash} />
+                        <ProductCard key={p.id} product={p} langData={langData} language={language} cartQty={cart.filter(i => i.product.id === p.id).reduce((s, i) => s + i.qty, 0)} onAddToCart={addToCart} onFlyToCart={flyProductToCart} onSelectProduct={selectProductWithHash} isWishlisted={wishlist.includes(p.id)} onToggleWishlist={toggleWishlist} />
                       ))}
                     </div>
                     {visibleCount < sortedProducts.length && (
@@ -4001,6 +4476,26 @@ export default function SahilTraders() {
                 langData={langData}
                 language={language}
                 onSelectProduct={selectProductWithHash}
+                isWishlisted={selectedProduct ? wishlist.includes(selectedProduct.id) : false}
+                onToggleWishlist={toggleWishlist}
+              />
+              {/* Parchi / Slip Order Modal */}
+              <ParchiOrderModal
+                open={parchiModalOpen}
+                onClose={() => setParchiModalOpen(false)}
+                language={language}
+                saveOrderHistory={saveOrderHistory}
+              />
+              {/* Wishlist Drawer */}
+              <WishlistDrawer
+                open={wishlistOpen}
+                onClose={() => setWishlistOpen(false)}
+                wishlist={wishlist}
+                products={products}
+                onAddToCart={addToCart}
+                onRemoveWishlist={toggleWishlist}
+                language={language}
+                langData={langData}
               />
               {/* Variant Selection Modal (Hair Colour Shades, etc.) */}
               <VariantSelectionModal
@@ -4168,6 +4663,44 @@ export default function SahilTraders() {
                             <span className="text-gray-400 text-xs">&rsaquo;</span>
                           )}
                         </button>
+                        {/* Parchi / Photo Order */}
+                        <button
+                          onClick={() => { setMobileMenuOpen(false); triggerHaptic('medium'); setParchiModalOpen(true); }}
+                          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white transition-all text-left cursor-pointer shadow-md shadow-emerald-600/20 active:scale-95"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl">
+                              📸
+                            </div>
+                            <div>
+                              <p className="text-xs font-black text-white">{tr(language, 'Parchi / Photo Order', 'Parchi / Photo Order', 'پرچی / فوٹو آرڈر')}</p>
+                              <p className="text-[11px] text-emerald-100">{tr(language, 'Upload slip, order in 5 seconds!', 'Slip upload karein, 5 sec mein order!', 'پرچی اپلوڈ کریں، 5 سیکنڈ میں آرڈر!')}</p>
+                            </div>
+                          </div>
+                          <span className="text-white/70 text-xs">&rsaquo;</span>
+                        </button>
+                        {/* Wishlist */}
+                        <button
+                          onClick={() => { setMobileMenuOpen(false); triggerHaptic('light'); setWishlistOpen(true); }}
+                          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-rose-200 hover:bg-rose-50 transition-all text-left cursor-pointer shadow-2xs"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-xl">
+                              ❤️
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-gray-900">{tr(language, 'My Wishlist (Favorites)', 'Meri Pasandeeda Ashya', 'میری پسندیدہ اشیاء')}</p>
+                              <p className="text-[11px] text-gray-500">{tr(language, 'Save items & order monthly groceries', 'Monthly saman save karein', 'ماہانہ سامان محفوظ کریں')}</p>
+                            </div>
+                          </div>
+                          {wishlist.length > 0 ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white">
+                              {wishlist.length}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400 text-xs">&rsaquo;</span>
+                          )}
+                        </button>
                         {/* Return Policy */}
                         <button
                           onClick={() => { setMobileMenuOpen(false); setReturnPolicyOpen(true); }}
@@ -4330,11 +4863,41 @@ export default function SahilTraders() {
       personalcare: { image: '', gradient: 'linear-gradient(135deg,#ee9ca7,#ffdde1)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>) },
     };
     // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
-    function CategoryHome({ products, onSelectCategory, langData, language }) {
+    function CategoryHome({ products, onSelectCategory, langData, language, onParchiOrder, onWishlist, wishlistCount }) {
       const isUrdu = language === 'ur';
       const categoriesList = getGlobalCategories();
       return (
         <div>
+          {/* Quick Action Banners — Parchi & Wishlist */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <button
+              type="button"
+              onClick={() => onParchiOrder && onParchiOrder()}
+              className="flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-600/20 transition-all active:scale-95 cursor-pointer text-left"
+            >
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">📸</div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-black text-white leading-tight">{tr(language, 'Parchi Order', 'Parchi Order', 'پرچی آرڈر')}</p>
+                <p className="text-[10px] text-emerald-100 leading-tight mt-0.5">{tr(language, 'Photo slip in 5 sec', '5 sec mein order', '5 سیکنڈ میں آرڈر')}</p>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => onWishlist && onWishlist()}
+              className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-rose-200 shadow-lg shadow-rose-100/40 transition-all active:scale-95 cursor-pointer text-left relative"
+            >
+              <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-xl shrink-0">❤️</div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-black text-gray-900 leading-tight">{tr(language, 'My Wishlist', 'Meri List', 'میری لسٹ')}</p>
+                <p className="text-[10px] text-gray-500 leading-tight mt-0.5">{wishlistCount > 0 ? tr(language, `${wishlistCount} saved items`, `${wishlistCount} items save hain`, `${wishlistCount} اشیاء محفوظ`) : tr(language, 'Save favorites', 'Pasand save karein', 'پسندیدہ محفوظ کریں')}</p>
+              </div>
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full text-[10px] font-black flex items-center justify-center bg-rose-600 text-white border-2 border-white shadow-2xs">
+                  {wishlistCount}
+                </span>
+              )}
+            </button>
+          </div>
           {/* Categories Top Title & Count */}
           <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.12)', paddingBottom: 8 }}>
             <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#000000', fontFamily: "'Poppins', sans-serif" }}>
@@ -4514,7 +5077,7 @@ export default function SahilTraders() {
       );
     }
       // -----------------------------------------------------------------------------
-    function ProductCard({ product, onAddToCart, langData, language, onSelectProduct }) {
+    function ProductCard({ product, onAddToCart, langData, language, onSelectProduct, isWishlisted, onToggleWishlist }) {
       const [isAdded, setIsAdded] = useState(false);
       const isUrdu = language === 'ur';
       const pricing = useMemo(() => getProductPricing(product), [product]);
@@ -4538,6 +5101,24 @@ export default function SahilTraders() {
               <span>{pricing.discountPercent}% OFF</span>
             </span>
           )}
+          {/* Wishlist Heart Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onToggleWishlist) onToggleWishlist(product);
+            }}
+            className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-2xs ${
+              isWishlisted
+                ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105'
+                : 'bg-white/90 backdrop-blur-xs border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'
+            }`}
+            title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+          >
+            <svg className="w-3.5 h-3.5" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={isWishlisted ? '0' : '2'} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+          </button>
           {/* Product Image Box */}
           <div className="product-image-box h-32 sm:h-40 w-full bg-gray-50 rounded-xl p-2 mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-amber-50/30 transition-colors">
             {hasFile ? (

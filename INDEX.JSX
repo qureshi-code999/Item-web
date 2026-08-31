@@ -4082,6 +4082,96 @@ export default function SahilTraders() {
         setCartNotice(true);
         cartNoticeTimerRef.current = setTimeout(() => setCartNotice(false), 1100);
       }
+
+      // ══════════ ANDROID HARDWARE / SWIPE BACK BUTTON STEP-BY-STEP HANDLER ══════════
+      const lastBackPressRef = useRef(0);
+      const [backToastVisible, setBackToastVisible] = useState(false);
+      const backToastTimerRef = useRef(null);
+
+      useEffect(() => {
+        window.handleAppBackButton = () => {
+          // 1. If Exit Modal is open, close it
+          if (exitModalOpen) {
+            setExitModalOpen(false);
+            return;
+          }
+          // 2. If Product Details modal is open, close it
+          if (selectedProduct) {
+            setSelectedProduct(null);
+            return;
+          }
+          // 3. If Checkout modal is open, close it
+          if (checkoutOpen) {
+            setCheckoutOpen(false);
+            return;
+          }
+          // 4. If Cart is open, close it
+          if (cartOpen) {
+            setCartOpen(false);
+            return;
+          }
+          // 5. If Parchi modal is open, close it
+          if (parchiModalOpen) {
+            setParchiModalOpen(false);
+            return;
+          }
+          // 6. If Order History is open, close it
+          if (orderHistoryOpen) {
+            setOrderHistoryOpen(false);
+            return;
+          }
+          // 7. If Wishlist is open, close it
+          if (wishlistOpen) {
+            setWishlistOpen(false);
+            return;
+          }
+          // 8. If Mobile Menu / Account Drawer is open, close it
+          if (mobileMenuOpen) {
+            setMobileMenuOpen(false);
+            return;
+          }
+          if (accountDrawerOpen) {
+            setAccountDrawerOpen(false);
+            return;
+          }
+          // 9. If on Account / Me tab, switch back to Home tab
+          if (activeTab === 'account') {
+            setActiveTab('home');
+            return;
+          }
+          // 10. If searching, clear search query
+          if (searchTerm && searchTerm.trim() !== '') {
+            setSearchTerm('');
+            return;
+          }
+          // 11. If inside a category (viewing products), go back to Category Home
+          if (selectedCategory || (activeCategory && activeCategory !== 'all')) {
+            setSelectedCategory(null);
+            setActiveCategory('all');
+            return;
+          }
+          // 12. If at Root Home: Double-press back within 2 seconds to exit app safely
+          const now = Date.now();
+          if (now - lastBackPressRef.current < 2000) {
+            if (window.AndroidBridge && window.AndroidBridge.exitApp) {
+              window.AndroidBridge.exitApp();
+            } else if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+              window.Capacitor.Plugins.App.exitApp();
+            }
+          } else {
+            lastBackPressRef.current = now;
+            setBackToastVisible(true);
+            if (backToastTimerRef.current) clearTimeout(backToastTimerRef.current);
+            backToastTimerRef.current = setTimeout(() => setBackToastVisible(false), 2000);
+          }
+        };
+      }, [
+        exitModalOpen, selectedProduct, checkoutOpen, cartOpen,
+        parchiModalOpen, orderHistoryOpen, wishlistOpen,
+        mobileMenuOpen, accountDrawerOpen, activeTab,
+        searchTerm, selectedCategory, activeCategory, language
+      ]);
+
       useEffect(() => {
         backStateRef.current = {
           checkoutOpen,
@@ -5848,20 +5938,20 @@ export default function SahilTraders() {
                 </div>
               )}
 
-              {/* ══════════ ULTRA-GLOSSY FROSTED GLASS 5-TAB BOTTOM NAVIGATION BAR (Mobile / App Only) ══════════ */}
+              {/* ══════════ GLOSSY TRANSPARENT FROSTED GLASS 5-TAB BOTTOM NAV ══════════ */}
               <nav className="sm:hidden" style={{
                 position: 'fixed', bottom: 0, left: 0, right: 0,
-                background: 'rgba(255, 255, 255, 0.42)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                borderTop: '1px solid rgba(255, 255, 255, 0.65)',
-                boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85)',
+                background: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
+                WebkitBackdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.45)',
+                boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,0.7)',
                 zIndex: 45,
                 transform: 'translateZ(0)',
                 WebkitTransform: 'translateZ(0)',
                 willChange: 'transform',
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-                display: 'flex', alignItems: 'stretch', height: '60px',
+                display: 'flex', alignItems: 'stretch', height: '58px',
               }}>
                 {/* 1. HOME TAB */}
                 <button
@@ -5947,6 +6037,20 @@ export default function SahilTraders() {
                 </button>
               </nav>
 
+              {/* ══════════ FLOATING BACK TOAST NOTIFICATION ══════════ */}
+              {backToastVisible && (
+                <div style={{
+                  position: 'fixed', bottom: '75px', left: '50%', transform: 'translateX(-50%)',
+                  background: 'rgba(15, 23, 42, 0.94)', color: '#ffffff',
+                  padding: '9px 20px', borderRadius: '24px', fontSize: '12px', fontWeight: '800',
+                  zIndex: 9999, boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
+                  backdropFilter: 'blur(12px)', pointerEvents: 'none',
+                  whiteSpace: 'nowrap', border: '1px solid rgba(255,255,255,0.15)'
+                }}>
+                  {tr(language, 'Press back again to exit', 'App band karne ke liye dobara wapas dabayein', 'باہر نکلنے کے لیے دوبارہ دبائیں')}
+                </div>
+              )}
+
         </div>
       );
     }
@@ -5992,7 +6096,7 @@ export default function SahilTraders() {
               {categoriesList.length} Categories &middot; {products.length.toLocaleString()}+ Items
             </span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {categoriesList.map(cat => {
               const catProducts = products.filter(p => p.categoryId === cat.id);
               const count = catProducts.length;
@@ -6043,18 +6147,18 @@ export default function SahilTraders() {
                   }}
                 >
                   {/* Top Image Reel Area */}
-                  <div className="cat-img-reel-area" style={{ height: 115, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#fafbfc' }}>
+                  <div className="cat-img-reel-area" style={{ height: 88, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#fafbfc' }}>
 
                     {/* Top Right Item Count Badge */}
-                    <div className="cat-count-badge" style={{ position: 'absolute', top: 8, right: 8, zIndex: 20, padding: '3px 8px', borderRadius: 8, fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', background: 'rgba(15, 23, 42, 0.82)', backdropFilter: 'blur(4px)', color: '#ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+                    <div className="cat-count-badge" style={{ position: 'absolute', top: 5, right: 5, zIndex: 20, padding: '2px 6px', borderRadius: 6, fontSize: 8, fontWeight: 800, background: 'rgba(15, 23, 42, 0.82)', backdropFilter: 'blur(4px)', color: '#ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
                       {count} {translate(langData, "itemsLabel")}
                     </div>
 
                     {imageProducts.length > 0 ? (
                       <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
                         {/* Side Fade Shading for Glassy Framing */}
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 24, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, #fafbfc, transparent)' }} />
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 24, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, #fafbfc, transparent)' }} />
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 16, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, #fafbfc, transparent)' }} />
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 16, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, #fafbfc, transparent)' }} />
 
                         {/* Infinite Sliding Track */}
                         <div className="cat-marquee-track" style={{ animation: `catSlideTrack ${animSpeed} linear infinite` }}>
@@ -6077,23 +6181,24 @@ export default function SahilTraders() {
                       </div>
                     ) : (
                       <div style={{ opacity: 0.95, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 52, height: 52, borderRadius: 16, background: meta.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 25px rgba(0,0,0,0.5)' }}>
+                        <div style={{ width: 38, height: 38, borderRadius: 12, background: meta.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 18px rgba(0,0,0,0.4)' }}>
                           {meta.icon || '🛍️'}
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {/* Clean Full-Width Info Footer */}
-                  <div style={{ padding: '10px 12px 12px', background: '#ffffff', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: 4, flex: 1, justifyContent: 'space-between' }}>
+                  {/* Clean Info Footer */}
+                  <div style={{ padding: '6px 6px 8px', background: '#ffffff', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: 2, flex: 1, justifyContent: 'space-between' }}>
                     <div>
                       <h3 className="cat-card-title" style={{
-                        fontSize: '13.5px',
+                        fontSize: '11px',
                         fontWeight: 800,
                         fontFamily: "'Poppins', sans-serif",
                         color: '#0f172a',
-                        lineHeight: 1.3,
+                        lineHeight: 1.2,
                         margin: 0,
+                        textAlign: 'center',
                         whiteSpace: 'normal',
                         wordBreak: 'break-word'
                       }}>
@@ -6101,14 +6206,11 @@ export default function SahilTraders() {
                       </h3>
                     </div>
                     
-                    {/* Interactive Action Line */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, paddingTop: 4, borderTop: '1px dashed #f1f5f9' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    {/* Interactive Action Line — Clean Explore Arrow Only */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 3, paddingTop: 3, borderTop: '1px dashed #f1f5f9' }}>
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: 2 }}>
                         <span>{tr(language, 'Explore', 'Dekhein', 'دیکھیں')}</span>
-                        <span style={{ fontSize: '11px', transition: 'transform 0.2s' }} className="group-hover:translate-x-1">➔</span>
-                      </span>
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8' }}>
-                        {count} items
+                        <span style={{ fontSize: '10px' }}>➔</span>
                       </span>
                     </div>
                   </div>

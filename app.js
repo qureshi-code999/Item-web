@@ -10494,6 +10494,89 @@ function SahilTraders() {
     setCartNotice(true);
     cartNoticeTimerRef.current = setTimeout(() => setCartNotice(false), 1100);
   }
+
+  // ══════════ ANDROID HARDWARE / SWIPE BACK BUTTON STEP-BY-STEP HANDLER ══════════
+  const lastBackPressRef = useRef(0);
+  const [backToastVisible, setBackToastVisible] = useState(false);
+  const backToastTimerRef = useRef(null);
+  useEffect(() => {
+    window.handleAppBackButton = () => {
+      // 1. If Exit Modal is open, close it
+      if (exitModalOpen) {
+        setExitModalOpen(false);
+        return;
+      }
+      // 2. If Product Details modal is open, close it
+      if (selectedProduct) {
+        setSelectedProduct(null);
+        return;
+      }
+      // 3. If Checkout modal is open, close it
+      if (checkoutOpen) {
+        setCheckoutOpen(false);
+        return;
+      }
+      // 4. If Cart is open, close it
+      if (cartOpen) {
+        setCartOpen(false);
+        return;
+      }
+      // 5. If Parchi modal is open, close it
+      if (parchiModalOpen) {
+        setParchiModalOpen(false);
+        return;
+      }
+      // 6. If Order History is open, close it
+      if (orderHistoryOpen) {
+        setOrderHistoryOpen(false);
+        return;
+      }
+      // 7. If Wishlist is open, close it
+      if (wishlistOpen) {
+        setWishlistOpen(false);
+        return;
+      }
+      // 8. If Mobile Menu / Account Drawer is open, close it
+      if (mobileMenuOpen) {
+        setMobileMenuOpen(false);
+        return;
+      }
+      if (accountDrawerOpen) {
+        setAccountDrawerOpen(false);
+        return;
+      }
+      // 9. If on Account / Me tab, switch back to Home tab
+      if (activeTab === 'account') {
+        setActiveTab('home');
+        return;
+      }
+      // 10. If searching, clear search query
+      if (searchTerm && searchTerm.trim() !== '') {
+        setSearchTerm('');
+        return;
+      }
+      // 11. If inside a category (viewing products), go back to Category Home
+      if (selectedCategory || activeCategory && activeCategory !== 'all') {
+        setSelectedCategory(null);
+        setActiveCategory('all');
+        return;
+      }
+      // 12. If at Root Home: Double-press back within 2 seconds to exit app safely
+      const now = Date.now();
+      if (now - lastBackPressRef.current < 2000) {
+        if (window.AndroidBridge && window.AndroidBridge.exitApp) {
+          window.AndroidBridge.exitApp();
+        } else if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+          window.Capacitor.Plugins.App.exitApp();
+        }
+      } else {
+        lastBackPressRef.current = now;
+        setBackToastVisible(true);
+        if (backToastTimerRef.current) clearTimeout(backToastTimerRef.current);
+        backToastTimerRef.current = setTimeout(() => setBackToastVisible(false), 2000);
+      }
+    };
+  }, [exitModalOpen, selectedProduct, checkoutOpen, cartOpen, parchiModalOpen, orderHistoryOpen, wishlistOpen, mobileMenuOpen, accountDrawerOpen, activeTab, searchTerm, selectedCategory, activeCategory, language]);
   useEffect(() => {
     backStateRef.current = {
       checkoutOpen,
@@ -13371,11 +13454,11 @@ function SahilTraders() {
       bottom: 0,
       left: 0,
       right: 0,
-      background: 'rgba(255, 255, 255, 0.42)',
-      backdropFilter: 'blur(20px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-      borderTop: '1px solid rgba(255, 255, 255, 0.65)',
-      boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85)',
+      background: 'rgba(255, 255, 255, 0.15)',
+      backdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
+      WebkitBackdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
+      borderTop: '1px solid rgba(255, 255, 255, 0.45)',
+      boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,0.7)',
       zIndex: 45,
       transform: 'translateZ(0)',
       WebkitTransform: 'translateZ(0)',
@@ -13383,7 +13466,7 @@ function SahilTraders() {
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       display: 'flex',
       alignItems: 'stretch',
-      height: '60px'
+      height: '58px'
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -13661,7 +13744,26 @@ function SahilTraders() {
       color: activeTab === 'account' ? '#059669' : '#0f172a',
       letterSpacing: '0.01em'
     }
-  }, tr(language, 'Me', 'Mein', 'میں')))));
+  }, tr(language, 'Me', 'Mein', 'میں')))), backToastVisible && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      bottom: '75px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      background: 'rgba(15, 23, 42, 0.94)',
+      color: '#ffffff',
+      padding: '9px 20px',
+      borderRadius: '24px',
+      fontSize: '12px',
+      fontWeight: '800',
+      zIndex: 9999,
+      boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
+      backdropFilter: 'blur(12px)',
+      pointerEvents: 'none',
+      whiteSpace: 'nowrap',
+      border: '1px solid rgba(255,255,255,0.15)'
+    }
+  }, tr(language, 'Press back again to exit', 'App band karne ke liye dobara wapas dabayein', 'باہر نکلنے کے لیے دوبارہ دبائیں')));
 }
 // -----------------------------------------------------------------------------
 // To add a category image: set the `image` field to a URL or relative file path.
@@ -14271,8 +14373,8 @@ function CategoryHome({
   }, categoriesList.length, " Categories \xB7 ", products.length.toLocaleString(), "+ Items")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: 10
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: 8
     }
   }, categoriesList.map(cat => {
     const catProducts = products.filter(p => p.categoryId === cat.id);
@@ -14331,7 +14433,7 @@ function CategoryHome({
     }, /*#__PURE__*/React.createElement("div", {
       className: "cat-img-reel-area",
       style: {
-        height: 115,
+        height: 88,
         width: '100%',
         display: 'flex',
         alignItems: 'center',
@@ -14344,14 +14446,13 @@ function CategoryHome({
       className: "cat-count-badge",
       style: {
         position: 'absolute',
-        top: 8,
-        right: 8,
+        top: 5,
+        right: 5,
         zIndex: 20,
-        padding: '3px 8px',
-        borderRadius: 8,
-        fontSize: 10,
+        padding: '2px 6px',
+        borderRadius: 6,
+        fontSize: 8,
         fontWeight: 800,
-        letterSpacing: '0.04em',
         background: 'rgba(15, 23, 42, 0.82)',
         backdropFilter: 'blur(4px)',
         color: '#ffffff',
@@ -14372,7 +14473,7 @@ function CategoryHome({
         top: 0,
         bottom: 0,
         left: 0,
-        width: 24,
+        width: 16,
         zIndex: 10,
         pointerEvents: 'none',
         background: 'linear-gradient(to right, #fafbfc, transparent)'
@@ -14383,7 +14484,7 @@ function CategoryHome({
         top: 0,
         bottom: 0,
         right: 0,
-        width: 24,
+        width: 16,
         zIndex: 10,
         pointerEvents: 'none',
         background: 'linear-gradient(to left, #fafbfc, transparent)'
@@ -14416,35 +14517,36 @@ function CategoryHome({
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        width: 52,
-        height: 52,
-        borderRadius: 16,
+        width: 38,
+        height: 38,
+        borderRadius: 12,
         background: meta.gradient,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 8px 25px rgba(0,0,0,0.5)'
+        boxShadow: '0 6px 18px rgba(0,0,0,0.4)'
       }
     }, meta.icon || '🛍️'))), /*#__PURE__*/React.createElement("div", {
       style: {
-        padding: '10px 12px 12px',
+        padding: '6px 6px 8px',
         background: '#ffffff',
         borderTop: '1px solid #f1f5f9',
         display: 'flex',
         flexDirection: 'column',
-        gap: 4,
+        gap: 2,
         flex: 1,
         justifyContent: 'space-between'
       }
     }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
       className: "cat-card-title",
       style: {
-        fontSize: '13.5px',
+        fontSize: '11px',
         fontWeight: 800,
         fontFamily: "'Poppins', sans-serif",
         color: '#0f172a',
-        lineHeight: 1.3,
+        lineHeight: 1.2,
         margin: 0,
+        textAlign: 'center',
         whiteSpace: 'normal',
         wordBreak: 'break-word'
       }
@@ -14452,33 +14554,25 @@ function CategoryHome({
       style: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        marginTop: 4,
-        paddingTop: 4,
+        justifyContent: 'center',
+        marginTop: 3,
+        paddingTop: 3,
         borderTop: '1px dashed #f1f5f9'
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: '11px',
+        fontSize: '10px',
         fontWeight: 800,
         color: '#10b981',
         display: 'flex',
         alignItems: 'center',
-        gap: 3
+        gap: 2
       }
     }, /*#__PURE__*/React.createElement("span", null, tr(language, 'Explore', 'Dekhein', 'دیکھیں')), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: '11px',
-        transition: 'transform 0.2s'
-      },
-      className: "group-hover:translate-x-1"
-    }, "\u2794")), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: '10px',
-        fontWeight: 700,
-        color: '#94a3b8'
+        fontSize: '10px'
       }
-    }, count, " items"))));
+    }, "\u2794")))));
   })));
 }
 function CategoryDropdown({

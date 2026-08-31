@@ -51,5 +51,27 @@ public class MainActivity extends BridgeActivity {
                 }, 101);
             }
         }
+
+        // Add AndroidBridge for safe app exiting from JS
+        if (getBridge() != null && getBridge().getWebView() != null) {
+            getBridge().getWebView().addJavascriptInterface(new Object() {
+                @android.webkit.JavascriptInterface
+                public void exitApp() {
+                    runOnUiThread(() -> finishAffinity());
+                }
+            }, "AndroidBridge");
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getBridge() != null && getBridge().getWebView() != null) {
+            getBridge().getWebView().evaluateJavascript(
+                "if (typeof window.handleAppBackButton === 'function') { window.handleAppBackButton(); } else { window.history.back(); }",
+                null
+            );
+        } else {
+            super.onBackPressed();
+        }
     }
 }

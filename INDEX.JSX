@@ -3957,6 +3957,14 @@ function VariantSelectionModal({ product, open, onClose, onConfirm, language, la
   );
 }
 
+const SORT_OPTIONS = [
+  { id: 'default', label: 'Default Order', labelUrdu: 'عام ترتیب (Default)', icon: '⚡' },
+  { id: 'price_asc', label: 'Price: Low to High', labelUrdu: 'قیمت: کم سے زیادہ (Low to High)', icon: '📈' },
+  { id: 'price_desc', label: 'Price: High to Low', labelUrdu: 'قیمت: زیادہ سے کم (High to Low)', icon: '📉' },
+  { id: 'popularity', label: 'Popularity / Featured', labelUrdu: 'مقبول ترین (Featured)', icon: '⭐' },
+  { id: 'name_asc', label: 'Name: A to Z', labelUrdu: 'نام: A سے Z (A-Z)', icon: '🔤' },
+];
+
 export default function SahilTraders() {
   const products = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0) ? window.PRODUCTS : PRODUCTS;
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -3976,6 +3984,7 @@ export default function SahilTraders() {
       const [selectedCategory, setSelectedCategory] = useState(null); // null = show category home
       const [selectedBrand, setSelectedBrand] = useState("all");
       const [sortBy, setSortBy] = useState("default");
+      const [sortModalOpen, setSortModalOpen] = useState(false);
       const [variantModalProduct, setVariantModalProduct] = useState(null);
       const [filterMenuOpen, setFilterMenuOpen] = useState(false);
       const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -4095,7 +4104,16 @@ export default function SahilTraders() {
             setExitModalOpen(false);
             return;
           }
-          // 2. If Product Details modal is open, close it
+          // 2. If Sort Modal or Filter Menu is open, close it
+          if (sortModalOpen) {
+            setSortModalOpen(false);
+            return;
+          }
+          if (filterMenuOpen) {
+            setFilterMenuOpen(false);
+            return;
+          }
+          // 3. If Product Details modal is open, close it
           if (selectedProduct) {
             setSelectedProduct(null);
             return;
@@ -5396,36 +5414,108 @@ export default function SahilTraders() {
                 </div>
                 {/* Controls Bar: Filter & Sort */}
                 <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-                  {/* Sorting Control */}
-                  <div className="flex items-center gap-1.5 bg-white border border-gray-900 rounded-full px-3 py-1.5 shadow-sm">
-                    <svg className="w-3.5 h-3.5 text-gray-900 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  {/* Modern Sort Button */}
+                  <button
+                    onClick={() => { triggerHaptic('light'); setSortModalOpen(true); }}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      background: '#ffffff', border: '1.5px solid #059669',
+                      borderRadius: 999, padding: '7px 14px',
+                      cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    <svg style={{ width: 14, height: 14, color: '#059669' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5-6L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
                     </svg>
-                    <span className="text-[11px] font-black uppercase text-gray-900 hidden sm:inline tracking-wider">
-                      {tr(language, 'Sort:', 'Sort:', 'ترتیب:')}
+                    <span style={{ fontSize: 11.5, fontWeight: 800, color: '#0f172a' }}>
+                      {SORT_OPTIONS.find(o => o.id === sortBy)?.[language === 'ur' ? 'labelUrdu' : 'label'] || 'Sort'}
                     </span>
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      className="bg-transparent text-xs font-bold text-gray-900 cursor-pointer outline-none border-none py-0.5 pr-1"
-                    >
-                      <option value="default">{tr(language, 'Default Order', 'Default Order', 'عام ترتیب (Default)')}</option>
-                      <option value="price_asc">{tr(language, 'Price: Low to High', 'Price: Low to High', 'قیمت: کم سے زیادہ (Low to High)')}</option>
-                      <option value="price_desc">{tr(language, 'Price: High to Low', 'Price: High to Low', 'قیمت: زیادہ سے کم (High to Low)')}</option>
-                      <option value="popularity">{tr(language, 'Popularity / Featured', 'Popularity / Featured', 'مقبول ترین (Popularity)')}</option>
-                      <option value="name_asc">{tr(language, 'Name: A to Z', 'Name: A to Z', 'نام: A سے Z (Name: A-Z)')}</option>
-                    </select>
-                  </div>
+                    <svg style={{ width: 12, height: 12, color: '#64748b' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+
+                  {/* Sort Options Modal (Modern Bottom Sheet) */}
+                  {sortModalOpen && (
+                    <>
+                      <div
+                        onClick={() => setSortModalOpen(false)}
+                        style={{ position: 'fixed', inset: 0, zIndex: 90, background: 'rgba(0, 0, 0, 0.45)', backdropFilter: 'blur(4px)' }}
+                      />
+                      <div
+                        style={{
+                          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 95,
+                          background: '#ffffff', borderRadius: '24px 24px 0 0',
+                          padding: '16px 20px 32px',
+                          boxShadow: '0 -10px 40px rgba(0,0,0,0.25)',
+                          maxWidth: 480, margin: '0 auto',
+                          animation: 'imgFadeIn 0.2s ease-out'
+                        }}
+                      >
+                        <div style={{ width: 36, height: 4, background: '#cbd5e1', borderRadius: 2, margin: '0 auto 14px' }} />
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid #f1f5f9' }}>
+                          <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span>⚡</span>
+                            <span>{tr(language, 'Sort Products By', 'Sort Products By', 'ترتیب منتخب کریں')}</span>
+                          </div>
+                          <button
+                            onClick={() => setSortModalOpen(false)}
+                            style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', fontSize: 13, fontWeight: 900 }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {SORT_OPTIONS.map((opt) => {
+                            const isSelected = sortBy === opt.id;
+                            return (
+                              <button
+                                key={opt.id}
+                                onClick={() => {
+                                  triggerHaptic('light');
+                                  setSortBy(opt.id);
+                                  setSortModalOpen(false);
+                                }}
+                                style={{
+                                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                  padding: '12px 14px', borderRadius: 14,
+                                  background: isSelected ? '#ecfdf5' : '#f8fafc',
+                                  border: isSelected ? '1.5px solid #10b981' : '1.5px solid #f1f5f9',
+                                  cursor: 'pointer', transition: 'all 0.15s'
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                  <span style={{ fontSize: 16 }}>{opt.icon}</span>
+                                  <span style={{ fontSize: 13, fontWeight: isSelected ? 800 : 600, color: isSelected ? '#065f46' : '#1e293b' }}>
+                                    {language === 'ur' ? opt.labelUrdu : opt.label}
+                                  </span>
+                                </div>
+                                {isSelected ? (
+                                  <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#10b981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>
+                                    ✓
+                                  </span>
+                                ) : (
+                                  <span style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid #cbd5e1' }} />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
                   {brandFilters.length > 1 && (
                     <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <button
-                        onClick={() => setFilterMenuOpen(v => !v)}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 7, border: selectedBrand !== "all" ? '1.5px solid #000000' : '1px solid #111111', background: selectedBrand !== "all" ? '#000000' : '#ffffff', color: selectedBrand !== "all" ? '#ffffff' : '#111111', borderRadius: 999, padding: '8px 14px', fontSize: 12, fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 5px 16px rgba(0,0,0,0.08)' }}
+                        onClick={() => { triggerHaptic('light'); setFilterMenuOpen(v => !v); }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 7, border: selectedBrand !== "all" ? '1.5px solid #059669' : '1px solid #111111', background: selectedBrand !== "all" ? '#059669' : '#ffffff', color: selectedBrand !== "all" ? '#ffffff' : '#111111', borderRadius: 999, padding: '7px 14px', fontSize: 12, fontWeight: 900, letterSpacing: '0.04em', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
                       >
                         <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 12h10M10 19h4" /></svg>
                         <span>Filter</span>
                         {selectedBrand !== "all" && (
-                          <span style={{ fontSize: 11, background: '#ffffff', color: '#000000', borderRadius: 999, padding: '1px 8px', fontWeight: 800, letterSpacing: 0, textTransform: 'none' }}>
+                          <span style={{ fontSize: 11, background: '#ffffff', color: '#059669', borderRadius: 999, padding: '1px 8px', fontWeight: 800, letterSpacing: 0, textTransform: 'none' }}>
                             {selectedBrand}
                           </span>
                         )}
@@ -5442,55 +5532,63 @@ export default function SahilTraders() {
                       )}
                     {filterMenuOpen && (
                       <>
-                        <div onClick={() => setFilterMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 49, background: 'rgba(0,0,0,0.3)' }} />
-                        <div style={{ position: 'fixed', right: 12, left: 12, bottom: 'auto', top: '50%', transform: 'translateY(-50%)', zIndex: 50, maxWidth: 380, margin: '0 auto', background: '#ffffff', border: '1px solid #d1d5db', borderRadius: 20, padding: 16, boxShadow: '0 24px 60px rgba(0,0,0,0.3)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
-                          <div style={{ fontSize: 11, fontWeight: 900, color: '#111111', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Poppins', sans-serif" }}>Brand Filter</div>
-                          <div style={{ fontSize: 10, fontWeight: 800, color: '#666666', whiteSpace: 'nowrap' }}>{selectedBrand === "all" ? baseFiltered.length : filtered.length} items</div>
+                        <div onClick={() => setFilterMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 90, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }} />
+                        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 95, maxWidth: 480, margin: '0 auto', background: '#ffffff', borderRadius: '24px 24px 0 0', padding: '16px 20px 32px', boxShadow: '0 -10px 40px rgba(0,0,0,0.25)', animation: 'imgFadeIn 0.2s ease-out' }}>
+                          <div style={{ width: 36, height: 4, background: '#cbd5e1', borderRadius: 2, margin: '0 auto 14px' }} />
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid #f1f5f9' }}>
+                            <div style={{ fontSize: 14, fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span>🏷️</span>
+                              <span>{tr(language, 'Filter by Brand', 'Filter by Brand', 'برانڈ فلٹر')}</span>
+                            </div>
+                            <button
+                              onClick={() => setFilterMenuOpen(false)}
+                              style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', fontSize: 13, fontWeight: 900 }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', maxHeight: 280, overflowY: 'auto' }}>
+                            <button
+                              onClick={() => { triggerHaptic('light'); setSelectedBrand("all"); setFilterMenuOpen(false); }}
+                              style={{
+                                border: selectedBrand === "all" ? '1.5px solid #10b981' : '1px solid #e2e8f0',
+                                background: selectedBrand === "all" ? '#ecfdf5' : '#f8fafc',
+                                color: selectedBrand === "all" ? '#065f46' : '#1e293b',
+                                borderRadius: 999,
+                                padding: '8px 14px',
+                                fontSize: 12,
+                                fontWeight: 800,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              All Brands ({baseFiltered.length})
+                            </button>
+                            {brandFilters.map((brand) => {
+                              const isBrandActive = selectedBrand === brand.name;
+                              return (
+                                <button
+                                  key={brand.name}
+                                  onClick={() => { triggerHaptic('light'); setSelectedBrand(brand.name); setFilterMenuOpen(false); }}
+                                  style={{
+                                    border: isBrandActive ? '1.5px solid #10b981' : '1px solid #e2e8f0',
+                                    background: isBrandActive ? '#ecfdf5' : '#ffffff',
+                                    color: isBrandActive ? '#065f46' : '#1e293b',
+                                    borderRadius: 999,
+                                    padding: '8px 14px',
+                                    fontSize: 12,
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
+                                  }}
+                                >
+                                  {brand.name} <span style={{ opacity: 0.65, fontSize: 11 }}>({brand.count})</span>
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', maxHeight: 260, overflowY: 'auto' }}>
-                      <button
-                        onClick={() => { setSelectedBrand("all"); setFilterMenuOpen(false); }}
-                        style={{
-                          border: selectedBrand === "all" ? '1px solid #111111' : '1px solid #d1d5db',
-                          background: selectedBrand === "all" ? '#111111' : '#f9fafb',
-                          color: selectedBrand === "all" ? '#ffffff' : '#111111',
-                          borderRadius: 999,
-                          padding: '8px 12px',
-                          fontSize: 12,
-                          fontWeight: 900,
-                          letterSpacing: '0.04em',
-                          cursor: 'pointer',
-                          whiteSpace: 'nowrap',
-                          boxShadow: selectedBrand === "all" ? '0 8px 18px rgba(0,0,0,0.18)' : 'none'
-                        }}
-                      >
-                        All Brands <span style={{ opacity: 0.72 }}>({baseFiltered.length})</span>
-                      </button>
-                      {brandFilters.map((brand) => (
-                        <button
-                          key={brand.name}
-                          onClick={() => { setSelectedBrand(brand.name); setFilterMenuOpen(false); }}
-                          style={{
-                            border: selectedBrand === brand.name ? '1px solid #111111' : '1px solid #d1d5db',
-                            background: selectedBrand === brand.name ? '#111111' : '#ffffff',
-                            color: selectedBrand === brand.name ? '#ffffff' : '#111111',
-                            borderRadius: 999,
-                            padding: '8px 12px',
-                            fontSize: 12,
-                            fontWeight: 850,
-                            cursor: 'pointer',
-                            whiteSpace: 'nowrap',
-                            boxShadow: selectedBrand === brand.name ? '0 8px 18px rgba(0,0,0,0.18)' : '0 2px 8px rgba(0,0,0,0.04)'
-                          }}
-                        >
-                          {brand.name} <span style={{ opacity: 0.72 }}>({brand.count})</span>
-                        </button>
-                      ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
+                      </>
+                    )}
                     </div>
                   )}
                 </div>

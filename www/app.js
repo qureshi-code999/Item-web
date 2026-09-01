@@ -11029,27 +11029,15 @@ function SahilTraders() {
       };
     });
   }, []);
-  // Intelligent Asset & Image Preloader during Intro Animation
+  // Smooth Splash Intro Lifecycle (100% CPU Free)
   useEffect(() => {
     if (!showSplash) return;
-    // Preload first 40 product images from Vercel CDN (fastest possible, cloud-cached)
-    const imageMap = window.PRODUCT_IMAGE_MAP || {};
-    const eagerIds = Object.keys(imageMap).slice(0, 40);
-    eagerIds.forEach((id, i) => {
-      const ext = imageMap[id] || 'png';
-      const img = new Image();
-      // Stagger start slightly so we don't DDoS burst 40 at once
-      setTimeout(() => {
-        img.src = `https://sahiltraders.vercel.app/images/${id}.${ext}`;
-      }, i * 30);
-    });
-    // +700ms added to both timers (total: 3200ms fade, 3900ms remove)
     const fadeTimer = setTimeout(() => {
       setFadeSplash(true);
-    }, 3200);
+    }, 2400);
     const removeTimer = setTimeout(() => {
       setShowSplash(false);
-    }, 3900);
+    }, 2800);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
@@ -14679,49 +14667,81 @@ function CategoryHome({
         height: '100%',
         display: 'flex',
         alignItems: 'center',
-        overflow: 'hidden'
+        justifyContent: 'center',
+        padding: '6px'
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, imageProducts.length >= 2 ? /*#__PURE__*/React.createElement("div", {
       style: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        width: 16,
-        zIndex: 10,
-        pointerEvents: 'none',
-        background: 'linear-gradient(to right, #fafbfc, transparent)'
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
+        width: '100%',
+        height: '100%'
       }
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        right: 0,
-        width: 16,
-        zIndex: 10,
-        pointerEvents: 'none',
-        background: 'linear-gradient(to left, #fafbfc, transparent)'
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      className: "cat-marquee-track",
-      style: {
-        animation: `catSlideTrack ${animSpeed} linear infinite`
-      }
-    }, doubleItems.map((item, idx) => {
+    }, imageProducts.slice(0, 2).map((item, idx) => {
       const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
-      return /*#__PURE__*/React.createElement("div", {
-        key: idx,
-        className: "cat-img-box"
-      }, ext && /*#__PURE__*/React.createElement("img", {
+      return ext ? /*#__PURE__*/React.createElement("div", {
+        key: item.id,
+        style: {
+          flex: 1,
+          height: '100%',
+          background: '#ffffff',
+          borderRadius: 10,
+          border: '1px solid rgba(0,0,0,0.06)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 3,
+          overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+        }
+      }, /*#__PURE__*/React.createElement("img", {
         src: getImgUrl(`images/${item.id}.${ext}`),
         alt: "",
         loading: "lazy",
+        decoding: "async",
+        style: {
+          maxWidth: '100%',
+          maxHeight: '100%',
+          objectFit: 'contain',
+          transition: 'transform 0.2s'
+        },
         onError: e => {
           e.target.style.display = 'none';
         }
-      }));
-    }))) : /*#__PURE__*/React.createElement("div", {
+      })) : null;
+    })) : /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: '72px',
+        height: '72px',
+        background: '#ffffff',
+        borderRadius: 12,
+        border: '1px solid rgba(0,0,0,0.06)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 4,
+        boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+      }
+    }, (() => {
+      const item = imageProducts[0];
+      const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
+      return ext ? /*#__PURE__*/React.createElement("img", {
+        src: getImgUrl(`images/${item.id}.${ext}`),
+        alt: "",
+        loading: "lazy",
+        decoding: "async",
+        style: {
+          maxWidth: '100%',
+          maxHeight: '100%',
+          objectFit: 'contain'
+        },
+        onError: e => {
+          e.target.style.display = 'none';
+        }
+      }) : null;
+    })())) : /*#__PURE__*/React.createElement("div", {
       style: {
         opacity: 0.95,
         display: 'flex',

@@ -10,8 +10,7 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://sahiltraders.com/">
   <!-- Tailwind CSS CDN (load FIRST so our style.css can override) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css?v=3.3">
+  <link rel="stylesheet" href="style.css?v=9.5">
   
   <script>
     if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
@@ -423,14 +422,14 @@
     /* ---- CATEGORY GRID MOBILE & LAPTOP ---- */
     .cat-home-grid {
       display: grid !important;
-      grid-template-columns: repeat(3, 1fr) !important; /* 3 columns on mobile */
+      grid-template-columns: repeat(3, 1fr) !important; /* 3 columns on mobile as requested */
       gap: 8px !important;
     }
     @media (min-width: 640px) {
       .cat-home-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 12px !important; }
     }
     @media (min-width: 900px) {
-      .cat-home-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 14px !important; } /* 4 columns on laptop */
+      .cat-home-grid { grid-template-columns: repeat(4, 1fr) !important; gap: 14px !important; }
     }
     @media (min-width: 1280px) {
       .cat-home-grid { grid-template-columns: repeat(5, 1fr) !important; gap: 16px !important; }
@@ -438,36 +437,10 @@
 
     /* ---- CATEGORY CARD MOBILE ---- */
     @media (max-width: 640px) {
-      .cat-img-reel-area { height: 82px !important; }
-      .cat-img-box { width: 66px !important; height: 66px !important; padding: 3px !important; border-radius: 10px !important; }
-      /* Footer row: compact padding and gap */
-      .cat-card-container > div:last-child { padding: 6px 6px !important; gap: 3px !important; align-items: center !important; }
-      .cat-card-container > div:last-child > div:first-child { min-width: 0 !important; flex: 1 1 auto !important; }
-      /* Arrow icon button: smaller on mobile */
-      .cat-card-container > div:last-child > div:last-child { width: 20px !important; height: 20px !important; flex-shrink: 0 !important; border-radius: 6px !important; }
-      .cat-card-container > div:last-child > div:last-child svg { width: 11px !important; height: 11px !important; }
-      /* Category title: compact, crisp size */
-      .cat-card-title { font-size: 10.5px !important; line-height: 1.15 !important; margin-bottom: 2px !important; overflow-wrap: normal !important; word-break: normal !important; hyphens: none !important; text-wrap: balance; }
-      .cat-card-subtitle { font-size: 8px !important; }
-      .cat-count-badge { font-size: 7px !important; padding: 1px 5px !important; top: 6px !important; right: 6px !important; }
-      /* "View Products" pill button: responsive & compact for small screens */
-      .cat-view-pill {
-        display: inline-flex !important;
-        padding: 1.5px 5px !important;
-        gap: 2.5px !important;
-        border-radius: 5px !important;
-        max-width: 100% !important;
-      }
-      .cat-view-pill span:first-child {
-        font-size: 7.5px !important;
-        letter-spacing: 0.01em !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-      }
-      .cat-view-pill span:last-child {
-        font-size: 8px !important;
-      }
+      .cat-img-reel-area { height: 85px !important; }
+      .cat-img-box { width: 68px !important; height: 68px !important; padding: 3px !important; border-radius: 10px !important; }
+      .cat-card-title { font-size: 11px !important; line-height: 1.2 !important; font-weight: 800 !important; color: #0f172a !important; }
+      .cat-count-badge { font-size: 8px !important; padding: 2px 6px !important; top: 5px !important; right: 5px !important; }
     }
 
     /* ---- MAIN CONTENT PADDING MOBILE ---- */
@@ -1563,7 +1536,7 @@
 
   <!-- PRODUCT_IMAGE_MAP already defined in head -->
 
-  <script src="app.js?v=9.3"></script>
+  <script src="app.js?v=9.5"></script>
   <script>
     // Only register service worker if running on live HTTPS web, NEVER in native Android App / localhost!
     if ('serviceWorker' in navigator && window.location.protocol === 'https:' && !window.Capacitor) {

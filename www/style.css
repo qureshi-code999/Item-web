@@ -37,92 +37,113 @@ html, body {
 }
 
 /* ============================================================
-   🌟 LUXURY ULTRA-MODERN SPLASH INTRO
+   🌟 LUXURY ULTRA-MODERN SPLASH INTRO (100% GPU Accelerated)
    ============================================================ */
 @keyframes luxury-pulse-aura {
-  0%, 100% { transform: scale(1); opacity: 0.35; filter: blur(60px); }
-  50% { transform: scale(1.15); opacity: 0.65; filter: blur(80px); }
+  0%, 100% { transform: scale(1) translateZ(0); opacity: 0.35; }
+  50% { transform: scale(1.12) translateZ(0); opacity: 0.65; }
 }
 
 @keyframes luxury-logo-entry {
-  0% { transform: scale(0.75) translateY(20px); opacity: 0; filter: blur(10px); }
-  60% { transform: scale(1.04) translateY(-4px); opacity: 1; filter: blur(0px); }
-  100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px); }
+  0% { transform: scale(0.75) translateY(18px) translateZ(0); opacity: 0; }
+  60% { transform: scale(1.03) translateY(-3px) translateZ(0); opacity: 1; }
+  100% { transform: scale(1) translateY(0) translateZ(0); opacity: 1; }
 }
 
 @keyframes luxury-text-reveal {
-  0% { transform: translateY(18px); opacity: 0; filter: blur(6px); }
-  100% { transform: translateY(0); opacity: 1; filter: blur(0px); }
+  0% { transform: translateY(14px) translateZ(0); opacity: 0; }
+  100% { transform: translateY(0) translateZ(0); opacity: 1; }
 }
 
 @keyframes luxury-progress-sweep {
-  0% { width: 0%; }
-  50% { width: 65%; }
-  100% { width: 100%; }
+  0% { transform: scaleX(0); }
+  50% { transform: scaleX(0.65); }
+  100% { transform: scaleX(1); }
 }
 
 @keyframes luxury-float-gentle {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
+  0%, 100% { transform: translateY(0px) translateZ(0); }
+  50% { transform: translateY(-5px) translateZ(0); }
 }
 
 .luxury-aura {
-  animation: luxury-pulse-aura 4s ease-in-out infinite;
+  filter: blur(50px);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: luxury-pulse-aura 3.5s ease-in-out infinite;
 }
 
 .luxury-logo-box {
-  animation: luxury-logo-entry 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: luxury-logo-entry 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .luxury-float {
-  animation: luxury-float-gentle 3.5s ease-in-out infinite 0.9s;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: luxury-float-gentle 3.5s ease-in-out infinite 0.8s;
 }
 
 .luxury-text-anim-1 {
-  animation: luxury-text-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 0.25s;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: luxury-text-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.2s;
   opacity: 0;
 }
 
 .luxury-text-anim-2 {
-  animation: luxury-text-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 0.45s;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: luxury-text-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.35s;
   opacity: 0;
 }
 
 .luxury-text-anim-3 {
-  animation: luxury-text-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 0.65s;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: luxury-text-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.5s;
   opacity: 0;
 }
 
 .luxury-progress {
+  transform-origin: left center;
+  will-change: transform;
   animation: luxury-progress-sweep 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-/* ── Segmented Block Loader ───────────────────────── */
+/* ── Segmented Block Loader (100% GPU Hardware Accelerated - 60 FPS Locked) ── */
 @keyframes segment-pulse {
   0%, 100% {
-    opacity: 0.18;
-    transform: scaleY(0.55);
-    background: rgba(52, 211, 153, 0.3);
-    box-shadow: none;
+    opacity: 0.25;
+    transform: scaleY(0.4) translateZ(0);
   }
   50% {
     opacity: 1;
-    transform: scaleY(1);
-    background: linear-gradient(to top, #34d399, #6ee7b7);
-    box-shadow: 0 0 10px 2px rgba(52, 211, 153, 0.55);
+    transform: scaleY(1) translateZ(0);
   }
 }
 
 .splash-segment-bar {
-  width: 10px;
+  width: 9px;
   height: 22px;
-  border-radius: 3px;
-  background: rgba(52, 211, 153, 0.2);
-  animation: segment-pulse 1.2s ease-in-out infinite;
+  border-radius: 4px;
+  background: linear-gradient(to top, #10b981, #34d399);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.45);
+  animation: segment-pulse 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   transform-origin: bottom center;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* ── Animated Loading Dots ────────────────────────── */
@@ -435,3 +456,152 @@ body.modal-open {
   overscroll-behavior: contain !important;
   -webkit-overflow-scrolling: touch;
 }
+
+/* ============================================================
+   ⚡ PERFORMANCE: GPU Acceleration & Smooth Scrolling
+   ============================================================ */
+
+/* Main scroll area — hardware-accelerated smooth touch scrolling */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  -webkit-overflow-scrolling: touch;
+}
+.main-content-area {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Splash screen GPU layer */
+.splash-screen-root {
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Tab view transitions — smooth fade instead of hard mount/unmount */
+.tab-view {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+.tab-view-hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  transform: translateY(8px) translateZ(0);
+  -webkit-transform: translateY(8px) translateZ(0);
+  visibility: hidden;
+}
+.tab-view-visible {
+  opacity: 1;
+  pointer-events: auto;
+  position: relative;
+  transform: translateY(0) translateZ(0);
+  -webkit-transform: translateY(0) translateZ(0);
+  visibility: visible;
+}
+
+/* Category card GPU containment — prevents 22 cards from causing full layout/paint on scroll */
+.cat-card-container {
+  contain: layout style paint;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+}
+/* Marquee pauses GPU animation when card is hidden (saves battery & CPU) */
+.cat-card-container.marquee-paused .cat-marquee-track {
+  animation-play-state: paused !important;
+}
+
+/* ── Product Card containment for fast list scroll ──────── */
+.product-card-outer {
+  contain: layout style;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+/* content-visibility: auto defers paint/layout of off-screen cards */
+@supports (content-visibility: auto) {
+  .product-card-outer {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 200px;
+  }
+}
+
+/* ── Header & Sticky elements GPU layers ──────────────────── */
+header.sticky {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ── Modals & Drawers — smooth GPU-accelerated open/close ──── */
+.modal-sheet {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ── Bottom nav GPU layer ──────────────────────────────────── */
+nav.bottom-nav {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ── Smooth slide-up for account/me page ──────────────────── */
+@keyframes slideUpFadeIn {
+  from { opacity: 0; transform: translateY(18px) translateZ(0); }
+  to   { opacity: 1; transform: translateY(0) translateZ(0); }
+}
+.account-page-enter {
+  animation: slideUpFadeIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* ── Home page fade-in when switching back from account ───── */
+@keyframes homeFadeIn {
+  from { opacity: 0; transform: translateY(-10px) translateZ(0); }
+  to   { opacity: 1; transform: translateY(0) translateZ(0); }
+}
+.home-page-enter {
+  animation: homeFadeIn 0.22s ease-out forwards;
+  will-change: transform, opacity;
+}
+
+/* ── Improve marquee track containment ───────────────────── */
+.cat-marquee-track {
+  contain: layout style;
+}
+.cat-img-reel-area {
+  contain: layout style paint;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* ── Touch tap highlight removal (prevents gray flashes) ──── */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ── Image lazy-load fade in ──────────────────────────────── */
+img[loading="lazy"] {
+  transition: opacity 0.3s ease;
+}
+

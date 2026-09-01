@@ -59,7 +59,7 @@ ${compiled}
 })();
 `;
 
-// Save to all target locations cleanly without BOM
+// Save app.js to all target locations
 const targets = [
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/app.js',
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/www/app.js',
@@ -71,3 +71,36 @@ targets.forEach(target => {
   const size = fs.statSync(target).size;
   console.log(`Compiled and wrote ${target} (${(size / 1024).toFixed(1)} KB)`);
 });
+
+// Sync style.css and index.html to www and android assets
+const syncFiles = ['style.css', 'index.html'];
+const syncDirs = [
+  'c:/Users/ALICOM4/Desktop/ITEMS WEB/www',
+  'c:/Users/ALICOM4/Desktop/ITEMS WEB/android/app/src/main/assets/public'
+];
+
+syncFiles.forEach(file => {
+  const src = path.join('c:/Users/ALICOM4/Desktop/ITEMS WEB', file);
+  if (fs.existsSync(src)) {
+    syncDirs.forEach(dir => {
+      const dest = path.join(dir, file);
+      fs.copyFileSync(src, dest);
+      console.log(`Synced ${file} -> ${dest}`);
+    });
+  }
+});
+
+// Sync languages folder
+const langSrc = 'c:/Users/ALICOM4/Desktop/ITEMS WEB/languages';
+if (fs.existsSync(langSrc)) {
+  syncDirs.forEach(dir => {
+    const destDir = path.join(dir, 'languages');
+    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+    fs.readdirSync(langSrc).forEach(f => {
+      fs.copyFileSync(path.join(langSrc, f), path.join(destDir, f));
+      console.log(`Synced languages/${f} -> ${path.join(destDir, f)}`);
+    });
+  });
+}
+
+console.log('All files synced successfully!');

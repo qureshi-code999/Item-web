@@ -103,4 +103,27 @@ if (fs.existsSync(langSrc)) {
   });
 }
 
+// Sync logo and icon assets to www and android assets
+const logoFiles = ['zs-traders-logo.png', 'sahil-traders-logo.png'];
+syncDirs.forEach(dir => {
+  const imagesDestDir = path.join(dir, 'images');
+  if (!fs.existsSync(imagesDestDir)) fs.mkdirSync(imagesDestDir, { recursive: true });
+  logoFiles.forEach(lf => {
+    const src = path.join('c:/Users/ALICOM4/Desktop/ITEMS WEB/images', lf);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, path.join(imagesDestDir, lf));
+      console.log(`Synced images/${lf} -> ${path.join(imagesDestDir, lf)}`);
+    }
+  });
+  // Also sync icon-192 and icon-512
+  ['icon-192.png', 'icon-512.png'].forEach(ic => {
+    const src = path.join('c:/Users/ALICOM4/Desktop/ITEMS WEB', ic);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, path.join(dir, ic));
+      console.log(`Synced ${ic} -> ${path.join(dir, ic)}`);
+    }
+  });
+});
+
 console.log('All files synced successfully!');
+

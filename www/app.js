@@ -11057,36 +11057,61 @@ function SahilTraders() {
     setFilterMenuOpen(false);
     setVisibleCount(24);
   }, [selectedCategory, searchTerm]);
-  // Automatic background image pre-caching to user phone internal storage
+  // 🚀 Automatic Background Image Storage Caching Engine
+  // Downloads and caches ALL product images into device cache immediately upon app open
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.PRODUCT_IMAGE_MAP) {
-      const timer = setTimeout(() => {
-        const ids = Object.keys(window.PRODUCT_IMAGE_MAP);
-        let idx = 0;
-        const preloadBatch = () => {
-          if (idx >= ids.length) return;
-          const batch = ids.slice(idx, idx + 6);
-          idx += 6;
-          batch.forEach(id => {
-            const ext = window.PRODUCT_IMAGE_MAP[id];
-            const img = new Image();
-            img.src = `https://sahiltraders.vercel.app/images/${id}.${ext}`;
-          });
-          if (idx < ids.length) {
-            if ('requestIdleCallback' in window) {
-              window.requestIdleCallback(preloadBatch, {
-                timeout: 2000
+    if (showSplash) return; // Wait until intro is done so intro is 100% smooth
+    if (typeof window === 'undefined' || !window.PRODUCT_IMAGE_MAP) return;
+    const imageMap = window.PRODUCT_IMAGE_MAP;
+    const ids = Object.keys(imageMap);
+    let index = 0;
+    const batchSize = 10;
+    let isCancelled = false;
+    async function processCacheBatch() {
+      if (isCancelled || index >= ids.length) return;
+      const currentBatch = ids.slice(index, index + batchSize);
+      index += batchSize;
+      await Promise.allSettled(currentBatch.map(async id => {
+        const ext = imageMap[id];
+        const url = `https://sahiltraders.vercel.app/images/${id}.${ext}`;
+        try {
+          if ('caches' in window) {
+            const cache = await caches.open('zs-images-cache-v1');
+            const matched = await cache.match(url);
+            if (!matched) {
+              const resp = await fetch(url, {
+                mode: 'cors',
+                cache: 'force-cache'
               });
-            } else {
-              setTimeout(preloadBatch, 400);
+              if (resp.ok) await cache.put(url, resp);
             }
+          } else {
+            const img = new Image();
+            img.src = url;
           }
-        };
-        preloadBatch();
-      }, 1500);
-      return () => clearTimeout(timer);
+        } catch (err) {
+          const img = new Image();
+          img.src = url;
+        }
+      }));
+      if (!isCancelled && index < ids.length) {
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(processCacheBatch, {
+            timeout: 800
+          });
+        } else {
+          setTimeout(processCacheBatch, 100);
+        }
+      }
     }
-  }, []);
+    const startTimer = setTimeout(() => {
+      processCacheBatch();
+    }, 200);
+    return () => {
+      isCancelled = true;
+      clearTimeout(startTimer);
+    };
+  }, [showSplash]);
   const baseFiltered = useMemo(() => {
     const term = searchTerm.trim();
     if (term === "") {

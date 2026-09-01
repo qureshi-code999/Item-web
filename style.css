@@ -37,63 +37,100 @@ html, body {
 }
 
 /* ============================================================
-   🌟 LUXURY ULTRA-MODERN SPLASH INTRO (100% GPU Accelerated)
+   🎬 CINEMATIC MOVIE TRAILER INTRO (Dramatic Dark Reveal)
    ============================================================ */
-@keyframes luxury-pulse-aura {
-  0%, 100% { transform: scale(1) translateZ(0); opacity: 0.35; }
-  50% { transform: scale(1.12) translateZ(0); opacity: 0.65; }
+@keyframes cinematic-dark-emergence {
+  0% {
+    opacity: 0;
+    transform: scale(0.68) translateY(15px) translateZ(0);
+    filter: brightness(0.05) contrast(200%);
+  }
+  40% {
+    opacity: 0.5;
+    transform: scale(0.88) translateY(8px) translateZ(0);
+    filter: brightness(0.4) contrast(140%);
+  }
+  75% {
+    opacity: 0.95;
+    transform: scale(1.04) translateY(-2px) translateZ(0);
+    filter: brightness(1.25) contrast(110%);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) translateZ(0);
+    filter: brightness(1) contrast(100%);
+  }
 }
 
-@keyframes luxury-logo-entry {
-  0% { transform: scale(0.75) translateY(18px) translateZ(0); opacity: 0; }
-  60% { transform: scale(1.03) translateY(-3px) translateZ(0); opacity: 1; }
-  100% { transform: scale(1) translateY(0) translateZ(0); opacity: 1; }
+@keyframes cinematic-lens-shimmer {
+  0% {
+    transform: translateX(-160%) skewX(-25deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(260%) skewX(-25deg);
+    opacity: 0;
+  }
 }
 
-@keyframes luxury-text-reveal {
-  0% { transform: translateY(14px) translateZ(0); opacity: 0; }
-  100% { transform: translateY(0) translateZ(0); opacity: 1; }
+@keyframes cinematic-title-reveal {
+  0% {
+    opacity: 0;
+    letter-spacing: 0.5em;
+    transform: translateY(22px) translateZ(0);
+  }
+  60% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0.22em;
+    transform: translateY(0) translateZ(0);
+  }
 }
 
-@keyframes luxury-progress-sweep {
-  0% { transform: scaleX(0); }
-  50% { transform: scaleX(0.65); }
-  100% { transform: scaleX(1); }
-}
-
-@keyframes luxury-float-gentle {
-  0%, 100% { transform: translateY(0px) translateZ(0); }
-  50% { transform: translateY(-5px) translateZ(0); }
+@keyframes cinematic-aura-pulse {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+    opacity: 0.25;
+  }
+  50% {
+    transform: scale(1.2) translateZ(0);
+    opacity: 0.6;
+  }
 }
 
 .luxury-aura {
-  filter: blur(50px);
+  filter: blur(60px);
   will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
-  animation: luxury-pulse-aura 3.5s ease-in-out infinite;
+  animation: cinematic-aura-pulse 4s ease-in-out infinite;
 }
 
 .luxury-logo-box {
-  will-change: transform, opacity;
+  will-change: transform, opacity, filter;
   transform: translateZ(0);
   backface-visibility: hidden;
-  animation: luxury-logo-entry 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: cinematic-dark-emergence 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .luxury-float {
   will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;
-  animation: luxury-float-gentle 3.5s ease-in-out infinite 0.8s;
+  animation: luxury-float-gentle 4s ease-in-out infinite 1.4s;
 }
 
 .luxury-text-anim-1 {
-  will-change: transform, opacity;
+  will-change: transform, opacity, letter-spacing;
   transform: translateZ(0);
   backface-visibility: hidden;
-  animation: luxury-text-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 0.2s;
+  animation: cinematic-title-reveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.6s;
   opacity: 0;
 }
 
@@ -101,8 +138,8 @@ html, body {
   will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
-  animation: luxury-text-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 0.35s;
+  animation: cinematic-title-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.85s;
   opacity: 0;
 }
 
@@ -110,15 +147,15 @@ html, body {
   will-change: transform, opacity;
   transform: translateZ(0);
   backface-visibility: hidden;
-  animation: luxury-text-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: 0.5s;
+  animation: cinematic-title-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 1.1s;
   opacity: 0;
 }
 
 .luxury-progress {
   transform-origin: left center;
   will-change: transform;
-  animation: luxury-progress-sweep 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: luxury-progress-sweep 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* ── Segmented Block Loader (100% GPU Hardware Accelerated - 60 FPS Locked) ── */

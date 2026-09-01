@@ -4587,10 +4587,10 @@ export default function SahilTraders() {
         if (!showSplash) return;
         const fadeTimer = setTimeout(() => {
           setFadeSplash(true);
-        }, 3200);
+        }, 2200);
         const removeTimer = setTimeout(() => {
           setShowSplash(false);
-        }, 3600);
+        }, 2600);
         return () => {
           clearTimeout(fadeTimer);
           clearTimeout(removeTimer);

@@ -42,18 +42,18 @@ html, body {
 @keyframes cinematic-dark-emergence {
   0% {
     opacity: 0;
-    transform: scale(0.68) translateY(15px) translateZ(0);
-    filter: brightness(0.05) contrast(200%);
+    transform: scale(0.72) translateY(12px) translateZ(0);
+    filter: brightness(0.15) contrast(150%);
   }
-  40% {
-    opacity: 0.5;
-    transform: scale(0.88) translateY(8px) translateZ(0);
-    filter: brightness(0.4) contrast(140%);
+  45% {
+    opacity: 0.65;
+    transform: scale(0.9) translateY(6px) translateZ(0);
+    filter: brightness(0.6) contrast(120%);
   }
-  75% {
-    opacity: 0.95;
-    transform: scale(1.04) translateY(-2px) translateZ(0);
-    filter: brightness(1.25) contrast(110%);
+  80% {
+    opacity: 1;
+    transform: scale(1.03) translateY(-2px) translateZ(0);
+    filter: brightness(1.2) contrast(108%);
   }
   100% {
     opacity: 1;
@@ -123,6 +123,17 @@ html, body {
   transform: translateZ(0);
   backface-visibility: hidden;
   animation: luxury-float-gentle 4s ease-in-out infinite 1.4s;
+}
+
+@keyframes luxury-float-gentle {
+  0%, 100% { transform: translateY(0px) translateZ(0); }
+  50% { transform: translateY(-6px) translateZ(0); }
+}
+
+@keyframes luxury-progress-sweep {
+  0% { transform: scaleX(0); }
+  50% { transform: scaleX(0.65); }
+  100% { transform: scaleX(1); }
 }
 
 .luxury-text-anim-1 {

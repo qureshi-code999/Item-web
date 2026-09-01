@@ -11029,15 +11029,15 @@ function SahilTraders() {
       };
     });
   }, []);
-  // 🎬 Cinematic Movie-Style Splash Intro Lifecycle
+  // 🎬 Cinematic Movie-Style Splash Intro Lifecycle (3.5s total)
   useEffect(() => {
     if (!showSplash) return;
     const fadeTimer = setTimeout(() => {
       setFadeSplash(true);
-    }, 2200);
+    }, 3500);
     const removeTimer = setTimeout(() => {
       setShowSplash(false);
-    }, 2600);
+    }, 3900);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
@@ -11244,16 +11244,17 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-full p-2 flex items-center justify-center shadow-2xl shadow-black",
     style: {
-      background: 'radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, rgba(0,0,0,0.85) 75%)',
-      border: '1.5px solid rgba(234, 179, 8, 0.35)',
-      boxShadow: '0 0 35px rgba(234, 179, 8, 0.25), 0 0 60px rgba(0,0,0,0.9)'
+      background: 'radial-gradient(circle, rgba(234, 179, 8, 0.2) 0%, rgba(5, 11, 20, 0.95) 75%)',
+      border: '2px solid rgba(234, 179, 8, 0.6)',
+      boxShadow: '0 0 40px rgba(234, 179, 8, 0.35), 0 0 80px rgba(0,0,0,0.95)'
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500/20 via-transparent to-emerald-500/20 pointer-events-none"
-  }), /*#__PURE__*/React.createElement("img", {
+  }, /*#__PURE__*/React.createElement("img", {
     src: "images/zs-traders-logo.png",
     alt: "ZS Traders",
-    className: "w-full h-full object-contain filter drop-shadow-2xl rounded-full"
+    onError: e => {
+      e.currentTarget.src = 'images/zs-traders-logo.jpg';
+    },
+    className: "w-full h-full object-contain rounded-full"
   }))), /*#__PURE__*/React.createElement("div", {
     className: "luxury-text-anim-1 mt-7"
   }, /*#__PURE__*/React.createElement("h1", {
@@ -11354,23 +11355,26 @@ function SahilTraders() {
     style: {
       position: 'absolute',
       inset: '-2px',
-      borderRadius: '12px',
+      borderRadius: '50%',
       background: 'linear-gradient(135deg, #f59e0b, #10b981)',
-      opacity: 0.5,
+      opacity: 0.6,
       filter: 'blur(5px)'
     }
   }), /*#__PURE__*/React.createElement("img", {
     src: "images/zs-traders-logo.png",
     alt: "ZS Traders",
+    onError: e => {
+      e.currentTarget.src = 'images/zs-traders-logo.jpg';
+    },
     style: {
-      width: '38px',
-      height: '38px',
+      width: '40px',
+      height: '40px',
       objectFit: 'contain',
       borderRadius: '50%',
       position: 'relative',
-      background: 'rgba(0,0,0,0.4)',
+      background: '#050b14',
       padding: '1px',
-      border: '1.5px solid rgba(245,158,11,0.6)'
+      border: '1.5px solid rgba(245,158,11,0.8)'
     }
   })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {

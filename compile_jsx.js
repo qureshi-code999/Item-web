@@ -104,7 +104,7 @@ if (fs.existsSync(langSrc)) {
 }
 
 // Sync logo and icon assets to www and android assets
-const logoFiles = ['zs-traders-logo.png', 'sahil-traders-logo.png'];
+const logoFiles = ['zs-traders-logo.png', 'zs-traders-logo.jpg', 'sahil-traders-logo.png'];
 syncDirs.forEach(dir => {
   const imagesDestDir = path.join(dir, 'images');
   if (!fs.existsSync(imagesDestDir)) fs.mkdirSync(imagesDestDir, { recursive: true });

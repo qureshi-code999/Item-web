@@ -4582,15 +4582,15 @@ export default function SahilTraders() {
           };
         });
       }, []);
-      // 🎬 Cinematic Movie-Style Splash Intro Lifecycle
+      // 🎬 Cinematic Movie-Style Splash Intro Lifecycle (3.5s total)
       useEffect(() => {
         if (!showSplash) return;
         const fadeTimer = setTimeout(() => {
           setFadeSplash(true);
-        }, 2200);
+        }, 3500);
         const removeTimer = setTimeout(() => {
           setShowSplash(false);
-        }, 2600);
+        }, 3900);
         return () => {
           clearTimeout(fadeTimer);
           clearTimeout(removeTimer);
@@ -4786,14 +4786,14 @@ export default function SahilTraders() {
 
               {/* Central Cinematic Content */}
               <div className="relative flex flex-col items-center px-6 z-10 max-w-sm text-center">
-                {/* Dramatic Dark Emergence Logo Box */}
+                {/* Dramatic Emergence Logo Box */}
                 <div className="luxury-logo-box">
-                  <div className="luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-full p-2 flex items-center justify-center shadow-2xl shadow-black" style={{ background: 'radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, rgba(0,0,0,0.85) 75%)', border: '1.5px solid rgba(234, 179, 8, 0.35)', boxShadow: '0 0 35px rgba(234, 179, 8, 0.25), 0 0 60px rgba(0,0,0,0.9)' }}>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500/20 via-transparent to-emerald-500/20 pointer-events-none" />
+                  <div className="luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-full p-2 flex items-center justify-center shadow-2xl shadow-black" style={{ background: 'radial-gradient(circle, rgba(234, 179, 8, 0.2) 0%, rgba(5, 11, 20, 0.95) 75%)', border: '2px solid rgba(234, 179, 8, 0.6)', boxShadow: '0 0 40px rgba(234, 179, 8, 0.35), 0 0 80px rgba(0,0,0,0.95)' }}>
                     <img
                       src="images/zs-traders-logo.png"
                       alt="ZS Traders"
-                      className="w-full h-full object-contain filter drop-shadow-2xl rounded-full"
+                      onError={(e) => { e.currentTarget.src = 'images/zs-traders-logo.jpg'; }}
+                      className="w-full h-full object-contain rounded-full"
                     />
                   </div>
                 </div>
@@ -4873,11 +4873,12 @@ export default function SahilTraders() {
                     {/* ── LOGO (Visible with text on both mobile & desktop) ── */}
                     <div className="flex items-center gap-2.5 shrink-0 cursor-pointer" onClick={() => { setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}>
                       <div className="relative">
-                        <div style={{ position: 'absolute', inset: '-2px', borderRadius: '12px', background: 'linear-gradient(135deg, #f59e0b, #10b981)', opacity: 0.5, filter: 'blur(5px)' }} />
+                        <div style={{ position: 'absolute', inset: '-2px', borderRadius: '50%', background: 'linear-gradient(135deg, #f59e0b, #10b981)', opacity: 0.6, filter: 'blur(5px)' }} />
                         <img
                           src="images/zs-traders-logo.png"
                           alt="ZS Traders"
-                          style={{ width: '38px', height: '38px', objectFit: 'contain', borderRadius: '50%', position: 'relative', background: 'rgba(0,0,0,0.4)', padding: '1px', border: '1.5px solid rgba(245,158,11,0.6)' }}
+                          onError={(e) => { e.currentTarget.src = 'images/zs-traders-logo.jpg'; }}
+                          style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '50%', position: 'relative', background: '#050b14', padding: '1px', border: '1.5px solid rgba(245,158,11,0.8)' }}
                         />
                       </div>
                       <div>

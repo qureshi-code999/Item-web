@@ -435,3 +435,152 @@ body.modal-open {
   overscroll-behavior: contain !important;
   -webkit-overflow-scrolling: touch;
 }
+
+/* ============================================================
+   ⚡ PERFORMANCE: GPU Acceleration & Smooth Scrolling
+   ============================================================ */
+
+/* Main scroll area — hardware-accelerated smooth touch scrolling */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  -webkit-overflow-scrolling: touch;
+}
+.main-content-area {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Splash screen GPU layer */
+.splash-screen-root {
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Tab view transitions — smooth fade instead of hard mount/unmount */
+.tab-view {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+.tab-view-hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  transform: translateY(8px) translateZ(0);
+  -webkit-transform: translateY(8px) translateZ(0);
+  visibility: hidden;
+}
+.tab-view-visible {
+  opacity: 1;
+  pointer-events: auto;
+  position: relative;
+  transform: translateY(0) translateZ(0);
+  -webkit-transform: translateY(0) translateZ(0);
+  visibility: visible;
+}
+
+/* Category card GPU containment — prevents 22 cards from causing full layout/paint on scroll */
+.cat-card-container {
+  contain: layout style paint;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+}
+/* Marquee pauses GPU animation when card is hidden (saves battery & CPU) */
+.cat-card-container.marquee-paused .cat-marquee-track {
+  animation-play-state: paused !important;
+}
+
+/* ── Product Card containment for fast list scroll ──────── */
+.product-card-outer {
+  contain: layout style;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+/* content-visibility: auto defers paint/layout of off-screen cards */
+@supports (content-visibility: auto) {
+  .product-card-outer {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 200px;
+  }
+}
+
+/* ── Header & Sticky elements GPU layers ──────────────────── */
+header.sticky {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ── Modals & Drawers — smooth GPU-accelerated open/close ──── */
+.modal-sheet {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ── Bottom nav GPU layer ──────────────────────────────────── */
+nav.bottom-nav {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ── Smooth slide-up for account/me page ──────────────────── */
+@keyframes slideUpFadeIn {
+  from { opacity: 0; transform: translateY(18px) translateZ(0); }
+  to   { opacity: 1; transform: translateY(0) translateZ(0); }
+}
+.account-page-enter {
+  animation: slideUpFadeIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* ── Home page fade-in when switching back from account ───── */
+@keyframes homeFadeIn {
+  from { opacity: 0; transform: translateY(-10px) translateZ(0); }
+  to   { opacity: 1; transform: translateY(0) translateZ(0); }
+}
+.home-page-enter {
+  animation: homeFadeIn 0.22s ease-out forwards;
+  will-change: transform, opacity;
+}
+
+/* ── Improve marquee track containment ───────────────────── */
+.cat-marquee-track {
+  contain: layout style;
+}
+.cat-img-reel-area {
+  contain: layout style paint;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* ── Touch tap highlight removal (prevents gray flashes) ──── */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ── Image lazy-load fade in ──────────────────────────────── */
+img[loading="lazy"] {
+  transition: opacity 0.3s ease;
+}
+

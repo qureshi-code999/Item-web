@@ -5138,10 +5138,16 @@ export default function SahilTraders() {
               </header>
             </>
           )}
-          <main className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area" style={{ paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))', paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined }}>
-            {activeTab === 'account' ? (
-              /* ══════════ FULL-PAGE GLOSSY WHITE & BLACK "ME / ACCOUNT" VIEW ══════════ */
-              <div className="max-w-2xl mx-auto space-y-4 animate-fade-in pb-8">
+          <main className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area" style={{ paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))', paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined, position: 'relative' }}>
+            {/* ── ACCOUNT TAB (always mounted, CSS hidden when not active) ── */}
+            <div
+              key="account-panel"
+              style={{
+                display: activeTab === 'account' ? 'block' : 'none',
+              }}
+            >
+            {/* ══════════ FULL-PAGE GLOSSY WHITE & BLACK "ME / ACCOUNT" VIEW ══════════ */}
+            <div className={`max-w-2xl mx-auto space-y-4 pb-8 ${activeTab === 'account' ? 'account-page-enter' : ''}`}>
                 
                 {/* 1. TOP BAR WITH BACK BUTTON */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
@@ -5378,7 +5384,16 @@ export default function SahilTraders() {
                 </div>
 
               </div>
-            ) : showCategoryHome ? (
+            </div>{/* END ACCOUNT PANEL */}
+
+            {/* ── HOME TAB (always mounted, CSS hidden when account is active) ── */}
+            <div
+              key="home-panel"
+              style={{
+                display: activeTab === 'account' ? 'none' : 'block',
+              }}
+            >
+              {showCategoryHome ? (
               <CategoryHome
                 products={products}
                 onSelectCategory={setSelectedCategory}
@@ -5639,6 +5654,7 @@ export default function SahilTraders() {
                 )}
               </>
             )}
+            </div>
           </main>
               <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(0,0,0,0.12)' }}>
                 <div className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs">

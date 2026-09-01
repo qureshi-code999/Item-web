@@ -12089,13 +12089,16 @@ function SahilTraders() {
     className: "max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area",
     style: {
       paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
-      paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined
+      paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined,
+      position: 'relative'
     }
-  }, activeTab === 'account' ?
-  /*#__PURE__*/
-  /* ══════════ FULL-PAGE GLOSSY WHITE & BLACK "ME / ACCOUNT" VIEW ══════════ */
-  React.createElement("div", {
-    className: "max-w-2xl mx-auto space-y-4 animate-fade-in pb-8"
+  }, /*#__PURE__*/React.createElement("div", {
+    key: "account-panel",
+    style: {
+      display: activeTab === 'account' ? 'block' : 'none'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: `max-w-2xl mx-auto space-y-4 pb-8 ${activeTab === 'account' ? 'account-page-enter' : ''}`
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -12729,7 +12732,12 @@ function SahilTraders() {
       color: '#94a3b8',
       marginTop: '2px'
     }
-  }, "Sahil Saleem & Muhammad Zubair Moin \u2022 Karachi \uD83C\uDDF5\uD83C\uDDF0"))) : showCategoryHome ? /*#__PURE__*/React.createElement(CategoryHome, {
+  }, "Sahil Saleem & Muhammad Zubair Moin \u2022 Karachi \uD83C\uDDF5\uD83C\uDDF0")))), /*#__PURE__*/React.createElement("div", {
+    key: "home-panel",
+    style: {
+      display: activeTab === 'account' ? 'none' : 'block'
+    }
+  }, showCategoryHome ? /*#__PURE__*/React.createElement(CategoryHome, {
     products: products,
     onSelectCategory: setSelectedCategory,
     langData: langData,
@@ -13219,7 +13227,7 @@ function SahilTraders() {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"
-  })), /*#__PURE__*/React.createElement("span", null, tr(language, `Load More Items (${Math.min(visibleCount, sortedProducts.length)} of ${sortedProducts.length})`, `Mazeed Items Dekhein (${Math.min(visibleCount, sortedProducts.length)} / ${sortedProducts.length})`, `مزید اشیاء دیکھیں (${Math.min(visibleCount, sortedProducts.length)} / ${sortedProducts.length})`))))))), /*#__PURE__*/React.createElement("footer", {
+  })), /*#__PURE__*/React.createElement("span", null, tr(language, `Load More Items (${Math.min(visibleCount, sortedProducts.length)} of ${sortedProducts.length})`, `Mazeed Items Dekhein (${Math.min(visibleCount, sortedProducts.length)} / ${sortedProducts.length})`, `مزید اشیاء دیکھیں (${Math.min(visibleCount, sortedProducts.length)} / ${sortedProducts.length})`)))))))), /*#__PURE__*/React.createElement("footer", {
     className: "border-t mt-10 py-8 text-center",
     style: {
       borderColor: 'rgba(0,0,0,0.12)'

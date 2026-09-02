@@ -2240,6 +2240,8 @@ function getTranslationValue(dictionary, key) {
       { id: 1271, name: "SSD", price: 200, categoryId: "soaps", categoryName: "Soaps" },
     
       { id: 1272, name: "DDSS", price: 230, categoryId: "soaps", categoryName: "Soaps" },
+    
+      { id: 1273, name: "DDFFF", price: 220, categoryId: "soaps", categoryName: "Soaps" },
     ];
     var PAGE_SIZE = 10;
     const RECENT_LIMIT = 15;

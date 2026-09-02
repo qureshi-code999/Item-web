@@ -11205,9 +11205,10 @@ function SahilTraders() {
   const categoriesList = getGlobalCategories();
   const selectedCategoryName = selectedCategory ? langData.categories?.[selectedCategory] || categoriesList.find(c => c.id === selectedCategory)?.name || selectedCategory : null;
   return /*#__PURE__*/React.createElement("div", {
-    className: "min-h-screen relative text-gray-900 overflow-x-hidden",
+    className: "min-h-screen relative text-gray-900",
     style: {
-      fontFamily: language === 'ur' ? "'Noto Sans Urdu', 'Inter', sans-serif" : "'Inter', system-ui, sans-serif"
+      fontFamily: language === 'ur' ? "'Noto Sans Urdu', 'Inter', sans-serif" : "'Inter', system-ui, sans-serif",
+      overflowX: 'clip'
     }
   }, showSplash && /*#__PURE__*/React.createElement("div", {
     className: `fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-700 select-none overflow-hidden ${fadeSplash ? "opacity-0 scale-105 pointer-events-none" : "opacity-100"}`,
@@ -12879,136 +12880,7 @@ function SahilTraders() {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M19.5 8.25l-7.5 7.5-7.5-7.5"
-  }))), sortModalOpen && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    onClick: () => setSortModalOpen(false),
-    style: {
-      position: 'fixed',
-      inset: 0,
-      zIndex: 90,
-      background: 'rgba(0, 0, 0, 0.45)',
-      backdropFilter: 'blur(4px)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 95,
-      background: '#ffffff',
-      borderRadius: '24px 24px 0 0',
-      padding: '16px 20px 32px',
-      boxShadow: '0 -10px 40px rgba(0,0,0,0.25)',
-      maxWidth: 480,
-      margin: '0 auto',
-      animation: 'imgFadeIn 0.2s ease-out'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 36,
-      height: 4,
-      background: '#cbd5e1',
-      borderRadius: 2,
-      margin: '0 auto 14px'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginBottom: 12,
-      paddingBottom: 10,
-      borderBottom: '1px solid #f1f5f9'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 14,
-      fontWeight: 900,
-      color: '#0f172a',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "\u26A1"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Sort Products By', 'Sort Products By', 'ترتیب منتخب کریں'))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setSortModalOpen(false),
-    style: {
-      background: '#f1f5f9',
-      border: 'none',
-      borderRadius: '50%',
-      width: 28,
-      height: 28,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      color: '#64748b',
-      fontSize: 13,
-      fontWeight: 900
-    }
-  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 8
-    }
-  }, SORT_OPTIONS.map(opt => {
-    const isSelected = sortBy === opt.id;
-    return /*#__PURE__*/React.createElement("button", {
-      key: opt.id,
-      onClick: () => {
-        triggerHaptic('light');
-        setSortBy(opt.id);
-        setSortModalOpen(false);
-      },
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '12px 14px',
-        borderRadius: 14,
-        background: isSelected ? '#ecfdf5' : '#f8fafc',
-        border: isSelected ? '1.5px solid #10b981' : '1.5px solid #f1f5f9',
-        cursor: 'pointer',
-        transition: 'all 0.15s'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 16
-      }
-    }, opt.icon), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 13,
-        fontWeight: isSelected ? 800 : 600,
-        color: isSelected ? '#065f46' : '#1e293b'
-      }
-    }, language === 'ur' ? opt.labelUrdu : opt.label)), isSelected ? /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: 22,
-        height: 22,
-        borderRadius: '50%',
-        background: '#10b981',
-        color: '#ffffff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 12,
-        fontWeight: 900
-      }
-    }, "\u2713") : /*#__PURE__*/React.createElement("span", {
-      style: {
-        width: 20,
-        height: 20,
-        borderRadius: '50%',
-        border: '2px solid #cbd5e1'
-      }
-    }));
-  })))), brandFilters.length > 1 && /*#__PURE__*/React.createElement("div", {
+  }))), brandFilters.length > 1 && /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'relative',
       display: 'flex',
@@ -13078,124 +12950,7 @@ function SahilTraders() {
       fontWeight: 800,
       cursor: 'pointer'
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\u2715"), /*#__PURE__*/React.createElement("span", null, "Reset")), filterMenuOpen && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    onClick: () => setFilterMenuOpen(false),
-    style: {
-      position: 'fixed',
-      inset: 0,
-      zIndex: 90,
-      background: 'rgba(0,0,0,0.45)',
-      backdropFilter: 'blur(4px)'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 95,
-      maxWidth: 480,
-      margin: '0 auto',
-      background: '#ffffff',
-      borderRadius: '24px 24px 0 0',
-      padding: '16px 20px 32px',
-      boxShadow: '0 -10px 40px rgba(0,0,0,0.25)',
-      animation: 'imgFadeIn 0.2s ease-out'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 36,
-      height: 4,
-      background: '#cbd5e1',
-      borderRadius: 2,
-      margin: '0 auto 14px'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 10,
-      marginBottom: 12,
-      paddingBottom: 10,
-      borderBottom: '1px solid #f1f5f9'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 14,
-      fontWeight: 900,
-      color: '#0f172a',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFF7\uFE0F"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Filter by Brand', 'Filter by Brand', 'برانڈ فلٹر'))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => setFilterMenuOpen(false),
-    style: {
-      background: '#f1f5f9',
-      border: 'none',
-      borderRadius: '50%',
-      width: 28,
-      height: 28,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      color: '#64748b',
-      fontSize: 13,
-      fontWeight: 900
-    }
-  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8,
-      flexWrap: 'wrap',
-      maxHeight: 280,
-      overflowY: 'auto'
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      triggerHaptic('light');
-      setSelectedBrand("all");
-      setFilterMenuOpen(false);
-    },
-    style: {
-      border: selectedBrand === "all" ? '1.5px solid #10b981' : '1px solid #e2e8f0',
-      background: selectedBrand === "all" ? '#ecfdf5' : '#f8fafc',
-      color: selectedBrand === "all" ? '#065f46' : '#1e293b',
-      borderRadius: 999,
-      padding: '8px 14px',
-      fontSize: 12,
-      fontWeight: 800,
-      cursor: 'pointer'
-    }
-  }, "All Brands (", baseFiltered.length, ")"), brandFilters.map(brand => {
-    const isBrandActive = selectedBrand === brand.name;
-    return /*#__PURE__*/React.createElement("button", {
-      key: brand.name,
-      onClick: () => {
-        triggerHaptic('light');
-        setSelectedBrand(brand.name);
-        setFilterMenuOpen(false);
-      },
-      style: {
-        border: isBrandActive ? '1.5px solid #10b981' : '1px solid #e2e8f0',
-        background: isBrandActive ? '#ecfdf5' : '#ffffff',
-        color: isBrandActive ? '#065f46' : '#1e293b',
-        borderRadius: 999,
-        padding: '8px 14px',
-        fontSize: 12,
-        fontWeight: 800,
-        cursor: 'pointer',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
-      }
-    }, brand.name, " ", /*#__PURE__*/React.createElement("span", {
-      style: {
-        opacity: 0.65,
-        fontSize: 11
-      }
-    }, "(", brand.count, ")"));
-  })))))), filtered.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u2715"), /*#__PURE__*/React.createElement("span", null, "Reset")))), filtered.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "text-center py-16 bg-white border border-gray-200 rounded-2xl p-8 shadow-sm"
   }, /*#__PURE__*/React.createElement(ShoppingBag, {
     className: "w-12 h-12 mx-auto mb-3 text-gray-700"
@@ -14000,7 +13755,270 @@ function SahilTraders() {
       whiteSpace: 'nowrap',
       border: '1px solid rgba(255,255,255,0.15)'
     }
-  }, tr(language, 'Press back again to exit', 'App band karne ke liye dobara wapas dabayein', 'باہر نکلنے کے لیے دوبارہ دبائیں')));
+  }, tr(language, 'Press back again to exit', 'App band karne ke liye dobara wapas dabayein', 'باہر نکلنے کے لیے دوبارہ دبائیں')), sortModalOpen && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 1000,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-end'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => setSortModalOpen(false),
+    style: {
+      position: 'fixed',
+      inset: 0,
+      background: 'rgba(0, 0, 0, 0.55)',
+      backdropFilter: 'blur(3px)',
+      WebkitBackdropFilter: 'blur(3px)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      zIndex: 1001,
+      background: '#ffffff',
+      borderRadius: '24px 24px 0 0',
+      padding: '16px 20px calc(24px + env(safe-area-inset-bottom, 0px))',
+      boxShadow: '0 -10px 40px rgba(0,0,0,0.35)',
+      maxWidth: 500,
+      width: '100%',
+      margin: '0 auto',
+      animation: 'imgFadeIn 0.2s ease-out'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 40,
+      height: 4,
+      background: '#cbd5e1',
+      borderRadius: 2,
+      margin: '0 auto 14px'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 14,
+      paddingBottom: 10,
+      borderBottom: '1px solid #f1f5f9'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 15,
+      fontWeight: 900,
+      color: '#0f172a',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\u26A1"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Sort Products By', 'Sort Products By', 'ترتیب منتخب کریں'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setSortModalOpen(false),
+    style: {
+      background: '#f1f5f9',
+      border: 'none',
+      borderRadius: '50%',
+      width: 30,
+      height: 30,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      color: '#64748b',
+      fontSize: 14,
+      fontWeight: 900
+    }
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      maxHeight: '60vh',
+      overflowY: 'auto'
+    }
+  }, SORT_OPTIONS.map(opt => {
+    const isSelected = sortBy === opt.id;
+    return /*#__PURE__*/React.createElement("button", {
+      key: opt.id,
+      onClick: () => {
+        triggerHaptic('light');
+        setSortBy(opt.id);
+        setSortModalOpen(false);
+      },
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '13px 16px',
+        borderRadius: 14,
+        background: isSelected ? '#ecfdf5' : '#f8fafc',
+        border: isSelected ? '1.5px solid #10b981' : '1.5px solid #e2e8f0',
+        cursor: 'pointer',
+        transition: 'all 0.15s'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 18
+      }
+    }, opt.icon), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 13.5,
+        fontWeight: isSelected ? 800 : 600,
+        color: isSelected ? '#065f46' : '#1e293b'
+      }
+    }, language === 'ur' ? opt.labelUrdu : opt.label)), isSelected ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 22,
+        height: 22,
+        borderRadius: '50%',
+        background: '#10b981',
+        color: '#ffffff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 12,
+        fontWeight: 900
+      }
+    }, "\u2713") : /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 20,
+        height: 20,
+        borderRadius: '50%',
+        border: '2px solid #cbd5e1'
+      }
+    }));
+  })))), filterMenuOpen && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 1000,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-end'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => setFilterMenuOpen(false),
+    style: {
+      position: 'fixed',
+      inset: 0,
+      background: 'rgba(0,0,0,0.55)',
+      backdropFilter: 'blur(3px)',
+      WebkitBackdropFilter: 'blur(3px)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      zIndex: 1001,
+      maxWidth: 500,
+      width: '100%',
+      margin: '0 auto',
+      background: '#ffffff',
+      borderRadius: '24px 24px 0 0',
+      padding: '16px 20px calc(24px + env(safe-area-inset-bottom, 0px))',
+      boxShadow: '0 -10px 40px rgba(0,0,0,0.35)',
+      animation: 'imgFadeIn 0.2s ease-out'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 40,
+      height: 4,
+      background: '#cbd5e1',
+      borderRadius: 2,
+      margin: '0 auto 14px'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+      marginBottom: 14,
+      paddingBottom: 10,
+      borderBottom: '1px solid #f1f5f9'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 15,
+      fontWeight: 900,
+      color: '#0f172a',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFF7\uFE0F"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Filter by Brand', 'Filter by Brand', 'برانڈ فلٹر'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setFilterMenuOpen(false),
+    style: {
+      background: '#f1f5f9',
+      border: 'none',
+      borderRadius: '50%',
+      width: 30,
+      height: 30,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      color: '#64748b',
+      fontSize: 14,
+      fontWeight: 900
+    }
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      flexWrap: 'wrap',
+      maxHeight: '55vh',
+      overflowY: 'auto',
+      paddingBottom: 6
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('light');
+      setSelectedBrand("all");
+      setFilterMenuOpen(false);
+    },
+    style: {
+      border: selectedBrand === "all" ? '1.5px solid #10b981' : '1px solid #e2e8f0',
+      background: selectedBrand === "all" ? '#ecfdf5' : '#f8fafc',
+      color: selectedBrand === "all" ? '#065f46' : '#1e293b',
+      borderRadius: 999,
+      padding: '9px 16px',
+      fontSize: 12.5,
+      fontWeight: 800,
+      cursor: 'pointer'
+    }
+  }, "All Brands (", baseFiltered.length, ")"), brandFilters.map(brand => {
+    const isBrandActive = selectedBrand === brand.name;
+    return /*#__PURE__*/React.createElement("button", {
+      key: brand.name,
+      onClick: () => {
+        triggerHaptic('light');
+        setSelectedBrand(brand.name);
+        setFilterMenuOpen(false);
+      },
+      style: {
+        border: isBrandActive ? '1.5px solid #10b981' : '1px solid #e2e8f0',
+        background: isBrandActive ? '#ecfdf5' : '#ffffff',
+        color: isBrandActive ? '#065f46' : '#1e293b',
+        borderRadius: 999,
+        padding: '9px 16px',
+        fontSize: 12.5,
+        fontWeight: 800,
+        cursor: 'pointer',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
+      }
+    }, brand.name, " ", /*#__PURE__*/React.createElement("span", {
+      style: {
+        opacity: 0.65,
+        fontSize: 11
+      }
+    }, "(", brand.count, ")"));
+  })))));
 }
 // -----------------------------------------------------------------------------
 // To add a category image: set the `image` field to a URL or relative file path.

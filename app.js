@@ -8976,12 +8976,16 @@ function AboutUsModal({
     },
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
-    className: "relative bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white p-6 pb-6 text-center"
+    className: "relative bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white px-4 py-3 text-center shrink-0 border-b border-white/10"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
-    className: "absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold w-9 h-9 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
+    className: "absolute top-3 right-3 text-gray-400 hover:text-white text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
   }, "\xD7"), /*#__PURE__*/React.createElement("div", {
-    className: "w-18 h-18 mx-auto mb-3 rounded-2xl bg-white p-1 shadow-xl flex items-center justify-center border-2 border-blue-500"
+    style: {
+      width: '56px',
+      height: '56px'
+    },
+    className: "mx-auto mb-1.5 rounded-2xl bg-white p-1 shadow-md flex items-center justify-center border-2 border-blue-500"
   }, /*#__PURE__*/React.createElement("img", {
     src: "images/zs-groceries-logo.png",
     alt: "ZS Groceries Logo",
@@ -8992,25 +8996,28 @@ function AboutUsModal({
     },
     className: "w-full h-full object-contain rounded-xl"
   })), /*#__PURE__*/React.createElement("h2", {
-    className: "text-2xl font-black tracking-wider uppercase text-sky-400 font-poppins"
+    className: "text-xl font-black tracking-wider uppercase text-sky-400 font-poppins leading-tight"
   }, "ZS Groceries"), /*#__PURE__*/React.createElement("p", {
-    className: "text-xs text-gray-300 font-medium mt-1 tracking-widest uppercase"
+    className: "text-[10.5px] text-gray-300 font-medium mt-0.5 tracking-wider uppercase"
   }, tr(modalLang, 'Trusted Wholesale & Retail Store — Est. 2021, Karachi', 'Karachi ka Qabil-e-Aitemad Wholesale Store — Qayam Shuda 2021', 'کراچی کا قابلِ اعتماد ہول سیل و پرچون اسٹور — قائم شدہ 2021')), /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-center gap-1.5 mt-3 pt-2 border-t border-white/10"
+    className: "flex items-center justify-center gap-1.5 mt-2 pt-2 border-t border-white/10"
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: () => setModalLang('ro'),
-    className: `px-3 py-1 rounded-full text-xs font-black transition-all cursor-pointer ${modalLang === 'ro' ? 'bg-amber-400 text-gray-950 shadow-md scale-105' : 'bg-white/15 text-white hover:bg-white/25'}`
+    className: `px-3 py-0.5 rounded-full text-xs font-black transition-all cursor-pointer ${modalLang === 'ro' ? 'bg-amber-400 text-gray-950 shadow-md scale-105' : 'bg-white/15 text-white hover:bg-white/25'}`
   }, "\uD83C\uDDF5\uD83C\uDDF0 Roman Urdu"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: () => setModalLang('en'),
-    className: `px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${modalLang === 'en' ? 'bg-amber-400 text-gray-950 shadow-md scale-105' : 'bg-white/15 text-white hover:bg-white/25'}`
+    className: `px-3 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer ${modalLang === 'en' ? 'bg-amber-400 text-gray-950 shadow-md scale-105' : 'bg-white/15 text-white hover:bg-white/25'}`
   }, "\uD83C\uDDEC\uD83C\uDDE7 English"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: () => setModalLang('ur'),
-    className: `px-3 py-1 rounded-full text-xs font-bold font-urdu transition-all cursor-pointer ${modalLang === 'ur' ? 'bg-amber-400 text-gray-950 shadow-md scale-105' : 'bg-white/15 text-white hover:bg-white/25'}`
+    className: `px-3 py-0.5 rounded-full text-xs font-bold font-urdu transition-all cursor-pointer ${modalLang === 'ur' ? 'bg-amber-400 text-gray-950 shadow-md scale-105' : 'bg-white/15 text-white hover:bg-white/25'}`
   }, "\u0627\u0631\u062F\u0648"))), /*#__PURE__*/React.createElement("div", {
-    className: "p-6 overflow-y-auto space-y-5 flex-1 text-gray-800 text-sm leading-relaxed"
+    className: "p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 text-gray-800 text-sm leading-relaxed",
+    style: {
+      WebkitOverflowScrolling: 'touch'
+    }
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-red-50 border border-red-200 rounded-2xl p-4 text-red-950 space-y-1"
   }, /*#__PURE__*/React.createElement("div", {

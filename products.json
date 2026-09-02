@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-02T17:12:14.937Z",
-  "total": 1040,
+  "updatedAt": "2026-09-02T17:16:23.642Z",
+  "total": 1041,
   "imageMap": {
     "1": "png",
     "2": "png",
@@ -9518,6 +9518,13 @@
       "id": 1271,
       "name": "SSD",
       "price": 200,
+      "categoryId": "soaps",
+      "categoryName": "Soaps"
+    },
+    {
+      "id": 1272,
+      "name": "DDSS",
+      "price": 230,
       "categoryId": "soaps",
       "categoryName": "Soaps"
     }

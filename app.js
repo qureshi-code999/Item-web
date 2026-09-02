@@ -10521,7 +10521,8 @@ function SahilTraders() {
   }, [cart]);
 
   // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync) ══════════
-  const fetchLiveProducts = useCallback(async (isManual = false) => {
+  async function fetchLiveProducts(isManual) {
+    isManual = !!isManual;
     setIsSyncingProducts(true);
     if (isManual) {
       triggerHaptic('medium');
@@ -10585,7 +10586,7 @@ function SahilTraders() {
       setTimeout(() => setSyncToast(null), 3000);
     }
     setIsSyncingProducts(false);
-  }, [language]);
+  }
   useEffect(() => {
     try {
       const cachedMap = localStorage.getItem("zs_groceries_imagemap_cache");

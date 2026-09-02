@@ -7,7 +7,7 @@
 //  WARNING  : app.js ko KABHI directly edit mat karo — woh
 //             auto-generated file hai aur overwrite ho jaati hai.
 // =============================================================
-import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
     }
@@ -4082,7 +4082,8 @@ export default function SahilTraders() {
       }, [cart]);
 
       // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync) ══════════
-      const fetchLiveProducts = useCallback(async (isManual = false) => {
+      async function fetchLiveProducts(isManual) {
+        isManual = !!isManual;
         setIsSyncingProducts(true);
         if (isManual) {
           triggerHaptic('medium');
@@ -4147,7 +4148,7 @@ export default function SahilTraders() {
           setTimeout(() => setSyncToast(null), 3000);
         }
         setIsSyncingProducts(false);
-      }, [language]);
+      }
 
       useEffect(() => {
         try {

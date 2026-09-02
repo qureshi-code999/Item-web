@@ -8890,6 +8890,12 @@ var PRODUCTS = [{
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "L"
+}, {
+  id: 1271,
+  name: "SSD",
+  price: 200,
+  categoryId: "soaps",
+  categoryName: "Soaps"
 }];
 var PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
@@ -10402,7 +10408,19 @@ const SORT_OPTIONS = [{
   icon: '🔤'
 }];
 function SahilTraders() {
-  const products = typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : PRODUCTS;
+  const [productsList, setProductsList] = useState(() => {
+    try {
+      const cached = localStorage.getItem("zs_groceries_products_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : PRODUCTS;
+  });
+  const products = productsList;
+  const [isSyncingProducts, setIsSyncingProducts] = useState(false);
+  const [syncToast, setSyncToast] = useState(null);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [returnPolicyOpen, setReturnPolicyOpen] = useState(false);
   const [language, setLanguage] = useState("en");
@@ -10501,6 +10519,85 @@ function SahilTraders() {
       localStorage.setItem("sahil_traders_cart", JSON.stringify(cart));
     } catch (e) {}
   }, [cart]);
+
+  // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync) ══════════
+  const fetchLiveProducts = useCallback(async (isManual = false) => {
+    setIsSyncingProducts(true);
+    if (isManual) {
+      triggerHaptic('medium');
+    }
+    const cacheBuster = Date.now();
+    const endpoints = [`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`, `https://sahiltraders.vercel.app/products.json?v=${cacheBuster}`, `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/products.json?v=${cacheBuster}`];
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      endpoints.unshift(`http://localhost:8888/products.json?v=${cacheBuster}`);
+    }
+    let loadedData = null;
+    for (const url of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(url, {
+          signal: controller.signal,
+          cache: 'no-store'
+        });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const json = await res.json();
+          if (json && (Array.isArray(json) || json.products && Array.isArray(json.products))) {
+            loadedData = json;
+            break;
+          }
+        }
+      } catch (err) {
+        // continue next endpoint
+      }
+    }
+    if (loadedData) {
+      const freshProducts = Array.isArray(loadedData) ? loadedData : loadedData.products || [];
+      if (freshProducts.length > 0) {
+        setProductsList(freshProducts);
+        window.PRODUCTS = freshProducts;
+        try {
+          localStorage.setItem("zs_groceries_products_cache", JSON.stringify(freshProducts));
+        } catch (e) {}
+        if (loadedData.imageMap && typeof window !== 'undefined') {
+          window.PRODUCT_IMAGE_MAP = {
+            ...(window.PRODUCT_IMAGE_MAP || {}),
+            ...loadedData.imageMap
+          };
+          try {
+            localStorage.setItem("zs_groceries_imagemap_cache", JSON.stringify(window.PRODUCT_IMAGE_MAP));
+          } catch (e) {}
+        }
+        if (loadedData.variants && typeof window !== 'undefined') {
+          window.PRODUCT_VARIANTS = {
+            ...(window.PRODUCT_VARIANTS || {}),
+            ...loadedData.variants
+          };
+        }
+        if (isManual) {
+          setSyncToast(tr(language, `✅ ${freshProducts.length} items live synced!`, `✅ ${freshProducts.length} items live update ho gaye!`, `✅ ${freshProducts.length} آئٹمز لائیو اپ ڈیٹ ہوگئے!`));
+          setTimeout(() => setSyncToast(null), 3000);
+        }
+      }
+    } else if (isManual) {
+      setSyncToast(tr(language, "⚠️ Offline or server busy", "⚠️ Internet/server connect nahi ho saka", "⚠️ سرور سے رابطہ نہیں ہو سکا"));
+      setTimeout(() => setSyncToast(null), 3000);
+    }
+    setIsSyncingProducts(false);
+  }, [language]);
+  useEffect(() => {
+    try {
+      const cachedMap = localStorage.getItem("zs_groceries_imagemap_cache");
+      if (cachedMap && typeof window !== 'undefined') {
+        window.PRODUCT_IMAGE_MAP = {
+          ...(window.PRODUCT_IMAGE_MAP || {}),
+          ...JSON.parse(cachedMap)
+        };
+      }
+    } catch (e) {}
+    fetchLiveProducts(false);
+  }, [fetchLiveProducts]);
 
   // Auto-scroll to absolute top of page whenever category or brand selection changes
   useEffect(() => {
@@ -11626,6 +11723,38 @@ function SahilTraders() {
       color: '#fff'
     }
   }, "\u0627\u0631\u062F\u0648")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => fetchLiveProducts(true),
+    title: tr(language, "Refresh Live Items", "Taza Items Load Karein", "تازہ آئٹمز لوڈ کریں"),
+    style: {
+      background: isSyncingProducts ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255,255,255,0.06)',
+      border: '1.5px solid rgba(56, 189, 248, 0.35)',
+      borderRadius: '10px',
+      padding: '7px 10px',
+      fontSize: '11.5px',
+      fontWeight: 700,
+      color: '#38bdf8',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '5px',
+      transition: 'all 0.18s'
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: isSyncingProducts ? "animate-spin" : "",
+    style: {
+      width: '14px',
+      height: '14px'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+  })), /*#__PURE__*/React.createElement("span", null, isSyncingProducts ? 'Syncing...' : 'Sync')), /*#__PURE__*/React.createElement("button", {
     onClick: () => setReturnPolicyOpen(true),
     title: tr(language, 'Return Policy', 'Wapsi Policy', 'واپسی پالیسی'),
     style: {
@@ -11914,7 +12043,36 @@ function SahilTraders() {
     }
   }, cartCount))), /*#__PURE__*/React.createElement("div", {
     className: "flex sm:hidden items-center gap-1.5 shrink-0"
-  }, /*#__PURE__*/React.createElement("a", {
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => fetchLiveProducts(true),
+    title: tr(language, "Refresh Live Items", "Taza Items Load Karein", "تازہ آئٹمز لوڈ کریں"),
+    style: {
+      background: isSyncingProducts ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255,255,255,0.08)',
+      border: '1px solid rgba(56, 189, 248, 0.4)',
+      borderRadius: '8px',
+      padding: '5px 7px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#38bdf8',
+      cursor: 'pointer'
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: isSyncingProducts ? "animate-spin" : "",
+    style: {
+      width: '15px',
+      height: '15px'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+  }))), /*#__PURE__*/React.createElement("a", {
     href: "https://wa.me/923368945775",
     target: "_blank",
     rel: "noopener noreferrer",
@@ -13768,7 +13926,26 @@ function SahilTraders() {
       whiteSpace: 'nowrap',
       border: '1px solid rgba(255,255,255,0.15)'
     }
-  }, tr(language, 'Press back again to exit', 'App band karne ke liye dobara wapas dabayein', 'باہر نکلنے کے لیے دوبارہ دبائیں')), sortModalOpen && /*#__PURE__*/React.createElement("div", {
+  }, tr(language, 'Press back again to exit', 'App band karne ke liye dobara wapas dabayein', 'باہر نکلنے کے لیے دوبارہ دبائیں')), syncToast && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      top: '70px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      background: 'rgba(15, 23, 42, 0.96)',
+      color: '#ffffff',
+      padding: '10px 22px',
+      borderRadius: '30px',
+      fontSize: '12px',
+      fontWeight: '800',
+      zIndex: 9999,
+      boxShadow: '0 12px 30px rgba(0,0,0,0.4)',
+      backdropFilter: 'blur(12px)',
+      pointerEvents: 'none',
+      whiteSpace: 'nowrap',
+      border: '1.5px solid #38bdf8'
+    }
+  }, syncToast), sortModalOpen && /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'fixed',
       inset: 0,

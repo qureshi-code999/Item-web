@@ -72,8 +72,15 @@ targets.forEach(target => {
   console.log(`Compiled and wrote ${target} (${(size / 1024).toFixed(1)} KB)`);
 });
 
-// Sync style.css and index.html to www and android assets
-const syncFiles = ['style.css', 'index.html'];
+// Export latest products.json
+try {
+  require('./export_products.js');
+} catch (err) {
+  console.error('Error exporting products.json:', err.message);
+}
+
+// Sync style.css, index.html, and products.json to www and android assets
+const syncFiles = ['style.css', 'index.html', 'products.json'];
 const syncDirs = [
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/www',
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/android/app/src/main/assets/public'

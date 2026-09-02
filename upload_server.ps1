@@ -344,6 +344,31 @@ function Sync-ProductImageMaps {
     Sync-ProductImageMapInFile -filePath $jsxFile
 }
 
+function Sync-ProductsJsonAndGitPush {
+    param([string]$commitMessage = "Auto-sync products from portal")
+    try {
+        $nodeExe = "C:\Program Files\nodejs\node.exe"
+        if (-not (Test-Path $nodeExe)) { $nodeExe = "node" }
+        $exportScript = Join-Path $rootDir "export_products.js"
+        if (Test-Path $exportScript) {
+            & $nodeExe $exportScript *>$null
+            Write-Host "  [JSON] products.json updated successfully" -ForegroundColor Cyan
+        }
+
+        # Background Git commit & push
+        $gitScript = @"
+Set-Location '$rootDir'
+& 'C:\Program Files\Git\cmd\git.exe' add products.json www/products.json android/app/src/main/assets/public/products.json images/ index.html INDEX.JSX
+& 'C:\Program Files\Git\cmd\git.exe' commit -m '$commitMessage'
+& 'C:\Program Files\Git\cmd\git.exe' push origin main
+"@
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile", "-WindowStyle", "Hidden", "-Command", $gitScript -WindowStyle Hidden
+        Write-Host "  [GIT] Background push to GitHub initiated ($commitMessage)" -ForegroundColor DarkCyan
+    } catch {
+        Write-Host "  [SYNC ERROR] $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+}
+
 function Get-CategoryRows {
     if (-not (Test-Path $htmlFile)) { return @() }
     $content = [System.IO.File]::ReadAllText($htmlFile, [System.Text.Encoding]::UTF8)
@@ -771,6 +796,7 @@ while ($true) {
                 }
                 if ($updatedFiles -le 0) { throw "Item ID $editId file me nahi mila" }
                 Sync-ProductImageMaps
+                Sync-ProductsJsonAndGitPush -commitMessage "Edit item: $newName (ID: $editId)"
                 Write-Host "  EDIT: ID $editId -> '$newName' Rs.$newPrice [$newCatName]$(if($imgSaved){' + new image'})" -ForegroundColor Cyan
                 $imgSavedStr = if ($imgSaved) { "true" } else { "false" }
                 $json = "{`"ok`":true,`"imgSaved`":$imgSavedStr,`"message`":`"Item updated successfully`"}"
@@ -1000,12 +1026,41 @@ while ($true) {
                 $imgFile = Join-Path $imgDir "$delId.png"
                 if (Test-Path $imgFile) { Remove-Item $imgFile -Force }
                 Sync-ProductImageMaps
+                Sync-ProductsJsonAndGitPush -commitMessage "Delete item: $delId"
                 Write-Host "  DELETE: ID $delId" -ForegroundColor Red
                 $json = "{`"ok`":true,`"message`":`"Item deleted successfully`"}"
             } catch {
                 $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
                 $json = "{`"ok`":false,`"message`":`"$em`"}"
                 $response.StatusCode = 400
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.Close()
+            continue
+        }
+
+        if ($request.HttpMethod -eq "POST" -and $path -eq "/api/publish") {
+            try {
+                $nodeExe = "C:\Program Files\nodejs\node.exe"
+                if (-not (Test-Path $nodeExe)) { $nodeExe = "node" }
+                $exportScript = Join-Path $rootDir "export_products.js"
+                if (Test-Path $exportScript) {
+                    & $nodeExe $exportScript *>$null
+                }
+                
+                Set-Location $rootDir
+                & 'C:\Program Files\Git\cmd\git.exe' add products.json www/products.json android/app/src/main/assets/public/products.json images/ index.html INDEX.JSX
+                & 'C:\Program Files\Git\cmd\git.exe' commit -m "Live publish products from Admin Portal"
+                & 'C:\Program Files\Git\cmd\git.exe' push origin main 2>&1 | Out-Null
+                
+                Write-Host "  [PUBLISH] Live published to GitHub successfully!" -ForegroundColor Green
+                $json = '{"ok":true,"message":"Live published to GitHub and all App users successfully!"}'
+            } catch {
+                $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
+                $json = "{`"ok`":false,`"message`":`"$em`"}"
             }
             $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
             $response.ContentType = "application/json; charset=utf-8"
@@ -1077,6 +1132,7 @@ while ($true) {
                 }
                 if ($addedFiles -lt 2) { throw "Item dono website files me save nahi ho saka. Please file structure check karein." }
                 Sync-ProductImageMaps
+                Sync-ProductsJsonAndGitPush -commitMessage "Add item: $name (ID: $newId)"
 
                 Write-Host "  SUCCESS: Added '$name' (ID: $newId, Price: $price)" -ForegroundColor Green
 
@@ -1117,6 +1173,7 @@ while ($true) {
             $ct = switch ($ext) {
                 ".html" { "text/html; charset=utf-8" }
                 ".js"   { "application/javascript" }
+                ".json" { "application/json; charset=utf-8" }
                 ".css"  { "text/css" }
                 ".png"  { "image/png" }
                 ".jpg"  { "image/jpeg" }
@@ -1128,6 +1185,8 @@ while ($true) {
             }
             $response.StatusCode = 200
             $response.ContentType = $ct
+            $response.AddHeader("Access-Control-Allow-Origin", "*")
+            $response.AddHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             $response.ContentLength64 = $bytes.Length
             $response.OutputStream.Write($bytes, 0, $bytes.Length)
         } else {

@@ -194,6 +194,11 @@
   <div class="stat-chip"><div class="num" id="statNextId">...</div><div class="lbl">Next ID</div></div>
   <div class="stat-chip"><div class="num" id="statImages">...</div><div class="lbl">With Images</div></div>
   <div class="stat-chip"><div class="num" id="statToday">0</div><div class="lbl">Added Today</div></div>
+  <div class="stat-chip" style="display: flex; align-items: center; justify-content: center; background: rgba(37, 99, 235, 0.12); border-color: rgba(56, 189, 248, 0.4); padding: 5px 12px;">
+    <button type="button" id="publishBtn" onclick="publishLive()" style="background: linear-gradient(135deg, #0284c7, #2563eb); border: none; color: white; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 4px 12px rgba(37,99,235,0.3); transition: transform 0.1s;">
+      🚀 <span>Publish Live to App</span>
+    </button>
+  </div>
 </div>
 
 <div class="tabs">
@@ -978,6 +983,29 @@ function renderRecent(){
     html+='<div class="recent-item">'+t+'<div class="recent-info"><div class="recent-name">'+eH(it.name)+'<span class="new-badge">NEW</span></div><div class="recent-meta">ID: '+it.id+' &middot; '+eH(it.catName)+'</div></div><div class="recent-price">Rs.'+it.price+'</div></div>';
   });
   l.innerHTML=html;
+}
+
+function publishLive() {
+  var btn = document.getElementById('publishBtn');
+  var origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Publishing...';
+  fetch(apiUrl('/api/publish'), { method: 'POST' })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
+    if (res.ok) {
+      showToast('🚀 ' + (res.message || 'Live published to GitHub & App users!'), 'success');
+    } else {
+      showToast('Error: ' + (res.message || 'Publish failed'), 'error');
+    }
+  })
+  .catch(function() {
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
+    showToast('Server connection error', 'error');
+  });
 }
 
 function showToast(msg,type){

@@ -7,7 +7,7 @@
 //  WARNING  : app.js ko KABHI directly edit mat karo — woh
 //             auto-generated file hai aur overwrite ho jaati hai.
 // =============================================================
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
     }

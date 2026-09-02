@@ -4156,7 +4156,39 @@ export default function SahilTraders() {
             window.PRODUCT_IMAGE_MAP = { ...(window.PRODUCT_IMAGE_MAP || {}), ...JSON.parse(cachedMap) };
           }
         } catch(e) {}
+
+        // Initial fetch on app start
         fetchLiveProducts(false);
+
+        // Auto-refresh when app comes to foreground or window gets focus
+        const onVisibilityChange = () => {
+          if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+            fetchLiveProducts(false);
+          }
+        };
+        const onFocus = () => fetchLiveProducts(false);
+
+        if (typeof document !== 'undefined') {
+          document.addEventListener('visibilitychange', onVisibilityChange);
+        }
+        if (typeof window !== 'undefined') {
+          window.addEventListener('focus', onFocus);
+        }
+
+        // Periodic background poll every 25 seconds
+        const intervalId = setInterval(() => {
+          fetchLiveProducts(false);
+        }, 25000);
+
+        return () => {
+          if (typeof document !== 'undefined') {
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+          }
+          if (typeof window !== 'undefined') {
+            window.removeEventListener('focus', onFocus);
+          }
+          clearInterval(intervalId);
+        };
       }, [fetchLiveProducts]);
 
       // Auto-scroll to absolute top of page whenever category or brand selection changes
@@ -5071,31 +5103,6 @@ export default function SahilTraders() {
                         <option value="ur" style={{background:'#0d1528', color:'#fff'}}>اردو</option>
                       </select>
 
-                      <button
-                        type="button"
-                        onClick={() => fetchLiveProducts(true)}
-                        title={tr(language, "Refresh Live Items", "Taza Items Load Karein", "تازہ آئٹمز لوڈ کریں")}
-                        style={{
-                          background: isSyncingProducts ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255,255,255,0.06)',
-                          border: '1.5px solid rgba(56, 189, 248, 0.35)',
-                          borderRadius: '10px',
-                          padding: '7px 10px',
-                          fontSize: '11.5px',
-                          fontWeight: 700,
-                          color: '#38bdf8',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          transition: 'all 0.18s'
-                        }}
-                      >
-                        <svg className={isSyncingProducts ? "animate-spin" : ""} style={{ width: '14px', height: '14px' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                        <span>{isSyncingProducts ? 'Syncing...' : 'Sync'}</span>
-                      </button>
-
                       <button onClick={() => setReturnPolicyOpen(true)} title={tr(language,'Return Policy','Wapsi Policy','واپسی پالیسی')} style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
                         <svg style={{width:'14px',height:'14px',color:'#10b981'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
                         <span>{tr(language,'Policy','Policy','پالیسی')}</span>
@@ -5172,27 +5179,6 @@ export default function SahilTraders() {
 
                     {/* ── MOBILE ROW 1 RIGHT ACTION (Sync & WhatsApp Support) ── */}
                     <div className="flex sm:hidden items-center gap-1.5 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => fetchLiveProducts(true)}
-                        title={tr(language, "Refresh Live Items", "Taza Items Load Karein", "تازہ آئٹمز لوڈ کریں")}
-                        style={{
-                          background: isSyncingProducts ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255,255,255,0.08)',
-                          border: '1px solid rgba(56, 189, 248, 0.4)',
-                          borderRadius: '8px',
-                          padding: '5px 7px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#38bdf8',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <svg className={isSyncingProducts ? "animate-spin" : ""} style={{ width: '15px', height: '15px' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                      </button>
-
                       <a
                         href="https://wa.me/923368945775"
                         target="_blank"

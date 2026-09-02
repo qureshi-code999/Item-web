@@ -1,6 +1,6 @@
-﻿window.TRANSLATIONS = window.TRANSLATIONS || {};
+window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.ur = {
-  appTitle: "سہیل ٹریڈرز",
+  appTitle: "زیڈ ایس گروسریز (ZS Groceries)",
   subtitle: "ہول سیل اور پرچون ریٹ",
   skipIntro: "آگے جائیں",
   searchPlaceholder: "کوئی بھی چیز تلاش کریں...",
@@ -9,7 +9,7 @@ window.TRANSLATIONS.ur = {
   noMatch: "کوئی چیز نہیں ملی",
   noProducts: "تلاش کے مطابق کوئی چیز نہیں ملی ۴",
   loadMore: "اور دیکھیں",
-  footer: "سہیل ٹریڈرز — ہول سیل اور پرچون ریٹ",
+  footer: "زیڈ ایس گروسریز — ہول سیل اور پرچون ریٹ",
   productsInStock: "{count}+ چیزیں اسٹاک میں ہیں",
   productsFound: "{count} چیزیں ملیں",
   languageLabel: "زبان",

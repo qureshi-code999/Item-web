@@ -1,6 +1,6 @@
-﻿window.TRANSLATIONS = window.TRANSLATIONS || {};
+window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.en = {
-  appTitle: "Sahil Traders",
+  appTitle: "ZS Groceries",
   subtitle: "Wholesale & Retail",
   skipIntro: "SKIP INTRO",
   searchPlaceholder: "Search products...",
@@ -9,7 +9,7 @@ window.TRANSLATIONS.en = {
   noMatch: "No matching products",
   noProducts: "No products match your search.",
   loadMore: "Load More",
-  footer: "Sahil Traders — Wholesale & Retail",
+  footer: "ZS Groceries — Wholesale & Retail",
   productsInStock: "{count}+ products in stock",
   productsFound: "{count} product(s) found",
   languageLabel: "Language",

@@ -10,7 +10,7 @@
   const { useState, useMemo, useEffect, useRef } = React;
 
 // =============================================================
-//  ✅ MASTER SOURCE FILE — ZS Traders WEBSITE
+//  ✅ MASTER SOURCE FILE — ZS Groceries WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
 //  Build    : Edit karne ke baad compile_jsx.ps1 chalao jo
@@ -69,7 +69,7 @@ function saveInvoiceAsImage(order, language) {
   ctx.strokeRect(16, 16, width - 32, height - 32);
   ctx.fillStyle = '#0f172a';
   ctx.font = '900 22px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-  ctx.fillText('ZS Traders', 36, 52);
+  ctx.fillText('ZS Groceries', 36, 52);
   ctx.fillStyle = '#64748b';
   ctx.font = '600 10.5px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
   ctx.fillText('WHOLESALE & RETAIL STORE • KARACHI', 36, 70);
@@ -253,7 +253,7 @@ function saveInvoiceAsImage(order, language) {
   ctx.textAlign = 'center';
   ctx.fillStyle = '#0f172a';
   ctx.font = '700 11.5px system-ui, sans-serif';
-  ctx.fillText('❤️ Thank you for choosing ZS Traders!', width / 2, curY);
+  ctx.fillText('❤️ Thank you for choosing ZS Groceries!', width / 2, curY);
   curY += 18;
   ctx.fillStyle = '#64748b';
   ctx.font = '500 10.5px system-ui, sans-serif';
@@ -270,8 +270,8 @@ function saveInvoiceAsImage(order, language) {
       try {
         await navigator.share({
           files: [file],
-          title: `ZS Traders Invoice #${order.id}`,
-          text: 'Official Invoice - ZS Traders Karachi'
+          title: `ZS Groceries Invoice #${order.id}`,
+          text: 'Official Invoice - ZS Groceries Karachi'
         });
         return;
       } catch (e) {}
@@ -322,7 +322,7 @@ function generatePDFReceipt(order, language) {
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Invoice #${order.id} - ZS Traders</title>
+          <title>Invoice #${order.id} - ZS Groceries</title>
           <style>
             * { box-sizing: border-box; }
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: #f8fafc; margin: 0; padding: 16px; }
@@ -352,7 +352,7 @@ function generatePDFReceipt(order, language) {
           <div class="invoice-card">
             <div class="header">
               <div>
-                <h1 class="brand-title">ZS Traders</h1>
+                <h1 class="brand-title">ZS Groceries</h1>
                 <div class="brand-sub">Wholesale & Retail Store • Karachi</div>
                 <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 0336-8945775</div>
               </div>
@@ -413,7 +413,7 @@ function generatePDFReceipt(order, language) {
             </div>
 
             <div class="footer">
-              <div>❤️ <strong>Thank you for choosing ZS Traders!</strong></div>
+              <div>❤️ <strong>Thank you for choosing ZS Groceries!</strong></div>
               <div style="margin-top: 4px;">For exchanges or inquiries, WhatsApp us at <strong>+92 336 8945775</strong></div>
             </div>
           </div>
@@ -464,7 +464,7 @@ function generatePDFReceipt(order, language) {
 
                 ctx.fillStyle = '#0f172a';
                 ctx.font = '900 22px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-                ctx.fillText('ZS Traders', 36, 52);
+                ctx.fillText('ZS Groceries', 36, 52);
 
                 ctx.fillStyle = '#64748b';
                 ctx.font = '600 10.5px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
@@ -676,7 +676,7 @@ function generatePDFReceipt(order, language) {
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#0f172a';
                 ctx.font = '700 11.5px system-ui, sans-serif';
-                ctx.fillText('❤️ Thank you for choosing ZS Traders!', width / 2, curY);
+                ctx.fillText('❤️ Thank you for choosing ZS Groceries!', width / 2, curY);
                 curY += 18;
                 ctx.fillStyle = '#64748b';
                 ctx.font = '500 10.5px system-ui, sans-serif';
@@ -691,8 +691,8 @@ function generatePDFReceipt(order, language) {
                     try {
                       await navigator.share({
                         files: [file],
-                        title: 'ZS Traders Invoice #' + (orderData.id || ''),
-                        text: 'Official Invoice - ZS Traders Karachi'
+                        title: 'ZS Groceries Invoice #' + (orderData.id || ''),
+                        text: 'Official Invoice - ZS Groceries Karachi'
                       });
                       if (btn) btn.innerHTML = '<span>✅</span><span>Shared / Saved!</span>';
                       setTimeout(() => { if (btn) btn.innerHTML = '<span>📸</span><span>Save to Gallery (تصویر محفوظ کریں)</span>'; }, 3000);
@@ -8981,16 +8981,19 @@ function AboutUsModal({
     onClick: onClose,
     className: "absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold w-9 h-9 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
   }, "\xD7"), /*#__PURE__*/React.createElement("div", {
-    className: "w-18 h-18 mx-auto mb-3 rounded-full bg-black p-1 shadow-xl flex items-center justify-center border-2 border-amber-400"
+    className: "w-18 h-18 mx-auto mb-3 rounded-2xl bg-white p-1 shadow-xl flex items-center justify-center border-2 border-blue-500"
   }, /*#__PURE__*/React.createElement("img", {
-    src: "images/zs-traders-logo.png",
-    alt: "ZS Traders Logo",
+    src: "images/zs-groceries-logo.png",
+    alt: "ZS Groceries Logo",
     loading: "lazy",
     decoding: "async",
-    className: "w-full h-full object-contain rounded-full"
+    onError: e => {
+      e.currentTarget.src = 'images/zs-groceries-logo.jpg';
+    },
+    className: "w-full h-full object-contain rounded-xl"
   })), /*#__PURE__*/React.createElement("h2", {
-    className: "text-2xl font-black tracking-wider uppercase text-amber-400 font-poppins"
-  }, "ZS Traders"), /*#__PURE__*/React.createElement("p", {
+    className: "text-2xl font-black tracking-wider uppercase text-sky-400 font-poppins"
+  }, "ZS Groceries"), /*#__PURE__*/React.createElement("p", {
     className: "text-xs text-gray-300 font-medium mt-1 tracking-widest uppercase"
   }, tr(modalLang, 'Trusted Wholesale & Retail Store — Est. 2021, Karachi', 'Karachi ka Qabil-e-Aitemad Wholesale Store — Qayam Shuda 2021', 'کراچی کا قابلِ اعتماد ہول سیل و پرچون اسٹور — قائم شدہ 2021')), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-center gap-1.5 mt-3 pt-2 border-t border-white/10"
@@ -9022,7 +9025,7 @@ function AboutUsModal({
     className: "text-xl"
   }, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, tr(modalLang, 'Our Story Since 2021', 'Hamari Kahani (Our Story)', 'ہماری کہانی (Our Story)'))), /*#__PURE__*/React.createElement("p", {
     className: isUrdu ? 'font-urdu text-right text-sm leading-loose' : 'text-xs sm:text-sm text-gray-700 leading-normal'
-  }, tr(modalLang, 'Established in 2021 in Karachi, ZS Traders brings direct wholesale prices to customers on 4,000+ daily essentials and branded products, even if you are buying just 1 item.', 'ZS Traders ka aaghaz 2021 mein Karachi se wholesale business ke tor par hua. Hamara maqsad har customer ko 4,000+ products direct wholesale rates par faraham karna hai, chahe aap 1 item hi kyun na le rahe hon.', 'ZS ٹریڈرز کا آغاز 2021 میں کراچی سے ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات براہِ راست ہول سیل ریٹس پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔'))), /*#__PURE__*/React.createElement("div", {
+  }, tr(modalLang, 'Established in 2021 in Karachi, ZS Groceries brings direct wholesale prices to customers on 4,000+ daily essentials and branded products, even if you are buying just 1 item.', 'ZS Groceries ka aaghaz 2021 mein Karachi se wholesale business ke tor par hua. Hamara maqsad har customer ko 4,000+ products direct wholesale rates par faraham karna hai, chahe aap 1 item hi kyun na le rahe hon.', 'ZS ٹریڈرز کا آغاز 2021 میں کراچی سے ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات براہِ راست ہول سیل ریٹس پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔'))), /*#__PURE__*/React.createElement("div", {
     className: "relative overflow-hidden bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white rounded-2xl p-4 shadow-lg border-2 border-amber-300"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -9047,7 +9050,7 @@ function AboutUsModal({
     className: "tracking-wide"
   }, tr(modalLang, 'Lower Rates Than Any Supermart', 'Pakistan ke Baray se Baray Supermart se Sasta!', 'پاکستان کے بڑے سے بڑے سپر مارٹ سے سستا!'))), /*#__PURE__*/React.createElement("p", {
     className: isUrdu ? 'font-urdu text-right text-xs sm:text-sm font-semibold leading-relaxed text-amber-50' : 'text-xs sm:text-sm font-medium leading-relaxed text-amber-50'
-  }, tr(modalLang, 'Over 90% of our product prices are strictly lower than any big supermart across Pakistan — Guaranteed! This unique commitment to direct wholesale pricing and huge variety is the core reason why we started ZS Traders.', 'Hamare 90% se ziada products ke rates Pakistan ke baray se baray supermart se bhi kam hote hain — Shartiya! Yahi hamari sabse bari khasiyat hai. Itni ziada variety aur itni kam qeemat aapko aur kahin nahi milegi!', 'ہمارے 90% سے زائد پروڈکٹس کے ریٹس پاکستان کے بڑے سے بڑے سپر مارٹ سے بھی کم ہوتے ہیں — شرطیہ! یہی ہماری سب سے بڑی خصوصیت اور منفرد بات ہے جس کی وجہ سے ہم نے یہ کام شروع کیا۔ اتنی زیادہ ورائٹی اور اتنی کم قیمت آپ کو اور کہیں نہیں ملے گی!'))), /*#__PURE__*/React.createElement("div", {
+  }, tr(modalLang, 'Over 90% of our product prices are strictly lower than any big supermart across Pakistan — Guaranteed! This unique commitment to direct wholesale pricing and huge variety is the core reason why we started ZS Groceries.', 'Hamare 90% se ziada products ke rates Pakistan ke baray se baray supermart se bhi kam hote hain — Shartiya! Yahi hamari sabse bari khasiyat hai. Itni ziada variety aur itni kam qeemat aapko aur kahin nahi milegi!', 'ہمارے 90% سے زائد پروڈکٹس کے ریٹس پاکستان کے بڑے سے بڑے سپر مارٹ سے بھی کم ہوتے ہیں — شرطیہ! یہی ہماری سب سے بڑی خصوصیت اور منفرد بات ہے جس کی وجہ سے ہم نے یہ کام شروع کیا۔ اتنی زیادہ ورائٹی اور اتنی کم قیمت آپ کو اور کہیں نہیں ملے گی!'))), /*#__PURE__*/React.createElement("div", {
     className: "bg-gradient-to-br from-gray-900 via-gray-800 to-black border border-gray-800 rounded-2xl p-4 text-white shadow-md space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2 font-black text-sm text-amber-400 uppercase tracking-wider border-b border-gray-800 pb-2"
@@ -9160,12 +9163,12 @@ function AboutUsModal({
     className: "text-blue-600 font-bold shrink-0 mt-0.5 text-sm"
   }, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "font-bold text-gray-900"
-  }, "ZS Traders (Wholesale & Retail)"), /*#__PURE__*/React.createElement("div", {
+  }, "ZS Groceries (Wholesale & Retail)"), /*#__PURE__*/React.createElement("div", {
     className: "text-gray-600 mt-0.5"
   }, tr(modalLang, 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan', 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan', 'R4C4+RV6، سفید مسجد روڈ، اللہ والا ٹاؤن سیکٹر ایچ، کورنگی، کراچی، پاکستان')))), /*#__PURE__*/React.createElement("div", {
     className: "w-full h-48 sm:h-52 rounded-xl overflow-hidden border border-blue-200 shadow-inner relative bg-gray-100"
   }, /*#__PURE__*/React.createElement("iframe", {
-    title: "ZS Traders Google Map Location",
+    title: "ZS Groceries Google Map Location",
     src: "https://maps.google.com/maps?q=R4C4%2BRV6%2C+Safaid+White+Masjid+Rd%2C+Allah+Wala+Town+Sector+H+Korangi%2C+Karachi%2C+Pakistan&t=&z=17&ie=UTF8&iwloc=&output=embed",
     className: "w-full h-full border-0",
     loading: "lazy",
@@ -9174,7 +9177,7 @@ function AboutUsModal({
   })))), /*#__PURE__*/React.createElement("div", {
     className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3"
   }, /*#__PURE__*/React.createElement("a", {
-    href: `https://wa.me/${window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775'}?text=${encodeURIComponent(tr(modalLang, 'Hi ZS Traders! I have an inquiry about your store.', 'Salam ZS Traders! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ساحل ٹریڈرز کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`,
+    href: `https://wa.me/${window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775'}?text=${encodeURIComponent(tr(modalLang, 'Hi ZS Groceries! I have an inquiry about your store.', 'Salam ZS Groceries! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Groceries کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`,
     target: "_blank",
     rel: "noopener noreferrer",
     className: "flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -9233,7 +9236,7 @@ function ReturnPolicyModal({
     className: "text-xl sm:text-2xl font-black tracking-wider uppercase text-emerald-300 font-poppins"
   }, tr(language, 'Return & Exchange Policy', 'Wapsi aur Tabdeeli ki Policy', 'واپسی اور تبدیلی کی پالیسی')), /*#__PURE__*/React.createElement("p", {
     className: "text-xs text-emerald-100/90 font-semibold mt-1 tracking-wide"
-  }, tr(language, '100% Guaranteed Customer Protection & Care', 'ZS Traders — 100% Tasalli aur Guarantee', 'ساحل ٹریڈرز - 100% تسلی اور ضمانت'))), /*#__PURE__*/React.createElement("div", {
+  }, tr(language, '100% Guaranteed Customer Protection & Care', 'ZS Groceries — 100% Tasalli aur Guarantee', 'ZS Groceries — 100% تسلی اور ضمانت'))), /*#__PURE__*/React.createElement("div", {
     className: "p-6 overflow-y-auto space-y-4 flex-1 text-gray-800 text-sm leading-relaxed"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 text-emerald-950 shadow-sm space-y-1.5"
@@ -9360,7 +9363,7 @@ function ReturnPolicyModal({
   }, tr(language, 'Our rider will replace the item at your doorstep or send your money refund.', 'Rider nayi cheez de kar purani le jayega ya paise refund honge.', 'رائڈر نئی چیز دے کر پرانی لے جائے گا یا پیسے ری فنڈ ہوں گے'))))))), /*#__PURE__*/React.createElement("div", {
     className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shrink-0"
   }, /*#__PURE__*/React.createElement("a", {
-    href: `https://wa.me/${window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775'}?text=${encodeURIComponent(tr(language, 'Hi ZS Traders! I want to claim a return/exchange for my order.', 'Salam ZS Traders! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`,
+    href: `https://wa.me/${window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775'}?text=${encodeURIComponent(tr(language, 'Hi ZS Groceries! I want to claim a return/exchange for my order.', 'Salam ZS Groceries! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`,
     target: "_blank",
     rel: "noopener noreferrer",
     className: "flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -9390,7 +9393,7 @@ function WelcomeDisclaimerModal({
     className: "text-xl font-black text-gray-900 tracking-wide"
   }, tr(modalLang, 'Assalam U alaikum!', 'Assalam-o-Alaikum!', 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ')), /*#__PURE__*/React.createElement("h4", {
     className: "text-lg font-extrabold text-amber-600 mt-1 font-poppins"
-  }, tr(modalLang, 'Welcome to ZS Traders', 'ZS Traders mein Khush Amdeed', 'ZS ٹریڈرز میں خوش آمدید')), /*#__PURE__*/React.createElement("div", {
+  }, tr(modalLang, 'Welcome to ZS Groceries', 'ZS Groceries mein Khush Amdeed', 'ZS ٹریڈرز میں خوش آمدید')), /*#__PURE__*/React.createElement("div", {
     className: "my-5 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-950"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-center gap-1.5 font-bold text-sm text-amber-900 mb-1.5"
@@ -9487,7 +9490,7 @@ function ParchiOrderModal({
     if (typeof saveOrderHistory === 'function') {
       saveOrderHistory(orderRecord);
     }
-    const waText = `*Salam ZS Traders!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (BS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
+    const waText = `*Salam ZS Groceries!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (BS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
 
     // Try direct native Web Share with photo file (opens WhatsApp with actual photo attached on mobile)
     let sharedWithFile = false;
@@ -9497,7 +9500,7 @@ function ParchiOrderModal({
       try {
         await navigator.share({
           files: [photoFile],
-          title: `ZS Traders Parchi Order #${orderId}`,
+          title: `ZS Groceries Parchi Order #${orderId}`,
           text: waText
         });
         sharedWithFile = true;
@@ -9512,7 +9515,7 @@ function ParchiOrderModal({
     setSubmitted(true);
   };
   const handleOpenWhatsAppDirect = () => {
-    const waText = `*Salam ZS Traders!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}`;
+    const waText = `*Salam ZS Groceries!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}`;
     const waUrl = buildWhatsAppUrl('923368945775', waText);
     window.open(waUrl, '_blank');
   };
@@ -9812,7 +9815,7 @@ function ProductDetailModal({
     if (pricing.hasDiscount) {
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${(pricing.savings * modalQty + bulkPricing.extraSavings).toLocaleString()})`;
     }
-    const msg = `Assalam U Alaikum ZS Traders!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
+    const msg = `Assalam U Alaikum ZS Groceries!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
     window.open(`https://wa.me/923368945775?text=${encodeURIComponent(msg)}`, '_blank');
   };
   return /*#__PURE__*/React.createElement("div", {
@@ -11216,9 +11219,9 @@ function SahilTraders() {
       background: 'radial-gradient(ellipse at center, #070d18 0%, #030712 60%, #000000 100%)'
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "absolute w-[320px] h-[320px] sm:w-[480px] sm:h-[480px] rounded-full bg-amber-500/10 luxury-aura pointer-events-none -translate-y-6"
+    className: "absolute w-[320px] h-[320px] sm:w-[480px] sm:h-[480px] rounded-full bg-blue-600/20 luxury-aura pointer-events-none -translate-y-6"
   }), /*#__PURE__*/React.createElement("div", {
-    className: "absolute w-[280px] h-[280px] sm:w-[420px] sm:h-[420px] rounded-full bg-emerald-500/15 luxury-aura pointer-events-none translate-y-10",
+    className: "absolute w-[280px] h-[280px] sm:w-[420px] sm:h-[420px] rounded-full bg-sky-500/20 luxury-aura pointer-events-none translate-y-10",
     style: {
       animationDelay: '2s'
     }
@@ -11243,35 +11246,35 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "luxury-logo-box"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-full p-2 flex items-center justify-center shadow-2xl shadow-black",
+    className: "luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-3xl p-2.5 flex items-center justify-center shadow-2xl",
     style: {
-      background: 'radial-gradient(circle, rgba(234, 179, 8, 0.2) 0%, rgba(5, 11, 20, 0.95) 75%)',
-      border: '2px solid rgba(234, 179, 8, 0.6)',
-      boxShadow: '0 0 40px rgba(234, 179, 8, 0.35), 0 0 80px rgba(0,0,0,0.95)'
+      background: '#ffffff',
+      border: '3px solid #2563eb',
+      boxShadow: '0 0 45px rgba(37, 99, 235, 0.5), 0 0 80px rgba(0,0,0,0.9)'
     }
   }, /*#__PURE__*/React.createElement("img", {
-    src: "images/zs-traders-logo.png",
-    alt: "ZS Traders",
+    src: "images/zs-groceries-logo.png",
+    alt: "ZS Groceries",
     onError: e => {
-      e.currentTarget.src = 'images/zs-traders-logo.jpg';
+      e.currentTarget.src = 'images/zs-groceries-logo.jpg';
     },
-    className: "w-full h-full object-contain rounded-full"
+    className: "w-full h-full object-contain rounded-2xl"
   }))), /*#__PURE__*/React.createElement("div", {
     className: "luxury-text-anim-1 mt-7"
   }, /*#__PURE__*/React.createElement("h1", {
-    className: "text-3xl sm:text-4xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-yellow-300 to-amber-500 drop-shadow-[0_2px_12px_rgba(234,179,8,0.4)]",
+    className: "text-3xl sm:text-4xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-b from-blue-100 via-sky-300 to-blue-500 drop-shadow-[0_2px_14px_rgba(37,99,235,0.6)]",
     style: {
       fontFamily: "'Poppins', sans-serif",
-      letterSpacing: '0.24em'
+      letterSpacing: '0.22em'
     }
-  }, "ZS Traders")), /*#__PURE__*/React.createElement("div", {
+  }, "ZS Groceries")), /*#__PURE__*/React.createElement("div", {
     className: "luxury-text-anim-2 mt-3.5"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "inline-flex items-center gap-1.5 px-4 py-1.2 rounded-full bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-amber-500/10 border border-amber-500/30 backdrop-blur-md shadow-lg shadow-black/50"
+    className: "inline-flex items-center gap-1.5 px-4 py-1.2 rounded-full bg-gradient-to-r from-blue-600/20 via-sky-500/20 to-indigo-600/20 border border-blue-400/40 backdrop-blur-md shadow-lg shadow-black/50"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"
+    className: "w-1.5 h-1.5 rounded-full bg-sky-400 animate-ping"
   }), /*#__PURE__*/React.createElement("span", {
-    className: "text-[11px] font-extrabold tracking-[0.18em] text-amber-300 uppercase"
+    className: "text-[11px] font-extrabold tracking-[0.18em] text-sky-300 uppercase"
   }, "Wholesale & Retail Pakistan"))), /*#__PURE__*/React.createElement("div", {
     className: "luxury-text-anim-3 mt-8 flex flex-col items-center gap-3"
   }, /*#__PURE__*/React.createElement("div", {
@@ -11285,9 +11288,9 @@ function SahilTraders() {
   }))), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-1.5"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "text-[10px] font-bold text-amber-400/80 tracking-[0.2em] uppercase"
+    className: "text-[10px] font-bold text-sky-400/90 tracking-[0.2em] uppercase"
   }, "Loading Store"), /*#__PURE__*/React.createElement("span", {
-    className: "splash-dots-anim text-amber-400 font-extrabold text-[14px] leading-none"
+    className: "splash-dots-anim text-sky-400 font-extrabold text-[14px] leading-none"
   }))))), /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 -z-10 bg-white"
   }), activeTab !== 'account' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
@@ -11356,26 +11359,26 @@ function SahilTraders() {
     style: {
       position: 'absolute',
       inset: '-2px',
-      borderRadius: '50%',
-      background: 'linear-gradient(135deg, #f59e0b, #10b981)',
-      opacity: 0.6,
+      borderRadius: '14px',
+      background: 'linear-gradient(135deg, #2563eb, #38bdf8)',
+      opacity: 0.7,
       filter: 'blur(5px)'
     }
   }), /*#__PURE__*/React.createElement("img", {
-    src: "images/zs-traders-logo.png",
-    alt: "ZS Traders",
+    src: "images/zs-groceries-logo.png",
+    alt: "ZS Groceries",
     onError: e => {
-      e.currentTarget.src = 'images/zs-traders-logo.jpg';
+      e.currentTarget.src = 'images/zs-groceries-logo.jpg';
     },
     style: {
       width: '40px',
       height: '40px',
       objectFit: 'contain',
-      borderRadius: '50%',
+      borderRadius: '12px',
       position: 'relative',
-      background: '#050b14',
+      background: '#ffffff',
       padding: '1px',
-      border: '1.5px solid rgba(245,158,11,0.8)'
+      border: '1.5px solid #2563eb'
     }
   })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -11387,13 +11390,13 @@ function SahilTraders() {
       color: '#ffffff',
       lineHeight: 1.1
     }
-  }, "ZS Traders"), /*#__PURE__*/React.createElement("div", {
+  }, "ZS Groceries"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '8.5px',
       fontWeight: 700,
       letterSpacing: '0.14em',
       textTransform: 'uppercase',
-      color: '#f59e0b',
+      color: '#38bdf8',
       marginTop: '1px'
     }
   }, "Wholesale & Retail"))), /*#__PURE__*/React.createElement("div", {
@@ -12225,7 +12228,7 @@ function SahilTraders() {
       color: '#0f172a',
       fontFamily: "'Poppins', sans-serif"
     }
-  }, "ZS Traders Customer"), /*#__PURE__*/React.createElement("span", {
+  }, "ZS Groceries Customer"), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: '9px',
       fontWeight: 800,
@@ -12676,7 +12679,7 @@ function SahilTraders() {
       fontWeight: 800,
       color: '#0f172a'
     }
-  }, tr(language, 'About ZS Traders', 'ZS Traders ke Baare Mein', 'ساحل ٹریڈرز کے بارے میں')), /*#__PURE__*/React.createElement("div", {
+  }, tr(language, 'About ZS Groceries', 'ZS Groceries ke Baare Mein', 'ZS Groceries کے بارے میں')), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '10px',
       color: '#64748b',
@@ -12750,7 +12753,7 @@ function SahilTraders() {
       fontWeight: 800,
       color: '#64748b'
     }
-  }, "ZS Traders Official App v9.6"), /*#__PURE__*/React.createElement("div", {
+  }, "ZS Groceries Official App v9.6"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: '9.5px',
       color: '#94a3b8',
@@ -13017,7 +13020,7 @@ function SahilTraders() {
   }, "\u23F0"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: Subah 10:00 AM se Raat 8:00 PM tak (Peer ta Hafta)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)'))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => setAboutOpen(true),
     className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-4 py-1.5 transition-colors cursor-pointer bg-white"
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'About ZS Traders', 'Hamare Baare Mein (About ZS Traders)', 'ہمارے بارے میں (About ZS Traders)')))), /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'About ZS Groceries', 'Hamare Baare Mein (About ZS Groceries)', 'ہمارے بارے میں (About ZS Groceries)')))), /*#__PURE__*/React.createElement("p", {
     className: "text-xs tracking-[0.3em] uppercase",
     style: {
       color: 'rgba(0,0,0,0.12)'
@@ -13182,12 +13185,15 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2.5"
   }, /*#__PURE__*/React.createElement("img", {
-    src: "images/zs-traders-logo.png",
-    alt: "ZS Traders",
-    className: "w-10 h-10 object-contain rounded-full border border-amber-400/40 p-0.5"
+    src: "images/zs-groceries-logo.png",
+    alt: "ZS Groceries",
+    onError: e => {
+      e.currentTarget.src = 'images/zs-groceries-logo.jpg';
+    },
+    className: "w-10 h-10 object-contain rounded-xl border border-blue-500/50 p-0.5 bg-white shadow-sm"
   }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
     className: "text-sm font-black tracking-wider uppercase text-black"
-  }, "ZS Traders"), /*#__PURE__*/React.createElement("p", {
+  }, "ZS Groceries"), /*#__PURE__*/React.createElement("p", {
     className: "text-[11px] text-gray-500"
   }, tr(language, 'Main Menu', 'Main Menu', '\u0645\u06cc\u06ba \u0645\u06cc\u0646\u0648')))), /*#__PURE__*/React.createElement("button", {
     onClick: () => setMobileMenuOpen(false),
@@ -13424,9 +13430,9 @@ function SahilTraders() {
     d: "M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
   }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
     className: "text-base font-extrabold text-black uppercase tracking-wider"
-  }, tr(language, 'Exit ZS Traders?', 'ZS Traders se Bahar Jana Chahte Hain?', 'ویب سائٹ سے باہر جانا چاہتے ہیں؟')), /*#__PURE__*/React.createElement("p", {
+  }, tr(language, 'Exit ZS Groceries?', 'ZS Groceries se Bahar Jana Chahte Hain?', 'ویب سائٹ سے باہر جانا چاہتے ہیں؟')), /*#__PURE__*/React.createElement("p", {
     className: "text-xs text-gray-700 mt-1.5 leading-relaxed"
-  }, tr(language, 'Are you sure you want to leave the store?', 'Kya aap ZS Traders band karna chahte hain?', 'کیا آپ واقعی ZS Traders بند کرنا چاہتے ہیں؟'))), /*#__PURE__*/React.createElement("div", {
+  }, tr(language, 'Are you sure you want to leave the store?', 'Kya aap ZS Groceries band karna chahte hain?', 'کیا آپ واقعی ZS Groceries بند کرنا چاہتے ہیں؟'))), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-3 pt-2"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -16395,7 +16401,7 @@ function CheckoutModal({
     }).join('\n\n');
     const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (BS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
     const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
-    const msg = ['🛒 *NEW ORDER – ZS Traders*', '-----------------------------------------', '', '*📦 ORDER DETAILS:*', itemLines, '', '-----------------------------------------', `*Subtotal:* Rs ${cartTotal.toLocaleString()}${bulkSavingsSummary}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '-----------------------------------------', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}` : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '-----------------------------------------', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
+    const msg = ['🛒 *NEW ORDER – ZS Groceries*', '-----------------------------------------', '', '*📦 ORDER DETAILS:*', itemLines, '', '-----------------------------------------', `*Subtotal:* Rs ${cartTotal.toLocaleString()}${bulkSavingsSummary}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '-----------------------------------------', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}` : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '-----------------------------------------', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',

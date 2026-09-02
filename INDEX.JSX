@@ -2236,8 +2236,6 @@ function getTranslationValue(dictionary, key) {
       { id: 1268, name: "LAHORI NAMAK RS,35", price: 29, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "L" },
       { id: 1269, name: "LEMON MAX LONG BAR RS,100", price: 95, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "L" },
       { id: 1270, name: "LEMON MAX BAR SMALL RS,35", price: 34, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "L" },
-    
-      { id: 1273, name: "DDFFF", price: 220, categoryId: "soaps", categoryName: "Soaps" },
     ];
     var PAGE_SIZE = 10;
     const RECENT_LIMIT = 15;

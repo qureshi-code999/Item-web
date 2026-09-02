@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-02T17:22:37.085Z",
-  "total": 1040,
+  "updatedAt": "2026-09-02T17:22:39.271Z",
+  "total": 1039,
   "imageMap": {
     "1": "png",
     "2": "png",
@@ -9513,13 +9513,6 @@
       "hasImage": true,
       "gradient": null,
       "initial": "L"
-    },
-    {
-      "id": 1273,
-      "name": "DDFFF",
-      "price": 220,
-      "categoryId": "soaps",
-      "categoryName": "Soaps"
     }
   ]
 }

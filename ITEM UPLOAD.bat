@@ -1,10 +1,10 @@
 @echo off
-title Sahil Traders - Item Upload Portal
+title ZS Mart - Item Upload Portal
 color 0A
 cls
 echo.
 echo  ==========================================
-echo   SAHIL TRADERS - ITEM UPLOAD PORTAL
+echo   ZS MART - ITEM UPLOAD PORTAL
 echo  ==========================================
 echo.
 echo  Server start ho raha hai...

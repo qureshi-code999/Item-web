@@ -1,7 +1,7 @@
 @echo off
-title Sahil Traders - Admin Portal Server
+title ZS Mart - Admin Portal Server
 echo ==================================================
-echo   SAHIL TRADERS ADMIN PORTAL SERVER
+echo   ZS MART ADMIN PORTAL SERVER
 echo ==================================================
 echo.
 echo Server start ho raha hai...

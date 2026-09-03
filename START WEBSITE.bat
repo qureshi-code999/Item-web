@@ -1,7 +1,7 @@
 @echo off
-title Sahil Traders - Website Server (PORT 8000)
+title ZS Mart - Website Server (PORT 8000)
 echo ==================================================
-echo   SAHIL TRADERS WEBSITE SERVER - PORT 8000
+echo   ZS MART WEBSITE SERVER - PORT 8000
 echo ==================================================
 echo.
 echo   Website: http://localhost:8000

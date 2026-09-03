@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">ZS Groceries</string>
-    <string name="title_activity_main">ZS Groceries</string>
+    <string name="app_name">ZS Mart</string>
+    <string name="title_activity_main">ZS Mart</string>
     <string name="package_name">com.sahiltraders.app</string>
     <string name="custom_url_scheme">com.sahiltraders.app</string>
 </resources>

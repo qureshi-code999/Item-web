@@ -1,7 +1,7 @@
 @echo off
-title Sahil Traders - Image Map Scanner and Updater
+title ZS Mart - Image Map Scanner and Updater
 echo ================================================
-echo    Sahil Traders - Image Map Scanner and Updater
+echo    ZS Mart - Image Map Scanner and Updater
 echo ================================================
 echo.
 echo Images folder scan kar raha hai...

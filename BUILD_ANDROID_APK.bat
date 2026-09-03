@@ -1,9 +1,9 @@
 @echo off
-title Sahil Traders - 1-Click Android APK Builder
+title ZS Mart - 1-Click Android APK Builder
 color 0A
 cls
 echo ================================================================
-echo         SAHIL TRADERS - 1-CLICK ANDROID APK BUILDER
+echo         ZS MART - 1-CLICK ANDROID APK BUILDER
 echo ================================================================
 echo.
 echo  [1/4] Compiling React JSX and syncing assets...
@@ -27,13 +27,13 @@ call gradlew.bat assembleDebug
 echo.
 echo  [4/4] Copying APK to Desktop...
 if exist "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" (
-    copy /y "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" "%USERPROFILE%\Desktop\ZS_Groceries_App.apk" >nul
+    copy /y "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" "%USERPROFILE%\Desktop\ZS_Mart_App.apk" >nul
     copy /y "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" "%USERPROFILE%\Desktop\ZS_Traders_App.apk" >nul
-    copy /y "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" "%USERPROFILE%\Desktop\Sahil_Traders_App.apk" >nul
+    copy /y "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" "%USERPROFILE%\Desktop\ZS_Mart_App.apk" >nul
     echo.
     echo ================================================================
     echo    SUCCESS! FRESH APK GENERATED AND COPIED TO DESKTOP!
-    echo    File: Desktop\ZS_Groceries_App.apk
+    echo    File: Desktop\ZS_Mart_App.apk
     echo ================================================================
 ) else (
     echo.

@@ -1,9 +1,9 @@
 @echo off
-title Opening Sahil Traders Android Project in Android Studio
+title Opening ZS Mart Android Project in Android Studio
 color 0A
 cls
 echo ================================================================
-echo    OPENING SAHIL TRADERS APP PROJECT IN ANDROID STUDIO
+echo    OPENING ZS MART APP PROJECT IN ANDROID STUDIO
 echo ================================================================
 echo.
 echo Launching Android Studio with android project folder...

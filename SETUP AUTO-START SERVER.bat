@@ -1,7 +1,7 @@
 @echo off
-title Setting up Sahil Traders Auto-Start Server...
+title Setting up ZS Mart Auto-Start Server...
 echo ==================================================
-echo   SAHIL TRADERS - SERVER SETUP
+echo   ZS MART - SERVER SETUP
 echo ==================================================
 echo.
 echo Server ko Windows startup mein register kar raha hai...

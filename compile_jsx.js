@@ -111,7 +111,7 @@ if (fs.existsSync(langSrc)) {
 }
 
 // Sync logo and icon assets to www and android assets
-const logoFiles = ['zs-groceries-logo.png', 'zs-groceries-logo.jpg', 'zs-traders-logo.png', 'zs-traders-logo.jpg', 'sahil-traders-logo.png'];
+const logoFiles = ['zs-mart-logo.png', 'zs-mart-logo.jpg', 'zs-groceries-logo.png', 'zs-groceries-logo.jpg', 'zs-traders-logo.png', 'zs-traders-logo.jpg', 'sahil-traders-logo.png'];
 syncDirs.forEach(dir => {
   const imagesDestDir = path.join(dir, 'images');
   if (!fs.existsSync(imagesDestDir)) fs.mkdirSync(imagesDestDir, { recursive: true });

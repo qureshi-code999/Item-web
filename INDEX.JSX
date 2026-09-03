@@ -1,5 +1,5 @@
 ﻿// =============================================================
-//  ✅ MASTER SOURCE FILE — ZS Groceries WEBSITE
+//  ✅ MASTER SOURCE FILE — ZS Mart WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
 //  Build    : Edit karne ke baad compile_jsx.ps1 chalao jo
@@ -67,7 +67,7 @@ function getTranslationValue(dictionary, key) {
 
       ctx.fillStyle = '#0f172a';
       ctx.font = '900 22px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-      ctx.fillText('ZS Groceries', 36, 52);
+      ctx.fillText('ZS Mart', 36, 52);
 
       ctx.fillStyle = '#64748b';
       ctx.font = '600 10.5px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
@@ -279,7 +279,7 @@ function getTranslationValue(dictionary, key) {
       ctx.textAlign = 'center';
       ctx.fillStyle = '#0f172a';
       ctx.font = '700 11.5px system-ui, sans-serif';
-      ctx.fillText('❤️ Thank you for choosing ZS Groceries!', width / 2, curY);
+      ctx.fillText('❤️ Thank you for choosing ZS Mart!', width / 2, curY);
       curY += 18;
       ctx.fillStyle = '#64748b';
       ctx.font = '500 10.5px system-ui, sans-serif';
@@ -294,8 +294,8 @@ function getTranslationValue(dictionary, key) {
           try {
             await navigator.share({
               files: [file],
-              title: `ZS Groceries Invoice #${order.id}`,
-              text: 'Official Invoice - ZS Groceries Karachi'
+              title: `ZS Mart Invoice #${order.id}`,
+              text: 'Official Invoice - ZS Mart Karachi'
             });
             return;
           } catch(e) {}
@@ -351,7 +351,7 @@ function getTranslationValue(dictionary, key) {
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Invoice #${order.id} - ZS Groceries</title>
+          <title>Invoice #${order.id} - ZS Mart</title>
           <style>
             * { box-sizing: border-box; }
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: #f8fafc; margin: 0; padding: 16px; }
@@ -381,7 +381,7 @@ function getTranslationValue(dictionary, key) {
           <div class="invoice-card">
             <div class="header">
               <div>
-                <h1 class="brand-title">ZS Groceries</h1>
+                <h1 class="brand-title">ZS Mart</h1>
                 <div class="brand-sub">Wholesale & Retail Store • Karachi</div>
                 <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 0336-8945775</div>
               </div>
@@ -442,7 +442,7 @@ function getTranslationValue(dictionary, key) {
             </div>
 
             <div class="footer">
-              <div>❤️ <strong>Thank you for choosing ZS Groceries!</strong></div>
+              <div>❤️ <strong>Thank you for choosing ZS Mart!</strong></div>
               <div style="margin-top: 4px;">For exchanges or inquiries, WhatsApp us at <strong>+92 336 8945775</strong></div>
             </div>
           </div>
@@ -493,7 +493,7 @@ function getTranslationValue(dictionary, key) {
 
                 ctx.fillStyle = '#0f172a';
                 ctx.font = '900 22px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-                ctx.fillText('ZS Groceries', 36, 52);
+                ctx.fillText('ZS Mart', 36, 52);
 
                 ctx.fillStyle = '#64748b';
                 ctx.font = '600 10.5px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
@@ -705,7 +705,7 @@ function getTranslationValue(dictionary, key) {
                 ctx.textAlign = 'center';
                 ctx.fillStyle = '#0f172a';
                 ctx.font = '700 11.5px system-ui, sans-serif';
-                ctx.fillText('❤️ Thank you for choosing ZS Groceries!', width / 2, curY);
+                ctx.fillText('❤️ Thank you for choosing ZS Mart!', width / 2, curY);
                 curY += 18;
                 ctx.fillStyle = '#64748b';
                 ctx.font = '500 10.5px system-ui, sans-serif';
@@ -720,8 +720,8 @@ function getTranslationValue(dictionary, key) {
                     try {
                       await navigator.share({
                         files: [file],
-                        title: 'ZS Groceries Invoice #' + (orderData.id || ''),
-                        text: 'Official Invoice - ZS Groceries Karachi'
+                        title: 'ZS Mart Invoice #' + (orderData.id || ''),
+                        text: 'Official Invoice - ZS Mart Karachi'
                       });
                       if (btn) btn.innerHTML = '<span>✅</span><span>Shared / Saved!</span>';
                       setTimeout(() => { if (btn) btn.innerHTML = '<span>📸</span><span>Save to Gallery (تصویر محفوظ کریں)</span>'; }, 3000);
@@ -2337,15 +2337,15 @@ function AboutUsModal({ isOpen, onClose, language }) {
           </button>
           <div style={{ width: '56px', height: '56px' }} className="mx-auto mb-1.5 rounded-2xl bg-white p-1 shadow-md flex items-center justify-center border-2 border-blue-500">
             <img 
-              src="images/zs-groceries-logo.png" 
-              alt="ZS Groceries Logo" 
+              src="images/zs-mart-logo.png" 
+              alt="ZS Mart Logo" 
               loading="lazy" 
               decoding="async" 
-              onError={(e) => { e.currentTarget.src = 'images/zs-groceries-logo.jpg'; }}
+              onError={(e) => { e.currentTarget.src = 'images/zs-mart-logo.jpg'; }}
               className="w-full h-full object-contain rounded-xl" 
             />
           </div>
-          <h2 className="text-xl font-black tracking-wider uppercase text-sky-400 font-poppins leading-tight">ZS Groceries</h2>
+          <h2 className="text-xl font-black tracking-wider uppercase text-sky-400 font-poppins leading-tight">ZS Mart</h2>
           <p className="text-[10.5px] text-gray-300 font-medium mt-0.5 tracking-wider uppercase">
             {tr(modalLang, 'Trusted Wholesale & Retail Store — Est. 2021, Karachi', 'Karachi ka Qabil-e-Aitemad Wholesale Store — Qayam Shuda 2021', 'کراچی کا قابلِ اعتماد ہول سیل و پرچون اسٹور — قائم شدہ 2021')}
           </p>
@@ -2403,9 +2403,9 @@ function AboutUsModal({ isOpen, onClose, language }) {
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-sm leading-loose' : 'text-xs sm:text-sm text-gray-700 leading-normal'}>
               {tr(modalLang,
-                'Established in 2021 in Karachi, ZS Groceries brings direct wholesale prices to customers on 4,000+ daily essentials and branded products, even if you are buying just 1 item.',
-                'ZS Groceries ka aaghaz 2021 mein Karachi se wholesale business ke tor par hua. Hamara maqsad har customer ko 4,000+ products direct wholesale rates par faraham karna hai, chahe aap 1 item hi kyun na le rahe hon.',
-                'ZS ٹریڈرز کا آغاز 2021 میں کراچی سے ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات براہِ راست ہول سیل ریٹس پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔'
+                'Established in 2021 in Karachi, ZS Mart brings direct wholesale prices to customers on 4,000+ daily essentials and branded products, even if you are buying just 1 item.',
+                'ZS Mart ka aaghaz 2021 mein Karachi se wholesale business ke tor par hua. Hamara maqsad har customer ko 4,000+ products direct wholesale rates par faraham karna hai, chahe aap 1 item hi kyun na le rahe hon.',
+                'ZS مارٹ کا آغاز 2021 میں کراچی سے ہول سیل بزنس کے طور پر ہوا۔ ہمارا مقصد تمام گاہکوں کو 4,000+ مصنوعات براہِ راست ہول سیل ریٹس پر فراہم کرنا ہے، چاہے وہ 1 آئٹم ہی کیوں نہ خرید رہے ہوں۔'
               )}
             </p>
           </div>
@@ -2420,7 +2420,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-xs sm:text-sm font-semibold leading-relaxed text-amber-50' : 'text-xs sm:text-sm font-medium leading-relaxed text-amber-50'}>
               {tr(modalLang,
-                'Over 90% of our product prices are strictly lower than any big supermart across Pakistan — Guaranteed! This unique commitment to direct wholesale pricing and huge variety is the core reason why we started ZS Groceries.',
+                'Over 90% of our product prices are strictly lower than any big supermart across Pakistan — Guaranteed! This unique commitment to direct wholesale pricing and huge variety is the core reason why we started ZS Mart.',
                 'Hamare 90% se ziada products ke rates Pakistan ke baray se baray supermart se bhi kam hote hain — Shartiya! Yahi hamari sabse bari khasiyat hai. Itni ziada variety aur itni kam qeemat aapko aur kahin nahi milegi!',
                 'ہمارے 90% سے زائد پروڈکٹس کے ریٹس پاکستان کے بڑے سے بڑے سپر مارٹ سے بھی کم ہوتے ہیں — شرطیہ! یہی ہماری سب سے بڑی خصوصیت اور منفرد بات ہے جس کی وجہ سے ہم نے یہ کام شروع کیا۔ اتنی زیادہ ورائٹی اور اتنی کم قیمت آپ کو اور کہیں نہیں ملے گی!'
               )}
@@ -2567,7 +2567,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
             <div className="bg-white/90 border border-blue-100 rounded-xl p-3 text-xs text-gray-800 font-medium leading-relaxed flex items-start gap-2 shadow-xs">
               <span className="text-blue-600 font-bold shrink-0 mt-0.5 text-sm">🏬</span>
               <div>
-                <div className="font-bold text-gray-900">ZS Groceries (Wholesale & Retail)</div>
+                <div className="font-bold text-gray-900">ZS Mart (Wholesale & Retail)</div>
                 <div className="text-gray-600 mt-0.5">
                   {tr(modalLang, 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan', 'R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan', 'R4C4+RV6، سفید مسجد روڈ، اللہ والا ٹاؤن سیکٹر ایچ، کورنگی، کراچی، پاکستان')}
                 </div>
@@ -2575,7 +2575,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
             </div>
             <div className="w-full h-48 sm:h-52 rounded-xl overflow-hidden border border-blue-200 shadow-inner relative bg-gray-100">
               <iframe
-                title="ZS Groceries Google Map Location"
+                title="ZS Mart Google Map Location"
                 src="https://maps.google.com/maps?q=R4C4%2BRV6%2C+Safaid+White+Masjid+Rd%2C+Allah+Wala+Town+Sector+H+Korangi%2C+Karachi%2C+Pakistan&t=&z=17&ie=UTF8&iwloc=&output=embed"
                 className="w-full h-full border-0"
                 loading="lazy"
@@ -2588,7 +2588,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
           <a
-            href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(tr(modalLang, 'Hi ZS Groceries! I have an inquiry about your store.', 'Salam ZS Groceries! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Groceries کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`}
+            href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -2636,7 +2636,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
             {tr(language, 'Return & Exchange Policy', 'Wapsi aur Tabdeeli ki Policy', 'واپسی اور تبدیلی کی پالیسی')}
           </h2>
           <p className="text-xs text-emerald-100/90 font-semibold mt-1 tracking-wide">
-            {tr(language, '100% Guaranteed Customer Protection & Care', 'ZS Groceries — 100% Tasalli aur Guarantee', 'ZS Groceries — 100% تسلی اور ضمانت')}
+            {tr(language, '100% Guaranteed Customer Protection & Care', 'ZS Mart — 100% Tasalli aur Guarantee', 'ZS Mart — 100% تسلی اور ضمانت')}
           </p>
         </div>
         {/* Scroll Body */}
@@ -2749,7 +2749,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shrink-0">
           <a
-            href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(tr(language, 'Hi ZS Groceries! I want to claim a return/exchange for my order.', 'Salam ZS Groceries! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`}
+            href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -2789,7 +2789,7 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
           {tr(modalLang, 'Assalam U alaikum!', 'Assalam-o-Alaikum!', 'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ')}
         </h3>
         <h4 className="text-lg font-extrabold text-amber-600 mt-1 font-poppins">
-          {tr(modalLang, 'Welcome to ZS Groceries', 'ZS Groceries mein Khush Amdeed', 'ZS ٹریڈرز میں خوش آمدید')}
+          {tr(modalLang, 'Welcome to ZS Mart', 'ZS Mart mein Khush Amdeed', 'ZS مارٹ میں خوش آمدید')}
         </h4>
         <div className="my-5 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-950">
           <div className="flex items-center justify-center gap-1.5 font-bold text-sm text-amber-900 mb-1.5">
@@ -2901,7 +2901,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       saveOrderHistory(orderRecord);
     }
 
-    const waText = `*Salam ZS Groceries!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
+    const waText = `*Salam ZS Mart!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
 
     // Try direct native Web Share with photo file (opens WhatsApp with actual photo attached on mobile)
     let sharedWithFile = false;
@@ -2909,7 +2909,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       try {
         await navigator.share({
           files: [photoFile],
-          title: `ZS Groceries Parchi Order #${orderId}`,
+          title: `ZS Mart Parchi Order #${orderId}`,
           text: waText
         });
         sharedWithFile = true;
@@ -2927,7 +2927,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   };
 
   const handleOpenWhatsAppDirect = () => {
-    const waText = `*Salam ZS Groceries!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}`;
+    const waText = `*Salam ZS Mart!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}`;
     const waUrl = buildWhatsAppUrl('923368945775', waText);
     window.open(waUrl, '_blank');
   };
@@ -3337,7 +3337,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
     if (pricing.hasDiscount) {
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${((pricing.savings * modalQty) + bulkPricing.extraSavings).toLocaleString()})`;
     }
-    const msg = `Assalam U Alaikum ZS Groceries!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
+    const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
     window.open(`https://wa.me/923368945775?text=${encodeURIComponent(msg)}`, '_blank');
   };
   return (
@@ -4915,9 +4915,9 @@ export default function SahilTraders() {
                 <div className="luxury-logo-box">
                   <div className="luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-3xl p-2.5 flex items-center justify-center shadow-2xl" style={{ background: '#ffffff', border: '3px solid #2563eb', boxShadow: '0 0 45px rgba(37, 99, 235, 0.5), 0 0 80px rgba(0,0,0,0.9)' }}>
                     <img
-                      src="images/zs-groceries-logo.png"
-                      alt="ZS Groceries"
-                      onError={(e) => { e.currentTarget.src = 'images/zs-groceries-logo.jpg'; }}
+                      src="images/zs-mart-logo.png"
+                      alt="ZS Mart"
+                      onError={(e) => { e.currentTarget.src = 'images/zs-mart-logo.jpg'; }}
                       className="w-full h-full object-contain rounded-2xl"
                     />
                   </div>
@@ -4929,7 +4929,7 @@ export default function SahilTraders() {
                     className="text-3xl sm:text-4xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-b from-blue-100 via-sky-300 to-blue-500 drop-shadow-[0_2px_14px_rgba(37,99,235,0.6)]"
                     style={{ fontFamily: "'Poppins', sans-serif", letterSpacing: '0.22em' }}
                   >
-                    ZS Groceries
+                    ZS Mart
                   </h1>
                 </div>
 
@@ -5000,15 +5000,15 @@ export default function SahilTraders() {
                       <div className="relative">
                         <div style={{ position: 'absolute', inset: '-2px', borderRadius: '14px', background: 'linear-gradient(135deg, #2563eb, #38bdf8)', opacity: 0.7, filter: 'blur(5px)' }} />
                         <img
-                          src="images/zs-groceries-logo.png"
-                          alt="ZS Groceries"
-                          onError={(e) => { e.currentTarget.src = 'images/zs-groceries-logo.jpg'; }}
+                          src="images/zs-mart-logo.png"
+                          alt="ZS Mart"
+                          onError={(e) => { e.currentTarget.src = 'images/zs-mart-logo.jpg'; }}
                           style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '12px', position: 'relative', background: '#ffffff', padding: '1px', border: '1.5px solid #2563eb' }}
                         />
                       </div>
                       <div>
                         <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, fontSize: '15px', letterSpacing: '0.06em', textTransform: 'uppercase', color: '#ffffff', lineHeight: 1.1 }}>
-                          ZS Groceries
+                          ZS Mart
                         </div>
                         <div style={{ fontSize: '8.5px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#38bdf8', marginTop: '1px' }}>
                           Wholesale &amp; Retail
@@ -5312,7 +5312,7 @@ export default function SahilTraders() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', fontFamily: "'Poppins', sans-serif" }}>ZS Groceries Customer</span>
+                        <span style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', fontFamily: "'Poppins', sans-serif" }}>ZS Mart Customer</span>
                         <span style={{ fontSize: '9px', fontWeight: 800, background: '#dcfce7', color: '#166534', padding: '2px 7px', borderRadius: '6px', border: '1px solid #bbf7d0' }}>✓ Verified Buyer</span>
                       </div>
                       <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>
@@ -5488,7 +5488,7 @@ export default function SahilTraders() {
                       ℹ️
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>{tr(language, 'About ZS Groceries', 'ZS Groceries ke Baare Mein', 'ZS Groceries کے بارے میں')}</div>
+                      <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>{tr(language, 'About ZS Mart', 'ZS Mart ke Baare Mein', 'ZS Mart کے بارے میں')}</div>
                       <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px' }}>{tr(language, 'Owners, wholesale history & store info', 'Malikan aur dukan ki maloomat', 'مالکان اور دکان کی تفصیلات')}</div>
                     </div>
                     <span style={{ fontSize: '16px', color: '#94a3b8' }}>›</span>
@@ -5519,7 +5519,7 @@ export default function SahilTraders() {
 
                 {/* FOOTER APP INFO */}
                 <div style={{ textAlign: 'center', padding: '6px 0 16px' }}>
-                  <div style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b' }}>ZS Groceries Official App v9.6</div>
+                  <div style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b' }}>ZS Mart Official App v9.6</div>
                   <div style={{ fontSize: '9.5px', color: '#94a3b8', marginTop: '2px' }}>Sahil Saleem &amp; Muhammad Zubair Moin • Karachi 🇵🇰</div>
                 </div>
 
@@ -5678,7 +5678,7 @@ export default function SahilTraders() {
                     className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-4 py-1.5 transition-colors cursor-pointer bg-white"
                   >
                     <span>🏬</span>
-                    <span>{tr(language, 'About ZS Groceries', 'Hamare Baare Mein (About ZS Groceries)', 'ہمارے بارے میں (About ZS Groceries)')}</span>
+                    <span>{tr(language, 'About ZS Mart', 'Hamare Baare Mein (About ZS Mart)', 'ہمارے بارے میں (About ZS Mart)')}</span>
                   </button>
                 </div>
                 <p className="text-xs tracking-[0.3em] uppercase" style={{ color: 'rgba(0,0,0,0.12)' }}>{translate(langData, "footer")}</p>
@@ -5817,9 +5817,9 @@ export default function SahilTraders() {
                       {/* Drawer Header */}
                       <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-5">
                         <div className="flex items-center gap-2.5">
-                          <img src="images/zs-groceries-logo.png" alt="ZS Groceries" onError={(e) => { e.currentTarget.src = 'images/zs-groceries-logo.jpg'; }} className="w-10 h-10 object-contain rounded-xl border border-blue-500/50 p-0.5 bg-white shadow-sm" />
+                          <img src="images/zs-mart-logo.png" alt="ZS Mart" onError={(e) => { e.currentTarget.src = 'images/zs-mart-logo.jpg'; }} className="w-10 h-10 object-contain rounded-xl border border-blue-500/50 p-0.5 bg-white shadow-sm" />
                           <div>
-                            <h3 className="text-sm font-black tracking-wider uppercase text-black">ZS Groceries</h3>
+                            <h3 className="text-sm font-black tracking-wider uppercase text-black">ZS Mart</h3>
                             <p className="text-[11px] text-gray-500">{tr(language, 'Main Menu', 'Main Menu', '\u0645\u06cc\u06ba \u0645\u06cc\u0646\u0648')}</p>
                           </div>
                         </div>
@@ -6036,10 +6036,10 @@ export default function SahilTraders() {
                     </div>
                     <div>
                       <h3 className="text-base font-extrabold text-black uppercase tracking-wider">
-                        {tr(language, 'Exit ZS Groceries?', 'ZS Groceries se Bahar Jana Chahte Hain?', 'ویب سائٹ سے باہر جانا چاہتے ہیں؟')}
+                        {tr(language, 'Exit ZS Mart?', 'ZS Mart se Bahar Jana Chahte Hain?', 'ویب سائٹ سے باہر جانا چاہتے ہیں؟')}
                       </h3>
                       <p className="text-xs text-gray-700 mt-1.5 leading-relaxed">
-                        {tr(language, 'Are you sure you want to leave the store?', 'Kya aap ZS Groceries band karna chahte hain?', 'کیا آپ واقعی ZS Groceries بند کرنا چاہتے ہیں؟')}
+                        {tr(language, 'Are you sure you want to leave the store?', 'Kya aap ZS Mart band karna chahte hain?', 'کیا آپ واقعی ZS Mart بند کرنا چاہتے ہیں؟')}
                       </p>
                     </div>
                     <div className="flex items-center gap-3 pt-2">
@@ -7195,7 +7195,7 @@ export default function SahilTraders() {
           : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
         const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
         const msg = [
-          '🛒 *NEW ORDER – ZS Groceries*',
+          '🛒 *NEW ORDER – ZS Mart*',
           '-----------------------------------------',
           '',
           '*📦 ORDER DETAILS:*',

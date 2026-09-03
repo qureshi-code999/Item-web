@@ -1,9 +1,9 @@
 @echo off
-title Sahil Traders - 1-Click GitHub Cloud Backup
+title ZS Mart - 1-Click GitHub Cloud Backup
 color 0A
 cls
 echo ================================================================
-echo         SAHIL TRADERS - 1-CLICK GITHUB CLOUD BACKUP
+echo         ZS MART - 1-CLICK GITHUB CLOUD BACKUP
 echo ================================================================
 echo.
 echo  [1/3] Gathering all files, images, and code changes...

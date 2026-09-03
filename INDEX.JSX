@@ -127,10 +127,10 @@ function getTranslationValue(dictionary, key) {
       ctx.fillText('DELIVERY DESTINATION', width / 2 + 10, 140);
       ctx.fillStyle = '#0f172a';
       ctx.font = '800 12.5px system-ui, sans-serif';
-      ctx.fillText(order.deliveryMethod === 'pickup' ? '🏬 Store Pickup (BS Mart Karachi)' : '🚚 Home Delivery', width / 2 + 10, 158);
+      ctx.fillText(order.deliveryMethod === 'pickup' ? '🏬 Store Pickup (ZS Mart Karachi)' : '🚚 Home Delivery', width / 2 + 10, 158);
       ctx.fillStyle = '#64748b';
       ctx.font = '500 10.5px system-ui, sans-serif';
-      const addr = order.customer?.address || (order.deliveryMethod === 'pickup' ? 'BS Mart Karachi Store' : '');
+      const addr = order.customer?.address || (order.deliveryMethod === 'pickup' ? 'ZS Mart Karachi Store' : '');
       ctx.fillText(addr.length > 32 ? addr.substring(0, 32) + '...' : addr, width / 2 + 10, 174);
 
       let curY = 205;
@@ -400,8 +400,8 @@ function getTranslationValue(dictionary, key) {
               </div>
               <div>
                 <div class="meta-label">Delivery Destination</div>
-                <div class="meta-val">${order.deliveryMethod === 'pickup' ? '🏬 Store Pickup (BS Mart Karachi)' : '🚚 Home Delivery'}</div>
-                <div style="color: #64748b; font-size: 11px;">${order.customer?.address || 'BS Mart Karachi Store'}</div>
+                <div class="meta-val">${order.deliveryMethod === 'pickup' ? '🏬 Store Pickup (ZS Mart Karachi)' : '🚚 Home Delivery'}</div>
+                <div style="color: #64748b; font-size: 11px;">${order.customer?.address || 'ZS Mart Karachi Store'}</div>
               </div>
             </div>
 
@@ -553,10 +553,10 @@ function getTranslationValue(dictionary, key) {
                 ctx.fillText('DELIVERY DESTINATION', width / 2 + 10, 140);
                 ctx.fillStyle = '#0f172a';
                 ctx.font = '800 12.5px system-ui, sans-serif';
-                ctx.fillText(orderData.deliveryMethod === 'pickup' ? '🏬 Store Pickup (BS Mart Karachi)' : '🚚 Home Delivery', width / 2 + 10, 158);
+                ctx.fillText(orderData.deliveryMethod === 'pickup' ? '🏬 Store Pickup (ZS Mart Karachi)' : '🚚 Home Delivery', width / 2 + 10, 158);
                 ctx.fillStyle = '#64748b';
                 ctx.font = '500 10.5px system-ui, sans-serif';
-                const addr = orderData.customer?.address || (orderData.deliveryMethod === 'pickup' ? 'BS Mart Karachi Store' : '');
+                const addr = orderData.customer?.address || (orderData.deliveryMethod === 'pickup' ? 'ZS Mart Karachi Store' : '');
                 ctx.fillText(addr.length > 32 ? addr.substring(0, 32) + '...' : addr, width / 2 + 10, 174);
 
                 let curY = 205;
@@ -2447,7 +2447,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
                     Muhammad Zubair Moin
                   </div>
                   <div className="text-[11px] text-gray-300 font-medium">
-                    {tr(modalLang, 'Owner — BS Mart', 'Owner — BS Mart', 'آنر BS Mart')}
+                    {tr(modalLang, 'Owner — ZS Mart', 'Owner — ZS Mart', 'آنر ZS Mart')}
                   </div>
                 </div>
               </div>
@@ -2471,28 +2471,28 @@ function AboutUsModal({ isOpen, onClose, language }) {
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-xs text-amber-200/90 pt-1 leading-relaxed' : 'text-xs text-amber-200/90 pt-1 leading-relaxed'}>
               {tr(modalLang,
-                '💡 This complete business setup is jointly managed by both brothers, Muhammad Zubair Moin (Owner, BS Mart) & Muhammad Sahil Saleem.',
-                '💡 Ye pura business setup dono bhai Muhammad Zubair Moin (Owner, BS Mart) aur Muhammad Sahil Saleem mil kar chala rahe hain.',
-                '💡 یہ تمام تر سیٹ اپ اور بزنس محمد زبیر معین (مالک BS Mart) اور محمد ساحل سلیم دونوں بھائی مل کر مشترکہ طور پر چلا رہے ہیں۔'
+                '💡 This complete business setup is jointly managed by both brothers, Muhammad Zubair Moin (Owner, ZS Mart) & Muhammad Sahil Saleem.',
+                '💡 Ye pura business setup dono bhai Muhammad Zubair Moin (Owner, ZS Mart) aur Muhammad Sahil Saleem mil kar chala rahe hain.',
+                '💡 یہ تمام تر سیٹ اپ اور بزنس محمد زبیر معین (مالک ZS Mart) اور محمد ساحل سلیم دونوں بھائی مل کر مشترکہ طور پر چلا رہے ہیں۔'
               )}
             </p>
           </div>
-          {/* Physical Shop Info Card (BS Mart) */}
+          {/* Physical Shop Info Card (ZS Mart) */}
           <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 text-emerald-950 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 font-bold text-sm text-emerald-900">
                 <span className="text-lg">🏬</span>
-                <span>{tr(modalLang, 'Visit Our Physical Shop (BS Mart)', 'Hamari Dukan par Tashreef Layein (BS Mart)', 'ہماری فزیکل دکان (BS Mart)')}</span>
+                <span>{tr(modalLang, 'Visit Our Physical Shop (ZS Mart)', 'Hamari Dukan par Tashreef Layein (ZS Mart)', 'ہماری فزیکل دکان (ZS Mart)')}</span>
               </div>
               <span className="bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                {tr(modalLang, 'BS Mart', 'BS Mart', 'BS مارٹ')}
+                {tr(modalLang, 'ZS Mart', 'ZS Mart', 'ZS مارٹ')}
               </span>
             </div>
             <p className={isUrdu ? 'font-urdu text-right text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold' : 'text-xs sm:text-sm text-emerald-900 leading-relaxed font-semibold'}>
               {tr(modalLang,
-                'Visit our physical shop BS Mart! Almost all items listed on this website are available in person at our store. (Note: Due to high demand or market shortage, certain items may temporarily be out of stock, but we restock continuously!)',
-                'Aap hamari physical dukan BS Mart par bhi aa sakte hain! Website ki taqreeban tamam cheezein dukan par dastyab hain. (Note: Market shortage ki wajah se kuch cheezein temporary out of stock ho sakti hain, lekin hum daily restock karte hain!)',
-                'ہے۔ ویب سائٹ پر موجود تقریباً تمام تر مصنوعات آپ کو ہماری دکان (BS Mart) پر بھی مل جائیں گی۔ (نوٹ: شارٹیج یا زیادہ ڈیمانڈ کی صورت میں شاید کچھ پروڈکٹس عارضی طور پر دکان پر اسٹاک میں نہ ہوں، لیکن ہم مسلسل ری اسٹاک کرتے ہیں!)'
+                'Visit our physical shop ZS Mart! Almost all items listed on this website are available in person at our store. (Note: Due to high demand or market shortage, certain items may temporarily be out of stock, but we restock continuously!)',
+                'Aap hamari physical dukan ZS Mart par bhi aa sakte hain! Website ki taqreeban tamam cheezein dukan par dastyab hain. (Note: Market shortage ki wajah se kuch cheezein temporary out of stock ho sakti hain, lekin hum daily restock karte hain!)',
+                'ہے۔ ویب سائٹ پر موجود تقریباً تمام تر مصنوعات آپ کو ہماری دکان (ZS Mart) پر بھی مل جائیں گی۔ (نوٹ: شارٹیج یا زیادہ ڈیمانڈ کی صورت میں شاید کچھ پروڈکٹس عارضی طور پر دکان پر اسٹاک میں نہ ہوں، لیکن ہم مسلسل ری اسٹاک کرتے ہیں!)'
               )}
             </p>
           </div>
@@ -2693,9 +2693,9 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
               </div>
               <p className="text-[11px] text-gray-600 leading-relaxed font-medium">
                 {tr(language,
-                  'You can also visit BS Mart (Korangi, Karachi) for immediate in-person exchange.',
-                  'Hamari physical shop BS Mart (Korangi, Karachi) aakar bhi fori tabdeel karwa sakte hain.',
-                  'ہماری فزیکل شاپ BS Mart (کورنگی، کراچی) آکر بھی تبدیل کروا سکتے ہیں'
+                  'You can also visit ZS Mart (Korangi, Karachi) for immediate in-person exchange.',
+                  'Hamari physical shop ZS Mart (Korangi, Karachi) aakar bhi fori tabdeel karwa sakte hain.',
+                  'ہماری فزیکل شاپ ZS Mart (کورنگی، کراچی) آکر بھی تبدیل کروا سکتے ہیں'
                 )}
               </p>
             </div>
@@ -2879,7 +2879,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       customer: {
         name: name.trim(),
         phone: phone.trim(),
-        address: deliveryMethod === 'home' ? address.trim() : 'BS Mart Store Pickup Karachi'
+        address: deliveryMethod === 'home' ? address.trim() : 'ZS Mart Store Pickup Karachi'
       },
       items: [
         {
@@ -2901,7 +2901,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       saveOrderHistory(orderRecord);
     }
 
-    const waText = `*Salam ZS Groceries!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (BS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
+    const waText = `*Salam ZS Groceries!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
 
     // Try direct native Web Share with photo file (opens WhatsApp with actual photo attached on mobile)
     let sharedWithFile = false;
@@ -3686,7 +3686,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
               <span className="text-lg">🏬</span>
               <div>
                 <div className="font-bold text-gray-900">{tr(language, 'Store Pickup', 'Dukan se Pickup', 'دکان سے پک اپ')}</div>
-                <div className="text-[10px] text-gray-500">{tr(language, 'BS Mart Shop Karachi', 'BS Mart Dukan Karachi', 'BS Mart دکان سے لیں')}</div>
+                <div className="text-[10px] text-gray-500">{tr(language, 'ZS Mart Shop Karachi', 'ZS Mart Dukan Karachi', 'ZS Mart دکان سے لیں')}</div>
               </div>
             </div>
           </div>
@@ -5504,7 +5504,7 @@ export default function SahilTraders() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '11px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155' }}>
                       <span>📍</span>
-                      <span style={{ fontWeight: 600 }}>BS Mart, Karachi, Sindh, Pakistan</span>
+                      <span style={{ fontWeight: 600 }}>ZS Mart, Karachi, Sindh, Pakistan</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#059669', fontWeight: 700 }}>
                       <span>⏰</span>
@@ -6749,7 +6749,7 @@ export default function SahilTraders() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#555', marginTop: 4 }}>
                     <span>🏠 {tr(language, 'Home Delivery Available', 'Home Delivery Dastyab Hai', 'ہوم ڈیلیوری دستیاب')}</span>
-                    <span>🏬 {tr(language, 'BS Mart Pickup Free', 'BS Mart Pickup Muft', 'BS Mart پک اپ مفت')}</span>
+                    <span>🏬 {tr(language, 'ZS Mart Pickup Free', 'ZS Mart Pickup Muft', 'ZS Mart پک اپ مفت')}</span>
                   </div>
                 </div>
               )}
@@ -7191,7 +7191,7 @@ export default function SahilTraders() {
           return `• ${product.name}${shadeText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
         }).join('\n\n');
         const deliveryText = deliveryMethod === 'pickup'
-          ? '🏪 Store Pickup (BS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour'
+          ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour'
           : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
         const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
         const msg = [
@@ -7212,7 +7212,7 @@ export default function SahilTraders() {
           `• Phone: ${phone.trim()}`,
           deliveryMethod === 'home' 
             ? `• Delivery Address: ${address.trim()}` 
-            : `• Store Location: BS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`,
+            : `• Store Location: ZS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`,
           '',
           '-----------------------------------------',
           `📅 Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
@@ -7477,7 +7477,7 @@ export default function SahilTraders() {
                       >
                         <div style={{ fontSize: 18 }}>🏪</div>
                         <div style={{ fontSize: 12, fontWeight: 800, color: '#111', marginTop: 4 }}>{tr(language, 'Store Pickup', 'Dukan se Pickup', 'دکان سے پک اپ')}</div>
-                        <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, marginTop: 2 }}>BS Mart (FREE)</div>
+                        <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, marginTop: 2 }}>ZS Mart (FREE)</div>
                       </div>
                     </div>
                   </div>
@@ -7526,7 +7526,7 @@ export default function SahilTraders() {
                           <span>پک اپ کا وقت: 20 منٹ سے 1 گھنٹہ</span>
                         </div>
                         <p style={{ fontSize: 11, color: '#15803d', fontWeight: 600, lineHeight: 1.5, margin: 0 }}>
-                          آپ کا آرڈر تیار ہونے میں 20 منٹ سے 1 گھنٹہ لگ سکتا ہے۔ اس وقت کے بعد آپ BS Mart اسٹور (محمد زبیر معین / محمد سہیل سلیم) سے اپنا سامان پک اپ کر سکتے ہیں۔
+                          آپ کا آرڈر تیار ہونے میں 20 منٹ سے 1 گھنٹہ لگ سکتا ہے۔ اس وقت کے بعد آپ ZS Mart اسٹور (محمد زبیر معین / محمد سہیل سلیم) سے اپنا سامان پک اپ کر سکتے ہیں۔
                         </p>
                       </div>
                     )}

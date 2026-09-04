@@ -13192,23 +13192,24 @@ function SahilTraders() {
     setFilterMenuOpen(false);
     setVisibleCount(24);
   }, [selectedCategory, searchTerm]);
-  // 🚀 Automatic Background Image Storage Caching Engine
-  // Downloads and caches ALL product images into device cache immediately upon app open
+  // 🚀 Lightweight Idle Image Storage Caching Engine (Zero UI Lag)
   useEffect(() => {
-    if (showSplash) return; // Wait until intro is done so intro is 100% smooth
+    if (showSplash) return;
     if (typeof window === 'undefined' || !window.PRODUCT_IMAGE_MAP) return;
+    let isCancelled = false;
     const imageMap = window.PRODUCT_IMAGE_MAP;
     const ids = Object.keys(imageMap);
     let index = 0;
-    const batchSize = 10;
-    let isCancelled = false;
-    async function processCacheBatch() {
+    const batchSize = 2; // Small 2-item batches so CPU never freezes
+
+    async function processBatch() {
       if (isCancelled || index >= ids.length) return;
       const currentBatch = ids.slice(index, index + batchSize);
       index += batchSize;
-      await Promise.allSettled(currentBatch.map(async id => {
+      for (const id of currentBatch) {
+        if (isCancelled) break;
         const ext = imageMap[id];
-        const url = `https://sahiltraders.vercel.app/images/${id}.${ext}`;
+        const url = 'https://sahiltraders.vercel.app/images/' + id + '.' + ext;
         try {
           if ('caches' in window) {
             const cache = await caches.open('zs-images-cache-v1');
@@ -13220,28 +13221,30 @@ function SahilTraders() {
               });
               if (resp.ok) await cache.put(url, resp);
             }
-          } else {
-            const img = new Image();
-            img.src = url;
           }
-        } catch (err) {
-          const img = new Image();
-          img.src = url;
-        }
-      }));
+        } catch (e) {}
+      }
       if (!isCancelled && index < ids.length) {
         if ('requestIdleCallback' in window) {
-          window.requestIdleCallback(processCacheBatch, {
-            timeout: 800
+          window.requestIdleCallback(processBatch, {
+            timeout: 2000
           });
         } else {
-          setTimeout(processCacheBatch, 100);
+          setTimeout(processBatch, 400);
         }
       }
     }
+
+    // Wait 4 full seconds after app open before starting background idle caching
     const startTimer = setTimeout(() => {
-      processCacheBatch();
-    }, 200);
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(processBatch, {
+          timeout: 3000
+        });
+      } else {
+        setTimeout(processBatch, 1000);
+      }
+    }, 4000);
     return () => {
       isCancelled = true;
       clearTimeout(startTimer);
@@ -14045,18 +14048,9 @@ function SahilTraders() {
       border: '2px solid #0a1020'
     }
   }, cartCount)))), /*#__PURE__*/React.createElement("div", {
-    className: "flex sm:hidden items-center gap-2 relative w-full h-[40px]"
+    className: "flex sm:hidden items-center justify-between gap-2 relative w-full h-[40px] overflow-hidden"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2 shrink-0 cursor-pointer",
-    style: {
-      maxWidth: mobileSearchFocused || searchTerm ? '0px' : '155px',
-      opacity: mobileSearchFocused || searchTerm ? 0 : 1,
-      transform: mobileSearchFocused || searchTerm ? 'translateX(-24px) scale(0.85)' : 'translateX(0) scale(1)',
-      overflow: 'hidden',
-      transition: 'all 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
-      pointerEvents: mobileSearchFocused || searchTerm ? 'none' : 'auto',
-      whiteSpace: 'nowrap'
-    },
     onClick: () => {
       setActiveTab('home');
       setSelectedCategory(null);
@@ -14112,15 +14106,100 @@ function SahilTraders() {
       marginTop: '1px'
     }
   }, "Wholesale & Retail"))), /*#__PURE__*/React.createElement("div", {
-    className: "flex-1 relative min-w-0",
-    ref: mobileSearchBoxRef,
-    style: {
-      zIndex: mobileSearchFocused || searchTerm ? 35 : 1,
-      transition: 'all 0.32s cubic-bezier(0.4, 0, 0.2, 1)'
+    className: "flex-1 max-w-[160px] relative cursor-pointer",
+    onClick: () => {
+      setMobileSearchFocused(true);
+      setSuggestOpen(true);
+      setTimeout(() => {
+        if (mobileSearchInputRef.current) mobileSearchInputRef.current.focus();
+      }, 50);
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "relative flex items-center w-full"
-  }, mobileSearchFocused || searchTerm ? /*#__PURE__*/React.createElement("button", {
+    style: {
+      height: '34px',
+      background: 'rgba(255,255,255,0.08)',
+      border: '1px solid rgba(255,255,255,0.14)',
+      borderRadius: '10px',
+      display: 'flex',
+      alignItems: 'center',
+      paddingLeft: '28px',
+      paddingRight: '28px',
+      position: 'relative'
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      position: 'absolute',
+      left: '9px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: '13px',
+      height: '13px',
+      color: 'rgba(255,255,255,0.5)',
+      pointerEvents: 'none'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "11",
+    cy: "11",
+    r: "7",
+    stroke: "currentColor",
+    strokeWidth: "2.2"
+  }), /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    strokeWidth: "2.2",
+    d: "M16.5 16.5L21 21"
+  })), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '11px',
+      color: 'rgba(255,255,255,0.55)',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, searchTerm || translate(langData, "searchPlaceholder")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      right: '6px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      display: 'flex',
+      alignItems: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      width: '11px',
+      height: '11px',
+      color: 'rgba(255,255,255,0.45)'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
+  }))))), /*#__PURE__*/React.createElement("div", {
+    ref: mobileSearchBoxRef,
+    style: {
+      position: 'absolute',
+      inset: 0,
+      zIndex: 40,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      background: '#09131e',
+      opacity: mobileSearchFocused || searchTerm ? 1 : 0,
+      transform: mobileSearchFocused || searchTerm ? 'translate3d(0, 0, 0)' : 'translate3d(0, -100%, 0)',
+      pointerEvents: mobileSearchFocused || searchTerm ? 'auto' : 'none',
+      transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease',
+      willChange: 'transform, opacity'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: () => {
       triggerHaptic('light');
@@ -14129,27 +14208,23 @@ function SahilTraders() {
       if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
     },
     style: {
-      position: 'absolute',
-      left: '7px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      background: 'rgba(255,255,255,0.12)',
+      background: 'rgba(255,255,255,0.1)',
       border: 'none',
       borderRadius: '8px',
-      width: '26px',
-      height: '26px',
+      width: '32px',
+      height: '32px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       color: '#38bdf8',
       cursor: 'pointer',
-      zIndex: 5
+      flexShrink: 0
     },
-    title: "Back / Close"
+    title: "Back"
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: '15px',
-      height: '15px'
+      width: '16px',
+      height: '16px'
     },
     fill: "none",
     stroke: "currentColor",
@@ -14159,18 +14234,17 @@ function SahilTraders() {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-  }))) :
-  /*#__PURE__*/
-  /* Crisp clean search icon (No distorted comma tail) */
-  React.createElement("svg", {
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "relative flex-1 flex items-center"
+  }, /*#__PURE__*/React.createElement("svg", {
     style: {
       position: 'absolute',
-      left: '11px',
+      left: '10px',
       top: '50%',
       transform: 'translateY(-50%)',
-      width: '14px',
-      height: '14px',
-      color: 'rgba(255,255,255,0.45)',
+      width: '13px',
+      height: '13px',
+      color: '#10b981',
       pointerEvents: 'none'
     },
     fill: "none",
@@ -14197,35 +14271,30 @@ function SahilTraders() {
       setSuggestOpen(true);
     },
     onKeyDown: handleSearchKeyDown,
-    onFocus: () => {
-      setMobileSearchFocused(true);
-      setSuggestOpen(true);
-    },
     placeholder: isListening ? tr(language, "🎙️ Listening...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder"),
     style: {
       width: '100%',
-      height: '36px',
-      background: mobileSearchFocused || searchTerm ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.08)',
-      border: mobileSearchFocused || searchTerm ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.14)',
-      borderRadius: '10px',
-      paddingLeft: mobileSearchFocused || searchTerm ? '38px' : '32px',
-      paddingRight: searchTerm ? '60px' : '34px',
+      height: '34px',
+      background: 'rgba(255,255,255,0.12)',
+      border: '1.5px solid #10b981',
+      borderRadius: '9px',
+      paddingLeft: '32px',
+      paddingRight: searchTerm ? '56px' : '32px',
       fontSize: '12px',
       color: '#ffffff',
       outline: 'none',
-      transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-      boxShadow: mobileSearchFocused || searchTerm ? '0 0 0 3px rgba(16,185,129,0.2), 0 4px 18px rgba(0,0,0,0.5)' : 'none',
-      caretColor: '#10b981'
+      caretColor: '#10b981',
+      boxShadow: '0 0 0 2px rgba(16,185,129,0.2)'
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      right: '5px',
+      right: '4px',
       top: '50%',
       transform: 'translateY(-50%)',
       display: 'flex',
       alignItems: 'center',
-      gap: '3px'
+      gap: '2px'
     }
   }, searchTerm && /*#__PURE__*/React.createElement("button", {
     type: "button",
@@ -14234,25 +14303,24 @@ function SahilTraders() {
       setSearchTerm('');
     },
     style: {
-      background: 'rgba(255,255,255,0.18)',
+      background: 'rgba(255,255,255,0.2)',
       border: 'none',
-      borderRadius: '6px',
+      borderRadius: '5px',
       padding: '2px 5px',
       color: '#ffffff',
       cursor: 'pointer',
-      fontSize: '10px',
+      fontSize: '9px',
       fontWeight: 800
     },
     title: "Clear"
   }, "\u2715"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: handleVoiceSearch,
-    title: tr(language, "Voice Search", "Voice Search", "آواز سے تلاش"),
     style: {
       background: isListening ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.08)',
       border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.12)',
-      borderRadius: '7px',
-      padding: '4px 6px',
+      borderRadius: '6px',
+      padding: '3px 5px',
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
@@ -14275,7 +14343,7 @@ function SahilTraders() {
   }))))), suggestOpen && suggestions.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      top: 'calc(100% + 6px)',
+      top: 'calc(100% + 4px)',
       left: 0,
       right: 0,
       background: '#09131e',
@@ -14284,7 +14352,7 @@ function SahilTraders() {
       boxShadow: '0 16px 48px rgba(0,0,0,0.85)',
       zIndex: 60,
       overflow: 'hidden',
-      maxHeight: '290px',
+      maxHeight: '280px',
       overflowY: 'auto'
     }
   }, recentSearches.length > 0 && !searchTerm && /*#__PURE__*/React.createElement("div", {
@@ -16901,22 +16969,10 @@ function CategoryHome({
       gradient: 'linear-gradient(135deg,#000000,#9b7a00)',
       icon: null
     };
-    // Find all items in this category that have images
-    const imageProducts = catProducts.filter(p => window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage);
-    // Prepare item list for infinite marquee loop (repeat if < 6)
-    let marqueeItems = imageProducts;
-    if (marqueeItems.length > 0 && marqueeItems.length < 6) {
-      while (marqueeItems.length < 6) {
-        marqueeItems = marqueeItems.concat(imageProducts);
-      }
-    }
-    // Standardize max items per track for equal visual balance
-    if (marqueeItems.length > 10) {
-      marqueeItems = marqueeItems.slice(0, 10);
-    }
-    const doubleItems = [...marqueeItems, ...marqueeItems];
-    // Dynamic uniform speed: 4.2 seconds per item so ALL categories revolve smoothly with perfect lively pace!
-    const animSpeed = marqueeItems.length * 4.2 + 's';
+    // Find top items in this category that have images (Max 4 items for silky 60fps)
+    const imageProducts = catProducts.filter(p => window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage).slice(0, 4);
+    const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
+    const animSpeed = imageProducts.length * 3.5 + 's';
     return /*#__PURE__*/React.createElement("div", {
       key: cat.id,
       onClick: () => {

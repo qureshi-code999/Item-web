@@ -4747,26 +4747,26 @@ export default function SahilTraders() {
         setFilterMenuOpen(false);
         setVisibleCount(24);
       }, [selectedCategory, searchTerm]);
-      // 🚀 Automatic Background Image Storage Caching Engine
-      // Downloads and caches ALL product images into device cache immediately upon app open
+      // 🚀 Lightweight Idle Image Storage Caching Engine (Zero UI Lag)
       useEffect(() => {
-        if (showSplash) return; // Wait until intro is done so intro is 100% smooth
+        if (showSplash) return;
         if (typeof window === 'undefined' || !window.PRODUCT_IMAGE_MAP) return;
         
+        let isCancelled = false;
         const imageMap = window.PRODUCT_IMAGE_MAP;
         const ids = Object.keys(imageMap);
         let index = 0;
-        const batchSize = 10;
-        let isCancelled = false;
+        const batchSize = 2; // Small 2-item batches so CPU never freezes
 
-        async function processCacheBatch() {
+        async function processBatch() {
           if (isCancelled || index >= ids.length) return;
           const currentBatch = ids.slice(index, index + batchSize);
           index += batchSize;
 
-          await Promise.allSettled(currentBatch.map(async (id) => {
+          for (const id of currentBatch) {
+            if (isCancelled) break;
             const ext = imageMap[id];
-            const url = `https://sahiltraders.vercel.app/images/${id}.${ext}`;
+            const url = 'https://sahiltraders.vercel.app/images/' + id + '.' + ext;
             try {
               if ('caches' in window) {
                 const cache = await caches.open('zs-images-cache-v1');
@@ -4775,34 +4775,34 @@ export default function SahilTraders() {
                   const resp = await fetch(url, { mode: 'cors', cache: 'force-cache' });
                   if (resp.ok) await cache.put(url, resp);
                 }
-              } else {
-                const img = new Image();
-                img.src = url;
               }
-            } catch (err) {
-              const img = new Image();
-              img.src = url;
-            }
-          }));
+            } catch (e) {}
+          }
 
           if (!isCancelled && index < ids.length) {
             if ('requestIdleCallback' in window) {
-              window.requestIdleCallback(processCacheBatch, { timeout: 800 });
+              window.requestIdleCallback(processBatch, { timeout: 2000 });
             } else {
-              setTimeout(processCacheBatch, 100);
+              setTimeout(processBatch, 400);
             }
           }
         }
 
+        // Wait 4 full seconds after app open before starting background idle caching
         const startTimer = setTimeout(() => {
-          processCacheBatch();
-        }, 200);
+          if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(processBatch, { timeout: 3000 });
+          } else {
+            setTimeout(processBatch, 1000);
+          }
+        }, 4000);
 
         return () => {
           isCancelled = true;
           clearTimeout(startTimer);
         };
       }, [showSplash]);
+
       const baseFiltered = useMemo(() => {
         const term = searchTerm.trim();
         if (term === "") {
@@ -5195,22 +5195,13 @@ export default function SahilTraders() {
                   </div>
 
                   {/* ══════════════════════════════════════════════════════════════════
-                      MOBILE HEADER (sm hidden): Unified 1-Row with Smooth Expand Search
+                      MOBILE HEADER (sm hidden): Unified 1-Row with Hardware-Accelerated Search
                       ══════════════════════════════════════════════════════════════════ */}
-                  <div className="flex sm:hidden items-center gap-2 relative w-full h-[40px]">
+                  <div className="flex sm:hidden items-center justify-between gap-2 relative w-full h-[40px] overflow-hidden">
 
-                    {/* Mobile Logo & Title (Smoothly slides/fades out when search expands) */}
+                    {/* Normal State: Logo & Title (Left) */}
                     <div 
                       className="flex items-center gap-2 shrink-0 cursor-pointer"
-                      style={{
-                        maxWidth: (mobileSearchFocused || searchTerm) ? '0px' : '155px',
-                        opacity: (mobileSearchFocused || searchTerm) ? 0 : 1,
-                        transform: (mobileSearchFocused || searchTerm) ? 'translateX(-24px) scale(0.85)' : 'translateX(0) scale(1)',
-                        overflow: 'hidden',
-                        transition: 'all 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
-                        pointerEvents: (mobileSearchFocused || searchTerm) ? 'none' : 'auto',
-                        whiteSpace: 'nowrap'
-                      }}
                       onClick={() => { setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}
                     >
                       <div className="relative shrink-0">
@@ -5232,108 +5223,138 @@ export default function SahilTraders() {
                       </div>
                     </div>
 
-                    {/* Mobile Search Bar (Compact in single row, expands to 100% full width on click) */}
+                    {/* Normal State: Compact Search Pill Button (Right) */}
                     <div 
-                      className="flex-1 relative min-w-0"
-                      ref={mobileSearchBoxRef}
-                      style={{
-                        zIndex: (mobileSearchFocused || searchTerm) ? 35 : 1,
-                        transition: 'all 0.32s cubic-bezier(0.4, 0, 0.2, 1)'
+                      className="flex-1 max-w-[160px] relative cursor-pointer"
+                      onClick={() => {
+                        setMobileSearchFocused(true);
+                        setSuggestOpen(true);
+                        setTimeout(() => {
+                          if (mobileSearchInputRef.current) mobileSearchInputRef.current.focus();
+                        }, 50);
                       }}
                     >
-                      <div className="relative flex items-center w-full">
-                        
-                        {/* Back / Collapse Button (Visible when expanded) */}
-                        {(mobileSearchFocused || searchTerm) ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              triggerHaptic('light');
-                              setMobileSearchFocused(false);
-                              setSuggestOpen(false);
-                              if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
-                            }}
-                            style={{
-                              position: 'absolute',
-                              left: '7px',
-                              top: '50%',
-                              transform: 'translateY(-50%)',
-                              background: 'rgba(255,255,255,0.12)',
-                              border: 'none',
-                              borderRadius: '8px',
-                              width: '26px',
-                              height: '26px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: '#38bdf8',
-                              cursor: 'pointer',
-                              zIndex: 5
-                            }}
-                            title="Back / Close"
-                          >
-                            <svg style={{ width: '15px', height: '15px' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                            </svg>
-                          </button>
-                        ) : (
-                          /* Crisp clean search icon (No distorted comma tail) */
-                          <svg 
-                            style={{ 
-                              position: 'absolute', 
-                              left: '11px', 
-                              top: '50%', 
-                              transform: 'translateY(-50%)', 
-                              width: '14px', 
-                              height: '14px', 
-                              color: 'rgba(255,255,255,0.45)', 
-                              pointerEvents: 'none' 
-                            }} 
-                            fill="none" 
-                            stroke="currentColor" 
-                            strokeWidth="2.2" 
-                            viewBox="0 0 24 24"
-                          >
-                            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M16.5 16.5L21 21" />
+                      <div 
+                        style={{
+                          height: '34px',
+                          background: 'rgba(255,255,255,0.08)',
+                          border: '1px solid rgba(255,255,255,0.14)',
+                          borderRadius: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          paddingLeft: '28px',
+                          paddingRight: '28px',
+                          position: 'relative'
+                        }}
+                      >
+                        <svg 
+                          style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'rgba(255,255,255,0.5)', pointerEvents: 'none' }} 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2.2" 
+                          viewBox="0 0 24 24"
+                        >
+                          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M16.5 16.5L21 21" />
+                        </svg>
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {searchTerm || translate(langData, "searchPlaceholder")}
+                        </span>
+                        <div style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
+                          <svg style={{ width: '11px', height: '11px', color: 'rgba(255,255,255,0.45)' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/>
                           </svg>
-                        )}
+                        </div>
+                      </div>
+                    </div>
 
+                    {/* EXPANDED FULL-ROW SEARCH OVERLAY (Zero reflows, Pure GPU transform & opacity) */}
+                    <div 
+                      ref={mobileSearchBoxRef}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        zIndex: 40,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: '#09131e',
+                        opacity: (mobileSearchFocused || searchTerm) ? 1 : 0,
+                        transform: (mobileSearchFocused || searchTerm) ? 'translate3d(0, 0, 0)' : 'translate3d(0, -100%, 0)',
+                        pointerEvents: (mobileSearchFocused || searchTerm) ? 'auto' : 'none',
+                        transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease',
+                        willChange: 'transform, opacity'
+                      }}
+                    >
+                      {/* Back Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic('light');
+                          setMobileSearchFocused(false);
+                          setSuggestOpen(false);
+                          if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+                        }}
+                        style={{
+                          background: 'rgba(255,255,255,0.1)',
+                          border: 'none',
+                          borderRadius: '8px',
+                          width: '32px',
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#38bdf8',
+                          cursor: 'pointer',
+                          flexShrink: 0
+                        }}
+                        title="Back"
+                      >
+                        <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                        </svg>
+                      </button>
+
+                      {/* Full Input */}
+                      <div className="relative flex-1 flex items-center">
+                        <svg 
+                          style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: '#10b981', pointerEvents: 'none' }} 
+                          fill="none" 
+                          stroke="currentColor" 
+                          strokeWidth="2.2" 
+                          viewBox="0 0 24 24"
+                        >
+                          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M16.5 16.5L21 21" />
+                        </svg>
                         <input
                           ref={mobileSearchInputRef}
                           type="text"
                           value={searchTerm}
                           onChange={(e) => { setSearchTerm(e.target.value); setSuggestOpen(true); }}
                           onKeyDown={handleSearchKeyDown}
-                          onFocus={() => {
-                            setMobileSearchFocused(true);
-                            setSuggestOpen(true);
-                          }}
                           placeholder={isListening ? tr(language, "🎙️ Listening...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder")}
                           style={{
                             width: '100%',
-                            height: '36px',
-                            background: (mobileSearchFocused || searchTerm) ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.08)',
-                            border: (mobileSearchFocused || searchTerm) ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.14)',
-                            borderRadius: '10px',
-                            paddingLeft: (mobileSearchFocused || searchTerm) ? '38px' : '32px',
-                            paddingRight: searchTerm ? '60px' : '34px',
+                            height: '34px',
+                            background: 'rgba(255,255,255,0.12)',
+                            border: '1.5px solid #10b981',
+                            borderRadius: '9px',
+                            paddingLeft: '32px',
+                            paddingRight: searchTerm ? '56px' : '32px',
                             fontSize: '12px',
                             color: '#ffffff',
                             outline: 'none',
-                            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                            boxShadow: (mobileSearchFocused || searchTerm) ? '0 0 0 3px rgba(16,185,129,0.2), 0 4px 18px rgba(0,0,0,0.5)' : 'none',
-                            caretColor: '#10b981'
+                            caretColor: '#10b981',
+                            boxShadow: '0 0 0 2px rgba(16,185,129,0.2)'
                           }}
                         />
-
-                        {/* Right Actions: Clear + Voice Button */}
-                        <div style={{ position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <div style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '2px' }}>
                           {searchTerm && (
                             <button
                               type="button"
                               onClick={() => { triggerHaptic('light'); setSearchTerm(''); }}
-                              style={{ background: 'rgba(255,255,255,0.18)', border: 'none', borderRadius: '6px', padding: '2px 5px', color: '#ffffff', cursor: 'pointer', fontSize: '10px', fontWeight: 800 }}
+                              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '5px', padding: '2px 5px', color: '#ffffff', cursor: 'pointer', fontSize: '9px', fontWeight: 800 }}
                               title="Clear"
                             >
                               ✕
@@ -5342,12 +5363,11 @@ export default function SahilTraders() {
                           <button
                             type="button"
                             onClick={handleVoiceSearch}
-                            title={tr(language, "Voice Search", "Voice Search", "آواز سے تلاش")}
                             style={{
                               background: isListening ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.08)',
                               border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.12)',
-                              borderRadius: '7px',
-                              padding: '4px 6px',
+                              borderRadius: '6px',
+                              padding: '3px 5px',
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',
@@ -5361,9 +5381,9 @@ export default function SahilTraders() {
                         </div>
                       </div>
 
-                      {/* Mobile Suggestions Dropdown */}
+                      {/* Dropdown Suggestions under Expanded Overlay */}
                       {suggestOpen && suggestions.length > 0 && (
-                        <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: '#09131e', border: '1.5px solid rgba(16,185,129,0.35)', borderRadius: '12px', boxShadow: '0 16px 48px rgba(0,0,0,0.85)', zIndex: 60, overflow: 'hidden', maxHeight: '290px', overflowY: 'auto' }}>
+                        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#09131e', border: '1.5px solid rgba(16,185,129,0.35)', borderRadius: '12px', boxShadow: '0 16px 48px rgba(0,0,0,0.85)', zIndex: 60, overflow: 'hidden', maxHeight: '280px', overflowY: 'auto' }}>
                           {recentSearches.length > 0 && !searchTerm && (
                             <div style={{ padding: '7px 12px 3px', fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>Recent</div>
                           )}
@@ -6499,22 +6519,10 @@ export default function SahilTraders() {
               const catProducts = products.filter(p => p.categoryId === cat.id);
               const count = catProducts.length;
               const meta = CATEGORY_META[cat.id] || { gradient: 'linear-gradient(135deg,#000000,#9b7a00)', icon: null };
-              // Find all items in this category that have images
-              const imageProducts = catProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage);
-              // Prepare item list for infinite marquee loop (repeat if < 6)
-              let marqueeItems = imageProducts;
-              if (marqueeItems.length > 0 && marqueeItems.length < 6) {
-                while (marqueeItems.length < 6) {
-                  marqueeItems = marqueeItems.concat(imageProducts);
-                }
-              }
-              // Standardize max items per track for equal visual balance
-              if (marqueeItems.length > 10) {
-                marqueeItems = marqueeItems.slice(0, 10);
-              }
-              const doubleItems = [...marqueeItems, ...marqueeItems];
-              // Dynamic uniform speed: 4.2 seconds per item so ALL categories revolve smoothly with perfect lively pace!
-              const animSpeed = (marqueeItems.length * 4.2) + 's';
+              // Find top items in this category that have images (Max 4 items for silky 60fps)
+              const imageProducts = catProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage).slice(0, 4);
+              const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
+              const animSpeed = (imageProducts.length * 3.5) + 's';
               return (
                 <div
                   key={cat.id}

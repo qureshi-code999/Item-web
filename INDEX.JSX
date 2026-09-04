@@ -2342,7 +2342,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
   const isUrdu = modalLang === 'ur';
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 shadow-lg animate-fade-in"
       onClick={onClose}
     >
       <div 
@@ -2635,7 +2635,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
   const isUrdu = language === 'ur';
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 shadow-lg animate-fade-in"
       onClick={onClose}
     >
       <div 
@@ -2798,7 +2798,7 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
   const isUrdu = modalLang === 'ur';
   return (
     <div 
-      className="fixed inset-0 z-[99] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-[99] flex items-center justify-center p-4 bg-black/75 shadow-2xl animate-fade-in"
       onClick={onClose}
     >
       <div 
@@ -2956,7 +2956,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 shadow-2xl animate-fade-in" onClick={onClose}>
       <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col" style={{ maxHeight: '92vh' }} onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-700 text-white">
           <div className="flex items-center gap-2">
@@ -3215,7 +3215,7 @@ function WishlistDrawer({ open, onClose, wishlist, products, onAddToCart, onRemo
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60  flex justify-end animate-fade-in" onClick={onClose}>
       <div
         className="w-full max-w-md bg-white h-full flex flex-col shadow-2xl border-l border-gray-200 animate-slide-left relative"
         onClick={e => e.stopPropagation()}
@@ -3365,7 +3365,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
   };
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 shadow-2xl animate-fade-in"
       onClick={onClose}
     >
       <div 
@@ -3825,7 +3825,7 @@ function VariantSelectionModal({ product, open, onClose, onConfirm, language, la
   const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 shadow-2xl animate-fade-in">
       <div className="w-full max-w-lg bg-white rounded-3xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50">
@@ -4006,13 +4006,7 @@ export default function SahilTraders() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [returnPolicyOpen, setReturnPolicyOpen] = useState(false);
   const [language, setLanguage] = useState("en");
-  const [welcomeOpen, setWelcomeOpen] = useState(() => {
-    try {
-      return !sessionStorage.getItem("sahil_traders_welcome_seen");
-    } catch (e) {
-      return true;
-    }
-  });
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
       const [showSplash, setShowSplash] = useState(true);
       const [fadeSplash, setFadeSplash] = useState(false);
       const [searchTerm, setSearchTerm] = useState("");
@@ -4707,31 +4701,7 @@ export default function SahilTraders() {
       const langData = useMemo(() => {
         return window.TRANSLATIONS?.[language] || window.TRANSLATIONS?.en || {};
       }, [language]);
-      // Memoized 18 random floating product silhouettes (raw line-art vector outlines)
-      const floatingSilhouettes = useMemo(() => {
-        const types = [ShampooIcon, SoapIcon, FaceWashIcon, CreamIcon, RazorIcon, PerfumeIcon];
-        return Array.from({ length: 18 }).map((_, idx) => {
-          const Icon = types[idx % types.length];
-          const left = Math.random() * 90 + 5; // 5% to 95%
-          const top = Math.random() * 90 + 5;  // 5% to 95%
-          const scale = 0.4 + Math.random() * 0.7; // size variety
-          const opacity = 0.05 + Math.random() * 0.07; // very faint, barely visible (0.05–0.12)
-          const duration = 20 + Math.random() * 25; // 20s to 45s
-          const delay = -Math.random() * 25;
-          const animType = Math.floor(Math.random() * 4) + 1; // float-drift-1 to 4
-          return {
-            id: idx,
-            Icon,
-            left,
-            top,
-            scale,
-            opacity,
-            duration,
-            delay,
-            animType,
-          };
-        });
-      }, []);
+      
       // 🎬 Cinematic Movie-Style Splash Intro Lifecycle (2.2s snappy intro)
       useEffect(() => {
         if (!showSplash) return;
@@ -4980,7 +4950,7 @@ export default function SahilTraders() {
 
                 {/* Subtitle Royal Pill Badge */}
                 <div className="luxury-text-anim-2 mt-3.5">
-                  <div className="inline-flex items-center gap-1.5 px-4 py-1.2 rounded-full bg-gradient-to-r from-blue-600/20 via-sky-500/20 to-indigo-600/20 border border-blue-400/40 backdrop-blur-md shadow-lg shadow-black/50">
+                  <div className="inline-flex items-center gap-1.5 px-4 py-1.2 rounded-full bg-gradient-to-r from-blue-600/20 via-sky-500/20 to-indigo-600/20 border border-blue-400/40 shadow-2xl shadow-lg shadow-black/50">
                     <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-ping" />
                     <span className="text-[11px] font-extrabold tracking-[0.18em] text-sky-300 uppercase">
                       Wholesale &amp; Retail Pakistan
@@ -5034,7 +5004,7 @@ export default function SahilTraders() {
               </div>
 
               {/* ━━━ PREMIUM MAIN HEADER (Unified 1-Row Header with Animated Expandable Search) ━━━ */}
-              <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)', borderBottom: '1px solid rgba(16,185,129,0.22)', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
+              <header className="sticky top-0 z-30 shadow-md" style={{ background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)', borderBottom: '1px solid rgba(16,185,129,0.22)', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
                 <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
                   
                   {/* ══════════════════════════════════════════════════════════════════
@@ -6208,7 +6178,7 @@ export default function SahilTraders() {
 
               {/* Exit Confirmation Modal */}
               {exitModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 shadow-lg animate-fadeIn">
                   <div className="bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4">
                     <div className="w-14 h-14 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center mx-auto">
                       <svg className="w-7 h-7 text-black" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -6750,7 +6720,7 @@ export default function SahilTraders() {
             className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-2xs ${
               isWishlisted
                 ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105'
-                : 'bg-white/90 backdrop-blur-xs border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'
+                : 'bg-white/90  border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'
             }`}
             title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
           >

@@ -8990,7 +8990,7 @@ function AboutUsModal({
   const [modalLang, setModalLang] = React.useState('ro');
   const isUrdu = modalLang === 'ur';
   return /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in",
+    className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 shadow-lg animate-fade-in",
     onClick: onClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 animate-scale-in relative",
@@ -9226,7 +9226,7 @@ function ReturnPolicyModal({
   if (!isOpen) return null;
   const isUrdu = language === 'ur';
   return /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in",
+    className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 shadow-lg animate-fade-in",
     onClick: onClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 animate-scale-in relative",
@@ -9414,7 +9414,7 @@ function WelcomeDisclaimerModal({
   const [modalLang, setModalLang] = React.useState('ro');
   const isUrdu = modalLang === 'ur';
   return /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-[99] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in",
+    className: "fixed inset-0 z-[99] flex items-center justify-center p-4 bg-black/75 shadow-2xl animate-fade-in",
     onClick: onClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border-2 border-amber-400 animate-scale-in relative p-6 text-center",
@@ -9552,7 +9552,7 @@ function ParchiOrderModal({
     window.open(waUrl, '_blank');
   };
   return /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in",
+    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 shadow-2xl animate-fade-in",
     onClick: onClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col",
@@ -9727,7 +9727,7 @@ function WishlistDrawer({
     onClose();
   };
   return /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-xs flex justify-end animate-fade-in",
+    className: "fixed inset-0 z-50 overflow-hidden bg-black/60  flex justify-end animate-fade-in",
     onClick: onClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "w-full max-w-md bg-white h-full flex flex-col shadow-2xl border-l border-gray-200 animate-slide-left relative",
@@ -9851,7 +9851,7 @@ function ProductDetailModal({
     window.open(`https://wa.me/923368945775?text=${encodeURIComponent(msg)}`, '_blank');
   };
   return /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-md animate-fade-in",
+    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 shadow-2xl animate-fade-in",
     onClick: onClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col",
@@ -10302,7 +10302,7 @@ function VariantSelectionModal({
   }, [product]);
   const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
   return /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 shadow-2xl animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
     className: "w-full max-w-lg bg-white rounded-3xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
   }, /*#__PURE__*/React.createElement("div", {
@@ -10443,13 +10443,7 @@ function SahilTraders() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [returnPolicyOpen, setReturnPolicyOpen] = useState(false);
   const [language, setLanguage] = useState("en");
-  const [welcomeOpen, setWelcomeOpen] = useState(() => {
-    try {
-      return !sessionStorage.getItem("sahil_traders_welcome_seen");
-    } catch (e) {
-      return true;
-    }
-  });
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -13150,33 +13144,7 @@ function SahilTraders() {
   const langData = useMemo(() => {
     return window.TRANSLATIONS?.[language] || window.TRANSLATIONS?.en || {};
   }, [language]);
-  // Memoized 18 random floating product silhouettes (raw line-art vector outlines)
-  const floatingSilhouettes = useMemo(() => {
-    const types = [ShampooIcon, SoapIcon, FaceWashIcon, CreamIcon, RazorIcon, PerfumeIcon];
-    return Array.from({
-      length: 18
-    }).map((_, idx) => {
-      const Icon = types[idx % types.length];
-      const left = Math.random() * 90 + 5; // 5% to 95%
-      const top = Math.random() * 90 + 5; // 5% to 95%
-      const scale = 0.4 + Math.random() * 0.7; // size variety
-      const opacity = 0.05 + Math.random() * 0.07; // very faint, barely visible (0.05–0.12)
-      const duration = 20 + Math.random() * 25; // 20s to 45s
-      const delay = -Math.random() * 25;
-      const animType = Math.floor(Math.random() * 4) + 1; // float-drift-1 to 4
-      return {
-        id: idx,
-        Icon,
-        left,
-        top,
-        scale,
-        opacity,
-        duration,
-        delay,
-        animType
-      };
-    });
-  }, []);
+
   // 🎬 Cinematic Movie-Style Splash Intro Lifecycle (2.2s snappy intro)
   useEffect(() => {
     if (!showSplash) return;
@@ -13435,7 +13403,7 @@ function SahilTraders() {
   }, "ZS Mart")), /*#__PURE__*/React.createElement("div", {
     className: "luxury-text-anim-2 mt-3.5"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "inline-flex items-center gap-1.5 px-4 py-1.2 rounded-full bg-gradient-to-r from-blue-600/20 via-sky-500/20 to-indigo-600/20 border border-blue-400/40 backdrop-blur-md shadow-lg shadow-black/50"
+    className: "inline-flex items-center gap-1.5 px-4 py-1.2 rounded-full bg-gradient-to-r from-blue-600/20 via-sky-500/20 to-indigo-600/20 border border-blue-400/40 shadow-2xl shadow-lg shadow-black/50"
   }, /*#__PURE__*/React.createElement("span", {
     className: "w-1.5 h-1.5 rounded-full bg-sky-400 animate-ping"
   }), /*#__PURE__*/React.createElement("span", {
@@ -13500,7 +13468,7 @@ function SahilTraders() {
       color: 'rgba(255,255,255,0.2)'
     }
   }, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC ", tr(language, 'WhatsApp Orders Active', 'WhatsApp Orders Active', 'واٹس ایپ آرڈرز جاری')))))), /*#__PURE__*/React.createElement("header", {
-    className: "sticky top-0 z-30 backdrop-blur-xl",
+    className: "sticky top-0 z-30 shadow-md",
     style: {
       background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)',
       borderBottom: '1px solid rgba(16,185,129,0.22)',
@@ -15761,7 +15729,7 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("p", {
     className: "font-semibold text-gray-700"
   }, tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: 10:00 AM – 8:00 PM (Peer ta Hafta)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)')), /*#__PURE__*/React.createElement("p", null, tr(language, 'Sahil Saleem & Muhammad Zubair Moin', 'Sahil Saleem & Muhammad Zubair Moin', '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646')))))), exitModalOpen && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+    className: "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 shadow-lg animate-fadeIn"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4"
   }, /*#__PURE__*/React.createElement("div", {
@@ -17271,7 +17239,7 @@ function ProductCard({
       e.stopPropagation();
       if (onToggleWishlist) onToggleWishlist(product);
     },
-    className: `absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-2xs ${isWishlisted ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105' : 'bg-white/90 backdrop-blur-xs border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'}`,
+    className: `absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-2xs ${isWishlisted ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105' : 'bg-white/90  border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'}`,
     title: isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'
   }, /*#__PURE__*/React.createElement("svg", {
     className: "w-3.5 h-3.5",

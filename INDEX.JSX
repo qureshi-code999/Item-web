@@ -778,11 +778,6 @@ function getTranslationValue(dictionary, key) {
       if (!path) return '';
       if (path.startsWith('http://') || path.startsWith('https://')) return path;
       const webpPath = path.replace(/\.(png|jpg|jpeg)$/i, '.webp');
-      
-      // Inside native Android APK, load from local internal assets for 0ms instant speed!
-      if (typeof window !== 'undefined' && (window.Capacitor || window.location.protocol === 'capacitor:' || window.location.hostname === 'localhost')) {
-        return webpPath;
-      }
       return `https://sahiltraders.vercel.app/${webpPath}`;
     }
     function translate(dictionary, key, params = {}) {

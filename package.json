@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "sahil-traders-app",
   "version": "1.0.0",
   "description": "Sahil Traders Wholesale & Retail Mobile App",
@@ -12,5 +12,8 @@
     "@capacitor/android": "^7.0.1",
     "@capacitor/cli": "^7.0.1",
     "@capacitor/core": "^7.0.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.4"
   }
 }

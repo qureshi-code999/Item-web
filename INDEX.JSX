@@ -4003,6 +4003,9 @@ export default function SahilTraders() {
       const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
       const [catMenuOpen, setCatMenuOpen] = useState(false);
       const [suggestOpen, setSuggestOpen] = useState(false);
+      const [mobileSearchFocused, setMobileSearchFocused] = useState(false);
+      const mobileSearchBoxRef = useRef(null);
+      const mobileSearchInputRef = useRef(null);
       const [recentSearches, setRecentSearches] = useState([]);
       const searchBoxRef = useRef(null);
       const searchInputRef = useRef(null);
@@ -4725,10 +4728,20 @@ export default function SahilTraders() {
           if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
             setSuggestOpen(false);
           }
+          if (mobileSearchBoxRef.current && !mobileSearchBoxRef.current.contains(e.target)) {
+            setSuggestOpen(false);
+            if (!searchTerm) {
+              setMobileSearchFocused(false);
+            }
+          }
         }
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-      }, []);
+        document.addEventListener("touchstart", handleClickOutside, { passive: true });
+        return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+          document.removeEventListener("touchstart", handleClickOutside);
+        };
+      }, [searchTerm]);
       useEffect(() => {
         setSelectedBrand("all");
         setFilterMenuOpen(false);
@@ -4988,14 +5001,16 @@ export default function SahilTraders() {
                 </div>
               </div>
 
-              {/* ━━━ PREMIUM MAIN HEADER (Responsive 2-Row Mobile, 1-Row Desktop) ━━━ */}
+              {/* ━━━ PREMIUM MAIN HEADER (Unified 1-Row Header with Animated Expandable Search) ━━━ */}
               <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)', borderBottom: '1px solid rgba(16,185,129,0.22)', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
                 <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
                   
-                  {/* ── TOP ROW: Logo & Actions ── */}
-                  <div className="flex items-center justify-between gap-3">
+                  {/* ══════════════════════════════════════════════════════════════════
+                      DESKTOP HEADER (sm and above): Logo + Center Search + Actions
+                      ══════════════════════════════════════════════════════════════════ */}
+                  <div className="hidden sm:flex items-center justify-between gap-3">
 
-                    {/* ── LOGO (Visible with text on both mobile & desktop) ── */}
+                    {/* Logo & Brand Title */}
                     <div className="flex items-center gap-2.5 shrink-0 cursor-pointer" onClick={() => { setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}>
                       <div className="relative">
                         <div style={{ position: 'absolute', inset: '-2px', borderRadius: '14px', background: 'linear-gradient(135deg, #2563eb, #38bdf8)', opacity: 0.7, filter: 'blur(5px)' }} />
@@ -5016,11 +5031,12 @@ export default function SahilTraders() {
                       </div>
                     </div>
 
-                    {/* ── DESKTOP CENTER SEARCH BAR (Hidden on Mobile) ── */}
-                    <div className="hidden sm:block flex-1 relative max-w-xl mx-2" ref={searchBoxRef}>
+                    {/* Desktop Center Search Bar */}
+                    <div className="flex-1 relative max-w-xl mx-2" ref={searchBoxRef}>
                       <div className="relative flex items-center">
-                        <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"/>
+                        <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M16.5 16.5L21 21" />
                         </svg>
                         <input
                           ref={searchInputRef}
@@ -5090,8 +5106,8 @@ export default function SahilTraders() {
                       )}
                     </div>
 
-                    {/* ── DESKTOP ACTION BUTTONS ── */}
-                    <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+                    {/* Desktop Action Buttons */}
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <select
                         value={language}
                         onChange={(e) => setLanguage(e.target.value)}
@@ -5167,7 +5183,7 @@ export default function SahilTraders() {
                         <svg style={{width:'16px',height:'16px'}} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
                         </svg>
-                        <span>{tr(language, 'Cart', 'Cart', '\u06a9\u0627\u0631\u0679')}</span>
+                        <span>{tr(language, 'Cart', 'Cart', 'کارٹ')}</span>
                         {cartCount > 0 && (
                           <span style={{ position: 'absolute', top: '-8px', right: '-8px', minWidth: '20px', height: '20px', borderRadius: '10px', background: '#e11d48', color: '#fff', fontSize: '10.5px', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '2px solid #0a1020' }}>
                             {cartCount}
@@ -5176,102 +5192,202 @@ export default function SahilTraders() {
                       </button>
                     </div>
 
-                    {/* ── MOBILE ROW 1 RIGHT ACTION (Sync & WhatsApp Support) ── */}
-                    <div className="flex sm:hidden items-center gap-1.5 shrink-0">
-                      <a
-                        href="https://wa.me/923368945775"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          background: 'rgba(37,211,102,0.14)',
-                          border: '1px solid rgba(37,211,102,0.35)',
-                          borderRadius: '8px',
-                          padding: '5px 9px',
-                          fontSize: '11px',
-                          fontWeight: 800,
-                          color: '#25d366',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          textDecoration: 'none',
-                          boxShadow: '0 2px 8px rgba(37,211,102,0.2)'
-                        }}
-                      >
-                        <span>💬</span>
-                        <span>WhatsApp</span>
-                      </a>
-                    </div>
-
                   </div>
 
-                  {/* ── ROW 2 (MOBILE ONLY): Clean Modern Search Bar ── */}
-                  <div className="block sm:hidden mt-2 relative">
-                    <div className="relative flex items-center">
-                      <svg style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '15px', height: '15px', color: 'rgba(255,255,255,0.45)', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"/>
-                      </svg>
-                      <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => { setSearchTerm(e.target.value); setSuggestOpen(true); }}
-                        onKeyDown={handleSearchKeyDown}
-                        placeholder={isListening ? tr(language, "🎙️ Listening... Speak now...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder")}
-                        style={{
-                          width: '100%',
-                          background: isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)',
-                          border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.16)',
-                          borderRadius: '10px',
-                          paddingLeft: '36px',
-                          paddingRight: searchTerm ? '64px' : '36px',
-                          paddingTop: '8px',
-                          paddingBottom: '8px',
-                          fontSize: '12px',
-                          color: '#ffffff',
-                          outline: 'none',
-                          transition: 'all 0.2s',
-                          caretColor: '#10b981',
-                        }}
-                        onFocus={e => { e.target.style.borderColor = '#10b981'; e.target.style.background = 'rgba(255,255,255,0.14)'; e.target.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.2)'; }}
-                        onBlur={e => { e.target.style.borderColor = isListening ? '#10b981' : 'rgba(255,255,255,0.16)'; e.target.style.background = isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)'; e.target.style.boxShadow = 'none'; }}
-                      />
-                      <div style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        {searchTerm && (
-                          <button type="button" onClick={() => { triggerHaptic('light'); setSearchTerm(''); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '6px', padding: '2px 5px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '10px', fontWeight: 700 }} title="Clear">✕</button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={handleVoiceSearch}
-                          title={tr(language, "Voice Search", "Voice Search", "آواز سے تلاش")}
-                          style={{ background: isListening ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)', border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', padding: '4px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                        >
-                          <svg style={{ width: '12px', height: '12px', color: isListening ? '#10b981' : 'rgba(255,255,255,0.6)' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/>
-                          </svg>
-                        </button>
+                  {/* ══════════════════════════════════════════════════════════════════
+                      MOBILE HEADER (sm hidden): Unified 1-Row with Smooth Expand Search
+                      ══════════════════════════════════════════════════════════════════ */}
+                  <div className="flex sm:hidden items-center gap-2 relative w-full h-[40px]">
+
+                    {/* Mobile Logo & Title (Smoothly slides/fades out when search expands) */}
+                    <div 
+                      className="flex items-center gap-2 shrink-0 cursor-pointer"
+                      style={{
+                        maxWidth: (mobileSearchFocused || searchTerm) ? '0px' : '155px',
+                        opacity: (mobileSearchFocused || searchTerm) ? 0 : 1,
+                        transform: (mobileSearchFocused || searchTerm) ? 'translateX(-24px) scale(0.85)' : 'translateX(0) scale(1)',
+                        overflow: 'hidden',
+                        transition: 'all 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
+                        pointerEvents: (mobileSearchFocused || searchTerm) ? 'none' : 'auto',
+                        whiteSpace: 'nowrap'
+                      }}
+                      onClick={() => { setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}
+                    >
+                      <div className="relative shrink-0">
+                        <div style={{ position: 'absolute', inset: '-1.5px', borderRadius: '11px', background: 'linear-gradient(135deg, #2563eb, #38bdf8)', opacity: 0.7, filter: 'blur(3px)' }} />
+                        <img
+                          src="images/zs-mart-logo.png"
+                          alt="ZS Mart"
+                          onError={(e) => { e.currentTarget.src = 'images/zs-mart-logo.jpg'; }}
+                          style={{ width: '34px', height: '34px', objectFit: 'contain', borderRadius: '10px', position: 'relative', background: '#ffffff', padding: '1px', border: '1.5px solid #2563eb' }}
+                        />
+                      </div>
+                      <div className="shrink-0">
+                        <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, fontSize: '13.5px', letterSpacing: '0.04em', textTransform: 'uppercase', color: '#ffffff', lineHeight: 1.1 }}>
+                          ZS Mart
+                        </div>
+                        <div style={{ fontSize: '7.5px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#38bdf8', marginTop: '1px' }}>
+                          Wholesale &amp; Retail
+                        </div>
                       </div>
                     </div>
-                    {/* Mobile Suggestions Dropdown */}
-                    {suggestOpen && suggestions.length > 0 && (
-                      <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#09131e', border: '1.5px solid rgba(16,185,129,0.3)', borderRadius: '10px', boxShadow: '0 16px 48px rgba(0,0,0,0.7)', zIndex: 50, overflow: 'hidden', maxHeight: '280px', overflowY: 'auto' }}>
-                        {recentSearches.length > 0 && !searchTerm && (
-                          <div style={{ padding: '7px 12px 3px', fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>Recent</div>
-                        )}
-                        {suggestions.slice(0, 8).map((product) => (
+
+                    {/* Mobile Search Bar (Compact in single row, expands to 100% full width on click) */}
+                    <div 
+                      className="flex-1 relative min-w-0"
+                      ref={mobileSearchBoxRef}
+                      style={{
+                        zIndex: (mobileSearchFocused || searchTerm) ? 35 : 1,
+                        transition: 'all 0.32s cubic-bezier(0.4, 0, 0.2, 1)'
+                      }}
+                    >
+                      <div className="relative flex items-center w-full">
+                        
+                        {/* Back / Collapse Button (Visible when expanded) */}
+                        {(mobileSearchFocused || searchTerm) ? (
                           <button
-                            key={product.id}
                             type="button"
-                            onMouseDown={() => handleSuggestionClick(product)}
-                            style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '9px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                            onClick={() => {
+                              triggerHaptic('light');
+                              setMobileSearchFocused(false);
+                              setSuggestOpen(false);
+                              if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+                            }}
+                            style={{
+                              position: 'absolute',
+                              left: '7px',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              background: 'rgba(255,255,255,0.12)',
+                              border: 'none',
+                              borderRadius: '8px',
+                              width: '26px',
+                              height: '26px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#38bdf8',
+                              cursor: 'pointer',
+                              zIndex: 5
+                            }}
+                            title="Back / Close"
                           >
-                            <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, color: 'white', flexShrink: 0 }}>{product.initial || product.name[0]}</div>
-                            <div style={{ minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#ffffff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
-                              <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 700 }}>Rs. {product.price}</div>
-                            </div>
+                            <svg style={{ width: '15px', height: '15px' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                            </svg>
                           </button>
-                        ))}
+                        ) : (
+                          /* Crisp clean search icon (No distorted comma tail) */
+                          <svg 
+                            style={{ 
+                              position: 'absolute', 
+                              left: '11px', 
+                              top: '50%', 
+                              transform: 'translateY(-50%)', 
+                              width: '14px', 
+                              height: '14px', 
+                              color: 'rgba(255,255,255,0.45)', 
+                              pointerEvents: 'none' 
+                            }} 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2.2" 
+                            viewBox="0 0 24 24"
+                          >
+                            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M16.5 16.5L21 21" />
+                          </svg>
+                        )}
+
+                        <input
+                          ref={mobileSearchInputRef}
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => { setSearchTerm(e.target.value); setSuggestOpen(true); }}
+                          onKeyDown={handleSearchKeyDown}
+                          onFocus={() => {
+                            setMobileSearchFocused(true);
+                            setSuggestOpen(true);
+                          }}
+                          placeholder={isListening ? tr(language, "🎙️ Listening...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder")}
+                          style={{
+                            width: '100%',
+                            height: '36px',
+                            background: (mobileSearchFocused || searchTerm) ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.08)',
+                            border: (mobileSearchFocused || searchTerm) ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.14)',
+                            borderRadius: '10px',
+                            paddingLeft: (mobileSearchFocused || searchTerm) ? '38px' : '32px',
+                            paddingRight: searchTerm ? '60px' : '34px',
+                            fontSize: '12px',
+                            color: '#ffffff',
+                            outline: 'none',
+                            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                            boxShadow: (mobileSearchFocused || searchTerm) ? '0 0 0 3px rgba(16,185,129,0.2), 0 4px 18px rgba(0,0,0,0.5)' : 'none',
+                            caretColor: '#10b981'
+                          }}
+                        />
+
+                        {/* Right Actions: Clear + Voice Button */}
+                        <div style={{ position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          {searchTerm && (
+                            <button
+                              type="button"
+                              onClick={() => { triggerHaptic('light'); setSearchTerm(''); }}
+                              style={{ background: 'rgba(255,255,255,0.18)', border: 'none', borderRadius: '6px', padding: '2px 5px', color: '#ffffff', cursor: 'pointer', fontSize: '10px', fontWeight: 800 }}
+                              title="Clear"
+                            >
+                              ✕
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={handleVoiceSearch}
+                            title={tr(language, "Voice Search", "Voice Search", "آواز سے تلاش")}
+                            style={{
+                              background: isListening ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.08)',
+                              border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.12)',
+                              borderRadius: '7px',
+                              padding: '4px 6px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <svg style={{ width: '12px', height: '12px', color: isListening ? '#10b981' : 'rgba(255,255,255,0.65)' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/>
+                            </svg>
+                          </button>
+                        </div>
                       </div>
-                    )}
+
+                      {/* Mobile Suggestions Dropdown */}
+                      {suggestOpen && suggestions.length > 0 && (
+                        <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: '#09131e', border: '1.5px solid rgba(16,185,129,0.35)', borderRadius: '12px', boxShadow: '0 16px 48px rgba(0,0,0,0.85)', zIndex: 60, overflow: 'hidden', maxHeight: '290px', overflowY: 'auto' }}>
+                          {recentSearches.length > 0 && !searchTerm && (
+                            <div style={{ padding: '7px 12px 3px', fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>Recent</div>
+                          )}
+                          {suggestions.slice(0, 8).map((product) => (
+                            <button
+                              key={product.id}
+                              type="button"
+                              onMouseDown={() => {
+                                handleSuggestionClick(product);
+                                setMobileSearchFocused(false);
+                              }}
+                              style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '9px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                            >
+                              <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, color: 'white', flexShrink: 0 }}>{product.initial || product.name[0]}</div>
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#ffffff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
+                                <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 700 }}>Rs. {product.price}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                   </div>
 
                 </div>

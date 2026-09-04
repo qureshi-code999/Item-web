@@ -10438,6 +10438,9 @@ function SahilTraders() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [catMenuOpen, setCatMenuOpen] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
+  const [mobileSearchFocused, setMobileSearchFocused] = useState(false);
+  const mobileSearchBoxRef = useRef(null);
+  const mobileSearchInputRef = useRef(null);
   const [recentSearches, setRecentSearches] = useState([]);
   const searchBoxRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -13168,10 +13171,22 @@ function SahilTraders() {
       if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
         setSuggestOpen(false);
       }
+      if (mobileSearchBoxRef.current && !mobileSearchBoxRef.current.contains(e.target)) {
+        setSuggestOpen(false);
+        if (!searchTerm) {
+          setMobileSearchFocused(false);
+        }
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    document.addEventListener("touchstart", handleClickOutside, {
+      passive: true
+    });
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [searchTerm]);
   useEffect(() => {
     setSelectedBrand("all");
     setFilterMenuOpen(false);
@@ -13461,7 +13476,7 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center justify-between gap-3"
+    className: "hidden sm:flex items-center justify-between gap-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2.5 shrink-0 cursor-pointer",
     onClick: () => {
@@ -13517,7 +13532,7 @@ function SahilTraders() {
       marginTop: '1px'
     }
   }, "Wholesale & Retail"))), /*#__PURE__*/React.createElement("div", {
-    className: "hidden sm:block flex-1 relative max-w-xl mx-2",
+    className: "flex-1 relative max-w-xl mx-2",
     ref: searchBoxRef
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative flex items-center"
@@ -13529,17 +13544,24 @@ function SahilTraders() {
       transform: 'translateY(-50%)',
       width: '16px',
       height: '16px',
-      color: 'rgba(255,255,255,0.35)',
+      color: 'rgba(255,255,255,0.4)',
       pointerEvents: 'none'
     },
     fill: "none",
     stroke: "currentColor",
     strokeWidth: "2.2",
     viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "11",
+    cy: "11",
+    r: "7",
+    stroke: "currentColor",
+    strokeWidth: "2.2"
+  }), /*#__PURE__*/React.createElement("path", {
     strokeLinecap: "round",
     strokeLinejoin: "round",
-    d: "M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"
+    strokeWidth: "2.2",
+    d: "M16.5 16.5L21 21"
   })), /*#__PURE__*/React.createElement("input", {
     ref: searchInputRef,
     type: "text",
@@ -13702,7 +13724,7 @@ function SahilTraders() {
       fontWeight: 700
     }
   }, "Rs. ", product.price)))))), /*#__PURE__*/React.createElement("div", {
-    className: "hidden sm:flex items-center gap-1.5 shrink-0"
+    className: "flex items-center gap-1.5 shrink-0"
   }, /*#__PURE__*/React.createElement("select", {
     value: language,
     onChange: e => setLanguage(e.target.value),
@@ -14004,7 +14026,7 @@ function SahilTraders() {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
-  })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Cart', 'Cart', '\u06a9\u0627\u0631\u0679')), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
+  })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Cart', 'Cart', 'کارٹ')), cartCount > 0 && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
       top: '-8px',
@@ -14022,38 +14044,132 @@ function SahilTraders() {
       padding: '0 4px',
       border: '2px solid #0a1020'
     }
-  }, cartCount))), /*#__PURE__*/React.createElement("div", {
-    className: "flex sm:hidden items-center gap-1.5 shrink-0"
-  }, /*#__PURE__*/React.createElement("a", {
-    href: "https://wa.me/923368945775",
-    target: "_blank",
-    rel: "noopener noreferrer",
-    style: {
-      background: 'rgba(37,211,102,0.14)',
-      border: '1px solid rgba(37,211,102,0.35)',
-      borderRadius: '8px',
-      padding: '5px 9px',
-      fontSize: '11px',
-      fontWeight: 800,
-      color: '#25d366',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '4px',
-      textDecoration: 'none',
-      boxShadow: '0 2px 8px rgba(37,211,102,0.2)'
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC"), /*#__PURE__*/React.createElement("span", null, "WhatsApp")))), /*#__PURE__*/React.createElement("div", {
-    className: "block sm:hidden mt-2 relative"
+  }, cartCount)))), /*#__PURE__*/React.createElement("div", {
+    className: "flex sm:hidden items-center gap-2 relative w-full h-[40px]"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "relative flex items-center"
-  }, /*#__PURE__*/React.createElement("svg", {
+    className: "flex items-center gap-2 shrink-0 cursor-pointer",
+    style: {
+      maxWidth: mobileSearchFocused || searchTerm ? '0px' : '155px',
+      opacity: mobileSearchFocused || searchTerm ? 0 : 1,
+      transform: mobileSearchFocused || searchTerm ? 'translateX(-24px) scale(0.85)' : 'translateX(0) scale(1)',
+      overflow: 'hidden',
+      transition: 'all 0.32s cubic-bezier(0.4, 0, 0.2, 1)',
+      pointerEvents: mobileSearchFocused || searchTerm ? 'none' : 'auto',
+      whiteSpace: 'nowrap'
+    },
+    onClick: () => {
+      setActiveTab('home');
+      setSelectedCategory(null);
+      setSearchTerm('');
+      setActiveCategory('all');
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative shrink-0"
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      left: '12px',
+      inset: '-1.5px',
+      borderRadius: '11px',
+      background: 'linear-gradient(135deg, #2563eb, #38bdf8)',
+      opacity: 0.7,
+      filter: 'blur(3px)'
+    }
+  }), /*#__PURE__*/React.createElement("img", {
+    src: "images/zs-mart-logo.png",
+    alt: "ZS Mart",
+    onError: e => {
+      e.currentTarget.src = 'images/zs-mart-logo.jpg';
+    },
+    style: {
+      width: '34px',
+      height: '34px',
+      objectFit: 'contain',
+      borderRadius: '10px',
+      position: 'relative',
+      background: '#ffffff',
+      padding: '1px',
+      border: '1.5px solid #2563eb'
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "shrink-0"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "'Poppins', sans-serif",
+      fontWeight: 900,
+      fontSize: '13.5px',
+      letterSpacing: '0.04em',
+      textTransform: 'uppercase',
+      color: '#ffffff',
+      lineHeight: 1.1
+    }
+  }, "ZS Mart"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '7.5px',
+      fontWeight: 700,
+      letterSpacing: '0.12em',
+      textTransform: 'uppercase',
+      color: '#38bdf8',
+      marginTop: '1px'
+    }
+  }, "Wholesale & Retail"))), /*#__PURE__*/React.createElement("div", {
+    className: "flex-1 relative min-w-0",
+    ref: mobileSearchBoxRef,
+    style: {
+      zIndex: mobileSearchFocused || searchTerm ? 35 : 1,
+      transition: 'all 0.32s cubic-bezier(0.4, 0, 0.2, 1)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative flex items-center w-full"
+  }, mobileSearchFocused || searchTerm ? /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => {
+      triggerHaptic('light');
+      setMobileSearchFocused(false);
+      setSuggestOpen(false);
+      if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+    },
+    style: {
+      position: 'absolute',
+      left: '7px',
       top: '50%',
       transform: 'translateY(-50%)',
+      background: 'rgba(255,255,255,0.12)',
+      border: 'none',
+      borderRadius: '8px',
+      width: '26px',
+      height: '26px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#38bdf8',
+      cursor: 'pointer',
+      zIndex: 5
+    },
+    title: "Back / Close"
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
       width: '15px',
-      height: '15px',
+      height: '15px'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+  }))) :
+  /*#__PURE__*/
+  /* Crisp clean search icon (No distorted comma tail) */
+  React.createElement("svg", {
+    style: {
+      position: 'absolute',
+      left: '11px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: '14px',
+      height: '14px',
       color: 'rgba(255,255,255,0.45)',
       pointerEvents: 'none'
     },
@@ -14061,11 +14177,19 @@ function SahilTraders() {
     stroke: "currentColor",
     strokeWidth: "2.2",
     viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "11",
+    cy: "11",
+    r: "7",
+    stroke: "currentColor",
+    strokeWidth: "2.2"
+  }), /*#__PURE__*/React.createElement("path", {
     strokeLinecap: "round",
     strokeLinejoin: "round",
-    d: "M21 21l-4.35-4.35m0 0A7.5 7.5 0 1116.65 16.65z"
+    strokeWidth: "2.2",
+    d: "M16.5 16.5L21 21"
   })), /*#__PURE__*/React.createElement("input", {
+    ref: mobileSearchInputRef,
     type: "text",
     value: searchTerm,
     onChange: e => {
@@ -14073,36 +14197,30 @@ function SahilTraders() {
       setSuggestOpen(true);
     },
     onKeyDown: handleSearchKeyDown,
-    placeholder: isListening ? tr(language, "🎙️ Listening... Speak now...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder"),
+    onFocus: () => {
+      setMobileSearchFocused(true);
+      setSuggestOpen(true);
+    },
+    placeholder: isListening ? tr(language, "🎙️ Listening...", "🎙️ Sun raha hoon...", "🎙️ سن رہا ہوں...") : translate(langData, "searchPlaceholder"),
     style: {
       width: '100%',
-      background: isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)',
-      border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.16)',
+      height: '36px',
+      background: mobileSearchFocused || searchTerm ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.08)',
+      border: mobileSearchFocused || searchTerm ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.14)',
       borderRadius: '10px',
-      paddingLeft: '36px',
-      paddingRight: searchTerm ? '64px' : '36px',
-      paddingTop: '8px',
-      paddingBottom: '8px',
+      paddingLeft: mobileSearchFocused || searchTerm ? '38px' : '32px',
+      paddingRight: searchTerm ? '60px' : '34px',
       fontSize: '12px',
       color: '#ffffff',
       outline: 'none',
-      transition: 'all 0.2s',
+      transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+      boxShadow: mobileSearchFocused || searchTerm ? '0 0 0 3px rgba(16,185,129,0.2), 0 4px 18px rgba(0,0,0,0.5)' : 'none',
       caretColor: '#10b981'
-    },
-    onFocus: e => {
-      e.target.style.borderColor = '#10b981';
-      e.target.style.background = 'rgba(255,255,255,0.14)';
-      e.target.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.2)';
-    },
-    onBlur: e => {
-      e.target.style.borderColor = isListening ? '#10b981' : 'rgba(255,255,255,0.16)';
-      e.target.style.background = isListening ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.10)';
-      e.target.style.boxShadow = 'none';
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      right: '6px',
+      right: '5px',
       top: '50%',
       transform: 'translateY(-50%)',
       display: 'flex',
@@ -14116,14 +14234,14 @@ function SahilTraders() {
       setSearchTerm('');
     },
     style: {
-      background: 'rgba(255,255,255,0.15)',
+      background: 'rgba(255,255,255,0.18)',
       border: 'none',
       borderRadius: '6px',
       padding: '2px 5px',
-      color: 'rgba(255,255,255,0.7)',
+      color: '#ffffff',
       cursor: 'pointer',
       fontSize: '10px',
-      fontWeight: 700
+      fontWeight: 800
     },
     title: "Clear"
   }, "\u2715"), /*#__PURE__*/React.createElement("button", {
@@ -14131,9 +14249,9 @@ function SahilTraders() {
     onClick: handleVoiceSearch,
     title: tr(language, "Voice Search", "Voice Search", "آواز سے تلاش"),
     style: {
-      background: isListening ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)',
+      background: isListening ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.08)',
       border: isListening ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.12)',
-      borderRadius: '6px',
+      borderRadius: '7px',
       padding: '4px 6px',
       cursor: 'pointer',
       display: 'flex',
@@ -14144,7 +14262,7 @@ function SahilTraders() {
     style: {
       width: '12px',
       height: '12px',
-      color: isListening ? '#10b981' : 'rgba(255,255,255,0.6)'
+      color: isListening ? '#10b981' : 'rgba(255,255,255,0.65)'
     },
     fill: "none",
     stroke: "currentColor",
@@ -14157,16 +14275,16 @@ function SahilTraders() {
   }))))), suggestOpen && suggestions.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
-      top: 'calc(100% + 4px)',
+      top: 'calc(100% + 6px)',
       left: 0,
       right: 0,
       background: '#09131e',
-      border: '1.5px solid rgba(16,185,129,0.3)',
-      borderRadius: '10px',
-      boxShadow: '0 16px 48px rgba(0,0,0,0.7)',
-      zIndex: 50,
+      border: '1.5px solid rgba(16,185,129,0.35)',
+      borderRadius: '12px',
+      boxShadow: '0 16px 48px rgba(0,0,0,0.85)',
+      zIndex: 60,
       overflow: 'hidden',
-      maxHeight: '280px',
+      maxHeight: '290px',
       overflowY: 'auto'
     }
   }, recentSearches.length > 0 && !searchTerm && /*#__PURE__*/React.createElement("div", {
@@ -14181,7 +14299,10 @@ function SahilTraders() {
   }, "Recent"), suggestions.slice(0, 8).map(product => /*#__PURE__*/React.createElement("button", {
     key: product.id,
     type: "button",
-    onMouseDown: () => handleSuggestionClick(product),
+    onMouseDown: () => {
+      handleSuggestionClick(product);
+      setMobileSearchFocused(false);
+    },
     style: {
       width: '100%',
       textAlign: 'left',
@@ -14229,7 +14350,7 @@ function SahilTraders() {
       color: '#10b981',
       fontWeight: 700
     }
-  }, "Rs. ", product.price))))))))), /*#__PURE__*/React.createElement("main", {
+  }, "Rs. ", product.price)))))))))), /*#__PURE__*/React.createElement("main", {
     className: "max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area",
     style: {
       paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',

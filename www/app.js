@@ -13379,23 +13379,7 @@ function SahilTraders() {
     style: {
       animationDelay: '2s'
     }
-  }), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      setFadeSplash(true);
-      setTimeout(() => setShowSplash(false), 400);
-    },
-    className: "absolute top-6 right-6 z-30 bg-white/10 hover:bg-white/20 active:scale-95 border border-white/15 px-3.5 py-1.5 rounded-full text-[11px] font-bold tracking-wider text-slate-300 hover:text-white transition-all cursor-pointer backdrop-blur-md flex items-center gap-1.5 shadow-lg"
-  }, /*#__PURE__*/React.createElement("span", null, translate(langData, "skipIntro")), /*#__PURE__*/React.createElement("svg", {
-    className: "w-3.5 h-3.5 text-slate-300",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.5",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M13 5l7 7-7 7M5 5l7 7-7 7"
-  }))), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("div", {
     className: "relative flex flex-col items-center px-6 z-10 max-w-sm text-center"
   }, /*#__PURE__*/React.createElement("div", {
     className: "luxury-logo-box"

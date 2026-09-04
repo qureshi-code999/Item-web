@@ -1,7 +1,7 @@
-﻿{
-  "name": "Sahil Traders - Wholesale & Retail",
-  "short_name": "Sahil Traders",
-  "description": "4,000+ Items at Direct Wholesale Prices in Karachi",
+{
+  "name": "ZS Mart - Wholesale & Retail",
+  "short_name": "ZS Mart",
+  "description": "1,000+ Items at Direct Wholesale Prices in Karachi",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait-primary",
@@ -21,12 +21,20 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["shopping", "business"],
+  "categories": [
+    "shopping",
+    "business"
+  ],
   "shortcuts": [
     {
       "name": "View Cart",
       "url": "./index.html#cart",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

@@ -13218,26 +13218,6 @@ function SahilTraders() {
     setVisibleCount(24);
   }, [selectedCategory, searchTerm]);
 
-  // 🚀 Daraz-Style Instant RAM Preloader Engine (Lightning Fast Image Delivery)
-  useEffect(() => {
-    if (showSplash) return;
-    const targetList = searchTerm || selectedCategory || activeCategory !== 'all' ? filteredProducts || [] : products || [];
-    if (targetList.length === 0) return;
-
-    // Preload upcoming items in browser memory queue
-    const sliceCount = searchTerm || selectedCategory ? 30 : 15;
-    const upcoming = targetList.slice(0, sliceCount);
-    upcoming.forEach(p => {
-      if (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage) {
-        const ext = window.PRODUCT_IMAGE_MAP ? window.PRODUCT_IMAGE_MAP[p.id] : 'png';
-        const url = getImgUrl('images/' + p.id + '.' + ext);
-        const img = new Image();
-        img.decoding = 'async';
-        img.src = url;
-      }
-    });
-  }, [searchTerm, selectedCategory, activeCategory, selectedBrand, showSplash]);
-
   // 🚀 Lightweight Idle Image Storage Caching Engine (Zero UI Lag)
   useEffect(() => {
     if (showSplash) return;
@@ -13349,6 +13329,26 @@ function SahilTraders() {
     }
     return list;
   }, [filtered, sortBy, isSearching]);
+
+  // 🚀 Daraz-Style Instant RAM Preloader Engine (Lightning Fast Image Delivery)
+  useEffect(() => {
+    if (showSplash) return;
+    const targetList = searchTerm || selectedCategory || activeCategory !== 'all' ? sortedProducts || [] : products || [];
+    if (!targetList || targetList.length === 0) return;
+
+    // Preload upcoming items in browser memory queue
+    const sliceCount = searchTerm || selectedCategory ? 30 : 15;
+    const upcoming = targetList.slice(0, sliceCount);
+    upcoming.forEach(p => {
+      if (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage) {
+        const ext = window.PRODUCT_IMAGE_MAP ? window.PRODUCT_IMAGE_MAP[p.id] : 'png';
+        const url = getImgUrl('images/' + p.id + '.' + ext);
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = url;
+      }
+    });
+  }, [searchTerm, selectedCategory, activeCategory, selectedBrand, showSplash, sortedProducts]);
   const suggestions = useMemo(() => {
     const term = searchTerm.trim();
     if (term === "") return [];

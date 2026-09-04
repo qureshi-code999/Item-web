@@ -286,27 +286,44 @@ function getTranslationValue(dictionary, key) {
       ctx.fillText('For exchanges or inquiries, WhatsApp us at +92 336 8945775', width / 2, curY);
 
       canvas.toBlob(async function(blob) {
-        if (!blob) return;
-        const fileName = `Sahil_Traders_Invoice_#ST-${order.id}.png`;
+        if (!blob) {
+          generatePDFReceipt(order, language);
+          return;
+        }
+        const fileName = `ZS_Mart_Invoice_#ST-${order.id || 'order'}.png`;
         const file = new File([blob], fileName, { type: 'image/png' });
 
+        // 1. Try Web Share API (native sheet on Android / iOS)
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
               files: [file],
               title: `ZS Mart Invoice #${order.id}`,
-              text: 'Official Invoice - ZS Mart Karachi'
+              text: 'Official Invoice - ZS Mart Wholesale & Retail'
             });
             return;
-          } catch(e) {}
+          } catch(e) {
+            if (e && e.name === 'AbortError') return;
+          }
         }
 
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = URL.createObjectURL(blob);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // 2. Direct Anchor Download
+        try {
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = URL.createObjectURL(blob);
+          document.body.appendChild(link);
+          link.click();
+          setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+          }, 1000);
+        } catch(e) {}
+
+        // 3. Also open PDF / Printable receipt window as guaranteed viewable receipt
+        setTimeout(() => {
+          generatePDFReceipt(order, language);
+        }, 300);
       }, 'image/png');
     }
 
@@ -5199,10 +5216,17 @@ export default function SahilTraders() {
                       ══════════════════════════════════════════════════════════════════ */}
                   <div className="flex sm:hidden items-center justify-between gap-2 relative w-full h-[40px]">
 
-                    {/* Normal State: Logo & Title (Left) */}
+                    {/* Normal State: Logo & Title (Left) - slides left off screen when search opens */}
                     <div 
                       className="flex items-center gap-2 shrink-0 cursor-pointer"
                       onClick={() => { setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}
+                      style={{
+                        transform: (mobileSearchFocused || searchTerm) ? 'translate3d(-120%, 0, 0)' : 'translate3d(0, 0, 0)',
+                        opacity: (mobileSearchFocused || searchTerm) ? 0 : 1,
+                        transition: 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.18s ease',
+                        willChange: 'transform, opacity',
+                        pointerEvents: (mobileSearchFocused || searchTerm) ? 'none' : 'auto'
+                      }}
                     >
                       <div className="relative shrink-0">
                         <div style={{ position: 'absolute', inset: '-1.5px', borderRadius: '11px', background: 'linear-gradient(135deg, #2563eb, #38bdf8)', opacity: 0.7, filter: 'blur(3px)' }} />
@@ -5901,6 +5925,7 @@ export default function SahilTraders() {
                 />
               )}
               {/* Cart Drawer */}
+              <FloatingWhatsAppButton />
               <CartDrawer
                 open={cartOpen}
                 cart={cart}
@@ -5921,6 +5946,11 @@ export default function SahilTraders() {
                 onClose={() => setOrderHistoryOpen(false)}
                 onClear={clearOrderHistory}
                 onReorder={handleReorder}
+                onSelectProduct={(item) => {
+                  setOrderHistoryOpen(false);
+                  const p = products.find(prod => String(prod.id) === String(item.id)) || item;
+                  setSelectedProduct(p);
+                }}
               />
               {/* Checkout Modal */}
               {checkoutOpen && (
@@ -7079,179 +7109,464 @@ export default function SahilTraders() {
         </>
       );
     }
-    function OrderHistoryModal({ open, orders, langData, language, onClose, onClear, onReorder }) {
+    
+    function FloatingWhatsAppButton() {
+      const [pos, setPos] = React.useState({ x: null, y: null });
+      const [dragging, setDragging] = React.useState(false);
+      const dragRef = React.useRef({ startX: 0, startY: 0, posX: 0, posY: 0, moved: false });
+
+      const handleTouchStart = (e) => {
+        const touch = e.touches[0];
+        const currentX = pos.x !== null ? pos.x : (window.innerWidth - 64);
+        const currentY = pos.y !== null ? pos.y : (window.innerHeight - 130);
+        dragRef.current = {
+          startX: touch.clientX,
+          startY: touch.clientY,
+          posX: currentX,
+          posY: currentY,
+          moved: false
+        };
+        setDragging(true);
+      };
+
+      const handleTouchMove = (e) => {
+        if (!dragRef.current) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - dragRef.current.startX;
+        const dy = touch.clientY - dragRef.current.startY;
+        if (Math.hypot(dx, dy) > 8) {
+          dragRef.current.moved = true;
+        }
+        let newX = dragRef.current.posX + dx;
+        let newY = dragRef.current.posY + dy;
+        newX = Math.max(10, Math.min(window.innerWidth - 62, newX));
+        newY = Math.max(60, Math.min(window.innerHeight - 80, newY));
+        setPos({ x: newX, y: newY });
+      };
+
+      const handleTouchEnd = () => {
+        setDragging(false);
+      };
+
+      const handleClick = (e) => {
+        if (dragRef.current.moved) {
+          e.preventDefault();
+          e.stopPropagation();
+          dragRef.current.moved = false;
+          return;
+        }
+        triggerHaptic('light');
+        const url = "https://wa.me/923368945775?text=" + encodeURIComponent("Hello ZS Mart, I want to inquire about products / order.");
+        window.open(url, '_blank');
+      };
+
+      const x = pos.x !== null ? pos.x : (typeof window !== 'undefined' ? window.innerWidth - 64 : 20);
+      const y = pos.y !== null ? pos.y : (typeof window !== 'undefined' ? window.innerHeight - 130 : 500);
+
+      return (
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={(e) => {
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const currentX = pos.x !== null ? pos.x : (window.innerWidth - 64);
+            const currentY = pos.y !== null ? pos.y : (window.innerHeight - 130);
+            let moved = false;
+            const onMouseMove = (ev) => {
+              const dx = ev.clientX - startX;
+              const dy = ev.clientY - startY;
+              if (Math.hypot(dx, dy) > 8) moved = true;
+              dragRef.current.moved = moved;
+              let newX = Math.max(10, Math.min(window.innerWidth - 62, currentX + dx));
+              let newY = Math.max(60, Math.min(window.innerHeight - 80, currentY + dy));
+              setPos({ x: newX, y: newY });
+            };
+            const onMouseUp = () => {
+              window.removeEventListener('mousemove', onMouseMove);
+              window.removeEventListener('mouseup', onMouseUp);
+            };
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+          }}
+          onClick={handleClick}
+          style={{
+            position: 'fixed',
+            left: x + 'px',
+            top: y + 'px',
+            zIndex: 65,
+            width: '50px',
+            height: '50px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 6px 18px rgba(37,211,102,0.5), 0 2px 6px rgba(0,0,0,0.25)',
+            cursor: dragging ? 'grabbing' : 'grab',
+            touchAction: 'none',
+            userSelect: 'none',
+            border: '2px solid #ffffff',
+            transition: dragging ? 'none' : 'box-shadow 0.2s ease, transform 0.15s ease'
+          }}
+          className="active:scale-95 cursor-pointer"
+          title="Chat with ZS Mart on WhatsApp"
+        >
+          <svg style={{ width: '28px', height: '28px' }} viewBox="0 0 24 24" fill="#ffffff">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+        </div>
+      );
+    }
+
+        function OrderHistoryModal({ open, orders, langData, language, onClose, onClear, onReorder, onSelectProduct }) {
       if (!open) return null;
       const [selectedOrder, setSelectedOrder] = React.useState(null);
-      // ─── Detail View ────────────────────────────────────
+
+      // ─── Detail View (When a single order is clicked) ────────
       if (selectedOrder) {
         const order = selectedOrder;
         const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
         return (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 80, background: '#0a1628', display: 'flex', flexDirection: 'column', overflowY: 'auto' }} className="animate-fade-in">
-            {/* Detail Header */}
-            <div style={{ background: 'linear-gradient(135deg, #0f1f3a 0%, #0a1628 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '0 16px', height: 60, display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, position: 'sticky', top: 0, zIndex: 10 }}>
-              <button onClick={() => setSelectedOrder(null)} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-                <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
-              </button>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 900, fontSize: 15, color: '#ffffff', letterSpacing: '0.05em' }}>Order #{order.id}</div>
-                <div style={{ fontSize: 11, color: '#38bdf8', marginTop: 1 }}>{order.dateText} · {totalItemsCount} items</div>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 80, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflowY: 'auto' }} className="animate-fade-in">
+            {/* Detail Top Bar */}
+            <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '0 16px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexShrink: 0, position: 'sticky', top: 0, zIndex: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrder(null)}
+                  style={{ width: 36, height: 36, borderRadius: 10, background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+                  title="Back to Orders"
+                >
+                  <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                </button>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 900, fontSize: 15, color: '#0f172a', letterSpacing: '0.02em' }}>Order #{order.id}</div>
+                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>{order.dateText} · {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</div>
+                </div>
               </div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#10b981' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <a
+                  href={"https://wa.me/923368945775?text=" + encodeURIComponent("Hello ZS Mart, I have a question regarding Order #" + order.id)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ height: 34, padding: '0 10px', borderRadius: 10, background: '#25d366', display: 'flex', alignItems: 'center', gap: 5, color: '#ffffff', fontSize: 11.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 2px 6px rgba(37,211,102,0.3)' }}
+                >
+                  <svg style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="#ffffff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  <span>WhatsApp</span>
+                </a>
+                <div style={{ fontSize: 16, fontWeight: 900, color: '#059669' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
+              </div>
             </div>
+
             {/* Detail Body */}
             <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 640, width: '100%', margin: '0 auto' }}>
+              
               {/* Status Badges */}
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? 'rgba(37,99,235,0.15)' : 'rgba(16,185,129,0.15)', color: order.deliveryMethod === 'pickup' ? '#60a5fa' : '#10b981', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#ecfdf5', color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669', border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0' }}>
                   {order.deliveryMethod === 'pickup' ? '🏪 Store Pickup' : '🚚 Home Delivery'}
                 </span>
-                <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' }}>✅ Placed</span>
+                <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a' }}>
+                  ✅ Placed
+                </span>
               </div>
-              {/* Customer Info */}
-              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginBottom: 4 }}>Customer Info</div>
+
+              {/* Customer Info Card */}
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: '#94a3b8', textTransform: 'uppercase' }}>Customer Details</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #38bdf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{(order.customer?.name || 'C')[0].toUpperCase()}</div>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #38bdf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#ffffff', flexShrink: 0 }}>
+                    {(order.customer?.name || 'C')[0].toUpperCase()}
+                  </div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#ffffff' }}>{order.customer?.name}</div>
-                    <div style={{ fontSize: 12, color: '#38bdf8', marginTop: 2 }}>📞 {order.customer?.phone}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a' }}>{order.customer?.name}</div>
+                    <div style={{ fontSize: 12, color: '#2563eb', fontWeight: 700, marginTop: 1 }}>📞 {order.customer?.phone}</div>
                   </div>
                 </div>
                 {order.customer?.address && (
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: 8, borderTop: '1px solid #f1f5f9' }}>
                     <svg style={{ width: 14, height: 14, color: '#f59e0b', flexShrink: 0, marginTop: 2 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{order.customer.address}</span>
+                    <span style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>{order.customer.address}</span>
                   </div>
                 )}
               </div>
-              {/* Items List */}
-              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>Ordered Items ({totalItemsCount})</div>
+
+              {/* Items List (Clickable to open Product Detail Modal!) */}
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: '#94a3b8', textTransform: 'uppercase' }}>Items ({totalItemsCount})</div>
+                  <div style={{ fontSize: 10, color: '#3b82f6', fontWeight: 700 }}>Tap item to view details 🔍</div>
+                </div>
+                
                 {order.items && order.items.map((item, i) => {
                   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
                   const imgSrc = hasFile ? ('images/' + item.id + '.' + window.PRODUCT_IMAGE_MAP[item.id]) : (item.imageExt ? ('images/' + item.id + '.' + item.imageExt) : null);
                   return (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i < order.items.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                      {imgSrc ? (
-                        <img src={imgSrc} alt={item.name} style={{ width: 42, height: 42, objectFit: 'contain', borderRadius: 10, background: '#ffffff', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} />
-                      ) : (
-                        <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #1e3a5f, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{item.initial || (item.name && item.name[0]) || 'S'}</div>
-                      )}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name || '')}</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>Qty {item.qty} x Rs {Number(item.price || 0).toLocaleString()}</div>
-                        {item.extraPercent > 0 && <div style={{ fontSize: 10, color: '#10b981', fontWeight: 700, marginTop: 2 }}>🎁 -{item.extraPercent}% Bulk OFF</div>}
+                    <div
+                      key={i}
+                      onClick={() => {
+                        if (onSelectProduct) {
+                          onSelectProduct(item);
+                        }
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: '12px 16px',
+                        borderBottom: i < order.items.length - 1 ? '1px solid #f8fafc' : 'none',
+                        cursor: 'pointer',
+                        transition: 'background 0.15s ease'
+                      }}
+                      className="hover:bg-blue-50/50 active:bg-blue-50"
+                      title="Click to view product details"
+                    >
+                      {/* Item Thumbnail */}
+                      <div style={{ width: 44, height: 44, borderRadius: 10, background: '#ffffff', border: '1px solid #e2e8f0', padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative' }}>
+                        {imgSrc ? (
+                          <img src={imgSrc} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 8 }} />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', borderRadius: 8, background: 'linear-gradient(135deg, #e0f2fe, #bae6fd)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#0284c7' }}>
+                            {item.initial || (item.name && item.name[0]) || 'S'}
+                          </div>
+                        )}
+                        <span style={{ position: 'absolute', bottom: -2, right: -2, background: '#2563eb', color: '#ffffff', borderRadius: 4, padding: '1px 3px', fontSize: '8px', fontWeight: 800 }}>🔍</span>
                       </div>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: '#10b981', flexShrink: 0 }}>Rs {Number(item.total || ((item.price || 0) * (item.qty || 1))).toLocaleString()}</div>
+
+                      {/* Item Details */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {toTitleCase(item.name || '')}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                          Qty {item.qty} × Rs {Number(item.price || 0).toLocaleString()}
+                        </div>
+                        {item.extraPercent > 0 && (
+                          <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 800, marginTop: 2 }}>
+                            🎁 -{item.extraPercent}% Bulk OFF
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Item Total Price */}
+                      <div style={{ fontSize: 13.5, fontWeight: 900, color: '#059669', flexShrink: 0 }}>
+                        Rs {Number(item.total || ((item.price || 0) * (item.qty || 1))).toLocaleString()}
+                      </div>
                     </div>
                   );
                 })}
               </div>
+
               {/* Bill Summary */}
-              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginBottom: 2 }}>Bill Summary</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: '#94a3b8', textTransform: 'uppercase' }}>Bill Breakdown</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#64748b' }}>
                   <span>Subtotal</span><span>Rs {Number(order.subtotal || 0).toLocaleString()}</span>
                 </div>
                 {(order.totalSavings || 0) > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#10b981', fontWeight: 700 }}>
-                    <span>🎁 Bulk Discount</span><span>-Rs {Number(order.totalSavings).toLocaleString()}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#16a34a', fontWeight: 700 }}>
+                    <span>🎁 Total Savings</span><span>-Rs {Number(order.totalSavings).toLocaleString()}</span>
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#64748b' }}>
                   <span>Delivery Fee</span>
-                  <span>{order.deliveryFee === 0 ? <span style={{ color: '#10b981', fontWeight: 800 }}>FREE</span> : ('Rs ' + order.deliveryFee)}</span>
+                  <span>{order.deliveryFee === 0 ? <span style={{ color: '#059669', fontWeight: 800 }}>FREE</span> : ('Rs ' + order.deliveryFee)}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900, color: '#ffffff', paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: 2 }}>
-                  <span>Total Paid</span><span style={{ color: '#10b981' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900, color: '#0f172a', paddingTop: 10, borderTop: '1px solid #f1f5f9', marginTop: 2 }}>
+                  <span>Total Paid</span><span style={{ color: '#059669' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</span>
                 </div>
               </div>
+
               {/* Action Buttons */}
               <div style={{ display: 'flex', gap: 10, paddingBottom: 24 }}>
-                <button type="button" onClick={() => { triggerHaptic('success'); if (onReorder) { onReorder(order.items); setSelectedOrder(null); onClose(); } }} style={{ flex: 1, padding: '13px 16px', borderRadius: 14, background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 16px rgba(16,185,129,0.3)' }}>🔄 Re-order All</button>
-                <button type="button" onClick={() => generatePDFReceipt(order, language)} style={{ padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', color: '#ffffff', fontSize: 13, fontWeight: 800, border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>🧾 PDF Bill</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('success');
+                    if (onReorder) {
+                      onReorder(order.items);
+                      setSelectedOrder(null);
+                      onClose();
+                    }
+                  }}
+                  style={{ flex: 1, padding: '13px 16px', borderRadius: 14, background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 16px rgba(16,185,129,0.25)' }}
+                  className="hover:from-emerald-600 hover:to-teal-700 active:scale-95 cursor-pointer"
+                >
+                  🔄 Re-order All Items
+                </button>
+                <button
+                  type="button"
+                  onClick={() => generatePDFReceipt(order, language)}
+                  style={{ padding: '13px 16px', borderRadius: 14, background: '#ffffff', color: '#0f172a', fontSize: 13, fontWeight: 800, border: '1.5px solid #cbd5e1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                  className="hover:bg-gray-100 active:scale-95 cursor-pointer"
+                >
+                  🧾 PDF Bill
+                </button>
               </div>
+
             </div>
           </div>
         );
       }
 
-      // ─── List View (Full Screen) ─────────────────────────
+      // ─── List View (Clean White / Light Theme) ───────────
       return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 80, background: '#0a1628', display: 'flex', flexDirection: 'column' }} className="animate-fade-in">
-          {/* TOP HEADER */}
-          <div style={{ background: 'linear-gradient(135deg, #0f1f3a 0%, #0a1628 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '0 16px', flexShrink: 0 }}>
-            {/* Logo Row */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 80, background: '#f8fafc', display: 'flex', flexDirection: 'column' }} className="animate-fade-in">
+          
+          {/* Header Bar */}
+          <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '0 16px', flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+            {/* Logo & Close Row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56, borderBottom: '1px solid #f1f5f9' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div style={{ position: 'relative' }}>
-                  <div style={{ position: 'absolute', inset: '-2px', borderRadius: 12, background: 'linear-gradient(135deg, #2563eb, #38bdf8)', opacity: 0.7, filter: 'blur(4px)' }} />
-                  <img src="images/zs-mart-logo.png" alt="ZS Mart" onError={e => { e.currentTarget.src = 'images/zs-mart-logo.jpg'; }} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 10, position: 'relative', background: '#ffffff', padding: '2px', border: '1.5px solid #2563eb' }} />
+                  <img
+                    src="images/zs-mart-logo.png"
+                    alt="ZS Mart"
+                    onError={e => { e.currentTarget.src = 'images/zs-mart-logo.jpg'; }}
+                    style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 10, background: '#ffffff', padding: '2px', border: '1.5px solid #2563eb' }}
+                  />
                 </div>
                 <div>
-                  <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, fontSize: 14, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#ffffff', lineHeight: 1.1 }}>ZS Mart</div>
-                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#38bdf8' }}>Wholesale &amp; Retail</div>
+                  <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, fontSize: 14, letterSpacing: '0.04em', textTransform: 'uppercase', color: '#0f172a', lineHeight: 1.1 }}>
+                    ZS Mart
+                  </div>
+                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#2563eb' }}>
+                    Wholesale &amp; Retail
+                  </div>
                 </div>
               </div>
-              <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <a
+                  href="https://wa.me/923368945775?text=Hello%20ZS%20Mart%2C%20I%20need%20assistance%20with%20my%20order."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ height: 34, padding: '0 10px', borderRadius: 10, background: '#25d366', display: 'flex', alignItems: 'center', gap: 5, color: '#ffffff', fontSize: 11.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 2px 6px rgba(37,211,102,0.3)' }}
+                  title="Contact ZS Mart on WhatsApp"
+                >
+                  <svg style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="#ffffff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  <span>WhatsApp</span>
+                </a>
+                
+                <button
+                  type="button"
+                  onClick={onClose}
+                  style={{ width: 36, height: 36, borderRadius: 10, background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                >
+                  <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
             </div>
-            {/* Title Row */}
+
+            {/* Title & Actions Row */}
             <div style={{ padding: '12px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#ffffff', letterSpacing: '0.02em' }}>Order History</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{orders.length} {orders.length === 1 ? 'order' : 'orders'} saved on this device</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#0f172a', letterSpacing: '0.01em' }}>Order History</div>
+                <div style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>{orders.length} {orders.length === 1 ? 'order' : 'orders'} saved on this device</div>
               </div>
               {orders.length > 0 && (
-                <button onClick={onClear} style={{ padding: '7px 14px', borderRadius: 10, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}>
-                  🗑 Clear All
+                <button
+                  type="button"
+                  onClick={onClear}
+                  style={{ padding: '7px 12px', borderRadius: 10, background: '#fee2e2', border: '1px solid #fecaca', color: '#b91c1c', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}
+                >
+                  🗑 Clear History
                 </button>
               )}
             </div>
           </div>
 
-          {/* BODY - ORDER LIST */}
+          {/* List Body */}
           <div style={{ flex: 1, overflowY: 'auto', padding: 14 }}>
             {orders.length === 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 16, textAlign: 'center', padding: 24 }}>
-                <div style={{ width: 80, height: 80, borderRadius: 24, background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>📋</div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#ffffff' }}>No Orders Yet</div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, maxWidth: 280 }}>Your placed orders will automatically appear here. Start shopping to see your history!</div>
-                <button onClick={onClose} style={{ marginTop: 8, padding: '12px 28px', borderRadius: 14, background: 'linear-gradient(135deg, #2563eb, #38bdf8)', color: '#ffffff', fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer' }}>Start Shopping →</button>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 14, textAlign: 'center', padding: 24 }}>
+                <div style={{ width: 72, height: 72, borderRadius: 20, background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>
+                  📦
+                </div>
+                <div style={{ fontSize: 17, fontWeight: 900, color: '#0f172a' }}>No Orders Placed Yet</div>
+                <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, maxWidth: 280 }}>
+                  Your placed orders will automatically be saved here with complete details and item receipts.
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  style={{ marginTop: 6, padding: '11px 24px', borderRadius: 12, background: 'linear-gradient(135deg, #2563eb, #38bdf8)', color: '#ffffff', fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer' }}
+                >
+                  Start Shopping →
+                </button>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 640, margin: '0 auto' }}>
                 {orders.map((order, idx) => {
                   const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
-                  const itemsSummaryNames = order.items ? order.items.slice(0, 2).map(i => toTitleCase(i.name)).join(', ') + (order.items.length > 2 ? ' +' + (order.items.length - 2) + ' more' : '') : '';
                   return (
                     <div
                       key={order.id}
                       onClick={() => setSelectedOrder(order)}
-                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, WebkitTapHighlightColor: 'transparent' }}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: 16,
+                        padding: '14px 16px',
+                        cursor: 'pointer',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                        transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+                      }}
+                      className="hover:shadow-md hover:border-blue-300 active:scale-[0.99]"
                     >
-                      <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #1e3a5f, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#ffffff', flexShrink: 0, flexDirection: 'column', lineHeight: 1.2 }}>
-                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>#</span>
-                        <span>{orders.length - idx}</span>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 14, fontWeight: 900, color: '#ffffff' }}>Order #{order.id}</span>
-                          <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? 'rgba(37,99,235,0.15)' : 'rgba(16,185,129,0.15)', color: order.deliveryMethod === 'pickup' ? '#60a5fa' : '#10b981', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {/* Top Row: #, ID, Delivery Badge, Price */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ width: 28, height: 28, borderRadius: 8, background: '#f1f5f9', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900 }}>
+                            #{orders.length - idx}
+                          </span>
+                          <span style={{ fontSize: 13.5, fontWeight: 900, color: '#0f172a' }}>Order #{order.id}</span>
+                          <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#ecfdf5', color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669', border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0' }}>
                             {order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Delivery'}
                           </span>
                         </div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{order.dateText} · {totalItemsCount} items</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{itemsSummaryNames}</div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 15, fontWeight: 900, color: '#10b981' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
-                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>View Details</div>
+                        <div style={{ fontSize: 15, fontWeight: 900, color: '#059669' }}>
+                          Rs {Number(order.grandTotal || 0).toLocaleString()}
                         </div>
-                        <svg style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.25)' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                      </div>
+
+                      {/* Date & Total Items */}
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>📅 {order.dateText}</span>
+                        <span>•</span>
+                        <span>📦 {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</span>
+                      </div>
+
+                      {/* Small Thumbnail Icons of items (Clicking open order detail) */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, overflowX: 'auto', paddingBottom: 2 }}>
+                        {order.items && order.items.slice(0, 5).map((it, itemIdx) => {
+                          const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[it.id];
+                          const imgSrc = hasFile ? ('images/' + it.id + '.' + window.PRODUCT_IMAGE_MAP[it.id]) : (it.imageExt ? ('images/' + it.id + '.' + it.imageExt) : null);
+                          return (
+                            <div
+                              key={itemIdx}
+                              style={{ width: 32, height: 32, borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0', padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                              title={it.name}
+                            >
+                              {imgSrc ? (
+                                <img src={imgSrc} alt={it.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 6 }} />
+                              ) : (
+                                <span style={{ fontSize: 10, fontWeight: 800, color: '#64748b' }}>{it.initial || it.name?.[0] || 'S'}</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                        {order.items && order.items.length > 5 && (
+                          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#64748b', flexShrink: 0 }}>
+                            +{order.items.length - 5}
+                          </div>
+                        )}
+                        <span style={{ fontSize: 11, color: '#2563eb', fontWeight: 700, marginLeft: 'auto', flexShrink: 0 }}>
+                          View Details →
+                        </span>
                       </div>
                     </div>
                   );
@@ -7260,28 +7575,34 @@ export default function SahilTraders() {
             )}
           </div>
 
-          {/* BOTTOM STATS BAR */}
+          {/* Bottom Stats Footer */}
           {orders.length > 0 && (
-            <div style={{ background: 'rgba(255,255,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.07)', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexShrink: 0 }}>
+            <div style={{ background: '#ffffff', borderTop: '1px solid #e2e8f0', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexShrink: 0, boxShadow: '0 -1px 3px rgba(0,0,0,0.03)' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#ffffff' }}>{orders.length}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>Total Orders</div>
+                <div style={{ fontSize: 17, fontWeight: 900, color: '#0f172a' }}>{orders.length}</div>
+                <div style={{ fontSize: 10, color: '#64748b', marginTop: 1, fontWeight: 600 }}>Total Orders</div>
               </div>
-              <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.1)' }} />
+              <div style={{ width: 1, height: 30, background: '#e2e8f0' }} />
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#10b981' }}>Rs {orders.reduce((acc, o) => acc + (Number(o.grandTotal) || 0), 0).toLocaleString()}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>Total Spent</div>
+                <div style={{ fontSize: 17, fontWeight: 900, color: '#059669' }}>
+                  Rs {orders.reduce((acc, o) => acc + (Number(o.grandTotal) || 0), 0).toLocaleString()}
+                </div>
+                <div style={{ fontSize: 10, color: '#64748b', marginTop: 1, fontWeight: 600 }}>Total Spent</div>
               </div>
-              <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.1)' }} />
+              <div style={{ width: 1, height: 30, background: '#e2e8f0' }} />
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#fbbf24' }}>{orders.reduce((acc, o) => acc + (o.items ? o.items.reduce((a, i) => a + (i.qty || 1), 0) : 0), 0)}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>Items Bought</div>
+                <div style={{ fontSize: 17, fontWeight: 900, color: '#d97706' }}>
+                  {orders.reduce((acc, o) => acc + (o.items ? o.items.reduce((a, i) => a + (i.qty || 1), 0) : 0), 0)}
+                </div>
+                <div style={{ fontSize: 10, color: '#64748b', marginTop: 1, fontWeight: 600 }}>Items Bought</div>
               </div>
             </div>
           )}
+
         </div>
       );
     }
+
     function CheckoutModal({ cart, cartTotal, langData, language, saveOrderHistory, clearCart, onClose, onBack }) {
       const [name, setName] = useState("");
       const [phone, setPhone] = useState("");

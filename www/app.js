@@ -259,11 +259,16 @@ function saveInvoiceAsImage(order, language) {
   ctx.font = '500 10.5px system-ui, sans-serif';
   ctx.fillText('For exchanges or inquiries, WhatsApp us at +92 336 8945775', width / 2, curY);
   canvas.toBlob(async function (blob) {
-    if (!blob) return;
-    const fileName = `Sahil_Traders_Invoice_#ST-${order.id}.png`;
+    if (!blob) {
+      generatePDFReceipt(order, language);
+      return;
+    }
+    const fileName = `ZS_Mart_Invoice_#ST-${order.id || 'order'}.png`;
     const file = new File([blob], fileName, {
       type: 'image/png'
     });
+
+    // 1. Try Web Share API (native sheet on Android / iOS)
     if (navigator.canShare && navigator.canShare({
       files: [file]
     })) {
@@ -271,17 +276,31 @@ function saveInvoiceAsImage(order, language) {
         await navigator.share({
           files: [file],
           title: `ZS Mart Invoice #${order.id}`,
-          text: 'Official Invoice - ZS Mart Karachi'
+          text: 'Official Invoice - ZS Mart Wholesale & Retail'
         });
         return;
-      } catch (e) {}
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
     }
-    const link = document.createElement('a');
-    link.download = fileName;
-    link.href = URL.createObjectURL(blob);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    // 2. Direct Anchor Download
+    try {
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = URL.createObjectURL(blob);
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }, 1000);
+    } catch (e) {}
+
+    // 3. Also open PDF / Printable receipt window as guaranteed viewable receipt
+    setTimeout(() => {
+      generatePDFReceipt(order, language);
+    }, 300);
   }, 'image/png');
 }
 function generatePDFReceipt(order, language) {
@@ -14056,6 +14075,13 @@ function SahilTraders() {
       setSelectedCategory(null);
       setSearchTerm('');
       setActiveCategory('all');
+    },
+    style: {
+      transform: mobileSearchFocused || searchTerm ? 'translate3d(-120%, 0, 0)' : 'translate3d(0, 0, 0)',
+      opacity: mobileSearchFocused || searchTerm ? 0 : 1,
+      transition: 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.18s ease',
+      willChange: 'transform, opacity',
+      pointerEvents: mobileSearchFocused || searchTerm ? 'none' : 'auto'
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "relative shrink-0"
@@ -15435,7 +15461,7 @@ function SahilTraders() {
     },
     onOpenAbout: () => setAboutOpen(true),
     language: language
-  }), /*#__PURE__*/React.createElement(CartDrawer, {
+  }), /*#__PURE__*/React.createElement(FloatingWhatsAppButton, null), /*#__PURE__*/React.createElement(CartDrawer, {
     open: cartOpen,
     cart: cart,
     cartTotal: cartTotal,
@@ -15456,7 +15482,12 @@ function SahilTraders() {
     language: language,
     onClose: () => setOrderHistoryOpen(false),
     onClear: clearOrderHistory,
-    onReorder: handleReorder
+    onReorder: handleReorder,
+    onSelectProduct: item => {
+      setOrderHistoryOpen(false);
+      const p = products.find(prod => String(prod.id) === String(item.id)) || item;
+      setSelectedProduct(p);
+    }
   }), checkoutOpen && /*#__PURE__*/React.createElement(CheckoutModal, {
     cart: cart,
     cartTotal: cartTotal,
@@ -18040,6 +18071,127 @@ function CartDrawer({
     d: "M17 8l4 4m0 0l-4 4m4-4H3"
   })), translate(langData, "proceedOrder")))));
 }
+function FloatingWhatsAppButton() {
+  const [pos, setPos] = React.useState({
+    x: null,
+    y: null
+  });
+  const [dragging, setDragging] = React.useState(false);
+  const dragRef = React.useRef({
+    startX: 0,
+    startY: 0,
+    posX: 0,
+    posY: 0,
+    moved: false
+  });
+  const handleTouchStart = e => {
+    const touch = e.touches[0];
+    const currentX = pos.x !== null ? pos.x : window.innerWidth - 64;
+    const currentY = pos.y !== null ? pos.y : window.innerHeight - 130;
+    dragRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      posX: currentX,
+      posY: currentY,
+      moved: false
+    };
+    setDragging(true);
+  };
+  const handleTouchMove = e => {
+    if (!dragRef.current) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - dragRef.current.startX;
+    const dy = touch.clientY - dragRef.current.startY;
+    if (Math.hypot(dx, dy) > 8) {
+      dragRef.current.moved = true;
+    }
+    let newX = dragRef.current.posX + dx;
+    let newY = dragRef.current.posY + dy;
+    newX = Math.max(10, Math.min(window.innerWidth - 62, newX));
+    newY = Math.max(60, Math.min(window.innerHeight - 80, newY));
+    setPos({
+      x: newX,
+      y: newY
+    });
+  };
+  const handleTouchEnd = () => {
+    setDragging(false);
+  };
+  const handleClick = e => {
+    if (dragRef.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragRef.current.moved = false;
+      return;
+    }
+    triggerHaptic('light');
+    const url = "https://wa.me/923368945775?text=" + encodeURIComponent("Hello ZS Mart, I want to inquire about products / order.");
+    window.open(url, '_blank');
+  };
+  const x = pos.x !== null ? pos.x : typeof window !== 'undefined' ? window.innerWidth - 64 : 20;
+  const y = pos.y !== null ? pos.y : typeof window !== 'undefined' ? window.innerHeight - 130 : 500;
+  return /*#__PURE__*/React.createElement("div", {
+    onTouchStart: handleTouchStart,
+    onTouchMove: handleTouchMove,
+    onTouchEnd: handleTouchEnd,
+    onMouseDown: e => {
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const currentX = pos.x !== null ? pos.x : window.innerWidth - 64;
+      const currentY = pos.y !== null ? pos.y : window.innerHeight - 130;
+      let moved = false;
+      const onMouseMove = ev => {
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        if (Math.hypot(dx, dy) > 8) moved = true;
+        dragRef.current.moved = moved;
+        let newX = Math.max(10, Math.min(window.innerWidth - 62, currentX + dx));
+        let newY = Math.max(60, Math.min(window.innerHeight - 80, currentY + dy));
+        setPos({
+          x: newX,
+          y: newY
+        });
+      };
+      const onMouseUp = () => {
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+      };
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    },
+    onClick: handleClick,
+    style: {
+      position: 'fixed',
+      left: x + 'px',
+      top: y + 'px',
+      zIndex: 65,
+      width: '50px',
+      height: '50px',
+      borderRadius: '50%',
+      background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 6px 18px rgba(37,211,102,0.5), 0 2px 6px rgba(0,0,0,0.25)',
+      cursor: dragging ? 'grabbing' : 'grab',
+      touchAction: 'none',
+      userSelect: 'none',
+      border: '2px solid #ffffff',
+      transition: dragging ? 'none' : 'box-shadow 0.2s ease, transform 0.15s ease'
+    },
+    className: "active:scale-95 cursor-pointer",
+    title: "Chat with ZS Mart on WhatsApp"
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      width: '28px',
+      height: '28px'
+    },
+    viewBox: "0 0 24 24",
+    fill: "#ffffff"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+  })));
+}
 function OrderHistoryModal({
   open,
   orders,
@@ -18047,11 +18199,13 @@ function OrderHistoryModal({
   language,
   onClose,
   onClear,
-  onReorder
+  onReorder,
+  onSelectProduct
 }) {
   if (!open) return null;
   const [selectedOrder, setSelectedOrder] = React.useState(null);
-  // ─── Detail View ────────────────────────────────────
+
+  // ─── Detail View (When a single order is clicked) ────────
   if (selectedOrder) {
     const order = selectedOrder;
     const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
@@ -18060,7 +18214,7 @@ function OrderHistoryModal({
         position: 'fixed',
         inset: 0,
         zIndex: 80,
-        background: '#0a1628',
+        background: '#f8fafc',
         display: 'flex',
         flexDirection: 'column',
         overflowY: 'auto'
@@ -18068,33 +18222,44 @@ function OrderHistoryModal({
       className: "animate-fade-in"
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        background: 'linear-gradient(135deg, #0f1f3a 0%, #0a1628 100%)',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        background: '#ffffff',
+        borderBottom: '1px solid #e2e8f0',
         padding: '0 16px',
         height: 60,
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'space-between',
         gap: 12,
         flexShrink: 0,
         position: 'sticky',
         top: 0,
-        zIndex: 10
+        zIndex: 20,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        minWidth: 0
       }
     }, /*#__PURE__*/React.createElement("button", {
+      type: "button",
       onClick: () => setSelectedOrder(null),
       style: {
         width: 36,
         height: 36,
         borderRadius: 10,
-        background: 'rgba(255,255,255,0.08)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        color: '#38bdf8',
+        background: '#f1f5f9',
+        border: '1px solid #cbd5e1',
+        color: '#0f172a',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         cursor: 'pointer',
         flexShrink: 0
-      }
+      },
+      title: "Back to Orders"
     }, /*#__PURE__*/React.createElement("svg", {
       style: {
         width: 18,
@@ -18110,29 +18275,61 @@ function OrderHistoryModal({
       d: "M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
     }))), /*#__PURE__*/React.createElement("div", {
       style: {
-        flex: 1,
         minWidth: 0
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         fontWeight: 900,
         fontSize: 15,
-        color: '#ffffff',
-        letterSpacing: '0.05em'
+        color: '#0f172a',
+        letterSpacing: '0.02em'
       }
     }, "Order #", order.id), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
-        color: '#38bdf8',
+        color: '#64748b',
         marginTop: 1
       }
-    }, order.dateText, " \xB7 ", totalItemsCount, " items")), /*#__PURE__*/React.createElement("div", {
+    }, order.dateText, " \xB7 ", totalItemsCount, " ", totalItemsCount === 1 ? 'item' : 'items'))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("a", {
+      href: "https://wa.me/923368945775?text=" + encodeURIComponent("Hello ZS Mart, I have a question regarding Order #" + order.id),
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        height: 34,
+        padding: '0 10px',
+        borderRadius: 10,
+        background: '#25d366',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 5,
+        color: '#ffffff',
+        fontSize: 11.5,
+        fontWeight: 800,
+        textDecoration: 'none',
+        boxShadow: '0 2px 6px rgba(37,211,102,0.3)'
+      }
+    }, /*#__PURE__*/React.createElement("svg", {
+      style: {
+        width: 14,
+        height: 14
+      },
+      viewBox: "0 0 24 24",
+      fill: "#ffffff"
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+    })), /*#__PURE__*/React.createElement("span", null, "WhatsApp")), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 16,
         fontWeight: 900,
-        color: '#10b981'
+        color: '#059669'
       }
-    }, "Rs ", Number(order.grandTotal || 0).toLocaleString())), /*#__PURE__*/React.createElement("div", {
+    }, "Rs ", Number(order.grandTotal || 0).toLocaleString()))), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: 1,
         padding: 16,
@@ -18155,9 +18352,9 @@ function OrderHistoryModal({
         borderRadius: 20,
         fontSize: 11,
         fontWeight: 800,
-        background: order.deliveryMethod === 'pickup' ? 'rgba(37,99,235,0.15)' : 'rgba(16,185,129,0.15)',
-        color: order.deliveryMethod === 'pickup' ? '#60a5fa' : '#10b981',
-        border: '1px solid rgba(255,255,255,0.1)'
+        background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#ecfdf5',
+        color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669',
+        border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0'
       }
     }, order.deliveryMethod === 'pickup' ? '🏪 Store Pickup' : '🚚 Home Delivery'), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -18165,30 +18362,30 @@ function OrderHistoryModal({
         borderRadius: 20,
         fontSize: 11,
         fontWeight: 800,
-        background: 'rgba(251,191,36,0.15)',
-        color: '#fbbf24',
-        border: '1px solid rgba(251,191,36,0.3)'
+        background: '#fef3c7',
+        color: '#b45309',
+        border: '1px solid #fde68a'
       }
     }, "\u2705 Placed")), /*#__PURE__*/React.createElement("div", {
       style: {
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
         borderRadius: 14,
         padding: '14px 16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 8
+        gap: 8,
+        boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 10,
         fontWeight: 800,
-        letterSpacing: '0.1em',
-        color: 'rgba(255,255,255,0.35)',
-        textTransform: 'uppercase',
-        marginBottom: 4
+        letterSpacing: '0.08em',
+        color: '#94a3b8',
+        textTransform: 'uppercase'
       }
-    }, "Customer Info"), /*#__PURE__*/React.createElement("div", {
+    }, "Customer Details"), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -18205,20 +18402,21 @@ function OrderHistoryModal({
         justifyContent: 'center',
         fontSize: 14,
         fontWeight: 900,
-        color: '#fff',
+        color: '#ffffff',
         flexShrink: 0
       }
     }, (order.customer?.name || 'C')[0].toUpperCase()), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 14,
         fontWeight: 800,
-        color: '#ffffff'
+        color: '#0f172a'
       }
     }, order.customer?.name), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 12,
-        color: '#38bdf8',
-        marginTop: 2
+        color: '#2563eb',
+        fontWeight: 700,
+        marginTop: 1
       }
     }, "\uD83D\uDCDE ", order.customer?.phone))), order.customer?.address && /*#__PURE__*/React.createElement("div", {
       style: {
@@ -18226,7 +18424,7 @@ function OrderHistoryModal({
         alignItems: 'flex-start',
         gap: 8,
         paddingTop: 8,
-        borderTop: '1px solid rgba(255,255,255,0.06)'
+        borderTop: '1px solid #f1f5f9'
       }
     }, /*#__PURE__*/React.createElement("svg", {
       style: {
@@ -18251,65 +18449,109 @@ function OrderHistoryModal({
     })), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 12,
-        color: 'rgba(255,255,255,0.55)',
+        color: '#475569',
         lineHeight: 1.5
       }
     }, order.customer.address))), /*#__PURE__*/React.createElement("div", {
       style: {
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
         borderRadius: 14,
-        overflow: 'hidden'
+        overflow: 'hidden',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         padding: '12px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        borderBottom: '1px solid #f1f5f9',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
         fontSize: 10,
         fontWeight: 800,
-        letterSpacing: '0.1em',
-        color: 'rgba(255,255,255,0.35)',
+        letterSpacing: '0.08em',
+        color: '#94a3b8',
         textTransform: 'uppercase'
       }
-    }, "Ordered Items (", totalItemsCount, ")"), order.items && order.items.map((item, i) => {
+    }, "Items (", totalItemsCount, ")"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: '#3b82f6',
+        fontWeight: 700
+      }
+    }, "Tap item to view details \uD83D\uDD0D")), order.items && order.items.map((item, i) => {
       const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
       const imgSrc = hasFile ? 'images/' + item.id + '.' + window.PRODUCT_IMAGE_MAP[item.id] : item.imageExt ? 'images/' + item.id + '.' + item.imageExt : null;
       return /*#__PURE__*/React.createElement("div", {
         key: i,
+        onClick: () => {
+          if (onSelectProduct) {
+            onSelectProduct(item);
+          }
+        },
         style: {
           display: 'flex',
           alignItems: 'center',
           gap: 12,
           padding: '12px 16px',
-          borderBottom: i < order.items.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none'
+          borderBottom: i < order.items.length - 1 ? '1px solid #f8fafc' : 'none',
+          cursor: 'pointer',
+          transition: 'background 0.15s ease'
+        },
+        className: "hover:bg-blue-50/50 active:bg-blue-50",
+        title: "Click to view product details"
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          width: 44,
+          height: 44,
+          borderRadius: 10,
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          padding: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          position: 'relative'
         }
       }, imgSrc ? /*#__PURE__*/React.createElement("img", {
         src: imgSrc,
         alt: item.name,
         style: {
-          width: 42,
-          height: 42,
+          width: '100%',
+          height: '100%',
           objectFit: 'contain',
-          borderRadius: 10,
-          background: '#ffffff',
-          border: '1px solid rgba(255,255,255,0.1)',
-          flexShrink: 0
+          borderRadius: 8
         }
       }) : /*#__PURE__*/React.createElement("div", {
         style: {
-          width: 42,
-          height: 42,
-          borderRadius: 10,
-          background: 'linear-gradient(135deg, #1e3a5f, #2563eb)',
+          width: '100%',
+          height: '100%',
+          borderRadius: 8,
+          background: 'linear-gradient(135deg, #e0f2fe, #bae6fd)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 14,
           fontWeight: 900,
-          color: '#fff',
-          flexShrink: 0
+          color: '#0284c7'
         }
-      }, item.initial || item.name && item.name[0] || 'S'), /*#__PURE__*/React.createElement("div", {
+      }, item.initial || item.name && item.name[0] || 'S'), /*#__PURE__*/React.createElement("span", {
+        style: {
+          position: 'absolute',
+          bottom: -2,
+          right: -2,
+          background: '#2563eb',
+          color: '#ffffff',
+          borderRadius: 4,
+          padding: '1px 3px',
+          fontSize: '8px',
+          fontWeight: 800
+        }
+      }, "\uD83D\uDD0D")), /*#__PURE__*/React.createElement("div", {
         style: {
           flex: 1,
           minWidth: 0
@@ -18318,7 +18560,7 @@ function OrderHistoryModal({
         style: {
           fontSize: 13,
           fontWeight: 700,
-          color: '#ffffff',
+          color: '#0f172a',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis'
@@ -18326,68 +18568,68 @@ function OrderHistoryModal({
       }, toTitleCase(item.name || '')), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
-          color: 'rgba(255,255,255,0.45)',
+          color: '#64748b',
           marginTop: 2
         }
-      }, "Qty ", item.qty, " x Rs ", Number(item.price || 0).toLocaleString()), item.extraPercent > 0 && /*#__PURE__*/React.createElement("div", {
+      }, "Qty ", item.qty, " \xD7 Rs ", Number(item.price || 0).toLocaleString()), item.extraPercent > 0 && /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 10,
-          color: '#10b981',
-          fontWeight: 700,
+          color: '#16a34a',
+          fontWeight: 800,
           marginTop: 2
         }
       }, "\uD83C\uDF81 -", item.extraPercent, "% Bulk OFF")), /*#__PURE__*/React.createElement("div", {
         style: {
-          fontSize: 14,
+          fontSize: 13.5,
           fontWeight: 900,
-          color: '#10b981',
+          color: '#059669',
           flexShrink: 0
         }
       }, "Rs ", Number(item.total || (item.price || 0) * (item.qty || 1)).toLocaleString()));
     })), /*#__PURE__*/React.createElement("div", {
       style: {
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
         borderRadius: 14,
         padding: '14px 16px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 10
+        gap: 10,
+        boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 10,
         fontWeight: 800,
-        letterSpacing: '0.1em',
-        color: 'rgba(255,255,255,0.35)',
-        textTransform: 'uppercase',
-        marginBottom: 2
+        letterSpacing: '0.08em',
+        color: '#94a3b8',
+        textTransform: 'uppercase'
       }
-    }, "Bill Summary"), /*#__PURE__*/React.createElement("div", {
+    }, "Bill Breakdown"), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         justifyContent: 'space-between',
         fontSize: 13,
-        color: 'rgba(255,255,255,0.6)'
+        color: '#64748b'
       }
     }, /*#__PURE__*/React.createElement("span", null, "Subtotal"), /*#__PURE__*/React.createElement("span", null, "Rs ", Number(order.subtotal || 0).toLocaleString())), (order.totalSavings || 0) > 0 && /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         justifyContent: 'space-between',
         fontSize: 13,
-        color: '#10b981',
+        color: '#16a34a',
         fontWeight: 700
       }
-    }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDF81 Bulk Discount"), /*#__PURE__*/React.createElement("span", null, "-Rs ", Number(order.totalSavings).toLocaleString())), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDF81 Total Savings"), /*#__PURE__*/React.createElement("span", null, "-Rs ", Number(order.totalSavings).toLocaleString())), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         justifyContent: 'space-between',
         fontSize: 13,
-        color: 'rgba(255,255,255,0.6)'
+        color: '#64748b'
       }
     }, /*#__PURE__*/React.createElement("span", null, "Delivery Fee"), /*#__PURE__*/React.createElement("span", null, order.deliveryFee === 0 ? /*#__PURE__*/React.createElement("span", {
       style: {
-        color: '#10b981',
+        color: '#059669',
         fontWeight: 800
       }
     }, "FREE") : 'Rs ' + order.deliveryFee)), /*#__PURE__*/React.createElement("div", {
@@ -18396,14 +18638,14 @@ function OrderHistoryModal({
         justifyContent: 'space-between',
         fontSize: 16,
         fontWeight: 900,
-        color: '#ffffff',
+        color: '#0f172a',
         paddingTop: 10,
-        borderTop: '1px solid rgba(255,255,255,0.1)',
+        borderTop: '1px solid #f1f5f9',
         marginTop: 2
       }
     }, /*#__PURE__*/React.createElement("span", null, "Total Paid"), /*#__PURE__*/React.createElement("span", {
       style: {
-        color: '#10b981'
+        color: '#059669'
       }
     }, "Rs ", Number(order.grandTotal || 0).toLocaleString()))), /*#__PURE__*/React.createElement("div", {
       style: {
@@ -18435,45 +18677,48 @@ function OrderHistoryModal({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        boxShadow: '0 4px 16px rgba(16,185,129,0.3)'
-      }
-    }, "\uD83D\uDD04 Re-order All"), /*#__PURE__*/React.createElement("button", {
+        boxShadow: '0 4px 16px rgba(16,185,129,0.25)'
+      },
+      className: "hover:from-emerald-600 hover:to-teal-700 active:scale-95 cursor-pointer"
+    }, "\uD83D\uDD04 Re-order All Items"), /*#__PURE__*/React.createElement("button", {
       type: "button",
       onClick: () => generatePDFReceipt(order, language),
       style: {
         padding: '13px 16px',
         borderRadius: 14,
-        background: 'rgba(255,255,255,0.08)',
-        color: '#ffffff',
+        background: '#ffffff',
+        color: '#0f172a',
         fontSize: 13,
         fontWeight: 800,
-        border: '1px solid rgba(255,255,255,0.12)',
+        border: '1.5px solid #cbd5e1',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6
-      }
+      },
+      className: "hover:bg-gray-100 active:scale-95 cursor-pointer"
     }, "\uD83E\uDDFE PDF Bill"))));
   }
 
-  // ─── List View (Full Screen) ─────────────────────────
+  // ─── List View (Clean White / Light Theme) ───────────
   return /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'fixed',
       inset: 0,
       zIndex: 80,
-      background: '#0a1628',
+      background: '#f8fafc',
       display: 'flex',
       flexDirection: 'column'
     },
     className: "animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      background: 'linear-gradient(135deg, #0f1f3a 0%, #0a1628 100%)',
-      borderBottom: '1px solid rgba(255,255,255,0.08)',
+      background: '#ffffff',
+      borderBottom: '1px solid #e2e8f0',
       padding: '0 16px',
-      flexShrink: 0
+      flexShrink: 0,
+      boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -18481,7 +18726,7 @@ function OrderHistoryModal({
       alignItems: 'center',
       justifyContent: 'space-between',
       height: 56,
-      borderBottom: '1px solid rgba(255,255,255,0.06)'
+      borderBottom: '1px solid #f1f5f9'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -18493,16 +18738,7 @@ function OrderHistoryModal({
     style: {
       position: 'relative'
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      inset: '-2px',
-      borderRadius: 12,
-      background: 'linear-gradient(135deg, #2563eb, #38bdf8)',
-      opacity: 0.7,
-      filter: 'blur(4px)'
-    }
-  }), /*#__PURE__*/React.createElement("img", {
+  }, /*#__PURE__*/React.createElement("img", {
     src: "images/zs-mart-logo.png",
     alt: "ZS Mart",
     onError: e => {
@@ -18513,7 +18749,6 @@ function OrderHistoryModal({
       height: 36,
       objectFit: 'contain',
       borderRadius: 10,
-      position: 'relative',
       background: '#ffffff',
       padding: '2px',
       border: '1.5px solid #2563eb'
@@ -18523,9 +18758,9 @@ function OrderHistoryModal({
       fontFamily: "'Poppins', sans-serif",
       fontWeight: 900,
       fontSize: 14,
-      letterSpacing: '0.06em',
+      letterSpacing: '0.04em',
       textTransform: 'uppercase',
-      color: '#ffffff',
+      color: '#0f172a',
       lineHeight: 1.1
     }
   }, "ZS Mart"), /*#__PURE__*/React.createElement("div", {
@@ -18534,17 +18769,52 @@ function OrderHistoryModal({
       fontWeight: 700,
       letterSpacing: '0.1em',
       textTransform: 'uppercase',
-      color: '#38bdf8'
+      color: '#2563eb'
     }
-  }, "Wholesale & Retail"))), /*#__PURE__*/React.createElement("button", {
+  }, "Wholesale & Retail"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "https://wa.me/923368945775?text=Hello%20ZS%20Mart%2C%20I%20need%20assistance%20with%20my%20order.",
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      height: 34,
+      padding: '0 10px',
+      borderRadius: 10,
+      background: '#25d366',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 5,
+      color: '#ffffff',
+      fontSize: 11.5,
+      fontWeight: 800,
+      textDecoration: 'none',
+      boxShadow: '0 2px 6px rgba(37,211,102,0.3)'
+    },
+    title: "Contact ZS Mart on WhatsApp"
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      width: 14,
+      height: 14
+    },
+    viewBox: "0 0 24 24",
+    fill: "#ffffff"
+  }, /*#__PURE__*/React.createElement("path", {
+    d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+  })), /*#__PURE__*/React.createElement("span", null, "WhatsApp")), /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: onClose,
     style: {
       width: 36,
       height: 36,
       borderRadius: 10,
-      background: 'rgba(255,255,255,0.07)',
-      border: '1px solid rgba(255,255,255,0.1)',
-      color: 'rgba(255,255,255,0.7)',
+      background: '#f1f5f9',
+      border: '1px solid #cbd5e1',
+      color: '#0f172a',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -18563,7 +18833,7 @@ function OrderHistoryModal({
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M6 18L18 6M6 6l12 12"
-  })))), /*#__PURE__*/React.createElement("div", {
+  }))))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '12px 0',
       display: 'flex',
@@ -18574,28 +18844,29 @@ function OrderHistoryModal({
     style: {
       fontSize: 18,
       fontWeight: 900,
-      color: '#ffffff',
-      letterSpacing: '0.02em'
+      color: '#0f172a',
+      letterSpacing: '0.01em'
     }
   }, "Order History"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 2
+      color: '#64748b',
+      marginTop: 1
     }
   }, orders.length, " ", orders.length === 1 ? 'order' : 'orders', " saved on this device")), orders.length > 0 && /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: onClear,
     style: {
-      padding: '7px 14px',
+      padding: '7px 12px',
       borderRadius: 10,
-      background: 'rgba(239,68,68,0.12)',
-      border: '1px solid rgba(239,68,68,0.25)',
-      color: '#f87171',
+      background: '#fee2e2',
+      border: '1px solid #fecaca',
+      color: '#b91c1c',
       fontSize: 11,
       fontWeight: 800,
       cursor: 'pointer'
     }
-  }, "\uD83D\uDDD1 Clear All"))), /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDDD1 Clear History"))), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1,
       overflowY: 'auto',
@@ -18608,41 +18879,41 @@ function OrderHistoryModal({
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: '60vh',
-      gap: 16,
+      gap: 14,
       textAlign: 'center',
       padding: 24
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 80,
-      height: 80,
-      borderRadius: 24,
-      background: 'rgba(255,255,255,0.05)',
-      border: '1px dashed rgba(255,255,255,0.15)',
+      width: 72,
+      height: 72,
+      borderRadius: 20,
+      background: '#e2e8f0',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: 32
+      fontSize: 30
     }
-  }, "\uD83D\uDCCB"), /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDCE6"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: 900,
-      color: '#ffffff'
+      color: '#0f172a'
     }
-  }, "No Orders Yet"), /*#__PURE__*/React.createElement("div", {
+  }, "No Orders Placed Yet"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 13,
-      color: 'rgba(255,255,255,0.4)',
-      lineHeight: 1.6,
+      color: '#64748b',
+      lineHeight: 1.5,
       maxWidth: 280
     }
-  }, "Your placed orders will automatically appear here. Start shopping to see your history!"), /*#__PURE__*/React.createElement("button", {
+  }, "Your placed orders will automatically be saved here with complete details and item receipts."), /*#__PURE__*/React.createElement("button", {
+    type: "button",
     onClick: onClose,
     style: {
-      marginTop: 8,
-      padding: '12px 28px',
-      borderRadius: 14,
+      marginTop: 6,
+      padding: '11px 24px',
+      borderRadius: 12,
       background: 'linear-gradient(135deg, #2563eb, #38bdf8)',
       color: '#ffffff',
       fontSize: 13,
@@ -18660,60 +18931,50 @@ function OrderHistoryModal({
     }
   }, orders.map((order, idx) => {
     const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
-    const itemsSummaryNames = order.items ? order.items.slice(0, 2).map(i => toTitleCase(i.name)).join(', ') + (order.items.length > 2 ? ' +' + (order.items.length - 2) + ' more' : '') : '';
     return /*#__PURE__*/React.createElement("div", {
       key: order.id,
       onClick: () => setSelectedOrder(order),
       style: {
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
         borderRadius: 16,
         padding: '14px 16px',
         cursor: 'pointer',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+      },
+      className: "hover:shadow-md hover:border-blue-300 active:scale-[0.99]"
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
         display: 'flex',
         alignItems: 'center',
-        gap: 14,
-        WebkitTapHighlightColor: 'transparent'
+        justifyContent: 'space-between',
+        gap: 8
       }
     }, /*#__PURE__*/React.createElement("div", {
       style: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        background: 'linear-gradient(135deg, #1e3a5f, #2563eb)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 28,
+        height: 28,
+        borderRadius: 8,
+        background: '#f1f5f9',
+        color: '#0f172a',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: 12,
+        fontSize: 11,
+        fontWeight: 900
+      }
+    }, "#", orders.length - idx), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 13.5,
         fontWeight: 900,
-        color: '#ffffff',
-        flexShrink: 0,
-        flexDirection: 'column',
-        lineHeight: 1.2
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 9,
-        color: 'rgba(255,255,255,0.6)',
-        fontWeight: 700
-      }
-    }, "#"), /*#__PURE__*/React.createElement("span", null, orders.length - idx)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        flexWrap: 'wrap'
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: 14,
-        fontWeight: 900,
-        color: '#ffffff'
+        color: '#0f172a'
       }
     }, "Order #", order.id), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -18721,72 +18982,102 @@ function OrderHistoryModal({
         borderRadius: 6,
         fontSize: 10,
         fontWeight: 800,
-        background: order.deliveryMethod === 'pickup' ? 'rgba(37,99,235,0.15)' : 'rgba(16,185,129,0.15)',
-        color: order.deliveryMethod === 'pickup' ? '#60a5fa' : '#10b981',
-        border: '1px solid rgba(255,255,255,0.08)'
+        background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#ecfdf5',
+        color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669',
+        border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0'
       }
     }, order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Delivery')), /*#__PURE__*/React.createElement("div", {
       style: {
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.4)',
-        marginTop: 4
+        fontSize: 15,
+        fontWeight: 900,
+        color: '#059669'
       }
-    }, order.dateText, " \xB7 ", totalItemsCount, " items"), /*#__PURE__*/React.createElement("div", {
+    }, "Rs ", Number(order.grandTotal || 0).toLocaleString())), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
-        color: 'rgba(255,255,255,0.3)',
-        marginTop: 3,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        color: '#64748b',
+        marginTop: 6,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6
       }
-    }, itemsSummaryNames)), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCC5 ", order.dateText), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE6 ", totalItemsCount, " ", totalItemsCount === 1 ? 'item' : 'items')), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 6,
+        marginTop: 10,
+        overflowX: 'auto',
+        paddingBottom: 2
+      }
+    }, order.items && order.items.slice(0, 5).map((it, itemIdx) => {
+      const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[it.id];
+      const imgSrc = hasFile ? 'images/' + it.id + '.' + window.PRODUCT_IMAGE_MAP[it.id] : it.imageExt ? 'images/' + it.id + '.' + it.imageExt : null;
+      return /*#__PURE__*/React.createElement("div", {
+        key: itemIdx,
+        style: {
+          width: 32,
+          height: 32,
+          borderRadius: 8,
+          background: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          padding: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0
+        },
+        title: it.name
+      }, imgSrc ? /*#__PURE__*/React.createElement("img", {
+        src: imgSrc,
+        alt: it.name,
+        style: {
+          width: '100%',
+          height: '100%',
+          objectFit: 'contain',
+          borderRadius: 6
+        }
+      }) : /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 10,
+          fontWeight: 800,
+          color: '#64748b'
+        }
+      }, it.initial || it.name?.[0] || 'S'));
+    }), order.items && order.items.length > 5 && /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        background: '#f1f5f9',
+        border: '1px solid #e2e8f0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 10,
+        fontWeight: 800,
+        color: '#64748b',
         flexShrink: 0
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, "+", order.items.length - 5), /*#__PURE__*/React.createElement("span", {
       style: {
-        textAlign: 'right'
+        fontSize: 11,
+        color: '#2563eb',
+        fontWeight: 700,
+        marginLeft: 'auto',
+        flexShrink: 0
       }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 15,
-        fontWeight: 900,
-        color: '#10b981'
-      }
-    }, "Rs ", Number(order.grandTotal || 0).toLocaleString()), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: 'rgba(255,255,255,0.35)',
-        marginTop: 2
-      }
-    }, "View Details")), /*#__PURE__*/React.createElement("svg", {
-      style: {
-        width: 16,
-        height: 16,
-        color: 'rgba(255,255,255,0.25)'
-      },
-      fill: "none",
-      stroke: "currentColor",
-      strokeWidth: "2.5",
-      viewBox: "0 0 24 24"
-    }, /*#__PURE__*/React.createElement("path", {
-      strokeLinecap: "round",
-      strokeLinejoin: "round",
-      d: "M8.25 4.5l7.5 7.5-7.5 7.5"
-    }))));
+    }, "View Details \u2192")));
   }))), orders.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
-      background: 'rgba(255,255,255,0.03)',
-      borderTop: '1px solid rgba(255,255,255,0.07)',
+      background: '#ffffff',
+      borderTop: '1px solid #e2e8f0',
       padding: '12px 16px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-around',
-      flexShrink: 0
+      flexShrink: 0,
+      boxShadow: '0 -1px 3px rgba(0,0,0,0.03)'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -18794,21 +19085,22 @@ function OrderHistoryModal({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: 900,
-      color: '#ffffff'
+      color: '#0f172a'
     }
   }, orders.length), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 1
+      color: '#64748b',
+      marginTop: 1,
+      fontWeight: 600
     }
   }, "Total Orders")), /*#__PURE__*/React.createElement("div", {
     style: {
       width: 1,
-      height: 32,
-      background: 'rgba(255,255,255,0.1)'
+      height: 30,
+      background: '#e2e8f0'
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -18816,21 +19108,22 @@ function OrderHistoryModal({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: 900,
-      color: '#10b981'
+      color: '#059669'
     }
   }, "Rs ", orders.reduce((acc, o) => acc + (Number(o.grandTotal) || 0), 0).toLocaleString()), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 1
+      color: '#64748b',
+      marginTop: 1,
+      fontWeight: 600
     }
   }, "Total Spent")), /*#__PURE__*/React.createElement("div", {
     style: {
       width: 1,
-      height: 32,
-      background: 'rgba(255,255,255,0.1)'
+      height: 30,
+      background: '#e2e8f0'
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -18838,15 +19131,16 @@ function OrderHistoryModal({
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: 900,
-      color: '#fbbf24'
+      color: '#d97706'
     }
   }, orders.reduce((acc, o) => acc + (o.items ? o.items.reduce((a, i) => a + (i.qty || 1), 0) : 0), 0)), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 10,
-      color: 'rgba(255,255,255,0.4)',
-      marginTop: 1
+      color: '#64748b',
+      marginTop: 1,
+      fontWeight: 600
     }
   }, "Items Bought"))));
 }

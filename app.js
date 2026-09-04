@@ -13171,15 +13171,15 @@ function SahilTraders() {
       };
     });
   }, []);
-  // 🎬 Cinematic Movie-Style Splash Intro Lifecycle (3.5s total)
+  // 🎬 Cinematic Movie-Style Splash Intro Lifecycle (2.2s snappy intro)
   useEffect(() => {
     if (!showSplash) return;
     const fadeTimer = setTimeout(() => {
       setFadeSplash(true);
-    }, 3500);
+    }, 2200);
     const removeTimer = setTimeout(() => {
       setShowSplash(false);
-    }, 3900);
+    }, 2600);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);

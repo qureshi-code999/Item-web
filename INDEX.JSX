@@ -1,4 +1,4 @@
-﻿// =============================================================
+// =============================================================
 //  ✅ MASTER SOURCE FILE — ZS Mart WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
@@ -5197,7 +5197,7 @@ export default function SahilTraders() {
                   {/* ══════════════════════════════════════════════════════════════════
                       MOBILE HEADER (sm hidden): Unified 1-Row with Hardware-Accelerated Search
                       ══════════════════════════════════════════════════════════════════ */}
-                  <div className="flex sm:hidden items-center justify-between gap-2 relative w-full h-[40px] overflow-hidden">
+                  <div className="flex sm:hidden items-center justify-between gap-2 relative w-full h-[40px]">
 
                     {/* Normal State: Logo & Title (Left) */}
                     <div 
@@ -5280,9 +5280,9 @@ export default function SahilTraders() {
                         gap: '6px',
                         background: '#09131e',
                         opacity: (mobileSearchFocused || searchTerm) ? 1 : 0,
-                        transform: (mobileSearchFocused || searchTerm) ? 'translate3d(0, 0, 0)' : 'translate3d(0, -100%, 0)',
+                        transform: (mobileSearchFocused || searchTerm) ? 'scale3d(1,1,1) translate3d(0,0,0)' : 'scale3d(0.95,0.88,1) translate3d(0,-6px,0)',
                         pointerEvents: (mobileSearchFocused || searchTerm) ? 'auto' : 'none',
-                        transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease',
+                        transition: 'transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease',
                         willChange: 'transform, opacity'
                       }}
                     >
@@ -7081,197 +7081,204 @@ export default function SahilTraders() {
     }
     function OrderHistoryModal({ open, orders, langData, language, onClose, onClear, onReorder }) {
       if (!open) return null;
-      // Default expand the first (latest) order
-      const [expandedId, setExpandedId] = useState(orders.length > 0 ? orders[0].id : null);
-      const toggleOrder = (id) => {
-        setExpandedId(prev => (prev === id ? null : id));
-      };
-      return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} className="animate-fade-in">
-          <div style={{ width: '100%', maxWidth: 580, maxHeight: '88vh', overflow: 'hidden', background: '#ffffff', borderRadius: 22, border: '1px solid rgba(0,0,0,0.12)', boxShadow: '0 24px 70px rgba(0,0,0,0.45)', display: 'flex', flexDirection: 'column' }}>
-            {/* Modal Header */}
-            <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, background: '#ffffff' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#fffbeb', border: '1px solid #fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#b45309' }}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+      const [selectedOrder, setSelectedOrder] = React.useState(null);
+      // ─── Detail View ────────────────────────────────────
+      if (selectedOrder) {
+        const order = selectedOrder;
+        const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
+        return (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 80, background: '#0a1628', display: 'flex', flexDirection: 'column', overflowY: 'auto' }} className="animate-fade-in">
+            {/* Detail Header */}
+            <div style={{ background: 'linear-gradient(135deg, #0f1f3a 0%, #0a1628 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '0 16px', height: 60, display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, position: 'sticky', top: 0, zIndex: 10 }}>
+              <button onClick={() => setSelectedOrder(null)} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+              </button>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 900, fontSize: 15, color: '#ffffff', letterSpacing: '0.05em' }}>Order #{order.id}</div>
+                <div style={{ fontSize: 11, color: '#38bdf8', marginTop: 1 }}>{order.dateText} · {totalItemsCount} items</div>
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#10b981' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
+            </div>
+            {/* Detail Body */}
+            <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 640, width: '100%', margin: '0 auto' }}>
+              {/* Status Badges */}
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? 'rgba(37,99,235,0.15)' : 'rgba(16,185,129,0.15)', color: order.deliveryMethod === 'pickup' ? '#60a5fa' : '#10b981', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  {order.deliveryMethod === 'pickup' ? '🏪 Store Pickup' : '🚚 Home Delivery'}
+                </span>
+                <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)' }}>✅ Placed</span>
+              </div>
+              {/* Customer Info */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginBottom: 4 }}>Customer Info</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #2563eb, #38bdf8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{(order.customer?.name || 'C')[0].toUpperCase()}</div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#ffffff' }}>{order.customer?.name}</div>
+                    <div style={{ fontSize: 12, color: '#38bdf8', marginTop: 2 }}>📞 {order.customer?.phone}</div>
+                  </div>
                 </div>
-                <div>
-                  <h3 style={{ fontSize: 16, fontWeight: 900, color: '#111827', letterSpacing: '0.05em', textTransform: 'uppercase', margin: 0 }}>{tr(language, 'Order History', 'Order History', '\u0622\u0631\u0688\u0631 \u06c1\u0633\u067c\u0631\u06cc')}</h3>
-                  <p style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{tr(language, 'Tap an order card to view full items', 'Order card par click karein aur mukammal tafseel dekhein', '\u06a9\u0644\u06a9 \u06a9\u0631\u06cc\u06ba \u0627\u0648\u0631 \u0645\u06a9\u0645\u0644 \u0622\u0631\u0688\u0631 \u062f\u06cc\u06a9\u06be\u06cc\u06ba')}</p>
+                {order.customer?.address && (
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                    <svg style={{ width: 14, height: 14, color: '#f59e0b', flexShrink: 0, marginTop: 2 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{order.customer.address}</span>
+                  </div>
+                )}
+              </div>
+              {/* Items List */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>Ordered Items ({totalItemsCount})</div>
+                {order.items && order.items.map((item, i) => {
+                  const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
+                  const imgSrc = hasFile ? ('images/' + item.id + '.' + window.PRODUCT_IMAGE_MAP[item.id]) : (item.imageExt ? ('images/' + item.id + '.' + item.imageExt) : null);
+                  return (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i < order.items.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                      {imgSrc ? (
+                        <img src={imgSrc} alt={item.name} style={{ width: 42, height: 42, objectFit: 'contain', borderRadius: 10, background: '#ffffff', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }} />
+                      ) : (
+                        <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #1e3a5f, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{item.initial || (item.name && item.name[0]) || 'S'}</div>
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name || '')}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>Qty {item.qty} x Rs {Number(item.price || 0).toLocaleString()}</div>
+                        {item.extraPercent > 0 && <div style={{ fontSize: 10, color: '#10b981', fontWeight: 700, marginTop: 2 }}>🎁 -{item.extraPercent}% Bulk OFF</div>}
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: '#10b981', flexShrink: 0 }}>Rs {Number(item.total || ((item.price || 0) * (item.qty || 1))).toLocaleString()}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Bill Summary */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginBottom: 2 }}>Bill Summary</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+                  <span>Subtotal</span><span>Rs {Number(order.subtotal || 0).toLocaleString()}</span>
+                </div>
+                {(order.totalSavings || 0) > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#10b981', fontWeight: 700 }}>
+                    <span>🎁 Bulk Discount</span><span>-Rs {Number(order.totalSavings).toLocaleString()}</span>
+                  </div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+                  <span>Delivery Fee</span>
+                  <span>{order.deliveryFee === 0 ? <span style={{ color: '#10b981', fontWeight: 800 }}>FREE</span> : ('Rs ' + order.deliveryFee)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900, color: '#ffffff', paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: 2 }}>
+                  <span>Total Paid</span><span style={{ color: '#10b981' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</span>
                 </div>
               </div>
-              <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: 10, border: '1px solid rgba(0,0,0,0.18)', background: '#f3f4f6', color: '#111827', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Close modal">
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: 10, paddingBottom: 24 }}>
+                <button type="button" onClick={() => { triggerHaptic('success'); if (onReorder) { onReorder(order.items); setSelectedOrder(null); onClose(); } }} style={{ flex: 1, padding: '13px 16px', borderRadius: 14, background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 16px rgba(16,185,129,0.3)' }}>🔄 Re-order All</button>
+                <button type="button" onClick={() => generatePDFReceipt(order, language)} style={{ padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', color: '#ffffff', fontSize: 13, fontWeight: 800, border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>🧾 PDF Bill</button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ─── List View (Full Screen) ─────────────────────────
+      return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 80, background: '#0a1628', display: 'flex', flexDirection: 'column' }} className="animate-fade-in">
+          {/* TOP HEADER */}
+          <div style={{ background: 'linear-gradient(135deg, #0f1f3a 0%, #0a1628 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '0 16px', flexShrink: 0 }}>
+            {/* Logo Row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ position: 'relative' }}>
+                  <div style={{ position: 'absolute', inset: '-2px', borderRadius: 12, background: 'linear-gradient(135deg, #2563eb, #38bdf8)', opacity: 0.7, filter: 'blur(4px)' }} />
+                  <img src="images/zs-mart-logo.png" alt="ZS Mart" onError={e => { e.currentTarget.src = 'images/zs-mart-logo.jpg'; }} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 10, position: 'relative', background: '#ffffff', padding: '2px', border: '1.5px solid #2563eb' }} />
+                </div>
+                <div>
+                  <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, fontSize: 14, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#ffffff', lineHeight: 1.1 }}>ZS Mart</div>
+                  <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#38bdf8' }}>Wholesale &amp; Retail</div>
+                </div>
+              </div>
+              <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-            {/* Modal Scroll Body */}
-            <div style={{ padding: 18, overflowY: 'auto' }}>
-              {orders.length === 0 ? (
-                <div style={{ padding: '44px 18px', textAlign: 'center', background: '#f9fafb', border: '1px dashed #d1d5db', borderRadius: 16 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: '#9ca3af' }}>
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg>
-                  </div>
-                  <p style={{ fontSize: 15, fontWeight: 900, color: '#111827', margin: 0 }}>{tr(language, 'No saved orders yet', 'Abhi koi order save nahi hai', '\u0627\u0628\u06be\u06cc \u06a9\u0648\u0626\u06cc \u0622\u0631\u0688\u0631 \u0645\u062d\u0641\u0648\u0638 \u0646\u06c1\u06cc\u06ba')}</p>
-                  <p style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>{tr(language, 'Your placed orders will appear here automatically.', 'Apka agla order yahan khud ba khud show hoga.', '\u0622\u067e \u06a9\u0627 \u0627\u06af\u0644\u0627 \u0622\u0631\u0688\u0631 \u06cc\u06c1\u0627\u06ba \u0646\u0630\u0631 \u0622\u0624 \u06af\u0627')}</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {orders.map((order, idx) => {
-                    const isExpanded = expandedId === order.id;
-                    const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
-                    const itemsSummaryNames = order.items ? order.items.slice(0, 2).map(i => toTitleCase(i.name)).join(', ') + (order.items.length > 2 ? ` +${order.items.length - 2} more` : '') : '';
-                    return (
-                      <div key={order.id} style={{ border: isExpanded ? '1.5px solid #111827' : '1px solid #e5e7eb', borderRadius: 16, overflow: 'hidden', background: '#ffffff', boxShadow: isExpanded ? '0 10px 25px rgba(0,0,0,0.1)' : '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s ease' }}>
-                        {/* Collapsible Header Bar (Clickable) */}
-                        <div
-                          onClick={() => toggleOrder(order.id)}
-                          style={{ padding: '14px 16px', background: isExpanded ? '#f8fafc' : '#ffffff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-                            <div style={{ width: 36, height: 36, borderRadius: 10, background: isExpanded ? '#111827' : '#f3f4f6', color: isExpanded ? '#ffffff' : '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, flexShrink: 0 }}>
-                              #{orders.length - idx}
-                            </div>
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                                <span style={{ fontSize: 13, fontWeight: 900, color: '#111827' }}>#{order.id}</span>
-                                <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 12, background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#f0fdf4', color: order.deliveryMethod === 'pickup' ? '#1d4ed8' : '#15803d', border: `1px solid ${order.deliveryMethod === 'pickup' ? '#bfdbfe' : '#bbf7d0'}` }}>
-                                  {order.deliveryMethod === 'pickup' ? tr(language, 'Store Pickup', 'Dukan se Pickup', '\u0627\u0633\u067c\u0648\u0631 \u067e\u06a9 \u0627\u067e') : tr(language, 'Home Delivery', 'Home Delivery', '\u06c1\u0648\u0645 \u0688\u0644\u06cc\u0648\u0631\u06cc')}
-                                </span>
-                              </div>
-                              <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                  <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
-                                  <span>{order.dateText}</span>
-                                </div>
-                                <span style={{ color: '#d1d5db' }}>\u2022</span>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
-                                  <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                                  <span>{totalItemsCount} {totalItemsCount === 1 ? tr(language, 'item', 'cheez', 'آئٹم') : tr(language, 'items', 'cheezein', 'اشیاء')}</span>
-                                </div>
-                              </div>
-                              {!isExpanded && (
-                                <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '240px' }}>
-                                  {itemsSummaryNames}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          {/* Right Side: Total Amount & Expand Arrow */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: 15, fontWeight: 900, color: '#111827' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
-                              <span style={{ fontSize: 10, fontWeight: 700, color: isExpanded ? '#2563eb' : '#9ca3af' }}>
-                                {isExpanded ? tr(language, 'Collapse ▲', 'Band Karein ▲', '\u0628\u0646\u062f \u06a9\u0631\u06cc\u06ba \u25b2') : tr(language, 'View Details ▼', 'Tafseel Dekhein ▼', '\u062a\u0641\u0635\u06cc\u0644 \u062f\u06cc\u06a9\u06be\u06cc\u06ba \u25bc')}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        {/* Collapsible Content Body */}
-                        {isExpanded && (
-                          <div style={{ borderTop: '1px solid #e5e7eb', background: '#ffffff', padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                            <div style={{ padding: 12, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                              <div style={{ fontWeight: 800, color: '#334155', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <svg className="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
-                                <span>{order.customer?.name} ({order.customer?.phone})</span>
-                              </div>
-                              {order.customer?.address && (
-                                <div style={{ color: '#64748b', fontSize: 11, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                                  <svg className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-                                  <span>{order.customer.address}</span>
-                                </div>
-                              )}
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                              <p style={{ fontSize: 11, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
-                                {tr(language, 'Itemized Receipt:', 'Ashya ki List (Receipt):', '\u0627\u0634\u06cc\u0622 \u06a9\u06cc \u0641\u06c1\u0631\u0633\u067c:')}
-                              </p>
-                              {order.items && order.items.map(item => {
-                                const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
-                                const imgSrc = hasFile ? getImgUrl(`images/${item.id}.${window.PRODUCT_IMAGE_MAP[item.id]}`) : (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
-                                return (
-                                  <div key={`${order.id}-${item.id}`} style={{ display: 'grid', gridTemplateColumns: '36px 1fr auto', alignItems: 'center', gap: 12, padding: '6px 0', borderBottom: '1px border-dashed #f1f5f9' }}>
-                                    {imgSrc ? (
-                                      <img src={imgSrc} alt={item.name} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
-                                    ) : (
-                                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#475569' }}>{item.initial || 'S'}</div>
-                                    )}
-                                    <div style={{ minWidth: 0 }}>
-                                      <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{toTitleCase(item.name || '')}</div>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
-                                        <span style={{ fontSize: 11, color: '#64748b' }}>Qty {item.qty} x Rs {Number(item.price || 0).toLocaleString()}</span>
-                                        {item.extraPercent > 0 && (
-                                          <span style={{ fontSize: 10, fontWeight: 800, color: '#166534', background: '#dcfce7', padding: '1px 6px', borderRadius: 4 }}>
-                                            🎁 -{item.extraPercent}% Bulk OFF (-Rs {Number(item.extraSavings).toLocaleString()})
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div style={{ fontSize: 13, color: '#0f172a', fontWeight: 900 }}>Rs {Number(item.total || ((item.price || 0) * (item.qty || 1))).toLocaleString()}</div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                            <div style={{ padding: '10px 14px', background: '#f8fafc', borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, border: '1px solid #f1f5f9' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
-                                <span>Subtotal</span>
-                                <span>Rs {Number(order.subtotal || 0).toLocaleString()}</span>
-                              </div>
-                              {(order.totalSavings || (order.items || []).reduce((acc, it) => acc + (it.extraSavings || 0), 0)) > 0 && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#166534', fontWeight: 700 }}>
-                                  <span>🎁 Total Bulk Discount Saved</span>
-                                  <span>-Rs {Number(order.totalSavings || (order.items || []).reduce((acc, it) => acc + (it.extraSavings || 0), 0)).toLocaleString()}</span>
-                                </div>
-                              )}
-                              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
-                                <span>Delivery Fee</span>
-                                <span>{order.deliveryFee === 0 ? 'FREE' : `Rs ${order.deliveryFee}`}</span>
-                              </div>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, color: '#0f172a', fontSize: 14, paddingTop: 4, borderTop: '1px solid #e2e8f0', marginTop: 2 }}>
-                                <span>Total Paid</span>
-                                <span style={{ color: '#16a34a' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</span>
-                              </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  triggerHaptic('success');
-                                  if (onReorder) onReorder(order.items);
-                                }}
-                                style={{ flex: 1, minWidth: 150, padding: '10px 14px', borderRadius: 12, background: '#0f172a', color: '#ffffff', fontSize: 12, fontWeight: 800, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 12px rgba(15,23,42,0.2)' }}
-                                className="hover:bg-black transition-all active:scale-95 cursor-pointer"
-                              >
-                                <span>🔄</span>
-                                <span>{tr(language, 'Re-order All Items', 'Dobara Mangwayein (Re-order)', 'دوبارہ منگوائیں (Re-order)')}</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => generatePDFReceipt(order, language)}
-                                style={{ padding: '10px 14px', borderRadius: 12, background: '#f8fafc', color: '#0f172a', fontSize: 12, fontWeight: 800, border: '1px solid #cbd5e1', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-                                className="hover:bg-slate-200 transition-all active:scale-95 cursor-pointer"
-                              >
-                                <span>🧾</span>
-                                <span>{tr(language, 'Print / PDF Bill', 'PDF Bill Print Karein', 'بل پرنٹ کریں')}</span>
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+            {/* Title Row */}
+            <div style={{ padding: '12px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#ffffff', letterSpacing: '0.02em' }}>Order History</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{orders.length} {orders.length === 1 ? 'order' : 'orders'} saved on this device</div>
+              </div>
+              {orders.length > 0 && (
+                <button onClick={onClear} style={{ padding: '7px 14px', borderRadius: 10, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#f87171', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}>
+                  🗑 Clear All
+                </button>
               )}
             </div>
-            {orders.length > 0 && (
-              <div style={{ padding: '14px 18px', borderTop: '1px solid #e5e7eb', background: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: 11, color: '#6b7280', fontWeight: 700 }}>{orders.length} {tr(language, orders.length === 1 ? 'order saved' : 'orders saved', orders.length === 1 ? 'order save hua' : 'orders save hue', orders.length === 1 ? 'آرڈر محفوظ' : 'آرڈرز محفوظ')}</span>
-                <button onClick={onClear} style={{ border: '1px solid #fecaca', background: '#fee2e2', color: '#991b1b', borderRadius: 10, padding: '8px 14px', fontSize: 11, fontWeight: 900, cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  {tr(language, 'Clear History', 'History Saaf Karein', 'ہسٹری صاف کریں')}
-                </button>
+          </div>
+
+          {/* BODY - ORDER LIST */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: 14 }}>
+            {orders.length === 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 16, textAlign: 'center', padding: 24 }}>
+                <div style={{ width: 80, height: 80, borderRadius: 24, background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>📋</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#ffffff' }}>No Orders Yet</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, maxWidth: 280 }}>Your placed orders will automatically appear here. Start shopping to see your history!</div>
+                <button onClick={onClose} style={{ marginTop: 8, padding: '12px 28px', borderRadius: 14, background: 'linear-gradient(135deg, #2563eb, #38bdf8)', color: '#ffffff', fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer' }}>Start Shopping →</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 640, margin: '0 auto' }}>
+                {orders.map((order, idx) => {
+                  const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
+                  const itemsSummaryNames = order.items ? order.items.slice(0, 2).map(i => toTitleCase(i.name)).join(', ') + (order.items.length > 2 ? ' +' + (order.items.length - 2) + ' more' : '') : '';
+                  return (
+                    <div
+                      key={order.id}
+                      onClick={() => setSelectedOrder(order)}
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, WebkitTapHighlightColor: 'transparent' }}
+                    >
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #1e3a5f, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#ffffff', flexShrink: 0, flexDirection: 'column', lineHeight: 1.2 }}>
+                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>#</span>
+                        <span>{orders.length - idx}</span>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#ffffff' }}>Order #{order.id}</span>
+                          <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? 'rgba(37,99,235,0.15)' : 'rgba(16,185,129,0.15)', color: order.deliveryMethod === 'pickup' ? '#60a5fa' : '#10b981', border: '1px solid rgba(255,255,255,0.08)' }}>
+                            {order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Delivery'}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{order.dateText} · {totalItemsCount} items</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{itemsSummaryNames}</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 15, fontWeight: 900, color: '#10b981' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>View Details</div>
+                        </div>
+                        <svg style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.25)' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
+
+          {/* BOTTOM STATS BAR */}
+          {orders.length > 0 && (
+            <div style={{ background: 'rgba(255,255,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.07)', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexShrink: 0 }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#ffffff' }}>{orders.length}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>Total Orders</div>
+              </div>
+              <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.1)' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#10b981' }}>Rs {orders.reduce((acc, o) => acc + (Number(o.grandTotal) || 0), 0).toLocaleString()}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>Total Spent</div>
+              </div>
+              <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.1)' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#fbbf24' }}>{orders.reduce((acc, o) => acc + (o.items ? o.items.reduce((a, i) => a + (i.qty || 1), 0) : 0), 0)}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>Items Bought</div>
+              </div>
+            </div>
+          )}
         </div>
       );
     }

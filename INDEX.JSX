@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 //  ✅ MASTER SOURCE FILE — ZS Mart WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
@@ -777,8 +777,9 @@ function getTranslationValue(dictionary, key) {
     function getImgUrl(path) {
       if (!path) return '';
       if (path.startsWith('http://') || path.startsWith('https://')) return path;
-      const webpPath = path.replace(/\.(png|jpg|jpeg)$/i, '.webp');
-      return `https://sahiltraders.vercel.app/${webpPath}`;
+      // Serve PNG directly from Vercel CDN (WebP files not yet deployed to Vercel)
+      const pngPath = path.replace(/\.(webp|jpg|jpeg)$/i, '.png');
+      return `https://sahiltraders.vercel.app/${pngPath}`;
     }
     function translate(dictionary, key, params = {}) {
       let value = getTranslationValue(dictionary, key);
@@ -1181,7 +1182,7 @@ function getTranslationValue(dictionary, key) {
     }
     // --- Product Categories and Data ---
     var DEFAULT_CATEGORIES = [
-      { id: "soaps",        name: "Soaps" },
+      { id: "soaps",        name: "Local & Imported Soaps" },
       { id: "shampoo",      name: "Shampoo & Conditioners" },
       { id: "creams",       name: "Creams & Lotions & Bleach" },
       { id: "stationary",   name: "Stationary & Tapes" },
@@ -2075,39 +2076,39 @@ function getTranslationValue(dictionary, key) {
       { id: 1067, name: "SHIELD CHOOSNI (3 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1068, name: "SHIELD CHOOSNI (6 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1075, name: "SHIELD NIPPLE BOX", price: 80, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
-      { id: 1076, name: "SOAP CAPRI (FAMILY PACK) 135g (YELLOW)", price: 130, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1081, name: "SOAP CAPRI (3 IN 1) YELLOW RS,390", price: 350, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1083, name: "SOAP DETTOL JUMBO COMPANY RS,150 (COOL)", price: 139, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1084, name: "SOAP DETTOL JUMBO COMPANY RS,150 (GREEN)", price: 139, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1086, name: "SOAP DETTOL MEDIUM COMPANY (COOL) RS,140", price: 129 ,categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1087, name: "SOAP DETTOL SMALL COMPANY (COOL)", price: 129, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1088, name: "SOAP DOVE LARGE WHITE (IMP)", price: 449, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1089, name: "SOAP DOVE LARGE PINK (IMP)", price: 449, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
-      { id: 1090, name: "SOAP DOVE SMALL WHITE (IMP)", price: 0, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1091, name: "SOAP DOVE SMALL PINK (IMP)", price: 0, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
-      { id: 1092, name: "SOAP FAIZA (NEEM)", price: 110, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1093, name: "SOAP FAIZA (PP)", price: 110, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1094, name: "SOAP GOLDEN PEARL (BLUE)", price: 125, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
-      { id: 1095, name: "SOAP GOLDEN PEARL (PINK)", price: 125, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1096, name: "SOAP GOLDEN PEARL (YELLOW)", price: 125, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
-      { id: 1097, name: "SOAP IMPERIAL 175gm LARGE", price: 390, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1098, name: "SOAP IMPERIAL LEATHER SMALL", price: 239, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1099, name: "SOAP LIFEBUOY (LARGE) GREEN RS,125", price: 119, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1100, name: "SOAP LIFEBUOY (MEDIUM) (BLUE) RS,95", price: 90 ,categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1101, name: "SOAP LIFEBUOY (XL) BLUE RS,125", price: 119, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1102, name: "SOAP LIFEBUOY (XL) GREEN RS,125", price: 119, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1103, name: "SOAP PALMOLIVE (LARGE) RS,150 BLACK", price: 139 ,categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1104, name: "SOAP PALMOLIVE (LARGE) RS,150 ORANGE", price: 139, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1105, name: "SOAP PALMOLIVE (LARGE) RS,150 YELLOW", price: 139, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1109, name: "SOAP PEARS (BLUE)", price: 399, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1110, name: "SOAP PEARS (GREEN)", price: 399, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
-      { id: 1111, name: "SOAP PEARS (ORANGE)", price: 399, categoryId: "soaps", categoryName: "Soaps" },
-      { id: 1112, name: "SOAP SKIN WHITE (BLUE) RS,150", price: 129, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "S" },
-      { id: 1113, name: "SOAP SKIN WHITE (GREEN) RS,150", price: 129, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
-      { id: 1114, name: "SOAP SKIN WHITE (PINK) RS,150", price: 129, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
-      { id: 1115, name: "SOAP TIBET (LARGE FAMILY SIZE) RS,109", price: 104, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1116, name: "SOAP TIBET (MEDIUM BATH SIZE) RS,89", price: 85, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "S" },
-      { id: 1117, name: "SOAP TIBET (SMALL STANDARD SIZE) RS,70", price: 66, categoryId: "soaps", categoryName: "Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
+      { id: 1076, name: "SOAP CAPRI (FAMILY PACK) 135g (YELLOW)", price: 130, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1081, name: "SOAP CAPRI (3 IN 1) YELLOW RS,390", price: 350, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1083, name: "SOAP DETTOL JUMBO COMPANY RS,150 (COOL)", price: 139, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1084, name: "SOAP DETTOL JUMBO COMPANY RS,150 (GREEN)", price: 139, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1086, name: "SOAP DETTOL MEDIUM COMPANY (COOL) RS,140", price: 129 ,categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1087, name: "SOAP DETTOL SMALL COMPANY (COOL)", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1088, name: "SOAP DOVE LARGE WHITE (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1089, name: "SOAP DOVE LARGE PINK (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
+      { id: 1090, name: "SOAP DOVE SMALL WHITE (IMP)", price: 0, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
+      { id: 1091, name: "SOAP DOVE SMALL PINK (IMP)", price: 0, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
+      { id: 1092, name: "SOAP FAIZA (NEEM)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1093, name: "SOAP FAIZA (PP)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1094, name: "SOAP GOLDEN PEARL (BLUE)", price: 125, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
+      { id: 1095, name: "SOAP GOLDEN PEARL (PINK)", price: 125, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
+      { id: 1096, name: "SOAP GOLDEN PEARL (YELLOW)", price: 125, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
+      { id: 1097, name: "SOAP IMPERIAL 175gm LARGE", price: 390, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1098, name: "SOAP IMPERIAL LEATHER SMALL", price: 239, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
+      { id: 1099, name: "SOAP LIFEBUOY (LARGE) GREEN RS,125", price: 119, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1100, name: "SOAP LIFEBUOY (MEDIUM) (BLUE) RS,95", price: 90 ,categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1101, name: "SOAP LIFEBUOY (XL) BLUE RS,125", price: 119, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1102, name: "SOAP LIFEBUOY (XL) GREEN RS,125", price: 119, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1103, name: "SOAP PALMOLIVE (LARGE) RS,150 BLACK", price: 139 ,categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1104, name: "SOAP PALMOLIVE (LARGE) RS,150 ORANGE", price: 139, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1105, name: "SOAP PALMOLIVE (LARGE) RS,150 YELLOW", price: 139, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1109, name: "SOAP PEARS (BLUE)", price: 399, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1110, name: "SOAP PEARS (GREEN)", price: 399, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
+      { id: 1111, name: "SOAP PEARS (ORANGE)", price: 399, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1112, name: "SOAP SKIN WHITE (BLUE) RS,150", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "S" },
+      { id: 1113, name: "SOAP SKIN WHITE (GREEN) RS,150", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
+      { id: 1114, name: "SOAP SKIN WHITE (PINK) RS,150", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
+      { id: 1115, name: "SOAP TIBET (LARGE FAMILY SIZE) RS,109", price: 104, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
+      { id: 1116, name: "SOAP TIBET (MEDIUM BATH SIZE) RS,89", price: 85, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "S" },
+      { id: 1117, name: "SOAP TIBET (SMALL STANDARD SIZE) RS,70", price: 66, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
       { id: 1118, name: "SOFT TOUCH WONDER WAX LARGE GREEN", price: 249, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "S" },
       { id: 1119, name: "SOFT TOUCH WONDER WAX LARGE LEMON", price: 249, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1120, name: "SOFT TOUCH WONDER WAX SMALL GREEN", price: 209, categoryId: "personalcare", categoryName: "Personal Care" },
@@ -2606,7 +2607,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
           <a
-            href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`}
+            href={`https://api.whatsapp.com/send?phone=${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}&text=${encodeURIComponent(tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -2767,7 +2768,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shrink-0">
           <a
-            href={`https://wa.me/${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}?text=${encodeURIComponent(tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`}
+            href={`https://api.whatsapp.com/send?phone=${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}&text=${encodeURIComponent(tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -2797,7 +2798,7 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border-2 border-amber-400 animate-scale-in relative p-6 text-center"
+        className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border-2 border-amber-400 animate-modal-spring relative p-6 text-center"
         onClick={e => e.stopPropagation()}
       >
         <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-white flex items-center justify-center text-3xl shadow-lg">
@@ -2855,6 +2856,43 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submittedOrderId, setSubmittedOrderId] = useState(null);
+  const [location, setLocation] = useState(null);
+  const [locLoading, setLocLoading] = useState(false);
+  const [locError, setLocError] = useState(null);
+
+  const handleGetLocation = (auto = false) => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      if (!auto) setLocError(language === 'ur' ? 'GPS کی سہولت دستیاب نہیں۔' : 'GPS not supported.');
+      return;
+    }
+    setLocLoading(true);
+    setLocError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
+        setLocation({ lat, lng, mapUrl });
+        setLocLoading(false);
+        triggerHaptic('success');
+      },
+      (err) => {
+        setLocLoading(false);
+        const msg = err.code === 1 
+          ? (language === 'ur' ? 'لوکیشن پرمیشن نہیں ملی۔' : 'Location permission denied.')
+          : (language === 'ur' ? 'GPS آن نہیں ہے۔' : 'GPS unavailable.');
+        setLocError(msg);
+        if (!auto) triggerHaptic('error');
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  useEffect(() => {
+    if (deliveryMethod === 'home' && !location && !locLoading) {
+      handleGetLocation(true);
+    }
+  }, [deliveryMethod]);
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -2897,7 +2935,8 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       customer: {
         name: name.trim(),
         phone: phone.trim(),
-        address: deliveryMethod === 'home' ? address.trim() : 'ZS Mart Store Pickup Karachi'
+        address: deliveryMethod === 'home' ? address.trim() : 'ZS Mart Store Pickup Karachi',
+        location: location ? location.mapUrl : null
       },
       items: [
         {
@@ -2919,7 +2958,8 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       saveOrderHistory(orderRecord);
     }
 
-    const waText = `*Salam ZS Mart!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
+    const locText = (deliveryMethod === 'home' && location) ? `\n📍 *Live GPS Map Pin:* ${location.mapUrl}` : '';
+    const waText = `*Salam ZS Mart!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
 
     // Try direct native Web Share with photo file (opens WhatsApp with actual photo attached on mobile)
     let sharedWithFile = false;
@@ -2945,7 +2985,8 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   };
 
   const handleOpenWhatsAppDirect = () => {
-    const waText = `*Salam ZS Mart!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}`;
+    const locText = (deliveryMethod === 'home' && location) ? `\n📍 *Live GPS Map Pin:* ${location.mapUrl}` : '';
+    const waText = `*Salam ZS Mart!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}`;
     const waUrl = buildWhatsAppUrl('923368945775', waText);
     window.open(waUrl, '_blank');
   };
@@ -3152,17 +3193,63 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
               </div>
 
               {deliveryMethod === 'home' && (
-                <div>
-                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
-                    {tr(language, 'Delivery Address in Karachi', 'Karachi Ka Pura Pata', 'کراچی کا پتہ')}
-                  </label>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Area, Street, Shop / House #"
-                    className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
-                  />
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-700 mb-1">
+                      {tr(language, 'Delivery Address in Karachi', 'Karachi Ka Pura Pata', 'کراچی کا پتہ')}
+                    </label>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Area, Street, Shop / House #"
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  {/* Live GPS Location Box */}
+                  <div style={{
+                    padding: '8px 10px',
+                    borderRadius: 12,
+                    background: location ? '#f0fdf4' : '#f8fafc',
+                    border: location ? '1.5px solid #10b981' : (locError ? '1.5px solid #f87171' : '1px dashed #cbd5e1'),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 6
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                      <span style={{ fontSize: 14 }}>{location ? '📍' : (locLoading ? '⏳' : '🗺️')}</span>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: location ? '#166534' : '#0f172a' }}>
+                          {location 
+                            ? (language === 'ur' ? '✅ لائیو لوکیشن منسلک ہے' : '✅ Live Location Attached')
+                            : (locLoading ? (language === 'ur' ? 'GPS پن حاصل ہو رہی ہے...' : 'Fetching GPS Pin...') : (language === 'ur' ? 'گھر کی لائیو GPS لوکیشن' : 'Live Home GPS Pin'))}
+                        </div>
+                        <div style={{ fontSize: 9.5, color: location ? '#15803d' : '#64748b', fontWeight: 600 }}>
+                          {location ? `Maps: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : (locError || (language === 'ur' ? 'رائڈر کی درستگی کیلئے' : 'Accurate map pin for rider'))}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleGetLocation(false)}
+                      disabled={locLoading}
+                      style={{
+                        padding: '4px 9px',
+                        borderRadius: 8,
+                        background: location ? '#10b981' : '#0f172a',
+                        color: '#ffffff',
+                        border: 'none',
+                        fontSize: 10,
+                        fontWeight: 800,
+                        cursor: locLoading ? 'not-allowed' : 'pointer',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0
+                      }}
+                    >
+                      {locLoading ? '⏳...' : (location ? (language === 'ur' ? '🔄 تبدیل' : '🔄 Update') : (language === 'ur' ? '📍 لوکیشن' : '📍 Add GPS'))}
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -3330,6 +3417,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
   if (!open || !product) return null;
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
+  const [packMenuOpen, setPackMenuOpen] = React.useState(false);
   const pricing = useMemo(() => getProductPricing(product), [product]);
   const bulkPricing = useMemo(() => calculateBulkPricing(pricing.sellingPrice, modalQty), [pricing.sellingPrice, modalQty]);
   // Find 4-6 Related Products from the same category (excluding current product)
@@ -3356,7 +3444,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${((pricing.savings * modalQty) + bulkPricing.extraSavings).toLocaleString()})`;
     }
     const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
-    window.open(`https://wa.me/923368945775?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=923368945775&text=${encodeURIComponent(msg)}`, '_blank');
   };
   return (
     <div 
@@ -3428,6 +3516,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                     alt={product.name} 
                     loading="lazy" 
                     decoding="async" 
+                    onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }}
                     className="w-full h-full object-contain" 
                   />
                 ) : (
@@ -3535,23 +3624,26 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <select
-                      value={[6, 12, 24, 36, 48, 60].includes(modalQty) ? modalQty : "custom"}
-                      onChange={(e) => {
-                        if (e.target.value !== "custom") {
-                          setModalQty(Number(e.target.value));
-                        }
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic('light');
+                        setPackMenuOpen(true);
                       }}
-                      className="w-full bg-slate-50 border border-slate-300 hover:border-slate-800 text-slate-900 font-extrabold text-xs rounded-xl px-2.5 py-1.5 focus:outline-hidden focus:ring-2 focus:ring-black cursor-pointer shadow-2xs transition-colors truncate"
+                      className="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-950 font-extrabold text-xs rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs transition-all active:scale-98 truncate"
                     >
-                      <option value="custom">📦 {tr(language, 'Wholesale Packs', 'Wholesale Pack Chunain', 'ہول سیل پیک')}</option>
-                      <option value="6">6 Pcs (Half Dozen - Extra 0.6% OFF)</option>
-                      <option value="12">12 Pcs (1 Dozen - Extra 1.2% OFF)</option>
-                      <option value="24">24 Pcs (2 Dozen - Extra 1.8% OFF)</option>
-                      <option value="36">36 Pcs (3 Dozen - Extra 2.2% OFF)</option>
-                      <option value="48">48 Pcs (4 Dozen - Extra 2.8% OFF)</option>
-                      <option value="60">60 Pcs (5 Dozen - Extra 3.2% OFF)</option>
-                    </select>
+                      <span className="truncate flex items-center gap-1.5">
+                        <span>📦</span>
+                        <span>
+                          {[6, 12, 24, 36, 48, 60].includes(modalQty) 
+                            ? `${modalQty} Pcs (+${getBulkDiscountTier(modalQty).percent}% OFF)`
+                            : tr(language, 'Wholesale Packs', 'Wholesale Pack Chunain', 'ہول سیل پیک')}
+                        </span>
+                      </span>
+                      <svg className="w-3.5 h-3.5 text-emerald-700 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
 
@@ -3793,6 +3885,96 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
             {tr(language, 'Close', 'Band Karein', 'بند کریں')}
           </button>
         </div>
+
+        {/* Wholesale Packs Selector Bottom Sheet (Pure React Modal - Zero Native Select Glitches) */}
+        {packMenuOpen && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+            <div
+              onClick={() => setPackMenuOpen(false)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)' }}
+            />
+            <div
+              style={{
+                position: 'relative', zIndex: 10000,
+                background: '#ffffff', borderRadius: '24px 24px 0 0',
+                padding: '16px 20px calc(24px + env(safe-area-inset-bottom, 0px))',
+                boxShadow: '0 -10px 40px rgba(0,0,0,0.35)',
+                maxWidth: 500, width: '100%', margin: '0 auto',
+                animation: 'imgFadeIn 0.2s ease-out'
+              }}
+            >
+              <div style={{ width: 40, height: 4, background: '#cbd5e1', borderRadius: 2, margin: '0 auto 14px' }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, paddingBottom: 10, borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: 15, fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>📦</span>
+                  <span>{tr(language, 'Choose Wholesale Pack', 'Wholesale Pack Chunain', 'ہول سیل پیک منتخب کریں')}</span>
+                </div>
+                <button
+                  onClick={() => setPackMenuOpen(false)}
+                  style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', fontSize: 14, fontWeight: 900 }}
+                >
+                  ✕
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: '60vh', overflowY: 'auto' }}>
+                {[
+                  { q: 1, label: tr(language, 'Single Piece (Standard Rate)', '1 Pc (Aam Rate)', '1 دانہ (عام ریٹ)'), pct: 0, sub: `Rs ${pricing.sellingPrice.toLocaleString()}/pc` },
+                  { q: 6, label: tr(language, '6 Pcs (Half Dozen Pack)', '6 Pcs (Aadha Darjan)', '6 دانے (آدھا درجن)'), pct: 0.6, sub: `Extra 0.6% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.006)).toLocaleString()}/pc` },
+                  { q: 12, label: tr(language, '12 Pcs (1 Dozen Pack)', '12 Pcs (1 Darjan Pack)', '12 دانے (1 درجن پیک)'), pct: 1.2, sub: `Extra 1.2% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.012)).toLocaleString()}/pc` },
+                  { q: 24, label: tr(language, '24 Pcs (2 Dozen Carton)', '24 Pcs (2 Darjan Carton)', '24 دانے (2 درجن کارٹن)'), pct: 1.8, sub: `Extra 1.8% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.018)).toLocaleString()}/pc` },
+                  { q: 36, label: tr(language, '36 Pcs (3 Dozen Bulk)', '36 Pcs (3 Darjan Bulk)', '36 دانے (3 درجن بلک)'), pct: 2.2, sub: `Extra 2.2% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.022)).toLocaleString()}/pc` },
+                  { q: 48, label: tr(language, '48 Pcs (4 Dozen Master)', '48 Pcs (4 Darjan Master)', '48 دانے (4 درجن ماسٹر)'), pct: 2.8, sub: `Extra 2.8% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.028)).toLocaleString()}/pc` },
+                  { q: 60, label: tr(language, '60 Pcs (5 Dozen Wholesale)', '60 Pcs (5 Darjan Wholesale)', '60 دانے (5 درجن ہول سیل)'), pct: 3.2, sub: `Extra 3.2% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.032)).toLocaleString()}/pc` },
+                ].map((opt) => {
+                  const isSelected = modalQty === opt.q;
+                  const totalForPack = Math.round(pricing.sellingPrice * opt.q * (1 - opt.pct / 100));
+                  return (
+                    <button
+                      key={opt.q}
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic('light');
+                        setModalQty(opt.q);
+                        setPackMenuOpen(false);
+                      }}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '12px 14px', borderRadius: 14,
+                        background: isSelected ? '#ecfdf5' : '#f8fafc',
+                        border: isSelected ? '1.5px solid #10b981' : '1.5px solid #e2e8f0',
+                        cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 34, height: 34, borderRadius: 10, background: isSelected ? '#10b981' : '#e2e8f0', color: isSelected ? '#ffffff' : '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 13, flexShrink: 0 }}>
+                          {opt.q}x
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: isSelected ? 800 : 700, color: isSelected ? '#065f46' : '#0f172a' }}>
+                            {opt.label}
+                          </div>
+                          <div style={{ fontSize: 11, color: isSelected ? '#047857' : '#64748b', fontWeight: 600, marginTop: 1 }}>
+                            {opt.sub}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: isSelected ? '#059669' : '#0f172a' }}>
+                          Rs {totalForPack.toLocaleString()}
+                        </div>
+                        {opt.pct > 0 && (
+                          <span style={{ fontSize: 9.5, fontWeight: 800, color: '#ffffff', background: '#059669', padding: '1px 6px', borderRadius: 6 }}>
+                            +{opt.pct}% OFF
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -4685,6 +4867,13 @@ export default function SahilTraders() {
         setSelectedCategory(null);
         setSelectedBrand("all");
         setActiveCategory("all");
+        setMobileSearchFocused(false);
+        setSuggestOpen(false);
+        if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+        if (searchInputRef.current) searchInputRef.current.blur();
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+          document.activeElement.blur();
+        }
       }
       function handleSelectProductFromCart(product) {
         setCartOpen(false);
@@ -4711,6 +4900,59 @@ export default function SahilTraders() {
           clearTimeout(removeTimer);
         };
       }, [showSplash]);
+
+      // 📢 Disclaimer Modal — appears with smooth animation ~2s after app opens
+      useEffect(() => {
+        const timer = setTimeout(() => {
+          setWelcomeOpen(true);
+        }, 2200);
+        return () => clearTimeout(timer);
+      }, []);
+
+      // ⚡ 120 FPS Hardware Scroll Optimization: Pause Marquees during active touch scrolling
+      useEffect(() => {
+        let isScrollingTimeout;
+        const onScroll = () => {
+          if (!document.body.classList.contains('is-scrolling')) {
+            document.body.classList.add('is-scrolling');
+          }
+          clearTimeout(isScrollingTimeout);
+          isScrollingTimeout = setTimeout(() => {
+            document.body.classList.remove('is-scrolling');
+          }, 120);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('touchmove', onScroll, { passive: true });
+        return () => {
+          window.removeEventListener('scroll', onScroll);
+          window.removeEventListener('touchmove', onScroll);
+          clearTimeout(isScrollingTimeout);
+        };
+      }, []);
+
+      // ⚡ IntersectionObserver — pause off-screen marquee tracks automatically
+      useEffect(() => {
+        if (typeof IntersectionObserver === 'undefined') return;
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.remove('marquee-paused');
+            } else {
+              entry.target.classList.add('marquee-paused');
+            }
+          });
+        }, { rootMargin: '80px 0px' });
+
+        const timer = setTimeout(() => {
+          const cards = document.querySelectorAll('.cat-card-container');
+          cards.forEach(card => observer.observe(card));
+        }, 120);
+
+        return () => {
+          clearTimeout(timer);
+          observer.disconnect();
+        };
+      }, [products]);
       useEffect(() => {
         function handleClickOutside(e) {
           if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
@@ -4887,12 +5129,26 @@ export default function SahilTraders() {
       function handleSuggestionClick(product) {
         setSearchTerm(product.name);
         setSuggestOpen(false);
+        setMobileSearchFocused(false);
         recordSearch(product);
+        if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+        if (searchInputRef.current) searchInputRef.current.blur();
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+          document.activeElement.blur();
+        }
       }
       function handleSearchKeyDown(e) {
-        if (e.key === "Enter" && suggestions.length > 0) {
-          recordSearch(suggestions[0]);
+        if (e.key === "Enter") {
+          if (suggestions.length > 0) {
+            recordSearch(suggestions[0]);
+          }
           setSuggestOpen(false);
+          setMobileSearchFocused(false);
+          if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+          if (searchInputRef.current) searchInputRef.current.blur();
+          if (document.activeElement && typeof document.activeElement.blur === 'function') {
+            document.activeElement.blur();
+          }
         }
       }
       // Show search results if searching, else show category home or products
@@ -5037,7 +5293,8 @@ export default function SahilTraders() {
                         </svg>
                         <input
                           ref={searchInputRef}
-                          type="text"
+                          type="search"
+                          enterKeyHint="search"
                           value={searchTerm}
                           onChange={(e) => { setSearchTerm(e.target.value); setSuggestOpen(true); }}
                           onKeyDown={handleSearchKeyDown}
@@ -5063,7 +5320,32 @@ export default function SahilTraders() {
                         />
                         <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                           {searchTerm && (
-                            <button type="button" onClick={() => { triggerHaptic('light'); setSearchTerm(''); }} style={{ background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '6px', padding: '3px 6px', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '11px', fontWeight: 700 }} title="Clear">✕</button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                triggerHaptic('light');
+                                setSearchTerm('');
+                                if (searchInputRef.current) searchInputRef.current.focus();
+                              }}
+                              style={{
+                                background: 'rgba(255,255,255,0.2)',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '20px',
+                                height: '20px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#ffffff',
+                                cursor: 'pointer',
+                                padding: 0
+                              }}
+                              title="Clear"
+                            >
+                              <svg style={{ width: '10px', height: '10px' }} fill="none" stroke="currentColor" strokeWidth="2.8" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
                           )}
                           <button
                             type="button"
@@ -5295,9 +5577,13 @@ export default function SahilTraders() {
                         type="button"
                         onClick={() => {
                           triggerHaptic('light');
+                          setSearchTerm('');
                           setMobileSearchFocused(false);
                           setSuggestOpen(false);
                           if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+                          if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                            document.activeElement.blur();
+                          }
                         }}
                         style={{
                           background: 'rgba(255,255,255,0.1)',
@@ -5333,7 +5619,8 @@ export default function SahilTraders() {
                         </svg>
                         <input
                           ref={mobileSearchInputRef}
-                          type="text"
+                          type="search"
+                          enterKeyHint="search"
                           value={searchTerm}
                           onChange={(e) => { setSearchTerm(e.target.value); setSuggestOpen(true); }}
                           onKeyDown={handleSearchKeyDown}
@@ -5357,11 +5644,30 @@ export default function SahilTraders() {
                           {searchTerm && (
                             <button
                               type="button"
-                              onClick={() => { triggerHaptic('light'); setSearchTerm(''); }}
-                              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '5px', padding: '2px 5px', color: '#ffffff', cursor: 'pointer', fontSize: '9px', fontWeight: 800 }}
+                              onClick={() => {
+                                triggerHaptic('light');
+                                setSearchTerm('');
+                                if (mobileSearchInputRef.current) mobileSearchInputRef.current.focus();
+                              }}
+                              style={{
+                                background: 'rgba(255,255,255,0.22)',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '18px',
+                                height: '18px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#ffffff',
+                                cursor: 'pointer',
+                                padding: 0,
+                                flexShrink: 0
+                              }}
                               title="Clear"
                             >
-                              ✕
+                              <svg style={{ width: '9px', height: '9px' }} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
                             </button>
                           )}
                           <button
@@ -5524,7 +5830,7 @@ export default function SahilTraders() {
 
                   {/* WhatsApp Support */}
                   <a
-                    href="https://wa.me/923368945775"
+                    href="https://api.whatsapp.com/send?phone=923368945775"
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)', borderRadius: '18px', padding: '14px 16px', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', cursor: 'pointer', textDecoration: 'none', boxShadow: '0 4px 14px rgba(37,211,102,0.3)' }}
@@ -5682,65 +5988,82 @@ export default function SahilTraders() {
               />
             ) : (
               <>
-                {/* Back button + Right-aligned Category Title Banner */}
-                <div style={{ marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                {/* Back button + Category/Search Title Bar (Decent, Modern & Elegant) */}
+                <div style={{
+                  marginBottom: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: '#ffffff',
+                  padding: '7px 10px',
+                  borderRadius: 14,
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
+                }}>
                   {(selectedCategory || isSearching || activeCategory !== "all") && (
                     <button
                       onClick={handleGoBack}
-                      className="flex items-center gap-1.5 border px-3 py-1.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-sm cursor-pointer shrink-0"
+                      className="flex items-center gap-1.5 border rounded-xl text-xs font-bold tracking-wide transition-all shadow-xs cursor-pointer shrink-0 active:scale-95"
                       style={{
-                        background: 'linear-gradient(135deg, rgba(0,0,0,0.12), rgba(255,255,255,0.95))',
-                        borderColor: 'rgba(0,0,0,0.12)',
-                        color: '#111111'
+                        padding: '5px 10px',
+                        background: '#f8fafc',
+                        borderColor: '#cbd5e1',
+                        color: '#0f172a',
+                        height: 32
                       }}
                     >
-                      <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
-                      <span>{translate(langData, "backBtn") || "BACK"}</span>
+                      <svg className="w-3.5 h-3.5 text-slate-800" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                      <span>{translate(langData, "backBtn") || "Back"}</span>
                     </button>
                   )}
-                  <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
-                    <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#111111', fontFamily: "'Poppins', sans-serif" }}>
-                      {isSearching ? `Search: "${searchTerm}"` : selectedCategoryName}
-                    </h2>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: '#111111', background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12, padding: '1px 8px', whiteSpace: 'nowrap' }}>
-                      {filtered.length} {translate(langData, "itemsLabel")}
+                  <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: 9.5, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.1 }}>
+                        {isSearching ? (language === 'ur' ? 'تلاش کے نتائج' : 'Search Results') : (language === 'ur' ? 'کیٹیگری' : 'Category')}
+                      </div>
+                      <h2 style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', fontFamily: "'Poppins', sans-serif", margin: '2px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={isSearching ? searchTerm : selectedCategoryName}>
+                        {isSearching ? `"${searchTerm}"` : selectedCategoryName}
+                      </h2>
+                    </div>
+                    <span style={{ fontSize: 10.5, fontWeight: 800, color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 8, padding: '3px 8px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                      {filtered.length} {translate(langData, "itemsLabel") || "items"}
                     </span>
                   </div>
                 </div>
-                {/* Controls Bar: Filter & Sort */}
-                <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-                  {/* Modern Sort Button */}
+                {/* Controls Bar: Compact Filter & Sort */}
+                <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap' }}>
+                  {/* Modern Compact Sort Button */}
                   <button
                     onClick={() => { triggerHaptic('light'); setSortModalOpen(true); }}
                     style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      background: '#ffffff', border: '1.5px solid #059669',
-                      borderRadius: 999, padding: '7px 14px',
-                      cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      background: '#ffffff', border: '1px solid #059669',
+                      borderRadius: 8, padding: '4px 9px', height: 28,
+                      cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                       transition: 'all 0.15s'
                     }}
                   >
-                    <svg style={{ width: 14, height: 14, color: '#059669' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <svg style={{ width: 12, height: 12, color: '#059669' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5-6L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
                     </svg>
-                    <span style={{ fontSize: 11.5, fontWeight: 800, color: '#0f172a' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#0f172a' }}>
                       {SORT_OPTIONS.find(o => o.id === sortBy)?.[language === 'ur' ? 'labelUrdu' : 'label'] || 'Sort'}
                     </span>
-                    <svg style={{ width: 12, height: 12, color: '#64748b' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <svg style={{ width: 10, height: 10, color: '#64748b' }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                     </svg>
                   </button>
 
                   {brandFilters.length > 1 && (
-                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 4 }}>
                       <button
                         onClick={() => { triggerHaptic('light'); setFilterMenuOpen(v => !v); }}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 7, border: selectedBrand !== "all" ? '1.5px solid #059669' : '1px solid #111111', background: selectedBrand !== "all" ? '#059669' : '#ffffff', color: selectedBrand !== "all" ? '#ffffff' : '#111111', borderRadius: 999, padding: '7px 14px', fontSize: 12, fontWeight: 900, letterSpacing: '0.04em', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, border: selectedBrand !== "all" ? '1px solid #059669' : '1px solid #cbd5e1', background: selectedBrand !== "all" ? '#059669' : '#ffffff', color: selectedBrand !== "all" ? '#ffffff' : '#0f172a', borderRadius: 8, padding: '4px 9px', height: 28, fontSize: 11, fontWeight: 700, cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
                       >
-                        <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 12h10M10 19h4" /></svg>
+                        <svg style={{ width: 12, height: 12 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5h18M6 12h10M10 19h4" /></svg>
                         <span>Filter</span>
                         {selectedBrand !== "all" && (
-                          <span style={{ fontSize: 11, background: '#ffffff', color: '#059669', borderRadius: 999, padding: '1px 8px', fontWeight: 800, letterSpacing: 0, textTransform: 'none' }}>
+                          <span style={{ fontSize: 10, background: '#ffffff', color: '#059669', borderRadius: 6, padding: '0 5px', fontWeight: 800 }}>
                             {selectedBrand}
                           </span>
                         )}
@@ -5749,7 +6072,7 @@ export default function SahilTraders() {
                         <button
                           onClick={() => { setSelectedBrand("all"); setFilterMenuOpen(false); }}
                           title="Clear Brand Filter"
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', borderRadius: 999, padding: '7px 11px', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 2, background: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b', borderRadius: 8, padding: '4px 7px', height: 28, fontSize: 10.5, fontWeight: 700, cursor: 'pointer' }}
                         >
                           <span>✕</span>
                           <span>Reset</span>
@@ -5775,7 +6098,7 @@ export default function SahilTraders() {
                   <>
                     <div className="product-grid">
                       {sortedProducts.slice(0, visibleCount).map((p) => (
-                        <ProductCard key={p.id} product={p} langData={langData} language={language} cartQty={cart.filter(i => i.product.id === p.id).reduce((s, i) => s + i.qty, 0)} onAddToCart={addToCart} onFlyToCart={flyProductToCart} onSelectProduct={selectProductWithHash} isWishlisted={wishlist.includes(p.id)} onToggleWishlist={toggleWishlist} />
+                        <ProductCard key={p.id} product={p} langData={langData} language={language} onAddToCart={addToCart} onSelectProduct={selectProductWithHash} isWishlisted={wishlist.includes(p.id)} onToggleWishlist={toggleWishlist} />
                       ))}
                     </div>
                     {visibleCount < sortedProducts.length && (
@@ -6153,7 +6476,7 @@ export default function SahilTraders() {
                     {/* Drawer Footer - WhatsApp & Timing */}
                     <div className="pt-4 border-t border-gray-100 mt-4 space-y-3">
                       <a
-                        href="https://wa.me/923368945775"
+                        href="https://api.whatsapp.com/send?phone=923368945775"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
@@ -6510,9 +6833,29 @@ export default function SahilTraders() {
       personalcare: { image: '', gradient: 'linear-gradient(135deg,#ee9ca7,#ffdde1)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>) },
     };
     // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
-    function CategoryHome({ products, onSelectCategory, langData, language }) {
+    const CategoryHome = React.memo(function CategoryHome({ products, onSelectCategory, langData, language }) {
       const isUrdu = language === 'ur';
       const categoriesList = getGlobalCategories();
+
+      // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
+      const categoryData = useMemo(() => {
+        const productMap = {};
+        for (let i = 0; i < products.length; i++) {
+          const p = products[i];
+          if (!productMap[p.categoryId]) productMap[p.categoryId] = [];
+          productMap[p.categoryId].push(p);
+        }
+        return categoriesList.map(cat => {
+          const catProducts = productMap[cat.id] || [];
+          const count = catProducts.length;
+          const meta = CATEGORY_META[cat.id] || { gradient: 'linear-gradient(135deg,#000000,#9b7a00)', icon: null };
+          const imageProducts = catProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage).slice(0, 4);
+          const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
+          const animSpeed = (imageProducts.length * 3.5) + 's';
+          return { cat, count, meta, imageProducts, doubleItems, animSpeed };
+        });
+      }, [products, categoriesList]);
+
       return (
         <div>
           {/* Categories Top Title & Count */}
@@ -6525,14 +6868,7 @@ export default function SahilTraders() {
             </span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-            {categoriesList.map(cat => {
-              const catProducts = products.filter(p => p.categoryId === cat.id);
-              const count = catProducts.length;
-              const meta = CATEGORY_META[cat.id] || { gradient: 'linear-gradient(135deg,#000000,#9b7a00)', icon: null };
-              // Find top items in this category that have images (Max 4 items for silky 60fps)
-              const imageProducts = catProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage).slice(0, 4);
-              const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
-              const animSpeed = (imageProducts.length * 3.5) + 's';
+            {categoryData.map(({ cat, count, meta, imageProducts, doubleItems, animSpeed }) => {
               return (
                 <div
                   key={cat.id}
@@ -6566,7 +6902,7 @@ export default function SahilTraders() {
                   <div className="cat-img-reel-area" style={{ height: 88, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#fafbfc' }}>
 
                     {/* Top Right Item Count Badge */}
-                    <div className="cat-count-badge" style={{ position: 'absolute', top: 5, right: 5, zIndex: 20, padding: '2px 6px', borderRadius: 6, fontSize: 8, fontWeight: 800, background: 'rgba(15, 23, 42, 0.82)', backdropFilter: 'blur(4px)', color: '#ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+                    <div className="cat-count-badge" style={{ position: 'absolute', top: 5, right: 5, zIndex: 20, padding: '2px 6px', borderRadius: 6, fontSize: 8, fontWeight: 800, background: 'rgba(15, 23, 42, 0.90)', color: '#ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
                       {count} {translate(langData, "itemsLabel")}
                     </div>
 
@@ -6636,7 +6972,7 @@ export default function SahilTraders() {
           </div>
         </div>
       );
-    }
+    });
     function CategoryDropdown({ activeCategory, setActiveCategory, setCatMenuOpen, fullWidth, langData, language }) {
       const categoriesList = getGlobalCategories();
       return (
@@ -6681,7 +7017,7 @@ export default function SahilTraders() {
       );
     }
       // -----------------------------------------------------------------------------
-    function ProductCard({ product, onAddToCart, langData, language, onSelectProduct, isWishlisted, onToggleWishlist }) {
+    const ProductCard = React.memo(function ProductCard({ product, onAddToCart, langData, language, onSelectProduct, isWishlisted, onToggleWishlist }) {
       const [isAdded, setIsAdded] = useState(false);
       const isUrdu = language === 'ur';
       const pricing = useMemo(() => getProductPricing(product), [product]);
@@ -6696,7 +7032,7 @@ export default function SahilTraders() {
       return (
         <div
           onClick={() => onSelectProduct && onSelectProduct(product)}
-          className="product-card group bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-3 sm:p-4 flex flex-col justify-between transition-all duration-300 cursor-pointer shadow-xs hover:shadow-lg relative overflow-hidden"
+          className="product-card bg-white border border-gray-200 hover:border-gray-400 rounded-2xl p-3 sm:p-4 flex flex-col justify-between cursor-pointer shadow-xs relative overflow-hidden active:scale-[0.98] transition-transform duration-150"
         >
           {/* Discount Badge */}
           {pricing.hasDiscount && (
@@ -6712,7 +7048,7 @@ export default function SahilTraders() {
               e.stopPropagation();
               if (onToggleWishlist) onToggleWishlist(product);
             }}
-            className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-2xs ${
+            className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-transform active:scale-90 cursor-pointer shadow-2xs ${
               isWishlisted
                 ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105'
                 : 'bg-white/90  border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'
@@ -6724,7 +7060,7 @@ export default function SahilTraders() {
             </svg>
           </button>
           {/* Product Image Box */}
-          <div className="product-image-box h-32 sm:h-40 w-full bg-gray-50 rounded-xl p-2 mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-amber-50/30 transition-colors">
+          <div className="product-image-box h-32 sm:h-40 w-full bg-gray-50 rounded-xl p-2 mb-3 flex items-center justify-center relative overflow-hidden">
             {hasFile ? (
               <img
                 src={imageSrc}
@@ -6737,7 +7073,7 @@ export default function SahilTraders() {
                     e.currentTarget.src = s.replace('.webp', '.' + (window.PRODUCT_IMAGE_MAP?.[product.id] || 'png'));
                   }
                 }}
-                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-contain"
               />
             ) : (
               <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${product.gradient || 'from-gray-400 to-gray-600'} flex items-center justify-center text-white text-xl font-bold shadow-inner`}>
@@ -6747,7 +7083,7 @@ export default function SahilTraders() {
           </div>
           {/* Product Info */}
           <div className="flex flex-col flex-1">
-            <h4 className="product-name font-bold text-xs sm:text-sm text-gray-900 line-clamp-2 leading-snug mb-1 group-hover:text-black transition-colors">
+            <h4 className="product-name font-bold text-xs sm:text-sm text-gray-900 line-clamp-2 leading-snug mb-1">
               {getProductDisplayName(product, language)}
             </h4>
             {/* Price & Savings Display */}
@@ -6800,7 +7136,7 @@ export default function SahilTraders() {
           </div>
         </div>
       );
-    }
+    });
       // -----------------------------------------------------------------------------
     function CartDrawer({ open, cart, cartTotal, langData, language, onClose, onUpdateQty, onRemove, onCheckout, onSelectProduct }) {
       const [deleteConfirm, setDeleteConfirm] = React.useState(null);
@@ -6926,7 +7262,7 @@ export default function SahilTraders() {
                               src={getImgUrl(`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`)}
                               onError={(e) => { e.target.onerror = null; }}
                               alt={product.name}
-                              className="w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-gray-200 hover:border-gray-300 transition-colors"
+                              className="w-12 h-12 rounded-xl object-contain bg-white p-1 border border-gray-200 hover:border-gray-300 transition-colors shadow-2xs"
                             />
                           ) : (
                             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`}>
@@ -7142,7 +7478,7 @@ export default function SahilTraders() {
           return;
         }
         triggerHaptic('light');
-        const url = "https://wa.me/923368945775?text=" + encodeURIComponent("Hello ZS Mart, I want to inquire about products / order.");
+        const url = "https://api.whatsapp.com/send?phone=923368945775&text=" + encodeURIComponent("Hello ZS Mart, I want to inquire about products / order.");
         window.open(url, '_blank');
       };
 
@@ -7235,7 +7571,7 @@ export default function SahilTraders() {
               
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <a
-                  href={"https://wa.me/923368945775?text=" + encodeURIComponent("Hello ZS Mart, I have a question regarding Order #" + order.id)}
+                  href={"https://api.whatsapp.com/send?phone=923368945775&text=" + encodeURIComponent("Hello ZS Mart, I have a question regarding Order #" + order.id)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ height: 34, padding: '0 10px', borderRadius: 10, background: '#25d366', display: 'flex', alignItems: 'center', gap: 5, color: '#ffffff', fontSize: 11.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 2px 6px rgba(37,211,102,0.3)' }}
@@ -7289,7 +7625,7 @@ export default function SahilTraders() {
                 
                 {order.items && order.items.map((item, i) => {
                   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
-                  const imgSrc = hasFile ? ('images/' + item.id + '.' + window.PRODUCT_IMAGE_MAP[item.id]) : (item.imageExt ? ('images/' + item.id + '.' + item.imageExt) : null);
+                  const imgSrc = hasFile ? getImgUrl(`images/${item.id}.${window.PRODUCT_IMAGE_MAP[item.id]}`) : (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
                   return (
                     <div
                       key={i}
@@ -7427,7 +7763,7 @@ export default function SahilTraders() {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <a
-                  href="https://wa.me/923368945775?text=Hello%20ZS%20Mart%2C%20I%20need%20assistance%20with%20my%20order."
+                  href="https://api.whatsapp.com/send?phone=923368945775&text=Hello%20ZS%20Mart%2C%20I%20need%20assistance%20with%20my%20order."
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ height: 34, padding: '0 10px', borderRadius: 10, background: '#25d366', display: 'flex', alignItems: 'center', gap: 5, color: '#ffffff', fontSize: 11.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 2px 6px rgba(37,211,102,0.3)' }}
@@ -7530,7 +7866,7 @@ export default function SahilTraders() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, overflowX: 'auto', paddingBottom: 2 }}>
                         {order.items && order.items.slice(0, 5).map((it, itemIdx) => {
                           const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[it.id];
-                          const imgSrc = hasFile ? ('images/' + it.id + '.' + window.PRODUCT_IMAGE_MAP[it.id]) : (it.imageExt ? ('images/' + it.id + '.' + it.imageExt) : null);
+                          const imgSrc = hasFile ? getImgUrl(`images/${it.id}.${window.PRODUCT_IMAGE_MAP[it.id]}`) : (it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null);
                           return (
                             <div
                               key={itemIdx}
@@ -7599,7 +7935,45 @@ export default function SahilTraders() {
       const [success, setSuccess] = useState(false);
       const [placedOrder, setPlacedOrder] = useState(null);
       const [waUrlState, setWaUrlState] = useState("");
+      const [location, setLocation] = useState(null);
+      const [locLoading, setLocLoading] = useState(false);
+      const [locError, setLocError] = useState(null);
       const isUrdu = language === 'ur';
+
+      const handleGetLocation = (auto = false) => {
+        if (typeof navigator === 'undefined' || !navigator.geolocation) {
+          if (!auto) setLocError(language === 'ur' ? 'GPS کی سہولت دستیاب نہیں۔' : 'GPS not supported.');
+          return;
+        }
+        setLocLoading(true);
+        setLocError(null);
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
+            setLocation({ lat, lng, mapUrl });
+            setLocLoading(false);
+            triggerHaptic('success');
+          },
+          (err) => {
+            setLocLoading(false);
+            const msg = err.code === 1 
+              ? (language === 'ur' ? 'لوکیشن پرمیشن نہیں ملی۔' : 'Location permission denied.')
+              : (language === 'ur' ? 'GPS آن نہیں ہے۔' : 'GPS unavailable.');
+            setLocError(msg);
+            if (!auto) triggerHaptic('error');
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      };
+
+      useEffect(() => {
+        if (deliveryMethod === 'home' && !location && !locLoading) {
+          handleGetLocation(true);
+        }
+      }, [deliveryMethod]);
+
       useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => { document.body.style.overflow = ''; };
@@ -7632,6 +8006,7 @@ export default function SahilTraders() {
           ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour'
           : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
         const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
+        const locLine = (deliveryMethod === 'home' && location) ? `\n• 📍 Live GPS Map Pin: ${location.mapUrl}` : '';
         const msg = [
           '🛒 *NEW ORDER – ZS Mart*',
           '-----------------------------------------',
@@ -7649,7 +8024,7 @@ export default function SahilTraders() {
           `• Name: ${name.trim()}`,
           `• Phone: ${phone.trim()}`,
           deliveryMethod === 'home' 
-            ? `• Delivery Address: ${address.trim()}` 
+            ? `• Delivery Address: ${address.trim()}${locLine}` 
             : `• Store Location: ZS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`,
           '',
           '-----------------------------------------',
@@ -7660,7 +8035,7 @@ export default function SahilTraders() {
         const orderRecord = {
           id: `${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${String(orderDate.getHours()).padStart(2, '0')}${String(orderDate.getMinutes()).padStart(2, '0')}${String(orderDate.getSeconds()).padStart(2, '0')}`,
           dateText: orderDate.toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
-          customer: { name: name.trim(), phone: phone.trim(), address: address.trim() },
+          customer: { name: name.trim(), phone: phone.trim(), address: address.trim(), location: location ? location.mapUrl : null },
           deliveryMethod,
           subtotal: cartTotal,
           totalSavings: totalBulkSavings,
@@ -7854,7 +8229,7 @@ export default function SahilTraders() {
                                   src={getImgUrl(`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`)}
                                   onError={(e) => { e.target.onerror = null; }}
                                   alt={product.name}
-                                  className="w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-gray-200"
+                                  className="w-7 h-7 rounded-lg object-contain bg-white p-0.5 shrink-0 border border-gray-200"
                                 />
                               ) : (
                                 <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`}>
@@ -7945,17 +8320,69 @@ export default function SahilTraders() {
                       {errors.phone && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.phone}</p>}
                     </div>
                     {deliveryMethod === 'home' ? (
-                      <div>
-                        <label style={{ fontSize: 12, color: '#444444', fontWeight: 600, display: 'block', marginBottom: 6 }}>{translate(langData, "deliveryAddress")}</label>
-                        <textarea
-                          placeholder={translate(langData, "addressPlaceholder")}
-                          value={address} onChange={e=>{setAddress(e.target.value);if(errors.address)setErrors(p=>({...p,address:''}))}}
-                          rows={3}
-                          style={{ ...inputStyle(errors.address), resize: 'none', fontFamily: 'inherit' }}
-                          onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.42)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.08), inset 0 1px 2px rgba(0,0,0,0.04)';}}
-                          onBlur={e=>{e.target.style.borderColor=errors.address?'rgba(239,68,68,0.65)':'rgba(0,0,0,0.18)';e.target.style.boxShadow='inset 0 1px 2px rgba(0,0,0,0.04)';}}
-                        />
-                        {errors.address && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.address}</p>}
+                      <div className="space-y-2">
+                        <div>
+                          <label style={{ fontSize: 12, color: '#444444', fontWeight: 600, display: 'block', marginBottom: 6 }}>{translate(langData, "deliveryAddress")}</label>
+                          <textarea
+                            placeholder={translate(langData, "addressPlaceholder")}
+                            value={address} onChange={e=>{setAddress(e.target.value);if(errors.address)setErrors(p=>({...p,address:''}))}}
+                            rows={3}
+                            style={{ ...inputStyle(errors.address), resize: 'none', fontFamily: 'inherit' }}
+                            onFocus={e=>{e.target.style.borderColor='rgba(0,0,0,0.42)';e.target.style.boxShadow='0 0 0 3px rgba(0,0,0,0.08), inset 0 1px 2px rgba(0,0,0,0.04)';}}
+                            onBlur={e=>{e.target.style.borderColor=errors.address?'rgba(239,68,68,0.65)':'rgba(0,0,0,0.18)';e.target.style.boxShadow='inset 0 1px 2px rgba(0,0,0,0.04)';}}
+                          />
+                          {errors.address && <p style={{ color: 'rgba(239,68,68,0.9)', fontSize: 11, marginTop: 4, fontWeight: 600 }}>{errors.address}</p>}
+                        </div>
+                        {/* Live GPS Location Box */}
+                        <div style={{
+                          padding: '10px 12px',
+                          borderRadius: 14,
+                          background: location ? '#f0fdf4' : '#f8fafc',
+                          border: location ? '1.5px solid #10b981' : (locError ? '1.5px solid #f87171' : '1px dashed #cbd5e1'),
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 8,
+                          transition: 'all 0.2s'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
+                            <span style={{ fontSize: 16 }}>{location ? '📍' : (locLoading ? '⏳' : '🗺️')}</span>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ fontSize: 11.5, fontWeight: 800, color: location ? '#166534' : '#0f172a' }}>
+                                {location 
+                                  ? (language === 'ur' ? '✅ لائیو لوکیشن منسلک ہے' : '✅ Live GPS Pin Connected')
+                                  : (locLoading 
+                                      ? (language === 'ur' ? 'GPS لوکیشن تلاش ہو رہی ہے...' : 'Fetching Live GPS Pin...') 
+                                      : (language === 'ur' ? 'گھر کی لائیو لوکیشن (GPS)' : 'Live Home Location (GPS)'))}
+                              </div>
+                              <div style={{ fontSize: 10, color: location ? '#15803d' : '#64748b', fontWeight: 600 }}>
+                                {location 
+                                  ? `Google Maps: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`
+                                  : (locError || (language === 'ur' ? 'رائڈر کیلئے خودکار درست لوکیشن' : 'Exact house pin for delivery rider'))}
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleGetLocation(false)}
+                            disabled={locLoading}
+                            style={{
+                              padding: '5px 11px',
+                              borderRadius: 10,
+                              background: location ? '#10b981' : '#0f172a',
+                              color: '#ffffff',
+                              border: 'none',
+                              fontSize: 10.5,
+                              fontWeight: 800,
+                              cursor: locLoading ? 'not-allowed' : 'pointer',
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0,
+                              boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                            }}
+                          >
+                            {locLoading ? '⏳...' : (location ? (language === 'ur' ? '🔄 تبدیل' : '🔄 Update') : (language === 'ur' ? '📍 لوکیشن' : '📍 Add GPS'))}
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <div style={{ padding: '14px', borderRadius: 14, background: '#f0fdf4', border: '1px solid #bbf7d0', display: 'flex', flexDirection: 'column', gap: 6 }}>

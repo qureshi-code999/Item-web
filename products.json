@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-04T13:16:52.508Z",
+  "updatedAt": "2026-09-10T10:08:16.463Z",
   "total": 1039,
   "imageMap": {
     "1": "webp",
@@ -8074,56 +8074,56 @@
       "name": "SOAP CAPRI (FAMILY PACK) 135g (YELLOW)",
       "price": 130,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1081,
       "name": "SOAP CAPRI (3 IN 1) YELLOW RS,390",
       "price": 350,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1083,
       "name": "SOAP DETTOL JUMBO COMPANY RS,150 (COOL)",
       "price": 139,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1084,
       "name": "SOAP DETTOL JUMBO COMPANY RS,150 (GREEN)",
       "price": 139,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1086,
       "name": "SOAP DETTOL MEDIUM COMPANY (COOL) RS,140",
       "price": 129,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1087,
       "name": "SOAP DETTOL SMALL COMPANY (COOL)",
       "price": 129,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1088,
       "name": "SOAP DOVE LARGE WHITE (IMP)",
       "price": 449,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1089,
       "name": "SOAP DOVE LARGE PINK (IMP)",
       "price": 449,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8133,7 +8133,7 @@
       "name": "SOAP DOVE SMALL WHITE (IMP)",
       "price": 0,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8143,7 +8143,7 @@
       "name": "SOAP DOVE SMALL PINK (IMP)",
       "price": 0,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8153,21 +8153,21 @@
       "name": "SOAP FAIZA (NEEM)",
       "price": 110,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1093,
       "name": "SOAP FAIZA (PP)",
       "price": 110,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1094,
       "name": "SOAP GOLDEN PEARL (BLUE)",
       "price": 125,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8177,7 +8177,7 @@
       "name": "SOAP GOLDEN PEARL (PINK)",
       "price": 125,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8187,7 +8187,7 @@
       "name": "SOAP GOLDEN PEARL (YELLOW)",
       "price": 125,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8197,14 +8197,14 @@
       "name": "SOAP IMPERIAL 175gm LARGE",
       "price": 390,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1098,
       "name": "SOAP IMPERIAL LEATHER SMALL",
       "price": 239,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8214,63 +8214,63 @@
       "name": "SOAP LIFEBUOY (LARGE) GREEN RS,125",
       "price": 119,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1100,
       "name": "SOAP LIFEBUOY (MEDIUM) (BLUE) RS,95",
       "price": 90,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1101,
       "name": "SOAP LIFEBUOY (XL) BLUE RS,125",
       "price": 119,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1102,
       "name": "SOAP LIFEBUOY (XL) GREEN RS,125",
       "price": 119,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1103,
       "name": "SOAP PALMOLIVE (LARGE) RS,150 BLACK",
       "price": 139,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1104,
       "name": "SOAP PALMOLIVE (LARGE) RS,150 ORANGE",
       "price": 139,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1105,
       "name": "SOAP PALMOLIVE (LARGE) RS,150 YELLOW",
       "price": 139,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1109,
       "name": "SOAP PEARS (BLUE)",
       "price": 399,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1110,
       "name": "SOAP PEARS (GREEN)",
       "price": 399,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8280,14 +8280,14 @@
       "name": "SOAP PEARS (ORANGE)",
       "price": 399,
       "categoryId": "soaps",
-      "categoryName": "Soaps"
+      "categoryName": "Local & Imported Soaps"
     },
     {
       "id": 1112,
       "name": "SOAP SKIN WHITE (BLUE) RS,150",
       "price": 129,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8297,7 +8297,7 @@
       "name": "SOAP SKIN WHITE (GREEN) RS,150",
       "price": 129,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8307,7 +8307,7 @@
       "name": "SOAP SKIN WHITE (PINK) RS,150",
       "price": 129,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8317,7 +8317,7 @@
       "name": "SOAP TIBET (LARGE FAMILY SIZE) RS,109",
       "price": 104,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8327,7 +8327,7 @@
       "name": "SOAP TIBET (MEDIUM BATH SIZE) RS,89",
       "price": 85,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"
@@ -8337,7 +8337,7 @@
       "name": "SOAP TIBET (SMALL STANDARD SIZE) RS,70",
       "price": 66,
       "categoryId": "soaps",
-      "categoryName": "Soaps",
+      "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S"

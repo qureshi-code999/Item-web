@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-11T14:18:19.317Z",
-  "total": 1046,
+  "updatedAt": "2026-09-11T14:27:41.076Z",
+  "total": 1047,
   "imageMap": {
     "1": "webp",
     "2": "webp",
@@ -1007,7 +1007,8 @@
     "1274": "png",
     "1275": "png",
     "1276": "png",
-    "1277": "png"
+    "1277": "png",
+    "1278": "png"
   },
   "variants": {
     "183": {
@@ -9660,6 +9661,16 @@
       "hasImage": true,
       "gradient": null,
       "initial": "B"
+    },
+    {
+      "id": 1278,
+      "name": "LEMON MAX DISHWASH LIQUID 275ML RS,170",
+      "price": 159,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "L"
     }
   ]
 }

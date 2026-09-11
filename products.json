@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-10T10:08:16.463Z",
+  "updatedAt": "2026-09-11T13:13:31.238Z",
   "total": 1039,
   "imageMap": {
     "1": "webp",
@@ -1080,13 +1080,80 @@
       ]
     }
   },
+  "categories": [
+    {
+      "id": "soaps",
+      "name": "Local & Imported Soaps"
+    },
+    {
+      "id": "shampoo",
+      "name": "Shampoo & Conditioners"
+    },
+    {
+      "id": "creams",
+      "name": "Creams & Lotions & Bleach"
+    },
+    {
+      "id": "stationary",
+      "name": "Stationary & Tapes"
+    },
+    {
+      "id": "sports",
+      "name": "Sports & Toys"
+    },
+    {
+      "id": "shaving",
+      "name": "Shaving & Razers & Blades"
+    },
+    {
+      "id": "haircolour",
+      "name": "Hair Colors & Care & Oils"
+    },
+    {
+      "id": "condemn",
+      "name": "Condoms"
+    },
+    {
+      "id": "lock",
+      "name": "Locks & Cells & Lighters"
+    },
+    {
+      "id": "general",
+      "name": "General Items & Others"
+    },
+    {
+      "id": "babycare",
+      "name": "Baby Care & Powders"
+    },
+    {
+      "id": "mosquito",
+      "name": "Anti- Mosquitoes"
+    },
+    {
+      "id": "personalcare",
+      "name": "Personal Care"
+    },
+    {
+      "id": "fragnances",
+      "name": "Fragnances & Roll on"
+    },
+    {
+      "id": "toothpasteandbrush",
+      "name": "Dental Cares"
+    },
+    {
+      "id": "facewash",
+      "name": "Face Wash & Body Washes"
+    }
+  ],
   "products": [
     {
       "id": 1,
       "name": "7 HERBAL OIL 100ML RS,250",
       "price": 220,
       "categoryId": "haircolour",
-      "categoryName": "Hair Colors & Care & Oils"
+      "categoryName": "Hair Colors & Care & Oils",
+      "priority": 6
     },
     {
       "id": 2,

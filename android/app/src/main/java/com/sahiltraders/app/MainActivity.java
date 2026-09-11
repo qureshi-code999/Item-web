@@ -42,19 +42,36 @@ public class MainActivity extends BridgeActivity {
             });
         }
 
-        // Request microphone and camera permissions for Voice Search & Parchi Photo
+        // Request microphone, camera, and location permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED ||
+                checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{
                     android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.CAMERA
+                    android.Manifest.permission.CAMERA,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
                 }, 101);
             }
         }
 
-        // Add AndroidBridge for safe app exiting from JS
+        // ⚡ 120 FPS GPU Hardware Acceleration & Rasterization for WebView
         if (getBridge() != null && getBridge().getWebView() != null) {
-            getBridge().getWebView().addJavascriptInterface(new Object() {
+            android.webkit.WebView webView = getBridge().getWebView();
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+            webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+            android.webkit.WebSettings webSettings = webView.getSettings();
+            webSettings.setRenderPriority(android.webkit.WebSettings.RenderPriority.HIGH);
+            webSettings.setEnableSmoothTransition(true);
+            webSettings.setCacheMode(android.webkit.WebSettings.LOAD_DEFAULT);
+            webSettings.setDomStorageEnabled(true);
+            webSettings.setDatabaseEnabled(true);
+            webSettings.setGeolocationEnabled(true);
+            try {
+                webSettings.setGeolocationDatabasePath(getFilesDir().getPath());
+            } catch (Exception ignored) {}
+
+            webView.addJavascriptInterface(new Object() {
                 @android.webkit.JavascriptInterface
                 public void exitApp() {
                     runOnUiThread(() -> finishAffinity());

@@ -80,7 +80,7 @@ try {
 }
 
 // Sync style.css, index.html, and products.json to www and android assets
-const syncFiles = ['style.css', 'index.html', 'products.json'];
+const syncFiles = ['style.css', 'index.html', 'products.json', 'tailwind.local.css'];
 const syncDirs = [
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/www',
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/android/app/src/main/assets/public'

@@ -1,4 +1,4 @@
-window.TRANSLATIONS = window.TRANSLATIONS || {};
+﻿window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.en = {
   appTitle: "ZS Groceries",
   subtitle: "Wholesale & Retail",
@@ -43,7 +43,7 @@ window.TRANSLATIONS.en = {
   categoriesLabel: "Categories",
   itemsLabel: "items",
   categories: {
-    soaps: "Soaps",
+    soaps: "Local & Imported Soaps",
     shampoo: "Shampoo & Conditioners",
     creams: "Creams & Lotions & Bleach",
     stationary: "Stationary & Tapes",

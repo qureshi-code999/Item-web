@@ -1,4 +1,4 @@
-window.TRANSLATIONS = window.TRANSLATIONS || {};
+﻿window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.ur = {
   appTitle: "زیڈ ایس گروسریز (ZS Groceries)",
   subtitle: "ہول سیل اور پرچون ریٹ",
@@ -42,7 +42,7 @@ window.TRANSLATIONS.ur = {
   categoriesLabel: "کیٹیگریز",
   itemsLabel: "چیزیں",
   categories: {
-    soaps:        "صابن (Soaps)",
+    soaps:        "Local & Imported Soaps",
     shampoo:      "Shampoo & Conditioners",
     creams:       "Creams & Lotions & Bleach",
     stationary:   "Stationary & Tapes",

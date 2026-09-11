@@ -264,6 +264,84 @@ function Rename-ProductFilterInFile {
     return $count
 }
 
+function Set-ProductPriorityInFile {
+    param(
+        [string]$filePath,
+        [int]$productId,
+        [int]$priority
+    )
+    if (-not (Test-Path $filePath)) { return 0 }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $itemPattern = '\{\s*id:\s*' + $productId + ',[^}]*\}'
+    $match = [regex]::Match($fc, $itemPattern)
+    if (-not $match.Success) { return 0 }
+    $item = $match.Value
+    if ($priority -gt 0) {
+        if ($item -match 'priority:\s*\d+') {
+            $item = [regex]::Replace($item, '(priority:\s*)\d+', "`${1}$priority", 1)
+        } else {
+            $item = $item.TrimEnd("}") + ", priority: $priority }"
+        }
+    } else {
+        if ($item -match 'priority:\s*\d+') {
+            $item = [regex]::Replace($item, ',\s*priority:\s*\d+', "")
+        }
+    }
+    $fc = $fc.Substring(0, $match.Index) + $item + $fc.Substring($match.Index + $match.Length)
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+    return 1
+}
+
+function Reorder-CategoriesInFile {
+    param([string]$filePath, [string[]]$catIds)
+    if (-not (Test-Path $filePath)) { return $false }
+    if (-not $catIds -or $catIds.Count -eq 0) { return $false }
+    $fc = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+    $catMatch = [regex]::Match($fc, '(?:const|var)\s+(?:DEFAULT_)?CATEGORIES\s*=\s*\[')
+    if (-not $catMatch.Success) { return $false }
+    $catStart = $catMatch.Index
+    $catEnd = $fc.IndexOf("];", $catStart)
+    if ($catEnd -le $catStart) { return $false }
+    $catBlock = $fc.Substring($catStart, $catEnd - $catStart + 2)
+
+    $existingMap = [ordered]@{}
+    foreach ($m in [regex]::Matches($catBlock, '\{\s*id:\s*"([^"]+)"\s*,\s*name:\s*"([^"]+)"\s*\}')) {
+        $cid = $m.Groups[1].Value
+        $cname = $m.Groups[2].Value
+        $existingMap[$cid] = $cname
+    }
+
+    $seen = @{}
+    $lines = @()
+    foreach ($cid in $catIds) {
+        $cid = "$cid".Trim()
+        if ($existingMap.Contains($cid) -and -not $seen.ContainsKey($cid)) {
+            $cname = Escape-JsString $existingMap[$cid]
+            $lines += "      { id: `"$cid`",        name: `"$cname`" }"
+            $seen[$cid] = $true
+        }
+    }
+    foreach ($cid in $existingMap.Keys) {
+        if (-not $seen.ContainsKey($cid)) {
+            $cname = Escape-JsString $existingMap[$cid]
+            $lines += "      { id: `"$cid`",        name: `"$cname`" }"
+            $seen[$cid] = $true
+        }
+    }
+
+    if ($fc -match 'var DEFAULT_CATEGORIES\s*=\s*\[') {
+        $newCatBlock = "var DEFAULT_CATEGORIES = [`n" + ($lines -join ",`n") + "`n    ];"
+        $pattern = 'var DEFAULT_CATEGORIES\s*=\s*\[[\s\S]*?\];'
+        $fc = [regex]::Replace($fc, $pattern, $newCatBlock, 1)
+    } elseif ($fc -match '(?:const|var)\s+CATEGORIES\s*=\s*\[') {
+        $newCatBlock = "var CATEGORIES = [`n" + ($lines -join ",`n") + "`n    ];"
+        $pattern = '(?:const|var)\s+CATEGORIES\s*=\s*\[[\s\S]*?\];'
+        $fc = [regex]::Replace($fc, $pattern, $newCatBlock, 1)
+    }
+    [System.IO.File]::WriteAllText($filePath, $fc, [System.Text.Encoding]::UTF8)
+    return $true
+}
+
 function Update-ProductInFile {
     param(
         [string]$filePath,
@@ -274,7 +352,8 @@ function Update-ProductInFile {
         [string]$catName,
         [bool]$imgSaved,
         [string]$initial,
-        [string]$gradient
+        [string]$gradient,
+        [int]$priority = 0
     )
     if (-not (Test-Path $filePath)) { return 0 }
     Ensure-CategoryInFile -filePath $filePath -catId $catId -catName $catName
@@ -291,6 +370,18 @@ function Update-ProductInFile {
     $item = [regex]::Replace($item, '(price:\s*)-?\d+', "`${1}$price", 1)
     $item = [regex]::Replace($item, '(categoryId:\s*)"[^"]*"', "`$1`"$eCatId`"", 1)
     $item = [regex]::Replace($item, '(categoryName:\s*)"[^"]*"', "`$1`"$eCatName`"", 1)
+
+    if ($priority -gt 0) {
+        if ($item -match 'priority:\s*\d+') {
+            $item = [regex]::Replace($item, '(priority:\s*)\d+', "`${1}$priority", 1)
+        } else {
+            $item = $item.TrimEnd("}") + ", priority: $priority }"
+        }
+    } else {
+        if ($item -match 'priority:\s*\d+') {
+            $item = [regex]::Replace($item, ',\s*priority:\s*\d+', "")
+        }
+    }
 
     if ($imgSaved) {
         if ($item -match 'hasImage:\s*true') {
@@ -714,12 +805,14 @@ while ($true) {
                     $mprice = Get-JsNumberField $itemText "price"
                     $mcatid = Get-JsStringField $itemText "categoryId"
                     $mcatname = Get-JsStringField $itemText "categoryName"
+                    $mpriority = Get-JsNumberField $itemText "priority"
+                    if ($null -eq $mpriority) { $mpriority = 0 }
                     if ($null -eq $mid -or [string]::IsNullOrWhiteSpace($mnameRaw) -or $null -eq $mprice -or [string]::IsNullOrWhiteSpace($mcatid)) { continue }
                     $mname = $mnameRaw.Replace('\','\\').Replace('"','\"')
                     if ($catMap.ContainsKey($mcatid)) { $mcatname = $catMap[$mcatid] }
                     $mcatname=$mcatname.Replace('\','\\').Replace('"','\"')
                     $filterName = (Get-JsStringField $itemText "filterName").Replace('\','\\').Replace('"','\"')
-                    "{`"id`":$mid,`"name`":`"$mname`",`"price`":$mprice,`"categoryId`":`"$mcatid`",`"categoryName`":`"$mcatname`",`"filterName`":`"$filterName`"}"
+                    "{`"id`":$mid,`"name`":`"$mname`",`"price`":$mprice,`"categoryId`":`"$mcatid`",`"categoryName`":`"$mcatname`",`"priority`":$mpriority,`"filterName`":`"$filterName`"}"
                 }
                 $json = "[" + ($items -join ",") + "]"
             } catch {
@@ -771,6 +864,8 @@ while ($true) {
                 if ($f2.ContainsKey("categoryName") -and $f2["categoryName"]) { $newCatName = "$($f2['categoryName'])" }
                 $newCatName = $newCatName.Trim()
                 if (-not $newCatName) { $newCatName = $newCatId }
+                $priority = 0
+                if ($f2.ContainsKey("priority") -and $f2["priority"]) { [int]::TryParse("$($f2['priority'])", [ref]$priority) | Out-Null }
                 if ($editId -le 0)   { throw "Invalid ID" }
                 if (-not $newName)   { throw "Name cannot be empty" }
                 if (-not $priceOk -or $newPrice -lt 0) { throw "Price must be 0 or more" }
@@ -792,14 +887,14 @@ while ($true) {
 
                 $updatedFiles = 0
                 foreach ($f in @($htmlFile, $jsxFile)) {
-                    $updatedFiles += Update-ProductInFile -filePath $f -productId $editId -name $newName -price $newPrice -catId $newCatId -catName $newCatName -imgSaved $imgSaved -initial $initial -gradient $grad
+                    $updatedFiles += Update-ProductInFile -filePath $f -productId $editId -name $newName -price $newPrice -catId $newCatId -catName $newCatName -imgSaved $imgSaved -initial $initial -gradient $grad -priority $priority
                 }
                 if ($updatedFiles -le 0) { throw "Item ID $editId file me nahi mila" }
                 Sync-ProductImageMaps
-                Sync-ProductsJsonAndGitPush -commitMessage "Edit item: $newName (ID: $editId)"
-                Write-Host "  EDIT: ID $editId -> '$newName' Rs.$newPrice [$newCatName]$(if($imgSaved){' + new image'})" -ForegroundColor Cyan
+                Sync-ProductsJsonAndGitPush -commitMessage "Edit item: $newName (ID: $editId, Priority: $priority)"
+                Write-Host "  EDIT: ID $editId -> '$newName' Rs.$newPrice [$newCatName] (Prio: $priority)$(if($imgSaved){' + new image'})" -ForegroundColor Cyan
                 $imgSavedStr = if ($imgSaved) { "true" } else { "false" }
-                $json = "{`"ok`":true,`"imgSaved`":$imgSavedStr,`"message`":`"Item updated successfully`"}"
+                $json = "{`"ok`":true,`"imgSaved`":$imgSavedStr,`"priority`":$priority,`"message`":`"Item updated successfully`"}"
             } catch {
                 $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
                 $json = "{`"ok`":false,`"message`":`"$em`"}"
@@ -1070,6 +1165,61 @@ while ($true) {
             continue
         }
 
+        if ($request.HttpMethod -eq "POST" -and $path -eq "/api/set-product-priority") {
+            try {
+                $parsedPrio = Parse-Multipart -stream $request.InputStream -contentType $request.ContentType
+                $pFields = $parsedPrio.fields
+                $pid = 0; [int]::TryParse("$($pFields['id'])", [ref]$pid) | Out-Null
+                $prio = 0; [int]::TryParse("$($pFields['priority'])", [ref]$prio) | Out-Null
+                if ($pid -le 0) { throw "Invalid Product ID" }
+
+                $upCount = 0
+                foreach ($f in @($htmlFile, $jsxFile)) {
+                    $upCount += Set-ProductPriorityInFile -filePath $f -productId $pid -priority $prio
+                }
+                Sync-ProductsJsonAndGitPush -commitMessage "Set priority #$prio for product ID $pid"
+                Write-Host "  PRIORITY: ID $pid -> #$prio" -ForegroundColor Cyan
+                $json = "{`"ok`":true,`"id`":$pid,`"priority`":$prio,`"message`":`"Priority updated`"}"
+            } catch {
+                $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
+                $json = "{`"ok`":false,`"message`":`"$em`"}"
+                $response.StatusCode = 400
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.Close()
+            continue
+        }
+
+        if ($request.HttpMethod -eq "POST" -and $path -eq "/api/reorder-categories") {
+            try {
+                $parsedReorder = Parse-Multipart -stream $request.InputStream -contentType $request.ContentType
+                $rFields = $parsedReorder.fields
+                $orderRaw = "$($rFields['order'])".Trim()
+                if (-not $orderRaw) { throw "Category order list cannot be empty" }
+                $catIdList = $orderRaw.Split(",") | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+
+                foreach ($f in @($htmlFile, $jsxFile)) {
+                    Reorder-CategoriesInFile -filePath $f -catIds $catIdList | Out-Null
+                }
+                Sync-ProductsJsonAndGitPush -commitMessage "Reorder categories from admin portal"
+                Write-Host "  CATEGORIES REORDERED: $($catIdList -join ', ')" -ForegroundColor Cyan
+                $json = "{`"ok`":true,`"message`":`"Category order updated successfully`"}"
+            } catch {
+                $em = "$($_.Exception.Message)".Replace('"','\"').Replace("`n"," ")
+                $json = "{`"ok`":false,`"message`":`"$em`"}"
+                $response.StatusCode = 400
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.ContentLength64 = $bytes.Length
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.Close()
+            continue
+        }
+
         if ($request.HttpMethod -eq "POST" -and $path -eq "/api/add-product") {
             try {
                 $parsed = Parse-Multipart -stream $request.InputStream -contentType $request.ContentType
@@ -1096,6 +1246,9 @@ while ($true) {
                 $catName = $catName.Trim()
                 if (-not $catName) { $catName = $catId }
 
+                $priority = 0
+                if ($fields.ContainsKey("priority") -and $fields["priority"]) { [int]::TryParse("$($fields['priority'])", [ref]$priority) | Out-Null }
+
                 if ([string]::IsNullOrWhiteSpace($name)) { throw "Item ka naam zaroori hai!" }
                 if ($price -le 0) { throw "Sahi price likhna zaroori hai!" }
                 if ([string]::IsNullOrWhiteSpace($catId)) { throw "Category select karna zaroori hai!" }
@@ -1119,11 +1272,12 @@ while ($true) {
                 $escapedName = Escape-JsString $name
                 $escapedCat  = Escape-JsString $catName
                 $escapedCatId = Escape-JsString $catId
+                $prioStr = if ($priority -gt 0) { ", priority: $priority" } else { "" }
 
                 if ($hasImage) {
-                    $newLine = "`n      { id: $newId, name: `"$escapedName`", price: $price, categoryId: `"$escapedCatId`", categoryName: `"$escapedCat`", hasImage: true, gradient: $grad, initial: `"$initial`" },"
+                    $newLine = "`n      { id: $newId, name: `"$escapedName`", price: $price, categoryId: `"$escapedCatId`", categoryName: `"$escapedCat`"$prioStr, hasImage: true, gradient: $grad, initial: `"$initial`" },"
                 } else {
-                    $newLine = "`n      { id: $newId, name: `"$escapedName`", price: $price, categoryId: `"$escapedCatId`", categoryName: `"$escapedCat`" },"
+                    $newLine = "`n      { id: $newId, name: `"$escapedName`", price: $price, categoryId: `"$escapedCatId`", categoryName: `"$escapedCat`"$prioStr },"
                 }
 
                 $addedFiles = 0
@@ -1132,11 +1286,11 @@ while ($true) {
                 }
                 if ($addedFiles -lt 2) { throw "Item dono website files me save nahi ho saka. Please file structure check karein." }
                 Sync-ProductImageMaps
-                Sync-ProductsJsonAndGitPush -commitMessage "Add item: $name (ID: $newId)"
+                Sync-ProductsJsonAndGitPush -commitMessage "Add item: $name (ID: $newId, Priority: $priority)"
 
-                Write-Host "  SUCCESS: Added '$name' (ID: $newId, Price: $price)" -ForegroundColor Green
+                Write-Host "  SUCCESS: Added '$name' (ID: $newId, Price: $price, Prio: $priority)" -ForegroundColor Green
 
-                $json = "{`"ok`":true,`"id`":$newId,`"message`":`"'$escapedName' added successfully with ID $newId`"}"
+                $json = "{`"ok`":true,`"id`":$newId,`"priority`":$priority,`"message`":`"'$escapedName' added successfully with ID $newId`"}"
                 $bytes = [System.Text.Encoding]::UTF8.GetBytes($json)
                 $response.StatusCode = 200
                 $response.ContentType = "application/json; charset=utf-8"

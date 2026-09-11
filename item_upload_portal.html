@@ -161,6 +161,16 @@
     .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px}
     .empty-state .em{font-size:36px;margin-bottom:10px}
     .loading-row{text-align:center;padding:30px;color:var(--text-muted);font-size:13px}
+    .prio-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(212,175,55,0.18);border:1px solid rgba(212,175,55,0.45);color:var(--gold-light);font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+    .prio-input{width:50px;background:var(--bg);border:1px solid rgba(212,175,55,0.3);border-radius:7px;color:var(--gold);font-size:12px;font-weight:800;text-align:center;padding:5px 2px;outline:none}
+    .prio-input:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,175,55,0.25)}
+    .cat-order-card{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:10px 14px;transition:all .2s}
+    .cat-order-card:hover{border-color:var(--gold);background:var(--bg4)}
+    .cat-order-num{font-size:13px;font-weight:800;color:var(--gold);min-width:32px;text-align:center;background:rgba(212,175,55,0.1);padding:4px 6px;border-radius:8px;border:1px solid rgba(212,175,55,0.2)}
+    .cat-order-info{flex:1;min-width:0}
+    .cat-order-name{font-size:13px;font-weight:700;color:var(--text)}
+    .cat-order-meta{font-size:11px;color:var(--text-muted)}
+    .cat-order-actions{display:flex;gap:6px;align-items:center}
     @media(max-width:860px){.manage-layout{grid-template-columns:1fr}.category-tools{position:static;order:-1}}
     @media(max-width:520px){.card{padding:20px 12px 16px}.form-grid{grid-template-columns:1fr}.form-group.full,.upload-area,.preview-wrap{grid-column:1}.filter-row{flex-direction:column;align-items:stretch}.new-cat-row{grid-template-columns:1fr}.edit-new-cat-row{flex-direction:column}}
   </style>
@@ -182,7 +192,7 @@
 <div class="header">
   <div class="header-badge">&#128717; Admin Panel</div>
   <h1>ZS Mart<br>Management Portal</h1>
-  <p>Add new items, edit names, prices &amp; images, or remove existing products</p>
+  <p>Add new items, edit names, prices, priority order &amp; images, or reorder categories</p>
 </div>
 
 <div class="no-server-warn" id="serverWarn">
@@ -203,7 +213,8 @@
 
 <div class="tabs">
   <button class="tab-btn active" id="tab-add" onclick="switchTab('add')">&#10133; Add Item</button>
-  <button class="tab-btn" id="tab-manage" onclick="switchTab('manage')">&#9998; Manage Items</button>
+  <button class="tab-btn" id="tab-manage" onclick="switchTab('manage')">&#9998; Manage Items &amp; Numbering</button>
+  <button class="tab-btn" id="tab-catorder" onclick="switchTab('catorder')">&#128194; Category Order &amp; Positions</button>
   <button class="tab-btn" id="tab-recent" onclick="switchTab('recent')">&#128338; Recent Uploads</button>
 </div>
 
@@ -224,6 +235,10 @@
         <div class="form-group">
           <label>Category <span class="req">*</span></label>
           <select id="itemCategory" required onchange="toggleNewCategory('add')"></select>
+        </div>
+        <div class="form-group full">
+          <label>Position / Numbering (#Priority Order) <span style="color:var(--text-muted);font-weight:400;text-transform:none;">(e.g. 1 for Top 1st, 2 for 2nd &mdash; Optional)</span></label>
+          <input type="number" id="itemPriority" placeholder="e.g. 1 (Leave empty for normal order)" min="0" max="9999">
         </div>
         <div class="new-cat-row" id="newCatRow">
           <div class="form-group">
@@ -273,6 +288,16 @@
       </div>
       <aside class="category-tools">
         <div class="tools-head">Category Tools</div>
+        <details class="category-admin-row" open style="border-color: rgba(212,175,55,0.4); background: rgba(212,175,55,0.08);">
+          <summary>⭐ Number Top Items (Priority)</summary>
+          <div class="tool-body">
+            <div class="hint" style="color: var(--gold-light); line-height: 1.4;">Category kholte hi kaunse items sab se pehle show hon aur bahar marquee me ghoomein, unhein #1 se #20 number dein.</div>
+            <div class="tool-actions">
+              <button class="btn btn-save" onclick="autoNumberFilteredItems()">⚡ Auto-Number (1..20)</button>
+              <button class="btn btn-cancel-s" onclick="clearFilteredPriorities()">🧹 Clear</button>
+            </div>
+          </div>
+        </details>
         <details class="category-admin-row">
           <summary>Rename Category</summary>
           <div class="tool-body">
@@ -282,7 +307,7 @@
             <div class="hint">Category ka naam website ke front page aur us category ke tamam items me update ho jayega.</div>
           </div>
         </details>
-        <details class="category-admin-row" open>
+        <details class="category-admin-row">
           <summary>Bulk Move Items</summary>
           <div class="tool-body">
             <div class="tool-actions">
@@ -321,6 +346,23 @@
         </details>
       </aside>
     </div>
+  </div>
+</div>
+
+<!-- CATEGORY ORDER & POSITIONS -->
+<div class="panel" id="panel-catorder">
+  <div class="card" style="max-width: 760px; margin: 0 auto 20px;">
+    <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+      <span>📂 Category Positions &amp; Ordering</span>
+      <button class="btn btn-save" onclick="saveCategoryOrder()" style="padding: 8px 16px; font-size: 13px;">💾 Save Category Order</button>
+    </div>
+    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+      Yahan se categories ki sequence set karein (jaise pehle Soaps, phir Shampoo, phir Creams wagera). <b>⬆️ Up</b> ya <b>⬇️ Down</b> button dabayein ya position number type karein, phir <b>Save Category Order</b> dabayein. App aur website me categories isi exact tarteeb me aayengi!
+    </p>
+    <div id="catOrderList" style="display: flex; flex-direction: column; gap: 8px;">
+      <div class="loading-row">Loading categories...</div>
+    </div>
+    <button class="submit-btn" onclick="saveCategoryOrder()" style="margin-top: 18px;">💾 Save Category Order</button>
   </div>
 </div>
 
@@ -517,13 +559,18 @@ function getCategoryPayload(scope,id){
 function switchTab(n){
   activeTab=n;
   try{sessionStorage.setItem('itemUploadActiveTab',n)}catch(e){}
-  ['add','manage','recent'].forEach(function(t){
-    document.getElementById('panel-'+t).classList.remove('active');
-    document.getElementById('tab-'+t).classList.remove('active');
+  ['add','manage','catorder','recent'].forEach(function(t){
+    var p=document.getElementById('panel-'+t);
+    var b=document.getElementById('tab-'+t);
+    if(p) p.classList.remove('active');
+    if(b) b.classList.remove('active');
   });
-  document.getElementById('panel-'+n).classList.add('active');
-  document.getElementById('tab-'+n).classList.add('active');
+  var activeP=document.getElementById('panel-'+n);
+  var activeB=document.getElementById('tab-'+n);
+  if(activeP) activeP.classList.add('active');
+  if(activeB) activeB.classList.add('active');
   if(n==='manage') loadProducts();
+  if(n==='catorder') renderCategoryOrderList();
 }
 
 function loadStats(){
@@ -764,6 +811,13 @@ function applyFilter(){
     if(q && p.name.toLowerCase().indexOf(q)<0) return false;
     return true;
   });
+  // Sort filtered products: prioritize items with priority > 0
+  filteredProducts.sort(function(a, b){
+    var pa = (a.priority && a.priority > 0) ? a.priority : 999999;
+    var pb = (b.priority && b.priority > 0) ? b.priority : 999999;
+    if (pa !== pb) return pa - pb;
+    return a.id - b.id;
+  });
   document.getElementById('itemCount').textContent=filteredProducts.length+' item'+(filteredProducts.length!==1?'s':'')+(selectedAdminFilter?' in '+selectedAdminFilter:'');
   selectedItemIds.forEach(function(id){
     if(!allProducts.some(function(p){return p.id===id})) selectedItemIds.delete(id);
@@ -774,6 +828,133 @@ function applyFilter(){
 }
 
 function eJ(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+
+function quickSetPriority(id, val){
+  var prio = parseInt(val, 10) || 0;
+  if(prio < 0) prio = 0;
+  var fd = new FormData();
+  fd.append('id', id);
+  fd.append('priority', prio);
+  fetch(apiUrl('/api/set-product-priority'), { method: 'POST', body: fd })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if(res.ok){
+      allProducts.forEach(function(p){ if(p.id === id) p.priority = prio; });
+      applyFilter();
+      showToast('Item #' + id + (prio > 0 ? ' priority set to #' + prio : ' priority cleared'), 'success');
+    } else {
+      showToast('Error: ' + (res.message || 'Failed to update priority'), 'error');
+    }
+  }).catch(function(){ showToast('Server connection error.', 'error'); });
+}
+
+function autoNumberFilteredItems(){
+  var cat = document.getElementById('filterCategory').value;
+  if(!filteredProducts.length){ showToast('No items to number. Pehle category select karein.', 'error'); return; }
+  var count = Math.min(20, filteredProducts.length);
+  var catName = (cat && CAT[cat]) ? CAT[cat] : 'visible';
+  if(!confirm('Top ' + count + ' items in "' + catName + '" ko 1 se ' + count + ' tak numbering deni hai?')) return;
+
+  var promises = [];
+  for(var i = 0; i < count; i++){
+    var p = filteredProducts[i];
+    var prio = i + 1;
+    p.priority = prio;
+    (function(pid, pr){
+      var fd = new FormData();
+      fd.append('id', pid);
+      fd.append('priority', pr);
+      promises.push(fetch(apiUrl('/api/set-product-priority'), { method: 'POST', body: fd }));
+    })(p.id, prio);
+  }
+
+  Promise.all(promises).then(function(){
+    applyFilter();
+    showToast('Top ' + count + ' items numbered successfully! (1 to ' + count + ')', 'success');
+  }).catch(function(){
+    showToast('Some items could not be updated.', 'error');
+  });
+}
+
+function clearFilteredPriorities(){
+  if(!filteredProducts.length){ showToast('No items to clear.', 'error'); return; }
+  if(!confirm('Is category ke tamam items ki priority/numbering clear karni hai?')) return;
+  var promises = [];
+  filteredProducts.forEach(function(p){
+    if(p.priority > 0){
+      p.priority = 0;
+      var fd = new FormData();
+      fd.append('id', p.id);
+      fd.append('priority', 0);
+      promises.push(fetch(apiUrl('/api/set-product-priority'), { method: 'POST', body: fd }));
+    }
+  });
+  Promise.all(promises).then(function(){
+    applyFilter();
+    showToast('All priorities cleared.', 'success');
+  }).catch(function(){
+    showToast('Error clearing priorities.', 'error');
+  });
+}
+
+function renderCategoryOrderList(){
+  var list = document.getElementById('catOrderList');
+  if(!list) return;
+  if(!CAT_ORDER.length){
+    list.innerHTML = '<div class="empty-state">No categories found</div>';
+    return;
+  }
+  var counts = {};
+  allProducts.forEach(function(p){ counts[p.categoryId] = (counts[p.categoryId] || 0) + 1; });
+
+  var html = '';
+  CAT_ORDER.forEach(function(id, idx){
+    if(!CAT[id]) return;
+    var name = CAT[id];
+    var cCount = counts[id] || 0;
+    var isFirst = idx === 0;
+    var isLast = idx === CAT_ORDER.length - 1;
+    html +=
+      '<div class="cat-order-card" id="coc-' + eH(id) + '">' +
+        '<div class="cat-order-num">#' + (idx + 1) + '</div>' +
+        '<div class="cat-order-info">' +
+          '<div class="cat-order-name">' + eH(name) + '</div>' +
+          '<div class="cat-order-meta">ID: <code>' + eH(id) + '</code> &middot; ' + cCount + ' items</div>' +
+        '</div>' +
+        '<div class="cat-order-actions">' +
+          '<button class="btn btn-edit btn-sm" onclick="moveCategory(' + idx + ',-1)"' + (isFirst ? ' disabled style="opacity:0.3;"' : '') + ' title="Move Up">⬆️ Up</button>' +
+          '<button class="btn btn-edit btn-sm" onclick="moveCategory(' + idx + ',1)"' + (isLast ? ' disabled style="opacity:0.3;"' : '') + ' title="Move Down">⬇️ Down</button>' +
+        '</div>' +
+      '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function moveCategory(idx, dir){
+  var target = idx + dir;
+  if(target < 0 || target >= CAT_ORDER.length) return;
+  var temp = CAT_ORDER[idx];
+  CAT_ORDER[idx] = CAT_ORDER[target];
+  CAT_ORDER[target] = temp;
+  renderCategoryOrderList();
+  fillCategorySelects();
+}
+
+function saveCategoryOrder(){
+  var orderStr = CAT_ORDER.join(',');
+  var fd = new FormData();
+  fd.append('order', orderStr);
+  fetch(apiUrl('/api/reorder-categories'), { method: 'POST', body: fd })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if(res.ok){
+      showToast('📂 Category sequence saved & synced to live App!', 'success');
+      fillCategorySelects();
+    } else {
+      showToast('Error: ' + (res.message || 'Failed to save order'), 'error');
+    }
+  }).catch(function(){ showToast('Server connection error.', 'error'); });
+}
 
 function renderItems(){
   var l=document.getElementById('itemsList');
@@ -788,13 +969,18 @@ function renderItems(){
     var shownFilter=productFilterName(p);
     var filterLabel=shownFilter?' &middot; Filter: '+eH(shownFilter):'';
     var checked=selectedItemIds.has(p.id)?' checked':'';
+    var prioBadge = (p.priority && p.priority > 0) ? '<span class="prio-badge">&#11088; #'+p.priority+'</span>' : '';
     html+=
       '<div class="item-row" id="row-'+p.id+'">'+
         '<input class="item-check" type="checkbox" data-id="'+p.id+'" onchange="toggleItemSelect('+p.id+',this.checked)"'+checked+'>'+
         '<span class="item-id">#'+p.id+'</span>'+
         '<div class="item-body">'+
-          '<div class="item-name-txt">'+eH(p.name)+'</div>'+
+          '<div class="item-name-txt">'+eH(p.name)+prioBadge+'</div>'+
           '<div class="item-meta">'+eH(catLabel)+filterLabel+'</div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:3px;margin-right:6px;" title="Priority / Numbering (1 = 1st, 2 = 2nd)">'+
+          '<span style="font-size:10px;color:var(--gold);font-weight:700;">#</span>'+
+          '<input class="prio-input" type="number" min="0" max="999" value="'+(p.priority||'')+'" placeholder="-" onchange="quickSetPriority('+p.id+',this.value)">'+
         '</div>'+
         '<span class="item-price">Rs.'+p.price+'</span>'+
         '<div class="item-actions">'+
@@ -805,6 +991,7 @@ function renderItems(){
           '<div class="edit-fields">'+
             '<input class="edit-inp" type="text" id="en-'+p.id+'" value="'+eH(p.name)+'" placeholder="Item Name">'+
             '<input class="edit-price-inp" type="number" id="ep-'+p.id+'" value="'+p.price+'" placeholder="Price" min="0">'+
+            '<input class="edit-price-inp" type="number" id="eprio-'+p.id+'" value="'+(p.priority||'')+'" placeholder="Pos #" min="0" title="Position Number (e.g. 1 for Top 1st)">'+
             '<select class="edit-cat-select" id="ec-'+p.id+'" onchange="toggleNewCategory(&quot;edit&quot;,'+p.id+')">'+categoryOptions(p.categoryId,true)+'</select>'+
             '<div class="edit-zone-btns">'+
               '<button class="btn btn-save btn-sm" onclick="saveEdit('+p.id+')">&#10003; Save</button>'+
@@ -868,6 +1055,7 @@ function clearImg2(id){
 function saveEdit(id){
   var n=document.getElementById('en-'+id).value.trim().toUpperCase();
   var pr=parseInt(document.getElementById('ep-'+id).value,10);
+  var prio=parseInt(document.getElementById('eprio-'+id).value,10)||0;
   var cat=getCategoryPayload('edit',id);
   if(!n){showToast('Item name cannot be empty.','error');return;}
   if(Number.isNaN(pr)||pr<0){showToast('Please enter a valid price.','error');return;}
@@ -875,13 +1063,14 @@ function saveEdit(id){
   var fd=new FormData();
   fd.append('id',id); fd.append('name',n); fd.append('price',pr);
   fd.append('categoryId',cat.id); fd.append('categoryName',cat.name);
+  fd.append('priority',prio);
   if(editFiles[id]) fd.append('image',editFiles[id]);
   fetch(apiUrl('/api/edit-product'),{method:'POST',body:fd})
   .then(function(r){return r.json()})
   .then(function(res){
     if(res.ok){
       rememberCategory(cat.id,cat.name);
-      allProducts.forEach(function(p){if(p.id===id){p.name=n;p.price=pr;p.categoryId=cat.id;p.categoryName=cat.name;}});
+      allProducts.forEach(function(p){if(p.id===id){p.name=n;p.price=pr;p.categoryId=cat.id;p.categoryName=cat.name;p.priority=prio;}});
       delete editFiles[id];
       fillCategorySelects(); refreshCategoryCounts(); applyFilter(); loadStats();
       showToast('"'+n+'" updated successfully'+(res.imgSaved?' + image saved.':'.'), 'success');
@@ -938,6 +1127,7 @@ document.getElementById('uploadForm').addEventListener('submit',function(e){
   e.preventDefault();
   var name=document.getElementById('itemName').value.trim().toUpperCase();
   var price=parseInt(document.getElementById('itemPrice').value,10);
+  var prio=parseInt(document.getElementById('itemPriority').value,10)||0;
   var cat=getCategoryPayload('add');
   if(!name||!price||!cat){showToast('All required fields must be filled.','error');return;}
   var catId=cat.id, catName=cat.name;
@@ -946,6 +1136,7 @@ document.getElementById('uploadForm').addEventListener('submit',function(e){
   var fd=new FormData();
   fd.append('name',name); fd.append('price',price);
   fd.append('categoryId',catId); fd.append('categoryName',catName);
+  fd.append('priority',prio);
   if(selFile) fd.append('image',selFile);
   fetch(apiUrl('/api/add-product'),{method:'POST',body:fd})
   .then(function(r){return r.text().then(function(t){return{ok:r.ok,text:t}})})
@@ -961,10 +1152,11 @@ document.getElementById('uploadForm').addEventListener('submit',function(e){
       document.getElementById('statImages').textContent=statsData.images;
       addedToday++; document.getElementById('statToday').textContent=addedToday;
       addRecent({id:nid,name:name,price:price,catName:catName,imgSrc:selFile?previewImg.src:null});
-      allProducts.push({id:nid,name:name,price:price,categoryId:catId,categoryName:catName});
+      allProducts.push({id:nid,name:name,price:price,categoryId:catId,categoryName:catName,priority:prio});
       refreshCategoryCounts();
       if(activeTab==='manage') applyFilter();
-      showToast('"'+name+'" added! (ID: '+nid+')','success');
+      if(activeTab==='catorder') renderCategoryOrderList();
+      showToast('"'+name+'" added! (ID: '+nid+(prio>0?', Pos: #'+prio:'')+')','success');
       document.getElementById('uploadForm').reset(); clearImg(); toggleNewCategory('add');
     }else{
       showToast('Error: '+(res.message||r.text),'error');

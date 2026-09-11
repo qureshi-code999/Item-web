@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ur" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZS Mart – Daily Sales &amp; Profit Manager</title>
+<style>
+/* ===== Base Reset ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+
+/* ===== Layout ===== */
+.header{background:linear-gradient(135deg,#1a1d2e 0%,#0f1117 100%);border-bottom:1px solid #gold;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.5)}
+.header-brand{display:flex;align-items:center;gap:10px}
+.header-brand .logo{font-size:24px}
+.header-brand h1{font-size:1.1rem;color:#f0c040;font-weight:700;line-height:1.1}
+.header-brand p{font-size:.7rem;color:#94a3b8}
+.header-date{text-align:right}
+.header-date .date-label{font-size:.7rem;color:#64748b}
+.header-date .date-val{font-size:.85rem;color:#f0c040;font-weight:600}
+
+/* ===== KPI Banner ===== */
+.kpi-bar{background:#13161f;border-bottom:1px solid #1e2235;padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.kpi-card{background:#1a1d2e;border:1px solid #252840;border-radius:10px;padding:8px 14px;min-width:110px;flex:1;text-align:center}
+.kpi-card .kpi-label{font-size:.6rem;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
+.kpi-card .kpi-val{font-size:1.1rem;font-weight:700;margin-top:2px}
+.kpi-card.green .kpi-val{color:#22c55e}
+.kpi-card.gold  .kpi-val{color:#f0c040}
+.kpi-card.red   .kpi-val{color:#ef4444}
+.kpi-card.blue  .kpi-val{color:#60a5fa}
+.kpi-card.purple .kpi-val{color:#a78bfa}
+.kpi-card.cyan  .kpi-val{color:#22d3ee}
+.date-filter-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:#0f1117;border-bottom:1px solid #1e2235;flex-wrap:wrap}
+.date-filter-bar label{font-size:.75rem;color:#94a3b8}
+input[type=date]{background:#1a1d2e;border:1px solid #2d3258;color:#e2e8f0;border-radius:6px;padding:5px 10px;font-size:.8rem;cursor:pointer}
+input[type=date]:focus{outline:none;border-color:#f0c040}
+.btn-sm{padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:.75rem;font-weight:600;transition:.2s}
+.btn-gold{background:#f0c040;color:#0f1117}
+.btn-gold:hover{background:#fcd34d}
+.btn-outline{background:transparent;color:#94a3b8;border:1px solid #2d3258}
+.btn-outline:hover{border-color:#f0c040;color:#f0c040}
+
+/* ===== Tabs ===== */
+.tabs{display:flex;background:#0d1018;border-bottom:2px solid #1e2235;overflow-x:auto}
+.tab{padding:12px 20px;cursor:pointer;font-size:.8rem;font-weight:600;color:#64748b;border-bottom:2px solid transparent;white-space:nowrap;transition:.2s;margin-bottom:-2px}
+.tab:hover{color:#94a3b8}
+.tab.active{color:#f0c040;border-color:#f0c040;background:#13161f}
+
+/* ===== Content panels ===== */
+.panel{display:none;padding:16px}
+.panel.active{display:block}
+
+/* ===== Card ===== */
+.card{background:#1a1d2e;border:1px solid #252840;border-radius:12px;padding:16px;margin-bottom:14px}
+.card-title{font-size:.8rem;font-weight:700;color:#f0c040;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* ===== Form elements ===== */
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.form-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px}
+.form-group label{font-size:.7rem;color:#94a3b8;font-weight:600}
+.form-control{background:#0f1117;border:1px solid #2d3258;color:#e2e8f0;border-radius:8px;padding:8px 12px;font-size:.82rem;width:100%;transition:.2s}
+.form-control:focus{outline:none;border-color:#f0c040;background:#13161f}
+.form-control::placeholder{color:#374151}
+select.form-control option{background:#1a1d2e}
+
+/* ===== Item rows in order ===== */
+.item-search-wrap{position:relative}
+.item-dropdown{position:absolute;top:100%;left:0;right:0;background:#1a1d2e;border:1px solid #f0c040;border-radius:8px;max-height:240px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.item-dropdown .dd-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid #252840;font-size:.78rem;transition:.15s}
+.item-dropdown .dd-item:last-child{border-bottom:none}
+.item-dropdown .dd-item:hover,.item-dropdown .dd-item.active{background:#252840}
+.item-dropdown .dd-item .dd-name{color:#e2e8f0;font-weight:600}
+.item-dropdown .dd-item .dd-meta{color:#64748b;font-size:.68rem;margin-top:2px}
+.item-dropdown .dd-item .dd-cat{color:#a78bfa;font-size:.65rem}
+.order-items-table{width:100%;border-collapse:collapse;margin-top:8px}
+.order-items-table th{font-size:.65rem;color:#64748b;text-align:left;padding:4px 8px;border-bottom:1px solid #252840;white-space:nowrap}
+.order-items-table td{padding:5px 6px;border-bottom:1px solid #1e2235;vertical-align:middle}
+.order-items-table td input{background:#0f1117;border:1px solid #2d3258;color:#e2e8f0;border-radius:6px;padding:4px 8px;width:100%;font-size:.78rem}
+.order-items-table td input:focus{outline:none;border-color:#f0c040}
+.order-items-table .row-profit{font-size:.72rem;font-weight:700}
+.order-items-table .row-profit.pos{color:#22c55e}
+.order-items-table .row-profit.neg{color:#ef4444}
+.btn-remove-row{background:none;border:none;color:#ef4444;cursor:pointer;font-size:1rem;padding:0 4px;line-height:1}
+.btn-remove-row:hover{color:#fca5a5}
+
+/* ===== Order summary footer ===== */
+.order-summary{background:#0f1117;border-radius:8px;padding:12px;margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.os-item{text-align:center}
+.os-label{font-size:.62rem;color:#64748b;margin-bottom:2px}
+.os-val{font-size:1rem;font-weight:700}
+.os-val.sale{color:#60a5fa}
+.os-val.cost{color:#f97316}
+.os-val.profit{color:#22c55e}
+
+/* ===== Buttons ===== */
+.btn-primary{background:linear-gradient(135deg,#f0c040,#e0a820);color:#0f1117;border:none;border-radius:8px;padding:10px 20px;font-weight:700;cursor:pointer;font-size:.85rem;transition:.2s;width:100%;margin-top:10px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(240,192,64,.3)}
+.btn-primary:disabled{opacity:.5;transform:none;cursor:not-allowed}
+.btn-danger{background:#ef4444;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.72rem;font-weight:600}
+.btn-danger:hover{background:#dc2626}
+.btn-edit{background:#3b82f6;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.72rem;font-weight:600}
+.btn-edit:hover{background:#2563eb}
+.btn-add-item{background:#252840;color:#94a3b8;border:1px dashed #374151;border-radius:8px;padding:8px;width:100%;cursor:pointer;font-size:.78rem;margin-top:6px;transition:.2s}
+.btn-add-item:hover{border-color:#f0c040;color:#f0c040}
+
+/* ===== Orders list ===== */
+.order-card{background:#13161f;border:1px solid #252840;border-radius:10px;padding:12px;margin-bottom:10px}
+.order-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.order-id{font-size:.68rem;color:#64748b;font-family:monospace}
+.order-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.65rem;font-weight:700}
+.badge-shop{background:#1e3a5f;color:#60a5fa}
+.badge-online{background:#1a3347;color:#22d3ee}
+.order-meta{font-size:.72rem;color:#94a3b8}
+.order-totals{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid #1e2235}
+.ot-item{text-align:center}
+.ot-label{font-size:.6rem;color:#64748b}
+.ot-val{font-size:.88rem;font-weight:700}
+.order-items-list{margin-top:8px;display:none}
+.order-items-list.show{display:block}
+.oi-row{display:flex;justify-content:space-between;font-size:.72rem;padding:3px 0;border-bottom:1px solid #1a1d2e;color:#94a3b8}
+.oi-row:last-child{border:none}
+.oi-row span:first-child{color:#e2e8f0}
+.toggle-items{background:none;border:none;color:#64748b;font-size:.7rem;cursor:pointer;margin-top:4px}
+.toggle-items:hover{color:#f0c040}
+
+/* ===== Purchase Rates ===== */
+.rates-table{width:100%;border-collapse:collapse}
+.rates-table th{font-size:.65rem;color:#64748b;text-align:left;padding:6px 10px;border-bottom:1px solid #252840;position:sticky;top:0;background:#1a1d2e}
+.rates-table td{padding:5px 8px;border-bottom:1px solid #1e2235;font-size:.78rem;vertical-align:middle}
+.rates-table tbody tr:hover{background:#13161f}
+.rates-table .prod-name{color:#e2e8f0;font-weight:500}
+.rates-table .prod-cat{font-size:.65rem;color:#a78bfa}
+.rates-table .sell-price{color:#60a5fa;font-weight:700}
+.rates-table .purchase-input{background:#0f1117;border:1px solid #2d3258;color:#e2e8f0;border-radius:6px;padding:4px 8px;width:90px;font-size:.78rem}
+.rates-table .purchase-input:focus{outline:none;border-color:#f0c040}
+.rates-table .margin-badge{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:10px}
+.margin-good{background:#14532d;color:#22c55e}
+.margin-med {background:#451a03;color:#fb923c}
+.margin-low {background:#450a0a;color:#ef4444}
+.margin-none{background:#1e2235;color:#64748b}
+.save-rate-btn{background:#22c55e;color:#000;border:none;border-radius:5px;padding:3px 8px;font-size:.68rem;cursor:pointer;font-weight:700}
+.save-rate-btn:hover{background:#16a34a}
+.search-bar{background:#0f1117;border:1px solid #2d3258;color:#e2e8f0;border-radius:8px;padding:8px 12px;font-size:.82rem;width:100%;margin-bottom:10px}
+.search-bar:focus{outline:none;border-color:#f0c040}
+
+/* ===== Expense ===== */
+.exp-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #1e2235;font-size:.78rem}
+.exp-row:last-child{border:none}
+.exp-title{color:#e2e8f0;font-weight:600}
+.exp-cat{font-size:.65rem;color:#a78bfa;margin-top:1px}
+.exp-amount{color:#f97316;font-weight:700}
+
+/* ===== Toast ===== */
+#toast{position:fixed;bottom:20px;right:20px;background:#1a1d2e;border:1px solid;border-radius:10px;padding:10px 18px;font-size:.82rem;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:300px}
+#toast.show{opacity:1}
+#toast.success{border-color:#22c55e;color:#22c55e}
+#toast.error{border-color:#ef4444;color:#ef4444}
+#toast.info{border-color:#60a5fa;color:#60a5fa}
+
+/* ===== Responsive ===== */
+@media(max-width:640px){
+  .kpi-card{min-width:85px}
+  .order-summary{grid-template-columns:1fr 1fr}
+  .panel{padding:10px}
+  .tabs .tab{padding:10px 12px;font-size:.75rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-brand">
+    <span class="logo">📊</span>
+    <div>
+      <h1>ZS Mart – Daily Sales Manager</h1>
+      <p>DSR &amp; Profit Tracking Portal</p>
+    </div>
+  </div>
+  <div class="header-date">
+    <div class="date-label">Today</div>
+    <div class="date-val" id="hdrDate">Loading...</div>
+  </div>
+</div>
+
+<!-- Date Filter Bar -->
+<div class="date-filter-bar">
+  <label>📅 Report Date:</label>
+  <input type="date" id="reportDate" />
+  <button class="btn-sm btn-gold" onclick="loadDSR()">Load Report</button>
+  <button class="btn-sm btn-outline" onclick="setToday()">Today</button>
+  <a id="exportCsvBtn" class="btn-sm btn-outline" style="text-decoration:none" href="#">⬇ Export CSV</a>
+  <button class="btn-sm btn-outline" onclick="window.print()">🖨 Print</button>
+</div>
+
+<!-- KPI Bar -->
+<div class="kpi-bar" id="kpiBar">
+  <div class="kpi-card blue"><div class="kpi-label">Total Orders</div><div class="kpi-val" id="kpiOrders">0</div></div>
+  <div class="kpi-card cyan"><div class="kpi-label">🏪 Shop / 🌐 Online</div><div class="kpi-val" id="kpiShopOnline">0 / 0</div></div>
+  <div class="kpi-card purple"><div class="kpi-label">Items Sold</div><div class="kpi-val" id="kpiItems">0</div></div>
+  <div class="kpi-card blue"><div class="kpi-label">Total Sale (Rs.)</div><div class="kpi-val" id="kpiSales">0</div></div>
+  <div class="kpi-card gold"><div class="kpi-label">Gross Profit (Rs.)</div><div class="kpi-val" id="kpiGross">0</div></div>
+  <div class="kpi-card red"><div class="kpi-label">Expenses (Rs.)</div><div class="kpi-val" id="kpiExp">0</div></div>
+  <div class="kpi-card green"><div class="kpi-label">Net Profit (Rs.) ✅</div><div class="kpi-val" id="kpiNet">0</div></div>
+  <div class="kpi-card"><div class="kpi-label">Net Margin</div><div class="kpi-val" id="kpiMargin" style="color:#f0c040">0%</div></div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('sale')">📝 New Sale</div>
+  <div class="tab" onclick="switchTab('orders')">📋 Today's Orders</div>
+  <div class="tab" onclick="switchTab('rates')">💰 Purchase Rates</div>
+  <div class="tab" onclick="switchTab('expenses')">💸 Expenses</div>
+  <div class="tab" onclick="switchTab('history')">📅 History</div>
+</div>
+
+<!-- ==================== TAB: New Sale ==================== -->
+<div class="panel active" id="panel-sale">
+
+  <div class="card">
+    <div class="card-title">🧾 Customer &amp; Order Info</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Customer Name</label>
+        <input type="text" class="form-control" id="custName" placeholder="Walk-in / Name" />
+      </div>
+      <div class="form-group">
+        <label>Phone (Optional)</label>
+        <input type="text" class="form-control" id="custPhone" placeholder="03xx-xxxxxxx" />
+      </div>
+      <div class="form-group" style="max-width:160px">
+        <label>Order Type</label>
+        <select class="form-control" id="orderType">
+          <option value="shop">🏪 Shop / Walk-in</option>
+          <option value="online">🌐 Online / Delivery</option>
+        </select>
+      </div>
+      <div class="form-group" style="max-width:160px">
+        <label>Payment Method</label>
+        <select class="form-control" id="payMethod">
+          <option value="cash">💵 Cash</option>
+          <option value="easypaisa">📱 EasyPaisa/JazzCash</option>
+          <option value="bank">🏦 Bank Transfer</option>
+          <option value="udhaar">📒 Udhaar / Credit</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row" id="deliveryRow" style="display:none">
+      <div class="form-group">
+        <label>Delivery Address</label>
+        <input type="text" class="form-control" id="deliveryAddr" placeholder="Complete delivery address" />
+      </div>
+      <div class="form-group" style="max-width:140px">
+        <label>Delivery Charge (Rs.)</label>
+        <input type="number" class="form-control" id="deliveryCharge" placeholder="0" value="0" min="0" oninput="recalcOrder()" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🛒 Items</div>
+    <table class="order-items-table" id="orderItemsTable">
+      <thead>
+        <tr>
+          <th style="width:36%">Item Name</th>
+          <th style="width:12%">Qty</th>
+          <th style="width:13%">Sell Rate</th>
+          <th style="width:13%">Purchase Rate</th>
+          <th style="width:13%">Line Total</th>
+          <th style="width:9%">Profit</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="orderItemsBody">
+      </tbody>
+    </table>
+    <button class="btn-add-item" onclick="addOrderRow()">+ Item Add Karein</button>
+
+    <div class="order-summary" id="orderSummary">
+      <div class="os-item"><div class="os-label">Total Items</div><div class="os-val" id="sumItems" style="color:#94a3b8">0</div></div>
+      <div class="os-item"><div class="os-label">Discount (Rs.)</div>
+        <input type="number" id="discountAmt" class="form-control" style="text-align:center;margin-top:2px;padding:4px 6px;font-size:.85rem;font-weight:700;color:#f97316" placeholder="0" value="0" min="0" oninput="recalcOrder()" /></div>
+      <div class="os-item"><div class="os-label">Total Sale (Rs.)</div><div class="os-val sale" id="sumSale">0</div></div>
+      <div class="os-item"><div class="os-label">Total Cost (Rs.)</div><div class="os-val cost" id="sumCost">0</div></div>
+      <div class="os-item"><div class="os-label">Gross Profit (Rs.)</div><div class="os-val profit" id="sumProfit">0</div></div>
+      <div class="os-item"><div class="os-label">Margin %</div><div class="os-val" id="sumMargin" style="color:#f0c040">0%</div></div>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="saveOrderBtn" onclick="saveOrder()">✅ Order Save Karein</button>
+  <div style="margin-top:6px;display:flex;gap:8px">
+    <button class="btn-sm btn-outline" style="flex:1" onclick="clearOrder()">🗑 Clear / New Order</button>
+    <button class="btn-sm btn-outline" style="flex:1" onclick="printInvoice()">🖨 Print Invoice</button>
+  </div>
+  <div id="editingOrderId" style="display:none"></div>
+</div>
+
+<!-- ==================== TAB: Orders ==================== -->
+<div class="panel" id="panel-orders">
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <button class="btn-sm btn-gold" onclick="filterOrders('all')" id="filterAll">All Orders</button>
+    <button class="btn-sm btn-outline" onclick="filterOrders('shop')" id="filterShop">🏪 Shop</button>
+    <button class="btn-sm btn-outline" onclick="filterOrders('online')" id="filterOnline">🌐 Online</button>
+  </div>
+  <div id="ordersContainer">
+    <div style="text-align:center;padding:40px;color:#64748b">Report load karein ya koi order add karein</div>
+  </div>
+</div>
+
+<!-- ==================== TAB: Purchase Rates ==================== -->
+<div class="panel" id="panel-rates">
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-title">💰 Purchase / Cost Rates Manage Karein</div>
+    <p style="font-size:.75rem;color:#94a3b8;margin-bottom:10px">
+      Har item ka purchase rate enter karein. <strong style="color:#f0c040">Sell Rate website se automatically aata hai</strong> — woh yahan change nahi hoga.
+      Purchase rate save karne ke baad agli baar wohi aayega. Item search karo ya category filter lagao.
+    </p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input type="text" class="search-bar" id="rateSearch" placeholder="🔍 Item name search karein..." oninput="filterRatesTable()" style="flex:1;min-width:180px;margin-bottom:0" />
+      <select class="form-control" id="rateCatFilter" onchange="filterRatesTable()" style="flex:0 0 200px">
+        <option value="">-- All Categories --</option>
+      </select>
+    </div>
+  </div>
+  <div style="overflow-x:auto;max-height:65vh">
+    <table class="rates-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Product Name</th>
+          <th>Category</th>
+          <th>Sell Rate (Rs.) <span style="color:#64748b;font-weight:400">(Website)</span></th>
+          <th>Purchase Rate (Rs.) <span style="color:#f0c040;font-weight:400">(Saveable)</span></th>
+          <th>Margin</th>
+          <th>Save</th>
+        </tr>
+      </thead>
+      <tbody id="ratesTableBody">
+        <tr><td colspan="7" style="text-align:center;padding:30px;color:#64748b">Products load ho rahe hain...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="margin-top:10px;display:flex;gap:8px">
+    <button class="btn-primary" onclick="saveAllRates()" style="max-width:250px">💾 Save All Changes</button>
+    <button class="btn-sm btn-outline" onclick="filterRatesTable()">🔄 Refresh</button>
+  </div>
+</div>
+
+<!-- ==================== TAB: Expenses ==================== -->
+<div class="panel" id="panel-expenses">
+  <div class="card">
+    <div class="card-title">➕ Naya Kharcha Add Karein</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Kharche ka Title</label>
+        <input type="text" class="form-control" id="expTitle" placeholder="Jaise: Petrol, Bags, Staff Khana..." />
+      </div>
+      <div class="form-group" style="max-width:180px">
+        <label>Category</label>
+        <select class="form-control" id="expCategory">
+          <option value="packaging">📦 Packaging / Bags</option>
+          <option value="fuel">⛽ Petrol / Generator</option>
+          <option value="staff">👤 Staff / Mazdoor</option>
+          <option value="food">🍵 Tea / Khana</option>
+          <option value="electricity">💡 Electricity / UPS</option>
+          <option value="rent">🏠 Rent</option>
+          <option value="misc">📝 Miscellaneous</option>
+        </select>
+      </div>
+      <div class="form-group" style="max-width:140px">
+        <label>Amount (Rs.)</label>
+        <input type="number" class="form-control" id="expAmount" placeholder="0" min="0" />
+      </div>
+      <div class="form-group">
+        <label>Notes (Optional)</label>
+        <input type="text" class="form-control" id="expNotes" placeholder="Extra details..." />
+      </div>
+    </div>
+    <button class="btn-sm btn-gold" onclick="saveExpense()">➕ Add Expense</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💸 Today's Expenses</div>
+    <div id="expensesContainer">
+      <div style="text-align:center;padding:30px;color:#64748b">Koi kharcha nahi mila</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid #252840;margin-top:8px">
+      <span style="font-size:.8rem;color:#94a3b8">Total Expenses:</span>
+      <span style="font-weight:700;color:#ef4444;font-size:1rem" id="expTotalDisplay">Rs. 0</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: History ==================== -->
+<div class="panel" id="panel-history">
+  <div class="card">
+    <div class="card-title">📅 Date Range Report</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Select Past Date</label>
+        <select class="form-control" id="histDateSelect" onchange="loadHistoryDate()" style="max-width:200px">
+          <option value="">-- Select Date --</option>
+        </select>
+      </div>
+    </div>
+    <div id="histSummary" style="margin-top:10px"></div>
+    <div id="histOrders"  style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Print-only invoice -->
+<div id="printArea" style="display:none"></div>
+
+<script>
+const API = 'http://localhost:8889';
+let allProducts   = [];
+let purchaseRates = {};
+let currentOrders = [];
+let currentExpenses = [];
+let currentDate   = '';
+
+// ===============================================================
+// INIT
+// ===============================================================
+async function init() {
+  setToday();
+  await loadProducts();
+  await loadPurchaseRates();
+  await loadDSR();
+  setupRatesTable();
+}
+
+function setToday() {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth()+1).padStart(2,'0');
+  const d = String(today.getDate()).padStart(2,'0');
+  const val = y+'-'+m+'-'+d;
+  document.getElementById('reportDate').value = val;
+  document.getElementById('hdrDate').textContent =
+    today.toLocaleDateString('en-PK',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+
+// ===============================================================
+// Load products from server
+// ===============================================================
+async function loadProducts() {
+  try {
+    const r = await fetch(API+'/api/products');
+    const data = await r.json();
+    allProducts = data.products || [];
+  } catch(e) {
+    showToast('Products load nahi ho sake: '+e.message,'error');
+  }
+}
+
+// ===============================================================
+// Load purchase rates from server
+// ===============================================================
+async function loadPurchaseRates() {
+  try {
+    const r = await fetch(API+'/api/purchase-rates');
+    const data = await r.json();
+    purchaseRates = {};
+    if (data.rates) {
+      Object.keys(data.rates).forEach(k => { purchaseRates[k] = Number(data.rates[k]); });
+    }
+  } catch(e) {
+    purchaseRates = {};
+  }
+}
+
+// ===============================================================
+// Load DSR (orders + expenses for selected date)
+// ===============================================================
+async function loadDSR() {
+  const date = document.getElementById('reportDate').value;
+  currentDate = date;
+  document.getElementById('exportCsvBtn').href = API+'/api/export-csv?date='+date;
+
+  try {
+    const r = await fetch(API+'/api/dsr?date='+date);
+    const data = await r.json();
+    if (!data.ok) { showToast('DSR load error','error'); return; }
+
+    currentOrders   = data.orders   || [];
+    currentExpenses = data.expenses || [];
+    const s = data.summary || {};
+
+    // KPIs
+    document.getElementById('kpiOrders').textContent    = s.totalOrders || 0;
+    document.getElementById('kpiShopOnline').textContent= (s.shopOrders||0)+' / '+(s.onlineOrders||0);
+    document.getElementById('kpiItems').textContent     = s.totalItemsSold || 0;
+    document.getElementById('kpiSales').textContent     = 'Rs. '+fmt(s.totalSales||0);
+    document.getElementById('kpiGross').textContent     = 'Rs. '+fmt(s.grossProfit||0);
+    document.getElementById('kpiExp').textContent       = 'Rs. '+fmt(s.totalExpenses||0);
+    const np = s.netProfit||0;
+    const npEl = document.getElementById('kpiNet');
+    npEl.textContent = 'Rs. '+fmt(np);
+    npEl.style.color = np >= 0 ? '#22c55e' : '#ef4444';
+    document.getElementById('kpiMargin').textContent    = (s.marginPct||0)+'%';
+
+    renderOrders();
+    renderExpenses();
+
+    // Populate history date picker
+    if (data.allDates) {
+      const sel = document.getElementById('histDateSelect');
+      sel.innerHTML = '<option value="">-- Select Date --</option>';
+      data.allDates.forEach(d => {
+        const o = document.createElement('option');
+        o.value = d; o.textContent = d;
+        sel.appendChild(o);
+      });
+    }
+
+  } catch(e) {
+    showToast('Server se connect nahi ho saka. Server chal raha hai?','error');
+  }
+}
+
+// ===============================================================
+// TABS
+// ===============================================================
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tabs = ['sale','orders','rates','expenses','history'];
+  const idx = tabs.indexOf(id);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+  if (id === 'rates') setupRatesTable();
+}
+
+// ===============================================================
+// ORDER ENTRY
+// ===============================================================
+let rowCount = 0;
+
+function addOrderRow(item) {
+  rowCount++;
+  const rid = 'row_'+rowCount;
+  const tbody = document.getElementById('orderItemsBody');
+  const tr = document.createElement('tr');
+  tr.id = rid;
+  tr.dataset.productId = item ? item.id : '';
+
+  const sellPrice = item ? item.price : 0;
+  const purchasePrice = item ? (purchaseRates[String(item.id)] || 0) : 0;
+
+  tr.innerHTML = `
+    <td>
+      <div class="item-search-wrap">
+        <input type="text" class="form-control" placeholder="Item search karein..."
+          value="${item ? escHtml(item.name) : ''}"
+          oninput="searchItem(this, '${rid}')"
+          onfocus="searchItem(this, '${rid}')"
+          onblur="hideDropdown('${rid}')"
+          style="font-size:.76rem;padding:5px 8px" />
+        <div class="item-dropdown" id="dd_${rid}"></div>
+      </div>
+    </td>
+    <td><input type="number" class="form-control" value="1" min="1" style="width:55px;text-align:center" oninput="recalcRow('${rid}'); recalcOrder()" /></td>
+    <td><input type="number" class="form-control" value="${sellPrice}" min="0" style="width:75px" oninput="recalcRow('${rid}'); recalcOrder()" title="Sell rate change sirf is order ke liye hai, save nahi hoga" /></td>
+    <td><input type="number" class="form-control" value="${purchasePrice}" min="0" style="width:75px;border-color:#f0c040" oninput="recalcRow('${rid}'); recalcOrder()" title="Purchase rate – change karengen to auto-save option bhi milega" /></td>
+    <td><span id="lineTotal_${rid}" style="color:#60a5fa;font-weight:700">Rs. ${fmt(sellPrice)}</span></td>
+    <td><span class="row-profit pos" id="lineProfit_${rid}">Rs. ${fmt(sellPrice - purchasePrice)}</span></td>
+    <td><button class="btn-remove-row" onclick="removeRow('${rid}')" title="Remove">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+  recalcRow(rid);
+  recalcOrder();
+  if (!item) {
+    setTimeout(() => tr.querySelector('input[type=text]').focus(), 50);
+  }
+}
+
+function removeRow(rid) {
+  const tr = document.getElementById(rid);
+  if (tr) { tr.remove(); recalcOrder(); }
+}
+
+function searchItem(input, rid) {
+  const q = input.value.trim().toLowerCase();
+  const dd = document.getElementById('dd_'+rid);
+  if (!q || q.length < 1) { dd.style.display = 'none'; return; }
+  const results = allProducts.filter(p =>
+    p.name.toLowerCase().includes(q) ||
+    String(p.id).includes(q)
+  ).slice(0, 30);
+  if (!results.length) { dd.style.display = 'none'; return; }
+  dd.innerHTML = results.map((p,i) => `
+    <div class="dd-item" id="ddi_${rid}_${i}"
+      onmousedown="selectItem('${rid}', ${p.id})"
+      ontouchstart="selectItem('${rid}', ${p.id})">
+      <div class="dd-name">${escHtml(p.name)}</div>
+      <div class="dd-meta">Sell: Rs. ${fmt(p.price)} &nbsp;|&nbsp; Purchase: Rs. ${fmt(purchaseRates[String(p.id)]||0)}</div>
+      <div class="dd-cat">${escHtml(p.categoryName||'')}</div>
+    </div>
+  `).join('');
+  dd.style.display = 'block';
+}
+
+function hideDropdown(rid) {
+  setTimeout(() => {
+    const dd = document.getElementById('dd_'+rid);
+    if (dd) dd.style.display = 'none';
+  }, 200);
+}
+
+function selectItem(rid, productId) {
+  const product = allProducts.find(p => p.id === productId);
+  if (!product) return;
+  const tr = document.getElementById(rid);
+  if (!tr) return;
+  tr.dataset.productId = productId;
+  const inputs = tr.querySelectorAll('input');
+  // text, qty, sell, purchase
+  inputs[0].value = product.name;
+  inputs[2].value = product.price;
+  inputs[3].value = purchaseRates[String(productId)] || 0;
+  const dd = document.getElementById('dd_'+rid);
+  if (dd) dd.style.display = 'none';
+  recalcRow(rid);
+  recalcOrder();
+}
+
+function recalcRow(rid) {
+  const tr = document.getElementById(rid);
+  if (!tr) return;
+  const inputs = tr.querySelectorAll('input');
+  const qty   = Math.max(0, Number(inputs[1].value)||0);
+  const sell  = Math.max(0, Number(inputs[2].value)||0);
+  const pur   = Math.max(0, Number(inputs[3].value)||0);
+  const total  = qty * sell;
+  const profit = qty * (sell - pur);
+  document.getElementById('lineTotal_'+rid).textContent  = 'Rs. '+fmt(total);
+  const lpEl = document.getElementById('lineProfit_'+rid);
+  lpEl.textContent = 'Rs. '+fmt(profit);
+  lpEl.className   = 'row-profit '+(profit >= 0 ? 'pos' : 'neg');
+}
+
+function recalcOrder() {
+  const rows = document.querySelectorAll('#orderItemsBody tr');
+  let totQty=0, totSell=0, totCost=0;
+  rows.forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const qty  = Math.max(0, Number(inputs[1].value)||0);
+    const sell = Math.max(0, Number(inputs[2].value)||0);
+    const pur  = Math.max(0, Number(inputs[3].value)||0);
+    totQty  += qty;
+    totSell += qty * sell;
+    totCost += qty * pur;
+  });
+  const discount = Math.max(0, Number(document.getElementById('discountAmt').value)||0);
+  const delivery = document.getElementById('orderType').value === 'online'
+    ? (Math.max(0, Number(document.getElementById('deliveryCharge').value)||0)) : 0;
+  const finalSale   = totSell - discount + delivery;
+  const grossProfit = finalSale - totCost;
+  const margin = finalSale > 0 ? Math.round((grossProfit/finalSale)*100) : 0;
+  document.getElementById('sumItems').textContent  = totQty;
+  document.getElementById('sumSale').textContent   = 'Rs. '+fmt(finalSale);
+  document.getElementById('sumCost').textContent   = 'Rs. '+fmt(totCost);
+  document.getElementById('sumProfit').textContent = 'Rs. '+fmt(grossProfit);
+  document.getElementById('sumMargin').textContent = margin+'%';
+  document.getElementById('sumMargin').style.color = margin >= 15 ? '#22c55e' : margin >= 5 ? '#f97316' : '#ef4444';
+}
+
+document.getElementById('orderType').addEventListener('change', function() {
+  document.getElementById('deliveryRow').style.display = this.value === 'online' ? 'flex' : 'none';
+  recalcOrder();
+});
+
+async function saveOrder() {
+  const rows = document.querySelectorAll('#orderItemsBody tr');
+  if (!rows.length) { showToast('Koi item nahi diya gaya','error'); return; }
+
+  const items = [];
+  const updatedRates = {};
+  let hasItemError = false;
+
+  rows.forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const name = inputs[0].value.trim();
+    const qty  = Number(inputs[1].value)||0;
+    const sell = Number(inputs[2].value)||0;
+    const pur  = Number(inputs[3].value)||0;
+    const pid  = tr.dataset.productId;
+    if (!name || qty < 1) { hasItemError = true; return; }
+    items.push({ id: pid||0, name, qty, sellPrice: sell, purchasePrice: pur,
+      lineTotal: qty*sell, lineCost: qty*pur, lineProfit: qty*(sell-pur) });
+    // If purchase rate was changed, include in updatedRates
+    if (pid && pur !== (purchaseRates[String(pid)]||0)) {
+      updatedRates[String(pid)] = pur;
+    }
+  });
+
+  if (hasItemError || !items.length) { showToast('Items mein koi ghalti hai','error'); return; }
+
+  const discount = Math.max(0, Number(document.getElementById('discountAmt').value)||0);
+  const orderTypeVal = document.getElementById('orderType').value;
+  const delivery = orderTypeVal === 'online'
+    ? (Math.max(0, Number(document.getElementById('deliveryCharge').value)||0)) : 0;
+
+  const totalSell = items.reduce((a,i) => a+i.lineTotal, 0);
+  const totalCost = items.reduce((a,i) => a+i.lineCost, 0);
+  const totalSale = totalSell - discount + delivery;
+  const totalCostFinal = totalCost;
+  const totalProfit = totalSale - totalCostFinal;
+
+  const editId = document.getElementById('editingOrderId').textContent.trim();
+  const order = {
+    id: editId || '',
+    date: currentDate || document.getElementById('reportDate').value,
+    channel: orderTypeVal,
+    customerName: document.getElementById('custName').value.trim() || 'Walk-in',
+    customerPhone: document.getElementById('custPhone').value.trim(),
+    paymentMethod: document.getElementById('payMethod').value,
+    deliveryAddress: document.getElementById('deliveryAddr').value.trim(),
+    deliveryCharge: delivery,
+    discount,
+    items,
+    totalSale: Math.round(totalSale*100)/100,
+    totalCost: Math.round(totalCostFinal*100)/100,
+    totalProfit: Math.round(totalProfit*100)/100,
+  };
+
+  if (Object.keys(updatedRates).length) {
+    order.updatedRates = updatedRates;
+  }
+
+  const btn = document.getElementById('saveOrderBtn');
+  btn.disabled = true; btn.textContent = 'Save ho raha hai...';
+  try {
+    const r = await fetch(API+'/api/save-order', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(order)
+    });
+    const res = await r.json();
+    if (res.ok) {
+      // Update local purchase rates cache
+      if (Object.keys(updatedRates).length) {
+        Object.assign(purchaseRates, updatedRates);
+        showToast('Order save ho gaya! Purchase rates bhi update ho gae.','success');
+      } else {
+        showToast('Order successfully save ho gaya!','success');
+      }
+      clearOrder();
+      await loadDSR();
+    } else {
+      showToast('Error: '+(res.error||'Unknown error'),'error');
+    }
+  } catch(e) {
+    showToast('Server error: '+e.message,'error');
+  }
+  btn.disabled = false; btn.textContent = '✅ Order Save Karein';
+}
+
+function clearOrder() {
+  document.getElementById('orderItemsBody').innerHTML = '';
+  document.getElementById('custName').value = '';
+  document.getElementById('custPhone').value = '';
+  document.getElementById('deliveryAddr').value = '';
+  document.getElementById('deliveryCharge').value = '0';
+  document.getElementById('discountAmt').value = '0';
+  document.getElementById('orderType').value = 'shop';
+  document.getElementById('payMethod').value = 'cash';
+  document.getElementById('deliveryRow').style.display = 'none';
+  document.getElementById('editingOrderId').textContent = '';
+  document.getElementById('saveOrderBtn').textContent = '✅ Order Save Karein';
+  rowCount = 0;
+  recalcOrder();
+  addOrderRow();
+}
+
+// ===============================================================
+// RENDER ORDERS
+// ===============================================================
+let orderFilter = 'all';
+function filterOrders(f) {
+  orderFilter = f;
+  ['all','shop','online'].forEach(x => {
+    document.getElementById('filter'+x.charAt(0).toUpperCase()+x.slice(1))
+      .className = 'btn-sm '+(x===f?'btn-gold':'btn-outline');
+  });
+  renderOrders();
+}
+
+function renderOrders() {
+  const container = document.getElementById('ordersContainer');
+  let orders = currentOrders;
+  if (orderFilter !== 'all') orders = orders.filter(o => o.channel === orderFilter);
+  if (!orders.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b">Is date koi order nahi hai</div>';
+    return;
+  }
+  container.innerHTML = orders.map((o,idx) => `
+    <div class="order-card">
+      <div class="order-card-header">
+        <div>
+          <span class="order-id">${escHtml(o.id||'')}</span>
+          <span class="order-badge ${o.channel==='online'?'badge-online':'badge-shop'}" style="margin-left:6px">
+            ${o.channel==='online'?'🌐 Online':'🏪 Shop'}
+          </span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-edit" onclick="editOrder(${idx})">✏ Edit</button>
+          <button class="btn-danger" onclick="deleteOrder('${escHtml(o.id||'')}')">🗑</button>
+        </div>
+      </div>
+      <div class="order-meta">
+        👤 ${escHtml(o.customerName||'Walk-in')}
+        ${o.customerPhone ? ' &nbsp;|&nbsp; 📞 '+escHtml(o.customerPhone) : ''}
+        &nbsp;|&nbsp; ⏰ ${escHtml(o.time||'')}
+        &nbsp;|&nbsp; 💳 ${escHtml(o.paymentMethod||'Cash')}
+        ${o.deliveryAddress ? ' &nbsp;|&nbsp; 📍 '+escHtml(o.deliveryAddress) : ''}
+      </div>
+      <div class="order-totals">
+        <div class="ot-item"><div class="ot-label">Total Sale</div><div class="ot-val" style="color:#60a5fa">Rs. ${fmt(o.totalSale)}</div></div>
+        <div class="ot-item"><div class="ot-label">Total Cost</div><div class="ot-val" style="color:#f97316">Rs. ${fmt(o.totalCost)}</div></div>
+        <div class="ot-item"><div class="ot-label">Profit</div><div class="ot-val" style="color:${(o.totalProfit||0)>=0?'#22c55e':'#ef4444'}">Rs. ${fmt(o.totalProfit)}</div></div>
+        <div class="ot-item"><div class="ot-label">Items</div><div class="ot-val" style="color:#94a3b8">${(o.items||[]).length}</div></div>
+        ${o.discount>0?'<div class="ot-item"><div class="ot-label">Discount</div><div class="ot-val" style="color:#f97316">-Rs. '+fmt(o.discount)+'</div></div>':''}
+        ${o.deliveryCharge>0?'<div class="ot-item"><div class="ot-label">Delivery</div><div class="ot-val" style="color:#22d3ee">+Rs. '+fmt(o.deliveryCharge)+'</div></div>':''}
+      </div>
+      <button class="toggle-items" onclick="toggleItems(this)">▼ Items dekhein (${(o.items||[]).length})</button>
+      <div class="order-items-list">
+        ${(o.items||[]).map(it => `
+          <div class="oi-row">
+            <span>${escHtml(it.name||'')}</span>
+            <span>x${it.qty} &nbsp; Sell: Rs.${fmt(it.sellPrice)} &nbsp; Cost: Rs.${fmt(it.purchasePrice)} &nbsp; Profit: <strong style="color:${(it.lineProfit||0)>=0?'#22c55e':'#ef4444'}">Rs.${fmt(it.lineProfit)}</strong></span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleItems(btn) {
+  const list = btn.nextElementSibling;
+  const show = list.classList.toggle('show');
+  btn.textContent = (show ? '▲' : '▼') + btn.textContent.substring(1);
+}
+
+function editOrder(idx) {
+  const orders = orderFilter === 'all' ? currentOrders :
+    currentOrders.filter(o => o.channel === orderFilter);
+  const o = orders[idx];
+  if (!o) return;
+
+  switchTab('sale');
+  document.getElementById('custName').value    = o.customerName || '';
+  document.getElementById('custPhone').value   = o.customerPhone || '';
+  document.getElementById('orderType').value   = o.channel || 'shop';
+  document.getElementById('payMethod').value   = o.paymentMethod || 'cash';
+  document.getElementById('deliveryAddr').value= o.deliveryAddress || '';
+  document.getElementById('deliveryCharge').value = o.deliveryCharge || 0;
+  document.getElementById('discountAmt').value = o.discount || 0;
+  document.getElementById('editingOrderId').textContent = o.id || '';
+  document.getElementById('saveOrderBtn').textContent = '✅ Order Update Karein';
+
+  if (o.channel === 'online') {
+    document.getElementById('deliveryRow').style.display = 'flex';
+  }
+
+  document.getElementById('orderItemsBody').innerHTML = '';
+  rowCount = 0;
+  (o.items||[]).forEach(it => {
+    addOrderRow({ id: it.id, name: it.name, price: it.sellPrice });
+    // override purchase price
+    const rows = document.querySelectorAll('#orderItemsBody tr');
+    const lastRow = rows[rows.length-1];
+    const inputs = lastRow.querySelectorAll('input');
+    inputs[3].value = it.purchasePrice || 0;
+    recalcRow(lastRow.id);
+  });
+  recalcOrder();
+}
+
+async function deleteOrder(id) {
+  if (!confirm('Order "'+id+'" delete karein?')) return;
+  try {
+    const r = await fetch(API+'/api/delete-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    const res = await r.json();
+    if (res.ok) { showToast('Order delete ho gaya','info'); await loadDSR(); }
+    else showToast('Delete error: '+(res.error||''),'error');
+  } catch(e) { showToast('Server error','error'); }
+}
+
+// ===============================================================
+// PURCHASE RATES TABLE
+// ===============================================================
+function setupRatesTable() {
+  const catFilter = document.getElementById('rateCatFilter');
+  const cats = [...new Set(allProducts.map(p => p.categoryName||'').filter(Boolean))].sort();
+  catFilter.innerHTML = '<option value="">-- All Categories --</option>' +
+    cats.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+  filterRatesTable();
+}
+
+function filterRatesTable() {
+  const q   = (document.getElementById('rateSearch').value||'').toLowerCase();
+  const cat = (document.getElementById('rateCatFilter').value||'');
+  let prods = allProducts;
+  if (q)   prods = prods.filter(p => p.name.toLowerCase().includes(q) || String(p.id).includes(q));
+  if (cat) prods = prods.filter(p => p.categoryName === cat);
+
+  const tbody = document.getElementById('ratesTableBody');
+  if (!prods.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:#64748b">Koi product nahi mila</td></tr>';
+    return;
+  }
+  tbody.innerHTML = prods.map(p => {
+    const sell = p.price || 0;
+    const pur  = purchaseRates[String(p.id)] || 0;
+    const margin = sell > 0 && pur > 0 ? Math.round(((sell-pur)/sell)*100) : -1;
+    const marginClass = margin >= 20 ? 'margin-good' : margin >= 8 ? 'margin-med' : margin >= 1 ? 'margin-low' : 'margin-none';
+    const marginText  = margin >= 0 ? margin+'%' : '--';
+    return `<tr>
+      <td style="color:#64748b;font-family:monospace">${p.id}</td>
+      <td class="prod-name">${escHtml(p.name)}</td>
+      <td class="prod-cat">${escHtml(p.categoryName||'')}</td>
+      <td class="sell-price">Rs. ${fmt(sell)}</td>
+      <td>
+        <input type="number" class="purchase-input" id="pur_${p.id}"
+          value="${pur||''}" placeholder="Cost..." min="0"
+          oninput="updateMarginBadge(${p.id}, ${sell})"
+          title="Purchase rate yahan save hoga – agla baar auto aayega" />
+      </td>
+      <td><span class="${marginClass} margin-badge" id="margBadge_${p.id}">${marginText}</span></td>
+      <td>
+        <button class="save-rate-btn" onclick="saveSingleRate(${p.id})">💾</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateMarginBadge(pid, sellPrice) {
+  const inp = document.getElementById('pur_'+pid);
+  const badge = document.getElementById('margBadge_'+pid);
+  if (!inp || !badge) return;
+  const pur = Number(inp.value)||0;
+  const margin = sellPrice > 0 && pur > 0 ? Math.round(((sellPrice-pur)/sellPrice)*100) : -1;
+  badge.textContent = margin >= 0 ? margin+'%' : '--';
+  badge.className = 'margin-badge ' + (margin >= 20 ? 'margin-good' : margin >= 8 ? 'margin-med' : margin >= 1 ? 'margin-low' : 'margin-none');
+}
+
+async function saveSingleRate(pid) {
+  const inp = document.getElementById('pur_'+pid);
+  if (!inp) return;
+  const rate = Number(inp.value)||0;
+  try {
+    const r = await fetch(API+'/api/update-single-purchase-rate',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({id:pid,rate})
+    });
+    const res = await r.json();
+    if (res.ok) {
+      purchaseRates[String(pid)] = rate;
+      updateMarginBadge(pid, allProducts.find(p=>p.id===pid)?.price||0);
+      showToast('Rate save ho gaya!','success');
+    } else { showToast('Error: '+(res.error||''),'error'); }
+  } catch(e) { showToast('Server error','error'); }
+}
+
+async function saveAllRates() {
+  const inputs = document.querySelectorAll('.purchase-input');
+  const rates = {};
+  inputs.forEach(inp => {
+    const pid = inp.id.replace('pur_','');
+    const val = Number(inp.value)||0;
+    if (val > 0) rates[pid] = val;
+  });
+  try {
+    const r = await fetch(API+'/api/save-purchase-rates',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({rates})
+    });
+    const res = await r.json();
+    if (res.ok) {
+      Object.assign(purchaseRates, Object.fromEntries(Object.entries(rates).map(([k,v])=>[k,v])));
+      showToast('Tamam rates save ho gae! ('+res.count+' products)','success');
+    } else { showToast('Error: '+(res.error||''),'error'); }
+  } catch(e) { showToast('Server error','error'); }
+}
+
+// ===============================================================
+// EXPENSES
+// ===============================================================
+function renderExpenses() {
+  const container = document.getElementById('expensesContainer');
+  const exps = currentExpenses;
+  if (!exps.length) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b">Koi kharcha nahi</div>';
+    document.getElementById('expTotalDisplay').textContent = 'Rs. 0';
+    return;
+  }
+  const catIcons = {packaging:'📦',fuel:'⛽',staff:'👤',food:'🍵',electricity:'💡',rent:'🏠',misc:'📝'};
+  const total = exps.reduce((a,e) => a+(e.amount||0), 0);
+  container.innerHTML = exps.map(e => `
+    <div class="exp-row">
+      <div>
+        <div class="exp-title">${catIcons[e.category]||'📝'} ${escHtml(e.title||'Expense')}</div>
+        <div class="exp-cat">${escHtml(e.category||'')} &nbsp;|&nbsp; ${escHtml(e.time||'')} ${e.notes ? '&nbsp;|&nbsp; '+escHtml(e.notes) : ''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="exp-amount">Rs. ${fmt(e.amount)}</span>
+        <button class="btn-danger" onclick="deleteExpense('${escHtml(e.id||'')}')">🗑</button>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('expTotalDisplay').textContent = 'Rs. '+fmt(total);
+}
+
+async function saveExpense() {
+  const title  = document.getElementById('expTitle').value.trim();
+  const cat    = document.getElementById('expCategory').value;
+  const amount = Number(document.getElementById('expAmount').value)||0;
+  const notes  = document.getElementById('expNotes').value.trim();
+  if (!title || amount <= 0) { showToast('Title aur amount fill karein','error'); return; }
+
+  try {
+    const r = await fetch(API+'/api/save-expense',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({date:currentDate, title, category:cat, amount, notes})
+    });
+    const res = await r.json();
+    if (res.ok) {
+      showToast('Kharcha save ho gaya!','success');
+      document.getElementById('expTitle').value  = '';
+      document.getElementById('expAmount').value = '';
+      document.getElementById('expNotes').value  = '';
+      await loadDSR();
+    } else { showToast('Error: '+(res.error||''),'error'); }
+  } catch(e) { showToast('Server error','error'); }
+}
+
+async function deleteExpense(id) {
+  if (!confirm('Ye kharcha delete karein?')) return;
+  try {
+    const r = await fetch(API+'/api/delete-expense',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    const res = await r.json();
+    if (res.ok) { showToast('Kharcha delete ho gaya','info'); await loadDSR(); }
+    else showToast('Error','error');
+  } catch(e) { showToast('Server error','error'); }
+}
+
+// ===============================================================
+// HISTORY
+// ===============================================================
+async function loadHistoryDate() {
+  const date = document.getElementById('histDateSelect').value;
+  if (!date) return;
+  try {
+    const r = await fetch(API+'/api/dsr?date='+date);
+    const data = await r.json();
+    if (!data.ok) return;
+    const s = data.summary||{};
+    document.getElementById('histSummary').innerHTML = `
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <div class="kpi-card blue" style="min-width:90px"><div class="kpi-label">Orders</div><div class="kpi-val">${s.totalOrders||0}</div></div>
+        <div class="kpi-card blue" style="min-width:90px"><div class="kpi-label">Sales</div><div class="kpi-val">Rs. ${fmt(s.totalSales||0)}</div></div>
+        <div class="kpi-card gold" style="min-width:90px"><div class="kpi-label">Gross Profit</div><div class="kpi-val">Rs. ${fmt(s.grossProfit||0)}</div></div>
+        <div class="kpi-card red"  style="min-width:90px"><div class="kpi-label">Expenses</div><div class="kpi-val">Rs. ${fmt(s.totalExpenses||0)}</div></div>
+        <div class="kpi-card green" style="min-width:90px"><div class="kpi-label">Net Profit</div><div class="kpi-val">Rs. ${fmt(s.netProfit||0)}</div></div>
+      </div>
+      <a class="btn-sm btn-outline" href="${API}/api/export-csv?date=${date}" target="_blank" style="text-decoration:none">⬇ Export CSV</a>
+    `;
+  } catch(e) { showToast('Error loading history','error'); }
+}
+
+// ===============================================================
+// PRINT INVOICE
+// ===============================================================
+function printInvoice() {
+  const rows = document.querySelectorAll('#orderItemsBody tr');
+  const items = [];
+  rows.forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const name = inputs[0].value.trim();
+    const qty  = Number(inputs[1].value)||0;
+    const sell = Number(inputs[2].value)||0;
+    if (name && qty) items.push({name,qty,sell,total:qty*sell});
+  });
+  const disc   = Number(document.getElementById('discountAmt').value)||0;
+  const del    = document.getElementById('orderType').value==='online' ? (Number(document.getElementById('deliveryCharge').value)||0) : 0;
+  const grand  = items.reduce((a,i)=>a+i.total,0) - disc + del;
+  const cust   = document.getElementById('custName').value||'Walk-in';
+  const date   = currentDate;
+
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Invoice</title><style>
+    body{font-family:monospace;font-size:13px;padding:20px;max-width:320px}
+    h2{text-align:center;font-size:16px;margin-bottom:4px}
+    .center{text-align:center} .divider{border-top:1px dashed #000;margin:6px 0}
+    table{width:100%;border-collapse:collapse} td{padding:2px 0}
+    .right{text-align:right} .bold{font-weight:bold}
+    @media print{button{display:none}}
+  </style></head><body>
+    <h2>ZS MART</h2>
+    <div class="center">${date}</div><div class="center">Customer: ${escHtml(cust)}</div>
+    <div class="divider"></div>
+    <table>${items.map(i=>`<tr><td>${escHtml(i.name)}</td><td class="right">x${i.qty}</td><td class="right">Rs.${fmt(i.total)}</td></tr>`).join('')}</table>
+    <div class="divider"></div>
+    ${disc>0?'<div style="display:flex;justify-content:space-between"><span>Discount:</span><span>-Rs.'+fmt(disc)+'</span></div>':''}
+    ${del>0?'<div style="display:flex;justify-content:space-between"><span>Delivery:</span><span>+Rs.'+fmt(del)+'</span></div>':''}
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between" class="bold"><span>TOTAL:</span><span>Rs. ${fmt(grand)}</span></div>
+    <div class="divider"></div>
+    <div class="center">Shukriya! ZS Mart visit karne ka</div>
+    <br><button onclick="window.print()">Print</button>
+  </body></html>`);
+  win.document.close();
+}
+
+// ===============================================================
+// UTILITIES
+// ===============================================================
+function fmt(n) {
+  const num = Number(n)||0;
+  return num.toLocaleString('en-PK',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+function escHtml(s) {
+  if (!s && s!==0) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show '+type;
+  setTimeout(() => { t.className = ''; }, 3200);
+}
+
+// Start app
+window.addEventListener('DOMContentLoaded', () => {
+  addOrderRow(); // start with one blank row
+  init();
+});
+</script>
+</body>
+</html>

@@ -749,8 +749,9 @@ function generatePDFReceipt(order, language) {
 function getImgUrl(path) {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  const webpPath = path.replace(/\.(png|jpg|jpeg)$/i, '.webp');
-  return `https://sahiltraders.vercel.app/${webpPath}`;
+  // Serve PNG directly from Vercel CDN (WebP files not yet deployed to Vercel)
+  const pngPath = path.replace(/\.(webp|jpg|jpeg)$/i, '.png');
+  return `https://sahiltraders.vercel.app/${pngPath}`;
 }
 function translate(dictionary, key, params = {}) {
   let value = getTranslationValue(dictionary, key);
@@ -1464,7 +1465,7 @@ function PerfumeIcon({
 // --- Product Categories and Data ---
 var DEFAULT_CATEGORIES = [{
   id: "soaps",
-  name: "Soaps"
+  name: "Local & Imported Soaps"
 }, {
   id: "shampoo",
   name: "Shampoo & Conditioners"
@@ -1511,8 +1512,41 @@ var DEFAULT_CATEGORIES = [{
   id: "facewash",
   name: "Face Wash & Body Washes"
 }];
-function getGlobalCategories() {
-  return typeof window !== 'undefined' && Array.isArray(window.CATEGORIES) && window.CATEGORIES.length > 0 ? window.CATEGORIES : DEFAULT_CATEGORIES;
+function getGlobalCategories(productsList) {
+  // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories
+  var baseCategories = typeof window !== 'undefined' && Array.isArray(window.CATEGORIES) && window.CATEGORIES.length > 0 ? window.CATEGORIES : DEFAULT_CATEGORIES;
+  var liveProducts = productsList || (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : null);
+  if (!liveProducts || liveProducts.length === 0) {
+    return baseCategories;
+  }
+  // Build a map of categoryId -> latest categoryName from products
+  var liveNameMap = {};
+  for (var i = 0; i < liveProducts.length; i++) {
+    var p = liveProducts[i];
+    if (p.categoryId && p.categoryName && !liveNameMap[p.categoryId]) {
+      liveNameMap[p.categoryId] = p.categoryName;
+    }
+  }
+  // Override default category names with live names, preserving order
+  var seenIds = {};
+  var result = baseCategories.map(function (cat) {
+    seenIds[cat.id] = true;
+    return {
+      id: cat.id,
+      name: liveNameMap[cat.id] || cat.name
+    };
+  });
+  // Append any brand-new categories from server not in defaults
+  Object.keys(liveNameMap).forEach(function (catId) {
+    if (!seenIds[catId]) {
+      result.push({
+        id: catId,
+        name: liveNameMap[catId]
+      });
+      seenIds[catId] = true;
+    }
+  });
+  return result;
 }
 var CATEGORIES = DEFAULT_CATEGORIES;
 var SWATCH_GRADIENTS = ["from-amber-400 to-orange-500", "from-violet-500 to-purple-600", "from-emerald-400 to-teal-600", "from-rose-400 to-pink-600", "from-sky-400 to-blue-600", "from-fuchsia-400 to-purple-600", "from-teal-400 to-cyan-600", "from-indigo-400 to-violet-600"];
@@ -7649,49 +7683,49 @@ var PRODUCTS = [{
   name: "SOAP CAPRI (FAMILY PACK) 135g (YELLOW)",
   price: 130,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1081,
   name: "SOAP CAPRI (3 IN 1) YELLOW RS,390",
   price: 350,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1083,
   name: "SOAP DETTOL JUMBO COMPANY RS,150 (COOL)",
   price: 139,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1084,
   name: "SOAP DETTOL JUMBO COMPANY RS,150 (GREEN)",
   price: 139,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1086,
   name: "SOAP DETTOL MEDIUM COMPANY (COOL) RS,140",
   price: 129,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1087,
   name: "SOAP DETTOL SMALL COMPANY (COOL)",
   price: 129,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1088,
   name: "SOAP DOVE LARGE WHITE (IMP)",
   price: 449,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1089,
   name: "SOAP DOVE LARGE PINK (IMP)",
   price: 449,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
   initial: "S"
@@ -7700,7 +7734,7 @@ var PRODUCTS = [{
   name: "SOAP DOVE SMALL WHITE (IMP)",
   price: 0,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "S"
@@ -7709,7 +7743,7 @@ var PRODUCTS = [{
   name: "SOAP DOVE SMALL PINK (IMP)",
   price: 0,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "S"
@@ -7718,19 +7752,19 @@ var PRODUCTS = [{
   name: "SOAP FAIZA (NEEM)",
   price: 110,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1093,
   name: "SOAP FAIZA (PP)",
   price: 110,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1094,
   name: "SOAP GOLDEN PEARL (BLUE)",
   price: 125,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "S"
@@ -7739,7 +7773,7 @@ var PRODUCTS = [{
   name: "SOAP GOLDEN PEARL (PINK)",
   price: 125,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "S"
@@ -7748,7 +7782,7 @@ var PRODUCTS = [{
   name: "SOAP GOLDEN PEARL (YELLOW)",
   price: 125,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "S"
@@ -7757,13 +7791,13 @@ var PRODUCTS = [{
   name: "SOAP IMPERIAL 175gm LARGE",
   price: 390,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1098,
   name: "SOAP IMPERIAL LEATHER SMALL",
   price: 239,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "S"
@@ -7772,55 +7806,55 @@ var PRODUCTS = [{
   name: "SOAP LIFEBUOY (LARGE) GREEN RS,125",
   price: 119,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1100,
   name: "SOAP LIFEBUOY (MEDIUM) (BLUE) RS,95",
   price: 90,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1101,
   name: "SOAP LIFEBUOY (XL) BLUE RS,125",
   price: 119,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1102,
   name: "SOAP LIFEBUOY (XL) GREEN RS,125",
   price: 119,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1103,
   name: "SOAP PALMOLIVE (LARGE) RS,150 BLACK",
   price: 139,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1104,
   name: "SOAP PALMOLIVE (LARGE) RS,150 ORANGE",
   price: 139,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1105,
   name: "SOAP PALMOLIVE (LARGE) RS,150 YELLOW",
   price: 139,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1109,
   name: "SOAP PEARS (BLUE)",
   price: 399,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1110,
   name: "SOAP PEARS (GREEN)",
   price: 399,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "S"
@@ -7829,13 +7863,13 @@ var PRODUCTS = [{
   name: "SOAP PEARS (ORANGE)",
   price: 399,
   categoryId: "soaps",
-  categoryName: "Soaps"
+  categoryName: "Local & Imported Soaps"
 }, {
   id: 1112,
   name: "SOAP SKIN WHITE (BLUE) RS,150",
   price: 129,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "S"
@@ -7844,7 +7878,7 @@ var PRODUCTS = [{
   name: "SOAP SKIN WHITE (GREEN) RS,150",
   price: 129,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "S"
@@ -7853,7 +7887,7 @@ var PRODUCTS = [{
   name: "SOAP SKIN WHITE (PINK) RS,150",
   price: 129,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "S"
@@ -7862,7 +7896,7 @@ var PRODUCTS = [{
   name: "SOAP TIBET (LARGE FAMILY SIZE) RS,109",
   price: 104,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "S"
@@ -7871,7 +7905,7 @@ var PRODUCTS = [{
   name: "SOAP TIBET (MEDIUM BATH SIZE) RS,89",
   price: 85,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "S"
@@ -7880,7 +7914,7 @@ var PRODUCTS = [{
   name: "SOAP TIBET (SMALL STANDARD SIZE) RS,70",
   price: 66,
   categoryId: "soaps",
-  categoryName: "Soaps",
+  categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "S"
@@ -9204,7 +9238,7 @@ function AboutUsModal({
   })))), /*#__PURE__*/React.createElement("div", {
     className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3"
   }, /*#__PURE__*/React.createElement("a", {
-    href: `https://wa.me/${window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775'}?text=${encodeURIComponent(tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`,
+    href: `https://api.whatsapp.com/send?phone=${window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775'}&text=${encodeURIComponent(tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`,
     target: "_blank",
     rel: "noopener noreferrer",
     className: "flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -9390,7 +9424,7 @@ function ReturnPolicyModal({
   }, tr(language, 'Our rider will replace the item at your doorstep or send your money refund.', 'Rider nayi cheez de kar purani le jayega ya paise refund honge.', 'رائڈر نئی چیز دے کر پرانی لے جائے گا یا پیسے ری فنڈ ہوں گے'))))))), /*#__PURE__*/React.createElement("div", {
     className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shrink-0"
   }, /*#__PURE__*/React.createElement("a", {
-    href: `https://wa.me/${window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775'}?text=${encodeURIComponent(tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`,
+    href: `https://api.whatsapp.com/send?phone=${window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775'}&text=${encodeURIComponent(tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`,
     target: "_blank",
     rel: "noopener noreferrer",
     className: "flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -9412,7 +9446,7 @@ function WelcomeDisclaimerModal({
     className: "fixed inset-0 z-[99] flex items-center justify-center p-4 bg-black/75 shadow-2xl animate-fade-in",
     onClick: onClose
   }, /*#__PURE__*/React.createElement("div", {
-    className: "bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border-2 border-amber-400 animate-scale-in relative p-6 text-center",
+    className: "bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border-2 border-amber-400 animate-modal-spring relative p-6 text-center",
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", {
     className: "w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-white flex items-center justify-center text-3xl shadow-lg"
@@ -9455,6 +9489,43 @@ function ParchiOrderModal({
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submittedOrderId, setSubmittedOrderId] = useState(null);
+  const [location, setLocation] = useState(null);
+  const [locLoading, setLocLoading] = useState(false);
+  const [locError, setLocError] = useState(null);
+  const handleGetLocation = (auto = false) => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      if (!auto) setLocError(language === 'ur' ? 'GPS کی سہولت دستیاب نہیں۔' : 'GPS not supported.');
+      return;
+    }
+    setLocLoading(true);
+    setLocError(null);
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
+      setLocation({
+        lat,
+        lng,
+        mapUrl
+      });
+      setLocLoading(false);
+      triggerHaptic('success');
+    }, err => {
+      setLocLoading(false);
+      const msg = err.code === 1 ? language === 'ur' ? 'لوکیشن پرمیشن نہیں ملی۔' : 'Location permission denied.' : language === 'ur' ? 'GPS آن نہیں ہے۔' : 'GPS unavailable.';
+      setLocError(msg);
+      if (!auto) triggerHaptic('error');
+    }, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    });
+  };
+  useEffect(() => {
+    if (deliveryMethod === 'home' && !location && !locLoading) {
+      handleGetLocation(true);
+    }
+  }, [deliveryMethod]);
   const handlePhotoUpload = e => {
     const file = e.target.files && e.target.files[0];
     if (file) {
@@ -9499,7 +9570,8 @@ function ParchiOrderModal({
       customer: {
         name: name.trim(),
         phone: phone.trim(),
-        address: deliveryMethod === 'home' ? address.trim() : 'ZS Mart Store Pickup Karachi'
+        address: deliveryMethod === 'home' ? address.trim() : 'ZS Mart Store Pickup Karachi',
+        location: location ? location.mapUrl : null
       },
       items: [{
         id: 'parchi-slip',
@@ -9517,7 +9589,8 @@ function ParchiOrderModal({
     if (typeof saveOrderHistory === 'function') {
       saveOrderHistory(orderRecord);
     }
-    const waText = `*Salam ZS Mart!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
+    const locText = deliveryMethod === 'home' && location ? `\n📍 *Live GPS Map Pin:* ${location.mapUrl}` : '';
+    const waText = `*Salam ZS Mart!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
 
     // Try direct native Web Share with photo file (opens WhatsApp with actual photo attached on mobile)
     let sharedWithFile = false;
@@ -9542,7 +9615,8 @@ function ParchiOrderModal({
     setSubmitted(true);
   };
   const handleOpenWhatsAppDirect = () => {
-    const waText = `*Salam ZS Mart!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}`;
+    const locText = deliveryMethod === 'home' && location ? `\n📍 *Live GPS Map Pin:* ${location.mapUrl}` : '';
+    const waText = `*Salam ZS Mart!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}`;
     const waUrl = buildWhatsAppUrl('923368945775', waText);
     window.open(waUrl, '_blank');
   };
@@ -9678,7 +9752,9 @@ function ParchiOrderModal({
     type: "button",
     onClick: () => setDeliveryMethod('pickup'),
     className: `p-2 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${deliveryMethod === 'pickup' ? 'border-emerald-600 bg-emerald-50 text-emerald-800' : 'border-gray-200 bg-white text-gray-600'}`
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Store Pickup', 'Store Pickup', 'اسٹور پک اپ'))))), deliveryMethod === 'home' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Store Pickup', 'Store Pickup', 'اسٹور پک اپ'))))), deliveryMethod === 'home' && /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
     className: "block text-[11px] font-bold text-gray-700 mb-1"
   }, tr(language, 'Delivery Address in Karachi', 'Karachi Ka Pura Pata', 'کراچی کا پتہ')), /*#__PURE__*/React.createElement("input", {
     type: "text",
@@ -9686,7 +9762,61 @@ function ParchiOrderModal({
     onChange: e => setAddress(e.target.value),
     placeholder: "Area, Street, Shop / House #",
     className: "w-full border border-gray-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
-  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '8px 10px',
+      borderRadius: 12,
+      background: location ? '#f0fdf4' : '#f8fafc',
+      border: location ? '1.5px solid #10b981' : locError ? '1.5px solid #f87171' : '1px dashed #cbd5e1',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 14
+    }
+  }, location ? '📍' : locLoading ? '⏳' : '🗺️'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 800,
+      color: location ? '#166534' : '#0f172a'
+    }
+  }, location ? language === 'ur' ? '✅ لائیو لوکیشن منسلک ہے' : '✅ Live Location Attached' : locLoading ? language === 'ur' ? 'GPS پن حاصل ہو رہی ہے...' : 'Fetching GPS Pin...' : language === 'ur' ? 'گھر کی لائیو GPS لوکیشن' : 'Live Home GPS Pin'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9.5,
+      color: location ? '#15803d' : '#64748b',
+      fontWeight: 600
+    }
+  }, location ? `Maps: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : locError || (language === 'ur' ? 'رائڈر کی درستگی کیلئے' : 'Accurate map pin for rider')))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => handleGetLocation(false),
+    disabled: locLoading,
+    style: {
+      padding: '4px 9px',
+      borderRadius: 8,
+      background: location ? '#10b981' : '#0f172a',
+      color: '#ffffff',
+      border: 'none',
+      fontSize: 10,
+      fontWeight: 800,
+      cursor: locLoading ? 'not-allowed' : 'pointer',
+      whiteSpace: 'nowrap',
+      flexShrink: 0
+    }
+  }, locLoading ? '⏳...' : location ? language === 'ur' ? '🔄 تبدیل' : '🔄 Update' : language === 'ur' ? '📍 لوکیشن' : '📍 Add GPS'))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
     className: "block text-[11px] font-bold text-gray-700 mb-1"
   }, tr(language, 'Special Instructions / Notes (Optional)', 'Koi Khaas Baat (Optional)', 'اضافی ہدایات (اختیاری)')), /*#__PURE__*/React.createElement("textarea", {
     rows: "2",
@@ -9817,6 +9947,7 @@ function ProductDetailModal({
   if (!open || !product) return null;
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
+  const [packMenuOpen, setPackMenuOpen] = React.useState(false);
   const pricing = useMemo(() => getProductPricing(product), [product]);
   const bulkPricing = useMemo(() => calculateBulkPricing(pricing.sellingPrice, modalQty), [pricing.sellingPrice, modalQty]);
   // Find 4-6 Related Products from the same category (excluding current product)
@@ -9843,7 +9974,7 @@ function ProductDetailModal({
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${(pricing.savings * modalQty + bulkPricing.extraSavings).toLocaleString()})`;
     }
     const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
-    window.open(`https://wa.me/923368945775?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?phone=923368945775&text=${encodeURIComponent(msg)}`, '_blank');
   };
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 shadow-2xl animate-fade-in",
@@ -9899,6 +10030,10 @@ function ProductDetailModal({
     alt: product.name,
     loading: "lazy",
     decoding: "async",
+    onError: e => {
+      e.target.onerror = null;
+      e.target.style.display = 'none';
+    },
     className: "w-full h-full object-contain"
   }) : /*#__PURE__*/React.createElement("div", {
     className: `w-full h-full rounded-xl bg-gradient-to-br ${product.gradient || 'from-amber-400 to-amber-600'} flex items-center justify-center text-white text-4xl font-black`
@@ -9973,29 +10108,26 @@ function ProductDetailModal({
     title: "Plus 1"
   }, "+")), /*#__PURE__*/React.createElement("div", {
     className: "flex-1 min-w-0"
-  }, /*#__PURE__*/React.createElement("select", {
-    value: [6, 12, 24, 36, 48, 60].includes(modalQty) ? modalQty : "custom",
-    onChange: e => {
-      if (e.target.value !== "custom") {
-        setModalQty(Number(e.target.value));
-      }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => {
+      triggerHaptic('light');
+      setPackMenuOpen(true);
     },
-    className: "w-full bg-slate-50 border border-slate-300 hover:border-slate-800 text-slate-900 font-extrabold text-xs rounded-xl px-2.5 py-1.5 focus:outline-hidden focus:ring-2 focus:ring-black cursor-pointer shadow-2xs transition-colors truncate"
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "custom"
-  }, "\uD83D\uDCE6 ", tr(language, 'Wholesale Packs', 'Wholesale Pack Chunain', 'ہول سیل پیک')), /*#__PURE__*/React.createElement("option", {
-    value: "6"
-  }, "6 Pcs (Half Dozen - Extra 0.6% OFF)"), /*#__PURE__*/React.createElement("option", {
-    value: "12"
-  }, "12 Pcs (1 Dozen - Extra 1.2% OFF)"), /*#__PURE__*/React.createElement("option", {
-    value: "24"
-  }, "24 Pcs (2 Dozen - Extra 1.8% OFF)"), /*#__PURE__*/React.createElement("option", {
-    value: "36"
-  }, "36 Pcs (3 Dozen - Extra 2.2% OFF)"), /*#__PURE__*/React.createElement("option", {
-    value: "48"
-  }, "48 Pcs (4 Dozen - Extra 2.8% OFF)"), /*#__PURE__*/React.createElement("option", {
-    value: "60"
-  }, "60 Pcs (5 Dozen - Extra 3.2% OFF)")))), /*#__PURE__*/React.createElement("div", {
+    className: "w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-950 font-extrabold text-xs rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs transition-all active:scale-98 truncate"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "truncate flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE6"), /*#__PURE__*/React.createElement("span", null, [6, 12, 24, 36, 48, 60].includes(modalQty) ? `${modalQty} Pcs (+${getBulkDiscountTier(modalQty).percent}% OFF)` : tr(language, 'Wholesale Packs', 'Wholesale Pack Chunain', 'ہول سیل پیک'))), /*#__PURE__*/React.createElement("svg", {
+    className: "w-3.5 h-3.5 text-emerald-700 shrink-0",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M19.5 8.25l-7.5 7.5-7.5-7.5"
+  }))))), /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)',
       border: '1px solid #6ee7b7',
@@ -10268,7 +10400,200 @@ function ProductDetailModal({
   }, /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
     className: "w-full py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
-  }, tr(language, 'Close', 'Band Karein', 'بند کریں')))));
+  }, tr(language, 'Close', 'Band Karein', 'بند کریں'))), packMenuOpen && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 9999,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-end'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => setPackMenuOpen(false),
+    style: {
+      position: 'fixed',
+      inset: 0,
+      background: 'rgba(0, 0, 0, 0.65)',
+      backdropFilter: 'blur(3px)',
+      WebkitBackdropFilter: 'blur(3px)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      zIndex: 10000,
+      background: '#ffffff',
+      borderRadius: '24px 24px 0 0',
+      padding: '16px 20px calc(24px + env(safe-area-inset-bottom, 0px))',
+      boxShadow: '0 -10px 40px rgba(0,0,0,0.35)',
+      maxWidth: 500,
+      width: '100%',
+      margin: '0 auto',
+      animation: 'imgFadeIn 0.2s ease-out'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 40,
+      height: 4,
+      background: '#cbd5e1',
+      borderRadius: 2,
+      margin: '0 auto 14px'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 14,
+      paddingBottom: 10,
+      borderBottom: '1px solid #f1f5f9'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 15,
+      fontWeight: 900,
+      color: '#0f172a',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE6"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Choose Wholesale Pack', 'Wholesale Pack Chunain', 'ہول سیل پیک منتخب کریں'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setPackMenuOpen(false),
+    style: {
+      background: '#f1f5f9',
+      border: 'none',
+      borderRadius: '50%',
+      width: 30,
+      height: 30,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      color: '#64748b',
+      fontSize: 14,
+      fontWeight: 900
+    }
+  }, "\u2715")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      maxHeight: '60vh',
+      overflowY: 'auto'
+    }
+  }, [{
+    q: 1,
+    label: tr(language, 'Single Piece (Standard Rate)', '1 Pc (Aam Rate)', '1 دانہ (عام ریٹ)'),
+    pct: 0,
+    sub: `Rs ${pricing.sellingPrice.toLocaleString()}/pc`
+  }, {
+    q: 6,
+    label: tr(language, '6 Pcs (Half Dozen Pack)', '6 Pcs (Aadha Darjan)', '6 دانے (آدھا درجن)'),
+    pct: 0.6,
+    sub: `Extra 0.6% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.006)).toLocaleString()}/pc`
+  }, {
+    q: 12,
+    label: tr(language, '12 Pcs (1 Dozen Pack)', '12 Pcs (1 Darjan Pack)', '12 دانے (1 درجن پیک)'),
+    pct: 1.2,
+    sub: `Extra 1.2% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.012)).toLocaleString()}/pc`
+  }, {
+    q: 24,
+    label: tr(language, '24 Pcs (2 Dozen Carton)', '24 Pcs (2 Darjan Carton)', '24 دانے (2 درجن کارٹن)'),
+    pct: 1.8,
+    sub: `Extra 1.8% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.018)).toLocaleString()}/pc`
+  }, {
+    q: 36,
+    label: tr(language, '36 Pcs (3 Dozen Bulk)', '36 Pcs (3 Darjan Bulk)', '36 دانے (3 درجن بلک)'),
+    pct: 2.2,
+    sub: `Extra 2.2% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.022)).toLocaleString()}/pc`
+  }, {
+    q: 48,
+    label: tr(language, '48 Pcs (4 Dozen Master)', '48 Pcs (4 Darjan Master)', '48 دانے (4 درجن ماسٹر)'),
+    pct: 2.8,
+    sub: `Extra 2.8% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.028)).toLocaleString()}/pc`
+  }, {
+    q: 60,
+    label: tr(language, '60 Pcs (5 Dozen Wholesale)', '60 Pcs (5 Darjan Wholesale)', '60 دانے (5 درجن ہول سیل)'),
+    pct: 3.2,
+    sub: `Extra 3.2% OFF • Rs ${Math.round(pricing.sellingPrice * (1 - 0.032)).toLocaleString()}/pc`
+  }].map(opt => {
+    const isSelected = modalQty === opt.q;
+    const totalForPack = Math.round(pricing.sellingPrice * opt.q * (1 - opt.pct / 100));
+    return /*#__PURE__*/React.createElement("button", {
+      key: opt.q,
+      type: "button",
+      onClick: () => {
+        triggerHaptic('light');
+        setModalQty(opt.q);
+        setPackMenuOpen(false);
+      },
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '12px 14px',
+        borderRadius: 14,
+        background: isSelected ? '#ecfdf5' : '#f8fafc',
+        border: isSelected ? '1.5px solid #10b981' : '1.5px solid #e2e8f0',
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+        textAlign: 'left'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 34,
+        height: 34,
+        borderRadius: 10,
+        background: isSelected ? '#10b981' : '#e2e8f0',
+        color: isSelected ? '#ffffff' : '#0f172a',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 900,
+        fontSize: 13,
+        flexShrink: 0
+      }
+    }, opt.q, "x"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13,
+        fontWeight: isSelected ? 800 : 700,
+        color: isSelected ? '#065f46' : '#0f172a'
+      }
+    }, opt.label), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: isSelected ? '#047857' : '#64748b',
+        fontWeight: 600,
+        marginTop: 1
+      }
+    }, opt.sub))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'right',
+        flexShrink: 0
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13,
+        fontWeight: 900,
+        color: isSelected ? '#059669' : '#0f172a'
+      }
+    }, "Rs ", totalForPack.toLocaleString()), opt.pct > 0 && /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9.5,
+        fontWeight: 800,
+        color: '#ffffff',
+        background: '#059669',
+        padding: '1px 6px',
+        borderRadius: 6
+      }
+    }, "+", opt.pct, "% OFF")));
+  }))))));
 }
 
 // -----------------------------------------------------------------------------
@@ -10572,6 +10897,12 @@ function SahilTraders() {
         try {
           localStorage.setItem("zs_groceries_products_cache", JSON.stringify(freshProducts));
         } catch (e) {}
+        if (loadedData.categories && Array.isArray(loadedData.categories) && loadedData.categories.length > 0) {
+          window.CATEGORIES = loadedData.categories;
+          try {
+            localStorage.setItem("zs_groceries_categories_cache", JSON.stringify(loadedData.categories));
+          } catch (e) {}
+        }
         if (loadedData.imageMap && typeof window !== 'undefined') {
           window.PRODUCT_IMAGE_MAP = {
             1: 'png',
@@ -11593,6 +11924,15 @@ function SahilTraders() {
     setIsSyncingProducts(false);
   }
   useEffect(() => {
+    try {
+      const cachedCats = localStorage.getItem("zs_groceries_categories_cache");
+      if (cachedCats && typeof window !== 'undefined') {
+        const parsedCats = JSON.parse(cachedCats);
+        if (Array.isArray(parsedCats) && parsedCats.length > 0) {
+          window.CATEGORIES = parsedCats;
+        }
+      }
+    } catch (e) {}
     try {
       const cachedMap = localStorage.getItem("zs_groceries_imagemap_cache");
       if (cachedMap && typeof window !== 'undefined') {
@@ -13128,6 +13468,13 @@ function SahilTraders() {
     setSelectedCategory(null);
     setSelectedBrand("all");
     setActiveCategory("all");
+    setMobileSearchFocused(false);
+    setSuggestOpen(false);
+    if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+    if (searchInputRef.current) searchInputRef.current.blur();
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
   }
   function handleSelectProductFromCart(product) {
     setCartOpen(false);
@@ -13154,6 +13501,63 @@ function SahilTraders() {
       clearTimeout(removeTimer);
     };
   }, [showSplash]);
+
+  // 📢 Disclaimer Modal — appears with smooth animation ~2s after app opens
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setWelcomeOpen(true);
+    }, 2200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // ⚡ 120 FPS Hardware Scroll Optimization: Pause Marquees during active touch scrolling
+  useEffect(() => {
+    let isScrollingTimeout;
+    const onScroll = () => {
+      if (!document.body.classList.contains('is-scrolling')) {
+        document.body.classList.add('is-scrolling');
+      }
+      clearTimeout(isScrollingTimeout);
+      isScrollingTimeout = setTimeout(() => {
+        document.body.classList.remove('is-scrolling');
+      }, 120);
+    };
+    window.addEventListener('scroll', onScroll, {
+      passive: true
+    });
+    window.addEventListener('touchmove', onScroll, {
+      passive: true
+    });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('touchmove', onScroll);
+      clearTimeout(isScrollingTimeout);
+    };
+  }, []);
+
+  // ⚡ IntersectionObserver — pause off-screen marquee tracks automatically
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('marquee-paused');
+        } else {
+          entry.target.classList.add('marquee-paused');
+        }
+      });
+    }, {
+      rootMargin: '80px 0px'
+    });
+    const timer = setTimeout(() => {
+      const cards = document.querySelectorAll('.cat-card-container');
+      cards.forEach(card => observer.observe(card));
+    }, 120);
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [products]);
   useEffect(() => {
     function handleClickOutside(e) {
       if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
@@ -13290,7 +13694,13 @@ function SahilTraders() {
     } else if (sortBy === "name_asc") {
       return list.sort((a, b) => a.name.localeCompare(b.name));
     }
-    return list;
+    // 🌟 "default" order: Sort by custom admin priority (1, 2, 3... 20), then unassigned items preserve order
+    return list.sort((a, b) => {
+      const pa = a.priority && a.priority > 0 ? a.priority : 999999;
+      const pb = b.priority && b.priority > 0 ? b.priority : 999999;
+      if (pa !== pb) return pa - pb;
+      return a.id - b.id;
+    });
   }, [filtered, sortBy, isSearching]);
 
   // 🚀 Daraz-Style Instant RAM Preloader Engine (Lightning Fast Image Delivery)
@@ -13339,17 +13749,31 @@ function SahilTraders() {
   function handleSuggestionClick(product) {
     setSearchTerm(product.name);
     setSuggestOpen(false);
+    setMobileSearchFocused(false);
     recordSearch(product);
+    if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+    if (searchInputRef.current) searchInputRef.current.blur();
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+      document.activeElement.blur();
+    }
   }
   function handleSearchKeyDown(e) {
-    if (e.key === "Enter" && suggestions.length > 0) {
-      recordSearch(suggestions[0]);
+    if (e.key === "Enter") {
+      if (suggestions.length > 0) {
+        recordSearch(suggestions[0]);
+      }
       setSuggestOpen(false);
+      setMobileSearchFocused(false);
+      if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+      if (searchInputRef.current) searchInputRef.current.blur();
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
     }
   }
   // Show search results if searching, else show category home or products
   const showCategoryHome = !isSearching && !selectedCategory;
-  const categoriesList = getGlobalCategories();
+  const categoriesList = getGlobalCategories(products);
   const selectedCategoryName = selectedCategory ? langData.categories?.[selectedCategory] || categoriesList.find(c => c.id === selectedCategory)?.name || selectedCategory : null;
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen relative text-gray-900",
@@ -13560,7 +13984,8 @@ function SahilTraders() {
     d: "M16.5 16.5L21 21"
   })), /*#__PURE__*/React.createElement("input", {
     ref: searchInputRef,
-    type: "text",
+    type: "search",
+    enterKeyHint: "search",
     value: searchTerm,
     onChange: e => {
       setSearchTerm(e.target.value);
@@ -13609,19 +14034,36 @@ function SahilTraders() {
     onClick: () => {
       triggerHaptic('light');
       setSearchTerm('');
+      if (searchInputRef.current) searchInputRef.current.focus();
     },
     style: {
-      background: 'rgba(255,255,255,0.12)',
+      background: 'rgba(255,255,255,0.2)',
       border: 'none',
-      borderRadius: '6px',
-      padding: '3px 6px',
-      color: 'rgba(255,255,255,0.6)',
+      borderRadius: '50%',
+      width: '20px',
+      height: '20px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#ffffff',
       cursor: 'pointer',
-      fontSize: '11px',
-      fontWeight: 700
+      padding: 0
     },
     title: "Clear"
-  }, "\u2715"), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      width: '10px',
+      height: '10px'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.8",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M6 18L18 6M6 6l12 12"
+  }))), /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: handleVoiceSearch,
     title: tr(language, "Voice Search", "Voice Search", "آواز سے تلاش"),
@@ -14203,9 +14645,13 @@ function SahilTraders() {
     type: "button",
     onClick: () => {
       triggerHaptic('light');
+      setSearchTerm('');
       setMobileSearchFocused(false);
       setSuggestOpen(false);
       if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
     },
     style: {
       background: 'rgba(255,255,255,0.1)',
@@ -14264,7 +14710,8 @@ function SahilTraders() {
     d: "M16.5 16.5L21 21"
   })), /*#__PURE__*/React.createElement("input", {
     ref: mobileSearchInputRef,
-    type: "text",
+    type: "search",
+    enterKeyHint: "search",
     value: searchTerm,
     onChange: e => {
       setSearchTerm(e.target.value);
@@ -14301,19 +14748,37 @@ function SahilTraders() {
     onClick: () => {
       triggerHaptic('light');
       setSearchTerm('');
+      if (mobileSearchInputRef.current) mobileSearchInputRef.current.focus();
     },
     style: {
-      background: 'rgba(255,255,255,0.2)',
+      background: 'rgba(255,255,255,0.22)',
       border: 'none',
-      borderRadius: '5px',
-      padding: '2px 5px',
+      borderRadius: '50%',
+      width: '18px',
+      height: '18px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
       color: '#ffffff',
       cursor: 'pointer',
-      fontSize: '9px',
-      fontWeight: 800
+      padding: 0,
+      flexShrink: 0
     },
     title: "Clear"
-  }, "\u2715"), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      width: '9px',
+      height: '9px'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "3",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M6 18L18 6M6 6l12 12"
+  }))), /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: handleVoiceSearch,
     style: {
@@ -14737,7 +15202,7 @@ function SahilTraders() {
       whiteSpace: 'nowrap'
     }
   }, tr(language, 'Upload', 'Bhejen', 'بھیجیں'))), /*#__PURE__*/React.createElement("a", {
-    href: "https://wa.me/923368945775",
+    href: "https://api.whatsapp.com/send?phone=923368945775",
     target: "_blank",
     rel: "noopener noreferrer",
     style: {
@@ -15077,22 +15542,28 @@ function SahilTraders() {
     language: language
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
-      marginBottom: 14,
+      marginBottom: 10,
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 10
+      gap: 8,
+      background: '#ffffff',
+      padding: '7px 10px',
+      borderRadius: 14,
+      border: '1px solid #e2e8f0',
+      boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
     }
   }, (selectedCategory || isSearching || activeCategory !== "all") && /*#__PURE__*/React.createElement("button", {
     onClick: handleGoBack,
-    className: "flex items-center gap-1.5 border px-3 py-1.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all shadow-sm cursor-pointer shrink-0",
+    className: "flex items-center gap-1.5 border rounded-xl text-xs font-bold tracking-wide transition-all shadow-xs cursor-pointer shrink-0 active:scale-95",
     style: {
-      background: 'linear-gradient(135deg, rgba(0,0,0,0.12), rgba(255,255,255,0.95))',
-      borderColor: 'rgba(0,0,0,0.12)',
-      color: '#111111'
+      padding: '5px 10px',
+      background: '#f8fafc',
+      borderColor: '#cbd5e1',
+      color: '#0f172a',
+      height: 32
     }
   }, /*#__PURE__*/React.createElement("svg", {
-    className: "w-3.5 h-3.5 text-black",
+    className: "w-3.5 h-3.5 text-slate-800",
     fill: "none",
     stroke: "currentColor",
     strokeWidth: "2.5",
@@ -15101,41 +15572,60 @@ function SahilTraders() {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-  })), /*#__PURE__*/React.createElement("span", null, translate(langData, "backBtn") || "BACK")), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("span", null, translate(langData, "backBtn") || "Back")), /*#__PURE__*/React.createElement("div", {
     style: {
-      textAlign: 'right',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      marginLeft: 'auto'
-    }
-  }, /*#__PURE__*/React.createElement("h2", {
-    style: {
-      fontSize: 14,
-      fontWeight: 900,
-      letterSpacing: '0.1em',
-      textTransform: 'uppercase',
-      color: '#111111',
-      fontFamily: "'Poppins', sans-serif"
-    }
-  }, isSearching ? `Search: "${searchTerm}"` : selectedCategoryName), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 10,
-      fontWeight: 800,
-      color: '#111111',
-      background: 'rgba(0,0,0,0.12)',
-      border: '1px solid rgba(0,0,0,0.12)',
-      borderRadius: 12,
-      padding: '1px 8px',
-      whiteSpace: 'nowrap'
-    }
-  }, filtered.length, " ", translate(langData, "itemsLabel")))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginBottom: 16,
+      flex: 1,
+      minWidth: 0,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      gap: 10,
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 0,
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9.5,
+      fontWeight: 700,
+      color: '#64748b',
+      textTransform: 'uppercase',
+      letterSpacing: '0.04em',
+      lineHeight: 1.1
+    }
+  }, isSearching ? language === 'ur' ? 'تلاش کے نتائج' : 'Search Results' : language === 'ur' ? 'کیٹیگری' : 'Category'), /*#__PURE__*/React.createElement("h2", {
+    style: {
+      fontSize: 13,
+      fontWeight: 800,
+      color: '#0f172a',
+      fontFamily: "'Poppins', sans-serif",
+      margin: '2px 0 0 0',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    },
+    title: isSearching ? searchTerm : selectedCategoryName
+  }, isSearching ? `"${searchTerm}"` : selectedCategoryName)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10.5,
+      fontWeight: 800,
+      color: '#059669',
+      background: '#ecfdf5',
+      border: '1px solid #a7f3d0',
+      borderRadius: 8,
+      padding: '3px 8px',
+      whiteSpace: 'nowrap',
+      flexShrink: 0
+    }
+  }, filtered.length, " ", translate(langData, "itemsLabel") || "items"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 10,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 6,
       flexWrap: 'wrap'
     }
   }, /*#__PURE__*/React.createElement("button", {
@@ -15146,19 +15636,20 @@ function SahilTraders() {
     style: {
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 6,
+      gap: 4,
       background: '#ffffff',
-      border: '1.5px solid #059669',
-      borderRadius: 999,
-      padding: '7px 14px',
+      border: '1px solid #059669',
+      borderRadius: 8,
+      padding: '4px 9px',
+      height: 28,
       cursor: 'pointer',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
       transition: 'all 0.15s'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 14,
-      height: 14,
+      width: 12,
+      height: 12,
       color: '#059669'
     },
     fill: "none",
@@ -15171,14 +15662,14 @@ function SahilTraders() {
     d: "M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5-6L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 11.5,
-      fontWeight: 800,
+      fontSize: 11,
+      fontWeight: 700,
       color: '#0f172a'
     }
   }, SORT_OPTIONS.find(o => o.id === sortBy)?.[language === 'ur' ? 'labelUrdu' : 'label'] || 'Sort'), /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 12,
-      height: 12,
+      width: 10,
+      height: 10,
       color: '#64748b'
     },
     fill: "none",
@@ -15194,7 +15685,7 @@ function SahilTraders() {
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
-      gap: 6
+      gap: 4
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -15204,22 +15695,22 @@ function SahilTraders() {
     style: {
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 7,
-      border: selectedBrand !== "all" ? '1.5px solid #059669' : '1px solid #111111',
+      gap: 4,
+      border: selectedBrand !== "all" ? '1px solid #059669' : '1px solid #cbd5e1',
       background: selectedBrand !== "all" ? '#059669' : '#ffffff',
-      color: selectedBrand !== "all" ? '#ffffff' : '#111111',
-      borderRadius: 999,
-      padding: '7px 14px',
-      fontSize: 12,
-      fontWeight: 900,
-      letterSpacing: '0.04em',
+      color: selectedBrand !== "all" ? '#ffffff' : '#0f172a',
+      borderRadius: 8,
+      padding: '4px 9px',
+      height: 28,
+      fontSize: 11,
+      fontWeight: 700,
       cursor: 'pointer',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+      boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 14,
-      height: 14
+      width: 12,
+      height: 12
     },
     fill: "none",
     stroke: "currentColor",
@@ -15231,14 +15722,12 @@ function SahilTraders() {
     d: "M3 5h18M6 12h10M10 19h4"
   })), /*#__PURE__*/React.createElement("span", null, "Filter"), selectedBrand !== "all" && /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: 11,
+      fontSize: 10,
       background: '#ffffff',
       color: '#059669',
-      borderRadius: 999,
-      padding: '1px 8px',
-      fontWeight: 800,
-      letterSpacing: 0,
-      textTransform: 'none'
+      borderRadius: 6,
+      padding: '0 5px',
+      fontWeight: 800
     }
   }, selectedBrand)), selectedBrand !== "all" && /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -15249,14 +15738,15 @@ function SahilTraders() {
     style: {
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 4,
+      gap: 2,
       background: '#fee2e2',
       border: '1px solid #fecaca',
       color: '#991b1b',
-      borderRadius: 999,
-      padding: '7px 11px',
-      fontSize: 11,
-      fontWeight: 800,
+      borderRadius: 8,
+      padding: '4px 7px',
+      height: 28,
+      fontSize: 10.5,
+      fontWeight: 700,
       cursor: 'pointer'
     }
   }, /*#__PURE__*/React.createElement("span", null, "\u2715"), /*#__PURE__*/React.createElement("span", null, "Reset")))), filtered.length === 0 ? /*#__PURE__*/React.createElement("div", {
@@ -15281,9 +15771,7 @@ function SahilTraders() {
     product: p,
     langData: langData,
     language: language,
-    cartQty: cart.filter(i => i.product.id === p.id).reduce((s, i) => s + i.qty, 0),
     onAddToCart: addToCart,
-    onFlyToCart: flyProductToCart,
     onSelectProduct: selectProductWithHash,
     isWishlisted: wishlist.includes(p.id),
     onToggleWishlist: toggleWishlist
@@ -15707,7 +16195,7 @@ function SahilTraders() {
   }, "\u203A")))), /*#__PURE__*/React.createElement("div", {
     className: "pt-4 border-t border-gray-100 mt-4 space-y-3"
   }, /*#__PURE__*/React.createElement("a", {
-    href: "https://wa.me/923368945775",
+    href: "https://api.whatsapp.com/send?phone=923368945775",
     target: "_blank",
     rel: "noopener noreferrer",
     className: "w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer",
@@ -16924,14 +17412,50 @@ const CATEGORY_META = {
   }
 };
 // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
-function CategoryHome({
+const CategoryHome = React.memo(function CategoryHome({
   products,
   onSelectCategory,
   langData,
   language
 }) {
   const isUrdu = language === 'ur';
-  const categoriesList = getGlobalCategories();
+  const categoriesList = getGlobalCategories(products);
+
+  // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
+  const categoryData = useMemo(() => {
+    const productMap = {};
+    for (let i = 0; i < products.length; i++) {
+      const p = products[i];
+      if (!productMap[p.categoryId]) productMap[p.categoryId] = [];
+      productMap[p.categoryId].push(p);
+    }
+    return categoriesList.map(cat => {
+      const catProducts = productMap[cat.id] || [];
+      const count = catProducts.length;
+      const meta = CATEGORY_META[cat.id] || {
+        gradient: 'linear-gradient(135deg,#000000,#9b7a00)',
+        icon: null
+      };
+      // 🔄 Prioritize top items in custom sequence so they rotate in marquee
+      const sortedCatProducts = [...catProducts].sort((a, b) => {
+        const pa = a.priority && a.priority > 0 ? a.priority : 999999;
+        const pb = b.priority && b.priority > 0 ? b.priority : 999999;
+        if (pa !== pb) return pa - pb;
+        return a.id - b.id;
+      });
+      const imageProducts = sortedCatProducts.filter(p => window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage).slice(0, 6);
+      const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
+      const animSpeed = imageProducts.length * 3.5 + 's';
+      return {
+        cat,
+        count,
+        meta,
+        imageProducts,
+        doubleItems,
+        animSpeed
+      };
+    });
+  }, [products, categoriesList]);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 12,
@@ -16967,17 +17491,14 @@ function CategoryHome({
       gridTemplateColumns: 'repeat(3, 1fr)',
       gap: 8
     }
-  }, categoriesList.map(cat => {
-    const catProducts = products.filter(p => p.categoryId === cat.id);
-    const count = catProducts.length;
-    const meta = CATEGORY_META[cat.id] || {
-      gradient: 'linear-gradient(135deg,#000000,#9b7a00)',
-      icon: null
-    };
-    // Find top items in this category that have images (Max 4 items for silky 60fps)
-    const imageProducts = catProducts.filter(p => window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage).slice(0, 4);
-    const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
-    const animSpeed = imageProducts.length * 3.5 + 's';
+  }, categoryData.map(({
+    cat,
+    count,
+    meta,
+    imageProducts,
+    doubleItems,
+    animSpeed
+  }) => {
     return /*#__PURE__*/React.createElement("div", {
       key: cat.id,
       onClick: () => {
@@ -17032,8 +17553,7 @@ function CategoryHome({
         borderRadius: 6,
         fontSize: 8,
         fontWeight: 800,
-        background: 'rgba(15, 23, 42, 0.82)',
-        backdropFilter: 'blur(4px)',
+        background: 'rgba(15, 23, 42, 0.90)',
         color: '#ffffff',
         boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
       }
@@ -17153,7 +17673,7 @@ function CategoryHome({
       }
     }, "\u2794")))));
   })));
-}
+});
 function CategoryDropdown({
   activeCategory,
   setActiveCategory,
@@ -17203,7 +17723,7 @@ function CategoryDropdown({
   }, "\u2713"))));
 }
 // -----------------------------------------------------------------------------
-function ProductCard({
+const ProductCard = React.memo(function ProductCard({
   product,
   onAddToCart,
   langData,
@@ -17225,7 +17745,7 @@ function ProductCard({
   const imageSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
   return /*#__PURE__*/React.createElement("div", {
     onClick: () => onSelectProduct && onSelectProduct(product),
-    className: "product-card group bg-white border border-gray-200 hover:border-gray-900 rounded-2xl p-3 sm:p-4 flex flex-col justify-between transition-all duration-300 cursor-pointer shadow-xs hover:shadow-lg relative overflow-hidden"
+    className: "product-card bg-white border border-gray-200 hover:border-gray-400 rounded-2xl p-3 sm:p-4 flex flex-col justify-between cursor-pointer shadow-xs relative overflow-hidden active:scale-[0.98] transition-transform duration-150"
   }, pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
     className: "absolute top-2 left-2 z-10 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 uppercase tracking-wider"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDD25"), /*#__PURE__*/React.createElement("span", null, pricing.discountPercent, "% OFF")), /*#__PURE__*/React.createElement("button", {
@@ -17234,7 +17754,7 @@ function ProductCard({
       e.stopPropagation();
       if (onToggleWishlist) onToggleWishlist(product);
     },
-    className: `absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-2xs ${isWishlisted ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105' : 'bg-white/90  border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'}`,
+    className: `absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-transform active:scale-90 cursor-pointer shadow-2xs ${isWishlisted ? 'bg-rose-50 border border-rose-200 text-rose-600 scale-105' : 'bg-white/90  border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-200'}`,
     title: isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'
   }, /*#__PURE__*/React.createElement("svg", {
     className: "w-3.5 h-3.5",
@@ -17247,7 +17767,7 @@ function ProductCard({
     strokeLinejoin: "round",
     d: "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "product-image-box h-32 sm:h-40 w-full bg-gray-50 rounded-xl p-2 mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-amber-50/30 transition-colors"
+    className: "product-image-box h-32 sm:h-40 w-full bg-gray-50 rounded-xl p-2 mb-3 flex items-center justify-center relative overflow-hidden"
   }, hasFile ? /*#__PURE__*/React.createElement("img", {
     src: imageSrc,
     alt: product.name,
@@ -17259,13 +17779,13 @@ function ProductCard({
         e.currentTarget.src = s.replace('.webp', '.' + (window.PRODUCT_IMAGE_MAP?.[product.id] || 'png'));
       }
     },
-    className: "w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+    className: "w-full h-full object-contain"
   }) : /*#__PURE__*/React.createElement("div", {
     className: `w-16 h-16 rounded-2xl bg-gradient-to-br ${product.gradient || 'from-gray-400 to-gray-600'} flex items-center justify-center text-white text-xl font-bold shadow-inner`
   }, product.initial || 'P')), /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col flex-1"
   }, /*#__PURE__*/React.createElement("h4", {
-    className: "product-name font-bold text-xs sm:text-sm text-gray-900 line-clamp-2 leading-snug mb-1 group-hover:text-black transition-colors"
+    className: "product-name font-bold text-xs sm:text-sm text-gray-900 line-clamp-2 leading-snug mb-1"
   }, getProductDisplayName(product, language)), pricing.hasDiscount ? /*#__PURE__*/React.createElement("div", {
     className: "flex flex-col gap-0.5"
   }, /*#__PURE__*/React.createElement("div", {
@@ -17332,7 +17852,7 @@ function ProductCard({
     strokeLinejoin: "round",
     d: "M12 4.5v15m7.5-7.5h-15"
   })), translate(langData, "addToCart")))));
-}
+});
 // -----------------------------------------------------------------------------
 function CartDrawer({
   open,
@@ -17625,7 +18145,7 @@ function CartDrawer({
         e.target.onerror = null;
       },
       alt: product.name,
-      className: "w-12 h-12 rounded-xl object-contain bg-black/40 p-1 border border-gray-200 hover:border-gray-300 transition-colors"
+      className: "w-12 h-12 rounded-xl object-contain bg-white p-1 border border-gray-200 hover:border-gray-300 transition-colors shadow-2xs"
     }) : /*#__PURE__*/React.createElement("div", {
       className: `w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`
     }, /*#__PURE__*/React.createElement("span", {
@@ -18105,7 +18625,7 @@ function FloatingWhatsAppButton() {
       return;
     }
     triggerHaptic('light');
-    const url = "https://wa.me/923368945775?text=" + encodeURIComponent("Hello ZS Mart, I want to inquire about products / order.");
+    const url = "https://api.whatsapp.com/send?phone=923368945775&text=" + encodeURIComponent("Hello ZS Mart, I want to inquire about products / order.");
     window.open(url, '_blank');
   };
   const x = pos.x !== null ? pos.x : typeof window !== 'undefined' ? window.innerWidth - 64 : 20;
@@ -18277,7 +18797,7 @@ function OrderHistoryModal({
         gap: 8
       }
     }, /*#__PURE__*/React.createElement("a", {
-      href: "https://wa.me/923368945775?text=" + encodeURIComponent("Hello ZS Mart, I have a question regarding Order #" + order.id),
+      href: "https://api.whatsapp.com/send?phone=923368945775&text=" + encodeURIComponent("Hello ZS Mart, I have a question regarding Order #" + order.id),
       target: "_blank",
       rel: "noopener noreferrer",
       style: {
@@ -18464,7 +18984,7 @@ function OrderHistoryModal({
       }
     }, "Tap item to view details \uD83D\uDD0D")), order.items && order.items.map((item, i) => {
       const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
-      const imgSrc = hasFile ? 'images/' + item.id + '.' + window.PRODUCT_IMAGE_MAP[item.id] : item.imageExt ? 'images/' + item.id + '.' + item.imageExt : null;
+      const imgSrc = hasFile ? getImgUrl(`images/${item.id}.${window.PRODUCT_IMAGE_MAP[item.id]}`) : item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null;
       return /*#__PURE__*/React.createElement("div", {
         key: i,
         onClick: () => {
@@ -18758,7 +19278,7 @@ function OrderHistoryModal({
       gap: 8
     }
   }, /*#__PURE__*/React.createElement("a", {
-    href: "https://wa.me/923368945775?text=Hello%20ZS%20Mart%2C%20I%20need%20assistance%20with%20my%20order.",
+    href: "https://api.whatsapp.com/send?phone=923368945775&text=Hello%20ZS%20Mart%2C%20I%20need%20assistance%20with%20my%20order.",
     target: "_blank",
     rel: "noopener noreferrer",
     style: {
@@ -18992,7 +19512,7 @@ function OrderHistoryModal({
       }
     }, order.items && order.items.slice(0, 5).map((it, itemIdx) => {
       const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[it.id];
-      const imgSrc = hasFile ? 'images/' + it.id + '.' + window.PRODUCT_IMAGE_MAP[it.id] : it.imageExt ? 'images/' + it.id + '.' + it.imageExt : null;
+      const imgSrc = hasFile ? getImgUrl(`images/${it.id}.${window.PRODUCT_IMAGE_MAP[it.id]}`) : it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null;
       return /*#__PURE__*/React.createElement("div", {
         key: itemIdx,
         style: {
@@ -19143,7 +19663,44 @@ function CheckoutModal({
   const [success, setSuccess] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
   const [waUrlState, setWaUrlState] = useState("");
+  const [location, setLocation] = useState(null);
+  const [locLoading, setLocLoading] = useState(false);
+  const [locError, setLocError] = useState(null);
   const isUrdu = language === 'ur';
+  const handleGetLocation = (auto = false) => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      if (!auto) setLocError(language === 'ur' ? 'GPS کی سہولت دستیاب نہیں۔' : 'GPS not supported.');
+      return;
+    }
+    setLocLoading(true);
+    setLocError(null);
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
+      setLocation({
+        lat,
+        lng,
+        mapUrl
+      });
+      setLocLoading(false);
+      triggerHaptic('success');
+    }, err => {
+      setLocLoading(false);
+      const msg = err.code === 1 ? language === 'ur' ? 'لوکیشن پرمیشن نہیں ملی۔' : 'Location permission denied.' : language === 'ur' ? 'GPS آن نہیں ہے۔' : 'GPS unavailable.';
+      setLocError(msg);
+      if (!auto) triggerHaptic('error');
+    }, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    });
+  };
+  useEffect(() => {
+    if (deliveryMethod === 'home' && !location && !locLoading) {
+      handleGetLocation(true);
+    }
+  }, [deliveryMethod]);
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -19185,7 +19742,8 @@ function CheckoutModal({
     }).join('\n\n');
     const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
     const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
-    const msg = ['🛒 *NEW ORDER – ZS Mart*', '-----------------------------------------', '', '*📦 ORDER DETAILS:*', itemLines, '', '-----------------------------------------', `*Subtotal:* Rs ${cartTotal.toLocaleString()}${bulkSavingsSummary}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '-----------------------------------------', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}` : `• Store Location: ZS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '-----------------------------------------', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
+    const locLine = deliveryMethod === 'home' && location ? `\n• 📍 Live GPS Map Pin: ${location.mapUrl}` : '';
+    const msg = ['🛒 *NEW ORDER – ZS Mart*', '-----------------------------------------', '', '*📦 ORDER DETAILS:*', itemLines, '', '-----------------------------------------', `*Subtotal:* Rs ${cartTotal.toLocaleString()}${bulkSavingsSummary}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '-----------------------------------------', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}${locLine}` : `• Store Location: ZS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '-----------------------------------------', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
@@ -19206,7 +19764,8 @@ function CheckoutModal({
       customer: {
         name: name.trim(),
         phone: phone.trim(),
-        address: address.trim()
+        address: address.trim(),
+        location: location ? location.mapUrl : null
       },
       deliveryMethod,
       subtotal: cartTotal,
@@ -19785,7 +20344,7 @@ function CheckoutModal({
         e.target.onerror = null;
       },
       alt: product.name,
-      className: "w-7 h-7 rounded-lg object-contain bg-black/40 p-0.5 shrink-0 border border-gray-200"
+      className: "w-7 h-7 rounded-lg object-contain bg-white p-0.5 shrink-0 border border-gray-200"
     }) : /*#__PURE__*/React.createElement("div", {
       className: `w-7 h-7 rounded-lg bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`
     }, /*#__PURE__*/React.createElement("span", {
@@ -20064,7 +20623,9 @@ function CheckoutModal({
       marginTop: 4,
       fontWeight: 600
     }
-  }, errors.phone)), deliveryMethod === 'home' ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+  }, errors.phone)), deliveryMethod === 'home' ? /*#__PURE__*/React.createElement("div", {
+    className: "space-y-2"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
     style: {
       fontSize: 12,
       color: '#444444',
@@ -20103,7 +20664,63 @@ function CheckoutModal({
       marginTop: 4,
       fontWeight: 600
     }
-  }, errors.address)) : /*#__PURE__*/React.createElement("div", {
+  }, errors.address)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '10px 12px',
+      borderRadius: 14,
+      background: location ? '#f0fdf4' : '#f8fafc',
+      border: location ? '1.5px solid #10b981' : locError ? '1.5px solid #f87171' : '1px dashed #cbd5e1',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 8,
+      transition: 'all 0.2s'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 7,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 16
+    }
+  }, location ? '📍' : locLoading ? '⏳' : '🗺️'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      fontWeight: 800,
+      color: location ? '#166534' : '#0f172a'
+    }
+  }, location ? language === 'ur' ? '✅ لائیو لوکیشن منسلک ہے' : '✅ Live GPS Pin Connected' : locLoading ? language === 'ur' ? 'GPS لوکیشن تلاش ہو رہی ہے...' : 'Fetching Live GPS Pin...' : language === 'ur' ? 'گھر کی لائیو لوکیشن (GPS)' : 'Live Home Location (GPS)'), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: location ? '#15803d' : '#64748b',
+      fontWeight: 600
+    }
+  }, location ? `Google Maps: ${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : locError || (language === 'ur' ? 'رائڈر کیلئے خودکار درست لوکیشن' : 'Exact house pin for delivery rider')))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => handleGetLocation(false),
+    disabled: locLoading,
+    style: {
+      padding: '5px 11px',
+      borderRadius: 10,
+      background: location ? '#10b981' : '#0f172a',
+      color: '#ffffff',
+      border: 'none',
+      fontSize: 10.5,
+      fontWeight: 800,
+      cursor: locLoading ? 'not-allowed' : 'pointer',
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+    }
+  }, locLoading ? '⏳...' : location ? language === 'ur' ? '🔄 تبدیل' : '🔄 Update' : language === 'ur' ? '📍 لوکیشن' : '📍 Add GPS'))) : /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '14px',
       borderRadius: 14,

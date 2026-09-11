@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const rootDir = __dirname;
@@ -55,7 +55,9 @@ if (missingInJsx.length > 0 && prodMatch) {
       const escName = (p.name || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       const escCat = (p.categoryName || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       const escCatId = (p.categoryId || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-      return `      { id: ${p.id}, name: "${escName}", price: ${p.price}, categoryId: "${escCatId}", categoryName: "${escCat}" },`;
+      const prioStr = p.priority ? `, priority: ${p.priority}` : '';
+      const filterStr = p.filterName ? `, filterName: "${(p.filterName || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"` : '';
+      return `      { id: ${p.id}, name: "${escName}", price: ${p.price}, categoryId: "${escCatId}", categoryName: "${escCat}"${prioStr}${filterStr} },`;
     }).join('\n');
     updatedJsx = updatedJsx.substring(0, idx) + '\n' + linesToAdd + '\n    ];' + updatedJsx.substring(idx + 2);
     fs.writeFileSync(jsxFile, updatedJsx, 'utf8');
@@ -95,12 +97,24 @@ if (varMatch) {
   } catch (e) {}
 }
 
+// 4. Extract CATEGORIES list (order & names) from INDEX.JSX / index.html
+let categories = [];
+const catMatch = jsx.match(/(?:const|var)\s+DEFAULT_CATEGORIES\s*=\s*(\[[\s\S]*?\n\s*\]);/)
+  || jsx.match(/(?:const|var)\s+CATEGORIES\s*=\s*(\[[\s\S]*?\n\s*\]);/)
+  || html.match(/(?:const|var)\s+CATEGORIES\s*=\s*(\[[\s\S]*?\n\s*\]);/);
+if (catMatch) {
+  try {
+    categories = eval('(' + catMatch[1] + ')');
+  } catch (e) {}
+}
+
 const payload = {
   version: 2,
   updatedAt: new Date().toISOString(),
   total: products.length,
   imageMap: imageMap,
   variants: variants,
+  categories: categories,
   products: products
 };
 

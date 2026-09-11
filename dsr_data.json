@@ -1,0 +1,37 @@
+{
+    "expenses":  [
+
+                 ],
+    "orders":  [
+                   {
+                       "date":  "2026-09-10",
+                       "channel":  "shop",
+                       "customerName":  "fdxfgx",
+                       "customerPhone":  "",
+                       "paymentMethod":  "cash",
+                       "deliveryAddress":  "",
+                       "deliveryCharge":  0,
+                       "discount":  0,
+                       "items":  [
+                                     {
+                                         "id":  "256",
+                                         "name":  "CONDITIONER MECLAY (BLACK)",
+                                         "qty":  1,
+                                         "sellPrice":  370,
+                                         "purchasePrice":  330,
+                                         "lineTotal":  370,
+                                         "lineCost":  330,
+                                         "lineProfit":  40
+                                     }
+                                 ],
+                       "totalSale":  370,
+                       "totalCost":  330,
+                       "totalProfit":  40,
+                       "updatedRates":  {
+                                            "256":  330
+                                        },
+                       "time":  "10:27",
+                       "id":  "ORD-20260910-8291"
+                   }
+               ]
+}

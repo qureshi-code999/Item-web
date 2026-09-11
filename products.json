@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-11T14:01:11.544Z",
-  "total": 1042,
+  "updatedAt": "2026-09-11T14:07:05.502Z",
+  "total": 1043,
   "imageMap": {
     "1": "webp",
     "2": "webp",
@@ -1003,7 +1003,8 @@
     "1270": "webp",
     "1271": "png",
     "1272": "png",
-    "1273": "png"
+    "1273": "png",
+    "1274": "png"
   },
   "variants": {
     "183": {
@@ -9613,6 +9614,16 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "priority": 3,
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S"
+    },
+    {
+      "id": 1274,
+      "name": "SURF SUNLIGHT RS,199",
+      "price": 185,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
       "hasImage": true,
       "gradient": null,
       "initial": "S"

@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-11T14:27:41.076Z",
-  "total": 1047,
+  "updatedAt": "2026-09-11T14:35:49.223Z",
+  "total": 1048,
   "imageMap": {
     "1": "webp",
     "2": "webp",
@@ -1008,7 +1008,8 @@
     "1275": "png",
     "1276": "png",
     "1277": "png",
-    "1278": "png"
+    "1278": "png",
+    "1279": "png"
   },
   "variants": {
     "183": {
@@ -9671,6 +9672,16 @@
       "hasImage": true,
       "gradient": null,
       "initial": "L"
+    },
+    {
+      "id": 1279,
+      "name": "TIGER MOSTIK LOTION 100ML RS,180",
+      "price": 151,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "T"
     }
   ]
 }

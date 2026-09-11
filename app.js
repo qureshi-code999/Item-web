@@ -1,4 +1,4 @@
-// SAHIL TRADERS MASTER APP BUNDLE
+﻿// SAHIL TRADERS MASTER APP BUNDLE
 (function() {
   'use strict';
   var React = window.React || (typeof React !== 'undefined' ? React : null);
@@ -7681,7 +7681,7 @@ var PRODUCTS = [{
 }, {
   id: 1076,
   name: "SOAP CAPRI (FAMILY PACK) 135g (YELLOW)",
-  price: 130,
+  price: 150,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps"
 }, {

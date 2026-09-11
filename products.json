@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-11T13:54:56.803Z",
-  "total": 1040,
+  "updatedAt": "2026-09-11T13:58:51.815Z",
+  "total": 1041,
   "imageMap": {
     "1": "webp",
     "2": "webp",
@@ -1001,7 +1001,8 @@
     "1268": "webp",
     "1269": "webp",
     "1270": "webp",
-    "1271": "png"
+    "1271": "png",
+    "1272": "png"
   },
   "variants": {
     "183": {
@@ -9589,6 +9590,17 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "priority": 1,
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S"
+    },
+    {
+      "id": 1272,
+      "name": "SURF ARIEL RS,310",
+      "price": 299,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "priority": 2,
       "hasImage": true,
       "gradient": null,
       "initial": "S"

@@ -2295,7 +2295,7 @@ function getTranslationValue(dictionary, key) {
     
       { id: 1276, name: "TIGER JUMBO COIL RS,120", price: 105, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "T" },
     
-      { id: 1277, name: "BODY RAZER BIG PAKI RS,50", price: 37, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
+      { id: 1277, name: "BODY RAZER BIG PAKI RS,50", price: 37, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
     ];
     var PAGE_SIZE = 10;
     const RECENT_LIMIT = 15;

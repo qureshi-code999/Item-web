@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-11T14:17:45.468Z",
+  "updatedAt": "2026-09-11T14:18:19.317Z",
   "total": 1046,
   "imageMap": {
     "1": "webp",
@@ -9655,8 +9655,8 @@
       "id": 1277,
       "name": "BODY RAZER BIG PAKI RS,50",
       "price": 37,
-      "categoryId": "mosquito",
-      "categoryName": "Anti- Mosquitoes",
+      "categoryId": "shaving",
+      "categoryName": "Shaving & Razers & Blades",
       "hasImage": true,
       "gradient": null,
       "initial": "B"

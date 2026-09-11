@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-11T14:35:49.223Z",
-  "total": 1048,
+  "updatedAt": "2026-09-11T14:39:58.134Z",
+  "total": 1049,
   "imageMap": {
     "1": "webp",
     "2": "webp",
@@ -1009,7 +1009,8 @@
     "1276": "png",
     "1277": "png",
     "1278": "png",
-    "1279": "png"
+    "1279": "png",
+    "1280": "png"
   },
   "variants": {
     "183": {
@@ -9677,6 +9678,16 @@
       "id": 1279,
       "name": "TIGER MOSTIK LOTION 100ML RS,180",
       "price": 151,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "T"
+    },
+    {
+      "id": 1280,
+      "name": "TIGER INSECT KILLER POWDER RS,100",
+      "price": 75,
       "categoryId": "mosquito",
       "categoryName": "Anti- Mosquitoes",
       "hasImage": true,

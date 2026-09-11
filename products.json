@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-11T14:12:02.368Z",
-  "total": 1045,
+  "updatedAt": "2026-09-11T14:17:45.468Z",
+  "total": 1046,
   "imageMap": {
     "1": "webp",
     "2": "webp",
@@ -1006,7 +1006,8 @@
     "1273": "png",
     "1274": "png",
     "1275": "png",
-    "1276": "png"
+    "1276": "png",
+    "1277": "png"
   },
   "variants": {
     "183": {
@@ -9649,6 +9650,16 @@
       "hasImage": true,
       "gradient": null,
       "initial": "T"
+    },
+    {
+      "id": 1277,
+      "name": "BODY RAZER BIG PAKI RS,50",
+      "price": 37,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "B"
     }
   ]
 }

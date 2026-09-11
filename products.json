@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-11T13:58:51.815Z",
-  "total": 1041,
+  "updatedAt": "2026-09-11T14:01:11.544Z",
+  "total": 1042,
   "imageMap": {
     "1": "webp",
     "2": "webp",
@@ -1002,7 +1002,8 @@
     "1269": "webp",
     "1270": "webp",
     "1271": "png",
-    "1272": "png"
+    "1272": "png",
+    "1273": "png"
   },
   "variants": {
     "183": {
@@ -9601,6 +9602,17 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "priority": 2,
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S"
+    },
+    {
+      "id": 1273,
+      "name": "SURF BRITE RS,300",
+      "price": 285,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "priority": 3,
       "hasImage": true,
       "gradient": null,
       "initial": "S"

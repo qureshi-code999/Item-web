@@ -8,6 +8,42 @@
 //             auto-generated file hai aur overwrite ho jaati hai.
 // =============================================================
 import React, { useState, useMemo, useEffect, useRef } from "react";
+
+// ── GLOBAL STORE SETTINGS & BULLETPROOF ACCESSORS (Accessible everywhere) ──
+var DEFAULT_STORE_SETTINGS = {
+  deliveryFee: 150,
+  freeDeliveryThreshold: 2000,
+  minOrderAmount: 0,
+  deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
+  whatsapp: "923368945775"
+};
+
+if (typeof window !== 'undefined') {
+  try {
+    const cached = localStorage.getItem('zs_mart_settings');
+    window.APP_SETTINGS = cached ? { ...DEFAULT_STORE_SETTINGS, ...JSON.parse(cached) } : { ...DEFAULT_STORE_SETTINGS };
+  } catch(e) {
+    window.APP_SETTINGS = { ...DEFAULT_STORE_SETTINGS };
+  }
+}
+
+function getStoreSettings() {
+  if (typeof window !== 'undefined' && window.APP_SETTINGS && typeof window.APP_SETTINGS === 'object') {
+    return window.APP_SETTINGS;
+  }
+  return DEFAULT_STORE_SETTINGS;
+}
+
+function getDeliveryFee() {
+  const s = getStoreSettings();
+  return typeof s.deliveryFee === 'number' ? s.deliveryFee : 150;
+}
+
+function getFreeDeliveryThreshold() {
+  const s = getStoreSettings();
+  return typeof s.freeDeliveryThreshold === 'number' ? s.freeDeliveryThreshold : 2000;
+}
+
 function getTranslationValue(dictionary, key) {
       return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
     }
@@ -2656,7 +2692,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
             </div>
             <ul className="space-y-1.5 list-disc list-inside text-emerald-900">
               <li>{tr(modalLang, 'Family business serving with trust since 2021', '2021 se khandani aitemad ke sath khidmat', '2021 سے خاندانی اعتماد کے ساتھ خدمت')}</li>
-              <li>{tr(modalLang, `Free delivery on orders above Rs. ${(appSettings?.freeDeliveryThreshold || 2000).toLocaleString()}`, 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')}</li>
+              <li>{tr(modalLang, `Free delivery on orders above Rs. ${getFreeDeliveryThreshold().toLocaleString()}`, 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')}</li>
               <li>{tr(modalLang, 'Same-day return & exchange policy', 'Usi din tabdeeli aur wapsi ki sahulat (Same-Day Return)', 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)')}</li>
               <li>{tr(modalLang, 'Direct WhatsApp customer support', 'Direct WhatsApp par fori support', 'براہِ راست واٹس ایپ پر فوری سپورٹ')}</li>
             </ul>
@@ -3047,7 +3083,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
         }
       ],
       subtotal: 0,
-      deliveryFee: deliveryMethod === 'home' ? (appSettings?.deliveryFee ?? 150) : 0,
+      deliveryFee: deliveryMethod === "home" ? getDeliveryFee() : 0,
       grandTotal: 0,
       isParchi: true,
       notes: notes.trim()
@@ -4317,7 +4353,13 @@ class RootErrorBoundary extends React.Component {
             Barah-e-karam page refresh karein ya app dobara kholiye. ZS Mart ka data mehfooz hai.
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              try {
+                // Clear cart from storage so it does not loop crash
+                localStorage.removeItem('sahil_traders_cart');
+              } catch(e) {}
+              window.location.reload();
+            }}
             style={{
               padding: '12px 28px',
               borderRadius: '9999px',
@@ -4480,7 +4522,7 @@ export default function SahilTraders() {
                   freeDeliveryThreshold: Number(data.freeDeliveryThreshold ?? data.settings?.freeDeliveryThreshold ?? 2000)
                 };
                 if (s.deliveryFee >= 0 && s.freeDeliveryThreshold > 0) {
-                  setAppSettings(s);
+                  if (typeof window !== "undefined") window.APP_SETTINGS = s; setAppSettings(s);
                   try { localStorage.setItem('zs_mart_settings', JSON.stringify(s)); } catch(e) {}
                   break;
                 }
@@ -4554,7 +4596,7 @@ export default function SahilTraders() {
                 deliveryTiming: String(loadedData.settings.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
                 whatsapp: String(loadedData.settings.whatsapp || '923368945775')
               };
-              setAppSettings(s);
+              if (typeof window !== "undefined") window.APP_SETTINGS = s; setAppSettings(s);
               try { localStorage.setItem('zs_mart_settings', JSON.stringify(s)); } catch(e) {}
             }
 
@@ -7508,13 +7550,13 @@ export default function SahilTraders() {
             {/* Items */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
               {cart.length > 0 && (
-                <div style={{ marginBottom: 14, padding: '12px 14px', borderRadius: 14, background: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'linear-gradient(135deg, #fffbe6 0%, #fef3c7 100%)', border: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? '1px solid #bbf7d0' : '1px solid #fde68a' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? '#166534' : '#92400e' }}>
+                <div style={{ marginBottom: 14, padding: '12px 14px', borderRadius: 14, background: cartTotal >= getFreeDeliveryThreshold() ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'linear-gradient(135deg, #fffbe6 0%, #fef3c7 100%)', border: cartTotal >= getFreeDeliveryThreshold() ? '1px solid #bbf7d0' : '1px solid #fde68a' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: cartTotal >= getFreeDeliveryThreshold() ? '#166534' : '#92400e' }}>
                     <span style={{ fontSize: 16 }}>🚚</span>
-                    <span>{cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? tr(language, '🎉 Mubarak! Free Delivery Unlocked!', '🎉 Mubarak! Free Delivery Unlocked!', '🎉 مبارک! مفت ڈیلیوری فعال ہو گئی!') : tr(language, `Free Delivery on Rs ${(appSettings.freeDeliveryThreshold || 2000).toLocaleString()}+ (Rs ${((appSettings.freeDeliveryThreshold || 2000) - cartTotal).toLocaleString()} remaining)`, `Rs ${(appSettings.freeDeliveryThreshold || 2000).toLocaleString()}+ par Free Delivery (Rs ${((appSettings.freeDeliveryThreshold || 2000) - cartTotal).toLocaleString()} baqi)`, `Rs. ${(appSettings.freeDeliveryThreshold || 2000).toLocaleString()} پر مفت ڈیلیوری (Rs ${((appSettings.freeDeliveryThreshold || 2000) - cartTotal).toLocaleString()} باقی)`)}</span>
+                    <span>{cartTotal >= getFreeDeliveryThreshold() ? tr(language, '🎉 Mubarak! Free Delivery Unlocked!', '🎉 Mubarak! Free Delivery Unlocked!', '🎉 مبارک! مفت ڈیلیوری فعال ہو گئی!') : tr(language, `Free Delivery on Rs ${getFreeDeliveryThreshold().toLocaleString()}+ (Rs ${(getFreeDeliveryThreshold() - cartTotal).toLocaleString()} remaining)`, `Rs ${getFreeDeliveryThreshold().toLocaleString()}+ par Free Delivery (Rs ${(getFreeDeliveryThreshold() - cartTotal).toLocaleString()} baqi)`, `Rs. ${getFreeDeliveryThreshold().toLocaleString()} پر مفت ڈیلیوری (Rs ${(getFreeDeliveryThreshold() - cartTotal).toLocaleString()} باقی)`)}</span>
                   </div>
                   <div style={{ marginTop: 8, height: 6, width: '100%', background: 'rgba(0,0,0,0.08)', borderRadius: 10, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${Math.min(100, (cartTotal / (appSettings.freeDeliveryThreshold || 2000)) * 100)}%`, background: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? '#22c55e' : '#f59e0b', borderRadius: 10, transition: 'width 0.4s ease' }} />
+                    <div style={{ height: '100%', width: `${Math.min(100, (cartTotal / getFreeDeliveryThreshold()) * 100)}%`, background: cartTotal >= getFreeDeliveryThreshold() ? '#22c55e' : '#f59e0b', borderRadius: 10, transition: 'width 0.4s ease' }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#555', marginTop: 4 }}>
                     <span>🏠 {tr(language, 'Home Delivery Available', 'Home Delivery Dastyab Hai', 'ہوم ڈیلیوری دستیاب')}</span>
@@ -8356,7 +8398,7 @@ export default function SahilTraders() {
         document.body.style.overflow = 'hidden';
         return () => { document.body.style.overflow = ''; };
       }, []);
-      const deliveryFee = deliveryMethod === 'pickup' ? 0 : (cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? 0 : (appSettings.deliveryFee ?? 150));
+      const deliveryFee = deliveryMethod === 'pickup' ? 0 : (cartTotal >= getFreeDeliveryThreshold() ? 0 : getDeliveryFee());
       const grandTotal = cartTotal + deliveryFee;
       function validate() {
         const e = {};
@@ -8382,7 +8424,7 @@ export default function SahilTraders() {
         }).join('\n\n');
         const deliveryText = deliveryMethod === 'pickup'
           ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour'
-          : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : `Rs ${appSettings.deliveryFee ?? 150} Delivery Fee`})`;
+          : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : `Rs ${getDeliveryFee()} Delivery Fee`})`;
         const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
         const locLine = (deliveryMethod === 'home' && location) ? `\n• 📍 Live GPS Map Pin: ${location.mapUrl}` : '';
         const msg = [

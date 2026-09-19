@@ -1,7 +1,16 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-11T14:39:58.134Z",
+  "updatedAt": "2026-09-19T13:48:23.807Z",
   "total": 1049,
+  "settings": {
+    "deliveryFee": 150,
+    "freeDeliveryThreshold": 2000,
+    "minOrderAmount": 0,
+    "deliveryTiming": "Delivery Timing: 10:00 AM – 10:00 PM",
+    "whatsapp": "923368945775",
+    "storeName": "ZS Mart",
+    "announcement": ""
+  },
   "imageMap": {
     "1": "webp",
     "2": "webp",
@@ -2669,7 +2678,7 @@
     },
     {
       "id": 269,
-      "name": "COTTON BUD DIBI 100 PIECES (WOOD)",
+      "name": "COTTON BUD DIBI 100 PIECESS (WOOD)",
       "price": 80,
       "categoryId": "personalcare",
       "categoryName": "Personal Care",
@@ -2703,14 +2712,14 @@
     },
     {
       "id": 273,
-      "name": "COTTON BUD DIBI (PLASTIC) 100 PIECES TOP TIP",
+      "name": "COTTON BUD DIBI (PLASTIC) 100 PIECESS TOP TIP",
       "price": 120,
       "categoryId": "personalcare",
       "categoryName": "Personal Care"
     },
     {
       "id": 274,
-      "name": "COTTON BUD DIBI (WOOD) 100 PIECES BLUE TOP TIP",
+      "name": "COTTON BUD DIBI (WOOD) 100 PIECESS BLUE TOP TIP",
       "price": 120,
       "categoryId": "general",
       "categoryName": "General Items & Others",
@@ -3564,7 +3573,7 @@
     {
       "id": 407,
       "name": "FACE WASH ACNI-PLUS",
-      "price": 520,
+      "price": 490,
       "categoryId": "facewash",
       "categoryName": "Face Wash & Body Washes",
       "hasImage": true,
@@ -8490,7 +8499,7 @@
     {
       "id": 1133,
       "name": "TOY AUTO CAR METAL",
-      "price": 130,
+      "price": 379,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
@@ -8503,8 +8512,8 @@
     },
     {
       "id": 1135,
-      "name": "TOY BARREL O SLIME",
-      "price": 45,
+      "name": "TOY BARREL O SLIME (MELON) KHARBOZA",
+      "price": 40,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
@@ -8517,8 +8526,8 @@
     },
     {
       "id": 1137,
-      "name": "TOY CUBE BLOCKS GAME",
-      "price": 399,
+      "name": "TOY BLOCKS GAME",
+      "price": 240,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
@@ -8532,7 +8541,7 @@
     {
       "id": 1139,
       "name": "TOY BUBBLE CARTOON FACE (GOOD QUALITY)",
-      "price": 99,
+      "price": 0,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
@@ -8574,7 +8583,7 @@
     {
       "id": 1145,
       "name": "TOY CAR JUMPING LARGE PIECE 18 (DORAEMON)",
-      "price": 130,
+      "price": 0,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
@@ -8594,8 +8603,8 @@
     },
     {
       "id": 1148,
-      "name": "TOY CHORDI MAGIC GAME",
-      "price": 190,
+      "name": "TOY CHORDI GAME",
+      "price": 0,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
@@ -8611,22 +8620,22 @@
     },
     {
       "id": 1150,
-      "name": "TOY LASER LIGHT",
-      "price": 99,
+      "name": "TOY LASER LIGHT GUN",
+      "price": 0,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
     {
       "id": 1151,
-      "name": "TOY LIGHTING BALL (Large)",
-      "price": 120,
+      "name": "TOY LIGHTING BALL",
+      "price": 0,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
     {
       "id": 1152,
       "name": "TOY POP UP PATAKA (YELLOW)",
-      "price": 40,
+      "price": 0,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
@@ -8640,21 +8649,21 @@
     {
       "id": 1154,
       "name": "TOY WATER GUN",
-      "price": 120,
+      "price": 0,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
     {
       "id": 1155,
-      "name": "TOY YOYO DORI (GOOD QUALITY)",
-      "price": 80,
+      "name": "TOY YOYO DORI LIGHT WALA (GOOD QUALITY)",
+      "price": 0,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday"
     },
     {
       "id": 1156,
-      "name": "TAPE DOUBLE SIDED (2 INCH)",
-      "price": 120,
+      "name": "TAPE DOUBLE 2 INCH",
+      "price": 0,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes"
     },
@@ -8687,8 +8696,8 @@
     },
     {
       "id": 1160,
-      "name": "TAPE KAGHAZ (0.5 INCH)",
-      "price": 40,
+      "name": "TAPE KAGHAZ (0.5 INCH) HALF INCH 12 PIECES",
+      "price": 0,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes"
     },
@@ -8712,7 +8721,7 @@
     {
       "id": 1163,
       "name": "TAPE OSAKA (BLACK)",
-      "price": 50,
+      "price": 45,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
@@ -8722,14 +8731,14 @@
     {
       "id": 1164,
       "name": "TAPE OSAKA (BLACK) FULL LENGTH",
-      "price": 65,
+      "price": 59,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes"
     },
     {
       "id": 1165,
       "name": "TAPE OSAKA (RED)",
-      "price": 50,
+      "price": 45,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
@@ -8739,14 +8748,14 @@
     {
       "id": 1166,
       "name": "TAPE OSAKA (RED) FULL LENGTH",
-      "price": 65,
+      "price": 59,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes"
     },
     {
       "id": 1167,
       "name": "TAPE OSAKA (WHITE)",
-      "price": 50,
+      "price": 45,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
@@ -8756,7 +8765,7 @@
     {
       "id": 1168,
       "name": "TAPE OSAKA (WHITE) FULL LENGTH",
-      "price": 65,
+      "price": 59,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes"
     },
@@ -8794,7 +8803,7 @@
     {
       "id": 1173,
       "name": "TAPE TRANSPARENT (0.5 INCH) EX QUALITY",
-      "price": 35,
+      "price": 0,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes"
     },
@@ -8835,7 +8844,7 @@
     {
       "id": 1178,
       "name": "TAPE TRANSPARENT RS,10",
-      "price": 8,
+      "price": 85,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
@@ -8844,7 +8853,7 @@
     },
     {
       "id": 1179,
-      "name": "TASH ROYAAL",
+      "name": "TASH REGAL",
       "price": 180,
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday",
@@ -8930,15 +8939,15 @@
     },
     {
       "id": 1190,
-      "name": "TWEEZER GENTS",
-      "price": 120,
+      "name": "TUSAR GENTS",
+      "price": 80,
       "categoryId": "general",
       "categoryName": "General Items & Others"
     },
     {
       "id": 1191,
-      "name": "TWEEZER LADIES",
-      "price": 120,
+      "name": "TUSAR LADIES",
+      "price": 80,
       "categoryId": "general",
       "categoryName": "General Items & Others"
     },
@@ -9068,14 +9077,14 @@
     },
     {
       "id": 1208,
-      "name": "VASELINE PETROLEUM (IMP) 250ML S,A (BLUE)",
+      "name": "VASELINE PETROLEUM (IMP) 250ML S,A (MIX)",
       "price": 899,
       "categoryId": "creams",
       "categoryName": "Creams & Lotions & Bleach"
     },
     {
       "id": 1209,
-      "name": "VASELINE PETROLEUM (IMP) 100ml S,A (BLUE)",
+      "name": "VASELINE PETROLEUM (IMP) 100ml S,A (MIX)",
       "price": 399,
       "categoryId": "creams",
       "categoryName": "Creams & Lotions & Bleach",
@@ -9085,14 +9094,14 @@
     },
     {
       "id": 1210,
-      "name": "VASELINE PETROLEUM (IMP) 100ml S,A (COCA BUTTER)",
-      "price": 399,
+      "name": "VASELINE PETROLEUM (IMP) 50ml",
+      "price": 259,
       "categoryId": "creams",
       "categoryName": "Creams & Lotions & Bleach"
     },
     {
       "id": 1211,
-      "name": "VASELINE PETROLEUM (IMP) 50ml S,A (BLUE)",
+      "name": "VASELINE PETROLEUM (IMP) 50ml S,A (BLUE,ORIGINAL)",
       "price": 249,
       "categoryId": "creams",
       "categoryName": "Creams & Lotions & Bleach",
@@ -9112,7 +9121,7 @@
     },
     {
       "id": 1213,
-      "name": "VASELINE PETROLEUM (IMP) 50ml S,A (COCO BUTTER)",
+      "name": "VASELINE PETROLEUM (IMP) 50ml S,A (MIX)",
       "price": 249,
       "categoryId": "creams",
       "categoryName": "Creams & Lotions & Bleach",
@@ -9122,7 +9131,7 @@
     },
     {
       "id": 1214,
-      "name": "VASELINE PETROLEUM (IMP) 50ml S,A (PINK BABY)",
+      "name": "VASELINE PETROLEUM (IMP) 50ml S,A (PINK,BABY)",
       "price": 249,
       "categoryId": "creams",
       "categoryName": "Creams & Lotions & Bleach",
@@ -9173,7 +9182,7 @@
     },
     {
       "id": 1220,
-      "name": "VATIKA HAIR OIL 100ml (Coconut) COMPANY RP,350",
+      "name": "VATIKA HAIR OIL 100ml (Coconut)",
       "price": 319,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
@@ -9190,7 +9199,7 @@
     },
     {
       "id": 1222,
-      "name": "VATIKA HAIR OIL 100ml (OLIVE) COMPANY RP,350",
+      "name": "VATIKA HAIR OIL 100ml (OLIVE)",
       "price": 319,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
@@ -9200,14 +9209,14 @@
     },
     {
       "id": 1223,
-      "name": "VATIKA HAIR OIL 200ml (ALMOND) COMPANY RP,640",
+      "name": "VATIKA HAIR OIL 200ml (ALMOND) RS,640",
       "price": 599,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils"
     },
     {
       "id": 1224,
-      "name": "VATIKA HAIR OIL 200ml (CACTUS) COMPANY RP,640",
+      "name": "VATIKA HAIR OIL 200ml (CACTUS)",
       "price": 599,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
@@ -9217,21 +9226,21 @@
     },
     {
       "id": 1225,
-      "name": "VATIKA HAIR OIL 200ml (Coconut) COMPANY RP,640",
+      "name": "VATIKA HAIR OIL 200ml (Coconut)",
       "price": 599,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils"
     },
     {
       "id": 1226,
-      "name": "VATIKA HAIR OIL 200ml (GARLIC) COMPANY RP,640",
+      "name": "VATIKA HAIR OIL 200ml (GARLIC)",
       "price": 599,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils"
     },
     {
       "id": 1227,
-      "name": "VATIKA HAIR OIL 200ml (OLIVE) COMPANY RP,640",
+      "name": "VATIKA HAIR OIL 200ml (OLIVE)",
       "price": 599,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
@@ -9241,7 +9250,7 @@
     },
     {
       "id": 1228,
-      "name": "VATIKA HAIR OIL 200ml (ONION) COMPANY RP,640",
+      "name": "VATIKA HAIR OIL 200ml (ONION)",
       "price": 599,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils"
@@ -9286,7 +9295,7 @@
     },
     {
       "id": 1234,
-      "name": "VEET JAR SMALL (BLUE) RS,300",
+      "name": "VEET JAR SMALL (PINK) RS,300",
       "price": 269,
       "categoryId": "personalcare",
       "categoryName": "Personal Care"
@@ -9304,21 +9313,21 @@
     {
       "id": 1236,
       "name": "VEET STRIPS (BLUE)",
-      "price": 399,
+      "price": 349,
       "categoryId": "personalcare",
       "categoryName": "Personal Care"
     },
     {
       "id": 1237,
       "name": "VEET STRIPS (GREEN)",
-      "price": 399,
+      "price": 349,
       "categoryId": "personalcare",
       "categoryName": "Personal Care"
     },
     {
       "id": 1238,
       "name": "VEET STRIPS (PINK)",
-      "price": 399,
+      "price": 349,
       "categoryId": "personalcare",
       "categoryName": "Personal Care"
     },
@@ -9331,21 +9340,21 @@
     },
     {
       "id": 1240,
-      "name": "VEET TUBE MEDIUM (PINK) RP,495",
+      "name": "VEET TUBE LARGE (IMP) GREEN",
       "price": 699,
       "categoryId": "personalcare",
       "categoryName": "Personal Care"
     },
     {
       "id": 1241,
-      "name": "VEET TUBE MEDIUM (BLUE) RP,495",
+      "name": "VEET TUBE MEDIUM (BLUE) RS,495",
       "price": 459,
       "categoryId": "personalcare",
       "categoryName": "Personal Care"
     },
     {
       "id": 1242,
-      "name": "VEET TUBE MEDIUM (GREEN) RP,495",
+      "name": "VEET TUBE MEDIUM (GREEN) RS,495",
       "price": 459,
       "categoryId": "personalcare",
       "categoryName": "Personal Care"

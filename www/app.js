@@ -1515,7 +1515,8 @@ var DEFAULT_CATEGORIES = [{
 function getGlobalCategories(productsList) {
   // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories
   var baseCategories = typeof window !== 'undefined' && Array.isArray(window.CATEGORIES) && window.CATEGORIES.length > 0 ? window.CATEGORIES : DEFAULT_CATEGORIES;
-  var liveProducts = productsList || (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : null);
+  var winProds = typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : null;
+  var liveProducts = productsList || (winProds && winProds.length >= PRODUCTS.length ? winProds : PRODUCTS);
   if (!liveProducts || liveProducts.length === 0) {
     return baseCategories;
   }
@@ -1555,7 +1556,8 @@ var PRODUCTS = [{
   name: "7 HERBAL OIL 100ML RS,250",
   price: 220,
   categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils"
+  categoryName: "Hair Colors & Care & Oils",
+  priority: 6
 }, {
   id: 2,
   name: "7 HERBAL OIL 200ML RP,400",
@@ -7680,8 +7682,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 1076,
-  name: "SOAP CAPRI (FAMILY PACK) 135g (YELLOW)",
-  price: 130,
+  name: "SOAP CAPRI (FAMILY PACK) 135G (YELLOW)",
+  price: 200,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps"
 }, {
@@ -8944,6 +8946,99 @@ var PRODUCTS = [{
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "L"
+}, {
+  id: 1271,
+  name: "SURF EXCEL 500G RS,310",
+  price: 299,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
+  priority: 1,
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[7],
+  initial: "S"
+}, {
+  id: 1272,
+  name: "SURF ARIEL RS,310",
+  price: 299,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
+  priority: 2,
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[0],
+  initial: "S"
+}, {
+  id: 1273,
+  name: "SURF BRITE RS,300",
+  price: 285,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
+  priority: 3,
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[1],
+  initial: "S"
+}, {
+  id: 1274,
+  name: "SURF SUNLIGHT RS,199",
+  price: 185,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[2],
+  initial: "S"
+}, {
+  id: 1275,
+  name: "SURF BONUS 1KG RS,230",
+  price: 210,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[3],
+  initial: "S"
+}, {
+  id: 1276,
+  name: "TIGER JUMBO COIL RS,120",
+  price: 105,
+  categoryId: "mosquito",
+  categoryName: "Anti- Mosquitoes",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[4],
+  initial: "T"
+}, {
+  id: 1277,
+  name: "BODY RAZER BIG PAKI RS,50",
+  price: 37,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[5],
+  initial: "B"
+}, {
+  id: 1278,
+  name: "LEMON MAX DISHWASH LIQUID 275ML RS,170",
+  price: 159,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[6],
+  initial: "L"
+}, {
+  id: 1279,
+  name: "TIGER MOSTIK LOTION 100ML RS,180",
+  price: 151,
+  categoryId: "mosquito",
+  categoryName: "Anti- Mosquitoes",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[7],
+  initial: "T"
+}, {
+  id: 1280,
+  name: "TIGER INSECT KILLER POWDER RS,100",
+  price: 75,
+  categoryId: "mosquito",
+  categoryName: "Anti- Mosquitoes",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[0],
+  initial: "T"
 }];
 var PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
@@ -8975,24 +9070,79 @@ function getBrandFilters(items) {
     count
   }));
 }
+// 🔍 Smart Roman Urdu & Synonym Expansion Dictionary
+const ROMAN_URDU_ALIASES = {
+  'sabun': 'soap',
+  'saabun': 'soap',
+  'soaps': 'soap',
+  'tel': 'oil',
+  'tail': 'oil',
+  'taila': 'oil',
+  'shampo': 'shampoo',
+  'shampu': 'shampoo',
+  'creem': 'cream',
+  'kareem': 'cream',
+  'lotian': 'lotion',
+  'pampers': 'baby babycare diaper',
+  'pamper': 'baby diaper',
+  'paste': 'toothpaste dental',
+  'tootpaste': 'toothpaste',
+  'dant': 'dental toothpaste',
+  'blade': 'shaving razor razer',
+  'razor': 'shaving',
+  'razer': 'shaving',
+  'chawal': 'rice grocery',
+  'daal': 'pulse grocery',
+  'chini': 'sugar grocery',
+  'patti': 'tea grocery',
+  'chai': 'tea grocery',
+  'doodh': 'milk',
+  'khushbu': 'fragrance perfume spray rollon',
+  'ittar': 'perfume fragrance',
+  'batti': 'mosquito coil agarbatti',
+  'machar': 'mosquito insect killer coil',
+  'tala': 'lock padlock',
+  'sel': 'cell battery',
+  'bateri': 'battery cell',
+  'kachra': 'garbage duster brush general'
+};
 function matchProductTokens(product, query) {
   if (!query || !product) return 0;
-  const cleanQuery = query.trim().toLowerCase();
+  let cleanQuery = query.trim().toLowerCase();
   if (!cleanQuery) return 0;
-  const tokens = cleanQuery.split(/\s+/).filter(Boolean);
-  if (tokens.length === 0) return 0;
+
+  // Handle spacing typos like '7herbal' -> '7 herbal'
+  cleanQuery = cleanQuery.replace(/(\d+)([a-zA-Z]+)/g, '$1 $2').replace(/([a-zA-Z]+)(\d+)/g, '$1 $2');
+  const rawTokens = cleanQuery.split(/\s+/).filter(Boolean);
+  if (rawTokens.length === 0) return 0;
+
+  // Expand tokens with Roman Urdu synonyms
+  const expandedTokens = [];
+  rawTokens.forEach(t => {
+    expandedTokens.push(t);
+    if (ROMAN_URDU_ALIASES[t]) {
+      ROMAN_URDU_ALIASES[t].split(' ').forEach(syn => expandedTokens.push(syn));
+    }
+  });
   const name = (product.name || "").toLowerCase();
   const nameUrdu = (product.nameUrdu || "").toLowerCase();
   const catName = (product.categoryName || "").toLowerCase();
   const catId = (product.categoryId || "").toLowerCase();
   const brand = (getProductFilterName(product) || "").toLowerCase();
+
   // Full concatenated searchable text
   const fullText = `${name} ${nameUrdu} ${catName} ${catId} ${brand}`;
-  // Punctuation-stripped version (replaces commas, brackets, hyphens, colons with spaces)
   const cleanText = fullText.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
-  // Every single token must match somewhere in fullText or cleanText
-  const allTokensMatch = tokens.every(t => cleanText.includes(t) || fullText.includes(t));
-  if (!allTokensMatch) return 0;
+
+  // Match check: Every original search token must match either directly or via its synonym
+  const allOriginalsMatch = rawTokens.every(t => {
+    if (cleanText.includes(t) || fullText.includes(t)) return true;
+    // Check if synonym matches
+    const syns = (ROMAN_URDU_ALIASES[t] || '').split(' ').filter(Boolean);
+    return syns.some(s => cleanText.includes(s) || fullText.includes(s));
+  });
+  if (!allOriginalsMatch) return 0;
+
   // Calculate relevance score
   let score = 10;
   if (name === cleanQuery) {
@@ -9004,9 +9154,14 @@ function matchProductTokens(product, query) {
   } else {
     score += 40; // All tokens present (out-of-order / partial word)
   }
-  // Bonus if matched inside the product name specifically
+
+  // Bonus if matched inside product name specifically
   const cleanNameOnly = name.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
-  const inName = tokens.every(t => name.includes(t) || cleanNameOnly.includes(t));
+  const inName = rawTokens.every(t => {
+    if (name.includes(t) || cleanNameOnly.includes(t)) return true;
+    const syns = (ROMAN_URDU_ALIASES[t] || '').split(' ').filter(Boolean);
+    return syns.some(s => name.includes(s) || cleanNameOnly.includes(s));
+  });
   if (inName) score += 20;
   return score;
 }
@@ -9195,7 +9350,7 @@ function AboutUsModal({
     className: "bg-white/90 border border-purple-100 rounded-xl p-3 text-xs flex justify-between items-center shadow-xs"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "font-bold text-gray-900"
-  }, tr(modalLang, 'Monday to Saturday:', 'Peer ta Hafta (Mon to Sat):', 'پیر تا ہفتہ (Monday to Saturday):')), /*#__PURE__*/React.createElement("div", {
+  }, tr(modalLang, 'Daily (7 Days a Week):', 'Rozana (7 Din Khula, Koi Chutti Nahi):', 'روزانہ (7 دن کھلا، کوئی چھٹی نہیں):')), /*#__PURE__*/React.createElement("div", {
     className: "text-purple-700 font-extrabold text-sm mt-0.5"
   }, tr(modalLang, '8:00 AM – 11:30 PM', 'Subha 8:00 se Raat 11:30 tak', 'صبح 8:00 بجے سے رات 11:30 بجے تک'))), /*#__PURE__*/React.createElement("span", {
     className: "bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase"
@@ -9205,7 +9360,7 @@ function AboutUsModal({
     className: "flex items-center gap-2 font-bold text-sm text-emerald-900"
   }, /*#__PURE__*/React.createElement("span", null, "\u2728"), /*#__PURE__*/React.createElement("span", null, tr(modalLang, 'Why Customers Trust Us', 'Khandani Aitemad aur Khasiyat', 'ہماری خصوصیات (Why Choose Us)'))), /*#__PURE__*/React.createElement("ul", {
     className: "space-y-1.5 list-disc list-inside text-emerald-900"
-  }, /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Family business serving with trust since 2021', '2021 se khandani aitemad ke sath khidmat', '2021 سے خاندانی اعتماد کے ساتھ خدمت')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Free delivery on orders above Rs. 2,000', 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Same-day return & exchange policy', 'Usi din tabdeeli aur wapsi ki sahulat (Same-Day Return)', 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Direct WhatsApp customer support', 'Direct WhatsApp par fori support', 'براہِ راست واٹس ایپ پر فوری سپورٹ')))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Family business serving with trust since 2021', '2021 se khandani aitemad ke sath khidmat', '2021 سے خاندانی اعتماد کے ساتھ خدمت')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, `Free delivery on orders above Rs. ${(appSettings?.freeDeliveryThreshold || 2000).toLocaleString()}`, 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Same-day return & exchange policy', 'Usi din tabdeeli aur wapsi ki sahulat (Same-Day Return)', 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Direct WhatsApp customer support', 'Direct WhatsApp par fori support', 'براہِ راست واٹس ایپ پر فوری سپورٹ')))), /*#__PURE__*/React.createElement("div", {
     className: "bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between gap-2"
@@ -9489,7 +9644,7 @@ function ParchiOrderModal({
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submittedOrderId, setSubmittedOrderId] = useState(null);
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState(() => window.__prefetchedLocation || null);
   const [locLoading, setLocLoading] = useState(false);
   const [locError, setLocError] = useState(null);
   const handleGetLocation = (auto = false) => {
@@ -9508,6 +9663,11 @@ function ParchiOrderModal({
         lng,
         mapUrl
       });
+      window.__prefetchedLocation = {
+        lat,
+        lng,
+        mapUrl
+      };
       setLocLoading(false);
       triggerHaptic('success');
     }, err => {
@@ -9523,7 +9683,11 @@ function ParchiOrderModal({
   };
   useEffect(() => {
     if (deliveryMethod === 'home' && !location && !locLoading) {
-      handleGetLocation(true);
+      if (window.__prefetchedLocation) {
+        setLocation(window.__prefetchedLocation);
+      } else {
+        handleGetLocation(true);
+      }
     }
   }, [deliveryMethod]);
   const handlePhotoUpload = e => {
@@ -9581,7 +9745,7 @@ function ParchiOrderModal({
         total: 0
       }],
       subtotal: 0,
-      deliveryFee: deliveryMethod === 'home' ? 150 : 0,
+      deliveryFee: deliveryMethod === 'home' ? appSettings?.deliveryFee ?? 150 : 0,
       grandTotal: 0,
       isParchi: true,
       notes: notes.trim()
@@ -10746,16 +10910,100 @@ const SORT_OPTIONS = [{
   labelUrdu: 'نام: A سے Z (A-Z)',
   icon: '🔤'
 }];
+
+// =============================================================
+// 🛡️ ZS MART REACT ERROR BOUNDARY
+// Prevents white-screen crash & displays elegant fallback UI
+// =============================================================
+class RootErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null
+    };
+  }
+  static getDerivedStateFromError(error) {
+    return {
+      hasError: true,
+      error: error
+    };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("ZS Mart Runtime Exception Caught:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return /*#__PURE__*/React.createElement("div", {
+        style: {
+          minHeight: '100vh',
+          backgroundColor: '#030712',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          color: '#ffffff',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          textAlign: 'center'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          width: '80px',
+          height: '80px',
+          borderRadius: '20px',
+          backgroundColor: 'rgba(239,68,68,0.15)',
+          border: '2px solid rgba(239,68,68,0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '36px',
+          marginBottom: '20px'
+        }
+      }, "\u26A0\uFE0F"), /*#__PURE__*/React.createElement("h2", {
+        style: {
+          fontSize: '22px',
+          fontWeight: '800',
+          marginBottom: '8px',
+          color: '#f87171'
+        }
+      }, "Kuch Masla Pesh Aaya"), /*#__PURE__*/React.createElement("p", {
+        style: {
+          fontSize: '13px',
+          color: '#94a3b8',
+          maxWidth: '340px',
+          lineHeight: '1.5',
+          marginBottom: '24px'
+        }
+      }, "Barah-e-karam page refresh karein ya app dobara kholiye. ZS Mart ka data mehfooz hai."), /*#__PURE__*/React.createElement("button", {
+        onClick: () => window.location.reload(),
+        style: {
+          padding: '12px 28px',
+          borderRadius: '9999px',
+          backgroundColor: '#f59e0b',
+          color: '#000000',
+          fontWeight: '800',
+          fontSize: '14px',
+          border: 'none',
+          cursor: 'pointer',
+          boxShadow: '0 4px 20px rgba(245,158,11,0.4)'
+        }
+      }, "\uD83D\uDD04 Page Reload Karein"));
+    }
+    return this.props.children;
+  }
+}
 function SahilTraders() {
   const [productsList, setProductsList] = useState(() => {
     try {
       const cached = localStorage.getItem("zs_groceries_products_cache");
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length >= PRODUCTS.length) return parsed;
       }
     } catch (e) {}
-    return typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : PRODUCTS;
+    const winProds = typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : null;
+    return winProds && winProds.length >= PRODUCTS.length ? winProds : PRODUCTS;
   });
   const products = productsList;
   const [isSyncingProducts, setIsSyncingProducts] = useState(false);
@@ -10856,6 +11104,50 @@ function SahilTraders() {
     } catch (e) {}
   }, [cart]);
 
+  // ══════════ STORE SETTINGS (Delivery Fee, Free Threshold, etc.) ══════════
+  const [appSettings, setAppSettings] = useState(() => {
+    // Try cached settings first
+    try {
+      const cached = localStorage.getItem('zs_mart_settings');
+      if (cached) return JSON.parse(cached);
+    } catch (e) {}
+    return {
+      deliveryFee: 150,
+      freeDeliveryThreshold: 2000
+    };
+  });
+  useEffect(() => {
+    // Fetch fresh settings from local server or bundled settings.json
+    const settingsUrls = ['settings.json', '/settings.json', 'http://localhost:8888/api/settings'];
+    (async () => {
+      for (const url of settingsUrls) {
+        try {
+          const controller = new AbortController();
+          const tid = setTimeout(() => controller.abort(), 2000);
+          const res = await fetch(url, {
+            signal: controller.signal,
+            cache: 'no-store'
+          });
+          clearTimeout(tid);
+          if (res.ok) {
+            const data = await res.json();
+            const s = {
+              deliveryFee: Number(data.deliveryFee ?? data.settings?.deliveryFee ?? 150),
+              freeDeliveryThreshold: Number(data.freeDeliveryThreshold ?? data.settings?.freeDeliveryThreshold ?? 2000)
+            };
+            if (s.deliveryFee >= 0 && s.freeDeliveryThreshold > 0) {
+              setAppSettings(s);
+              try {
+                localStorage.setItem('zs_mart_settings', JSON.stringify(s));
+              } catch (e) {}
+              break;
+            }
+          }
+        } catch (e) {/* try next */}
+      }
+    })();
+  }, []);
+
   // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync) ══════════
   async function fetchLiveProducts(isManual) {
     isManual = !!isManual;
@@ -10891,7 +11183,9 @@ function SahilTraders() {
     }
     if (loadedData) {
       const freshProducts = Array.isArray(loadedData) ? loadedData : loadedData.products || [];
-      if (freshProducts.length > 0) {
+      // Security & Integrity check: Ensure payload has valid items and wasn't corrupted/truncated
+      const isValid = Array.isArray(freshProducts) && freshProducts.length >= 800 && freshProducts.every(p => p && typeof p.id === 'number' && p.name && typeof p.price === 'number' && p.price >= 0);
+      if (isValid) {
         setProductsList(freshProducts);
         window.PRODUCTS = freshProducts;
         try {
@@ -10903,1004 +11197,22 @@ function SahilTraders() {
             localStorage.setItem("zs_groceries_categories_cache", JSON.stringify(loadedData.categories));
           } catch (e) {}
         }
+        if (loadedData.settings) {
+          const s = {
+            deliveryFee: Number(loadedData.settings.deliveryFee ?? 150),
+            freeDeliveryThreshold: Number(loadedData.settings.freeDeliveryThreshold ?? 2000),
+            deliveryTiming: String(loadedData.settings.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
+            whatsapp: String(loadedData.settings.whatsapp || '923368945775')
+          };
+          setAppSettings(s);
+          try {
+            localStorage.setItem('zs_mart_settings', JSON.stringify(s));
+          } catch (e) {}
+        }
         if (loadedData.imageMap && typeof window !== 'undefined') {
           window.PRODUCT_IMAGE_MAP = {
-            1: 'png',
-            2: 'png',
-            3: 'png',
-            5: 'png',
-            6: 'png',
-            7: 'png',
-            8: 'png',
-            14: 'png',
-            15: 'png',
-            16: 'png',
-            17: 'png',
-            18: 'png',
-            21: 'png',
-            22: 'png',
-            23: 'png',
-            26: 'png',
-            27: 'png',
-            28: 'png',
-            29: 'png',
-            30: 'png',
-            31: 'png',
-            32: 'png',
-            33: 'png',
-            34: 'png',
-            37: 'png',
-            38: 'png',
-            46: 'png',
-            47: 'png',
-            48: 'png',
-            49: 'png',
-            50: 'png',
-            51: 'png',
-            52: 'png',
-            53: 'png',
-            54: 'png',
-            59: 'png',
-            60: 'png',
-            61: 'png',
-            62: 'png',
-            64: 'png',
-            65: 'png',
-            66: 'png',
-            67: 'png',
-            68: 'png',
-            69: 'png',
-            70: 'png',
-            71: 'png',
-            72: 'png',
-            73: 'png',
-            75: 'png',
-            76: 'png',
-            77: 'png',
-            78: 'png',
-            79: 'png',
-            81: 'png',
-            82: 'png',
-            83: 'png',
-            84: 'png',
-            85: 'png',
-            86: 'png',
-            87: 'png',
-            88: 'png',
-            89: 'png',
-            90: 'png',
-            91: 'png',
-            92: 'png',
-            93: 'png',
-            94: 'png',
-            95: 'png',
-            96: 'png',
-            97: 'png',
-            98: 'png',
-            99: 'png',
-            100: 'png',
-            101: 'png',
-            102: 'png',
-            105: 'png',
-            106: 'png',
-            107: 'png',
-            110: 'png',
-            111: 'png',
-            113: 'png',
-            117: 'png',
-            118: 'png',
-            119: 'png',
-            120: 'png',
-            121: 'png',
-            122: 'png',
-            123: 'png',
-            124: 'png',
-            125: 'png',
-            127: 'png',
-            130: 'png',
-            133: 'png',
-            134: 'png',
-            135: 'png',
-            136: 'png',
-            137: 'png',
-            139: 'png',
-            140: 'png',
-            141: 'png',
-            142: 'png',
-            143: 'png',
-            144: 'png',
-            145: 'png',
-            146: 'png',
-            148: 'png',
-            151: 'png',
-            152: 'png',
-            153: 'png',
-            154: 'png',
-            155: 'png',
-            156: 'png',
-            157: 'png',
-            158: 'png',
-            159: 'png',
-            161: 'png',
-            162: 'png',
-            163: 'png',
-            165: 'png',
-            167: 'png',
-            168: 'png',
-            169: 'png',
-            170: 'png',
-            171: 'png',
-            172: 'png',
-            173: 'png',
-            174: 'png',
-            175: 'png',
-            177: 'png',
-            178: 'png',
-            183: 'png',
-            184: 'png',
-            187: 'png',
-            188: 'png',
-            189: 'png',
-            190: 'png',
-            191: 'png',
-            192: 'png',
-            206: 'png',
-            207: 'png',
-            208: 'png',
-            209: 'png',
-            219: 'png',
-            221: 'png',
-            222: 'png',
-            223: 'png',
-            224: 'png',
-            225: 'png',
-            226: 'png',
-            227: 'png',
-            228: 'png',
-            229: 'png',
-            231: 'png',
-            233: 'png',
-            234: 'png',
-            235: 'png',
-            236: 'png',
-            237: 'png',
-            238: 'png',
-            239: 'png',
-            240: 'png',
-            242: 'png',
-            243: 'png',
-            244: 'png',
-            245: 'png',
-            246: 'png',
-            247: 'png',
-            249: 'png',
-            250: 'png',
-            251: 'png',
-            252: 'png',
-            254: 'png',
-            255: 'png',
-            256: 'png',
-            257: 'png',
-            258: 'png',
-            259: 'png',
-            261: 'png',
-            262: 'png',
-            263: 'png',
-            265: 'png',
-            266: 'png',
-            267: 'png',
-            269: 'png',
-            270: 'png',
-            271: 'png',
-            272: 'png',
-            273: 'png',
-            274: 'png',
-            278: 'png',
-            279: 'png',
-            280: 'png',
-            281: 'png',
-            282: 'png',
-            284: 'png',
-            285: 'png',
-            286: 'png',
-            287: 'png',
-            288: 'png',
-            289: 'png',
-            290: 'png',
-            291: 'png',
-            292: 'png',
-            293: 'png',
-            295: 'png',
-            296: 'png',
-            297: 'png',
-            298: 'png',
-            299: 'png',
-            300: 'png',
-            301: 'png',
-            302: 'png',
-            303: 'png',
-            304: 'png',
-            305: 'png',
-            306: 'png',
-            307: 'png',
-            310: 'png',
-            311: 'png',
-            312: 'png',
-            314: 'png',
-            315: 'png',
-            316: 'png',
-            317: 'png',
-            318: 'png',
-            319: 'png',
-            320: 'png',
-            321: 'png',
-            322: 'png',
-            323: 'png',
-            324: 'png',
-            325: 'png',
-            326: 'png',
-            327: 'png',
-            329: 'png',
-            330: 'png',
-            331: 'png',
-            332: 'png',
-            333: 'png',
-            334: 'png',
-            335: 'png',
-            336: 'png',
-            337: 'png',
-            338: 'png',
-            339: 'png',
-            340: 'png',
-            341: 'png',
-            342: 'png',
-            343: 'png',
-            344: 'png',
-            347: 'png',
-            348: 'png',
-            349: 'png',
-            350: 'png',
-            351: 'png',
-            352: 'png',
-            353: 'png',
-            354: 'png',
-            355: 'png',
-            356: 'png',
-            357: 'png',
-            358: 'png',
-            359: 'png',
-            360: 'png',
-            362: 'png',
-            363: 'png',
-            364: 'png',
-            365: 'png',
-            366: 'png',
-            367: 'png',
-            368: 'png',
-            370: 'png',
-            371: 'png',
-            372: 'png',
-            373: 'png',
-            374: 'png',
-            375: 'png',
-            377: 'png',
-            378: 'png',
-            379: 'png',
-            380: 'png',
-            381: 'png',
-            382: 'png',
-            383: 'png',
-            384: 'png',
-            385: 'png',
-            386: 'png',
-            387: 'png',
-            397: 'png',
-            398: 'png',
-            399: 'png',
-            400: 'png',
-            403: 'png',
-            404: 'png',
-            407: 'png',
-            411: 'png',
-            412: 'png',
-            414: 'png',
-            415: 'png',
-            416: 'png',
-            417: 'png',
-            418: 'png',
-            419: 'png',
-            420: 'png',
-            421: 'png',
-            422: 'png',
-            423: 'png',
-            424: 'png',
-            425: 'png',
-            426: 'png',
-            427: 'png',
-            428: 'png',
-            429: 'png',
-            430: 'png',
-            431: 'png',
-            432: 'png',
-            433: 'png',
-            434: 'png',
-            435: 'png',
-            436: 'png',
-            437: 'png',
-            438: 'png',
-            439: 'png',
-            440: 'png',
-            441: 'png',
-            442: 'png',
-            443: 'png',
-            444: 'png',
-            445: 'png',
-            446: 'png',
-            447: 'png',
-            448: 'png',
-            449: 'png',
-            450: 'png',
-            451: 'png',
-            452: 'png',
-            453: 'png',
-            455: 'png',
-            456: 'png',
-            457: 'png',
-            458: 'png',
-            459: 'png',
-            460: 'png',
-            461: 'png',
-            462: 'png',
-            463: 'png',
-            464: 'png',
-            466: 'png',
-            467: 'png',
-            468: 'png',
-            469: 'png',
-            470: 'png',
-            471: 'png',
-            472: 'png',
-            473: 'png',
-            474: 'png',
-            475: 'png',
-            476: 'png',
-            477: 'png',
-            478: 'png',
-            479: 'png',
-            480: 'png',
-            481: 'png',
-            482: 'png',
-            483: 'png',
-            484: 'png',
-            485: 'png',
-            486: 'png',
-            487: 'png',
-            488: 'png',
-            489: 'png',
-            490: 'png',
-            491: 'png',
-            492: 'png',
-            493: 'png',
-            494: 'png',
-            495: 'png',
-            496: 'png',
-            497: 'png',
-            499: 'png',
-            500: 'png',
-            512: 'png',
-            513: 'png',
-            514: 'png',
-            515: 'png',
-            516: 'png',
-            519: 'png',
-            520: 'png',
-            521: 'png',
-            522: 'png',
-            523: 'png',
-            524: 'png',
-            525: 'png',
-            526: 'png',
-            528: 'png',
-            529: 'png',
-            530: 'png',
-            534: 'png',
-            535: 'png',
-            536: 'png',
-            537: 'png',
-            538: 'png',
-            539: 'png',
-            540: 'png',
-            541: 'png',
-            542: 'png',
-            543: 'png',
-            544: 'png',
-            545: 'png',
-            548: 'png',
-            549: 'png',
-            550: 'png',
-            551: 'png',
-            552: 'png',
-            553: 'png',
-            554: 'png',
-            555: 'png',
-            556: 'png',
-            557: 'png',
-            558: 'png',
-            559: 'png',
-            560: 'png',
-            561: 'png',
-            562: 'png',
-            563: 'png',
-            564: 'png',
-            565: 'png',
-            566: 'png',
-            567: 'png',
-            569: 'png',
-            570: 'png',
-            571: 'png',
-            572: 'png',
-            573: 'png',
-            576: 'png',
-            577: 'png',
-            578: 'png',
-            579: 'png',
-            580: 'png',
-            581: 'png',
-            582: 'png',
-            583: 'png',
-            584: 'png',
-            585: 'png',
-            587: 'png',
-            588: 'png',
-            589: 'png',
-            592: 'png',
-            595: 'png',
-            596: 'png',
-            599: 'png',
-            600: 'png',
-            601: 'png',
-            603: 'png',
-            604: 'png',
-            605: 'png',
-            606: 'png',
-            607: 'png',
-            608: 'png',
-            609: 'png',
-            610: 'png',
-            611: 'png',
-            612: 'png',
-            613: 'png',
-            614: 'png',
-            615: 'png',
-            616: 'png',
-            617: 'png',
-            618: 'png',
-            619: 'png',
-            620: 'png',
-            621: 'png',
-            622: 'png',
-            623: 'png',
-            624: 'png',
-            625: 'png',
-            626: 'png',
-            627: 'png',
-            628: 'png',
-            629: 'png',
-            630: 'png',
-            631: 'png',
-            632: 'png',
-            633: 'png',
-            634: 'png',
-            635: 'png',
-            636: 'png',
-            637: 'png',
-            638: 'png',
-            639: 'png',
-            640: 'png',
-            641: 'png',
-            642: 'png',
-            643: 'png',
-            644: 'png',
-            645: 'png',
-            646: 'png',
-            647: 'png',
-            648: 'png',
-            649: 'png',
-            650: 'png',
-            651: 'png',
-            652: 'png',
-            653: 'png',
-            654: 'png',
-            655: 'png',
-            656: 'png',
-            657: 'png',
-            658: 'png',
-            659: 'png',
-            660: 'png',
-            661: 'png',
-            662: 'png',
-            663: 'png',
-            664: 'png',
-            665: 'png',
-            666: 'png',
-            667: 'png',
-            668: 'png',
-            669: 'png',
-            670: 'png',
-            671: 'png',
-            672: 'png',
-            673: 'png',
-            674: 'png',
-            675: 'png',
-            676: 'png',
-            677: 'png',
-            678: 'png',
-            679: 'png',
-            681: 'png',
-            682: 'png',
-            683: 'png',
-            684: 'png',
-            685: 'png',
-            686: 'png',
-            687: 'png',
-            688: 'png',
-            689: 'png',
-            690: 'png',
-            691: 'png',
-            692: 'png',
-            693: 'png',
-            694: 'png',
-            695: 'png',
-            696: 'png',
-            697: 'png',
-            698: 'png',
-            700: 'png',
-            701: 'png',
-            702: 'png',
-            703: 'png',
-            704: 'png',
-            705: 'png',
-            706: 'png',
-            708: 'png',
-            709: 'png',
-            710: 'png',
-            711: 'png',
-            712: 'png',
-            713: 'png',
-            714: 'png',
-            715: 'png',
-            716: 'png',
-            717: 'png',
-            718: 'png',
-            719: 'png',
-            720: 'png',
-            721: 'png',
-            722: 'png',
-            723: 'png',
-            724: 'png',
-            725: 'png',
-            726: 'png',
-            727: 'png',
-            728: 'png',
-            729: 'png',
-            730: 'png',
-            731: 'png',
-            732: 'png',
-            733: 'png',
-            734: 'png',
-            735: 'png',
-            736: 'png',
-            737: 'png',
-            738: 'png',
-            753: 'png',
-            754: 'png',
-            755: 'png',
-            756: 'png',
-            757: 'png',
-            758: 'png',
-            759: 'png',
-            760: 'png',
-            761: 'png',
-            762: 'png',
-            763: 'png',
-            764: 'png',
-            765: 'png',
-            766: 'png',
-            767: 'png',
-            768: 'png',
-            769: 'png',
-            770: 'png',
-            771: 'png',
-            772: 'png',
-            773: 'png',
-            774: 'png',
-            775: 'png',
-            776: 'png',
-            777: 'png',
-            778: 'png',
-            779: 'png',
-            780: 'png',
-            781: 'png',
-            782: 'png',
-            783: 'png',
-            784: 'png',
-            785: 'png',
-            786: 'png',
-            787: 'png',
-            788: 'png',
-            789: 'png',
-            790: 'png',
-            791: 'png',
-            792: 'png',
-            793: 'png',
-            794: 'png',
-            795: 'png',
-            796: 'png',
-            797: 'png',
-            798: 'png',
-            799: 'png',
-            800: 'png',
-            801: 'png',
-            802: 'png',
-            804: 'png',
-            805: 'png',
-            806: 'png',
-            807: 'png',
-            808: 'png',
-            809: 'png',
-            810: 'png',
-            811: 'png',
-            812: 'png',
-            813: 'png',
-            814: 'png',
-            815: 'png',
-            816: 'png',
-            817: 'png',
-            818: 'png',
-            819: 'png',
-            820: 'png',
-            821: 'png',
-            822: 'png',
-            823: 'png',
-            824: 'png',
-            825: 'png',
-            826: 'png',
-            827: 'png',
-            828: 'png',
-            829: 'png',
-            830: 'png',
-            831: 'png',
-            832: 'png',
-            833: 'png',
-            835: 'png',
-            836: 'png',
-            837: 'png',
-            838: 'png',
-            839: 'png',
-            840: 'png',
-            841: 'png',
-            842: 'png',
-            843: 'png',
-            844: 'png',
-            845: 'png',
-            846: 'png',
-            847: 'png',
-            848: 'png',
-            849: 'png',
-            850: 'png',
-            851: 'png',
-            852: 'png',
-            853: 'png',
-            854: 'png',
-            855: 'png',
-            856: 'png',
-            857: 'png',
-            858: 'png',
-            859: 'png',
-            861: 'png',
-            862: 'png',
-            863: 'png',
-            864: 'png',
-            865: 'png',
-            866: 'png',
-            867: 'png',
-            868: 'png',
-            869: 'png',
-            870: 'png',
-            871: 'png',
-            872: 'png',
-            873: 'png',
-            874: 'png',
-            875: 'png',
-            876: 'png',
-            877: 'png',
-            878: 'png',
-            881: 'png',
-            882: 'png',
-            883: 'png',
-            884: 'png',
-            904: 'png',
-            905: 'png',
-            906: 'png',
-            907: 'png',
-            908: 'png',
-            909: 'png',
-            910: 'png',
-            911: 'png',
-            912: 'png',
-            913: 'png',
-            914: 'png',
-            915: 'png',
-            917: 'png',
-            918: 'png',
-            919: 'png',
-            920: 'png',
-            921: 'png',
-            922: 'png',
-            923: 'png',
-            926: 'png',
-            927: 'png',
-            928: 'png',
-            929: 'png',
-            930: 'png',
-            931: 'png',
-            932: 'png',
-            933: 'png',
-            934: 'png',
-            935: 'png',
-            936: 'png',
-            937: 'png',
-            938: 'png',
-            939: 'png',
-            940: 'png',
-            941: 'png',
-            942: 'png',
-            944: 'png',
-            945: 'png',
-            946: 'png',
-            947: 'png',
-            948: 'png',
-            949: 'png',
-            950: 'png',
-            951: 'png',
-            952: 'png',
-            953: 'png',
-            955: 'png',
-            958: 'png',
-            959: 'png',
-            960: 'png',
-            961: 'png',
-            962: 'png',
-            964: 'png',
-            965: 'png',
-            966: 'png',
-            971: 'png',
-            972: 'png',
-            973: 'png',
-            974: 'png',
-            975: 'png',
-            976: 'png',
-            977: 'png',
-            978: 'png',
-            979: 'png',
-            980: 'png',
-            981: 'png',
-            982: 'png',
-            983: 'png',
-            984: 'png',
-            985: 'png',
-            986: 'png',
-            987: 'png',
-            988: 'png',
-            989: 'png',
-            990: 'png',
-            991: 'png',
-            992: 'png',
-            993: 'png',
-            994: 'png',
-            995: 'png',
-            996: 'png',
-            997: 'png',
-            998: 'png',
-            999: 'png',
-            1000: 'png',
-            1001: 'png',
-            1002: 'png',
-            1003: 'png',
-            1004: 'png',
-            1005: 'png',
-            1006: 'png',
-            1007: 'png',
-            1008: 'png',
-            1009: 'png',
-            1010: 'png',
-            1011: 'png',
-            1012: 'png',
-            1013: 'png',
-            1014: 'png',
-            1015: 'png',
-            1016: 'png',
-            1017: 'png',
-            1034: 'png',
-            1035: 'png',
-            1036: 'png',
-            1037: 'png',
-            1038: 'png',
-            1040: 'png',
-            1041: 'png',
-            1042: 'png',
-            1043: 'png',
-            1044: 'png',
-            1045: 'png',
-            1046: 'png',
-            1047: 'png',
-            1048: 'png',
-            1049: 'png',
-            1051: 'png',
-            1052: 'png',
-            1053: 'png',
-            1054: 'png',
-            1055: 'png',
-            1056: 'png',
-            1057: 'png',
-            1058: 'png',
-            1059: 'png',
-            1060: 'png',
-            1061: 'png',
-            1062: 'png',
-            1063: 'png',
-            1064: 'png',
-            1065: 'png',
-            1066: 'png',
-            1067: 'png',
-            1068: 'png',
-            1075: 'png',
-            1076: 'png',
-            1081: 'png',
-            1083: 'png',
-            1084: 'png',
-            1086: 'png',
-            1087: 'png',
-            1088: 'png',
-            1089: 'png',
-            1090: 'png',
-            1091: 'png',
-            1092: 'png',
-            1093: 'png',
-            1094: 'png',
-            1095: 'png',
-            1096: 'png',
-            1097: 'png',
-            1098: 'png',
-            1099: 'png',
-            1100: 'png',
-            1101: 'png',
-            1102: 'png',
-            1103: 'png',
-            1104: 'png',
-            1105: 'png',
-            1109: 'png',
-            1110: 'png',
-            1111: 'png',
-            1112: 'png',
-            1113: 'png',
-            1114: 'png',
-            1115: 'png',
-            1116: 'png',
-            1117: 'png',
-            1118: 'png',
-            1119: 'png',
-            1120: 'png',
-            1121: 'png',
-            1122: 'png',
-            1130: 'png',
-            1131: 'png',
-            1132: 'png',
-            1133: 'png',
-            1134: 'png',
-            1135: 'png',
-            1136: 'png',
-            1137: 'png',
-            1139: 'png',
-            1145: 'png',
-            1148: 'png',
-            1149: 'png',
-            1150: 'png',
-            1151: 'png',
-            1152: 'png',
-            1154: 'png',
-            1155: 'png',
-            1156: 'png',
-            1157: 'png',
-            1160: 'png',
-            1161: 'png',
-            1162: 'png',
-            1163: 'png',
-            1164: 'png',
-            1165: 'png',
-            1166: 'png',
-            1167: 'png',
-            1168: 'png',
-            1169: 'png',
-            1173: 'png',
-            1174: 'png',
-            1176: 'png',
-            1178: 'png',
-            1179: 'png',
-            1183: 'png',
-            1184: 'png',
-            1190: 'png',
-            1191: 'png',
-            1192: 'png',
-            1194: 'png',
-            1195: 'png',
-            1196: 'png',
-            1197: 'png',
-            1198: 'png',
-            1199: 'png',
-            1200: 'png',
-            1201: 'png',
-            1202: 'png',
-            1203: 'png',
-            1205: 'png',
-            1207: 'png',
-            1208: 'png',
-            1209: 'png',
-            1210: 'png',
-            1211: 'png',
-            1212: 'png',
-            1213: 'png',
-            1214: 'png',
-            1215: 'png',
-            1216: 'png',
-            1217: 'png',
-            1218: 'png',
-            1219: 'png',
-            1220: 'png',
-            1221: 'png',
-            1222: 'png',
-            1223: 'png',
-            1224: 'png',
-            1225: 'png',
-            1226: 'png',
-            1227: 'png',
-            1228: 'png',
-            1229: 'png',
-            1230: 'png',
-            1232: 'png',
-            1233: 'png',
-            1234: 'png',
-            1236: 'png',
-            1237: 'png',
-            1238: 'png',
-            1239: 'png',
-            1240: 'png',
-            1241: 'png',
-            1242: 'png',
-            1243: 'png',
-            1244: 'png',
-            1245: 'png',
-            1246: 'png',
-            1247: 'png',
-            1249: 'png',
-            1250: 'png',
-            1251: 'png',
-            1252: 'png',
-            1255: 'png',
-            1256: 'png',
-            1257: 'png',
-            1258: 'png',
-            1259: 'png',
-            1260: 'png',
-            1261: 'png',
-            1262: 'png',
-            1264: 'png',
-            1265: 'png',
-            1266: 'png',
-            1267: 'png',
-            1268: 'png',
-            1269: 'png',
-            1270: 'png'
+            ...(window.PRODUCT_IMAGE_MAP || {}),
+            ...loadedData.imageMap
           };
           try {
             localStorage.setItem("zs_groceries_imagemap_cache", JSON.stringify(window.PRODUCT_IMAGE_MAP));
@@ -11936,1004 +11248,12 @@ function SahilTraders() {
     try {
       const cachedMap = localStorage.getItem("zs_groceries_imagemap_cache");
       if (cachedMap && typeof window !== 'undefined') {
-        window.PRODUCT_IMAGE_MAP = {
-          1: 'png',
-          2: 'png',
-          3: 'png',
-          5: 'png',
-          6: 'png',
-          7: 'png',
-          8: 'png',
-          14: 'png',
-          15: 'png',
-          16: 'png',
-          17: 'png',
-          18: 'png',
-          21: 'png',
-          22: 'png',
-          23: 'png',
-          26: 'png',
-          27: 'png',
-          28: 'png',
-          29: 'png',
-          30: 'png',
-          31: 'png',
-          32: 'png',
-          33: 'png',
-          34: 'png',
-          37: 'png',
-          38: 'png',
-          46: 'png',
-          47: 'png',
-          48: 'png',
-          49: 'png',
-          50: 'png',
-          51: 'png',
-          52: 'png',
-          53: 'png',
-          54: 'png',
-          59: 'png',
-          60: 'png',
-          61: 'png',
-          62: 'png',
-          64: 'png',
-          65: 'png',
-          66: 'png',
-          67: 'png',
-          68: 'png',
-          69: 'png',
-          70: 'png',
-          71: 'png',
-          72: 'png',
-          73: 'png',
-          75: 'png',
-          76: 'png',
-          77: 'png',
-          78: 'png',
-          79: 'png',
-          81: 'png',
-          82: 'png',
-          83: 'png',
-          84: 'png',
-          85: 'png',
-          86: 'png',
-          87: 'png',
-          88: 'png',
-          89: 'png',
-          90: 'png',
-          91: 'png',
-          92: 'png',
-          93: 'png',
-          94: 'png',
-          95: 'png',
-          96: 'png',
-          97: 'png',
-          98: 'png',
-          99: 'png',
-          100: 'png',
-          101: 'png',
-          102: 'png',
-          105: 'png',
-          106: 'png',
-          107: 'png',
-          110: 'png',
-          111: 'png',
-          113: 'png',
-          117: 'png',
-          118: 'png',
-          119: 'png',
-          120: 'png',
-          121: 'png',
-          122: 'png',
-          123: 'png',
-          124: 'png',
-          125: 'png',
-          127: 'png',
-          130: 'png',
-          133: 'png',
-          134: 'png',
-          135: 'png',
-          136: 'png',
-          137: 'png',
-          139: 'png',
-          140: 'png',
-          141: 'png',
-          142: 'png',
-          143: 'png',
-          144: 'png',
-          145: 'png',
-          146: 'png',
-          148: 'png',
-          151: 'png',
-          152: 'png',
-          153: 'png',
-          154: 'png',
-          155: 'png',
-          156: 'png',
-          157: 'png',
-          158: 'png',
-          159: 'png',
-          161: 'png',
-          162: 'png',
-          163: 'png',
-          165: 'png',
-          167: 'png',
-          168: 'png',
-          169: 'png',
-          170: 'png',
-          171: 'png',
-          172: 'png',
-          173: 'png',
-          174: 'png',
-          175: 'png',
-          177: 'png',
-          178: 'png',
-          183: 'png',
-          184: 'png',
-          187: 'png',
-          188: 'png',
-          189: 'png',
-          190: 'png',
-          191: 'png',
-          192: 'png',
-          206: 'png',
-          207: 'png',
-          208: 'png',
-          209: 'png',
-          219: 'png',
-          221: 'png',
-          222: 'png',
-          223: 'png',
-          224: 'png',
-          225: 'png',
-          226: 'png',
-          227: 'png',
-          228: 'png',
-          229: 'png',
-          231: 'png',
-          233: 'png',
-          234: 'png',
-          235: 'png',
-          236: 'png',
-          237: 'png',
-          238: 'png',
-          239: 'png',
-          240: 'png',
-          242: 'png',
-          243: 'png',
-          244: 'png',
-          245: 'png',
-          246: 'png',
-          247: 'png',
-          249: 'png',
-          250: 'png',
-          251: 'png',
-          252: 'png',
-          254: 'png',
-          255: 'png',
-          256: 'png',
-          257: 'png',
-          258: 'png',
-          259: 'png',
-          261: 'png',
-          262: 'png',
-          263: 'png',
-          265: 'png',
-          266: 'png',
-          267: 'png',
-          269: 'png',
-          270: 'png',
-          271: 'png',
-          272: 'png',
-          273: 'png',
-          274: 'png',
-          278: 'png',
-          279: 'png',
-          280: 'png',
-          281: 'png',
-          282: 'png',
-          284: 'png',
-          285: 'png',
-          286: 'png',
-          287: 'png',
-          288: 'png',
-          289: 'png',
-          290: 'png',
-          291: 'png',
-          292: 'png',
-          293: 'png',
-          295: 'png',
-          296: 'png',
-          297: 'png',
-          298: 'png',
-          299: 'png',
-          300: 'png',
-          301: 'png',
-          302: 'png',
-          303: 'png',
-          304: 'png',
-          305: 'png',
-          306: 'png',
-          307: 'png',
-          310: 'png',
-          311: 'png',
-          312: 'png',
-          314: 'png',
-          315: 'png',
-          316: 'png',
-          317: 'png',
-          318: 'png',
-          319: 'png',
-          320: 'png',
-          321: 'png',
-          322: 'png',
-          323: 'png',
-          324: 'png',
-          325: 'png',
-          326: 'png',
-          327: 'png',
-          329: 'png',
-          330: 'png',
-          331: 'png',
-          332: 'png',
-          333: 'png',
-          334: 'png',
-          335: 'png',
-          336: 'png',
-          337: 'png',
-          338: 'png',
-          339: 'png',
-          340: 'png',
-          341: 'png',
-          342: 'png',
-          343: 'png',
-          344: 'png',
-          347: 'png',
-          348: 'png',
-          349: 'png',
-          350: 'png',
-          351: 'png',
-          352: 'png',
-          353: 'png',
-          354: 'png',
-          355: 'png',
-          356: 'png',
-          357: 'png',
-          358: 'png',
-          359: 'png',
-          360: 'png',
-          362: 'png',
-          363: 'png',
-          364: 'png',
-          365: 'png',
-          366: 'png',
-          367: 'png',
-          368: 'png',
-          370: 'png',
-          371: 'png',
-          372: 'png',
-          373: 'png',
-          374: 'png',
-          375: 'png',
-          377: 'png',
-          378: 'png',
-          379: 'png',
-          380: 'png',
-          381: 'png',
-          382: 'png',
-          383: 'png',
-          384: 'png',
-          385: 'png',
-          386: 'png',
-          387: 'png',
-          397: 'png',
-          398: 'png',
-          399: 'png',
-          400: 'png',
-          403: 'png',
-          404: 'png',
-          407: 'png',
-          411: 'png',
-          412: 'png',
-          414: 'png',
-          415: 'png',
-          416: 'png',
-          417: 'png',
-          418: 'png',
-          419: 'png',
-          420: 'png',
-          421: 'png',
-          422: 'png',
-          423: 'png',
-          424: 'png',
-          425: 'png',
-          426: 'png',
-          427: 'png',
-          428: 'png',
-          429: 'png',
-          430: 'png',
-          431: 'png',
-          432: 'png',
-          433: 'png',
-          434: 'png',
-          435: 'png',
-          436: 'png',
-          437: 'png',
-          438: 'png',
-          439: 'png',
-          440: 'png',
-          441: 'png',
-          442: 'png',
-          443: 'png',
-          444: 'png',
-          445: 'png',
-          446: 'png',
-          447: 'png',
-          448: 'png',
-          449: 'png',
-          450: 'png',
-          451: 'png',
-          452: 'png',
-          453: 'png',
-          455: 'png',
-          456: 'png',
-          457: 'png',
-          458: 'png',
-          459: 'png',
-          460: 'png',
-          461: 'png',
-          462: 'png',
-          463: 'png',
-          464: 'png',
-          466: 'png',
-          467: 'png',
-          468: 'png',
-          469: 'png',
-          470: 'png',
-          471: 'png',
-          472: 'png',
-          473: 'png',
-          474: 'png',
-          475: 'png',
-          476: 'png',
-          477: 'png',
-          478: 'png',
-          479: 'png',
-          480: 'png',
-          481: 'png',
-          482: 'png',
-          483: 'png',
-          484: 'png',
-          485: 'png',
-          486: 'png',
-          487: 'png',
-          488: 'png',
-          489: 'png',
-          490: 'png',
-          491: 'png',
-          492: 'png',
-          493: 'png',
-          494: 'png',
-          495: 'png',
-          496: 'png',
-          497: 'png',
-          499: 'png',
-          500: 'png',
-          512: 'png',
-          513: 'png',
-          514: 'png',
-          515: 'png',
-          516: 'png',
-          519: 'png',
-          520: 'png',
-          521: 'png',
-          522: 'png',
-          523: 'png',
-          524: 'png',
-          525: 'png',
-          526: 'png',
-          528: 'png',
-          529: 'png',
-          530: 'png',
-          534: 'png',
-          535: 'png',
-          536: 'png',
-          537: 'png',
-          538: 'png',
-          539: 'png',
-          540: 'png',
-          541: 'png',
-          542: 'png',
-          543: 'png',
-          544: 'png',
-          545: 'png',
-          548: 'png',
-          549: 'png',
-          550: 'png',
-          551: 'png',
-          552: 'png',
-          553: 'png',
-          554: 'png',
-          555: 'png',
-          556: 'png',
-          557: 'png',
-          558: 'png',
-          559: 'png',
-          560: 'png',
-          561: 'png',
-          562: 'png',
-          563: 'png',
-          564: 'png',
-          565: 'png',
-          566: 'png',
-          567: 'png',
-          569: 'png',
-          570: 'png',
-          571: 'png',
-          572: 'png',
-          573: 'png',
-          576: 'png',
-          577: 'png',
-          578: 'png',
-          579: 'png',
-          580: 'png',
-          581: 'png',
-          582: 'png',
-          583: 'png',
-          584: 'png',
-          585: 'png',
-          587: 'png',
-          588: 'png',
-          589: 'png',
-          592: 'png',
-          595: 'png',
-          596: 'png',
-          599: 'png',
-          600: 'png',
-          601: 'png',
-          603: 'png',
-          604: 'png',
-          605: 'png',
-          606: 'png',
-          607: 'png',
-          608: 'png',
-          609: 'png',
-          610: 'png',
-          611: 'png',
-          612: 'png',
-          613: 'png',
-          614: 'png',
-          615: 'png',
-          616: 'png',
-          617: 'png',
-          618: 'png',
-          619: 'png',
-          620: 'png',
-          621: 'png',
-          622: 'png',
-          623: 'png',
-          624: 'png',
-          625: 'png',
-          626: 'png',
-          627: 'png',
-          628: 'png',
-          629: 'png',
-          630: 'png',
-          631: 'png',
-          632: 'png',
-          633: 'png',
-          634: 'png',
-          635: 'png',
-          636: 'png',
-          637: 'png',
-          638: 'png',
-          639: 'png',
-          640: 'png',
-          641: 'png',
-          642: 'png',
-          643: 'png',
-          644: 'png',
-          645: 'png',
-          646: 'png',
-          647: 'png',
-          648: 'png',
-          649: 'png',
-          650: 'png',
-          651: 'png',
-          652: 'png',
-          653: 'png',
-          654: 'png',
-          655: 'png',
-          656: 'png',
-          657: 'png',
-          658: 'png',
-          659: 'png',
-          660: 'png',
-          661: 'png',
-          662: 'png',
-          663: 'png',
-          664: 'png',
-          665: 'png',
-          666: 'png',
-          667: 'png',
-          668: 'png',
-          669: 'png',
-          670: 'png',
-          671: 'png',
-          672: 'png',
-          673: 'png',
-          674: 'png',
-          675: 'png',
-          676: 'png',
-          677: 'png',
-          678: 'png',
-          679: 'png',
-          681: 'png',
-          682: 'png',
-          683: 'png',
-          684: 'png',
-          685: 'png',
-          686: 'png',
-          687: 'png',
-          688: 'png',
-          689: 'png',
-          690: 'png',
-          691: 'png',
-          692: 'png',
-          693: 'png',
-          694: 'png',
-          695: 'png',
-          696: 'png',
-          697: 'png',
-          698: 'png',
-          700: 'png',
-          701: 'png',
-          702: 'png',
-          703: 'png',
-          704: 'png',
-          705: 'png',
-          706: 'png',
-          708: 'png',
-          709: 'png',
-          710: 'png',
-          711: 'png',
-          712: 'png',
-          713: 'png',
-          714: 'png',
-          715: 'png',
-          716: 'png',
-          717: 'png',
-          718: 'png',
-          719: 'png',
-          720: 'png',
-          721: 'png',
-          722: 'png',
-          723: 'png',
-          724: 'png',
-          725: 'png',
-          726: 'png',
-          727: 'png',
-          728: 'png',
-          729: 'png',
-          730: 'png',
-          731: 'png',
-          732: 'png',
-          733: 'png',
-          734: 'png',
-          735: 'png',
-          736: 'png',
-          737: 'png',
-          738: 'png',
-          753: 'png',
-          754: 'png',
-          755: 'png',
-          756: 'png',
-          757: 'png',
-          758: 'png',
-          759: 'png',
-          760: 'png',
-          761: 'png',
-          762: 'png',
-          763: 'png',
-          764: 'png',
-          765: 'png',
-          766: 'png',
-          767: 'png',
-          768: 'png',
-          769: 'png',
-          770: 'png',
-          771: 'png',
-          772: 'png',
-          773: 'png',
-          774: 'png',
-          775: 'png',
-          776: 'png',
-          777: 'png',
-          778: 'png',
-          779: 'png',
-          780: 'png',
-          781: 'png',
-          782: 'png',
-          783: 'png',
-          784: 'png',
-          785: 'png',
-          786: 'png',
-          787: 'png',
-          788: 'png',
-          789: 'png',
-          790: 'png',
-          791: 'png',
-          792: 'png',
-          793: 'png',
-          794: 'png',
-          795: 'png',
-          796: 'png',
-          797: 'png',
-          798: 'png',
-          799: 'png',
-          800: 'png',
-          801: 'png',
-          802: 'png',
-          804: 'png',
-          805: 'png',
-          806: 'png',
-          807: 'png',
-          808: 'png',
-          809: 'png',
-          810: 'png',
-          811: 'png',
-          812: 'png',
-          813: 'png',
-          814: 'png',
-          815: 'png',
-          816: 'png',
-          817: 'png',
-          818: 'png',
-          819: 'png',
-          820: 'png',
-          821: 'png',
-          822: 'png',
-          823: 'png',
-          824: 'png',
-          825: 'png',
-          826: 'png',
-          827: 'png',
-          828: 'png',
-          829: 'png',
-          830: 'png',
-          831: 'png',
-          832: 'png',
-          833: 'png',
-          835: 'png',
-          836: 'png',
-          837: 'png',
-          838: 'png',
-          839: 'png',
-          840: 'png',
-          841: 'png',
-          842: 'png',
-          843: 'png',
-          844: 'png',
-          845: 'png',
-          846: 'png',
-          847: 'png',
-          848: 'png',
-          849: 'png',
-          850: 'png',
-          851: 'png',
-          852: 'png',
-          853: 'png',
-          854: 'png',
-          855: 'png',
-          856: 'png',
-          857: 'png',
-          858: 'png',
-          859: 'png',
-          861: 'png',
-          862: 'png',
-          863: 'png',
-          864: 'png',
-          865: 'png',
-          866: 'png',
-          867: 'png',
-          868: 'png',
-          869: 'png',
-          870: 'png',
-          871: 'png',
-          872: 'png',
-          873: 'png',
-          874: 'png',
-          875: 'png',
-          876: 'png',
-          877: 'png',
-          878: 'png',
-          881: 'png',
-          882: 'png',
-          883: 'png',
-          884: 'png',
-          904: 'png',
-          905: 'png',
-          906: 'png',
-          907: 'png',
-          908: 'png',
-          909: 'png',
-          910: 'png',
-          911: 'png',
-          912: 'png',
-          913: 'png',
-          914: 'png',
-          915: 'png',
-          917: 'png',
-          918: 'png',
-          919: 'png',
-          920: 'png',
-          921: 'png',
-          922: 'png',
-          923: 'png',
-          926: 'png',
-          927: 'png',
-          928: 'png',
-          929: 'png',
-          930: 'png',
-          931: 'png',
-          932: 'png',
-          933: 'png',
-          934: 'png',
-          935: 'png',
-          936: 'png',
-          937: 'png',
-          938: 'png',
-          939: 'png',
-          940: 'png',
-          941: 'png',
-          942: 'png',
-          944: 'png',
-          945: 'png',
-          946: 'png',
-          947: 'png',
-          948: 'png',
-          949: 'png',
-          950: 'png',
-          951: 'png',
-          952: 'png',
-          953: 'png',
-          955: 'png',
-          958: 'png',
-          959: 'png',
-          960: 'png',
-          961: 'png',
-          962: 'png',
-          964: 'png',
-          965: 'png',
-          966: 'png',
-          971: 'png',
-          972: 'png',
-          973: 'png',
-          974: 'png',
-          975: 'png',
-          976: 'png',
-          977: 'png',
-          978: 'png',
-          979: 'png',
-          980: 'png',
-          981: 'png',
-          982: 'png',
-          983: 'png',
-          984: 'png',
-          985: 'png',
-          986: 'png',
-          987: 'png',
-          988: 'png',
-          989: 'png',
-          990: 'png',
-          991: 'png',
-          992: 'png',
-          993: 'png',
-          994: 'png',
-          995: 'png',
-          996: 'png',
-          997: 'png',
-          998: 'png',
-          999: 'png',
-          1000: 'png',
-          1001: 'png',
-          1002: 'png',
-          1003: 'png',
-          1004: 'png',
-          1005: 'png',
-          1006: 'png',
-          1007: 'png',
-          1008: 'png',
-          1009: 'png',
-          1010: 'png',
-          1011: 'png',
-          1012: 'png',
-          1013: 'png',
-          1014: 'png',
-          1015: 'png',
-          1016: 'png',
-          1017: 'png',
-          1034: 'png',
-          1035: 'png',
-          1036: 'png',
-          1037: 'png',
-          1038: 'png',
-          1040: 'png',
-          1041: 'png',
-          1042: 'png',
-          1043: 'png',
-          1044: 'png',
-          1045: 'png',
-          1046: 'png',
-          1047: 'png',
-          1048: 'png',
-          1049: 'png',
-          1051: 'png',
-          1052: 'png',
-          1053: 'png',
-          1054: 'png',
-          1055: 'png',
-          1056: 'png',
-          1057: 'png',
-          1058: 'png',
-          1059: 'png',
-          1060: 'png',
-          1061: 'png',
-          1062: 'png',
-          1063: 'png',
-          1064: 'png',
-          1065: 'png',
-          1066: 'png',
-          1067: 'png',
-          1068: 'png',
-          1075: 'png',
-          1076: 'png',
-          1081: 'png',
-          1083: 'png',
-          1084: 'png',
-          1086: 'png',
-          1087: 'png',
-          1088: 'png',
-          1089: 'png',
-          1090: 'png',
-          1091: 'png',
-          1092: 'png',
-          1093: 'png',
-          1094: 'png',
-          1095: 'png',
-          1096: 'png',
-          1097: 'png',
-          1098: 'png',
-          1099: 'png',
-          1100: 'png',
-          1101: 'png',
-          1102: 'png',
-          1103: 'png',
-          1104: 'png',
-          1105: 'png',
-          1109: 'png',
-          1110: 'png',
-          1111: 'png',
-          1112: 'png',
-          1113: 'png',
-          1114: 'png',
-          1115: 'png',
-          1116: 'png',
-          1117: 'png',
-          1118: 'png',
-          1119: 'png',
-          1120: 'png',
-          1121: 'png',
-          1122: 'png',
-          1130: 'png',
-          1131: 'png',
-          1132: 'png',
-          1133: 'png',
-          1134: 'png',
-          1135: 'png',
-          1136: 'png',
-          1137: 'png',
-          1139: 'png',
-          1145: 'png',
-          1148: 'png',
-          1149: 'png',
-          1150: 'png',
-          1151: 'png',
-          1152: 'png',
-          1154: 'png',
-          1155: 'png',
-          1156: 'png',
-          1157: 'png',
-          1160: 'png',
-          1161: 'png',
-          1162: 'png',
-          1163: 'png',
-          1164: 'png',
-          1165: 'png',
-          1166: 'png',
-          1167: 'png',
-          1168: 'png',
-          1169: 'png',
-          1173: 'png',
-          1174: 'png',
-          1176: 'png',
-          1178: 'png',
-          1179: 'png',
-          1183: 'png',
-          1184: 'png',
-          1190: 'png',
-          1191: 'png',
-          1192: 'png',
-          1194: 'png',
-          1195: 'png',
-          1196: 'png',
-          1197: 'png',
-          1198: 'png',
-          1199: 'png',
-          1200: 'png',
-          1201: 'png',
-          1202: 'png',
-          1203: 'png',
-          1205: 'png',
-          1207: 'png',
-          1208: 'png',
-          1209: 'png',
-          1210: 'png',
-          1211: 'png',
-          1212: 'png',
-          1213: 'png',
-          1214: 'png',
-          1215: 'png',
-          1216: 'png',
-          1217: 'png',
-          1218: 'png',
-          1219: 'png',
-          1220: 'png',
-          1221: 'png',
-          1222: 'png',
-          1223: 'png',
-          1224: 'png',
-          1225: 'png',
-          1226: 'png',
-          1227: 'png',
-          1228: 'png',
-          1229: 'png',
-          1230: 'png',
-          1232: 'png',
-          1233: 'png',
-          1234: 'png',
-          1236: 'png',
-          1237: 'png',
-          1238: 'png',
-          1239: 'png',
-          1240: 'png',
-          1241: 'png',
-          1242: 'png',
-          1243: 'png',
-          1244: 'png',
-          1245: 'png',
-          1246: 'png',
-          1247: 'png',
-          1249: 'png',
-          1250: 'png',
-          1251: 'png',
-          1252: 'png',
-          1255: 'png',
-          1256: 'png',
-          1257: 'png',
-          1258: 'png',
-          1259: 'png',
-          1260: 'png',
-          1261: 'png',
-          1262: 'png',
-          1264: 'png',
-          1265: 'png',
-          1266: 'png',
-          1267: 'png',
-          1268: 'png',
-          1269: 'png',
-          1270: 'png'
-        };
+        try {
+          window.PRODUCT_IMAGE_MAP = {
+            ...(window.PRODUCT_IMAGE_MAP || {}),
+            ...JSON.parse(cachedMap)
+          };
+        } catch (e) {}
       }
     } catch (e) {}
 
@@ -13039,8 +11359,12 @@ function SahilTraders() {
         setParchiModalOpen(false);
         return;
       }
-      // 6. If Order History is open, close it
+      // 6. If Order History is open, check if order detail is active first
       if (orderHistoryOpen) {
+        if (window.__orderDetailSelected && typeof window.__closeOrderDetail === 'function') {
+          window.__closeOrderDetail();
+          return;
+        }
         setOrderHistoryOpen(false);
         return;
       }
@@ -13510,6 +11834,28 @@ function SahilTraders() {
     return () => clearTimeout(timer);
   }, []);
 
+  // 📍 Prefetch GPS location on app start so user does not have to wait or press anything during checkout
+  useEffect(() => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
+          window.__prefetchedLocation = {
+            lat,
+            lng,
+            mapUrl
+          };
+        }, () => {}, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
+        });
+      }
+    } catch (e) {}
+  }, []);
+
   // ⚡ 120 FPS Hardware Scroll Optimization: Pause Marquees during active touch scrolling
   useEffect(() => {
     let isScrollingTimeout;
@@ -13798,11 +12144,12 @@ function SahilTraders() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "luxury-logo-box"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-3xl p-2.5 flex items-center justify-center shadow-2xl",
+    className: "luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-3xl p-2 flex items-center justify-center shadow-2xl",
     style: {
       background: '#ffffff',
       border: '3px solid #2563eb',
-      boxShadow: '0 0 45px rgba(37, 99, 235, 0.5), 0 0 80px rgba(0,0,0,0.9)'
+      boxShadow: '0 0 45px rgba(37, 99, 235, 0.5), 0 0 80px rgba(0,0,0,0.9)',
+      overflow: 'hidden'
     }
   }, /*#__PURE__*/React.createElement("img", {
     src: "images/zs-mart-logo.png",
@@ -13850,43 +12197,18 @@ function SahilTraders() {
       background: 'linear-gradient(90deg, #08101a 0%, #0b1828 50%, #08101a 100%)',
       borderBottom: '1px solid rgba(16,185,129,0.18)'
     },
-    className: "text-white text-[10.5px] font-medium py-1.5 px-3 sm:px-4"
+    className: "text-white text-[11px] font-semibold py-1.5 px-3"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "max-w-7xl mx-auto flex items-center justify-between gap-2"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "flex items-center gap-2 sm:gap-3 overflow-hidden w-full justify-center sm:justify-start"
+    className: "max-w-7xl mx-auto flex items-center justify-center text-center"
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       color: '#f59e0b',
       fontWeight: 700,
-      whiteSpace: 'nowrap',
-      display: 'flex',
+      display: 'inline-flex',
       alignItems: 'center',
-      gap: 4
+      gap: 6
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: 10:00 AM – 8:00 PM (Peer ta Hafta)', 'ڈیلیوری کے اوقات: صبح 10 تا رات 8 (پیر تا ہفتہ)'))), /*#__PURE__*/React.createElement("span", {
-    className: "hidden sm:inline",
-    style: {
-      color: 'rgba(255,255,255,0.25)'
-    }
-  }, "|"), /*#__PURE__*/React.createElement("div", {
-    className: "hidden sm:flex items-center gap-3",
-    style: {
-      color: 'rgba(255,255,255,0.55)'
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCCD ", tr(language, 'Karachi Only', 'Sirf Karachi', 'صرف کراچی')), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'rgba(255,255,255,0.2)'
-    }
-  }, "\u2022"), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: '#10b981'
-    }
-  }, "\uD83D\uDE9A ", tr(language, 'Free Shipping on Rs 2000+', 'Rs 2000+ par Free Delivery', 'Rs 2000+ پر مفت ڈیلیوری')), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'rgba(255,255,255,0.2)'
-    }
-  }, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC ", tr(language, 'WhatsApp Orders Active', 'WhatsApp Orders Active', 'واٹس ایپ آرڈرز جاری')))))), /*#__PURE__*/React.createElement("header", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Delivery Timing: 10:00 AM – 10:00 PM', 'Delivery Timing: 10:00 AM – 10:00 PM', 'ڈیلیوری کے اوقات: صبح 10:00 تا رات 10:00'))))), /*#__PURE__*/React.createElement("header", {
     className: "sticky top-0 z-30 shadow-md",
     style: {
       background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)',
@@ -14097,10 +12419,10 @@ function SahilTraders() {
       top: 'calc(100% + 6px)',
       left: 0,
       right: 0,
-      background: '#0d1528',
-      border: '1.5px solid rgba(255,255,255,0.1)',
+      background: '#ffffff',
+      border: '1.5px solid #e2e8f0',
       borderRadius: '12px',
-      boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+      boxShadow: '0 16px 48px rgba(0,0,0,0.18)',
       zIndex: 50,
       overflow: 'hidden',
       maxHeight: '320px',
@@ -14113,55 +12435,78 @@ function SahilTraders() {
       fontWeight: 700,
       letterSpacing: '0.1em',
       textTransform: 'uppercase',
-      color: 'rgba(255,255,255,0.3)'
+      color: '#94a3b8'
     }
-  }, "Recent"), suggestions.slice(0, 8).map(product => /*#__PURE__*/React.createElement("button", {
-    key: product.id,
-    type: "button",
-    onMouseDown: () => handleSuggestionClick(product),
-    style: {
-      width: '100%',
-      textAlign: 'left',
-      padding: '10px 14px',
-      background: 'transparent',
-      border: 'none',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
-      borderBottom: '1px solid rgba(255,255,255,0.05)',
-      transition: 'background 0.15s'
-    },
-    onMouseEnter: e => e.currentTarget.style.background = 'rgba(16,185,129,0.1)',
-    onMouseLeave: e => e.currentTarget.style.background = 'transparent'
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: '28px',
-      height: '28px',
-      borderRadius: '8px',
-      background: `linear-gradient(135deg, ${product.gradient?.replace('from-', '').replace(' to-', ', ') || '#10b981, #059669'})`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '11px',
-      fontWeight: 800,
-      color: 'white',
-      flexShrink: 0
-    }
-  }, product.initial || product.name[0]), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '12.5px',
-      fontWeight: 600,
-      color: '#ffffff',
-      lineHeight: 1.3
-    }
-  }, product.name), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '11px',
-      color: '#10b981',
-      fontWeight: 700
-    }
-  }, "Rs. ", product.price)))))), /*#__PURE__*/React.createElement("div", {
+  }, "Recent"), suggestions.slice(0, 8).map(product => {
+    const hasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+    const imgUrl = hasImg ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+    return /*#__PURE__*/React.createElement("button", {
+      key: product.id,
+      type: "button",
+      onMouseDown: () => handleSuggestionClick(product),
+      style: {
+        width: '100%',
+        textAlign: 'left',
+        padding: '9px 14px',
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        borderBottom: '1px solid #f1f5f9',
+        transition: 'background 0.15s'
+      },
+      onMouseEnter: e => e.currentTarget.style.background = '#f0fdf4',
+      onMouseLeave: e => e.currentTarget.style.background = 'transparent'
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '8px',
+        background: '#f8fafc',
+        border: '1px solid #e2e8f0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        overflow: 'hidden'
+      }
+    }, imgUrl ? /*#__PURE__*/React.createElement("img", {
+      src: imgUrl,
+      alt: product.name,
+      style: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain'
+      }
+    }) : /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: '100%',
+        height: '100%',
+        background: `linear-gradient(135deg, ${product.gradient?.replace('from-', '').replace(' to-', ', ') || '#10b981, #059669'})`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '11px',
+        fontWeight: 800,
+        color: 'white'
+      }
+    }, product.initial || product.name[0])), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: '12.5px',
+        fontWeight: 600,
+        color: '#0f172a',
+        lineHeight: 1.3
+      }
+    }, product.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: '11px',
+        color: '#059669',
+        fontWeight: 700
+      }
+    }, "Rs. ", product.price)));
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-1.5 shrink-0"
   }, /*#__PURE__*/React.createElement("select", {
     value: language,
@@ -14811,10 +13156,10 @@ function SahilTraders() {
       top: 'calc(100% + 4px)',
       left: 0,
       right: 0,
-      background: '#09131e',
-      border: '1.5px solid rgba(16,185,129,0.35)',
+      background: '#ffffff',
+      border: '1.5px solid #e2e8f0',
       borderRadius: '12px',
-      boxShadow: '0 16px 48px rgba(0,0,0,0.85)',
+      boxShadow: '0 16px 48px rgba(0,0,0,0.18)',
       zIndex: 60,
       overflow: 'hidden',
       maxHeight: '280px',
@@ -14827,63 +13172,86 @@ function SahilTraders() {
       fontWeight: 700,
       letterSpacing: '0.1em',
       textTransform: 'uppercase',
-      color: 'rgba(255,255,255,0.4)'
+      color: '#94a3b8'
     }
-  }, "Recent"), suggestions.slice(0, 8).map(product => /*#__PURE__*/React.createElement("button", {
-    key: product.id,
-    type: "button",
-    onMouseDown: () => {
-      handleSuggestionClick(product);
-      setMobileSearchFocused(false);
-    },
-    style: {
-      width: '100%',
-      textAlign: 'left',
-      padding: '8px 12px',
-      background: 'transparent',
-      border: 'none',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '9px',
-      borderBottom: '1px solid rgba(255,255,255,0.05)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: '24px',
-      height: '24px',
-      borderRadius: '6px',
-      background: `linear-gradient(135deg, ${product.gradient?.replace('from-', '').replace(' to-', ', ') || '#10b981, #059669'})`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '10px',
-      fontWeight: 800,
-      color: 'white',
-      flexShrink: 0
-    }
-  }, product.initial || product.name[0]), /*#__PURE__*/React.createElement("div", {
-    style: {
-      minWidth: 0,
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '11.5px',
-      fontWeight: 600,
-      color: '#ffffff',
-      lineHeight: 1.3,
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    }
-  }, product.name), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: '10px',
-      color: '#10b981',
-      fontWeight: 700
-    }
-  }, "Rs. ", product.price)))))))))), /*#__PURE__*/React.createElement("main", {
+  }, "Recent"), suggestions.slice(0, 8).map(product => {
+    const hasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+    const imgUrl = hasImg ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+    return /*#__PURE__*/React.createElement("button", {
+      key: product.id,
+      type: "button",
+      onMouseDown: () => {
+        handleSuggestionClick(product);
+        setMobileSearchFocused(false);
+      },
+      style: {
+        width: '100%',
+        textAlign: 'left',
+        padding: '8px 12px',
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '9px',
+        borderBottom: '1px solid #f1f5f9'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: '32px',
+        height: '32px',
+        borderRadius: '8px',
+        background: '#f8fafc',
+        border: '1px solid #e2e8f0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        overflow: 'hidden'
+      }
+    }, imgUrl ? /*#__PURE__*/React.createElement("img", {
+      src: imgUrl,
+      alt: product.name,
+      style: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain'
+      }
+    }) : /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: '100%',
+        height: '100%',
+        background: `linear-gradient(135deg, ${product.gradient?.replace('from-', '').replace(' to-', ', ') || '#10b981, #059669'})`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '10px',
+        fontWeight: 800,
+        color: 'white'
+      }
+    }, product.initial || product.name[0])), /*#__PURE__*/React.createElement("div", {
+      style: {
+        minWidth: 0,
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: '11.5px',
+        fontWeight: 600,
+        color: '#0f172a',
+        lineHeight: 1.3,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, product.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: '10px',
+        color: '#059669',
+        fontWeight: 700
+      }
+    }, "Rs. ", product.price)));
+  }))))))), /*#__PURE__*/React.createElement("main", {
     className: "max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area",
     style: {
       paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
@@ -15302,7 +13670,7 @@ function SahilTraders() {
       fontWeight: 800,
       marginTop: '2px'
     }
-  }, "0336-8945775 (10:00 AM \u2013 8:00 PM)"))), /*#__PURE__*/React.createElement("span", {
+  }, "0336-8945775 (10:00 AM \u2013 9:00 PM, 7 Days)"))), /*#__PURE__*/React.createElement("span", {
     style: {
       background: '#38bdf8',
       color: '#0f172a',
@@ -15505,7 +13873,7 @@ function SahilTraders() {
       color: '#059669',
       fontWeight: 700
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, "10:00 AM \u2013 8:00 PM (Monday to Saturday)")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, "10:00 AM \u2013 9:00 PM (7 Days a Week, No Holiday)")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -15811,7 +14179,7 @@ function SahilTraders() {
     className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-amber-600"
-  }, "\u23F0"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: Subah 10:00 AM se Raat 8:00 PM tak (Peer ta Hafta)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)'))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
+  }, "\u23F0"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Delivery Timing: 10:00 AM – 9:00 PM (7 Days a Week, No Holiday)', 'Delivery Timing: Subah 10:00 AM se Raat 9:00 PM tak (7 Din Khula, Koi Chutti Nahi)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 9:00 بجے تک (7 دن کھلا، کوئی چھٹی نہیں)'))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
     onClick: () => setAboutOpen(true),
     className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-4 py-1.5 transition-colors cursor-pointer bg-white"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'About ZS Mart', 'Hamare Baare Mein (About ZS Mart)', 'ہمارے بارے میں (About ZS Mart)')))), /*#__PURE__*/React.createElement("p", {
@@ -16211,7 +14579,19 @@ function SahilTraders() {
     className: "text-center text-[10px] text-gray-500 space-y-0.5"
   }, /*#__PURE__*/React.createElement("p", {
     className: "font-semibold text-gray-700"
-  }, tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: 10:00 AM – 8:00 PM (Peer ta Hafta)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)')), /*#__PURE__*/React.createElement("p", null, tr(language, 'Sahil Saleem & Muhammad Zubair Moin', 'Sahil Saleem & Muhammad Zubair Moin', '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646')))))), exitModalOpen && /*#__PURE__*/React.createElement("div", {
+  }, tr(language, 'Open 7 Days a Week (No Holiday)', '7 Din Khula (Koi Chutti Nahi)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 9:00 \u0628\u062c\u06d2 (7 \u062f\u0646 \u06a9\u06be\u0644\u0627\u060c \u06a9\u0648\u0626\u06cc \u0686DA\u0679\u06cc \u0646\u06c1\u06cc\u06ba)')), /*#__PURE__*/React.createElement("p", null, tr(language, 'Sahil Saleem & Muhammad Zubair Moin', 'Sahil Saleem & Muhammad Zubair Moin', '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646')), /*#__PURE__*/React.createElement("div", {
+    className: "pt-2"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      try {
+        const base = window.location.href.replace(/\/[^\/]*$/, '/');
+        window.open(base + 'privacy-policy.html', '_system');
+      } catch (e) {
+        window.open('privacy-policy.html', '_blank');
+      }
+    },
+    className: "inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 underline bg-transparent border-none cursor-pointer p-0"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDD12"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Privacy Policy', 'Privacy Policy (Zati Maloomat ki Hifazat)', '\u067e\u0631\u0627\u0626\u06cc\u0648\u06cc\u0633\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc')))))))), exitModalOpen && /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 shadow-lg animate-fadeIn"
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white border border-gray-200 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl space-y-4"
@@ -17732,15 +16112,8 @@ const ProductCard = React.memo(function ProductCard({
   isWishlisted,
   onToggleWishlist
 }) {
-  const [isAdded, setIsAdded] = useState(false);
   const isUrdu = language === 'ur';
   const pricing = useMemo(() => getProductPricing(product), [product]);
-  const handleAdd = e => {
-    e.stopPropagation();
-    onAddToCart(product);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 900);
-  };
   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
   const imageSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
   return /*#__PURE__*/React.createElement("div", {
@@ -17808,51 +16181,31 @@ const ProductCard = React.memo(function ProductCard({
   }, translate(langData, 'priceLabel', {
     amount: product.price.toLocaleString()
   })), /*#__PURE__*/React.createElement("button", {
-    onClick: handleAdd,
-    className: "product-add-btn mt-auto w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2",
+    onClick: e => {
+      e.stopPropagation();
+      if (onSelectProduct) onSelectProduct(product);
+    },
+    className: "product-add-btn mt-2.5 sm:mt-3 w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2",
     style: {
-      background: isAdded ? '#16a34a' : '#111111',
-      border: `1px solid ${isAdded ? '#15803d' : '#111111'}`,
+      background: '#111111',
+      border: '1px solid #111111',
       color: '#ffffff',
-      boxShadow: isAdded ? '0 8px 18px rgba(22,163,74,0.24)' : '0 6px 14px rgba(0,0,0,0.16)',
+      boxShadow: '0 6px 14px rgba(0,0,0,0.16)',
       transform: 'translateY(0)'
     },
     onMouseEnter: e => {
-      if (!isAdded) {
-        e.currentTarget.style.background = '#1f2937';
-        e.currentTarget.style.borderColor = '#1f2937';
-        e.currentTarget.style.transform = 'translateY(-1px)';
-      }
+      e.currentTarget.style.background = '#1f2937';
+      e.currentTarget.style.borderColor = '#1f2937';
+      e.currentTarget.style.transform = 'translateY(-1px)';
     },
     onMouseLeave: e => {
-      if (!isAdded) {
-        e.currentTarget.style.background = '#111111';
-        e.currentTarget.style.borderColor = '#111111';
-        e.currentTarget.style.transform = 'translateY(0)';
-      }
+      e.currentTarget.style.background = '#111111';
+      e.currentTarget.style.borderColor = '#111111';
+      e.currentTarget.style.transform = 'translateY(0)';
     }
-  }, isAdded ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("svg", {
-    className: "w-3.5 h-3.5",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.5",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M4.5 12.75l6 6 9-13.5"
-  })), translate(langData, "added")) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("svg", {
-    className: "w-3.5 h-3.5",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.5",
-    viewBox: "0 0 24 24"
-  }, /*#__PURE__*/React.createElement("path", {
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    d: "M12 4.5v15m7.5-7.5h-15"
-  })), translate(langData, "addToCart")))));
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDED2"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Click to Buy', 'Click to Buy', 'خریدیں')))));
 });
+
 // -----------------------------------------------------------------------------
 function CartDrawer({
   open,
@@ -18017,8 +16370,8 @@ function CartDrawer({
       marginBottom: 14,
       padding: '12px 14px',
       borderRadius: 14,
-      background: cartTotal >= 2000 ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'linear-gradient(135deg, #fffbe6 0%, #fef3c7 100%)',
-      border: cartTotal >= 2000 ? '1px solid #bbf7d0' : '1px solid #fde68a'
+      background: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'linear-gradient(135deg, #fffbe6 0%, #fef3c7 100%)',
+      border: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? '1px solid #bbf7d0' : '1px solid #fde68a'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -18027,13 +16380,13 @@ function CartDrawer({
       gap: 8,
       fontSize: 12,
       fontWeight: 800,
-      color: cartTotal >= 2000 ? '#166534' : '#92400e'
+      color: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? '#166534' : '#92400e'
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 16
     }
-  }, "\uD83D\uDE9A"), /*#__PURE__*/React.createElement("span", null, cartTotal >= 2000 ? tr(language, '🎉 Mubarak! Free Delivery Unlocked!', '🎉 Mubarak! Free Delivery Unlocked!', '🎉 مبارک! مفت ڈیلیوری فعال ہو گئی!') : tr(language, `Free Delivery on Rs 2,000+ (Rs ${(2000 - cartTotal).toLocaleString()} remaining)`, `Rs 2,000+ par Free Delivery (Rs ${(2000 - cartTotal).toLocaleString()} baqi)`, `Rs. 2,000 پر مفت ڈیلیوری (Rs ${(2000 - cartTotal).toLocaleString()} باقی)`))), /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDE9A"), /*#__PURE__*/React.createElement("span", null, cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? tr(language, '🎉 Mubarak! Free Delivery Unlocked!', '🎉 Mubarak! Free Delivery Unlocked!', '🎉 مبارک! مفت ڈیلیوری فعال ہو گئی!') : tr(language, `Free Delivery on Rs ${(appSettings.freeDeliveryThreshold || 2000).toLocaleString()}+ (Rs ${((appSettings.freeDeliveryThreshold || 2000) - cartTotal).toLocaleString()} remaining)`, `Rs ${(appSettings.freeDeliveryThreshold || 2000).toLocaleString()}+ par Free Delivery (Rs ${((appSettings.freeDeliveryThreshold || 2000) - cartTotal).toLocaleString()} baqi)`, `Rs. ${(appSettings.freeDeliveryThreshold || 2000).toLocaleString()} پر مفت ڈیلیوری (Rs ${((appSettings.freeDeliveryThreshold || 2000) - cartTotal).toLocaleString()} باقی)`))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 8,
       height: 6,
@@ -18045,8 +16398,8 @@ function CartDrawer({
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       height: '100%',
-      width: `${Math.min(100, cartTotal / 2000 * 100)}%`,
-      background: cartTotal >= 2000 ? '#22c55e' : '#f59e0b',
+      width: `${Math.min(100, cartTotal / (appSettings.freeDeliveryThreshold || 2000) * 100)}%`,
+      background: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? '#22c55e' : '#f59e0b',
       borderRadius: 10,
       transition: 'width 0.4s ease'
     }
@@ -18704,6 +17057,20 @@ function OrderHistoryModal({
 }) {
   if (!open) return null;
   const [selectedOrder, setSelectedOrder] = React.useState(null);
+  const [nowTs, setNowTs] = React.useState(() => Date.now());
+  React.useEffect(() => {
+    window.__orderDetailSelected = !!selectedOrder;
+    window.__closeOrderDetail = () => setSelectedOrder(null);
+    return () => {
+      window.__orderDetailSelected = false;
+      window.__closeOrderDetail = null;
+    };
+  }, [selectedOrder]);
+  React.useEffect(() => {
+    if (!selectedOrder) return;
+    const timer = setInterval(() => setNowTs(Date.now()), 10000);
+    return () => clearInterval(timer);
+  }, [selectedOrder]);
 
   // ─── Detail View (When a single order is clicked) ────────
   if (selectedOrder) {
@@ -18840,7 +17207,193 @@ function OrderHistoryModal({
         width: '100%',
         margin: '0 auto'
       }
-    }, /*#__PURE__*/React.createElement("div", {
+    }, (() => {
+      let orderCreatedTime = Date.now();
+      if (order.createdAt) {
+        orderCreatedTime = Number(order.createdAt);
+      } else if (order.id && typeof order.id === 'string' && order.id.includes('-')) {
+        const parts = order.id.split('-');
+        const dStr = parts[0];
+        const tStr = parts[1];
+        if (dStr.length === 8 && tStr.length >= 6) {
+          const y = parseInt(dStr.slice(0, 4), 10);
+          const m = parseInt(dStr.slice(4, 6), 10) - 1;
+          const d = parseInt(dStr.slice(6, 8), 10);
+          const hh = parseInt(tStr.slice(0, 2), 10);
+          const mm = parseInt(tStr.slice(2, 4), 10);
+          const ss = parseInt(tStr.slice(4, 6), 10);
+          orderCreatedTime = new Date(y, m, d, hh, mm, ss).getTime();
+        }
+      }
+      const diffMinutes = Math.max(0, Math.floor((nowTs - orderCreatedTime) / (1000 * 60)));
+      const isStep2 = diffMinutes >= 5;
+      const isStep3 = diffMinutes >= 35;
+      const isStep4 = diffMinutes >= 47;
+      return /*#__PURE__*/React.createElement("div", {
+        style: {
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: 16,
+          padding: '16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          fontWeight: 800,
+          color: '#64748b',
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          marginBottom: 12,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }
+      }, /*#__PURE__*/React.createElement("span", null, tr(language, 'Live Order Tracking', 'Live Order Status', 'آرڈر ٹریکنگ')), /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: isStep4 ? '#059669' : '#2563eb',
+          fontWeight: 900
+        }
+      }, isStep4 ? '● ' + tr(language, 'Delivered', 'Delivered', 'پہنچ چکا') : '● ' + tr(language, 'Active', 'Faal', 'فعال'), " (", diffMinutes, "m)")), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 4,
+          position: 'relative',
+          textAlign: 'center'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          width: 28,
+          height: 28,
+          borderRadius: '50%',
+          background: '#10b981',
+          color: '#ffffff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 13,
+          fontWeight: 900,
+          marginBottom: 4
+        }
+      }, "\u2713"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          fontWeight: 800,
+          color: '#0f172a'
+        }
+      }, tr(language, 'Placed', 'Mausool', 'موصول')), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: '9px',
+          color: '#64748b',
+          marginTop: 2
+        }
+      }, "0m")), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          width: 28,
+          height: 28,
+          borderRadius: '50%',
+          background: isStep2 ? '#10b981' : '#f1f5f9',
+          border: isStep2 ? 'none' : '1px dashed #cbd5e1',
+          color: isStep2 ? '#ffffff' : '#94a3b8',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 13,
+          fontWeight: 900,
+          marginBottom: 4
+        }
+      }, isStep2 ? '✓' : '⏳'), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          fontWeight: isStep2 ? 800 : 600,
+          color: isStep2 ? '#0f172a' : '#94a3b8'
+        }
+      }, tr(language, 'Confirmed', 'Tasdeeq', 'تصدیق')), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: '9px',
+          color: isStep2 ? '#059669' : '#94a3b8',
+          marginTop: 2
+        }
+      }, "5m")), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          width: 28,
+          height: 28,
+          borderRadius: '50%',
+          background: isStep3 ? '#3b82f6' : '#f1f5f9',
+          border: isStep3 ? 'none' : '1px dashed #cbd5e1',
+          color: isStep3 ? '#ffffff' : '#94a3b8',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 12,
+          fontWeight: 900,
+          marginBottom: 4
+        }
+      }, "\uD83D\uDE9A"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          fontWeight: isStep3 ? 800 : 600,
+          color: isStep3 ? '#2563eb' : '#94a3b8'
+        }
+      }, tr(language, 'On Way', 'Rawaana', 'روانہ')), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: '9px',
+          color: isStep3 ? '#2563eb' : '#94a3b8',
+          marginTop: 2
+        }
+      }, "35m")), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          width: 28,
+          height: 28,
+          borderRadius: '50%',
+          background: isStep4 ? '#10b981' : '#f1f5f9',
+          border: isStep4 ? 'none' : '1px dashed #cbd5e1',
+          color: isStep4 ? '#ffffff' : '#94a3b8',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 12,
+          marginBottom: 4
+        }
+      }, "\uD83C\uDFE0"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 10,
+          fontWeight: isStep4 ? 800 : 600,
+          color: isStep4 ? '#059669' : '#94a3b8'
+        }
+      }, tr(language, 'Delivered', 'Pahoncha', 'پہنچا')), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: '9px',
+          color: isStep4 ? '#059669' : '#94a3b8',
+          marginTop: 2
+        }
+      }, "47m"))));
+    })(), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         gap: 8,
@@ -18862,11 +17415,11 @@ function OrderHistoryModal({
         borderRadius: 20,
         fontSize: 11,
         fontWeight: 800,
-        background: '#fef3c7',
-        color: '#b45309',
-        border: '1px solid #fde68a'
+        background: '#ecfdf5',
+        color: '#059669',
+        border: '1px solid #a7f3d0'
       }
-    }, "\u2705 Placed")), /*#__PURE__*/React.createElement("div", {
+    }, "\u2713 Order Verified")), /*#__PURE__*/React.createElement("div", {
       style: {
         background: '#ffffff',
         border: '1px solid #e2e8f0',
@@ -19663,7 +18216,7 @@ function CheckoutModal({
   const [success, setSuccess] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
   const [waUrlState, setWaUrlState] = useState("");
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState(() => window.__prefetchedLocation || null);
   const [locLoading, setLocLoading] = useState(false);
   const [locError, setLocError] = useState(null);
   const isUrdu = language === 'ur';
@@ -19683,6 +18236,11 @@ function CheckoutModal({
         lng,
         mapUrl
       });
+      window.__prefetchedLocation = {
+        lat,
+        lng,
+        mapUrl
+      };
       setLocLoading(false);
       triggerHaptic('success');
     }, err => {
@@ -19698,7 +18256,11 @@ function CheckoutModal({
   };
   useEffect(() => {
     if (deliveryMethod === 'home' && !location && !locLoading) {
-      handleGetLocation(true);
+      if (window.__prefetchedLocation) {
+        setLocation(window.__prefetchedLocation);
+      } else {
+        handleGetLocation(true);
+      }
     }
   }, [deliveryMethod]);
   useEffect(() => {
@@ -19707,7 +18269,7 @@ function CheckoutModal({
       document.body.style.overflow = '';
     };
   }, []);
-  const deliveryFee = deliveryMethod === 'pickup' ? 0 : cartTotal >= 2000 ? 0 : 150;
+  const deliveryFee = deliveryMethod === 'pickup' ? 0 : cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? 0 : appSettings.deliveryFee ?? 150;
   const grandTotal = cartTotal + deliveryFee;
   function validate() {
     const e = {};
@@ -19740,7 +18302,7 @@ function CheckoutModal({
       const bulkText = bulk.extraPercent > 0 ? `\n   🎁 Extra Bulk Discount (${bulk.extraPercent}% OFF): -Rs ${bulk.extraSavings.toLocaleString()} (Effective: Rs ${Math.round(bulk.finalTotal / qty)}/pc)` : '';
       return `• ${product.name}${shadeText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
     }).join('\n\n');
-    const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
+    const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : `Rs ${appSettings.deliveryFee ?? 150} Delivery Fee`})`;
     const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
     const locLine = deliveryMethod === 'home' && location ? `\n• 📍 Live GPS Map Pin: ${location.mapUrl}` : '';
     const msg = ['🛒 *NEW ORDER – ZS Mart*', '-----------------------------------------', '', '*📦 ORDER DETAILS:*', itemLines, '', '-----------------------------------------', `*Subtotal:* Rs ${cartTotal.toLocaleString()}${bulkSavingsSummary}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '-----------------------------------------', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}${locLine}` : `• Store Location: ZS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '-----------------------------------------', `📅 Date: ${new Date().toLocaleDateString('en-PK', {
@@ -20845,8 +19407,11 @@ function CheckoutModal({
     var rootEl = document.getElementById('root');
     if (rootEl && !rootEl.__reactRootMounted && typeof ReactDOM !== 'undefined' && ReactDOM.createRoot && typeof SahilTraders !== 'undefined') {
       rootEl.__reactRootMounted = true;
-      ReactDOM.createRoot(rootEl).render(React.createElement(SahilTraders));
-      console.log('Sahil Traders App mounted successfully via React 18 createRoot!');
+      var appEl = typeof RootErrorBoundary !== 'undefined'
+        ? React.createElement(RootErrorBoundary, null, React.createElement(SahilTraders))
+        : React.createElement(SahilTraders);
+      ReactDOM.createRoot(rootEl).render(appEl);
+      console.log('Sahil Traders App mounted successfully via React 18 createRoot with ErrorBoundary!');
     }
   }
   if (document.readyState === 'loading') {

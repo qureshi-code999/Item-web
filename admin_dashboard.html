@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZS Mart — Master Command Center & Admin Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: rgba(245, 158, 11, 0.2);
+      --accent: #f59e0b;
+      --accent-hover: #fbbf24;
+      --emerald: #10b981;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Top Bar */
+    .top-header {
+      background: linear-gradient(180deg, #111827 0%, #0c121e 100%);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: #000;
+      border: 1px solid var(--card-border);
+      object-fit: contain;
+    }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f59e0b, #fef08a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      color: #000;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    }
+    .btn-gold:hover {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+    }
+    .btn-dark {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-dark:hover {
+      background: #334155;
+      border-color: rgba(255,255,255,0.2);
+    }
+    .btn-emerald {
+      background: #059669;
+      color: #fff;
+    }
+    .btn-emerald:hover { background: #10b981; }
+
+    /* KPI Bar */
+    .kpi-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      padding: 20px 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .kpi-value.gold { color: var(--accent); }
+    .kpi-value.emerald { color: var(--emerald); }
+
+    /* Navigation Tabs */
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      padding: 0 24px;
+      max-width: 1400px;
+      margin: 0 auto 16px;
+      width: 100%;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      overflow-x: auto;
+    }
+    .tab-item {
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tab-item:hover { color: var(--text); }
+    .tab-item.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(245, 158, 11, 0.05);
+      border-radius: 8px 8px 0 0;
+    }
+
+    /* Content Area */
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+      width: 100%;
+      flex: 1;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Cards & Forms */
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .panel-card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    input, select, textarea {
+      background: #0b111e;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+    .upload-box {
+      border: 2px dashed rgba(245, 158, 11, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      background: rgba(245, 158, 11, 0.02);
+      cursor: pointer;
+      position: relative;
+    }
+    .upload-box input[type=file] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* Product Table */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #0c121e;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    th {
+      background: #111827;
+      color: var(--text-muted);
+      padding: 12px 14px;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .product-thumb {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Terminal Modal */
+    .terminal-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .terminal-modal.show { display: flex; }
+    .terminal-card {
+      background: #080c14;
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+    .terminal-header {
+      background: #111827;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .terminal-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .terminal-body {
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #38bdf8;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="top-header">
+    <div class="brand">
+      <img src="images/zs-mart-logo.png" alt="ZS Mart" class="brand-logo" onerror="this.src='icon-192.png'">
+      <div>
+        <div class="brand-title">ZS MART • COMMAND CENTER</div>
+        <div class="brand-subtitle">Unified Master Administration & Live Sync Portal</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-dark" onclick="triggerBuildApk()">
+        <span>📱</span> Build Android APK
+      </button>
+      <button class="btn btn-gold" onclick="triggerPublishLive()">
+        <span>🚀</span> 1-Click Publish Live to App & Web
+      </button>
+    </div>
+  </header>
+
+  <!-- KPI Banner -->
+  <div class="kpi-container">
+    <div class="kpi-card">
+      <span class="kpi-label">Active Products</span>
+      <span class="kpi-value gold" id="kpi-products">1,049</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Categories</span>
+      <span class="kpi-value" id="kpi-categories">15</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Catalog Images</span>
+      <span class="kpi-value" id="kpi-images">--</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Today's Sales</span>
+      <span class="kpi-value emerald" id="kpi-sales">Rs. 0</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Today's Profit</span>
+      <span class="kpi-value emerald" id="kpi-profit">Rs. 0</span>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-bar">
+    <div class="tab-item active" onclick="switchTab('products')">📦 Products & Inventory</div>
+    <div class="tab-item" onclick="switchTab('ordering')">🔢 Category & Top 20 Order</div>
+    <div class="tab-item" onclick="switchTab('dsr')">💰 Daily Sales & Profit (DSR)</div>
+    <div class="tab-item" onclick="switchTab('settings')">⚙️ App & Store Settings</div>
+    <div class="tab-item" onclick="switchTab('system')">🖥️ 1-Click Operations & Logs</div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- TAB 1: PRODUCTS & INVENTORY -->
+    <div id="tab-products" class="tab-panel active">
+      
+      <!-- Add New Product Form -->
+      <div class="panel-card">
+        <div class="panel-card-title">➕ Add New Item to Catalog</div>
+        <form id="add-product-form" onsubmit="handleAddProduct(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Product Name (Capitalized)</label>
+              <input type="text" id="add-name" required placeholder="e.g. DALDA COOKING OIL 1 LITRE">
+            </div>
+            <div class="form-group">
+              <label>Selling Price (Rs.)</label>
+              <input type="number" id="add-price" required placeholder="e.g. 580">
+            </div>
+            <div class="form-group">
+              <label>Purchase / Cost Rate (Rs.)</label>
+              <input type="number" id="add-purchase-price" placeholder="e.g. 520 (For DSR Profit)">
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="add-category" required></select>
+            </div>
+            <div class="form-group">
+              <label>Priority Ranking (Optional)</label>
+              <input type="number" id="add-priority" placeholder="1 = Show at Top">
+            </div>
+            <div class="form-group full">
+              <label>Product Image (Drag & Drop or Click to Select)</label>
+              <div class="upload-box">
+                <input type="file" id="add-image-file" accept="image/*" onchange="previewImage(event)">
+                <div id="upload-preview-text">📸 Drop image here or click to browse (Auto-converted to WebP)</div>
+                <img id="upload-preview-img" style="display:none; max-height: 80px; margin: 10px auto 0; border-radius: 8px;">
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-gold">Save Product to Catalog</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Products Directory Table -->
+      <div class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+          <div class="panel-card-title" style="margin-bottom: 0;">📋 Complete Catalog (<span id="table-count">1049</span> Items)</div>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="search-products" placeholder="Search by name or ID..." oninput="filterProducts()" style="width: 250px;">
+            <select id="filter-category" onchange="filterProducts()" style="width: 180px;">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">ID</th>
+                <th style="width: 50px;">Img</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th style="width: 100px;">Sale Price</th>
+                <th style="width: 100px;">Cost Price</th>
+                <th style="width: 80px;">Priority</th>
+                <th style="width: 90px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="products-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: CATEGORY & ITEM ORDERING -->
+    <div id="tab-ordering" class="tab-panel">
+      <div class="panel-card">
+        <div class="panel-card-title">🔢 Category Ordering & Top 20 Priority Setup</div>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+          Yahan se aap set kar sakte hain ke app mein pehle kaunsi category show ho, aur har category ke andar pehle 20 items kaun se show hon taake customer ko wahi sabse pehle nazar aayein.
+        </p>
+        <div style="display: grid; grid-template-columns: 280px 1fr; gap: 20px;">
+          <div>
+            <label style="margin-bottom: 8px; display: block;">Select Category</label>
+            <div id="category-order-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <label>Top Items in Selected Category (Assign Priority Number 1, 2, 3...)</label>
+            </div>
+            <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">ID</th>
+                    <th>Product Name</th>
+                    <th style="width: 100px;">Price</th>
+                    <th style="width: 120px;">Priority Rank</th>
+                    <th style="width: 80px;">Save</th>
+                  </tr>
+                </thead>
+                <tbody id="category-items-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: DSR & DAILY SALES -->
+    <div id="tab-dsr" class="tab-panel">
+      <div class="panel-card">
+        <div class="panel-card-title">💵 Record Daily Sale Order</div>
+        <form id="dsr-form" onsubmit="handleDsrOrder(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="dsr-date" required>
+            </div>
+            <div class="form-group">
+              <label>Customer Name</label>
+              <input type="text" id="dsr-customer" placeholder="e.g. Walk-in / WhatsApp">
+            </div>
+            <div class="form-group">
+              <label>Payment Method</label>
+              <select id="dsr-payment">
+                <option value="cash">Cash on Delivery / Shop</option>
+                <option value="online">Online Transfer (JazzCash / EasyPaisa / Bank)</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label>Add Item to Order</label>
+              <div style="display: flex; gap: 10px;">
+                <select id="dsr-item-select" style="flex: 2;"></select>
+                <input type="number" id="dsr-item-qty" value="1" min="1" placeholder="Qty" style="width: 80px;">
+                <input type="number" id="dsr-item-rate" placeholder="Sell Price" style="width: 110px;">
+                <input type="number" id="dsr-item-cost" placeholder="Cost Price" style="width: 110px;">
+                <button type="button" class="btn btn-dark" onclick="addDsrRow()">+ Add Item</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Items Table -->
+          <div class="table-container" style="margin-top: 16px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th style="width: 70px;">Qty</th>
+                  <th style="width: 100px;">Sale Rate</th>
+                  <th style="width: 100px;">Cost Rate</th>
+                  <th style="width: 100px;">Line Total</th>
+                  <th style="width: 100px;">Profit</th>
+                  <th style="width: 60px;">Del</th>
+                </tr>
+              </thead>
+              <tbody id="dsr-items-tbody"></tbody>
+            </table>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 14px; font-weight: 700;">
+              Total Sale: <span id="dsr-total-sale" style="color: #38bdf8;">Rs. 0</span> | 
+              Total Profit: <span id="dsr-total-profit" style="color: var(--emerald);">Rs. 0</span>
+            </div>
+            <button type="submit" class="btn btn-gold">Save Order to DSR</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- DSR History -->
+      <div class="panel-card">
+        <div class="panel-card-title">📊 Recent Sales History</div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date & Time</th>
+                <th>Customer</th>
+                <th>Payment</th>
+                <th>Items</th>
+                <th>Total Sale</th>
+                <th>Total Profit</th>
+              </tr>
+            </thead>
+            <tbody id="dsr-history-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: STORE SETTINGS -->
+    <div id="tab-settings" class="tab-panel">
+      <div class="panel-card">
+        <div class="panel-card-title">⚙️ Store & App Settings</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Delivery Timing (Header Text)</label>
+            <input type="text" id="setting-timing" value="Delivery Timing: 10:00 AM – 10:00 PM">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Helpline</label>
+            <input type="text" id="setting-whatsapp" value="+92 336 8945775">
+          </div>
+          <div class="form-group">
+            <label>Free Delivery Threshold (Rs.)</label>
+            <input type="number" id="setting-freedelivery" value="2000">
+          </div>
+          <div class="form-group">
+            <label>Standard Delivery Fee (Rs.)</label>
+            <input type="number" id="setting-deliveryfee" value="150">
+          </div>
+        </div>
+        <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+          <button class="btn btn-gold" onclick="saveSettings()">💾 Save &amp; Sync Settings to App</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: SYSTEM & 1-CLICK PUBLISH -->
+    <div id="tab-system" class="tab-panel">
+      <div class="panel-card">
+        <div class="panel-card-title">🚀 1-Click Operations</div>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
+          Yeh button click karte hi aapka poora catalog, prices, categories, aur settings ek second mein compile ho kar Website aur Android App assets mein live sync ho jayenge.
+        </p>
+        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+          <button class="btn btn-gold" style="padding: 14px 28px; font-size: 15px;" onclick="triggerPublishLive()">
+            <span>🚀</span> Publish Live to App & Web Now
+          </button>
+          <button class="btn btn-dark" style="padding: 14px 28px; font-size: 15px;" onclick="triggerBuildApk()">
+            <span>📱</span> Build Fresh Android APK (Desktop)
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Live Terminal Modal -->
+  <div class="terminal-modal" id="terminal-modal">
+    <div class="terminal-card">
+      <div class="terminal-header">
+        <span class="terminal-title" id="terminal-title">LIVE EXECUTION CONSOLE</span>
+        <button class="btn btn-dark" style="padding: 4px 10px; font-size: 11px;" onclick="closeTerminal()">Close</button>
+      </div>
+      <div class="terminal-body" id="terminal-body">Running operations...</div>
+    </div>
+  </div>
+
+  <script>
+    let allProducts = [];
+    let allCategories = [];
+    let purchaseRates = {};
+    let currentDsrItems = [];
+
+    async function init() {
+      document.getElementById('dsr-date').value = new Date().toISOString().slice(0, 10);
+      await loadStats();
+      await loadPurchaseRates();
+      await loadProducts();
+      await loadDsr();
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        if (data.ok) {
+          document.getElementById('kpi-products').textContent = data.totalProducts.toLocaleString();
+          document.getElementById('kpi-categories').textContent = data.totalCategories;
+          document.getElementById('kpi-images').textContent = data.totalImages.toLocaleString();
+          document.getElementById('kpi-sales').textContent = 'Rs. ' + data.todaySales.toLocaleString();
+          document.getElementById('kpi-profit').textContent = 'Rs. ' + data.todayProfit.toLocaleString();
+        }
+      } catch(e) {}
+    }
+
+    async function loadPurchaseRates() {
+      try {
+        const res = await fetch('/api/purchase-rates');
+        const data = await res.json();
+        purchaseRates = data.rates || {};
+      } catch(e) {}
+    }
+
+    async function loadProducts() {
+      try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        allProducts = data.products || [];
+        allCategories = data.categories || [];
+        renderCategoryDropdowns();
+        renderProductsTable(allProducts);
+        renderDsrItemSelect();
+        renderCategoryOrderList();
+      } catch(e) {}
+    }
+
+    function renderCategoryDropdowns() {
+      const addSelect = document.getElementById('add-category');
+      const filterSelect = document.getElementById('filter-category');
+      addSelect.innerHTML = '';
+      filterSelect.innerHTML = '<option value="">All Categories</option>';
+      allCategories.forEach(c => {
+        const opt1 = document.createElement('option');
+        opt1.value = c.id;
+        opt1.textContent = c.name;
+        opt1.setAttribute('data-name', c.name);
+        addSelect.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = c.id;
+        opt2.textContent = c.name;
+        filterSelect.appendChild(opt2);
+      });
+    }
+
+    function renderProductsTable(products) {
+      const tbody = document.getElementById('products-tbody');
+      document.getElementById('table-count').textContent = products.length;
+      tbody.innerHTML = '';
+      products.forEach(p => {
+        const tr = document.createElement('tr');
+        const costRate = purchaseRates[p.id] || '';
+        tr.innerHTML = `
+          <td style="font-weight: 700; color: var(--accent);">${p.id}</td>
+          <td><img src="images/${p.id}.webp" onerror="this.src='images/${p.id}.png'; this.onerror=function(){this.src='icon-192.png';}" class="product-thumb"></td>
+          <td>
+            <input type="text" id="p-name-${p.id}" value="${p.name.replace(/"/g, '&quot;')}" style="width: 100%;">
+          </td>
+          <td>
+            <select id="p-cat-${p.id}" style="width: 100%;">
+              ${allCategories.map(c => `<option value="${c.id}" ${c.id === p.categoryId ? 'selected' : ''}>${c.name}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <input type="number" id="p-price-${p.id}" value="${p.price}" style="width: 90px;">
+          </td>
+          <td>
+            <input type="number" id="p-cost-${p.id}" value="${costRate}" placeholder="Cost" style="width: 90px;">
+          </td>
+          <td>
+            <input type="number" id="p-prio-${p.id}" value="${p.priority || ''}" placeholder="Prio" style="width: 60px;">
+          </td>
+          <td style="text-align: center;">
+            <button class="btn btn-emerald" style="padding: 5px 8px; font-size: 11px;" onclick="saveProductRow(${p.id})">Save</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterProducts() {
+      const q = document.getElementById('search-products').value.toLowerCase().trim();
+      const cat = document.getElementById('filter-category').value;
+      const filtered = allProducts.filter(p => {
+        const matchQ = !q || p.name.toLowerCase().includes(q) || String(p.id) === q;
+        const matchCat = !cat || p.categoryId === cat;
+        return matchQ && matchCat;
+      });
+      renderProductsTable(filtered);
+    }
+
+    let currentBase64 = null;
+    function previewImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        currentBase64 = evt.target.result;
+        const img = document.getElementById('upload-preview-img');
+        img.src = currentBase64;
+        img.style.display = 'block';
+        document.getElementById('upload-preview-text').textContent = file.name + ' (' + Math.round(file.size/1024) + ' KB)';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleAddProduct(e) {
+      e.preventDefault();
+      const catSelect = document.getElementById('add-category');
+      const selectedOption = catSelect.options[catSelect.selectedIndex];
+      const payload = {
+        name: document.getElementById('add-name').value,
+        price: Number(document.getElementById('add-price').value),
+        purchasePrice: document.getElementById('add-purchase-price').value ? Number(document.getElementById('add-purchase-price').value) : undefined,
+        categoryId: catSelect.value,
+        categoryName: selectedOption.getAttribute('data-name') || selectedOption.textContent,
+        priority: document.getElementById('add-priority').value ? Number(document.getElementById('add-priority').value) : undefined,
+        imageBase64: currentBase64
+      };
+
+      try {
+        const res = await fetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert('✅ Product added successfully! ID: ' + data.product.id);
+          document.getElementById('add-product-form').reset();
+          document.getElementById('upload-preview-img').style.display = 'none';
+          document.getElementById('upload-preview-text').textContent = '📸 Drop image here or click to browse';
+          currentBase64 = null;
+          await loadProducts();
+          await loadStats();
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    async function saveProductRow(id) {
+      const catSelect = document.getElementById('p-cat-' + id);
+      const catName = catSelect.options[catSelect.selectedIndex].textContent;
+      const payload = {
+        name: document.getElementById('p-name-' + id).value,
+        price: Number(document.getElementById('p-price-' + id).value),
+        purchasePrice: document.getElementById('p-cost-' + id).value ? Number(document.getElementById('p-cost-' + id).value) : undefined,
+        categoryId: catSelect.value,
+        categoryName: catName,
+        priority: document.getElementById('p-prio-' + id).value ? Number(document.getElementById('p-prio-' + id).value) : undefined
+      };
+
+      try {
+        const res = await fetch('/api/products/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert('✅ Product #' + id + ' updated!');
+          if (payload.purchasePrice !== undefined) {
+            purchaseRates[id] = payload.purchasePrice;
+          }
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    // TAB 2: Category & Top 20 Order
+    function renderCategoryOrderList() {
+      const container = document.getElementById('category-order-list');
+      container.innerHTML = '';
+      allCategories.forEach((c, idx) => {
+        const div = document.createElement('div');
+        div.className = 'btn btn-dark';
+        div.style.justifyContent = 'space-between';
+        div.innerHTML = `<span>${idx + 1}. ${c.name}</span><span style="font-size: 11px; color: var(--accent);">View Items →</span>`;
+        div.onclick = () => loadCategoryItems(c.id);
+        container.appendChild(div);
+      });
+      if (allCategories.length > 0) loadCategoryItems(allCategories[0].id);
+    }
+
+    function loadCategoryItems(catId) {
+      const catProducts = allProducts.filter(p => p.categoryId === catId);
+      const tbody = document.getElementById('category-items-tbody');
+      tbody.innerHTML = '';
+      catProducts.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 700; color: var(--accent);">${p.id}</td>
+          <td>${p.name}</td>
+          <td>Rs. ${p.price}</td>
+          <td>
+            <input type="number" id="cat-prio-${p.id}" value="${p.priority || ''}" placeholder="1-20" style="width: 80px;">
+          </td>
+          <td>
+            <button class="btn btn-gold" style="padding: 4px 8px; font-size: 11px;" onclick="savePriority(${p.id})">Set</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function savePriority(id) {
+      const prioVal = document.getElementById('cat-prio-' + id).value;
+      const payload = { priority: prioVal ? Number(prioVal) : undefined };
+      const res = await fetch('/api/products/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.ok) alert('✅ Priority updated! Remember to 1-Click Publish to make it live in the app.');
+    }
+
+    // TAB 3: DSR System
+    function renderDsrItemSelect() {
+      const sel = document.getElementById('dsr-item-select');
+      sel.innerHTML = '<option value="">Select an Item from Catalog...</option>';
+      allProducts.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.id + ' - ' + p.name + ' (Rs. ' + p.price + ')';
+        sel.appendChild(opt);
+      });
+      sel.onchange = function() {
+        const id = sel.value;
+        const p = allProducts.find(item => String(item.id) === String(id));
+        if (p) {
+          document.getElementById('dsr-item-rate').value = p.price;
+          document.getElementById('dsr-item-cost').value = purchaseRates[p.id] || Math.round(p.price * 0.85);
+        }
+      };
+    }
+
+    function addDsrRow() {
+      const sel = document.getElementById('dsr-item-select');
+      const id = sel.value;
+      if (!id) return alert('Select an item first');
+      const p = allProducts.find(item => String(item.id) === String(id));
+      const qty = Number(document.getElementById('dsr-item-qty').value) || 1;
+      const rate = Number(document.getElementById('dsr-item-rate').value) || p.price;
+      const cost = Number(document.getElementById('dsr-item-cost').value) || 0;
+      const lineTotal = qty * rate;
+      const lineCost = qty * cost;
+      const lineProfit = lineTotal - lineCost;
+
+      currentDsrItems.push({ id, name: p.name, qty, sellPrice: rate, purchasePrice: cost, lineTotal, lineCost, lineProfit });
+      renderDsrItemsTable();
+    }
+
+    function renderDsrItemsTable() {
+      const tbody = document.getElementById('dsr-items-tbody');
+      tbody.innerHTML = '';
+      let totalSale = 0, totalProfit = 0;
+      currentDsrItems.forEach((item, idx) => {
+        totalSale += item.lineTotal;
+        totalProfit += item.lineProfit;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>Rs. ${item.sellPrice}</td>
+          <td>Rs. ${item.purchasePrice}</td>
+          <td style="font-weight: 700;">Rs. ${item.lineTotal}</td>
+          <td style="font-weight: 700; color: var(--emerald);">Rs. ${item.lineProfit}</td>
+          <td><button type="button" class="btn" style="color: var(--danger); padding: 2px 6px;" onclick="removeDsrItem(${idx})">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('dsr-total-sale').textContent = 'Rs. ' + totalSale.toLocaleString();
+      document.getElementById('dsr-total-profit').textContent = 'Rs. ' + totalProfit.toLocaleString();
+    }
+
+    function removeDsrItem(idx) {
+      currentDsrItems.splice(idx, 1);
+      renderDsrItemsTable();
+    }
+
+    async function handleDsrOrder(e) {
+      e.preventDefault();
+      if (currentDsrItems.length === 0) return alert('Add at least one item');
+      const totalSale = currentDsrItems.reduce((s, i) => s + i.lineTotal, 0);
+      const totalCost = currentDsrItems.reduce((s, i) => s + i.lineCost, 0);
+      const totalProfit = totalSale - totalCost;
+
+      const payload = {
+        date: document.getElementById('dsr-date').value,
+        customerName: document.getElementById('dsr-customer').value || 'Walk-in Customer',
+        paymentMethod: document.getElementById('dsr-payment').value,
+        items: currentDsrItems,
+        totalSale,
+        totalCost,
+        totalProfit
+      };
+
+      const res = await fetch('/api/dsr/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert('✅ Order saved to Daily Sales!');
+        currentDsrItems = [];
+        renderDsrItemsTable();
+        await loadDsr();
+        await loadStats();
+      }
+    }
+
+    async function loadDsr() {
+      try {
+        const res = await fetch('/api/dsr');
+        const data = await res.json();
+        const tbody = document.getElementById('dsr-history-tbody');
+        tbody.innerHTML = '';
+        (data.orders || []).slice(0, 20).forEach(o => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="font-weight: 700; color: var(--accent);">${o.id}</td>
+            <td>${o.date} ${o.time || ''}</td>
+            <td>${o.customerName || 'Walk-in'}</td>
+            <td>${o.paymentMethod || 'cash'}</td>
+            <td>${(o.items || []).length} items</td>
+            <td style="font-weight: 700;">Rs. ${(o.totalSale || 0).toLocaleString()}</td>
+            <td style="font-weight: 700; color: var(--emerald);">Rs. ${(o.totalProfit || 0).toLocaleString()}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch(e) {}
+    }
+
+    // 1-Click Operations
+    async function triggerPublishLive() {
+      showTerminal('🚀 COMPILING JSX & PUBLISHING LIVE TO APP & WEB...');
+      try {
+        const res = await fetch('/api/publish', { method: 'POST' });
+        const data = await res.json();
+        if (data.ok) {
+          appendTerminal('\n' + data.output);
+          appendTerminal('\n================================================================');
+          appendTerminal('✅ SUCCESS! APP & WEB ARE 100% LIVE & SYNCHRONIZED!');
+          appendTerminal('================================================================');
+          await loadStats();
+        } else {
+          appendTerminal('\n❌ ERROR: ' + (data.error || 'Failed'));
+          if (data.output) appendTerminal('\n' + data.output);
+        }
+      } catch(e) {
+        appendTerminal('\n❌ Network error: ' + e.message);
+      }
+    }
+
+    async function triggerBuildApk() {
+      showTerminal('📱 INITIATING FRESH ANDROID APK BUILD...');
+      try {
+        const res = await fetch('/api/build-apk', { method: 'POST' });
+        const data = await res.json();
+        appendTerminal('\n' + (data.message || 'Build started.'));
+        appendTerminal('\nBuild will complete in ~2 minutes.');
+        appendTerminal('Result will be placed on your Desktop: Desktop\\ZS_Mart_App.apk');
+      } catch(e) {
+        appendTerminal('\n❌ Network error: ' + e.message);
+      }
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    function showTerminal(title) {
+      document.getElementById('terminal-title').textContent = title;
+      document.getElementById('terminal-body').textContent = 'Starting process...\n';
+      document.getElementById('terminal-modal').classList.add('show');
+    }
+
+    function appendTerminal(text) {
+      const b = document.getElementById('terminal-body');
+      b.textContent += text;
+      b.scrollTop = b.scrollHeight;
+    }
+
+    function closeTerminal() {
+      document.getElementById('terminal-modal').classList.remove('show');
+    }
+
+
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (data.ok !== false) {
+          document.getElementById('setting-timing').value = data.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM';
+          document.getElementById('setting-whatsapp').value = data.whatsapp || '+92 336 8945775';
+          document.getElementById('setting-freedelivery').value = data.freeDeliveryThreshold || 2000;
+          document.getElementById('setting-deliveryfee').value = data.deliveryFee || 150;
+        }
+      } catch(e) { console.warn('Settings load failed:', e); }
+    }
+
+    async function saveSettings() {
+      const payload = {
+        deliveryTiming: document.getElementById('setting-timing').value.trim(),
+        whatsapp: document.getElementById('setting-whatsapp').value.trim().replace(/[^0-9]/g, ''),
+        freeDeliveryThreshold: Number(document.getElementById('setting-freedelivery').value),
+        deliveryFee: Number(document.getElementById('setting-deliveryfee').value)
+      };
+
+      if (!payload.freeDeliveryThreshold || payload.freeDeliveryThreshold < 100) {
+        return alert('⚠️ Free Delivery Threshold must be at least Rs. 100');
+      }
+      if (payload.deliveryFee < 0) {
+        return alert('⚠️ Delivery Fee cannot be negative');
+      }
+
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert('✅ Settings saved!\n\nDelivery Fee: Rs. ' + data.settings.deliveryFee + '\nFree Delivery Threshold: Rs. ' + data.settings.freeDeliveryThreshold.toLocaleString() + '\n\nSettings synced to app & website automatically!');
+        } else {
+          alert('❌ Error saving settings: ' + (data.error || 'Unknown error'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    window.onload = async function() {
+      await init();
+      await loadSettings();
+    };
+  </script>
+</body>
+</html>

@@ -29,17 +29,12 @@ if (htmlProdMatch) {
   } catch (e) {}
 }
 
-// Merge products: union of both files by ID
+// Merge products: union of both files by ID, with INDEX.JSX taking precedence
 const prodMap = new Map();
-jsxProducts.forEach(p => prodMap.set(p.id, p));
-htmlProducts.forEach(p => {
-  if (!prodMap.has(p.id)) {
-    prodMap.set(p.id, p);
-  } else {
-    // Keep updated fields like price or name from index.html if modified
-    const cur = prodMap.get(p.id);
-    prodMap.set(p.id, { ...cur, ...p });
-  }
+htmlProducts.forEach(p => prodMap.set(p.id, p));
+jsxProducts.forEach(p => {
+  const existing = prodMap.get(p.id) || {};
+  prodMap.set(p.id, { ...existing, ...p });
 });
 
 const products = Array.from(prodMap.values()).sort((a, b) => a.id - b.id);
@@ -63,6 +58,16 @@ if (missingInJsx.length > 0 && prodMatch) {
     fs.writeFileSync(jsxFile, updatedJsx, 'utf8');
     console.log(`Synced ${missingInJsx.length} missing items back to INDEX.JSX`);
   }
+}
+
+// Keep index.html synchronized with full products list
+const latestProdMatch = jsx.match(/(?:const|var)\s+PRODUCTS\s*=\s*(\[[\s\S]*?\n\s*\]);/);
+const currentHtml = fs.readFileSync(htmlFile, 'utf8');
+const latestHtmlProdMatch = currentHtml.match(/(?:const|var)\s+PRODUCTS\s*=\s*(\[[\s\S]*?\n\s*\]);/);
+if (latestProdMatch && latestHtmlProdMatch && latestHtmlProdMatch[1] !== latestProdMatch[1]) {
+  const updatedHtml = currentHtml.replace(latestHtmlProdMatch[0], 'const PRODUCTS = ' + latestProdMatch[1] + ';');
+  fs.writeFileSync(htmlFile, updatedHtml, 'utf8');
+  console.log(`Synchronized full ${products.length} products to index.html!`);
 }
 
 // 2. Extract PRODUCT_IMAGE_MAP from index.html (or scan images folder)
@@ -108,10 +113,26 @@ if (catMatch) {
   } catch (e) {}
 }
 
+// 5. Extract SETTINGS from settings.json
+let storeSettings = {
+  deliveryFee: 150,
+  freeDeliveryThreshold: 2000,
+  minOrderAmount: 0,
+  deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
+  whatsapp: "923368945775"
+};
+const settingsFile = path.join(rootDir, 'settings.json');
+if (fs.existsSync(settingsFile)) {
+  try {
+    storeSettings = { ...storeSettings, ...JSON.parse(fs.readFileSync(settingsFile, 'utf8')) };
+  } catch (e) {}
+}
+
 const payload = {
   version: 2,
   updatedAt: new Date().toISOString(),
   total: products.length,
+  settings: storeSettings,
   imageMap: imageMap,
   variants: variants,
   categories: categories,

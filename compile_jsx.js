@@ -47,8 +47,11 @@ ${compiled}
     var rootEl = document.getElementById('root');
     if (rootEl && !rootEl.__reactRootMounted && typeof ReactDOM !== 'undefined' && ReactDOM.createRoot && typeof SahilTraders !== 'undefined') {
       rootEl.__reactRootMounted = true;
-      ReactDOM.createRoot(rootEl).render(React.createElement(SahilTraders));
-      console.log('Sahil Traders App mounted successfully via React 18 createRoot!');
+      var appEl = typeof RootErrorBoundary !== 'undefined'
+        ? React.createElement(RootErrorBoundary, null, React.createElement(SahilTraders))
+        : React.createElement(SahilTraders);
+      ReactDOM.createRoot(rootEl).render(appEl);
+      console.log('Sahil Traders App mounted successfully via React 18 createRoot with ErrorBoundary!');
     }
   }
   if (document.readyState === 'loading') {
@@ -72,15 +75,33 @@ targets.forEach(target => {
   console.log(`Compiled and wrote ${target} (${(size / 1024).toFixed(1)} KB)`);
 });
 
-// Export latest products.json
+// Clean up any stray backup or temp files (.bak, .tmp, etc.)
+function cleanStrayFiles(dir) {
+  if (!fs.existsSync(dir)) return;
+  fs.readdirSync(dir, { withFileTypes: true }).forEach(ent => {
+    const full = path.join(dir, ent.name);
+    if (ent.isDirectory()) {
+      cleanStrayFiles(full);
+    } else if (ent.name.endsWith('.bak') || ent.name.endsWith('.tmp') || ent.name.endsWith('~')) {
+      try {
+        fs.unlinkSync(full);
+        console.log(`Removed stray backup file: ${full}`);
+      } catch(e) {}
+    }
+  });
+}
+['c:/Users/ALICOM4/Desktop/ITEMS WEB/www', 'c:/Users/ALICOM4/Desktop/ITEMS WEB/android/app/src/main/assets/public'].forEach(cleanStrayFiles);
+
+// Export latest products.json & sync index.html
 try {
+  delete require.cache[require.resolve('./export_products.js')];
   require('./export_products.js');
 } catch (err) {
   console.error('Error exporting products.json:', err.message);
 }
 
-// Sync style.css, index.html, and products.json to www and android assets
-const syncFiles = ['style.css', 'index.html', 'products.json', 'tailwind.local.css'];
+// Sync style.css, index.html, products.json, settings.json to www and android assets
+const syncFiles = ['style.css', 'index.html', 'products.json', 'tailwind.local.css', 'settings.json'];
 const syncDirs = [
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/www',
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/android/app/src/main/assets/public'
@@ -131,6 +152,9 @@ syncDirs.forEach(dir => {
     }
   });
 });
+
+// Final check: ensure no stray backup or temp files remain in target dirs
+['c:/Users/ALICOM4/Desktop/ITEMS WEB/www', 'c:/Users/ALICOM4/Desktop/ITEMS WEB/android/app/src/main/assets/public'].forEach(cleanStrayFiles);
 
 console.log('All files synced successfully!');
 

@@ -1,4 +1,4 @@
-﻿// =============================================================
+// =============================================================
 //  ✅ MASTER SOURCE FILE — ZS Mart WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
@@ -1204,7 +1204,8 @@ function getTranslationValue(dictionary, key) {
       var baseCategories = (typeof window !== 'undefined' && Array.isArray(window.CATEGORIES) && window.CATEGORIES.length > 0)
         ? window.CATEGORIES
         : DEFAULT_CATEGORIES;
-      var liveProducts = productsList || (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : null);
+      var winProds = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0) ? window.PRODUCTS : null;
+      var liveProducts = productsList || ((winProds && winProds.length >= PRODUCTS.length) ? winProds : PRODUCTS);
       if (!liveProducts || liveProducts.length === 0) {
         return baseCategories;
       }
@@ -2344,24 +2345,64 @@ function getTranslationValue(dictionary, key) {
         .slice(0, 18)
         .map(([name, count]) => ({ name, count }));
     }
+    // 🔍 Smart Roman Urdu & Synonym Expansion Dictionary
+    const ROMAN_URDU_ALIASES = {
+      'sabun': 'soap', 'saabun': 'soap', 'soaps': 'soap',
+      'tel': 'oil', 'tail': 'oil', 'taila': 'oil',
+      'shampo': 'shampoo', 'shampu': 'shampoo',
+      'creem': 'cream', 'kareem': 'cream', 'lotian': 'lotion',
+      'pampers': 'baby babycare diaper', 'pamper': 'baby diaper',
+      'paste': 'toothpaste dental', 'tootpaste': 'toothpaste', 'dant': 'dental toothpaste',
+      'blade': 'shaving razor razer', 'razor': 'shaving', 'razer': 'shaving',
+      'chawal': 'rice grocery', 'daal': 'pulse grocery', 'chini': 'sugar grocery',
+      'patti': 'tea grocery', 'chai': 'tea grocery',
+      'doodh': 'milk', 'khushbu': 'fragrance perfume spray rollon',
+      'ittar': 'perfume fragrance', 'batti': 'mosquito coil agarbatti',
+      'machar': 'mosquito insect killer coil', 'tala': 'lock padlock',
+      'sel': 'cell battery', 'bateri': 'battery cell',
+      'kachra': 'garbage duster brush general'
+    };
+
     function matchProductTokens(product, query) {
       if (!query || !product) return 0;
-      const cleanQuery = query.trim().toLowerCase();
+      let cleanQuery = query.trim().toLowerCase();
       if (!cleanQuery) return 0;
-      const tokens = cleanQuery.split(/\s+/).filter(Boolean);
-      if (tokens.length === 0) return 0;
+
+      // Handle spacing typos like '7herbal' -> '7 herbal'
+      cleanQuery = cleanQuery.replace(/(\d+)([a-zA-Z]+)/g, '$1 $2').replace(/([a-zA-Z]+)(\d+)/g, '$1 $2');
+
+      const rawTokens = cleanQuery.split(/\s+/).filter(Boolean);
+      if (rawTokens.length === 0) return 0;
+
+      // Expand tokens with Roman Urdu synonyms
+      const expandedTokens = [];
+      rawTokens.forEach(t => {
+        expandedTokens.push(t);
+        if (ROMAN_URDU_ALIASES[t]) {
+          ROMAN_URDU_ALIASES[t].split(' ').forEach(syn => expandedTokens.push(syn));
+        }
+      });
+
       const name = (product.name || "").toLowerCase();
       const nameUrdu = (product.nameUrdu || "").toLowerCase();
       const catName = (product.categoryName || "").toLowerCase();
       const catId = (product.categoryId || "").toLowerCase();
       const brand = (getProductFilterName(product) || "").toLowerCase();
+
       // Full concatenated searchable text
       const fullText = `${name} ${nameUrdu} ${catName} ${catId} ${brand}`;
-      // Punctuation-stripped version (replaces commas, brackets, hyphens, colons with spaces)
       const cleanText = fullText.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
-      // Every single token must match somewhere in fullText or cleanText
-      const allTokensMatch = tokens.every(t => cleanText.includes(t) || fullText.includes(t));
-      if (!allTokensMatch) return 0;
+
+      // Match check: Every original search token must match either directly or via its synonym
+      const allOriginalsMatch = rawTokens.every(t => {
+        if (cleanText.includes(t) || fullText.includes(t)) return true;
+        // Check if synonym matches
+        const syns = (ROMAN_URDU_ALIASES[t] || '').split(' ').filter(Boolean);
+        return syns.some(s => cleanText.includes(s) || fullText.includes(s));
+      });
+
+      if (!allOriginalsMatch) return 0;
+
       // Calculate relevance score
       let score = 10;
       if (name === cleanQuery) {
@@ -2373,10 +2414,16 @@ function getTranslationValue(dictionary, key) {
       } else {
         score += 40;  // All tokens present (out-of-order / partial word)
       }
-      // Bonus if matched inside the product name specifically
+
+      // Bonus if matched inside product name specifically
       const cleanNameOnly = name.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
-      const inName = tokens.every(t => name.includes(t) || cleanNameOnly.includes(t));
+      const inName = rawTokens.every(t => {
+        if (name.includes(t) || cleanNameOnly.includes(t)) return true;
+        const syns = (ROMAN_URDU_ALIASES[t] || '').split(' ').filter(Boolean);
+        return syns.some(s => name.includes(s) || cleanNameOnly.includes(s));
+      });
       if (inName) score += 20;
+
       return score;
     }
 function AboutUsModal({ isOpen, onClose, language }) {
@@ -2593,7 +2640,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
             </div>
             <div className="bg-white/90 border border-purple-100 rounded-xl p-3 text-xs flex justify-between items-center shadow-xs">
               <div>
-                <div className="font-bold text-gray-900">{tr(modalLang, 'Monday to Saturday:', 'Peer ta Hafta (Mon to Sat):', 'پیر تا ہفتہ (Monday to Saturday):')}</div>
+                <div className="font-bold text-gray-900">{tr(modalLang, 'Daily (7 Days a Week):', 'Rozana (7 Din Khula, Koi Chutti Nahi):', 'روزانہ (7 دن کھلا، کوئی چھٹی نہیں):')}</div>
                 <div className="text-purple-700 font-extrabold text-sm mt-0.5">{tr(modalLang, '8:00 AM – 11:30 PM', 'Subha 8:00 se Raat 11:30 tak', 'صبح 8:00 بجے سے رات 11:30 بجے تک')}</div>
               </div>
               <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase">
@@ -2609,7 +2656,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
             </div>
             <ul className="space-y-1.5 list-disc list-inside text-emerald-900">
               <li>{tr(modalLang, 'Family business serving with trust since 2021', '2021 se khandani aitemad ke sath khidmat', '2021 سے خاندانی اعتماد کے ساتھ خدمت')}</li>
-              <li>{tr(modalLang, 'Free delivery on orders above Rs. 2,000', 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')}</li>
+              <li>{tr(modalLang, `Free delivery on orders above Rs. ${(appSettings?.freeDeliveryThreshold || 2000).toLocaleString()}`, 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')}</li>
               <li>{tr(modalLang, 'Same-day return & exchange policy', 'Usi din tabdeeli aur wapsi ki sahulat (Same-Day Return)', 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)')}</li>
               <li>{tr(modalLang, 'Direct WhatsApp customer support', 'Direct WhatsApp par fori support', 'براہِ راست واٹس ایپ پر فوری سپورٹ')}</li>
             </ul>
@@ -2903,7 +2950,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submittedOrderId, setSubmittedOrderId] = useState(null);
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState(() => (window.__prefetchedLocation || null));
   const [locLoading, setLocLoading] = useState(false);
   const [locError, setLocError] = useState(null);
 
@@ -2920,6 +2967,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
         const lng = pos.coords.longitude;
         const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
         setLocation({ lat, lng, mapUrl });
+        window.__prefetchedLocation = { lat, lng, mapUrl };
         setLocLoading(false);
         triggerHaptic('success');
       },
@@ -2937,7 +2985,11 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
   useEffect(() => {
     if (deliveryMethod === 'home' && !location && !locLoading) {
-      handleGetLocation(true);
+      if (window.__prefetchedLocation) {
+        setLocation(window.__prefetchedLocation);
+      } else {
+        handleGetLocation(true);
+      }
     }
   }, [deliveryMethod]);
 
@@ -2995,7 +3047,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
         }
       ],
       subtotal: 0,
-      deliveryFee: deliveryMethod === 'home' ? 150 : 0,
+      deliveryFee: deliveryMethod === 'home' ? (appSettings?.deliveryFee ?? 150) : 0,
       grandTotal: 0,
       isParchi: true,
       notes: notes.trim()
@@ -4213,16 +4265,91 @@ const SORT_OPTIONS = [
   { id: 'name_asc', label: 'Name: A to Z', labelUrdu: 'نام: A سے Z (A-Z)', icon: '🔤' },
 ];
 
+
+// =============================================================
+// 🛡️ ZS MART REACT ERROR BOUNDARY
+// Prevents white-screen crash & displays elegant fallback UI
+// =============================================================
+class RootErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error: error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("ZS Mart Runtime Exception Caught:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '100vh',
+          backgroundColor: '#030712',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          color: '#ffffff',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            borderRadius: '20px',
+            backgroundColor: 'rgba(239,68,68,0.15)',
+            border: '2px solid rgba(239,68,68,0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '36px',
+            marginBottom: '20px'
+          }}>
+            ⚠️
+          </div>
+          <h2 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '8px', color: '#f87171' }}>
+            Kuch Masla Pesh Aaya
+          </h2>
+          <p style={{ fontSize: '13px', color: '#94a3b8', maxWidth: '340px', lineHeight: '1.5', marginBottom: '24px' }}>
+            Barah-e-karam page refresh karein ya app dobara kholiye. ZS Mart ka data mehfooz hai.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '12px 28px',
+              borderRadius: '9999px',
+              backgroundColor: '#f59e0b',
+              color: '#000000',
+              fontWeight: '800',
+              fontSize: '14px',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 4px 20px rgba(245,158,11,0.4)'
+            }}
+          >
+            🔄 Page Reload Karein
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function SahilTraders() {
   const [productsList, setProductsList] = useState(() => {
     try {
       const cached = localStorage.getItem("zs_groceries_products_cache");
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length >= PRODUCTS.length) return parsed;
       }
     } catch (e) {}
-    return (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0) ? window.PRODUCTS : PRODUCTS;
+    const winProds = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0) ? window.PRODUCTS : null;
+    return (winProds && winProds.length >= PRODUCTS.length) ? winProds : PRODUCTS;
   });
   const products = productsList;
   const [isSyncingProducts, setIsSyncingProducts] = useState(false);
@@ -4323,6 +4450,46 @@ export default function SahilTraders() {
         } catch (e) {}
       }, [cart]);
 
+      // ══════════ STORE SETTINGS (Delivery Fee, Free Threshold, etc.) ══════════
+      const [appSettings, setAppSettings] = useState(() => {
+        // Try cached settings first
+        try {
+          const cached = localStorage.getItem('zs_mart_settings');
+          if (cached) return JSON.parse(cached);
+        } catch(e) {}
+        return { deliveryFee: 150, freeDeliveryThreshold: 2000 };
+      });
+      useEffect(() => {
+        // Fetch fresh settings from local server or bundled settings.json
+        const settingsUrls = [
+          'settings.json',
+          '/settings.json',
+          'http://localhost:8888/api/settings'
+        ];
+        (async () => {
+          for (const url of settingsUrls) {
+            try {
+              const controller = new AbortController();
+              const tid = setTimeout(() => controller.abort(), 2000);
+              const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+              clearTimeout(tid);
+              if (res.ok) {
+                const data = await res.json();
+                const s = {
+                  deliveryFee: Number(data.deliveryFee ?? data.settings?.deliveryFee ?? 150),
+                  freeDeliveryThreshold: Number(data.freeDeliveryThreshold ?? data.settings?.freeDeliveryThreshold ?? 2000)
+                };
+                if (s.deliveryFee >= 0 && s.freeDeliveryThreshold > 0) {
+                  setAppSettings(s);
+                  try { localStorage.setItem('zs_mart_settings', JSON.stringify(s)); } catch(e) {}
+                  break;
+                }
+              }
+            } catch(e) { /* try next */ }
+          }
+        })();
+      }, []);
+
       // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync) ══════════
       async function fetchLiveProducts(isManual) {
         isManual = !!isManual;
@@ -4362,7 +4529,11 @@ export default function SahilTraders() {
 
         if (loadedData) {
           const freshProducts = Array.isArray(loadedData) ? loadedData : (loadedData.products || []);
-          if (freshProducts.length > 0) {
+          // Security & Integrity check: Ensure payload has valid items and wasn't corrupted/truncated
+          const isValid = Array.isArray(freshProducts) &&
+            freshProducts.length >= 800 &&
+            freshProducts.every(p => p && typeof p.id === 'number' && p.name && typeof p.price === 'number' && p.price >= 0);
+          if (isValid) {
             setProductsList(freshProducts);
             window.PRODUCTS = freshProducts;
             try {
@@ -4376,8 +4547,19 @@ export default function SahilTraders() {
               } catch (e) {}
             }
 
+            if (loadedData.settings) {
+              const s = {
+                deliveryFee: Number(loadedData.settings.deliveryFee ?? 150),
+                freeDeliveryThreshold: Number(loadedData.settings.freeDeliveryThreshold ?? 2000),
+                deliveryTiming: String(loadedData.settings.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
+                whatsapp: String(loadedData.settings.whatsapp || '923368945775')
+              };
+              setAppSettings(s);
+              try { localStorage.setItem('zs_mart_settings', JSON.stringify(s)); } catch(e) {}
+            }
+
             if (loadedData.imageMap && typeof window !== 'undefined') {
-              window.PRODUCT_IMAGE_MAP = {1:'webp',2:'webp',3:'webp',5:'webp',6:'webp',7:'webp',8:'webp',14:'webp',15:'webp',16:'webp',17:'webp',18:'webp',21:'webp',22:'webp',23:'webp',26:'webp',27:'webp',28:'webp',29:'webp',30:'webp',31:'webp',32:'webp',33:'webp',34:'webp',37:'webp',38:'webp',46:'webp',47:'webp',48:'webp',49:'webp',50:'webp',51:'webp',52:'webp',53:'webp',54:'webp',59:'webp',60:'webp',61:'webp',62:'webp',64:'webp',65:'webp',66:'webp',67:'webp',68:'webp',69:'webp',70:'webp',71:'webp',72:'webp',73:'webp',75:'webp',76:'webp',77:'webp',78:'webp',79:'webp',81:'webp',82:'webp',83:'webp',84:'webp',85:'webp',86:'webp',87:'webp',88:'webp',89:'webp',90:'webp',91:'webp',92:'webp',93:'webp',94:'webp',95:'webp',96:'webp',97:'webp',98:'webp',99:'webp',100:'webp',101:'webp',102:'webp',105:'webp',106:'webp',107:'webp',110:'webp',111:'webp',113:'webp',117:'webp',118:'webp',119:'webp',120:'webp',121:'webp',122:'webp',123:'webp',124:'webp',125:'webp',127:'webp',130:'webp',133:'webp',134:'webp',135:'webp',136:'webp',137:'webp',139:'webp',140:'webp',141:'webp',142:'webp',143:'webp',144:'webp',145:'webp',146:'webp',148:'webp',151:'webp',152:'webp',153:'webp',154:'webp',155:'webp',156:'webp',157:'webp',158:'webp',159:'webp',161:'webp',162:'webp',163:'webp',165:'webp',167:'webp',168:'webp',169:'webp',170:'webp',171:'webp',172:'webp',173:'webp',174:'webp',175:'webp',177:'webp',178:'webp',183:'webp',184:'webp',187:'webp',188:'webp',189:'webp',190:'webp',191:'webp',192:'webp',206:'webp',207:'webp',208:'webp',209:'webp',219:'webp',221:'webp',222:'webp',223:'webp',224:'webp',225:'webp',226:'webp',227:'webp',228:'webp',229:'webp',231:'webp',233:'webp',234:'webp',235:'webp',236:'webp',237:'webp',238:'webp',239:'webp',240:'webp',242:'webp',243:'webp',244:'webp',245:'webp',246:'webp',247:'webp',249:'webp',250:'webp',251:'webp',252:'webp',254:'webp',255:'webp',256:'webp',257:'webp',258:'webp',259:'webp',261:'webp',262:'webp',263:'webp',265:'webp',266:'webp',267:'webp',269:'webp',270:'webp',271:'webp',272:'webp',273:'webp',274:'webp',278:'webp',279:'webp',280:'webp',281:'webp',282:'webp',284:'webp',285:'webp',286:'webp',287:'webp',288:'webp',289:'webp',290:'webp',291:'webp',292:'webp',293:'webp',295:'webp',296:'webp',297:'webp',298:'webp',299:'webp',300:'webp',301:'webp',302:'webp',303:'webp',304:'webp',305:'webp',306:'webp',307:'webp',310:'webp',311:'webp',312:'webp',314:'webp',315:'webp',316:'webp',317:'webp',318:'webp',319:'webp',320:'webp',321:'webp',322:'webp',323:'webp',324:'webp',325:'webp',326:'webp',327:'webp',329:'webp',330:'webp',331:'webp',332:'webp',333:'webp',334:'webp',335:'webp',336:'webp',337:'webp',338:'webp',339:'webp',340:'webp',341:'webp',342:'webp',343:'webp',344:'webp',347:'webp',348:'webp',349:'webp',350:'webp',351:'webp',352:'webp',353:'webp',354:'webp',355:'webp',356:'webp',357:'webp',358:'webp',359:'webp',360:'webp',362:'webp',363:'webp',364:'webp',365:'webp',366:'webp',367:'webp',368:'webp',370:'webp',371:'webp',372:'webp',373:'webp',374:'webp',375:'webp',377:'webp',378:'webp',379:'webp',380:'webp',381:'webp',382:'webp',383:'webp',384:'webp',385:'webp',386:'webp',387:'webp',397:'webp',398:'webp',399:'webp',400:'webp',403:'webp',404:'webp',407:'webp',411:'webp',412:'webp',414:'webp',415:'webp',416:'webp',417:'webp',418:'webp',419:'webp',420:'webp',421:'webp',422:'webp',423:'webp',424:'webp',425:'webp',426:'webp',427:'webp',428:'webp',429:'webp',430:'webp',431:'webp',432:'webp',433:'webp',434:'webp',435:'webp',436:'webp',437:'webp',438:'webp',439:'webp',440:'webp',441:'webp',442:'webp',443:'webp',444:'webp',445:'webp',446:'webp',447:'webp',448:'webp',449:'webp',450:'webp',451:'webp',452:'webp',453:'webp',455:'webp',456:'webp',457:'webp',458:'webp',459:'webp',460:'webp',461:'webp',462:'webp',463:'webp',464:'webp',466:'webp',467:'webp',468:'webp',469:'webp',470:'webp',471:'webp',472:'webp',473:'webp',474:'webp',475:'webp',476:'webp',477:'webp',478:'webp',479:'webp',480:'webp',481:'webp',482:'webp',483:'webp',484:'webp',485:'webp',486:'webp',487:'webp',488:'webp',489:'webp',490:'webp',491:'webp',492:'webp',493:'webp',494:'webp',495:'webp',496:'webp',497:'webp',499:'webp',500:'webp',512:'webp',513:'webp',514:'webp',515:'webp',516:'webp',519:'webp',520:'webp',521:'webp',522:'webp',523:'webp',524:'webp',525:'webp',526:'webp',528:'webp',529:'webp',530:'webp',534:'webp',535:'webp',536:'webp',537:'webp',538:'webp',539:'webp',540:'webp',541:'webp',542:'webp',543:'webp',544:'webp',545:'webp',548:'webp',549:'webp',550:'webp',551:'webp',552:'webp',553:'webp',554:'webp',555:'webp',556:'webp',557:'webp',558:'webp',559:'webp',560:'webp',561:'webp',562:'webp',563:'webp',564:'webp',565:'webp',566:'webp',567:'webp',569:'webp',570:'webp',571:'webp',572:'webp',573:'webp',576:'webp',577:'webp',578:'webp',579:'webp',580:'webp',581:'webp',582:'webp',583:'webp',584:'webp',585:'webp',587:'webp',588:'webp',589:'webp',592:'webp',595:'webp',596:'webp',599:'webp',600:'webp',601:'webp',603:'webp',604:'webp',605:'webp',606:'webp',607:'webp',608:'webp',609:'webp',610:'webp',611:'webp',612:'webp',613:'webp',614:'webp',615:'webp',616:'webp',617:'webp',618:'webp',619:'webp',620:'webp',621:'webp',622:'webp',623:'webp',624:'webp',625:'webp',626:'webp',627:'webp',628:'webp',629:'webp',630:'webp',631:'webp',632:'webp',633:'webp',634:'webp',635:'webp',636:'webp',637:'webp',638:'webp',639:'webp',640:'webp',641:'webp',642:'webp',643:'webp',644:'webp',645:'webp',646:'webp',647:'webp',648:'webp',649:'webp',650:'webp',651:'webp',652:'webp',653:'webp',654:'webp',655:'webp',656:'webp',657:'webp',658:'webp',659:'webp',660:'webp',661:'webp',662:'webp',663:'webp',664:'webp',665:'webp',666:'webp',667:'webp',668:'webp',669:'webp',670:'webp',671:'webp',672:'webp',673:'webp',674:'webp',675:'webp',676:'webp',677:'webp',678:'webp',679:'webp',681:'webp',682:'webp',683:'webp',684:'webp',685:'webp',686:'webp',687:'webp',688:'webp',689:'webp',690:'webp',691:'webp',692:'webp',693:'webp',694:'webp',695:'webp',696:'webp',697:'webp',698:'webp',700:'webp',701:'webp',702:'webp',703:'webp',704:'webp',705:'webp',706:'webp',708:'webp',709:'webp',710:'webp',711:'webp',712:'webp',713:'webp',714:'webp',715:'webp',716:'webp',717:'webp',718:'webp',719:'webp',720:'webp',721:'webp',722:'webp',723:'webp',724:'webp',725:'webp',726:'webp',727:'webp',728:'webp',729:'webp',730:'webp',731:'webp',732:'webp',733:'webp',734:'webp',735:'webp',736:'webp',737:'webp',738:'webp',753:'webp',754:'webp',755:'webp',756:'webp',757:'webp',758:'webp',759:'webp',760:'webp',761:'webp',762:'webp',763:'webp',764:'webp',765:'webp',766:'webp',767:'webp',768:'webp',769:'webp',770:'webp',771:'webp',772:'webp',773:'webp',774:'webp',775:'webp',776:'webp',777:'webp',778:'webp',779:'webp',780:'webp',781:'webp',782:'webp',783:'webp',784:'webp',785:'webp',786:'webp',787:'webp',788:'webp',789:'webp',790:'webp',791:'webp',792:'webp',793:'webp',794:'webp',795:'webp',796:'webp',797:'webp',798:'webp',799:'webp',800:'webp',801:'webp',802:'webp',804:'webp',805:'webp',806:'webp',807:'webp',808:'webp',809:'webp',810:'webp',811:'webp',812:'webp',813:'webp',814:'webp',815:'webp',816:'webp',817:'webp',818:'webp',819:'webp',820:'webp',821:'webp',822:'webp',823:'webp',824:'webp',825:'webp',826:'webp',827:'webp',828:'webp',829:'webp',830:'webp',831:'webp',832:'webp',833:'webp',835:'webp',836:'webp',837:'webp',838:'webp',839:'webp',840:'webp',841:'webp',842:'webp',843:'webp',844:'webp',845:'webp',846:'webp',847:'webp',848:'webp',849:'webp',850:'webp',851:'webp',852:'webp',853:'webp',854:'webp',855:'webp',856:'webp',857:'webp',858:'webp',859:'webp',861:'webp',862:'webp',863:'webp',864:'webp',865:'webp',866:'webp',867:'webp',868:'webp',869:'webp',870:'webp',871:'webp',872:'webp',873:'webp',874:'webp',875:'webp',876:'webp',877:'webp',878:'webp',881:'webp',882:'webp',883:'webp',884:'webp',904:'webp',905:'webp',906:'webp',907:'webp',908:'webp',909:'webp',910:'webp',911:'webp',912:'webp',913:'webp',914:'webp',915:'webp',917:'webp',918:'webp',919:'webp',920:'webp',921:'webp',922:'webp',923:'webp',926:'webp',927:'webp',928:'webp',929:'webp',930:'webp',931:'webp',932:'webp',933:'webp',934:'webp',935:'webp',936:'webp',937:'webp',938:'webp',939:'webp',940:'webp',941:'webp',942:'webp',944:'webp',945:'webp',946:'webp',947:'webp',948:'webp',949:'webp',950:'webp',951:'webp',952:'webp',953:'webp',955:'webp',958:'webp',959:'webp',960:'webp',961:'webp',962:'webp',964:'webp',965:'webp',966:'webp',971:'webp',972:'webp',973:'webp',974:'webp',975:'webp',976:'webp',977:'webp',978:'webp',979:'webp',980:'webp',981:'webp',982:'webp',983:'webp',984:'webp',985:'webp',986:'webp',987:'webp',988:'webp',989:'webp',990:'webp',991:'webp',992:'webp',993:'webp',994:'webp',995:'webp',996:'webp',997:'webp',998:'webp',999:'webp',1000:'webp',1001:'webp',1002:'webp',1003:'webp',1004:'webp',1005:'webp',1006:'webp',1007:'webp',1008:'webp',1009:'webp',1010:'webp',1011:'webp',1012:'webp',1013:'webp',1014:'webp',1015:'webp',1016:'webp',1017:'webp',1034:'webp',1035:'webp',1036:'webp',1037:'webp',1038:'webp',1040:'webp',1041:'webp',1042:'webp',1043:'webp',1044:'webp',1045:'webp',1046:'webp',1047:'webp',1048:'webp',1049:'webp',1051:'webp',1052:'webp',1053:'webp',1054:'webp',1055:'webp',1056:'webp',1057:'webp',1058:'webp',1059:'webp',1060:'webp',1061:'webp',1062:'webp',1063:'webp',1064:'webp',1065:'webp',1066:'webp',1067:'webp',1068:'webp',1075:'webp',1076:'webp',1081:'webp',1083:'webp',1084:'webp',1086:'webp',1087:'webp',1088:'webp',1089:'webp',1090:'webp',1091:'webp',1092:'webp',1093:'webp',1094:'webp',1095:'webp',1096:'webp',1097:'webp',1098:'webp',1099:'webp',1100:'webp',1101:'webp',1102:'webp',1103:'webp',1104:'webp',1105:'webp',1109:'webp',1110:'webp',1111:'webp',1112:'webp',1113:'webp',1114:'webp',1115:'webp',1116:'webp',1117:'webp',1118:'webp',1119:'webp',1120:'webp',1121:'webp',1122:'webp',1130:'webp',1131:'webp',1132:'webp',1133:'webp',1134:'webp',1135:'webp',1136:'webp',1137:'webp',1139:'webp',1145:'webp',1148:'webp',1149:'webp',1150:'webp',1151:'webp',1152:'webp',1154:'webp',1155:'webp',1156:'webp',1157:'webp',1160:'webp',1161:'webp',1162:'webp',1163:'webp',1164:'webp',1165:'webp',1166:'webp',1167:'webp',1168:'webp',1169:'webp',1173:'webp',1174:'webp',1176:'webp',1178:'webp',1179:'webp',1183:'webp',1184:'webp',1190:'webp',1191:'webp',1192:'webp',1194:'webp',1195:'webp',1196:'webp',1197:'webp',1198:'webp',1199:'webp',1200:'webp',1201:'webp',1202:'webp',1203:'webp',1205:'webp',1207:'webp',1208:'webp',1209:'webp',1210:'webp',1211:'webp',1212:'webp',1213:'webp',1214:'webp',1215:'webp',1216:'webp',1217:'webp',1218:'webp',1219:'webp',1220:'webp',1221:'webp',1222:'webp',1223:'webp',1224:'webp',1225:'webp',1226:'webp',1227:'webp',1228:'webp',1229:'webp',1230:'webp',1232:'webp',1233:'webp',1234:'webp',1236:'webp',1237:'webp',1238:'webp',1239:'webp',1240:'webp',1241:'webp',1242:'webp',1243:'webp',1244:'webp',1245:'webp',1246:'webp',1247:'webp',1249:'webp',1250:'webp',1251:'webp',1252:'webp',1255:'webp',1256:'webp',1257:'webp',1258:'webp',1259:'webp',1260:'webp',1261:'webp',1262:'webp',1264:'webp',1265:'webp',1266:'webp',1267:'webp',1268:'webp',1269:'webp',1270:'webp',1271:'png',1272:'png',1273:'png',1274:'png',1275:'png',1276:'png',1277:'png',1278:'png',1279:'png',1280:'png'};
+              window.PRODUCT_IMAGE_MAP = { ...(window.PRODUCT_IMAGE_MAP || {}), ...loadedData.imageMap };
               try {
                 localStorage.setItem("zs_groceries_imagemap_cache", JSON.stringify(window.PRODUCT_IMAGE_MAP));
               } catch (e) {}
@@ -4412,7 +4594,9 @@ export default function SahilTraders() {
         try {
           const cachedMap = localStorage.getItem("zs_groceries_imagemap_cache");
           if (cachedMap && typeof window !== 'undefined') {
-            window.PRODUCT_IMAGE_MAP = {1:'webp',2:'webp',3:'webp',5:'webp',6:'webp',7:'webp',8:'webp',14:'webp',15:'webp',16:'webp',17:'webp',18:'webp',21:'webp',22:'webp',23:'webp',26:'webp',27:'webp',28:'webp',29:'webp',30:'webp',31:'webp',32:'webp',33:'webp',34:'webp',37:'webp',38:'webp',46:'webp',47:'webp',48:'webp',49:'webp',50:'webp',51:'webp',52:'webp',53:'webp',54:'webp',59:'webp',60:'webp',61:'webp',62:'webp',64:'webp',65:'webp',66:'webp',67:'webp',68:'webp',69:'webp',70:'webp',71:'webp',72:'webp',73:'webp',75:'webp',76:'webp',77:'webp',78:'webp',79:'webp',81:'webp',82:'webp',83:'webp',84:'webp',85:'webp',86:'webp',87:'webp',88:'webp',89:'webp',90:'webp',91:'webp',92:'webp',93:'webp',94:'webp',95:'webp',96:'webp',97:'webp',98:'webp',99:'webp',100:'webp',101:'webp',102:'webp',105:'webp',106:'webp',107:'webp',110:'webp',111:'webp',113:'webp',117:'webp',118:'webp',119:'webp',120:'webp',121:'webp',122:'webp',123:'webp',124:'webp',125:'webp',127:'webp',130:'webp',133:'webp',134:'webp',135:'webp',136:'webp',137:'webp',139:'webp',140:'webp',141:'webp',142:'webp',143:'webp',144:'webp',145:'webp',146:'webp',148:'webp',151:'webp',152:'webp',153:'webp',154:'webp',155:'webp',156:'webp',157:'webp',158:'webp',159:'webp',161:'webp',162:'webp',163:'webp',165:'webp',167:'webp',168:'webp',169:'webp',170:'webp',171:'webp',172:'webp',173:'webp',174:'webp',175:'webp',177:'webp',178:'webp',183:'webp',184:'webp',187:'webp',188:'webp',189:'webp',190:'webp',191:'webp',192:'webp',206:'webp',207:'webp',208:'webp',209:'webp',219:'webp',221:'webp',222:'webp',223:'webp',224:'webp',225:'webp',226:'webp',227:'webp',228:'webp',229:'webp',231:'webp',233:'webp',234:'webp',235:'webp',236:'webp',237:'webp',238:'webp',239:'webp',240:'webp',242:'webp',243:'webp',244:'webp',245:'webp',246:'webp',247:'webp',249:'webp',250:'webp',251:'webp',252:'webp',254:'webp',255:'webp',256:'webp',257:'webp',258:'webp',259:'webp',261:'webp',262:'webp',263:'webp',265:'webp',266:'webp',267:'webp',269:'webp',270:'webp',271:'webp',272:'webp',273:'webp',274:'webp',278:'webp',279:'webp',280:'webp',281:'webp',282:'webp',284:'webp',285:'webp',286:'webp',287:'webp',288:'webp',289:'webp',290:'webp',291:'webp',292:'webp',293:'webp',295:'webp',296:'webp',297:'webp',298:'webp',299:'webp',300:'webp',301:'webp',302:'webp',303:'webp',304:'webp',305:'webp',306:'webp',307:'webp',310:'webp',311:'webp',312:'webp',314:'webp',315:'webp',316:'webp',317:'webp',318:'webp',319:'webp',320:'webp',321:'webp',322:'webp',323:'webp',324:'webp',325:'webp',326:'webp',327:'webp',329:'webp',330:'webp',331:'webp',332:'webp',333:'webp',334:'webp',335:'webp',336:'webp',337:'webp',338:'webp',339:'webp',340:'webp',341:'webp',342:'webp',343:'webp',344:'webp',347:'webp',348:'webp',349:'webp',350:'webp',351:'webp',352:'webp',353:'webp',354:'webp',355:'webp',356:'webp',357:'webp',358:'webp',359:'webp',360:'webp',362:'webp',363:'webp',364:'webp',365:'webp',366:'webp',367:'webp',368:'webp',370:'webp',371:'webp',372:'webp',373:'webp',374:'webp',375:'webp',377:'webp',378:'webp',379:'webp',380:'webp',381:'webp',382:'webp',383:'webp',384:'webp',385:'webp',386:'webp',387:'webp',397:'webp',398:'webp',399:'webp',400:'webp',403:'webp',404:'webp',407:'webp',411:'webp',412:'webp',414:'webp',415:'webp',416:'webp',417:'webp',418:'webp',419:'webp',420:'webp',421:'webp',422:'webp',423:'webp',424:'webp',425:'webp',426:'webp',427:'webp',428:'webp',429:'webp',430:'webp',431:'webp',432:'webp',433:'webp',434:'webp',435:'webp',436:'webp',437:'webp',438:'webp',439:'webp',440:'webp',441:'webp',442:'webp',443:'webp',444:'webp',445:'webp',446:'webp',447:'webp',448:'webp',449:'webp',450:'webp',451:'webp',452:'webp',453:'webp',455:'webp',456:'webp',457:'webp',458:'webp',459:'webp',460:'webp',461:'webp',462:'webp',463:'webp',464:'webp',466:'webp',467:'webp',468:'webp',469:'webp',470:'webp',471:'webp',472:'webp',473:'webp',474:'webp',475:'webp',476:'webp',477:'webp',478:'webp',479:'webp',480:'webp',481:'webp',482:'webp',483:'webp',484:'webp',485:'webp',486:'webp',487:'webp',488:'webp',489:'webp',490:'webp',491:'webp',492:'webp',493:'webp',494:'webp',495:'webp',496:'webp',497:'webp',499:'webp',500:'webp',512:'webp',513:'webp',514:'webp',515:'webp',516:'webp',519:'webp',520:'webp',521:'webp',522:'webp',523:'webp',524:'webp',525:'webp',526:'webp',528:'webp',529:'webp',530:'webp',534:'webp',535:'webp',536:'webp',537:'webp',538:'webp',539:'webp',540:'webp',541:'webp',542:'webp',543:'webp',544:'webp',545:'webp',548:'webp',549:'webp',550:'webp',551:'webp',552:'webp',553:'webp',554:'webp',555:'webp',556:'webp',557:'webp',558:'webp',559:'webp',560:'webp',561:'webp',562:'webp',563:'webp',564:'webp',565:'webp',566:'webp',567:'webp',569:'webp',570:'webp',571:'webp',572:'webp',573:'webp',576:'webp',577:'webp',578:'webp',579:'webp',580:'webp',581:'webp',582:'webp',583:'webp',584:'webp',585:'webp',587:'webp',588:'webp',589:'webp',592:'webp',595:'webp',596:'webp',599:'webp',600:'webp',601:'webp',603:'webp',604:'webp',605:'webp',606:'webp',607:'webp',608:'webp',609:'webp',610:'webp',611:'webp',612:'webp',613:'webp',614:'webp',615:'webp',616:'webp',617:'webp',618:'webp',619:'webp',620:'webp',621:'webp',622:'webp',623:'webp',624:'webp',625:'webp',626:'webp',627:'webp',628:'webp',629:'webp',630:'webp',631:'webp',632:'webp',633:'webp',634:'webp',635:'webp',636:'webp',637:'webp',638:'webp',639:'webp',640:'webp',641:'webp',642:'webp',643:'webp',644:'webp',645:'webp',646:'webp',647:'webp',648:'webp',649:'webp',650:'webp',651:'webp',652:'webp',653:'webp',654:'webp',655:'webp',656:'webp',657:'webp',658:'webp',659:'webp',660:'webp',661:'webp',662:'webp',663:'webp',664:'webp',665:'webp',666:'webp',667:'webp',668:'webp',669:'webp',670:'webp',671:'webp',672:'webp',673:'webp',674:'webp',675:'webp',676:'webp',677:'webp',678:'webp',679:'webp',681:'webp',682:'webp',683:'webp',684:'webp',685:'webp',686:'webp',687:'webp',688:'webp',689:'webp',690:'webp',691:'webp',692:'webp',693:'webp',694:'webp',695:'webp',696:'webp',697:'webp',698:'webp',700:'webp',701:'webp',702:'webp',703:'webp',704:'webp',705:'webp',706:'webp',708:'webp',709:'webp',710:'webp',711:'webp',712:'webp',713:'webp',714:'webp',715:'webp',716:'webp',717:'webp',718:'webp',719:'webp',720:'webp',721:'webp',722:'webp',723:'webp',724:'webp',725:'webp',726:'webp',727:'webp',728:'webp',729:'webp',730:'webp',731:'webp',732:'webp',733:'webp',734:'webp',735:'webp',736:'webp',737:'webp',738:'webp',753:'webp',754:'webp',755:'webp',756:'webp',757:'webp',758:'webp',759:'webp',760:'webp',761:'webp',762:'webp',763:'webp',764:'webp',765:'webp',766:'webp',767:'webp',768:'webp',769:'webp',770:'webp',771:'webp',772:'webp',773:'webp',774:'webp',775:'webp',776:'webp',777:'webp',778:'webp',779:'webp',780:'webp',781:'webp',782:'webp',783:'webp',784:'webp',785:'webp',786:'webp',787:'webp',788:'webp',789:'webp',790:'webp',791:'webp',792:'webp',793:'webp',794:'webp',795:'webp',796:'webp',797:'webp',798:'webp',799:'webp',800:'webp',801:'webp',802:'webp',804:'webp',805:'webp',806:'webp',807:'webp',808:'webp',809:'webp',810:'webp',811:'webp',812:'webp',813:'webp',814:'webp',815:'webp',816:'webp',817:'webp',818:'webp',819:'webp',820:'webp',821:'webp',822:'webp',823:'webp',824:'webp',825:'webp',826:'webp',827:'webp',828:'webp',829:'webp',830:'webp',831:'webp',832:'webp',833:'webp',835:'webp',836:'webp',837:'webp',838:'webp',839:'webp',840:'webp',841:'webp',842:'webp',843:'webp',844:'webp',845:'webp',846:'webp',847:'webp',848:'webp',849:'webp',850:'webp',851:'webp',852:'webp',853:'webp',854:'webp',855:'webp',856:'webp',857:'webp',858:'webp',859:'webp',861:'webp',862:'webp',863:'webp',864:'webp',865:'webp',866:'webp',867:'webp',868:'webp',869:'webp',870:'webp',871:'webp',872:'webp',873:'webp',874:'webp',875:'webp',876:'webp',877:'webp',878:'webp',881:'webp',882:'webp',883:'webp',884:'webp',904:'webp',905:'webp',906:'webp',907:'webp',908:'webp',909:'webp',910:'webp',911:'webp',912:'webp',913:'webp',914:'webp',915:'webp',917:'webp',918:'webp',919:'webp',920:'webp',921:'webp',922:'webp',923:'webp',926:'webp',927:'webp',928:'webp',929:'webp',930:'webp',931:'webp',932:'webp',933:'webp',934:'webp',935:'webp',936:'webp',937:'webp',938:'webp',939:'webp',940:'webp',941:'webp',942:'webp',944:'webp',945:'webp',946:'webp',947:'webp',948:'webp',949:'webp',950:'webp',951:'webp',952:'webp',953:'webp',955:'webp',958:'webp',959:'webp',960:'webp',961:'webp',962:'webp',964:'webp',965:'webp',966:'webp',971:'webp',972:'webp',973:'webp',974:'webp',975:'webp',976:'webp',977:'webp',978:'webp',979:'webp',980:'webp',981:'webp',982:'webp',983:'webp',984:'webp',985:'webp',986:'webp',987:'webp',988:'webp',989:'webp',990:'webp',991:'webp',992:'webp',993:'webp',994:'webp',995:'webp',996:'webp',997:'webp',998:'webp',999:'webp',1000:'webp',1001:'webp',1002:'webp',1003:'webp',1004:'webp',1005:'webp',1006:'webp',1007:'webp',1008:'webp',1009:'webp',1010:'webp',1011:'webp',1012:'webp',1013:'webp',1014:'webp',1015:'webp',1016:'webp',1017:'webp',1034:'webp',1035:'webp',1036:'webp',1037:'webp',1038:'webp',1040:'webp',1041:'webp',1042:'webp',1043:'webp',1044:'webp',1045:'webp',1046:'webp',1047:'webp',1048:'webp',1049:'webp',1051:'webp',1052:'webp',1053:'webp',1054:'webp',1055:'webp',1056:'webp',1057:'webp',1058:'webp',1059:'webp',1060:'webp',1061:'webp',1062:'webp',1063:'webp',1064:'webp',1065:'webp',1066:'webp',1067:'webp',1068:'webp',1075:'webp',1076:'webp',1081:'webp',1083:'webp',1084:'webp',1086:'webp',1087:'webp',1088:'webp',1089:'webp',1090:'webp',1091:'webp',1092:'webp',1093:'webp',1094:'webp',1095:'webp',1096:'webp',1097:'webp',1098:'webp',1099:'webp',1100:'webp',1101:'webp',1102:'webp',1103:'webp',1104:'webp',1105:'webp',1109:'webp',1110:'webp',1111:'webp',1112:'webp',1113:'webp',1114:'webp',1115:'webp',1116:'webp',1117:'webp',1118:'webp',1119:'webp',1120:'webp',1121:'webp',1122:'webp',1130:'webp',1131:'webp',1132:'webp',1133:'webp',1134:'webp',1135:'webp',1136:'webp',1137:'webp',1139:'webp',1145:'webp',1148:'webp',1149:'webp',1150:'webp',1151:'webp',1152:'webp',1154:'webp',1155:'webp',1156:'webp',1157:'webp',1160:'webp',1161:'webp',1162:'webp',1163:'webp',1164:'webp',1165:'webp',1166:'webp',1167:'webp',1168:'webp',1169:'webp',1173:'webp',1174:'webp',1176:'webp',1178:'webp',1179:'webp',1183:'webp',1184:'webp',1190:'webp',1191:'webp',1192:'webp',1194:'webp',1195:'webp',1196:'webp',1197:'webp',1198:'webp',1199:'webp',1200:'webp',1201:'webp',1202:'webp',1203:'webp',1205:'webp',1207:'webp',1208:'webp',1209:'webp',1210:'webp',1211:'webp',1212:'webp',1213:'webp',1214:'webp',1215:'webp',1216:'webp',1217:'webp',1218:'webp',1219:'webp',1220:'webp',1221:'webp',1222:'webp',1223:'webp',1224:'webp',1225:'webp',1226:'webp',1227:'webp',1228:'webp',1229:'webp',1230:'webp',1232:'webp',1233:'webp',1234:'webp',1236:'webp',1237:'webp',1238:'webp',1239:'webp',1240:'webp',1241:'webp',1242:'webp',1243:'webp',1244:'webp',1245:'webp',1246:'webp',1247:'webp',1249:'webp',1250:'webp',1251:'webp',1252:'webp',1255:'webp',1256:'webp',1257:'webp',1258:'webp',1259:'webp',1260:'webp',1261:'webp',1262:'webp',1264:'webp',1265:'webp',1266:'webp',1267:'webp',1268:'webp',1269:'webp',1270:'webp',1271:'png',1272:'png',1273:'png',1274:'png',1275:'png',1276:'png',1277:'png',1278:'png',1279:'png',1280:'png'};
+            try {
+              window.PRODUCT_IMAGE_MAP = { ...(window.PRODUCT_IMAGE_MAP || {}), ...JSON.parse(cachedMap) };
+            } catch(e) {}
           }
         } catch(e) {}
 
@@ -4517,8 +4701,12 @@ export default function SahilTraders() {
             setParchiModalOpen(false);
             return;
           }
-          // 6. If Order History is open, close it
+          // 6. If Order History is open, check if order detail is active first
           if (orderHistoryOpen) {
+            if (window.__orderDetailSelected && typeof window.__closeOrderDetail === 'function') {
+              window.__closeOrderDetail();
+              return;
+            }
             setOrderHistoryOpen(false);
             return;
           }
@@ -4972,6 +5160,24 @@ export default function SahilTraders() {
         return () => clearTimeout(timer);
       }, []);
 
+      // 📍 Prefetch GPS location on app start so user does not have to wait or press anything during checkout
+      useEffect(() => {
+        try {
+          if (typeof navigator !== 'undefined' && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
+                window.__prefetchedLocation = { lat, lng, mapUrl };
+              },
+              () => {},
+              { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+            );
+          }
+        } catch (e) {}
+      }, []);
+
       // ⚡ 120 FPS Hardware Scroll Optimization: Pause Marquees during active touch scrolling
       useEffect(() => {
         let isScrollingTimeout;
@@ -5227,7 +5433,7 @@ export default function SahilTraders() {
         ? (langData.categories?.[selectedCategory] || categoriesList.find(c => c.id === selectedCategory)?.name || selectedCategory)
         : null;
       return (
-        <div className="min-h-screen relative text-gray-900" style={{ fontFamily: language === 'ur' ? "'Noto Sans Urdu', 'Inter', sans-serif" : "'Inter', system-ui, sans-serif", overflowX: 'clip' }}>
+<div className="min-h-screen relative text-gray-900" style={{ fontFamily: language === 'ur' ? "'Noto Sans Urdu', 'Inter', sans-serif" : "'Inter', system-ui, sans-serif", overflowX: 'clip' }}>
           {/* 🎬 Cinematic Movie Trailer Style Splash Intro */}
           {showSplash && (
             <div
@@ -5246,9 +5452,8 @@ export default function SahilTraders() {
               {/* Central Cinematic Content */}
               <div className="relative flex flex-col items-center px-6 z-10 max-w-sm text-center">
                 {/* Dramatic Emergence Logo Box */}
-                {/* Dramatic Emergence Logo Box */}
                 <div className="luxury-logo-box">
-                  <div className="luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-3xl p-2.5 flex items-center justify-center shadow-2xl" style={{ background: '#ffffff', border: '3px solid #2563eb', boxShadow: '0 0 45px rgba(37, 99, 235, 0.5), 0 0 80px rgba(0,0,0,0.9)' }}>
+                  <div className="luxury-float relative w-32 h-32 sm:w-40 sm:h-40 rounded-3xl p-2 flex items-center justify-center shadow-2xl" style={{ background: '#ffffff', border: '3px solid #2563eb', boxShadow: '0 0 45px rgba(37, 99, 235, 0.5), 0 0 80px rgba(0,0,0,0.9)', overflow: 'hidden' }}>
                     <img
                       src="images/zs-mart-logo.png"
                       alt="ZS Mart"
@@ -5304,22 +5509,12 @@ export default function SahilTraders() {
           {activeTab !== 'account' && (
             <>
               {/* ━━━ TOP INFO BAR ━━━ */}
-              <div style={{ background: 'linear-gradient(90deg, #08101a 0%, #0b1828 50%, #08101a 100%)', borderBottom: '1px solid rgba(16,185,129,0.18)' }} className="text-white text-[10.5px] font-medium py-1.5 px-3 sm:px-4">
-                <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 sm:gap-3 overflow-hidden w-full justify-center sm:justify-start">
-                    <span style={{ color: '#f59e0b', fontWeight: 700, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span>⏰</span>
-                      <span>{tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: 10:00 AM – 8:00 PM (Peer ta Hafta)', 'ڈیلیوری کے اوقات: صبح 10 تا رات 8 (پیر تا ہفتہ)')}</span>
-                    </span>
-                    <span className="hidden sm:inline" style={{ color: 'rgba(255,255,255,0.25)' }}>|</span>
-                    <div className="hidden sm:flex items-center gap-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                      <span>📍 {tr(language, 'Karachi Only', 'Sirf Karachi', 'صرف کراچی')}</span>
-                      <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
-                      <span style={{ color: '#10b981' }}>🚚 {tr(language, 'Free Shipping on Rs 2000+', 'Rs 2000+ par Free Delivery', 'Rs 2000+ پر مفت ڈیلیوری')}</span>
-                      <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
-                      <span>💬 {tr(language, 'WhatsApp Orders Active', 'WhatsApp Orders Active', 'واٹس ایپ آرڈرز جاری')}</span>
-                    </div>
-                  </div>
+              <div style={{ background: 'linear-gradient(90deg, #08101a 0%, #0b1828 50%, #08101a 100%)', borderBottom: '1px solid rgba(16,185,129,0.18)' }} className="text-white text-[11px] font-semibold py-1.5 px-3">
+                <div className="max-w-7xl mx-auto flex items-center justify-center text-center">
+                  <span style={{ color: '#f59e0b', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <span>⏰</span>
+                    <span>{tr(language, 'Delivery Timing: 10:00 AM – 10:00 PM', 'Delivery Timing: 10:00 AM – 10:00 PM', 'ڈیلیوری کے اوقات: صبح 10:00 تا رات 10:00')}</span>
+                  </span>
                 </div>
               </div>
 
@@ -5430,26 +5625,36 @@ export default function SahilTraders() {
                       </div>
                       {/* Desktop Suggestions */}
                       {suggestOpen && suggestions.length > 0 && (
-                        <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: '#0d1528', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 16px 48px rgba(0,0,0,0.6)', zIndex: 50, overflow: 'hidden', maxHeight: '320px', overflowY: 'auto' }}>
+                        <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '12px', boxShadow: '0 16px 48px rgba(0,0,0,0.18)', zIndex: 50, overflow: 'hidden', maxHeight: '320px', overflowY: 'auto' }}>
                           {recentSearches.length > 0 && !searchTerm && (
-                            <div style={{ padding: '8px 14px 4px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>Recent</div>
+                            <div style={{ padding: '8px 14px 4px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>Recent</div>
                           )}
-                          {suggestions.slice(0, 8).map((product) => (
-                            <button
-                              key={product.id}
-                              type="button"
-                              onMouseDown={() => handleSuggestionClick(product)}
-                              style={{ width: '100%', textAlign: 'left', padding: '10px 14px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.15s' }}
-                              onMouseEnter={e => e.currentTarget.style.background = 'rgba(16,185,129,0.1)'}
-                              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                            >
-                              <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: 'white', flexShrink: 0 }}>{product.initial || product.name[0]}</div>
-                              <div>
-                                <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#ffffff', lineHeight: 1.3 }}>{product.name}</div>
-                                <div style={{ fontSize: '11px', color: '#10b981', fontWeight: 700 }}>Rs. {product.price}</div>
-                              </div>
-                            </button>
-                          ))}
+                          {suggestions.slice(0, 8).map((product) => {
+                            const hasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+                            const imgUrl = hasImg ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+                            return (
+                              <button
+                                key={product.id}
+                                type="button"
+                                onMouseDown={() => handleSuggestionClick(product)}
+                                style={{ width: '100%', textAlign: 'left', padding: '9px 14px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #f1f5f9', transition: 'background 0.15s' }}
+                                onMouseEnter={e => e.currentTarget.style.background = '#f0fdf4'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                              >
+                                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                                  {imgUrl ? (
+                                    <img src={imgUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                  ) : (
+                                    <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: 'white' }}>{product.initial || product.name[0]}</div>
+                                  )}
+                                </div>
+                                <div>
+                                  <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#0f172a', lineHeight: 1.3 }}>{product.name}</div>
+                                  <div style={{ fontSize: '11px', color: '#059669', fontWeight: 700 }}>Rs. {product.price}</div>
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -5762,27 +5967,37 @@ export default function SahilTraders() {
 
                       {/* Dropdown Suggestions under Expanded Overlay */}
                       {suggestOpen && suggestions.length > 0 && (
-                        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#09131e', border: '1.5px solid rgba(16,185,129,0.35)', borderRadius: '12px', boxShadow: '0 16px 48px rgba(0,0,0,0.85)', zIndex: 60, overflow: 'hidden', maxHeight: '280px', overflowY: 'auto' }}>
+                        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: '12px', boxShadow: '0 16px 48px rgba(0,0,0,0.18)', zIndex: 60, overflow: 'hidden', maxHeight: '280px', overflowY: 'auto' }}>
                           {recentSearches.length > 0 && !searchTerm && (
-                            <div style={{ padding: '7px 12px 3px', fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>Recent</div>
+                            <div style={{ padding: '7px 12px 3px', fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>Recent</div>
                           )}
-                          {suggestions.slice(0, 8).map((product) => (
-                            <button
-                              key={product.id}
-                              type="button"
-                              onMouseDown={() => {
-                                handleSuggestionClick(product);
-                                setMobileSearchFocused(false);
-                              }}
-                              style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '9px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
-                            >
-                              <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, color: 'white', flexShrink: 0 }}>{product.initial || product.name[0]}</div>
-                              <div style={{ minWidth: 0, flex: 1 }}>
-                                <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#ffffff', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
-                                <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 700 }}>Rs. {product.price}</div>
-                              </div>
-                            </button>
-                          ))}
+                          {suggestions.slice(0, 8).map((product) => {
+                            const hasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+                            const imgUrl = hasImg ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+                            return (
+                              <button
+                                key={product.id}
+                                type="button"
+                                onMouseDown={() => {
+                                  handleSuggestionClick(product);
+                                  setMobileSearchFocused(false);
+                                }}
+                                style={{ width: '100%', textAlign: 'left', padding: '8px 12px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '9px', borderBottom: '1px solid #f1f5f9' }}
+                              >
+                                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                                  {imgUrl ? (
+                                    <img src={imgUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                  ) : (
+                                    <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${product.gradient?.replace('from-','').replace(' to-',', ') || '#10b981, #059669'})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, color: 'white' }}>{product.initial || product.name[0]}</div>
+                                  )}
+                                </div>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#0f172a', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.name}</div>
+                                  <div style={{ fontSize: '10px', color: '#059669', fontWeight: 700 }}>Rs. {product.price}</div>
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -5932,7 +6147,7 @@ export default function SahilTraders() {
                       <div>
                         <div style={{ fontSize: '13.5px', fontWeight: 900 }}>{tr(language, 'Call Official Helpline', 'Helpline par Call Karen', 'ہیلپ لائن پر کال کریں')}</div>
                         <div style={{ fontSize: '10.5px', color: '#38bdf8', fontWeight: 800, marginTop: '2px' }}>
-                          0336-8945775 (10:00 AM – 8:00 PM)
+                          0336-8945775 (10:00 AM – 9:00 PM, 7 Days)
                         </div>
                       </div>
                     </div>
@@ -6023,7 +6238,7 @@ export default function SahilTraders() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#059669', fontWeight: 700 }}>
                       <span>⏰</span>
-                      <span>10:00 AM – 8:00 PM (Monday to Saturday)</span>
+                      <span>10:00 AM – 9:00 PM (7 Days a Week, No Holiday)</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#2563eb', fontWeight: 700 }}>
                       <span>📞</span>
@@ -6202,7 +6417,7 @@ export default function SahilTraders() {
               <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(0,0,0,0.12)' }}>
                 <div className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs">
                   <span className="text-amber-600">⏰</span>
-                  <span>{tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: Subah 10:00 AM se Raat 8:00 PM tak (Peer ta Hafta)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 8:00 بجے تک (پیر تا ہفتہ)')}</span>
+                  <span>{tr(language, 'Delivery Timing: 10:00 AM – 9:00 PM (7 Days a Week, No Holiday)', 'Delivery Timing: Subah 10:00 AM se Raat 9:00 PM tak (7 Din Khula, Koi Chutti Nahi)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 9:00 بجے تک (7 دن کھلا، کوئی چھٹی نہیں)')}</span>
                 </div>
                 <div>
                   <button
@@ -6555,8 +6770,24 @@ export default function SahilTraders() {
                         <span>{tr(language, 'WhatsApp (+92 336 8945775)', 'WhatsApp (+92 336 8945775)', '\u0648\u0627\u067c\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0631\u0627\u0628\u0637\u06c1 \u06a9\u0631\u06cc\u06ba')}</span>
                       </a>
                       <div className="text-center text-[10px] text-gray-500 space-y-0.5">
-                        <p className="font-semibold text-gray-700">{tr(language, 'Delivery Timing: 10:00 AM – 8:00 PM (Mon – Sat)', 'Delivery Timing: 10:00 AM – 8:00 PM (Peer ta Hafta)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 8:00 \u0628\u062c\u06d2 (\u067e\u06cc\u0631 \u062a\u0627 \u06c1\u0641\u062a\u06c1)')}</p>
+                        <p className="font-semibold text-gray-700">{tr(language, 'Open 7 Days a Week (No Holiday)', '7 Din Khula (Koi Chutti Nahi)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 9:00 \u0628\u062c\u06d2 (7 \u062f\u0646 \u06a9\u06be\u0644\u0627\u060c \u06a9\u0648\u0626\u06cc \u0686DA\u0679\u06cc \u0646\u06c1\u06cc\u06ba)')}</p>
                         <p>{tr(language, 'Sahil Saleem & Muhammad Zubair Moin', 'Sahil Saleem & Muhammad Zubair Moin', '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646')}</p>
+                        <div className="pt-2">
+                           <button
+                             onClick={() => {
+                               try {
+                                 const base = window.location.href.replace(/\/[^\/]*$/, '/');
+                                 window.open(base + 'privacy-policy.html', '_system');
+                               } catch(e) {
+                                 window.open('privacy-policy.html', '_blank');
+                               }
+                             }}
+                             className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 underline bg-transparent border-none cursor-pointer p-0"
+                           >
+                            <span>🔒</span>
+                            <span>{tr(language, 'Privacy Policy', 'Privacy Policy (Zati Maloomat ki Hifazat)', '\u067e\u0631\u0627\u0626\u06cc\u0648\u06cc\u0633\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc')}</span>
+                           </button>
+                         </div>
                       </div>
                     </div>
                   </div>
@@ -7094,15 +7325,8 @@ export default function SahilTraders() {
     }
       // -----------------------------------------------------------------------------
     const ProductCard = React.memo(function ProductCard({ product, onAddToCart, langData, language, onSelectProduct, isWishlisted, onToggleWishlist }) {
-      const [isAdded, setIsAdded] = useState(false);
       const isUrdu = language === 'ur';
       const pricing = useMemo(() => getProductPricing(product), [product]);
-      const handleAdd = (e) => {
-        e.stopPropagation();
-        onAddToCart(product);
-        setIsAdded(true);
-        setTimeout(() => setIsAdded(false), 900);
-      };
       const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
       const imageSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
       return (
@@ -7184,35 +7408,28 @@ export default function SahilTraders() {
                 {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
               </p>
             )}
+            {/* Click to Buy button — opens product detail page */}
             <button
-              onClick={handleAdd}
-              className="product-add-btn mt-auto w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2"
+              onClick={(e) => { e.stopPropagation(); if (onSelectProduct) onSelectProduct(product); }}
+              className="product-add-btn mt-2.5 sm:mt-3 w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2"
               style={{
-                background: isAdded ? '#16a34a' : '#111111',
-                border: `1px solid ${isAdded ? '#15803d' : '#111111'}`,
+                background: '#111111',
+                border: '1px solid #111111',
                 color: '#ffffff',
-                boxShadow: isAdded ? '0 8px 18px rgba(22,163,74,0.24)' : '0 6px 14px rgba(0,0,0,0.16)',
+                boxShadow: '0 6px 14px rgba(0,0,0,0.16)',
                 transform: 'translateY(0)'
               }}
-              onMouseEnter={e => { if (!isAdded) { e.currentTarget.style.background='#1f2937'; e.currentTarget.style.borderColor='#1f2937'; e.currentTarget.style.transform='translateY(-1px)'; }}}
-              onMouseLeave={e => { if (!isAdded) { e.currentTarget.style.background='#111111'; e.currentTarget.style.borderColor='#111111'; e.currentTarget.style.transform='translateY(0)'; }}}
+              onMouseEnter={e => { e.currentTarget.style.background='#1f2937'; e.currentTarget.style.borderColor='#1f2937'; e.currentTarget.style.transform='translateY(-1px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background='#111111'; e.currentTarget.style.borderColor='#111111'; e.currentTarget.style.transform='translateY(0)'; }}
             >
-              {isAdded ? (
-                <>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-                  {translate(langData, "added")}
-                </>
-              ) : (
-                <>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                  {translate(langData, "addToCart")}
-                </>
-              )}
+              <span>🛒</span>
+              <span>{tr(language, 'Click to Buy', 'Click to Buy', 'خریدیں')}</span>
             </button>
           </div>
         </div>
       );
     });
+
       // -----------------------------------------------------------------------------
     function CartDrawer({ open, cart, cartTotal, langData, language, onClose, onUpdateQty, onRemove, onCheckout, onSelectProduct }) {
       const [deleteConfirm, setDeleteConfirm] = React.useState(null);
@@ -7291,13 +7508,13 @@ export default function SahilTraders() {
             {/* Items */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
               {cart.length > 0 && (
-                <div style={{ marginBottom: 14, padding: '12px 14px', borderRadius: 14, background: cartTotal >= 2000 ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'linear-gradient(135deg, #fffbe6 0%, #fef3c7 100%)', border: cartTotal >= 2000 ? '1px solid #bbf7d0' : '1px solid #fde68a' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: cartTotal >= 2000 ? '#166534' : '#92400e' }}>
+                <div style={{ marginBottom: 14, padding: '12px 14px', borderRadius: 14, background: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : 'linear-gradient(135deg, #fffbe6 0%, #fef3c7 100%)', border: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? '1px solid #bbf7d0' : '1px solid #fde68a' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? '#166534' : '#92400e' }}>
                     <span style={{ fontSize: 16 }}>🚚</span>
-                    <span>{cartTotal >= 2000 ? tr(language, '🎉 Mubarak! Free Delivery Unlocked!', '🎉 Mubarak! Free Delivery Unlocked!', '🎉 مبارک! مفت ڈیلیوری فعال ہو گئی!') : tr(language, `Free Delivery on Rs 2,000+ (Rs ${(2000 - cartTotal).toLocaleString()} remaining)`, `Rs 2,000+ par Free Delivery (Rs ${(2000 - cartTotal).toLocaleString()} baqi)`, `Rs. 2,000 پر مفت ڈیلیوری (Rs ${(2000 - cartTotal).toLocaleString()} باقی)`)}</span>
+                    <span>{cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? tr(language, '🎉 Mubarak! Free Delivery Unlocked!', '🎉 Mubarak! Free Delivery Unlocked!', '🎉 مبارک! مفت ڈیلیوری فعال ہو گئی!') : tr(language, `Free Delivery on Rs ${(appSettings.freeDeliveryThreshold || 2000).toLocaleString()}+ (Rs ${((appSettings.freeDeliveryThreshold || 2000) - cartTotal).toLocaleString()} remaining)`, `Rs ${(appSettings.freeDeliveryThreshold || 2000).toLocaleString()}+ par Free Delivery (Rs ${((appSettings.freeDeliveryThreshold || 2000) - cartTotal).toLocaleString()} baqi)`, `Rs. ${(appSettings.freeDeliveryThreshold || 2000).toLocaleString()} پر مفت ڈیلیوری (Rs ${((appSettings.freeDeliveryThreshold || 2000) - cartTotal).toLocaleString()} باقی)`)}</span>
                   </div>
                   <div style={{ marginTop: 8, height: 6, width: '100%', background: 'rgba(0,0,0,0.08)', borderRadius: 10, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${Math.min(100, (cartTotal / 2000) * 100)}%`, background: cartTotal >= 2000 ? '#22c55e' : '#f59e0b', borderRadius: 10, transition: 'width 0.4s ease' }} />
+                    <div style={{ height: '100%', width: `${Math.min(100, (cartTotal / (appSettings.freeDeliveryThreshold || 2000)) * 100)}%`, background: cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? '#22c55e' : '#f59e0b', borderRadius: 10, transition: 'width 0.4s ease' }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700, color: '#555', marginTop: 4 }}>
                     <span>🏠 {tr(language, 'Home Delivery Available', 'Home Delivery Dastyab Hai', 'ہوم ڈیلیوری دستیاب')}</span>
@@ -7621,6 +7838,22 @@ export default function SahilTraders() {
         function OrderHistoryModal({ open, orders, langData, language, onClose, onClear, onReorder, onSelectProduct }) {
       if (!open) return null;
       const [selectedOrder, setSelectedOrder] = React.useState(null);
+      const [nowTs, setNowTs] = React.useState(() => Date.now());
+
+      React.useEffect(() => {
+        window.__orderDetailSelected = !!selectedOrder;
+        window.__closeOrderDetail = () => setSelectedOrder(null);
+        return () => {
+          window.__orderDetailSelected = false;
+          window.__closeOrderDetail = null;
+        };
+      }, [selectedOrder]);
+
+      React.useEffect(() => {
+        if (!selectedOrder) return;
+        const timer = setInterval(() => setNowTs(Date.now()), 10000);
+        return () => clearInterval(timer);
+      }, [selectedOrder]);
 
       // ─── Detail View (When a single order is clicked) ────────
       if (selectedOrder) {
@@ -7662,13 +7895,77 @@ export default function SahilTraders() {
             {/* Detail Body */}
             <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 640, width: '100%', margin: '0 auto' }}>
               
+              {/* Visual 4-Step Order Status Tracker */}
+              {(() => {
+                let orderCreatedTime = Date.now();
+                if (order.createdAt) {
+                  orderCreatedTime = Number(order.createdAt);
+                } else if (order.id && typeof order.id === 'string' && order.id.includes('-')) {
+                  const parts = order.id.split('-');
+                  const dStr = parts[0];
+                  const tStr = parts[1];
+                  if (dStr.length === 8 && tStr.length >= 6) {
+                    const y = parseInt(dStr.slice(0, 4), 10);
+                    const m = parseInt(dStr.slice(4, 6), 10) - 1;
+                    const d = parseInt(dStr.slice(6, 8), 10);
+                    const hh = parseInt(tStr.slice(0, 2), 10);
+                    const mm = parseInt(tStr.slice(2, 4), 10);
+                    const ss = parseInt(tStr.slice(4, 6), 10);
+                    orderCreatedTime = new Date(y, m, d, hh, mm, ss).getTime();
+                  }
+                }
+                const diffMinutes = Math.max(0, Math.floor((nowTs - orderCreatedTime) / (1000 * 60)));
+                const isStep2 = diffMinutes >= 5;
+                const isStep3 = diffMinutes >= 35;
+                const isStep4 = diffMinutes >= 47;
+
+                return (
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>{tr(language, 'Live Order Tracking', 'Live Order Status', 'آرڈر ٹریکنگ')}</span>
+                      <span style={{ color: isStep4 ? '#059669' : '#2563eb', fontWeight: 900 }}>
+                        {isStep4 ? '● ' + tr(language, 'Delivered', 'Delivered', 'پہنچ چکا') : '● ' + tr(language, 'Active', 'Faal', 'فعال')} ({diffMinutes}m)
+                      </span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, position: 'relative', textAlign: 'center' }}>
+                      {/* Step 1: Placed */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#10b981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, marginBottom: 4 }}>✓</div>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: '#0f172a' }}>{tr(language, 'Placed', 'Mausool', 'موصول')}</div>
+                        <div style={{ fontSize: '9px', color: '#64748b', marginTop: 2 }}>0m</div>
+                      </div>
+                      {/* Step 2: Confirmed */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: isStep2 ? '#10b981' : '#f1f5f9', border: isStep2 ? 'none' : '1px dashed #cbd5e1', color: isStep2 ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, marginBottom: 4 }}>
+                          {isStep2 ? '✓' : '⏳'}
+                        </div>
+                        <div style={{ fontSize: 10, fontWeight: isStep2 ? 800 : 600, color: isStep2 ? '#0f172a' : '#94a3b8' }}>{tr(language, 'Confirmed', 'Tasdeeq', 'تصدیق')}</div>
+                        <div style={{ fontSize: '9px', color: isStep2 ? '#059669' : '#94a3b8', marginTop: 2 }}>5m</div>
+                      </div>
+                      {/* Step 3: Dispatched */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: isStep3 ? '#3b82f6' : '#f1f5f9', border: isStep3 ? 'none' : '1px dashed #cbd5e1', color: isStep3 ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, marginBottom: 4 }}>🚚</div>
+                        <div style={{ fontSize: 10, fontWeight: isStep3 ? 800 : 600, color: isStep3 ? '#2563eb' : '#94a3b8' }}>{tr(language, 'On Way', 'Rawaana', 'روانہ')}</div>
+                        <div style={{ fontSize: '9px', color: isStep3 ? '#2563eb' : '#94a3b8', marginTop: 2 }}>35m</div>
+                      </div>
+                      {/* Step 4: Delivered */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: isStep4 ? '#10b981' : '#f1f5f9', border: isStep4 ? 'none' : '1px dashed #cbd5e1', color: isStep4 ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, marginBottom: 4 }}>🏠</div>
+                        <div style={{ fontSize: 10, fontWeight: isStep4 ? 800 : 600, color: isStep4 ? '#059669' : '#94a3b8' }}>{tr(language, 'Delivered', 'Pahoncha', 'پہنچا')}</div>
+                        <div style={{ fontSize: '9px', color: isStep4 ? '#059669' : '#94a3b8', marginTop: 2 }}>47m</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Status Badges */}
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#ecfdf5', color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669', border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0' }}>
                   {order.deliveryMethod === 'pickup' ? '🏪 Store Pickup' : '🚚 Home Delivery'}
                 </span>
-                <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a' }}>
-                  ✅ Placed
+                <span style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0' }}>
+                  ✓ Order Verified
                 </span>
               </div>
 
@@ -8011,7 +8308,7 @@ export default function SahilTraders() {
       const [success, setSuccess] = useState(false);
       const [placedOrder, setPlacedOrder] = useState(null);
       const [waUrlState, setWaUrlState] = useState("");
-      const [location, setLocation] = useState(null);
+      const [location, setLocation] = useState(() => (window.__prefetchedLocation || null));
       const [locLoading, setLocLoading] = useState(false);
       const [locError, setLocError] = useState(null);
       const isUrdu = language === 'ur';
@@ -8029,6 +8326,7 @@ export default function SahilTraders() {
             const lng = pos.coords.longitude;
             const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
             setLocation({ lat, lng, mapUrl });
+            window.__prefetchedLocation = { lat, lng, mapUrl };
             setLocLoading(false);
             triggerHaptic('success');
           },
@@ -8046,7 +8344,11 @@ export default function SahilTraders() {
 
       useEffect(() => {
         if (deliveryMethod === 'home' && !location && !locLoading) {
-          handleGetLocation(true);
+          if (window.__prefetchedLocation) {
+            setLocation(window.__prefetchedLocation);
+          } else {
+            handleGetLocation(true);
+          }
         }
       }, [deliveryMethod]);
 
@@ -8054,7 +8356,7 @@ export default function SahilTraders() {
         document.body.style.overflow = 'hidden';
         return () => { document.body.style.overflow = ''; };
       }, []);
-      const deliveryFee = deliveryMethod === 'pickup' ? 0 : (cartTotal >= 2000 ? 0 : 150);
+      const deliveryFee = deliveryMethod === 'pickup' ? 0 : (cartTotal >= (appSettings.freeDeliveryThreshold || 2000) ? 0 : (appSettings.deliveryFee ?? 150));
       const grandTotal = cartTotal + deliveryFee;
       function validate() {
         const e = {};
@@ -8080,7 +8382,7 @@ export default function SahilTraders() {
         }).join('\n\n');
         const deliveryText = deliveryMethod === 'pickup'
           ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour'
-          : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : 'Rs 150 Delivery Fee'})`;
+          : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : `Rs ${appSettings.deliveryFee ?? 150} Delivery Fee`})`;
         const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
         const locLine = (deliveryMethod === 'home' && location) ? `\n• 📍 Live GPS Map Pin: ${location.mapUrl}` : '';
         const msg = [
@@ -8515,5 +8817,5 @@ export default function SahilTraders() {
             )}
           </div>
         </div>
-      );
-    }
+);
+}

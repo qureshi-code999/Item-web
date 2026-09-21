@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-21T11:57:24.121Z",
+  "updatedAt": "2026-09-21T12:41:50.063Z",
   "total": 1049,
   "settings": {
     "deliveryFee": 99,
@@ -1163,6 +1163,10 @@
     {
       "id": "facewash",
       "name": "Face Wash & Body Washes"
+    },
+    {
+      "id": "groceryandkaryana",
+      "name": "Grocery & Karyana"
     }
   ],
   "products": [

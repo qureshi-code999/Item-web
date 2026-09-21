@@ -1549,6 +1549,9 @@ var DEFAULT_CATEGORIES = [{
 }, {
   id: "facewash",
   name: "Face Wash & Body Washes"
+}, {
+  id: "groceryandkaryana",
+  name: "Grocery & Karyana"
 }];
 function getGlobalCategories(productsList) {
   // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories

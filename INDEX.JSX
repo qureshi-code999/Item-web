@@ -1233,7 +1233,8 @@ function getTranslationValue(dictionary, key) {
       { id: "personalcare", name: "Personal Care" },
       { id: "fragnances",   name: "Fragnances & Roll on" },
       { id: "toothpasteandbrush", name: "Dental Cares" },
-      { id: "facewash",     name: "Face Wash & Body Washes" }
+      { id: "facewash",     name: "Face Wash & Body Washes" },
+      { id: "groceryandkaryana", name: "Grocery & Karyana" }
     ];
     function getGlobalCategories(productsList) {
       // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories

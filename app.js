@@ -7721,7 +7721,7 @@ var PRODUCTS = [{
 }, {
   id: 1076,
   name: "SOAP CAPRI (FAMILY PACK) 135G (YELLOW)",
-  price: 200,
+  price: 130,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps"
 }, {

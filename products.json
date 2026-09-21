@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-21T11:42:12.064Z",
+  "updatedAt": "2026-09-21T11:57:18.732Z",
   "total": 1049,
   "settings": {
     "deliveryFee": 99,
@@ -8158,7 +8158,7 @@
     {
       "id": 1076,
       "name": "SOAP CAPRI (FAMILY PACK) 135G (YELLOW)",
-      "price": 200,
+      "price": 130,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps"
     },

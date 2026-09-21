@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "updatedAt": "2026-09-19T15:06:25.481Z",
+  "updatedAt": "2026-09-19T15:42:45.491Z",
   "total": 1049,
   "settings": {
-    "deliveryFee": 150,
-    "freeDeliveryThreshold": 2000,
+    "deliveryFee": 99,
+    "freeDeliveryThreshold": 1999,
     "minOrderAmount": 0,
     "deliveryTiming": "Delivery Timing: 10:00 AM – 10:00 PM",
     "whatsapp": "923368945775",

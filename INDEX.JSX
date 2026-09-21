@@ -2692,7 +2692,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
             </div>
             <ul className="space-y-1.5 list-disc list-inside text-emerald-900">
               <li>{tr(modalLang, 'Family business serving with trust since 2021', '2021 se khandani aitemad ke sath khidmat', '2021 سے خاندانی اعتماد کے ساتھ خدمت')}</li>
-              <li>{tr(modalLang, `Free delivery on orders above Rs. ${getFreeDeliveryThreshold().toLocaleString()}`, 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')}</li>
+              <li>{tr(modalLang, `Free delivery on orders above Rs. ${getFreeDeliveryThreshold().toLocaleString()}`, `Rs. ${getFreeDeliveryThreshold().toLocaleString()} se ziada par muft delivery`, `Rs. ${getFreeDeliveryThreshold().toLocaleString()} سے زائد پر مفت شپنگ (Free Delivery)`)}</li>
               <li>{tr(modalLang, 'Same-day return & exchange policy', 'Usi din tabdeeli aur wapsi ki sahulat (Same-Day Return)', 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)')}</li>
               <li>{tr(modalLang, 'Direct WhatsApp customer support', 'Direct WhatsApp par fori support', 'براہِ راست واٹس ایپ پر فوری سپورٹ')}</li>
             </ul>
@@ -3924,7 +3924,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
               <span className="text-lg">🚚</span>
               <div>
                 <div className="font-bold text-gray-900">{tr(language, 'Home Delivery', 'Home Delivery', 'ہوم ڈیلیوری')}</div>
-                <div className="text-[10px] text-gray-500">{tr(language, 'Free on Rs 2000+', 'Rs. 2000+ par Muft', 'Rs. 2000+ پر مفت')}</div>
+                <div className="text-[10px] text-gray-500">{tr(language, `Free on Rs ${getFreeDeliveryThreshold().toLocaleString()}+`, `Rs. ${getFreeDeliveryThreshold().toLocaleString()}+ par Muft`, `Rs. ${getFreeDeliveryThreshold().toLocaleString()}+ پر مفت`)}</div>
               </div>
             </div>
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-2.5 flex items-center gap-2">
@@ -8699,7 +8699,7 @@ export default function SahilTraders() {
                       >
                         <div style={{ fontSize: 18 }}>🚚</div>
                         <div style={{ fontSize: 12, fontWeight: 800, color: '#111', marginTop: 4 }}>{tr(language, 'Home Delivery', 'Ghar par Delivery', 'ہوم ڈلیوری')}</div>
-                        <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{cartTotal >= 2000 ? tr(language, 'FREE', 'FREE (Muft)', 'مفت') : 'Rs 150'}</div>
+                        <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{cartTotal >= getFreeDeliveryThreshold() ? tr(language, 'FREE', 'FREE (Muft)', 'مفت') : ('Rs ' + getDeliveryFee())}</div>
                       </div>
                       <div 
                         onClick={() => setDeliveryMethod('pickup')}

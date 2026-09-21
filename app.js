@@ -9398,7 +9398,7 @@ function AboutUsModal({
     className: "flex items-center gap-2 font-bold text-sm text-emerald-900"
   }, /*#__PURE__*/React.createElement("span", null, "\u2728"), /*#__PURE__*/React.createElement("span", null, tr(modalLang, 'Why Customers Trust Us', 'Khandani Aitemad aur Khasiyat', 'ہماری خصوصیات (Why Choose Us)'))), /*#__PURE__*/React.createElement("ul", {
     className: "space-y-1.5 list-disc list-inside text-emerald-900"
-  }, /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Family business serving with trust since 2021', '2021 se khandani aitemad ke sath khidmat', '2021 سے خاندانی اعتماد کے ساتھ خدمت')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, `Free delivery on orders above Rs. ${getFreeDeliveryThreshold().toLocaleString()}`, 'Rs. 2,000 se ziada par muft delivery', 'Rs. 2,000 سے زائد پر مفت شپنگ (Free Delivery)')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Same-day return & exchange policy', 'Usi din tabdeeli aur wapsi ki sahulat (Same-Day Return)', 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Direct WhatsApp customer support', 'Direct WhatsApp par fori support', 'براہِ راست واٹس ایپ پر فوری سپورٹ')))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Family business serving with trust since 2021', '2021 se khandani aitemad ke sath khidmat', '2021 سے خاندانی اعتماد کے ساتھ خدمت')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, `Free delivery on orders above Rs. ${getFreeDeliveryThreshold().toLocaleString()}`, `Rs. ${getFreeDeliveryThreshold().toLocaleString()} se ziada par muft delivery`, `Rs. ${getFreeDeliveryThreshold().toLocaleString()} سے زائد پر مفت شپنگ (Free Delivery)`)), /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Same-day return & exchange policy', 'Usi din tabdeeli aur wapsi ki sahulat (Same-Day Return)', 'اسی دن تبدیلی اور واپسی کی سہولت (Same-day Return)')), /*#__PURE__*/React.createElement("li", null, tr(modalLang, 'Direct WhatsApp customer support', 'Direct WhatsApp par fori support', 'براہِ راست واٹس ایپ پر فوری سپورٹ')))), /*#__PURE__*/React.createElement("div", {
     className: "bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 space-y-3"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between gap-2"
@@ -10539,7 +10539,7 @@ function ProductDetailModal({
     className: "font-bold text-gray-900"
   }, tr(language, 'Home Delivery', 'Home Delivery', 'ہوم ڈیلیوری')), /*#__PURE__*/React.createElement("div", {
     className: "text-[10px] text-gray-500"
-  }, tr(language, 'Free on Rs 2000+', 'Rs. 2000+ par Muft', 'Rs. 2000+ پر مفت')))), /*#__PURE__*/React.createElement("div", {
+  }, tr(language, `Free on Rs ${getFreeDeliveryThreshold().toLocaleString()}+`, `Rs. ${getFreeDeliveryThreshold().toLocaleString()}+ par Muft`, `Rs. ${getFreeDeliveryThreshold().toLocaleString()}+ پر مفت`)))), /*#__PURE__*/React.createElement("div", {
     className: "bg-gray-50 border border-gray-200 rounded-xl p-2.5 flex items-center gap-2"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-lg"
@@ -19119,7 +19119,7 @@ function CheckoutModal({
       color: '#6b7280',
       marginTop: 2
     }
-  }, cartTotal >= 2000 ? tr(language, 'FREE', 'FREE (Muft)', 'مفت') : 'Rs 150')), /*#__PURE__*/React.createElement("div", {
+  }, cartTotal >= getFreeDeliveryThreshold() ? tr(language, 'FREE', 'FREE (Muft)', 'مفت') : 'Rs ' + getDeliveryFee())), /*#__PURE__*/React.createElement("div", {
     onClick: () => setDeliveryMethod('pickup'),
     style: {
       padding: '12px',

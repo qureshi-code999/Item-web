@@ -88,7 +88,9 @@ if (fs.existsSync(imgDir)) {
     if (m) {
       const id = parseInt(m[1], 10);
       const ext = m[2].toLowerCase();
-      imageMap[id] = ext;
+      if (!imageMap[id] || ext === 'webp') {
+        imageMap[id] = ext;
+      }
     }
   });
 }
@@ -112,6 +114,16 @@ if (catMatch) {
     categories = eval('(' + catMatch[1] + ')');
   } catch (e) {}
 }
+
+// Auto-discover: Ensure any category assigned to products is included in categories list
+products.forEach(p => {
+  if (p.categoryId && !categories.some(c => c.id === p.categoryId)) {
+    categories.push({
+      id: p.categoryId,
+      name: p.categoryName || p.categoryId
+    });
+  }
+});
 
 // 5. Extract SETTINGS from settings.json
 let storeSettings = {

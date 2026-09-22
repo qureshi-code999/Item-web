@@ -810,12 +810,15 @@ function getTranslationValue(dictionary, key) {
         printWindow.document.close();
       }
     }
-    function getImgUrl(path) {
-      if (!path) return '';
-      if (path.startsWith('http://') || path.startsWith('https://')) return path;
-      // Serve PNG directly from Vercel CDN (WebP files not yet deployed to Vercel)
-      const pngPath = path.replace(/\.(webp|jpg|jpeg)$/i, '.png');
-      return `https://sahiltraders.vercel.app/${pngPath}`;
+    function getImgUrl(imgPath) {
+      if (!imgPath) return '';
+      if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) return imgPath;
+      // WebP → jsDelivr CDN (GitHub backed, global fast CDN, ~20-40KB per image)
+      // PNG  → Vercel CDN as fallback (300KB+ per image, slower)
+      if (imgPath.match(/\.webp$/i)) {
+        return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/${imgPath}`;
+      }
+      return `https://sahiltraders.vercel.app/${imgPath}`;
     }
     function translate(dictionary, key, params = {}) {
       let value = getTranslationValue(dictionary, key);
@@ -5310,10 +5313,13 @@ export default function SahilTraders() {
           for (const id of currentBatch) {
             if (isCancelled) break;
             const ext = imageMap[id];
-            const url = 'https://sahiltraders.vercel.app/images/' + id + '.' + ext;
+            // WebP → jsDelivr (10x smaller, faster second load), PNG → Vercel
+            const url = (ext === 'webp')
+              ? 'https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/' + id + '.webp'
+              : 'https://sahiltraders.vercel.app/images/' + id + '.' + ext;
             try {
               if ('caches' in window) {
-                const cache = await caches.open('zs-images-cache-v1');
+                const cache = await caches.open('zs-images-cache-v2');
                 const matched = await cache.match(url);
                 if (!matched) {
                   const resp = await fetch(url, { mode: 'cors', cache: 'force-cache' });
@@ -7411,9 +7417,13 @@ export default function SahilTraders() {
                 loading="lazy"
                 decoding="async"
                 onError={(e) => {
-                  const s = e.currentTarget.src;
-                  if (s && s.endsWith('.webp')) {
-                    e.currentTarget.src = s.replace('.webp', '.' + (window.PRODUCT_IMAGE_MAP?.[product.id] || 'png'));
+                  const el = e.currentTarget;
+                  if (el.src && el.src.includes('cdn.jsdelivr.net') && el.src.endsWith('.webp')) {
+                    // WebP from jsDelivr failed → fallback to PNG from Vercel
+                    el.src = `https://sahiltraders.vercel.app/images/${product.id}.png`;
+                  } else if (!el._errored) {
+                    el._errored = true;
+                    el.style.display = 'none';
                   }
                 }}
                 className="w-full h-full object-contain"

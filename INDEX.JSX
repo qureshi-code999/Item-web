@@ -15,7 +15,8 @@ var DEFAULT_STORE_SETTINGS = {
   freeDeliveryThreshold: 2000,
   minOrderAmount: 0,
   deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
-  whatsapp: "923368945775"
+  whatsapp: "923368945775",
+  announcement: ""
 };
 
 if (typeof window !== 'undefined') {
@@ -63,7 +64,8 @@ function getTranslationValue(dictionary, key) {
       } catch (e) {}
     }
     function buildWhatsAppUrl(phoneNumber, message) {
-      const cleanPhone = String(phoneNumber || '923368945775').replace(/[^0-9]/g, '');
+      const activePhone = phoneNumber || (getStoreSettings().whatsapp || '923368945775');
+      const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
       const encodedText = encodeURIComponent(message || '');
       const isMobile = typeof navigator !== 'undefined' && (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()));
       if (isMobile) {
@@ -766,7 +768,7 @@ function getTranslationValue(dictionary, key) {
 
                 canvas.toBlob(async function(blob) {
                   if (!blob) return;
-                  const fileName = 'Sahil_Traders_Invoice_#ST-' + (orderData.id || '') + '.png';
+                  const fileName = 'ZS_Mart_Invoice_#ZS-' + (orderData.id || '') + '.png';
                   const file = new File([blob], fileName, { type: 'image/png' });
 
                   if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -813,6 +815,17 @@ function getTranslationValue(dictionary, key) {
     function getImgUrl(imgPath) {
       if (!imgPath) return '';
       if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) return imgPath;
+      // In native Capacitor APK / WebView, product images are NOT bundled in assets to keep APK size small (~7MB).
+      // They are loaded directly from the high-speed jsDelivr GitHub CDN.
+      const isNativeApp = typeof window !== 'undefined' && (
+        !!window.Capacitor || 
+        window.location.protocol === 'capacitor:' || 
+        window.location.protocol === 'ionic:' ||
+        (typeof navigator !== 'undefined' && /wv|Android.*Version\/[\d.]+/i.test(navigator.userAgent))
+      );
+      if (!isNativeApp && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        return './' + imgPath;
+      }
       // WebP → jsDelivr CDN (GitHub backed, global fast CDN, ~20-40KB per image)
       // PNG  → Vercel CDN as fallback (300KB+ per image, slower)
       if (imgPath.match(/\.webp$/i)) {
@@ -2150,8 +2163,8 @@ function getTranslationValue(dictionary, key) {
       { id: 1084, name: "SOAP DETTOL JUMBO COMPANY RS,150 (GREEN)", price: 139, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
       { id: 1086, name: "SOAP DETTOL MEDIUM COMPANY (COOL) RS,140", price: 129 ,categoryId: "soaps", categoryName: "Local & Imported Soaps" },
       { id: 1087, name: "SOAP DETTOL SMALL COMPANY (COOL)", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1088, name: "SOAP DOVE LARGE WHITE (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1089, name: "SOAP DOVE LARGE PINK (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
+      { id: 1088, name: "SOAP DOVE LARGE WHITE (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 1 },
+      { id: 1089, name: "SOAP DOVE LARGE PINK (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S", priority: 2 },
       { id: 1090, name: "SOAP DOVE SMALL WHITE (IMP)", price: 0, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
       { id: 1091, name: "SOAP DOVE SMALL PINK (IMP)", price: 0, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
       { id: 1092, name: "SOAP FAIZA (NEEM)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
@@ -2385,23 +2398,47 @@ function getTranslationValue(dictionary, key) {
         .slice(0, 18)
         .map(([name, count]) => ({ name, count }));
     }
-    // 🔍 Smart Roman Urdu & Synonym Expansion Dictionary
+    // 🔍 Smart Roman Urdu & Synonym Expansion Dictionary with Typo & Spacing Tolerance
     const ROMAN_URDU_ALIASES = {
       'sabun': 'soap', 'saabun': 'soap', 'soaps': 'soap',
       'tel': 'oil', 'tail': 'oil', 'taila': 'oil',
       'shampo': 'shampoo', 'shampu': 'shampoo',
       'creem': 'cream', 'kareem': 'cream', 'lotian': 'lotion',
-      'pampers': 'baby babycare diaper', 'pamper': 'baby diaper',
-      'paste': 'toothpaste dental', 'tootpaste': 'toothpaste', 'dant': 'dental toothpaste',
-      'blade': 'shaving razor razer', 'razor': 'shaving', 'razer': 'shaving',
+      'pampers': 'baby babycare diaper pamper', 'pamper': 'baby diaper pamper',
+      'paste': 'toothpaste dental tooth', 'tootpaste': 'toothpaste', 'dant': 'dental toothpaste',
+      'blade': 'shaving razor razer blade', 'razor': 'shaving', 'razer': 'shaving',
       'chawal': 'rice grocery', 'daal': 'pulse grocery', 'chini': 'sugar grocery',
-      'patti': 'tea grocery', 'chai': 'tea grocery',
+      'patti': 'tea grocery tapal danedar', 'chai': 'tea grocery tapal',
       'doodh': 'milk', 'khushbu': 'fragrance perfume spray rollon',
       'ittar': 'perfume fragrance', 'batti': 'mosquito coil agarbatti',
-      'machar': 'mosquito insect killer coil', 'tala': 'lock padlock',
+      'machar': 'mosquito insect killer coil king tiger', 'tala': 'lock padlock',
       'sel': 'cell battery', 'bateri': 'battery cell',
-      'kachra': 'garbage duster brush general'
+      'kachra': 'garbage duster brush general',
+      'surfexcel': 'surf excel', 'colgat': 'colgate', 'detol': 'dettol',
+      'daldaghee': 'dalda ghee', 'dalda': 'dalda oil ghee',
+      'lifeboy': 'lifebuoy', 'fairlovely': 'fair lovely', 'harpicpower': 'harpic',
+      'headshoulder': 'head shoulders', 'headandshoulder': 'head shoulders',
+      'safegaurd': 'safeguard', 'sensodine': 'sensodyne', 'vasline': 'vaseline'
     };
+
+    function levenshteinFast(s1, s2) {
+      if (s1 === s2) return 0;
+      if (!s1) return s2 ? s2.length : 0;
+      if (!s2) return s1.length;
+      const len1 = s1.length, len2 = s2.length;
+      if (Math.abs(len1 - len2) > 2) return 99;
+      let d = new Array(len2 + 1);
+      for (let j = 0; j <= len2; j++) d[j] = j;
+      for (let i = 1; i <= len1; i++) {
+        let nextCol = [i];
+        for (let j = 1; j <= len2; j++) {
+          const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
+          nextCol[j] = Math.min(nextCol[j - 1] + 1, d[j] + 1, d[j - 1] + cost);
+        }
+        d = nextCol;
+      }
+      return d[len2];
+    }
 
     function matchProductTokens(product, query) {
       if (!query || !product) return 0;
@@ -2414,15 +2451,6 @@ function getTranslationValue(dictionary, key) {
       const rawTokens = cleanQuery.split(/\s+/).filter(Boolean);
       if (rawTokens.length === 0) return 0;
 
-      // Expand tokens with Roman Urdu synonyms
-      const expandedTokens = [];
-      rawTokens.forEach(t => {
-        expandedTokens.push(t);
-        if (ROMAN_URDU_ALIASES[t]) {
-          ROMAN_URDU_ALIASES[t].split(' ').forEach(syn => expandedTokens.push(syn));
-        }
-      });
-
       const name = (product.name || "").toLowerCase();
       const nameUrdu = (product.nameUrdu || "").toLowerCase();
       const catName = (product.categoryName || "").toLowerCase();
@@ -2432,16 +2460,31 @@ function getTranslationValue(dictionary, key) {
       // Full concatenated searchable text
       const fullText = `${name} ${nameUrdu} ${catName} ${catId} ${brand}`;
       const cleanText = fullText.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
+      const words = cleanText.split(/\s+/).filter(w => w.length >= 3);
 
-      // Match check: Every original search token must match either directly or via its synonym
+      // Character-squash matching (e.g. 'surfexcel' matches 'SURF EXCEL 500G')
+      const squashQuery = cleanQuery.replace(/[^a-z0-9]/g, '');
+      const squashName = name.replace(/[^a-z0-9]/g, '');
+      const squashCat = catName.replace(/[^a-z0-9]/g, '');
+      const isSquashMatch = squashQuery.length >= 4 && (squashName.includes(squashQuery) || squashCat.includes(squashQuery));
+
+      // Match check: Every original token must match directly, via synonym, or via fuzzy typo tolerance
       const allOriginalsMatch = rawTokens.every(t => {
         if (cleanText.includes(t) || fullText.includes(t)) return true;
         // Check if synonym matches
         const syns = (ROMAN_URDU_ALIASES[t] || '').split(' ').filter(Boolean);
-        return syns.some(s => cleanText.includes(s) || fullText.includes(s));
+        if (syns.some(s => cleanText.includes(s) || fullText.includes(s))) return true;
+        // If squashed full query matches
+        if (isSquashMatch) return true;
+        // Fuzzy Levenshtein match for typos (e.g. 'colgat' -> 'colgate', 'detol' -> 'dettol')
+        if (t.length >= 4) {
+          const maxDist = t.length >= 6 ? 2 : 1;
+          if (words.some(w => Math.abs(w.length - t.length) <= 1 && levenshteinFast(w, t) <= maxDist)) return true;
+        }
+        return false;
       });
 
-      if (!allOriginalsMatch) return 0;
+      if (!allOriginalsMatch && !isSquashMatch) return 0;
 
       // Calculate relevance score
       let score = 10;
@@ -2451,8 +2494,10 @@ function getTranslationValue(dictionary, key) {
         score += 80;  // Starts with full query
       } else if (name.includes(cleanQuery)) {
         score += 60;  // Contains full query consecutively
+      } else if (isSquashMatch) {
+        score += 75;  // Spacing squash match
       } else {
-        score += 40;  // All tokens present (out-of-order / partial word)
+        score += 40;  // All tokens present
       }
 
       // Bonus if matched inside product name specifically
@@ -2741,7 +2786,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
           <a
-            href={`https://api.whatsapp.com/send?phone=${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}&text=${encodeURIComponent(tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`}
+            href={`https://api.whatsapp.com/send?phone=${getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}&text=${encodeURIComponent(tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -2774,7 +2819,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
         onClick={e => e.stopPropagation()}
       >
         {/* Header Banner */}
-        <div className="relative bg-gradient-to-r from-emerald-900 via-teal-900 to-gray-900 text-white p-6 pb-7 text-center">
+        <div className="relative bg-gradient-to-r from-emerald-900 via-teal-900 to-gray-900 text-white p-6 pb-7 text-center" style={{ background: 'linear-gradient(135deg, #064e3b 0%, #134e4a 50%, #111827 100%)', color: '#ffffff' }}>
           <button 
             onClick={onClose}
             className="absolute top-4 right-4 text-gray-300 hover:text-white w-9 h-9 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
@@ -2782,10 +2827,10 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/15 border border-white/20 p-2 shadow-lg flex items-center justify-center">
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/15 border border-white/20 p-2 shadow-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.15)', borderColor: 'rgba(255,255,255,0.2)' }}>
             <svg className="w-8 h-8 text-emerald-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black tracking-wider uppercase text-emerald-300 font-poppins">
+          <h2 className="text-xl sm:text-2xl font-black tracking-wider uppercase text-emerald-300 font-poppins" style={{ color: '#6ee7b7' }}>
             {tr(language, 'Return & Exchange Policy', 'Wapsi aur Tabdeeli ki Policy', 'واپسی اور تبدیلی کی پالیسی')}
           </h2>
           <p className="text-xs text-emerald-100/90 font-semibold mt-1 tracking-wide">
@@ -2902,7 +2947,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shrink-0">
           <a
-            href={`https://api.whatsapp.com/send?phone=${(window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}&text=${encodeURIComponent(tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`}
+            href={`https://api.whatsapp.com/send?phone=${getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}&text=${encodeURIComponent(tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
@@ -2981,11 +3026,27 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
 
 function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   if (!open) return null;
+  const [orderMode, setOrderMode] = useState('photo'); // 'photo' | 'voice'
   const [photo, setPhoto] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [name, setName] = useState(() => {
+    try {
+      const s = localStorage.getItem('zs_mart_customer_profile') || localStorage.getItem('sahil_traders_customer_profile');
+      return s ? (JSON.parse(s).name || '') : '';
+    } catch(e) { return ''; }
+  });
+  const [phone, setPhone] = useState(() => {
+    try {
+      const s = localStorage.getItem('zs_mart_customer_profile') || localStorage.getItem('sahil_traders_customer_profile');
+      return s ? (JSON.parse(s).phone || '') : '';
+    } catch(e) { return ''; }
+  });
+  const [address, setAddress] = useState(() => {
+    try {
+      const s = localStorage.getItem('zs_mart_customer_profile') || localStorage.getItem('sahil_traders_customer_profile');
+      return s ? (JSON.parse(s).address || '') : '';
+    } catch(e) { return ''; }
+  });
   const [deliveryMethod, setDeliveryMethod] = useState("home");
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -3056,7 +3117,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       alert(tr(language, 'Please enter your WhatsApp phone number.', 'Apna WhatsApp number darj karein.', 'براہ کرم اپنا واٹس ایپ نمبر درج کریں۔'));
       return;
     }
-    if (!photo) {
+    if (orderMode === 'photo' && !photo) {
       alert(tr(language, 'Please upload or capture a photo of your slip.', 'Parchi ki photo upload ya capture karein.', 'براہ کرم پرچی کی تصویر لیں۔'));
       return;
     }
@@ -3096,9 +3157,18 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
     if (typeof saveOrderHistory === 'function') {
       saveOrderHistory(orderRecord);
     }
+    try {
+      localStorage.setItem('zs_mart_customer_profile', JSON.stringify({
+        name: name.trim(),
+        phone: phone.trim(),
+        address: address.trim()
+      }));
+    } catch(e) {}
 
     const locText = (deliveryMethod === 'home' && location) ? `\n📍 *Live GPS Map Pin:* ${location.mapUrl}` : '';
-    const waText = `*Salam ZS Mart!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n_(Parchi ki photo chat mein send ki ja rahi hai)_`;
+    const orderTitle = orderMode === 'voice' ? '🎙️ *Salam ZS Mart! Voice Note Order*' : '*Salam ZS Mart!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*';
+    const attachNote = orderMode === 'voice' ? '_(Voice note audio is WhatsApp chat mein send ki ja rahi hai)_' : '_(Parchi ki photo chat mein send ki ja rahi hai)_';
+    const waText = `${orderTitle}\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n${attachNote}`;
 
     // Try direct native Web Share with photo file (opens WhatsApp with actual photo attached on mobile)
     let sharedWithFile = false;
@@ -3116,7 +3186,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
     }
 
     if (!sharedWithFile) {
-      const waUrl = buildWhatsAppUrl('923368945775', waText);
+      const waUrl = buildWhatsAppUrl(getStoreSettings().whatsapp, waText);
       window.open(waUrl, '_blank');
     }
 
@@ -3126,14 +3196,14 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   const handleOpenWhatsAppDirect = () => {
     const locText = (deliveryMethod === 'home' && location) ? `\n📍 *Live GPS Map Pin:* ${location.mapUrl}` : '';
     const waText = `*Salam ZS Mart!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}`;
-    const waUrl = buildWhatsAppUrl('923368945775', waText);
+    const waUrl = buildWhatsAppUrl(getStoreSettings().whatsapp, waText);
     window.open(waUrl, '_blank');
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 shadow-2xl animate-fade-in" onClick={onClose}>
       <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col" style={{ maxHeight: '92vh' }} onClick={e => e.stopPropagation()}>
-        <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-700 text-white">
+        <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-700 text-white" style={{ background: 'linear-gradient(135deg, #059669 0%, #0f766e 100%)', color: '#ffffff' }}>
           <div className="flex items-center gap-2">
             <span className="text-xl">📸</span>
             <div>
@@ -3207,6 +3277,53 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3.5">
+              {/* Order Mode Switch: Photo vs Voice Note */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: 3, background: '#f1f5f9', borderRadius: 14 }}>
+                <button
+                  type="button"
+                  onClick={() => { triggerHaptic('light'); setOrderMode('photo'); }}
+                  style={{
+                    padding: '8px 10px', borderRadius: 11, border: 'none', cursor: 'pointer',
+                    background: orderMode === 'photo' ? '#ffffff' : 'transparent',
+                    color: orderMode === 'photo' ? '#0f172a' : '#64748b',
+                    fontWeight: 800, fontSize: 12,
+                    boxShadow: orderMode === 'photo' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                  }}
+                >
+                  <span>📸</span>
+                  <span>{tr(language, 'Photo Slip', 'Photo Parchi', 'پرچی فوٹو')}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { triggerHaptic('light'); setOrderMode('voice'); }}
+                  style={{
+                    padding: '8px 10px', borderRadius: 11, border: 'none', cursor: 'pointer',
+                    background: orderMode === 'voice' ? '#ffffff' : 'transparent',
+                    color: orderMode === 'voice' ? '#059669' : '#64748b',
+                    fontWeight: 800, fontSize: 12,
+                    boxShadow: orderMode === 'voice' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+                  }}
+                >
+                  <span>🎙️</span>
+                  <span>{tr(language, 'Voice Note', 'Voice Order', 'وائس آرڈر')}</span>
+                </button>
+              </div>
+
+              {orderMode === 'voice' ? (
+                <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)', border: '1.5px solid #a7f3d0', borderRadius: 16, padding: '16px', textAlign: 'center' }}>
+                  <div style={{ width: 50, height: 50, borderRadius: '50%', background: '#10b981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 10px', boxShadow: '0 4px 14px rgba(16,185,129,0.35)' }}>
+                    🎙️
+                  </div>
+                  <h4 style={{ fontSize: 14, fontWeight: 900, color: '#065f46', margin: '0 0 4px' }}>
+                    {tr(language, 'Voice Note Order on WhatsApp', 'WhatsApp par Bol Kar Order Karein', 'واٹس ایپ پر بول کر آرڈر کریں')}
+                  </h4>
+                  <p style={{ fontSize: 11.5, color: '#047857', lineHeight: 1.4, margin: '0 0 10px' }}>
+                    {tr(language, 'Enter your details below and click submit. WhatsApp will open directly to send your voice recording.', 'Neeche apna naam aur pata likhein aur submit dabayein. WhatsApp par voice note record karke foran bhejein.', 'نیچے تفصیلات درج کریں اور بٹن دبائیں۔ واٹس ایپ پر وائس میسج بھیجیں۔')}
+                  </p>
+                </div>
+              ) : (
               <div>
                 <label className="block text-xs font-extrabold text-gray-800 mb-1.5 uppercase tracking-wider">
                   {tr(language, '1. Take or Upload Photo of Slip *', '1. Parchi ki Photo Khainchein ya Select Karein *', '1. پرچی کی تصویر لیں یا اپلوڈ کریں *')}
@@ -3269,6 +3386,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
                   </div>
                 )}
               </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
@@ -3583,7 +3701,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${((pricing.savings * modalQty) + bulkPricing.extraSavings).toLocaleString()})`;
     }
     const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
-    window.open(`https://api.whatsapp.com/send?phone=923368945775&text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(buildWhatsAppUrl(getStoreSettings().whatsapp, msg), '_blank');
   };
   return (
     <div 
@@ -4387,15 +4505,16 @@ class RootErrorBoundary extends React.Component {
 
 export default function SahilTraders() {
   const [productsList, setProductsList] = useState(() => {
+    const winProds = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0) ? window.PRODUCTS : null;
+    if (winProds && winProds.length > 0) return winProds;
     try {
       const cached = localStorage.getItem("zs_groceries_products_cache");
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length >= PRODUCTS.length) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch (e) {}
-    const winProds = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0) ? window.PRODUCTS : null;
-    return (winProds && winProds.length >= PRODUCTS.length) ? winProds : PRODUCTS;
+    return PRODUCTS;
   });
   const products = productsList;
   const [isSyncingProducts, setIsSyncingProducts] = useState(false);
@@ -4429,7 +4548,7 @@ export default function SahilTraders() {
       // Persistent Cart State via localStorage (reloads/refreshes won't lose items!)
       const [cart, setCart] = useState(() => {
         try {
-          const saved = localStorage.getItem("sahil_traders_cart");
+          const saved = localStorage.getItem("zs_mart_cart") || localStorage.getItem("sahil_traders_cart");
           return saved ? JSON.parse(saved) : [];
         } catch (e) {
           return [];
@@ -4446,7 +4565,7 @@ export default function SahilTraders() {
       const [parchiModalOpen, setParchiModalOpen] = useState(false);
       const [wishlist, setWishlist] = useState(() => {
         try {
-          const saved = localStorage.getItem("sahil_traders_wishlist");
+          const saved = localStorage.getItem("zs_mart_wishlist") || localStorage.getItem("sahil_traders_wishlist");
           return saved ? JSON.parse(saved) : [];
         } catch (e) {
           return [];
@@ -4454,7 +4573,7 @@ export default function SahilTraders() {
       });
       useEffect(() => {
         try {
-          localStorage.setItem("sahil_traders_wishlist", JSON.stringify(wishlist));
+          localStorage.setItem("zs_mart_wishlist", JSON.stringify(wishlist));
         } catch (e) {}
       }, [wishlist]);
       function toggleWishlist(product) {
@@ -4470,7 +4589,7 @@ export default function SahilTraders() {
       }
       const [orderHistory, setOrderHistory] = useState(() => {
         try {
-          const saved = localStorage.getItem("sahil_traders_order_history");
+          const saved = localStorage.getItem("zs_mart_order_history") || localStorage.getItem("sahil_traders_order_history");
           return saved ? JSON.parse(saved) : [];
         } catch (e) {
           return [];
@@ -4492,7 +4611,7 @@ export default function SahilTraders() {
       const lastSearchActiveRef = useRef(false);
       useEffect(() => {
         try {
-          localStorage.setItem("sahil_traders_cart", JSON.stringify(cart));
+          localStorage.setItem("zs_mart_cart", JSON.stringify(cart));
         } catch (e) {}
       }, [cart]);
 
@@ -4503,30 +4622,44 @@ export default function SahilTraders() {
           const cached = localStorage.getItem('zs_mart_settings');
           if (cached) return JSON.parse(cached);
         } catch(e) {}
-        return { deliveryFee: 150, freeDeliveryThreshold: 2000 };
+        return {
+          deliveryFee: 150,
+          freeDeliveryThreshold: 2000,
+          deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
+          whatsapp: "923368945775",
+          announcement: ""
+        };
       });
       useEffect(() => {
-        // Fetch fresh settings from local server or bundled settings.json
+        // Fetch fresh settings from local server or bundled settings.json or remote fallback
+        const cacheBuster = Date.now();
         const settingsUrls = [
-          'settings.json',
-          '/settings.json',
-          'http://localhost:8888/api/settings'
+          `settings.json?v=${cacheBuster}`,
+          `/settings.json?v=${cacheBuster}`,
+          `https://raw.githubusercontent.com/qureshi-code999/Item-web/main/settings.json?v=${cacheBuster}`,
+          `https://sahiltraders.vercel.app/settings.json?v=${cacheBuster}`,
+          `http://localhost:8888/api/settings`
         ];
         (async () => {
           for (const url of settingsUrls) {
             try {
               const controller = new AbortController();
-              const tid = setTimeout(() => controller.abort(), 2000);
+              const tid = setTimeout(() => controller.abort(), 2500);
               const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
               clearTimeout(tid);
               if (res.ok) {
                 const data = await res.json();
+                const raw = data.settings || data;
                 const s = {
-                  deliveryFee: Number(data.deliveryFee ?? data.settings?.deliveryFee ?? 150),
-                  freeDeliveryThreshold: Number(data.freeDeliveryThreshold ?? data.settings?.freeDeliveryThreshold ?? 2000)
+                  deliveryFee: Number(raw.deliveryFee ?? 150),
+                  freeDeliveryThreshold: Number(raw.freeDeliveryThreshold ?? 2000),
+                  deliveryTiming: String(raw.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
+                  whatsapp: String(raw.whatsapp || '923368945775'),
+                  announcement: String(raw.announcement || '')
                 };
                 if (s.deliveryFee >= 0 && s.freeDeliveryThreshold > 0) {
-                  if (typeof window !== "undefined") window.APP_SETTINGS = s; setAppSettings(s);
+                  if (typeof window !== "undefined") window.APP_SETTINGS = s;
+                  setAppSettings(s);
                   try { localStorage.setItem('zs_mart_settings', JSON.stringify(s)); } catch(e) {}
                   break;
                 }
@@ -4598,7 +4731,8 @@ export default function SahilTraders() {
                 deliveryFee: Number(loadedData.settings.deliveryFee ?? 150),
                 freeDeliveryThreshold: Number(loadedData.settings.freeDeliveryThreshold ?? 2000),
                 deliveryTiming: String(loadedData.settings.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
-                whatsapp: String(loadedData.settings.whatsapp || '923368945775')
+                whatsapp: String(loadedData.settings.whatsapp || '923368945775'),
+                announcement: String(loadedData.settings.announcement || '')
               };
               if (typeof window !== "undefined") window.APP_SETTINGS = s; setAppSettings(s);
               try { localStorage.setItem('zs_mart_settings', JSON.stringify(s)); } catch(e) {}
@@ -4691,7 +4825,7 @@ export default function SahilTraders() {
           if (!nextCart || nextCart.length === 0) {
             localStorage.removeItem("sahil_traders_cart");
           } else {
-            localStorage.setItem("sahil_traders_cart", JSON.stringify(nextCart));
+            localStorage.setItem("zs_mart_cart", JSON.stringify(nextCart));
           }
         } catch (e) {}
       }
@@ -4802,7 +4936,7 @@ export default function SahilTraders() {
           }
         };
       }, [
-        exitModalOpen, selectedProduct, checkoutOpen, cartOpen,
+        exitModalOpen, sortModalOpen, filterMenuOpen, selectedProduct, checkoutOpen, cartOpen,
         parchiModalOpen, orderHistoryOpen, wishlistOpen,
         mobileMenuOpen, accountDrawerOpen, activeTab,
         searchTerm, selectedCategory, activeCategory, language
@@ -4886,7 +5020,9 @@ export default function SahilTraders() {
             return;
           }
           pushCurrentAppState(false, true);
-          setExitModalOpen(true);
+          if (typeof window.handleAppBackButton === 'function') {
+            window.handleAppBackButton();
+          }
         };
         const handlePageShow = () => {
           allowRealBackRef.current = false;
@@ -5057,7 +5193,7 @@ export default function SahilTraders() {
         setOrderHistory(prev => {
           const next = [order, ...prev].slice(0, 50);
           try {
-            localStorage.setItem("sahil_traders_order_history", JSON.stringify(next));
+            localStorage.setItem("zs_mart_order_history", JSON.stringify(next));
           } catch (e) {}
           return next;
         });
@@ -5198,13 +5334,8 @@ export default function SahilTraders() {
         };
       }, [showSplash]);
 
-      // 📢 Disclaimer Modal — appears with smooth animation ~2s after app opens
-      useEffect(() => {
-        const timer = setTimeout(() => {
-          setWelcomeOpen(true);
-        }, 2200);
-        return () => clearTimeout(timer);
-      }, []);
+      // 📢 Disclaimer Modal — auto-popup disabled so customer can start shopping immediately without interruptions
+      // (Accessible anytime from Me / Account tab or Footer)
 
       // 📍 Prefetch GPS location on app start so user does not have to wait or press anything during checkout
       useEffect(() => {
@@ -5562,10 +5693,18 @@ export default function SahilTraders() {
                 <div className="max-w-7xl mx-auto flex items-center justify-center text-center">
                   <span style={{ color: '#f59e0b', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                     <span>⏰</span>
-                    <span>{tr(language, 'Delivery Timing: 10:00 AM – 10:00 PM', 'Delivery Timing: 10:00 AM – 10:00 PM', 'ڈیلیوری کے اوقات: صبح 10:00 تا رات 10:00')}</span>
+                    <span>{getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 10:00 AM – 10:00 PM', 'Delivery Timing: 10:00 AM – 10:00 PM', 'ڈیلیوری کے اوقات: صبح 10:00 تا رات 10:00')}</span>
                   </span>
                 </div>
               </div>
+
+              {/* ━━━ STORE ANNOUNCEMENT STRIP (If set by Admin) ━━━ */}
+              {Boolean(getStoreSettings().announcement) && (
+                <div style={{ background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)', color: '#09131e', fontSize: '11.5px', fontWeight: 800, padding: '5px 12px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', borderBottom: '1px solid rgba(0,0,0,0.15)', letterSpacing: '0.01em' }}>
+                  <span>📢</span>
+                  <span>{getStoreSettings().announcement}</span>
+                </div>
+              )}
 
               {/* ━━━ PREMIUM MAIN HEADER (Unified 1-Row Header with Animated Expandable Search) ━━━ */}
               <header className="sticky top-0 z-30 shadow-md" style={{ background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)', borderBottom: '1px solid rgba(16,185,129,0.22)', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
@@ -6163,7 +6302,7 @@ export default function SahilTraders() {
 
                   {/* WhatsApp Support */}
                   <a
-                    href="https://api.whatsapp.com/send?phone=923368945775"
+                    href={`https://api.whatsapp.com/send?phone=${getStoreSettings().whatsapp || '923368945775'}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)', borderRadius: '18px', padding: '14px 16px', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', cursor: 'pointer', textDecoration: 'none', boxShadow: '0 4px 14px rgba(37,211,102,0.3)' }}
@@ -6175,7 +6314,7 @@ export default function SahilTraders() {
                       <div>
                         <div style={{ fontSize: '13.5px', fontWeight: 900 }}>WhatsApp Helpline &amp; Orders</div>
                         <div style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.9)', marginTop: '2px' }}>
-                          0336-8945775 • {tr(language, 'Direct Chat with Store', 'Store se Direct Rabta', 'دکان سے براہ راست رابطہ')}
+                          {(getStoreSettings().whatsapp || '0336-8945775')} • {tr(language, 'Direct Chat with Store', 'Store se Direct Rabta', 'دکان سے براہ راست رابطہ')}
                         </div>
                       </div>
                     </div>
@@ -6363,6 +6502,76 @@ export default function SahilTraders() {
                     </span>
                   </div>
                 </div>
+                {/* 🏷️ Top Sticky Horizontal Category Chips (1-Tap Switcher) */}
+                <div style={{
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 25,
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  padding: '7px 0',
+                  marginBottom: 10,
+                  borderBottom: '1px solid #e2e8f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  overflowX: 'auto',
+                  WebkitOverflowScrolling: 'touch'
+                }} className="no-scrollbar">
+                  <button
+                    type="button"
+                    onClick={() => { triggerHaptic('light'); setSelectedCategory(null); setSearchTerm(''); }}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: 20,
+                      fontSize: 11,
+                      fontWeight: 800,
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
+                      border: !selectedCategory ? '1px solid #059669' : '1px solid #cbd5e1',
+                      background: !selectedCategory ? '#059669' : '#ffffff',
+                      color: !selectedCategory ? '#ffffff' : '#334155',
+                      boxShadow: !selectedCategory ? '0 2px 6px rgba(5,150,105,0.3)' : 'none',
+                      transition: 'all 0.15s',
+                      flexShrink: 0
+                    }}
+                  >
+                    {language === 'ur' ? 'سب سامان' : '🛍️ All'}
+                  </button>
+                  {categoriesList.map(cat => {
+                    const isCatActive = selectedCategory === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic('light');
+                          setSelectedCategory(cat.id);
+                          setSearchTerm('');
+                          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                        }}
+                        style={{
+                          padding: '5px 12px',
+                          borderRadius: 20,
+                          fontSize: 11,
+                          fontWeight: isCatActive ? 800 : 700,
+                          whiteSpace: 'nowrap',
+                          cursor: 'pointer',
+                          border: isCatActive ? '1px solid #059669' : '1px solid #e2e8f0',
+                          background: isCatActive ? '#059669' : '#f8fafc',
+                          color: isCatActive ? '#ffffff' : '#334155',
+                          boxShadow: isCatActive ? '0 2px 6px rgba(5,150,105,0.3)' : 'none',
+                          transition: 'all 0.15s',
+                          flexShrink: 0
+                        }}
+                      >
+                        {langData.categories?.[cat.id] || cat.name}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {/* Controls Bar: Compact Filter & Sort */}
                 <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap' }}>
                   {/* Modern Compact Sort Button */}
@@ -6466,7 +6675,7 @@ export default function SahilTraders() {
               <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(0,0,0,0.12)' }}>
                 <div className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs">
                   <span className="text-amber-600">⏰</span>
-                  <span>{tr(language, 'Delivery Timing: 10:00 AM – 9:00 PM (7 Days a Week, No Holiday)', 'Delivery Timing: Subah 10:00 AM se Raat 9:00 PM tak (7 Din Khula, Koi Chutti Nahi)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 9:00 بجے تک (7 دن کھلا، کوئی چھٹی نہیں)')}</span>
+                  <span>{getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 10:00 AM – 9:00 PM (7 Days a Week, No Holiday)', 'Delivery Timing: Subah 10:00 AM se Raat 9:00 PM tak (7 Din Khula, Koi Chutti Nahi)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 9:00 بجے تک (7 دن کھلا، کوئی چھٹی نہیں)')}</span>
                 </div>
                 <div>
                   <button
@@ -6809,14 +7018,14 @@ export default function SahilTraders() {
                     {/* Drawer Footer - WhatsApp & Timing */}
                     <div className="pt-4 border-t border-gray-100 mt-4 space-y-3">
                       <a
-                        href="https://api.whatsapp.com/send?phone=923368945775"
+                        href={`https://api.whatsapp.com/send?phone=${getStoreSettings().whatsapp || '923368945775'}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
                         style={{ background: '#25D366' }}
                       >
                         <svg className="w-4 h-4 text-white fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        <span>{tr(language, 'WhatsApp (+92 336 8945775)', 'WhatsApp (+92 336 8945775)', '\u0648\u0627\u067c\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0631\u0627\u0628\u0637\u06c1 \u06a9\u0631\u06cc\u06ba')}</span>
+                        <span>{tr(language, `WhatsApp (${getStoreSettings().whatsapp || '+92 336 8945775'})`, `WhatsApp (${getStoreSettings().whatsapp || '+92 336 8945775'})`, '\u0648\u0627\u067c\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0631\u0627\u0628\u0637\u06c1 \u06a9\u0631\u06cc\u06ba')}</span>
                       </a>
                       <div className="text-center text-[10px] text-gray-500 space-y-0.5">
                         <p className="font-semibold text-gray-700">{tr(language, 'Open 7 Days a Week (No Holiday)', '7 Din Khula (Koi Chutti Nahi)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 9:00 \u0628\u062c\u06d2 (7 \u062f\u0646 \u06a9\u06be\u0644\u0627\u060c \u06a9\u0648\u0626\u06cc \u0686DA\u0679\u06cc \u0646\u06c1\u06cc\u06ba)')}</p>
@@ -6979,6 +7188,51 @@ export default function SahilTraders() {
                   <span style={{ fontSize: '10px', fontWeight: 800, color: activeTab === 'account' ? '#059669' : '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Me', 'Mein', 'میں')}</span>
                 </button>
               </nav>
+
+              {/* ══════════ FLOATING LIVE CART SUMMARY BAR ══════════ */}
+              {cart.length > 0 && !cartOpen && !checkoutOpen && (
+                <div
+                  onClick={() => { triggerHaptic('medium'); setCartOpen(true); }}
+                  className="floating-cart-pulse"
+                  style={{
+                    position: 'fixed',
+                    bottom: 'calc(66px + env(safe-area-inset-bottom, 0px))',
+                    left: 12,
+                    right: 12,
+                    maxWidth: 480,
+                    margin: '0 auto',
+                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                    borderRadius: 16,
+                    padding: '10px 14px',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 8px 24px rgba(5, 150, 105, 0.45)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    zIndex: 42,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ background: 'rgba(255,255,255,0.2)', width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+                      🛒
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>
+                        {cart.reduce((s,i)=>s+i.qty,0)} {translate(langData, "itemsLabel")}
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 900, fontFamily: "'Poppins', sans-serif" }}>
+                        Rs. {cartTotal.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#ffffff', color: '#047857', padding: '6px 12px', borderRadius: 10, fontSize: 11.5, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>
+                    <span>{tr(language, 'View Cart', 'Cart Dekhein', 'کارٹ دیکھیں')}</span>
+                    <span style={{ fontSize: 13 }}>➔</span>
+                  </div>
+                </div>
+              )}
 
               {/* ══════════ FLOATING BACK TOAST NOTIFICATION ══════════ */}
               {backToastVisible && (
@@ -7279,7 +7533,14 @@ export default function SahilTraders() {
                                     src={getImgUrl(`images/${item.id}.${ext}`)}
                                     alt=""
                                     loading="lazy"
-                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                    onError={(e) => {
+                                      if (!e.target.dataset.triedCdn) {
+                                        e.target.dataset.triedCdn = 'true';
+                                        e.target.src = `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${item.id}.${ext}`;
+                                      } else {
+                                        e.target.style.display = 'none';
+                                      }
+                                    }}
                                   />
                                 )}
                               </div>
@@ -7546,7 +7807,7 @@ export default function SahilTraders() {
                 </svg>
                 <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#000000', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "cartTitle")}</span>
                 {cart.length > 0 && (
-                  <span style={{ background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 20, padding: '1px 10px', fontSize: 11, fontWeight: 700, color: '#000000' }}>
+                  <span style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 20, padding: '2px 10px', fontSize: 11, fontWeight: 800, color: '#047857' }}>
                     {cart.reduce((s,i)=>s+i.qty,0)} {translate(langData, "itemsLabel")}
                   </span>
                 )}
@@ -7582,7 +7843,7 @@ export default function SahilTraders() {
                   </svg>
                   <p style={{ fontSize: 14, fontWeight: 600 }}>{translate(langData, "cartEmpty")}</p>
                   <p style={{ fontSize: 12, marginTop: 6, color: '#888888' }}>{translate(langData, "noProducts")}</p>
-                  <button onClick={onClose} style={{ marginTop: 20, background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 12, padding: '10px 24px', color: '#000000', fontSize: 13, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{translate(langData, "continueShopping")}</button>
+                  <button onClick={onClose} style={{ marginTop: 20, background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', border: 'none', borderRadius: 12, padding: '12px 24px', color: '#ffffff', fontSize: 13, fontWeight: 800, cursor: 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase', boxShadow: '0 4px 14px rgba(5,150,105,0.3)' }}>{translate(langData, "continueShopping")}</button>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -7590,7 +7851,7 @@ export default function SahilTraders() {
                     const pricing = getProductPricing(product);
                     const bulk = calculateBulkPricing(product.price, qty);
                     return (
-                      <div key={`${product.id}-${variant || ''}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: 'rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 14 }}>
+                      <div key={`${product.id}-${variant || ''}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: '#ffffff', border: '1.5px solid #e2e8f0', borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
                         {/* Product Thumbnail - Clickable */}
                         <div
                           onClick={() => onSelectProduct && onSelectProduct(product)}
@@ -7661,7 +7922,7 @@ export default function SahilTraders() {
                         </div>
                         {/* Smart Qty Controls */}
                         <div style={{ flexShrink: 0 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.12)', borderRadius: 10, padding: '4px 6px', border: '1px solid rgba(0,0,0,0.12)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#f8fafc', borderRadius: 10, padding: '4px 6px', border: '1px solid #cbd5e1' }}>
                             {/* Left: Trash if qty=1, Minus if qty>1 */}
                             {qty === 1 ? (
                               <button
@@ -7824,7 +8085,7 @@ export default function SahilTraders() {
           return;
         }
         triggerHaptic('light');
-        const url = "https://api.whatsapp.com/send?phone=923368945775&text=" + encodeURIComponent("Hello ZS Mart, I want to inquire about products / order.");
+        const url = buildWhatsAppUrl(getStoreSettings().whatsapp, "Hello ZS Mart, I want to inquire about products / order.");
         window.open(url, '_blank');
       };
 
@@ -7933,7 +8194,7 @@ export default function SahilTraders() {
               
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <a
-                  href={"https://api.whatsapp.com/send?phone=923368945775&text=" + encodeURIComponent("Hello ZS Mart, I have a question regarding Order #" + order.id)}
+                  href={buildWhatsAppUrl(getStoreSettings().whatsapp, "Hello ZS Mart, I have a question regarding Order #" + order.id)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ height: 34, padding: '0 10px', borderRadius: 10, background: '#25d366', display: 'flex', alignItems: 'center', gap: 5, color: '#ffffff', fontSize: 11.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 2px 6px rgba(37,211,102,0.3)' }}
@@ -8189,7 +8450,7 @@ export default function SahilTraders() {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <a
-                  href="https://api.whatsapp.com/send?phone=923368945775&text=Hello%20ZS%20Mart%2C%20I%20need%20assistance%20with%20my%20order."
+                  href={buildWhatsAppUrl(getStoreSettings().whatsapp, "Hello ZS Mart, I need assistance with my order.")}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ height: 34, padding: '0 10px', borderRadius: 10, background: '#25d366', display: 'flex', alignItems: 'center', gap: 5, color: '#ffffff', fontSize: 11.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 2px 6px rgba(37,211,102,0.3)' }}
@@ -8352,9 +8613,24 @@ export default function SahilTraders() {
     }
 
     function CheckoutModal({ cart, cartTotal, langData, language, saveOrderHistory, clearCart, onClose, onBack }) {
-      const [name, setName] = useState("");
-      const [phone, setPhone] = useState("");
-      const [address, setAddress] = useState("");
+      const [name, setName] = useState(() => {
+        try {
+          const s = localStorage.getItem('zs_mart_customer_profile') || localStorage.getItem('sahil_traders_customer_profile');
+          return s ? (JSON.parse(s).name || '') : '';
+        } catch(e) { return ''; }
+      });
+      const [phone, setPhone] = useState(() => {
+        try {
+          const s = localStorage.getItem('zs_mart_customer_profile') || localStorage.getItem('sahil_traders_customer_profile');
+          return s ? (JSON.parse(s).phone || '') : '';
+        } catch(e) { return ''; }
+      });
+      const [address, setAddress] = useState(() => {
+        try {
+          const s = localStorage.getItem('zs_mart_customer_profile') || localStorage.getItem('sahil_traders_customer_profile');
+          return s ? (JSON.parse(s).address || '') : '';
+        } catch(e) { return ''; }
+      });
       const [deliveryMethod, setDeliveryMethod] = useState("home");
       const [errors, setErrors] = useState({});
       const [placing, setPlacing] = useState(false);
@@ -8461,7 +8737,7 @@ export default function SahilTraders() {
           '-----------------------------------------',
           `📅 Date: ${new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`
         ].join('\n');
-        const waUrl = buildWhatsAppUrl('923368945775', msg);
+        const waUrl = buildWhatsAppUrl(getStoreSettings().whatsapp, msg);
         const orderDate = new Date();
         const orderRecord = {
           id: `${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${String(orderDate.getHours()).padStart(2, '0')}${String(orderDate.getMinutes()).padStart(2, '0')}${String(orderDate.getSeconds()).padStart(2, '0')}`,
@@ -8494,6 +8770,13 @@ export default function SahilTraders() {
         if (typeof saveOrderHistory === 'function') {
           saveOrderHistory(orderRecord);
         }
+        try {
+          localStorage.setItem('zs_mart_customer_profile', JSON.stringify({
+            name: name.trim(),
+            phone: phone.trim(),
+            address: address.trim()
+          }));
+        } catch(e) {}
         if (typeof clearCart === 'function') {
           clearCart();
         }

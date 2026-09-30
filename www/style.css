@@ -734,3 +734,22 @@ img[loading="lazy"] {
   animation: skeletonShimmer 1.5s ease-in-out infinite;
   border-radius: 8px;
 }
+
+/* ── No-Scrollbar Utility for Horizontal Chip Sliders ── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── Floating Cart Bar Float Animation ── */
+@keyframes floatCartPulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.floating-cart-pulse {
+  animation: floatCartPulse 3s ease-in-out infinite;
+}
+

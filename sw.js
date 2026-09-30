@@ -1,9 +1,9 @@
-const CACHE_NAME = 'zs-mart-v11.0';
+const CACHE_NAME = 'zs-mart-v12.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './app.js?v=11.0',
-  './style.css?v=11.0',
+  './style.css?v=12.0',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

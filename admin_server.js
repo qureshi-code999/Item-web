@@ -15,6 +15,8 @@ const DSR_FILE = path.join(ROOT, 'dsr_data.json');
 const RATES_FILE = path.join(ROOT, 'purchase_rates.json');
 const SETTINGS_FILE = path.join(ROOT, 'settings.json');
 const IMAGES_DIR = path.join(ROOT, 'images');
+const SECTIONS_FILE = path.join(ROOT, 'purchasing_sections.json');
+const PURCHASING_SHEETS_FILE = path.join(ROOT, 'purchasing_sheets.json');
 
 // Optional sharp for WebP compression
 let sharp = null;
@@ -71,7 +73,7 @@ function getMimeType(file) {
 // ── LIVE CLOUD SYNC HELPER (Pushes instantly to GitHub & Vercel) ──
 function liveCloudSync(message) {
   try {
-    const gitCmd = `git add products.json settings.json images/ INDEX.JSX index.html app.js www/ style.css && git commit -m "${message || 'Live update from Admin Panel'}" && git push origin main`;
+    const gitCmd = `git add products.json settings.json images INDEX.JSX index.html app.js style.css sw.js www android/app/src/main/assets/public && git commit -m "${message || 'Live update from Admin Panel'}" && git push origin main`;
     exec(gitCmd, { cwd: ROOT }, (err, stdout, stderr) => {
       if (err) {
         console.warn('⚠️ Cloud Sync Notice (Local changes saved, cloud sync skipped):', err.message);
@@ -118,8 +120,8 @@ const server = http.createServer(async (req, res) => {
   console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${pathname}`);
 
   try {
-    // 1. Dashboard View
-    if (pathname === '/' || pathname === '/dashboard' || pathname === '/index.html') {
+    // 1. Dashboard View (Root / Dashboard / Admin)
+    if (pathname === '/' || pathname === '/dashboard' || pathname === '/admin' || pathname === '/admin_dashboard.html') {
       const dashboardPath = path.join(ROOT, 'admin_dashboard.html');
       if (fs.existsSync(dashboardPath)) {
         return sendFile(res, dashboardPath, 'text/html; charset=utf-8');
@@ -127,16 +129,43 @@ const server = http.createServer(async (req, res) => {
       return sendFile(res, path.join(ROOT, 'item_upload_portal.html'), 'text/html; charset=utf-8');
     }
 
+    // 1b. Customer Store Web (/index.html or /store or /shop)
+    if (pathname === '/index.html' || pathname === '/store' || pathname === '/shop') {
+      const indexPath = path.join(ROOT, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        return sendFile(res, indexPath, 'text/html; charset=utf-8');
+      }
+    }
+
+// Helper to sync single image to www and android assets immediately
+function syncImageToTargets(fileName) {
+  const src = path.join(IMAGES_DIR, fileName);
+  if (!fs.existsSync(src)) return;
+  const targets = [
+    path.join(ROOT, 'www', 'images', fileName),
+    path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'images', fileName)
+  ];
+  targets.forEach(t => {
+    try {
+      const d = path.dirname(t);
+      if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
+      fs.copyFileSync(src, t);
+    } catch (e) {}
+  });
+}
+
     // 2. API: System Stats
     if (pathname === '/api/stats' && req.method === 'GET') {
       const pj = fs.existsSync(PRODUCTS_JSON) ? JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8')) : { products: [] };
       const dsr = fs.existsSync(DSR_FILE) ? JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')) : { orders: [], expenses: [] };
-      const imagesCount = fs.existsSync(IMAGES_DIR) ? fs.readdirSync(IMAGES_DIR).filter(f => /^d+./.test(f)).length : 0;
+      const imagesCount = fs.existsSync(IMAGES_DIR) ? fs.readdirSync(IMAGES_DIR).filter(f => /^\d+\.(webp|png|jpg|jpeg)$/i.test(f)).length : 0;
       
       const today = new Date().toISOString().slice(0, 10);
       const todayOrders = (dsr.orders || []).filter(o => o.date === today);
       const todaySales = todayOrders.reduce((sum, o) => sum + (Number(o.totalSale) || 0), 0);
       const todayProfit = todayOrders.reduce((sum, o) => sum + (Number(o.totalProfit) || 0), 0);
+      const todayExpenses = (dsr.expenses || []).filter(e => e.date === today).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+      const todayNetProfit = todayProfit - todayExpenses;
 
       return sendJson(res, 200, {
         ok: true,
@@ -145,7 +174,9 @@ const server = http.createServer(async (req, res) => {
         totalImages: imagesCount,
         totalOrders: (dsr.orders || []).length,
         todaySales,
-        todayProfit
+        todayProfit,
+        todayExpenses,
+        todayNetProfit
       });
     }
 
@@ -179,7 +210,7 @@ const server = http.createServer(async (req, res) => {
       if (body.priority) newProduct.priority = Number(body.priority);
       if (body.filterName) newProduct.filterName = String(body.filterName).trim();
 
-      // Handle image upload if provided
+      // Handle image upload if provided (Always save as optimized WebP)
       let ext = 'webp';
       if (body.imageBase64) {
         const base64Data = body.imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, '');
@@ -191,9 +222,10 @@ const server = http.createServer(async (req, res) => {
             .toFile(path.join(IMAGES_DIR, `${newId}.webp`));
           ext = 'webp';
         } else {
-          fs.writeFileSync(path.join(IMAGES_DIR, `${newId}.png`), imgBuffer);
-          ext = 'png';
+          fs.writeFileSync(path.join(IMAGES_DIR, `${newId}.webp`), imgBuffer);
+          ext = 'webp';
         }
+        syncImageToTargets(`${newId}.${ext}`);
       }
 
       // Append to INDEX.JSX
@@ -259,10 +291,16 @@ const server = http.createServer(async (req, res) => {
         updatedItemStr = updatedItemStr.replace(/categoryName:\s*"[^"]*"/, `categoryName: "${body.categoryName.trim()}"`);
       }
       if (body.priority !== undefined) {
-        if (/priority:\s*\d+/.test(updatedItemStr)) {
-          updatedItemStr = updatedItemStr.replace(/priority:\s*\d+/, `priority: ${Number(body.priority)}`);
+        const prioNum = Number(body.priority);
+        if (prioNum > 0) {
+          if (/priority:\s*\d+/.test(updatedItemStr)) {
+            updatedItemStr = updatedItemStr.replace(/priority:\s*\d+/, `priority: ${prioNum}`);
+          } else {
+            updatedItemStr = updatedItemStr.replace(/(\s*\})$/, `, priority: ${prioNum}$1`);
+          }
         } else {
-          updatedItemStr = updatedItemStr.replace(/(\s*\})$/, `, priority: ${Number(body.priority)}$1`);
+          // Remove priority if 0 or cleared
+          updatedItemStr = updatedItemStr.replace(/,?\s*priority:\s*\d+/, '');
         }
       }
 
@@ -281,18 +319,28 @@ const server = http.createServer(async (req, res) => {
         fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
       }
 
-      // Handle image update if sent
+      // Handle image update if sent (Always save as optimized WebP)
       if (body.imageBase64) {
         const base64Data = body.imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, '');
         const imgBuffer = Buffer.from(base64Data, 'base64');
+        let imgExt = 'webp';
         if (sharp) {
           await sharp(imgBuffer)
             .resize(500, 500, { fit: 'inside', withoutEnlargement: true })
             .webp({ quality: 82 })
             .toFile(path.join(IMAGES_DIR, `${id}.webp`));
+          imgExt = 'webp';
         } else {
-          fs.writeFileSync(path.join(IMAGES_DIR, `${id}.png`), imgBuffer);
+          fs.writeFileSync(path.join(IMAGES_DIR, `${id}.webp`), imgBuffer);
+          imgExt = 'webp';
         }
+        // Remove stale png if it existed
+        try {
+          const oldPng = path.join(IMAGES_DIR, `${id}.png`);
+          if (fs.existsSync(oldPng)) fs.unlinkSync(oldPng);
+        } catch(e) {}
+
+        syncImageToTargets(`${id}.${imgExt}`);
       }
 
       delete require.cache[require.resolve('./export_products.js')];
@@ -301,6 +349,39 @@ const server = http.createServer(async (req, res) => {
       liveCloudSync('Admin updated product #' + id);
 
       return sendJson(res, 200, { ok: true, id });
+    }
+
+    // 5b. API: Products DELETE
+    if (pathname.startsWith('/api/products/') && req.method === 'DELETE') {
+      const id = parseInt(pathname.split('/').pop(), 10);
+      if (!id) return sendJson(res, 400, { ok: false, error: 'Invalid product ID' });
+
+      let jsxContent = fs.readFileSync(JSX_FILE, 'utf8');
+      const itemRegex = new RegExp(`\\s*\\{\\s*id:\\s*${id}\\s*,[^\\}]*\\},?`, 'm');
+      if (!itemRegex.test(jsxContent)) {
+        return sendJson(res, 404, { ok: false, error: 'Product not found in INDEX.JSX' });
+      }
+
+      jsxContent = jsxContent.replace(itemRegex, '');
+      fs.writeFileSync(JSX_FILE, jsxContent, 'utf8');
+
+      // Also remove from purchase rates
+      if (fs.existsSync(RATES_FILE)) {
+        try {
+          const rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8'));
+          if (rates.rates && rates.rates[String(id)]) {
+            delete rates.rates[String(id)];
+            fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+          }
+        } catch(e) {}
+      }
+
+      delete require.cache[require.resolve('./export_products.js')];
+      require('./export_products.js');
+      try { execSync('node compile_jsx.js', { cwd: ROOT }); } catch(e) {}
+      liveCloudSync('Admin deleted product #' + id);
+
+      return sendJson(res, 200, { ok: true, deletedId: id });
     }
 
     // 6. API: DSR Sales GET
@@ -326,6 +407,7 @@ const server = http.createServer(async (req, res) => {
         date: body.date || new Date().toISOString().slice(0, 10),
         time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
         channel: body.channel || 'shop',
+        paymentMethod: body.paymentMethod || 'cash',
         customerName: body.customerName || 'Walk-in Customer',
         customerPhone: body.customerPhone || '',
         items: body.items || [],
@@ -337,14 +419,27 @@ const server = http.createServer(async (req, res) => {
       dsr.orders.unshift(orderRecord);
       fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
 
-      // Update purchase rates if provided
+      // Auto-update purchase rates from order items and/or updatedRates
+      let rates = { rates: {} };
+      if (fs.existsSync(RATES_FILE)) {
+        try { rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
+      }
+      if (!rates.rates) rates.rates = {};
+      let ratesChanged = false;
+
+      if (Array.isArray(body.items)) {
+        body.items.forEach(it => {
+          if (it.id && it.purchasePrice !== undefined && Number(it.purchasePrice) > 0) {
+            rates.rates[String(it.id)] = Number(it.purchasePrice);
+            ratesChanged = true;
+          }
+        });
+      }
       if (body.updatedRates && Object.keys(body.updatedRates).length > 0) {
-        let rates = { rates: {} };
-        if (fs.existsSync(RATES_FILE)) {
-          try { rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
-        }
-        if (!rates.rates) rates.rates = {};
         Object.assign(rates.rates, body.updatedRates);
+        ratesChanged = true;
+      }
+      if (ratesChanged) {
         rates.updatedAt = new Date().toISOString();
         fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
       }
@@ -374,12 +469,228 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { ok: true, expense });
     }
 
-    // 9. API: Purchase Rates GET
+    // 9. API: Purchase Rates GET & POST
     if (pathname === '/api/purchase-rates' && req.method === 'GET') {
       if (fs.existsSync(RATES_FILE)) {
         return sendFile(res, RATES_FILE, 'application/json; charset=utf-8');
       }
       return sendJson(res, 200, { rates: {} });
+    }
+
+    if (pathname === '/api/purchase-rates' && req.method === 'POST') {
+      const body = await parseBody(req);
+      let rates = { rates: {} };
+      if (fs.existsSync(RATES_FILE)) {
+        try { rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
+      }
+      if (!rates.rates) rates.rates = {};
+      
+      if (body.id !== undefined && body.rate !== undefined && Number(body.rate) >= 0) {
+        rates.rates[String(body.id)] = Number(body.rate);
+      }
+      if (body.rates && typeof body.rates === 'object') {
+        for (const [k, v] of Object.entries(body.rates)) {
+          rates.rates[String(k)] = Number(v) || 0;
+        }
+      }
+      rates.updatedAt = new Date().toISOString();
+      fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+      return sendJson(res, 200, { ok: true, count: Object.keys(rates.rates).length, rates: rates.rates });
+    }
+
+    // 9b. API: DSR Order DELETE
+    if (pathname.startsWith('/api/dsr/order/') && req.method === 'DELETE') {
+      const orderId = pathname.replace('/api/dsr/order/', '').trim();
+      let dsr = { orders: [], expenses: [] };
+      if (fs.existsSync(DSR_FILE)) {
+        try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
+      }
+      const initialCount = (dsr.orders || []).length;
+      dsr.orders = (dsr.orders || []).filter(o => String(o.id) !== String(orderId));
+      if (dsr.orders.length < initialCount) {
+        fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+        return sendJson(res, 200, { ok: true, message: 'Order deleted successfully' });
+      }
+      return sendJson(res, 404, { error: 'Order not found' });
+    }
+
+    // 9c. API: DSR Expense DELETE
+    if (pathname.startsWith('/api/dsr/expense/') && req.method === 'DELETE') {
+      const expId = pathname.replace('/api/dsr/expense/', '').trim();
+      let dsr = { orders: [], expenses: [] };
+      if (fs.existsSync(DSR_FILE)) {
+        try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
+      }
+      const initialCount = (dsr.expenses || []).length;
+      dsr.expenses = (dsr.expenses || []).filter(e => String(e.id) !== String(expId));
+      if (dsr.expenses.length < initialCount) {
+        fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+        return sendJson(res, 200, { ok: true, message: 'Expense deleted successfully' });
+      }
+      return sendJson(res, 404, { error: 'Expense not found' });
+    }
+
+    // 9d. API: Purchasing Sections & Item Mappings GET
+    if (pathname === '/api/purchasing/sections' && req.method === 'GET') {
+      const defaults = {
+        sections: ["AY", "Bahria Center", "Butt Center", "China 1", "China 2", "Condom", "General Market"],
+        itemSections: {}
+      };
+      if (fs.existsSync(SECTIONS_FILE)) {
+        try {
+          const data = JSON.parse(fs.readFileSync(SECTIONS_FILE, 'utf8'));
+          return sendJson(res, 200, { ok: true, ...defaults, ...data });
+        } catch(e) {}
+      }
+      return sendJson(res, 200, { ok: true, ...defaults });
+    }
+
+    // 9e. API: Purchasing Sections & Item Mappings POST
+    if (pathname === '/api/purchasing/sections' && req.method === 'POST') {
+      const body = await parseBody(req);
+      let current = {
+        sections: ["AY", "Bahria Center", "Butt Center", "China 1", "China 2", "Condom", "General Market"],
+        itemSections: {}
+      };
+      if (fs.existsSync(SECTIONS_FILE)) {
+        try { current = JSON.parse(fs.readFileSync(SECTIONS_FILE, 'utf8')); } catch(e) {}
+      }
+
+      // Handle Rename Action
+      if (body.action === 'rename') {
+        const oldName = String(body.oldName || '').trim();
+        const newName = String(body.newName || '').trim();
+        if (oldName && newName && oldName !== newName) {
+          const idx = current.sections.indexOf(oldName);
+          if (idx !== -1) {
+            current.sections[idx] = newName;
+          } else if (!current.sections.includes(newName)) {
+            current.sections.push(newName);
+          }
+          if (current.itemSections) {
+            for (const [k, v] of Object.entries(current.itemSections)) {
+              if (v === oldName) current.itemSections[k] = newName;
+            }
+          }
+        }
+      }
+      // Handle Delete Action
+      else if (body.action === 'delete') {
+        const delName = String(body.sectionName || body.name || '').trim();
+        if (delName) {
+          current.sections = current.sections.filter(s => s !== delName);
+          if (current.sections.length === 0) current.sections = ["General Market"];
+          if (current.itemSections) {
+            for (const [k, v] of Object.entries(current.itemSections)) {
+              if (v === delName) current.itemSections[k] = 'General Market';
+            }
+          }
+        }
+      }
+      // Handle setting full sections list
+      else if (body.action === 'set_sections' && Array.isArray(body.sections)) {
+        current.sections = Array.from(new Set(body.sections.map(s => String(s).trim()))).filter(Boolean);
+      }
+      else {
+        if (Array.isArray(body.sections)) {
+          current.sections = Array.from(new Set([...current.sections, ...body.sections])).filter(Boolean);
+        }
+        if (body.newSection && typeof body.newSection === 'string') {
+          const s = body.newSection.trim();
+          if (s && !current.sections.includes(s)) current.sections.push(s);
+        }
+        if (body.itemSections && typeof body.itemSections === 'object') {
+          current.itemSections = { ...current.itemSections, ...body.itemSections };
+        }
+        if (body.itemId && body.section) {
+          current.itemSections[String(body.itemId)] = String(body.section).trim();
+        }
+      }
+
+      current.updatedAt = new Date().toISOString();
+      fs.writeFileSync(SECTIONS_FILE, JSON.stringify(current, null, 2), 'utf8');
+      return sendJson(res, 200, { ok: true, ...current });
+    }
+
+    // 9f. API: Purchasing Sheets GET
+    if (pathname === '/api/purchasing/sheets' && req.method === 'GET') {
+      if (fs.existsSync(PURCHASING_SHEETS_FILE)) {
+        try {
+          const data = JSON.parse(fs.readFileSync(PURCHASING_SHEETS_FILE, 'utf8'));
+          return sendJson(res, 200, { ok: true, sheets: data.sheets || [] });
+        } catch(e) {}
+      }
+      return sendJson(res, 200, { ok: true, sheets: [] });
+    }
+
+    // 9g. API: Purchasing Sheets POST (Save Sheet)
+    if (pathname === '/api/purchasing/sheets' && req.method === 'POST') {
+      const body = await parseBody(req);
+      let data = { sheets: [] };
+      if (fs.existsSync(PURCHASING_SHEETS_FILE)) {
+        try { data = JSON.parse(fs.readFileSync(PURCHASING_SHEETS_FILE, 'utf8')); } catch(e) {}
+      }
+      const sheet = {
+        id: 'PS-' + Date.now(),
+        date: body.date || new Date().toISOString().slice(0, 10),
+        title: body.title || 'Market Purchasing Sheet',
+        marketName: body.marketName || 'Wholesale Market',
+        items: Array.isArray(body.items) ? body.items : [],
+        sections: Array.isArray(body.sections) ? body.sections : [],
+        totalItems: Number(body.totalItems) || (Array.isArray(body.items) ? body.items.length : 0),
+        totalQty: Number(body.totalQty) || (Array.isArray(body.items) ? body.items.reduce((s, it) => s + (parseFloat(it.qty || it.quantity) || 0), 0) : 0),
+        totalAmount: Number(body.totalAmount) || (Array.isArray(body.items) ? body.items.reduce((s, it) => s + ((parseFloat(it.qty || it.quantity) || 0) * (parseFloat(it.purRate || it.rate) || 0)), 0) : 0),
+        createdAt: new Date().toISOString()
+      };
+      if (!data.sheets) data.sheets = [];
+      data.sheets.unshift(sheet);
+      fs.writeFileSync(PURCHASING_SHEETS_FILE, JSON.stringify(data, null, 2), 'utf8');
+
+      // Also persist purchase rates permanently if included
+      if (body.updatedRates && typeof body.updatedRates === 'object') {
+        let rates = { rates: {} };
+        if (fs.existsSync(RATES_FILE)) {
+          try { rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
+        }
+        if (!rates.rates) rates.rates = {};
+        for (const [k, v] of Object.entries(body.updatedRates)) {
+          if (v !== undefined && Number(v) >= 0) rates.rates[String(k)] = Number(v);
+        }
+        rates.updatedAt = new Date().toISOString();
+        fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+      }
+
+      // Also persist item sections permanently if included
+      if (body.updatedItemSections && typeof body.updatedItemSections === 'object') {
+        let secData = { sections: [], itemSections: {} };
+        if (fs.existsSync(SECTIONS_FILE)) {
+          try { secData = JSON.parse(fs.readFileSync(SECTIONS_FILE, 'utf8')); } catch(e) {}
+        }
+        if (!secData.itemSections) secData.itemSections = {};
+        for (const [k, v] of Object.entries(body.updatedItemSections)) {
+          if (v) secData.itemSections[String(k)] = String(v).trim();
+        }
+        secData.updatedAt = new Date().toISOString();
+        fs.writeFileSync(SECTIONS_FILE, JSON.stringify(secData, null, 2), 'utf8');
+      }
+
+      return sendJson(res, 200, { ok: true, sheet });
+    }
+
+    // 9h. API: Purchasing Sheet DELETE
+    if (pathname.startsWith('/api/purchasing/sheets/') && req.method === 'DELETE') {
+      const sheetId = pathname.replace('/api/purchasing/sheets/', '').trim();
+      let data = { sheets: [] };
+      if (fs.existsSync(PURCHASING_SHEETS_FILE)) {
+        try { data = JSON.parse(fs.readFileSync(PURCHASING_SHEETS_FILE, 'utf8')); } catch(e) {}
+      }
+      const initialCount = (data.sheets || []).length;
+      data.sheets = (data.sheets || []).filter(s => String(s.id) !== String(sheetId));
+      if (data.sheets.length < initialCount) {
+        fs.writeFileSync(PURCHASING_SHEETS_FILE, JSON.stringify(data, null, 2), 'utf8');
+        return sendJson(res, 200, { ok: true, message: 'Purchasing sheet deleted' });
+      }
+      return sendJson(res, 404, { error: 'Purchasing sheet not found' });
     }
 
     // 9b. API: Settings GET
@@ -434,7 +745,7 @@ const server = http.createServer(async (req, res) => {
         
         let gitOut = '';
         try {
-          gitOut = execSync('git add products.json settings.json images/ INDEX.JSX index.html app.js www/ style.css && git commit -m "1-Click Live Publish to App & Web" && git push origin main', { encoding: 'utf8', cwd: ROOT });
+          gitOut = execSync('git add products.json settings.json images INDEX.JSX index.html app.js style.css sw.js www android/app/src/main/assets/public && git commit -m "1-Click Live Publish to App & Web" && git push origin main', { encoding: 'utf8', cwd: ROOT });
         } catch(gitErr) {
           gitOut = (gitErr.stdout || '') + '\n' + (gitErr.stderr || '') + '\n' + gitErr.message;
         }

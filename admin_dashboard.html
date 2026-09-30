@@ -8,183 +8,234 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #111827;
-      --card-border: rgba(245, 158, 11, 0.2);
-      --accent: #f59e0b;
-      --accent-hover: #fbbf24;
-      --emerald: #10b981;
-      --danger: #ef4444;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+      --accent: #d97706;
+      --accent-light: #f59e0b;
+      --accent-bg: #fef3c7;
+      --emerald: #059669;
+      --emerald-light: #10b981;
+      --emerald-bg: #d1fae5;
+      --danger: #dc2626;
+      --danger-light: #ef4444;
+      --danger-bg: #fee2e2;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border-light: #f1f5f9;
+      --input-border: #cbd5e1;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      -webkit-font-smoothing: antialiased;
     }
-    /* Top Bar */
+
+    /* ── Top Header (Clean White / Light Theme) ── */
     .top-header {
-      background: linear-gradient(180deg, #111827 0%, #0c121e 100%);
+      background: #ffffff;
       border-bottom: 1px solid var(--card-border);
-      padding: 14px 24px;
+      padding: 10px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       position: sticky;
       top: 0;
       z-index: 50;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      gap: 16px;
+      flex-wrap: wrap;
     }
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .brand-logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: #000;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #ffffff;
       border: 1px solid var(--card-border);
       object-fit: contain;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
     .brand-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
-      background: linear-gradient(135deg, #f59e0b, #fef08a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .brand-badge {
+      background: #0f172a;
+      color: #f59e0b;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
     }
     .brand-subtitle {
       font-size: 11px;
       color: var(--text-muted);
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      font-weight: 500;
     }
+
+    /* ── Dropdown Navigation Menu (Saves Space) ── */
+    .nav-dropdown-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f1f5f9;
+      border: 1.5px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 10px;
+    }
+    .nav-dropdown-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .nav-dropdown-select {
+      background: #ffffff;
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      cursor: pointer;
+      outline: none;
+      font-family: inherit;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      min-width: 250px;
+    }
+    .nav-dropdown-select:focus {
+      border-color: var(--accent-light);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 9px 16px;
-      border-radius: 10px;
-      font-size: 13px;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       border: none;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       font-family: inherit;
+      white-space: nowrap;
     }
     .btn-gold {
-      background: linear-gradient(135deg, #d97706, #f59e0b);
-      color: #000;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+      background: #d97706;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
     }
     .btn-gold:hover {
-      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      background: #b45309;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.35);
     }
     .btn-dark {
-      background: #1e293b;
-      color: #f8fafc;
-      border: 1px solid rgba(255,255,255,0.1);
+      background: #0f172a;
+      color: #ffffff;
     }
     .btn-dark:hover {
-      background: #334155;
-      border-color: rgba(255,255,255,0.2);
+      background: #1e293b;
+      transform: translateY(-1px);
     }
     .btn-emerald {
       background: #059669;
-      color: #fff;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
     }
-    .btn-emerald:hover { background: #10b981; }
+    .btn-emerald:hover {
+      background: #047857;
+      transform: translateY(-1px);
+    }
+    .btn-light {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-light:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    .btn-danger {
+      background: #dc2626;
+      color: #ffffff;
+    }
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
 
-    /* KPI Bar */
+    /* ── Compact KPI Banner (Screenshot 2: Small size, saves space) ── */
     .kpi-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      padding: 20px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
       max-width: 1400px;
       margin: 0 auto;
       width: 100%;
     }
     .kpi-card {
-      background: var(--card-bg);
+      background: #ffffff;
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 16px;
+      border-radius: 10px;
+      padding: 8px 14px;
       display: flex;
-      flex-direction: column;
-      gap: 6px;
-      position: relative;
-      overflow: hidden;
+      align-items: baseline;
+      gap: 8px;
+      box-shadow: var(--card-shadow);
+      flex: 1;
+      min-width: 140px;
+      transition: all 0.15s ease;
     }
-    .kpi-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    .kpi-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
     .kpi-label {
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      white-space: nowrap;
     }
     .kpi-value {
-      font-size: 24px;
+      font-size: 16px;
       font-weight: 800;
       color: var(--text);
-    }
-    .kpi-value.gold { color: var(--accent); }
-    .kpi-value.emerald { color: var(--emerald); }
-
-    /* Navigation Tabs */
-    .tabs-bar {
-      display: flex;
-      gap: 8px;
-      padding: 0 24px;
-      max-width: 1400px;
-      margin: 0 auto 16px;
-      width: 100%;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      overflow-x: auto;
-    }
-    .tab-item {
-      padding: 12px 20px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-muted);
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
       white-space: nowrap;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
-    .tab-item:hover { color: var(--text); }
-    .tab-item.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-      background: rgba(245, 158, 11, 0.05);
-      border-radius: 8px 8px 0 0;
-    }
+    .kpi-value.gold { color: #d97706; }
+    .kpi-value.emerald { color: #059669; }
 
-    /* Content Area */
+    /* ── Main Content Container ── */
     .main-content {
       max-width: 1400px;
       margin: 0 auto;
@@ -195,19 +246,20 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* Cards & Forms */
+    /* ── Clean White Cards & Forms ── */
     .panel-card {
-      background: var(--card-bg);
+      background: #ffffff;
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 24px;
+      border-radius: 14px;
+      padding: 20px;
       margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
     }
     .panel-card-title {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
-      color: var(--accent);
-      margin-bottom: 16px;
+      color: #0f172a;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -216,44 +268,50 @@
     }
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
     }
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
     .form-group.full { grid-column: 1 / -1; }
     label {
       font-size: 11px;
       font-weight: 700;
-      color: var(--text-muted);
+      color: #475569;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     input, select, textarea {
-      background: #0b111e;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      padding: 10px 14px;
+      background: #ffffff;
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      padding: 9px 12px;
       font-size: 13px;
-      color: #fff;
+      color: #0f172a;
       font-family: inherit;
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.15s;
     }
     input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
+      border-color: #d97706;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
     }
     .upload-box {
-      border: 2px dashed rgba(245, 158, 11, 0.3);
-      border-radius: 12px;
-      padding: 20px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 16px;
       text-align: center;
-      background: rgba(245, 158, 11, 0.02);
+      background: #f8fafc;
       cursor: pointer;
       position: relative;
+      transition: all 0.15s;
+    }
+    .upload-box:hover {
+      border-color: #d97706;
+      background: #fffbeb;
     }
     .upload-box input[type=file] {
       position: absolute;
@@ -262,12 +320,12 @@
       cursor: pointer;
     }
 
-    /* Product Table */
+    /* ── Product & Data Tables ── */
     .table-container {
       overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: #0c121e;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: #ffffff;
     }
     table {
       width: 100%;
@@ -276,64 +334,533 @@
       text-align: left;
     }
     th {
-      background: #111827;
-      color: var(--text-muted);
-      padding: 12px 14px;
+      background: #f8fafc;
+      color: #475569;
+      padding: 10px 12px;
       font-weight: 700;
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid var(--card-border);
     }
     td {
-      padding: 10px 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      color: var(--text);
+      padding: 8px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #0f172a;
+      vertical-align: middle;
     }
-    tr:hover td { background: rgba(255,255,255,0.02); }
+    tr:hover td { background: #f8fafc; }
+    .product-thumb-container {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      cursor: pointer;
+      display: inline-block;
+    }
     .product-thumb {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       object-fit: contain;
-      background: #000;
+      background: #ffffff;
       border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--card-border);
+      display: block;
+    }
+    .product-thumb-container:hover .thumb-overlay-badge {
+      display: flex;
+    }
+    .thumb-overlay-badge {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 8px;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #ffffff;
     }
 
-    /* Terminal Modal */
-    .terminal-modal {
+    /* ── DSR 2-Section Sub-Navigation ── */
+    .dsr-subnav-bar {
+      display: flex;
+      gap: 8px;
+      background: #f1f5f9;
+      padding: 5px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px solid var(--card-border);
+    }
+    .dsr-subnav-tab {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #475569;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .dsr-subnav-tab:hover {
+      color: #0f172a;
+      background: rgba(255, 255, 255, 0.5);
+    }
+    .dsr-subnav-tab.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+    }
+
+    /* ── DSR Period Filter Buttons (Screenshot 3: Professional English) ── */
+    .dsr-period-strip {
+      background: #f8fafc;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .dsr-filter-btn {
+      background: #ffffff;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .dsr-filter-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+    .dsr-filter-btn.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+    }
+
+    /* ── DSR Financial Analytics KPI Grid ── */
+    .dsr-analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .dsr-stat-box {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: var(--card-shadow);
+    }
+    .dsr-stat-box.highlight {
+      border-color: #f59e0b;
+      background: #fffbeb;
+    }
+    .dsr-stat-box.success {
+      border-color: #10b981;
+      background: #ecfdf5;
+    }
+    .dsr-stat-box.danger {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .badge-profit-pos {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 11px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .badge-profit-neg {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 11px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* ── DSR Order Live Summary Ribbon ── */
+    .dsr-summary-ribbon {
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 14px;
+      align-items: center;
+      margin-top: 14px;
+    }
+    .dsr-preview-bar {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+    }
+
+    /* ── Smart Product Search & Dropdown (White Theme) ── */
+    .dsr-search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .dsr-search-input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .dsr-search-input-box input {
+      width: 100%;
+      padding-right: 36px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+    }
+    .dsr-search-input-box input:focus {
+      border-color: #d97706;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+    }
+    .dsr-search-clear-btn {
+      position: absolute;
+      right: 10px;
+      background: #e2e8f0;
+      border: none;
+      color: #64748b;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 11px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .dsr-search-clear-btn:hover {
+      background: #dc2626;
+      color: #fff;
+    }
+    .dsr-search-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      max-height: 380px;
+      overflow-y: auto;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      z-index: 1000;
+      padding: 6px;
+    }
+    .dsr-search-item {
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .dsr-search-item:last-child { border-bottom: none; }
+    .dsr-search-item:hover, .dsr-search-item.highlighted {
+      background: #fffbeb;
+      border-color: #fde68a;
+    }
+    .dsr-search-thumb {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      background: #ffffff;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      flex-shrink: 0;
+    }
+    .dsr-search-item-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .dsr-search-item-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dsr-search-item-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .dsr-search-item-right {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .dsr-search-item-price {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0284c7;
+    }
+    .dsr-search-item-cost {
+      font-size: 11px;
+      color: #b45309;
+      font-weight: 700;
+    }
+    .dsr-table-input {
+      background: #ffffff;
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-size: 12px;
+      color: #0f172a;
+      text-align: right;
+    }
+    .dsr-table-input:focus {
+      border-color: #d97706;
+      outline: none;
+    }
+
+    
+    /* ── Excel-Style Purchasing Sheet (Single Line, Ultra Compact) ── */
+    .excel-sheet-wrapper {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      overflow-x: auto;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      margin-top: 10px;
+    }
+    .excel-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      line-height: 1.25;
+      font-family: inherit;
+      background: #ffffff;
+    }
+    .excel-table thead th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .excel-table tbody td {
+      padding: 4px 8px;
+      border: 1px solid #e2e8f0;
+      height: 27px;
+      vertical-align: middle;
+      color: #0f172a;
+    }
+    .excel-table tbody tr.excel-item-row:hover td {
+      background: #f8fafc;
+    }
+    .excel-sec-divider td {
+      background: #f1f5f9 !important;
+      font-weight: 800;
+      color: #1e293b;
+      padding: 5px 8px;
+      font-size: 11.5px;
+      letter-spacing: 0.5px;
+      border-top: 2px solid #cbd5e1 !important;
+      border-bottom: 1px solid #cbd5e1 !important;
+    }
+    .excel-sec-subtotal td {
+      background: #fafafa !important;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-top: 1px solid #cbd5e1 !important;
+      border-bottom: 2px solid #cbd5e1 !important;
+    }
+    .excel-grand-total td {
+      background: #e2e8f0 !important;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 6px 8px;
+      border-top: 2px solid #94a3b8 !important;
+      border-bottom: 2px solid #94a3b8 !important;
+    }
+    .btn-excel-action {
+      background: none;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .btn-excel-action:hover {
+      background: #e2e8f0;
+    }
+    .btn-excel-delete {
+      color: #dc2626;
+      border-color: #fca5a5;
+    }
+    .btn-excel-delete:hover {
+      background: #fee2e2;
+    }
+    .btn-excel-edit {
+      color: #2563eb;
+      border-color: #bfdbfe;
+    }
+    .btn-excel-edit:hover {
+      background: #dbeafe;
+    }
+
+    /* ── Purchasing Sheet Specific Styles ── */
+    .purchasing-section-header {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 16px;
+      border-radius: 8px 8px 0 0;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .purchasing-section-badge {
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .purchasing-subtotal-row {
+      background: #f8fafc;
+      font-weight: 800;
+      border-top: 2px solid #cbd5e1;
+    }
+    .purchasing-subtotal-row td {
+      padding: 8px 12px;
+      color: #0f172a;
+    }
+
+    /* ── Modals (White / Clean Theme) ── */
+    .modal-backdrop {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(4px);
       z-index: 100;
       align-items: center;
       justify-content: center;
       padding: 20px;
     }
-    .terminal-modal.show { display: flex; }
+    .modal-backdrop.show { display: flex; }
+    .modal-card {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+    .modal-header {
+      background: #f8fafc;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .modal-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .modal-body {
+      padding: 20px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    /* Terminal Console */
     .terminal-card {
-      background: #080c14;
-      border: 1px solid var(--accent);
+      background: #0f172a;
+      border: 1px solid #334155;
       border-radius: 16px;
       width: 100%;
       max-width: 800px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
       overflow: hidden;
     }
     .terminal-header {
-      background: #111827;
+      background: #1e293b;
       padding: 12px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid #334155;
     }
     .terminal-title {
       font-size: 13px;
       font-weight: 700;
-      color: var(--accent);
+      color: #f59e0b;
       font-family: 'JetBrains Mono', monospace;
     }
     .terminal-body {
@@ -350,65 +877,64 @@
 </head>
 <body>
 
-  <!-- Top Header -->
+  <!-- Top Header with Brand & Navigation Dropdown -->
   <header class="top-header">
     <div class="brand">
       <img src="images/zs-mart-logo.png" alt="ZS Mart" class="brand-logo" onerror="this.src='icon-192.png'">
       <div>
-        <div class="brand-title">ZS MART • COMMAND CENTER</div>
-        <div class="brand-subtitle">Unified Master Administration & Live Sync Portal</div>
+        <div class="brand-title">
+          <span>ZS MART COMMAND CENTER</span>
+          <span class="brand-badge">ADMIN</span>
+        </div>
+        <div class="brand-subtitle">Master Administration &amp; Purchasing Portal</div>
       </div>
     </div>
+
+    <!-- Navigation Dropdown Menu (Includes 6 core modules) -->
+    <div class="nav-dropdown-wrapper">
+      <label class="nav-dropdown-label" for="main-nav-dropdown">Section:</label>
+      <select id="main-nav-dropdown" class="nav-dropdown-select" onchange="switchTabFromDropdown(this.value)">
+        <option value="products">📦 Products &amp; Inventory</option>
+        <option value="ordering">🔢 Category &amp; Top 20 Order</option>
+        <option value="dsr">💰 Daily Sales &amp; Profit (DSR)</option>
+        <option value="purchasing" selected>🛒 Purchasing &amp; Market Sheet</option>
+        <option value="settings">⚙️ App &amp; Store Settings</option>
+        <option value="system">🖥️ 1-Click Operations &amp; Logs</option>
+      </select>
+    </div>
+
     <div class="header-actions">
       <button class="btn btn-dark" onclick="triggerBuildApk()">
         <span>📱</span> Build Android APK
       </button>
       <button class="btn btn-gold" onclick="triggerPublishLive()">
-        <span>🚀</span> 1-Click Publish Live to App & Web
+        <span>🚀</span> 1-Click Publish Live
       </button>
     </div>
   </header>
 
-  <!-- KPI Banner -->
-  <div class="kpi-container">
+  <!-- Compact KPI Banner (Products & Catalog Stats Only - hidden in purchasing) -->
+  <div class="kpi-container" id="global-kpi-container" style="display: none;">
     <div class="kpi-card">
       <span class="kpi-label">Active Products</span>
       <span class="kpi-value gold" id="kpi-products">1,049</span>
     </div>
     <div class="kpi-card">
       <span class="kpi-label">Categories</span>
-      <span class="kpi-value" id="kpi-categories">15</span>
+      <span class="kpi-value" id="kpi-categories">17</span>
     </div>
     <div class="kpi-card">
       <span class="kpi-label">Catalog Images</span>
       <span class="kpi-value" id="kpi-images">--</span>
     </div>
-    <div class="kpi-card">
-      <span class="kpi-label">Today's Sales</span>
-      <span class="kpi-value emerald" id="kpi-sales">Rs. 0</span>
-    </div>
-    <div class="kpi-card">
-      <span class="kpi-label">Today's Profit</span>
-      <span class="kpi-value emerald" id="kpi-profit">Rs. 0</span>
-    </div>
-  </div>
-
-  <!-- Tabs Navigation -->
-  <div class="tabs-bar">
-    <div class="tab-item active" onclick="switchTab('products')">📦 Products & Inventory</div>
-    <div class="tab-item" onclick="switchTab('ordering')">🔢 Category & Top 20 Order</div>
-    <div class="tab-item" onclick="switchTab('dsr')">💰 Daily Sales & Profit (DSR)</div>
-    <div class="tab-item" onclick="switchTab('settings')">⚙️ App & Store Settings</div>
-    <div class="tab-item" onclick="switchTab('system')">🖥️ 1-Click Operations & Logs</div>
   </div>
 
   <!-- Main Content -->
   <main class="main-content">
 
     <!-- TAB 1: PRODUCTS & INVENTORY -->
-    <div id="tab-products" class="tab-panel active">
-      
-      <!-- Add New Product Form -->
+    <div id="tab-products" class="tab-panel">
+      <!-- Add New Product Form with Automatic WebP Conversion -->
       <div class="panel-card">
         <div class="panel-card-title">➕ Add New Item to Catalog</div>
         <form id="add-product-form" onsubmit="handleAddProduct(event)">
@@ -434,15 +960,16 @@
               <input type="number" id="add-priority" placeholder="1 = Show at Top">
             </div>
             <div class="form-group full">
-              <label>Product Image (Drag & Drop or Click to Select)</label>
+              <label>Product Image (Auto-Converted to WebP)</label>
               <div class="upload-box">
                 <input type="file" id="add-image-file" accept="image/*" onchange="previewImage(event)">
-                <div id="upload-preview-text">📸 Drop image here or click to browse (Auto-converted to WebP)</div>
-                <img id="upload-preview-img" style="display:none; max-height: 80px; margin: 10px auto 0; border-radius: 8px;">
+                <div id="upload-preview-text">📸 Drop image here or click to browse (Auto-converted to lightweight WebP)</div>
+                <div id="upload-status-badge" style="display:none; margin-top: 6px; font-size: 11px; font-weight: 700; color: #059669;"></div>
+                <img id="upload-preview-img" style="display:none; max-height: 80px; margin: 10px auto 0; border-radius: 8px; border: 1px solid #cbd5e1;">
               </div>
             </div>
           </div>
-          <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+          <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
             <button type="submit" class="btn btn-gold">Save Product to Catalog</button>
           </div>
         </form>
@@ -450,7 +977,7 @@
 
       <!-- Products Directory Table -->
       <div class="panel-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 12px;">
           <div class="panel-card-title" style="margin-bottom: 0;">📋 Complete Catalog (<span id="table-count">1049</span> Items)</div>
           <div style="display: flex; gap: 10px;">
             <input type="text" id="search-products" placeholder="Search by name or ID..." oninput="filterProducts()" style="width: 250px;">
@@ -469,8 +996,8 @@
                 <th>Category</th>
                 <th style="width: 100px;">Sale Price</th>
                 <th style="width: 100px;">Cost Price</th>
-                <th style="width: 80px;">Priority</th>
-                <th style="width: 90px; text-align: center;">Actions</th>
+                <th style="width: 70px;">Priority</th>
+                <th style="width: 140px; text-align: center;">Actions</th>
               </tr>
             </thead>
             <tbody id="products-tbody"></tbody>
@@ -482,9 +1009,9 @@
     <!-- TAB 2: CATEGORY & ITEM ORDERING -->
     <div id="tab-ordering" class="tab-panel">
       <div class="panel-card">
-        <div class="panel-card-title">🔢 Category Ordering & Top 20 Priority Setup</div>
+        <div class="panel-card-title">🔢 Category Ordering &amp; Top 20 Priority Setup</div>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
-          Yahan se aap set kar sakte hain ke app mein pehle kaunsi category show ho, aur har category ke andar pehle 20 items kaun se show hon taake customer ko wahi sabse pehle nazar aayein.
+          Select a category to view items and assign priority numbers (1, 2, 3...) so they appear at the very top of that category in the app and website.
         </p>
         <div style="display: grid; grid-template-columns: 280px 1fr; gap: 20px;">
           <div>
@@ -514,93 +1041,507 @@
       </div>
     </div>
 
-    <!-- TAB 3: DSR & DAILY SALES -->
+    <!-- TAB 3: DSR & DAILY SALES (Divided into 2 Clean Logical Sub-Sections) -->
     <div id="tab-dsr" class="tab-panel">
-      <div class="panel-card">
-        <div class="panel-card-title">💵 Record Daily Sale Order</div>
-        <form id="dsr-form" onsubmit="handleDsrOrder(event)">
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Date</label>
-              <input type="date" id="dsr-date" required>
-            </div>
-            <div class="form-group">
-              <label>Customer Name</label>
-              <input type="text" id="dsr-customer" placeholder="e.g. Walk-in / WhatsApp">
-            </div>
-            <div class="form-group">
-              <label>Payment Method</label>
-              <select id="dsr-payment">
-                <option value="cash">Cash on Delivery / Shop</option>
-                <option value="online">Online Transfer (JazzCash / EasyPaisa / Bank)</option>
-              </select>
-            </div>
-            <div class="form-group full">
-              <label>Add Item to Order</label>
-              <div style="display: flex; gap: 10px;">
-                <select id="dsr-item-select" style="flex: 2;"></select>
-                <input type="number" id="dsr-item-qty" value="1" min="1" placeholder="Qty" style="width: 80px;">
-                <input type="number" id="dsr-item-rate" placeholder="Sell Price" style="width: 110px;">
-                <input type="number" id="dsr-item-cost" placeholder="Cost Price" style="width: 110px;">
-                <button type="button" class="btn btn-dark" onclick="addDsrRow()">+ Add Item</button>
+      <!-- DSR 2-Section Sub-Navigation -->
+      <div class="dsr-subnav-bar">
+        <button type="button" class="dsr-subnav-tab active" id="btn-subnav-pos" onclick="switchDsrSubSection('pos')">
+          🛒 1. Record Sale Order (POS Entry)
+        </button>
+        <button type="button" class="dsr-subnav-tab" id="btn-subnav-analytics" onclick="switchDsrSubSection('analytics')">
+          📊 2. Sales, Profit &amp; Expenses (Reports &amp; Analytics)
+        </button>
+      </div>
+
+      <!-- SECTION 1: POS / RECORD DAILY SALE ORDER -->
+      <div id="dsr-sub-pos" class="dsr-sub-section">
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+            <div class="panel-card-title" style="margin-bottom: 0;">💵 Record Sale Order (Live Profit &amp; Loss)</div>
+            <span style="font-size: 12px; color: var(--emerald); font-weight: 700;">⚡ Purchase rates auto-saved permanently per product</span>
+          </div>
+
+          <form id="dsr-form" onsubmit="handleDsrOrder(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Order Date</label>
+                <input type="date" id="dsr-date" required>
               </div>
+              <div class="form-group">
+                <label>Customer Name / Channel</label>
+                <input type="text" id="dsr-customer" placeholder="e.g. Walk-in Customer / WhatsApp Order / Counter">
+              </div>
+              <div class="form-group">
+                <label>Payment Method</label>
+                <select id="dsr-payment">
+                  <option value="cash">Cash on Delivery / Shop Counter</option>
+                  <option value="online">Online Transfer (JazzCash / EasyPaisa / Bank)</option>
+                </select>
+              </div>
+
+              <!-- Unified Single Smart Search Bar -->
+              <div class="form-group full">
+                <label>Search Product (Name or ID — Typo &amp; Spacing Tolerant)</label>
+                <div style="display: grid; grid-template-columns: minmax(260px, 1fr) 90px 120px 120px auto; gap: 10px; align-items: end;">
+                  <div class="dsr-search-wrapper">
+                    <div class="dsr-search-input-box">
+                      <input type="text" id="dsr-smart-search" 
+                        placeholder="🔍 Type product name or ID (e.g. Surf Excel, Lux Soap, Oil, 256)..." 
+                        oninput="onDsrSearchType(this.value)" 
+                        onfocus="onDsrSearchFocus()" 
+                        onkeydown="handleDsrSearchKeydown(event)"
+                        autocomplete="off">
+                      <button type="button" id="dsr-search-clear" class="dsr-search-clear-btn" onclick="clearDsrSearch()" title="Clear">✕</button>
+                    </div>
+                    <input type="hidden" id="dsr-selected-id" value="">
+                    <div id="dsr-search-results" class="dsr-search-dropdown" style="display: none;"></div>
+                  </div>
+
+                  <div>
+                    <label style="font-size: 10px;">Quantity</label>
+                    <input type="number" id="dsr-item-qty" value="1" min="1" placeholder="Qty" oninput="updateLivePreview()" style="width: 100%;">
+                  </div>
+                  <div>
+                    <label style="font-size: 10px;">Sell Rate (Rs)</label>
+                    <input type="number" id="dsr-item-rate" placeholder="Sell Price" oninput="updateLivePreview()" style="width: 100%;">
+                  </div>
+                  <div>
+                    <label style="font-size: 10px;">Pur Rate (Cost)</label>
+                    <input type="number" id="dsr-item-cost" placeholder="Pur Rate" oninput="updateLivePreview()" style="width: 100%;">
+                  </div>
+                  <div>
+                    <button type="button" class="btn btn-emerald" onclick="addDsrRow()" style="height: 40px; white-space: nowrap; font-weight: 700;">+ Add Item</button>
+                  </div>
+                </div>
+
+                <!-- Selected Product Active Tag -->
+                <div id="dsr-selected-tag" style="display: none; margin-top: 8px; font-size: 12px; color: var(--accent); align-items: center; gap: 8px;">
+                  <span>✅ Selected:</span>
+                  <span id="dsr-selected-name" style="font-weight: 700; color: #0f172a;"></span>
+                  <span id="dsr-selected-id-badge" style="background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-size: 11px;"></span>
+                </div>
+
+                <!-- Live Row Profit Preview Bar -->
+                <div id="dsr-row-preview" class="dsr-preview-bar" style="display: none;">
+                  <span id="preview-item-name" style="font-weight: 700; color: #0f172a;">Item Name</span>
+                  <span>Bill: <b id="preview-line-total" style="color: #0284c7;">Rs. 0</b></span>
+                  <span>Cost: <b id="preview-line-cost" style="color: #475569;">Rs. 0</b></span>
+                  <span>Item Profit: <b id="preview-line-profit" style="color: var(--emerald);">Rs. 0</b></span>
+                  <span>Margin %: <b id="preview-profit-pct" class="badge-profit-pos">0%</b></span>
+                  <span id="preview-rate-source" style="font-size: 11px; color: #64748b;"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Current Order Items Table -->
+            <div class="table-container" style="margin-top: 16px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>Product Name</th>
+                    <th style="width: 90px; text-align: right;">Qty</th>
+                    <th style="width: 120px; text-align: right;">Sell Rate</th>
+                    <th style="width: 120px; text-align: right;">Pur Rate (Cost)</th>
+                    <th style="width: 120px; text-align: right;">Line Total</th>
+                    <th style="width: 120px; text-align: right;">Profit (Rs)</th>
+                    <th style="width: 100px; text-align: center;">Profit (%)</th>
+                    <th style="width: 50px; text-align: center;">Del</th>
+                  </tr>
+                </thead>
+                <tbody id="dsr-items-tbody">
+                  <tr>
+                    <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 24px;">No items added yet. Search and select a product above, then click "+ Add Item".</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Customer Order Total Summary Ribbon -->
+            <div class="dsr-summary-ribbon">
+              <div>
+                <div class="kpi-label">Total Items</div>
+                <div id="dsr-summary-qty" style="font-size: 16px; font-weight: 800; color: #0f172a;">0 items</div>
+              </div>
+              <div>
+                <div class="kpi-label">Customer Bill (Sale)</div>
+                <div id="dsr-total-sale" style="font-size: 17px; font-weight: 800; color: #0284c7;">Rs. 0</div>
+              </div>
+              <div>
+                <div class="kpi-label">Total Cost</div>
+                <div id="dsr-total-cost" style="font-size: 17px; font-weight: 800; color: #64748b;">Rs. 0</div>
+              </div>
+              <div>
+                <div class="kpi-label">Total Profit</div>
+                <div id="dsr-total-profit" style="font-size: 18px; font-weight: 900; color: var(--emerald);">Rs. 0</div>
+              </div>
+              <div>
+                <div class="kpi-label">Profit Margin</div>
+                <div style="display: flex; align-items: baseline; gap: 6px;">
+                  <span id="dsr-profit-percent" class="badge-profit-pos" style="font-size: 13px;">0.0%</span>
+                  <span id="dsr-markup-percent" style="font-size: 11px; color: #64748b;"></span>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <button type="submit" class="btn btn-gold" style="font-weight: 800; padding: 10px 20px; font-size: 13px;">💾 Save Order to DSR</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- SECTION 2: REPORTS & ANALYTICS PORTAL -->
+      <div id="dsr-sub-analytics" class="dsr-sub-section" style="display: none;">
+        <!-- Period Filter Bar (Screenshot 3: Clean Professional English) -->
+        <div class="panel-card" style="padding: 16px;">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px;">
+            <div>
+              <div class="panel-card-title" style="margin-bottom: 2px;">📈 Sales &amp; Profit Reports</div>
+              <div style="font-size: 12px; color: var(--text-muted);">View complete store revenue, cost of goods, expenses, and net profit for any time period</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-light" onclick="printDsrStatement()" style="display: flex; align-items: center; gap: 6px;">
+                <span>🖨️</span> Print Financial Statement
+              </button>
             </div>
           </div>
 
-          <!-- Selected Items Table -->
-          <div class="table-container" style="margin-top: 16px;">
+          <div class="dsr-period-strip">
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="dsr-period-buttons">
+              <button type="button" class="dsr-filter-btn active" onclick="setDsrPeriod('today', this)">📅 Today</button>
+              <button type="button" class="dsr-filter-btn" onclick="setDsrPeriod('yesterday', this)">📅 Yesterday</button>
+              <button type="button" class="dsr-filter-btn" onclick="setDsrPeriod('week', this)">📅 Last 7 Days</button>
+              <button type="button" class="dsr-filter-btn" onclick="setDsrPeriod('month', this)">📅 This Month</button>
+              <button type="button" class="dsr-filter-btn" onclick="setDsrPeriod('last_month', this)">📅 Last Month</button>
+              <button type="button" class="dsr-filter-btn" onclick="setDsrPeriod('all', this)">📅 All Time</button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Custom:</span>
+              <input type="date" id="dsr-filter-from" style="padding: 6px 10px; font-size: 12px;">
+              <span style="color: var(--text-muted); font-size: 12px;">to</span>
+              <input type="date" id="dsr-filter-to" style="padding: 6px 10px; font-size: 12px;">
+              <button type="button" class="btn btn-emerald" onclick="applyDsrCustomRange()" style="padding: 6px 12px; font-size: 12px;">Search</button>
+            </div>
+          </div>
+
+          <!-- Financial Metric Summary Cards -->
+          <div class="dsr-analytics-grid">
+            <div class="dsr-stat-box">
+              <div class="kpi-label">Selected Period</div>
+              <div id="dsr-stat-label" style="font-size: 14px; font-weight: 800; color: #d97706;">Today</div>
+              <div id="dsr-stat-sub" style="font-size: 11px; color: var(--text-muted);">0 orders recorded</div>
+            </div>
+            <div class="dsr-stat-box highlight">
+              <div class="kpi-label">Total Sales (Revenue)</div>
+              <div id="dsr-stat-sale" style="font-size: 20px; font-weight: 900; color: #0284c7;">Rs. 0</div>
+              <div id="dsr-stat-orders" style="font-size: 11px; color: #64748b;">0 orders • 0 units sold</div>
+            </div>
+            <div class="dsr-stat-box">
+              <div class="kpi-label">Purchase Cost (COGS)</div>
+              <div id="dsr-stat-cost" style="font-size: 20px; font-weight: 900; color: #475569;">Rs. 0</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Total Cost of Goods Sold</div>
+            </div>
+            <div class="dsr-stat-box success">
+              <div class="kpi-label">Gross Profit</div>
+              <div id="dsr-stat-gross" style="font-size: 20px; font-weight: 900; color: #059669;">Rs. 0</div>
+              <div id="dsr-stat-gross-pct" style="font-size: 11px; color: #059669; font-weight: 700;">Margin: 0.0%</div>
+            </div>
+            <div class="dsr-stat-box danger">
+              <div class="kpi-label">Shop Expenses</div>
+              <div id="dsr-stat-expenses" style="font-size: 20px; font-weight: 900; color: #dc2626;">Rs. 0</div>
+              <div id="dsr-stat-exp-count" style="font-size: 11px; color: #dc2626;">0 recorded expenses</div>
+            </div>
+            <div class="dsr-stat-box success" style="border-width: 2px;">
+              <div class="kpi-label">Net Clean Profit</div>
+              <div id="dsr-stat-net" style="font-size: 22px; font-weight: 900; color: #059669;">Rs. 0</div>
+              <div id="dsr-stat-net-pct" style="font-size: 11px; color: #059669; font-weight: 800;">Net Margin: 0.0%</div>
+            </div>
+          </div>
+
+          <!-- Orders History Table -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-muted);">Orders List for Selected Period:</div>
+            <div style="font-size: 12px; color: #d97706; font-weight: 700;" id="dsr-filtered-count">Showing 0 Orders</div>
+          </div>
+          <div class="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Product</th>
-                  <th style="width: 70px;">Qty</th>
-                  <th style="width: 100px;">Sale Rate</th>
-                  <th style="width: 100px;">Cost Rate</th>
-                  <th style="width: 100px;">Line Total</th>
-                  <th style="width: 100px;">Profit</th>
-                  <th style="width: 60px;">Del</th>
+                  <th style="width: 100px;">Order ID</th>
+                  <th style="width: 130px;">Date &amp; Time</th>
+                  <th>Customer</th>
+                  <th style="width: 100px;">Payment</th>
+                  <th>Items Breakdown</th>
+                  <th style="width: 110px; text-align: right;">Total Sale</th>
+                  <th style="width: 110px; text-align: right;">Total Cost</th>
+                  <th style="width: 110px; text-align: right;">Profit (Rs)</th>
+                  <th style="width: 90px; text-align: center;">Margin %</th>
+                  <th style="width: 60px; text-align: center;">Action</th>
                 </tr>
               </thead>
-              <tbody id="dsr-items-tbody"></tbody>
+              <tbody id="dsr-history-tbody">
+                <tr>
+                  <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">No orders found for this period.</td>
+                </tr>
+              </tbody>
             </table>
           </div>
+        </div>
 
-          <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-size: 14px; font-weight: 700;">
-              Total Sale: <span id="dsr-total-sale" style="color: #38bdf8;">Rs. 0</span> | 
-              Total Profit: <span id="dsr-total-profit" style="color: var(--emerald);">Rs. 0</span>
+        <!-- Shop Expenses Card -->
+        <div class="panel-card" style="margin-top: 20px;">
+          <div class="panel-card-title">🧾 Daily Shop Expenses Tracker</div>
+          <form id="dsr-expense-form" onsubmit="handleDsrExpense(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Expense Date</label>
+                <input type="date" id="exp-date" required>
+              </div>
+              <div class="form-group">
+                <label>Expense Title / Description</label>
+                <input type="text" id="exp-title" required placeholder="e.g. Packaging, Staff Lunch, Electricity, Delivery Petrol">
+              </div>
+              <div class="form-group">
+                <label>Amount (Rs.)</label>
+                <input type="number" id="exp-amount" required placeholder="e.g. 250">
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select id="exp-category">
+                  <option value="supplies">Packaging / Shoppers / Tape</option>
+                  <option value="food">Refreshment &amp; Tea</option>
+                  <option value="utilities">Electricity / Generator / Fuel</option>
+                  <option value="wage">Staff &amp; Helper Wages</option>
+                  <option value="misc">Miscellaneous Expenses</option>
+                </select>
+              </div>
             </div>
-            <button type="submit" class="btn btn-gold">Save Order to DSR</button>
-          </div>
-        </form>
-      </div>
+            <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+              <button type="submit" class="btn btn-emerald">+ Record Expense</button>
+            </div>
+          </form>
 
-      <!-- DSR History -->
-      <div class="panel-card">
-        <div class="panel-card-title">📊 Recent Sales History</div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Date & Time</th>
-                <th>Customer</th>
-                <th>Payment</th>
-                <th>Items</th>
-                <th>Total Sale</th>
-                <th>Total Profit</th>
-              </tr>
-            </thead>
-            <tbody id="dsr-history-tbody"></tbody>
-          </table>
+          <!-- Expenses Table -->
+          <div style="margin-top: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--text-muted);">Recorded Expenses for Selected Period:</div>
+              <div style="font-size: 13px; font-weight: 800; color: #dc2626;">Total Expenses: <span id="dsr-total-expenses-display">Rs. 0</span></div>
+            </div>
+            <div class="table-container" style="max-height: 280px; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 100px;">Expense ID</th>
+                    <th style="width: 110px;">Date</th>
+                    <th>Description</th>
+                    <th style="width: 150px;">Category</th>
+                    <th style="width: 120px; text-align: right;">Amount (Rs)</th>
+                    <th style="width: 60px; text-align: center;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="dsr-expenses-tbody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- TAB 4: STORE SETTINGS -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- TAB 4: PURCHASING & WHOLESALE MARKET ORDER SHEET (NEW MODULE)   -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div id="tab-purchasing" class="tab-panel active">
+      
+      <!-- Top Action Bar & Entry Form Card -->
+      <div class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div class="panel-card-title" style="margin-bottom: 2px;">🛒 Wholesale Market Purchasing Order Sheet</div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              Type or search items to prepare an organized market purchasing sheet. Items automatically group by market section in alphabetical order with automatic purchase rates.
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-gold" onclick="printPurchasingSheet()" style="padding: 9px 18px; font-size: 13px;">
+              <span>🖨️</span> Print Purchasing Sheet
+            </button>
+            <button type="button" class="btn btn-emerald" onclick="saveCurrentPurchasingSheet()">
+              <span>💾</span> Save Sheet
+            </button>
+            <button type="button" class="btn btn-light" onclick="clearPurchasingSheet()">
+              <span>🗑️</span> Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Meta fields (Date, Market Name, Notes) -->
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+          <div style="flex: 1; min-width: 160px;">
+            <label style="font-size: 10px;">Sheet Date</label>
+            <input type="date" id="purchasing-date" style="padding: 7px 10px; font-size: 12px; width: 100%;">
+          </div>
+          <div style="flex: 2; min-width: 220px;">
+            <label style="font-size: 10px;">Wholesale Market / Supplier</label>
+            <input type="text" id="purchasing-market-name" placeholder="e.g. Jodia Bazaar / Bolton Market / Main Mandi" style="padding: 7px 10px; font-size: 12px; width: 100%;">
+          </div>
+          <div style="flex: 2; min-width: 220px;">
+            <label style="font-size: 10px;">Sheet Title / Notes (Optional)</label>
+            <input type="text" id="purchasing-notes" placeholder="e.g. Monday Weekly Stock Refill" style="padding: 7px 10px; font-size: 12px; width: 100%;">
+          </div>
+        </div>
+
+        <!-- Fast Item Entry Strip -->
+        <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+          <label style="margin-bottom: 6px; display: block; color: #0f172a;">⚡ Fast Item Entry</label>
+          <div style="display: grid; grid-template-columns: minmax(260px, 2fr) minmax(180px, 1.3fr) 90px 120px auto; gap: 10px; align-items: end;">
+            
+            <!-- Smart Search / Free-type Item Name -->
+            <div class="dsr-search-wrapper">
+              <label style="font-size: 10px;">Item Description / Name</label>
+              <div class="dsr-search-input-box">
+                <input type="text" id="purchasing-item-input"
+                  placeholder="🔍 Type or search item name (e.g. Surf Excel, Lux, Oil)..."
+                  oninput="onPurchasingSearchType(this.value)"
+                  onfocus="onPurchasingSearchFocus()"
+                  onkeydown="handlePurchasingSearchKeydown(event)"
+                  autocomplete="off">
+                <button type="button" id="purchasing-search-clear" class="dsr-search-clear-btn" onclick="clearPurchasingSearch()" title="Clear">✕</button>
+              </div>
+              <input type="hidden" id="purchasing-selected-id" value="">
+              <div id="purchasing-search-results" class="dsr-search-dropdown" style="display: none;"></div>
+            </div>
+
+            <!-- Market Section Selector / Creator -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                <label style="font-size: 10px; margin-bottom: 0;">Market Section (Auto-Grouped)</label>
+                <button type="button" onclick="openSectionsManagerModal()" style="font-size: 10.5px; color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 1px 6px; font-weight: 700; cursor: pointer;" title="Rename or Delete Market Sections">
+                  ⚙️ Edit / Manage
+                </button>
+              </div>
+              <div style="display: flex; gap: 4px;">
+                <input list="purchasing-sections-datalist" id="purchasing-item-section" 
+                  placeholder="Choose or type section..." 
+                  style="width: 100%; font-weight: 600;">
+                <button type="button" class="btn btn-light" onclick="openSectionsManagerModal()" title="Manage Sections" style="padding: 0 8px; height: 38px; font-size: 13px;">⚙️</button>
+              </div>
+              <datalist id="purchasing-sections-datalist"></datalist>
+            </div>
+
+            <!-- Quantity -->
+            <div>
+              <label style="font-size: 10px;">Quantity</label>
+              <input type="number" id="purchasing-item-qty" value="1" min="1" placeholder="Qty" style="width: 100%; font-weight: 700;">
+            </div>
+
+            <!-- Purchase Rate (Cost) -->
+            <div>
+              <label style="font-size: 10px;">Pur Rate (Cost)</label>
+              <input type="number" id="purchasing-item-rate" placeholder="Pur Rate" style="width: 100%; font-weight: 700;">
+            </div>
+
+            <!-- Add Button -->
+            <div>
+              <button type="button" class="btn btn-emerald" onclick="addPurchasingRow()" style="height: 38px; white-space: nowrap; font-weight: 800; padding: 0 18px;">
+                + Add to Sheet
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 16px; margin-top: 8px; font-size: 11px; color: var(--text-muted); align-items: center;">
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; text-transform: none;">
+              <input type="checkbox" id="purchasing-save-rate-chk" checked style="accent-color: #059669;">
+              <span>Save Pur Rate permanently for this item</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; text-transform: none;">
+              <input type="checkbox" id="purchasing-save-section-chk" checked style="accent-color: #059669;">
+              <span>Remember Section for this item</span>
+            </label>
+            <span id="purchasing-status-hint" style="color: #d97706; font-weight: 700; margin-left: auto;"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Grouped Purchasing Sheet Display Card -->
+      <div class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+          <div class="panel-card-title" style="margin-bottom: 0;">
+            📋 Purchasing Order Sheet Preview (<span id="purchasing-item-count">0</span> items)
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted);">
+            Items are automatically organized by Section in Alphabetical Order (A to Z) with subtotals.
+          </div>
+        </div>
+
+        <!-- Dynamic Container where sections will be rendered -->
+        <div id="purchasing-grouped-container">
+          <div style="text-align: center; color: var(--text-muted); padding: 40px; background: #f8fafc; border-radius: 12px; border: 1px dashed var(--card-border);">
+            🛒 Your purchasing sheet is empty.<br>
+            <span style="font-size: 12px; color: #94a3b8;">Use the Fast Item Entry strip above to search or type items.</span>
+          </div>
+        </div>
+
+        <!-- Overall Summary Ribbon for Purchasing Sheet -->
+        <div class="dsr-summary-ribbon" style="margin-top: 20px; background: #ffffff; border-color: #0f172a;">
+          <div>
+            <div class="kpi-label">Market Sections</div>
+            <div id="purchasing-summary-sections" style="font-size: 16px; font-weight: 800; color: #0f172a;">0 sections</div>
+          </div>
+          <div>
+            <div class="kpi-label">Total Items</div>
+            <div id="purchasing-summary-items" style="font-size: 16px; font-weight: 800; color: #0f172a;">0 items</div>
+          </div>
+          <div>
+            <div class="kpi-label">Total Quantity</div>
+            <div id="purchasing-summary-qty" style="font-size: 17px; font-weight: 800; color: #0284c7;">0 units</div>
+          </div>
+          <div>
+            <div class="kpi-label">Total Estimated Amount</div>
+            <div id="purchasing-summary-amount" style="font-size: 19px; font-weight: 900; color: #059669;">Rs. 0</div>
+          </div>
+          <div style="text-align: right;">
+            <button type="button" class="btn btn-gold" onclick="printPurchasingSheet()" style="padding: 11px 22px; font-size: 13px; font-weight: 800;">
+              🖨️ Print Purchasing Sheet
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Saved Purchasing Sheets History Card -->
+      <div class="panel-card" style="margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div class="panel-card-title" style="margin-bottom: 0;">📜 Saved Purchasing Sheets History</div>
+          <span style="font-size: 12px; color: var(--text-muted);" id="purchasing-sheets-count">0 saved sheets</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 110px;">Sheet ID</th>
+                <th style="width: 120px;">Date</th>
+                <th>Title / Market</th>
+                <th style="width: 90px; text-align: right;">Items</th>
+                <th style="width: 90px; text-align: right;">Total Qty</th>
+                <th style="width: 130px; text-align: right;">Total Amount</th>
+                <th style="width: 130px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="purchasing-history-tbody">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No saved purchasing sheets yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 5: STORE SETTINGS -->
     <div id="tab-settings" class="tab-panel">
       <div class="panel-card">
-        <div class="panel-card-title">⚙️ Store & App Settings</div>
+        <div class="panel-card-title">⚙️ Store &amp; App Settings</div>
         <div class="form-grid">
           <div class="form-group">
             <label>Delivery Timing (Header Text)</label>
@@ -618,6 +1559,10 @@
             <label>Standard Delivery Fee (Rs.)</label>
             <input type="number" id="setting-deliveryfee" value="150">
           </div>
+          <div class="form-group full">
+            <label>Top Store Announcement / Notice (Optional Banner on App &amp; Web)</label>
+            <input type="text" id="setting-announcement" placeholder="e.g. Free Home Delivery available on all orders in Karachi this week!">
+          </div>
         </div>
         <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
           <button class="btn btn-gold" onclick="saveSettings()">💾 Save &amp; Sync Settings to App</button>
@@ -625,18 +1570,18 @@
       </div>
     </div>
 
-    <!-- TAB 5: SYSTEM & 1-CLICK PUBLISH -->
+    <!-- TAB 6: SYSTEM & 1-CLICK PUBLISH -->
     <div id="tab-system" class="tab-panel">
       <div class="panel-card">
-        <div class="panel-card-title">🚀 1-Click Operations</div>
+        <div class="panel-card-title">🚀 1-Click Operations &amp; Compilations</div>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
-          Yeh button click karte hi aapka poora catalog, prices, categories, aur settings ek second mein compile ho kar Website aur Android App assets mein live sync ho jayenge.
+          Synchronize your complete catalog, prices, categories, and settings with one click to the website and Android APK assets.
         </p>
-        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
-          <button class="btn btn-gold" style="padding: 14px 28px; font-size: 15px;" onclick="triggerPublishLive()">
-            <span>🚀</span> Publish Live to App & Web Now
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button class="btn btn-gold" style="padding: 12px 24px; font-size: 14px;" onclick="triggerPublishLive()">
+            <span>🚀</span> Publish Live to App &amp; Web Now
           </button>
-          <button class="btn btn-dark" style="padding: 14px 28px; font-size: 15px;" onclick="triggerBuildApk()">
+          <button class="btn btn-dark" style="padding: 12px 24px; font-size: 14px;" onclick="triggerBuildApk()">
             <span>📱</span> Build Fresh Android APK (Desktop)
           </button>
         </div>
@@ -645,12 +1590,150 @@
 
   </main>
 
+  <!-- ── MODAL: EDIT PRODUCT & PICTURE (Auto-WebP) ── -->
+  <div class="modal-backdrop" id="edit-product-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">✏️ Edit Product Details &amp; Picture</span>
+        <button class="btn btn-light" style="padding: 3px 9px;" onclick="closeEditProductModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-product-form" onsubmit="handleSaveEditProduct(event)">
+          <input type="hidden" id="edit-p-id">
+          
+          <div style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid var(--card-border);">
+            <div style="position: relative; width: 64px; height: 64px; flex-shrink: 0;">
+              <img id="edit-p-img-preview" src="icon-192.png" alt="" style="width: 64px; height: 64px; object-fit: contain; background: #ffffff; border-radius: 10px; border: 1px solid #cbd5e1;">
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <label style="margin-bottom: 4px; display: block;">Change Product Photo (Auto-WebP)</label>
+              <input type="file" id="edit-p-file" accept="image/*" onchange="handleEditImageSelect(event)" style="font-size: 11px; padding: 6px;">
+              <div id="edit-image-status" style="font-size: 11px; font-weight: 700; color: #059669; margin-top: 4px;"></div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Product Name (Capitalized)</label>
+              <input type="text" id="edit-p-name" required placeholder="Product Title">
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="edit-p-cat" required></select>
+            </div>
+            <div class="form-group">
+              <label>Selling Price (Rs.)</label>
+              <input type="number" id="edit-p-price" required>
+            </div>
+            <div class="form-group">
+              <label>Purchase / Cost Rate (Rs.)</label>
+              <input type="number" id="edit-p-cost" placeholder="Cost">
+            </div>
+            <div class="form-group">
+              <label>Priority Rank (1 = Top)</label>
+              <input type="number" id="edit-p-prio" placeholder="Optional">
+            </div>
+          </div>
+
+          <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-light" onclick="closeEditProductModal()">Cancel</button>
+            <button type="submit" class="btn btn-emerald" id="edit-p-save-btn">Save Product Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- ── MODAL: MARKET SECTIONS MANAGER (Screenshot 3: Rename, Edit, Delete sections) ── -->
+  <div class="modal-backdrop" id="sections-manager-modal">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header">
+        <span class="modal-title">⚙️ Market Sections Manager</span>
+        <button class="btn btn-light" style="padding: 3px 9px;" onclick="closeSectionsManagerModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Yahan se aap kisi bhi wholesale market section ka <b>Name Change / Rename</b> kar sakte hain ya <b>Delete</b> kar sakte hain. Rename karne par items automatic update ho jayengi.
+        </p>
+
+        <!-- Add New Section Input Row -->
+        <div style="display: flex; gap: 8px; margin-bottom: 14px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border);">
+          <input type="text" id="new-section-input" placeholder="Type new section name (e.g. Bolton Market)..." style="flex: 1; padding: 7px 10px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
+          <button type="button" class="btn btn-emerald" onclick="addNewSectionFromManager()" style="padding: 7px 14px; font-size: 12px; font-weight: 700;">
+            ➕ Add Section
+          </button>
+        </div>
+
+        <!-- Section list with Rename and Delete -->
+        <label style="font-size: 11px; font-weight: 800; color: #475569; display: block; margin-bottom: 6px;">CURRENT SECTIONS:</label>
+        <div id="sections-manager-list" style="max-height: 280px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff;">
+          <!-- Injected via renderSectionsManagerList() -->
+        </div>
+      </div>
+      <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+        <button type="button" class="btn btn-light" onclick="closeSectionsManagerModal()">Done / Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL: EDIT PURCHASING ITEM ── -->
+  <div class="modal-backdrop" id="edit-purchasing-item-modal">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <span class="modal-title">✏️ Edit Purchasing Sheet Item</span>
+        <button class="btn btn-light" style="padding: 3px 9px;" onclick="closeEditPurchasingItemModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-purchasing-item-index" value="">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Item Name / Description</label>
+            <input type="text" id="edit-purchasing-name" required placeholder="Item Name">
+          </div>
+          <div class="form-group full">
+            <label>Market Section</label>
+            <select id="edit-purchasing-section" style="padding: 7px 10px; font-size: 13px; font-weight: 600; width: 100%; border-radius: 6px; border: 1px solid #cbd5e1;"></select>
+          </div>
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="edit-purchasing-qty" min="1" required oninput="calcEditPurchasingTotal()">
+          </div>
+          <div class="form-group">
+            <label>Purchase Rate (Rs.)</label>
+            <input type="number" id="edit-purchasing-rate" min="0" required oninput="calcEditPurchasingTotal()">
+          </div>
+          <div class="form-group full" style="background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 700; color: #475569; font-size: 12px;">Estimated Total:</span>
+            <span id="edit-purchasing-total-preview" style="font-weight: 900; color: #059669; font-size: 16px;">Rs. 0</span>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px; font-size: 11.5px; color: var(--text-muted);">
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none;">
+            <input type="checkbox" id="edit-purchasing-save-rate-chk" checked style="accent-color: #059669;">
+            <span>Save Purchase Rate permanently in catalog</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none;">
+            <input type="checkbox" id="edit-purchasing-save-section-chk" checked style="accent-color: #059669;">
+            <span>Remember Section for this item permanently</span>
+          </label>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-light" onclick="closeEditPurchasingItemModal()">Cancel</button>
+          <button type="button" class="btn btn-emerald" onclick="saveEditPurchasingItem()">💾 Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Live Terminal Modal -->
-  <div class="terminal-modal" id="terminal-modal">
+  <div class="modal-backdrop" id="terminal-modal">
     <div class="terminal-card">
       <div class="terminal-header">
         <span class="terminal-title" id="terminal-title">LIVE EXECUTION CONSOLE</span>
-        <button class="btn btn-dark" style="padding: 4px 10px; font-size: 11px;" onclick="closeTerminal()">Close</button>
+        <button class="btn btn-light" style="padding: 4px 10px; font-size: 11px; background: #334155; color: #fff; border: none;" onclick="closeTerminal()">Close</button>
       </div>
       <div class="terminal-body" id="terminal-body">Running operations...</div>
     </div>
@@ -662,10 +1745,75 @@
     let purchaseRates = {};
     let currentDsrItems = [];
 
+    // ── Purchasing State ──
+    let purchasingSections = ["AY", "Bahria Center", "Butt Center", "China 1", "China 2", "Condom", "General Market"];
+    let itemSectionsMap = {};
+    let currentPurchasingItems = [];
+    let savedPurchasingSheets = [];
+    let purchasingSearchActiveIdx = -1;
+    let purchasingSearchResultsList = [];
+    let selectedPurchasingProduct = null;
+
+    // Client-side HTML5 Canvas WebP Auto-Conversion
+    function convertFileToWebP(file, maxDimension = 500, quality = 0.85) {
+      return new Promise((resolve, reject) => {
+        if (!file) return resolve(null);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+            if (width > height) {
+              if (width > maxDimension) {
+                height = Math.round((height * maxDimension) / width);
+                width = maxDimension;
+              }
+            } else {
+              if (height > maxDimension) {
+                width = Math.round((width * maxDimension) / height);
+                height = maxDimension;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const webpData = canvas.toDataURL('image/webp', quality);
+            const webpBytes = Math.round((webpData.length * 3) / 4);
+            resolve({
+              dataUrl: webpData,
+              origSize: file.size,
+              webpSize: webpBytes,
+              width,
+              height
+            });
+          };
+          img.onerror = () => reject(new Error('Failed to decode image file'));
+          img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+    }
+
     async function init() {
-      document.getElementById('dsr-date').value = new Date().toISOString().slice(0, 10);
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const dsrDate = document.getElementById('dsr-date');
+      if (dsrDate) dsrDate.value = todayStr;
+      const expDate = document.getElementById('exp-date');
+      if (expDate) expDate.value = todayStr;
+      const fromInput = document.getElementById('dsr-filter-from');
+      if (fromInput) fromInput.value = todayStr;
+      const toInput = document.getElementById('dsr-filter-to');
+      if (toInput) toInput.value = todayStr;
+
+      const pDate = document.getElementById('purchasing-date');
+      if (pDate) pDate.value = todayStr;
+
       await loadStats();
       await loadPurchaseRates();
+      await loadPurchasingData();
       await loadProducts();
       await loadDsr();
     }
@@ -678,8 +1826,8 @@
           document.getElementById('kpi-products').textContent = data.totalProducts.toLocaleString();
           document.getElementById('kpi-categories').textContent = data.totalCategories;
           document.getElementById('kpi-images').textContent = data.totalImages.toLocaleString();
-          document.getElementById('kpi-sales').textContent = 'Rs. ' + data.todaySales.toLocaleString();
-          document.getElementById('kpi-profit').textContent = 'Rs. ' + data.todayProfit.toLocaleString();
+          if (document.getElementById('kpi-sales')) document.getElementById('kpi-sales').textContent = 'Rs. ' + data.todaySales.toLocaleString();
+          if (document.getElementById('kpi-profit')) document.getElementById('kpi-profit').textContent = 'Rs. ' + data.todayProfit.toLocaleString();
         }
       } catch(e) {}
     }
@@ -692,12 +1840,57 @@
       } catch(e) {}
     }
 
+    async function loadPurchasingData() {
+      try {
+        const [secRes, sheetRes] = await Promise.all([
+          fetch('/api/purchasing/sections'),
+          fetch('/api/purchasing/sheets')
+        ]);
+        const secData = await secRes.json();
+        const sheetData = await sheetRes.json();
+
+        if (secData.sections && Array.isArray(secData.sections)) {
+          purchasingSections = secData.sections;
+        }
+        if (secData.itemSections) {
+          itemSectionsMap = secData.itemSections;
+        }
+        renderPurchasingSectionsDatalist();
+
+        if (sheetData.sheets) {
+          savedPurchasingSheets = sheetData.sheets;
+          renderSavedPurchasingSheets();
+        }
+      } catch(e) {
+        console.warn('Purchasing data load notice:', e);
+      }
+    }
+
+    function renderPurchasingSectionsDatalist() {
+      const datalist = document.getElementById('purchasing-sections-datalist');
+      if (!datalist) return;
+      datalist.innerHTML = '';
+      purchasingSections.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        datalist.appendChild(opt);
+      });
+    }
+
     async function loadProducts() {
       try {
         const res = await fetch('/api/products');
         const data = await res.json();
         allProducts = data.products || [];
         allCategories = data.categories || [];
+        allProducts.forEach(p => {
+          if (p.categoryId && !allCategories.some(c => c.id === p.categoryId)) {
+            allCategories.push({
+              id: p.categoryId,
+              name: p.categoryName || p.categoryId
+            });
+          }
+        });
         renderCategoryDropdowns();
         renderProductsTable(allProducts);
         renderDsrItemSelect();
@@ -708,7 +1901,9 @@
     function renderCategoryDropdowns() {
       const addSelect = document.getElementById('add-category');
       const filterSelect = document.getElementById('filter-category');
+      const editSelect = document.getElementById('edit-p-cat');
       addSelect.innerHTML = '';
+      if (editSelect) editSelect.innerHTML = '';
       filterSelect.innerHTML = '<option value="">All Categories</option>';
       allCategories.forEach(c => {
         const opt1 = document.createElement('option');
@@ -716,6 +1911,14 @@
         opt1.textContent = c.name;
         opt1.setAttribute('data-name', c.name);
         addSelect.appendChild(opt1);
+
+        if (editSelect) {
+          const optEdit = document.createElement('option');
+          optEdit.value = c.id;
+          optEdit.textContent = c.name;
+          optEdit.setAttribute('data-name', c.name);
+          editSelect.appendChild(optEdit);
+        }
 
         const opt2 = document.createElement('option');
         opt2.value = c.id;
@@ -732,31 +1935,157 @@
         const tr = document.createElement('tr');
         const costRate = purchaseRates[p.id] || '';
         tr.innerHTML = `
-          <td style="font-weight: 700; color: var(--accent);">${p.id}</td>
-          <td><img src="images/${p.id}.webp" onerror="this.src='images/${p.id}.png'; this.onerror=function(){this.src='icon-192.png';}" class="product-thumb"></td>
+          <td style="font-weight: 800; color: #d97706;">${p.id}</td>
+          <td>
+            <div class="product-thumb-container" onclick="openEditProductModal(${p.id})" title="Click to view/change picture">
+              <img src="images/${p.id}.webp" onerror="this.src='images/${p.id}.png'; this.onerror=function(){this.src='icon-192.png';}" class="product-thumb">
+              <div class="thumb-overlay-badge">📷</div>
+            </div>
+          </td>
           <td>
             <input type="text" id="p-name-${p.id}" value="${p.name.replace(/"/g, '&quot;')}" style="width: 100%;">
           </td>
           <td>
             <select id="p-cat-${p.id}" style="width: 100%;">
               ${allCategories.map(c => `<option value="${c.id}" ${c.id === p.categoryId ? 'selected' : ''}>${c.name}</option>`).join('')}
+              ${!allCategories.some(c => c.id === p.categoryId) && p.categoryId ? `<option value="${p.categoryId}" selected>${p.categoryName || p.categoryId}</option>` : ''}
             </select>
           </td>
           <td>
-            <input type="number" id="p-price-${p.id}" value="${p.price}" style="width: 90px;">
+            <input type="number" id="p-price-${p.id}" value="${p.price}" style="width: 85px;">
           </td>
           <td>
-            <input type="number" id="p-cost-${p.id}" value="${costRate}" placeholder="Cost" style="width: 90px;">
+            <input type="number" id="p-cost-${p.id}" value="${costRate}" placeholder="Cost" style="width: 85px;">
           </td>
           <td>
-            <input type="number" id="p-prio-${p.id}" value="${p.priority || ''}" placeholder="Prio" style="width: 60px;">
+            <input type="number" id="p-prio-${p.id}" value="${p.priority || ''}" placeholder="Prio" style="width: 55px;">
           </td>
-          <td style="text-align: center;">
-            <button class="btn btn-emerald" style="padding: 5px 8px; font-size: 11px;" onclick="saveProductRow(${p.id})">Save</button>
+          <td style="text-align: center; white-space: nowrap;">
+            <button class="btn btn-dark" style="padding: 5px 8px; font-size: 11px;" title="Full Edit & Change Photo" onclick="openEditProductModal(${p.id})">✏️ Edit</button>
+            <button class="btn btn-emerald" style="padding: 5px 8px; font-size: 11px; margin-left: 2px;" onclick="saveProductRow(${p.id})">Save</button>
+            <button class="btn btn-danger" style="padding: 5px 8px; font-size: 11px; margin-left: 2px;" title="Delete Product" onclick="deleteProductRow(${p.id})">🗑️</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    // Modal: Full Product & Picture Editor with WebP auto-conversion
+    let editImageBase64 = null;
+    function openEditProductModal(id) {
+      const p = allProducts.find(item => item.id === id);
+      if (!p) return;
+      document.getElementById('edit-p-id').value = p.id;
+      document.getElementById('edit-p-name').value = p.name;
+      document.getElementById('edit-p-price').value = p.price;
+      document.getElementById('edit-p-cost').value = purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : '';
+      document.getElementById('edit-p-prio').value = p.priority || '';
+      
+      const catSelect = document.getElementById('edit-p-cat');
+      if (catSelect) catSelect.value = p.categoryId || (allCategories[0] ? allCategories[0].id : '');
+
+      const imgPreview = document.getElementById('edit-p-img-preview');
+      imgPreview.src = `images/${p.id}.webp`;
+      imgPreview.onerror = function() {
+        this.src = `images/${p.id}.png`;
+        this.onerror = function() { this.src = 'icon-192.png'; };
+      };
+
+      document.getElementById('edit-p-file').value = '';
+      document.getElementById('edit-image-status').textContent = '';
+      editImageBase64 = null;
+
+      document.getElementById('edit-product-modal').classList.add('show');
+    }
+
+    function closeEditProductModal() {
+      document.getElementById('edit-product-modal').classList.remove('show');
+      editImageBase64 = null;
+    }
+
+    async function handleEditImageSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const statusEl = document.getElementById('edit-image-status');
+      statusEl.textContent = '⏳ Converting image to lightweight WebP...';
+      try {
+        const result = await convertFileToWebP(file, 500, 0.85);
+        if (result) {
+          editImageBase64 = result.dataUrl;
+          document.getElementById('edit-p-img-preview').src = editImageBase64;
+          statusEl.textContent = `✅ Auto-converted to WebP (${Math.round(result.webpSize/1024)} KB) — Fast app load!`;
+        }
+      } catch (err) {
+        statusEl.textContent = '❌ Error converting image: ' + err.message;
+      }
+    }
+
+    async function handleSaveEditProduct(e) {
+      e.preventDefault();
+      const id = Number(document.getElementById('edit-p-id').value);
+      const catSelect = document.getElementById('edit-p-cat');
+      const catName = catSelect.options[catSelect.selectedIndex].textContent;
+      const prioVal = document.getElementById('edit-p-prio').value;
+
+      const payload = {
+        name: document.getElementById('edit-p-name').value.trim(),
+        price: Number(document.getElementById('edit-p-price').value),
+        purchasePrice: document.getElementById('edit-p-cost').value ? Number(document.getElementById('edit-p-cost').value) : undefined,
+        categoryId: catSelect.value,
+        categoryName: catName,
+        priority: prioVal !== '' ? Number(prioVal) : 0
+      };
+
+      if (editImageBase64) {
+        payload.imageBase64 = editImageBase64;
+      }
+
+      const saveBtn = document.getElementById('edit-p-save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        const res = await fetch('/api/products/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert('✅ Product #' + id + ' updated successfully with picture!');
+          closeEditProductModal();
+          await loadProducts();
+          await loadStats();
+        } else {
+          alert('❌ Error: ' + (data.error || 'Failed'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Product Changes';
+      }
+    }
+
+    async function deleteProductRow(id) {
+      const p = allProducts.find(item => item.id === id);
+      const name = p ? p.name : ('#' + id);
+      if (!confirm(`Are you sure you want to delete Product #${id} (${name})?\n\nThis will remove it from the catalog, website, and mobile app.`)) return;
+
+      try {
+        const res = await fetch('/api/products/' + id, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.ok) {
+          allProducts = allProducts.filter(item => item.id !== id);
+          filterProducts();
+          await loadStats();
+          alert(`✅ Product #${id} deleted successfully!`);
+        } else {
+          alert('❌ Error deleting product: ' + (data.error || 'Failed'));
+        }
+      } catch(e) {
+        alert('❌ Network error: ' + e.message);
+      }
     }
 
     function filterProducts() {
@@ -771,18 +2100,26 @@
     }
 
     let currentBase64 = null;
-    function previewImage(e) {
+    async function previewImage(e) {
       const file = e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        currentBase64 = evt.target.result;
-        const img = document.getElementById('upload-preview-img');
-        img.src = currentBase64;
-        img.style.display = 'block';
-        document.getElementById('upload-preview-text').textContent = file.name + ' (' + Math.round(file.size/1024) + ' KB)';
-      };
-      reader.readAsDataURL(file);
+      const badge = document.getElementById('upload-status-badge');
+      badge.style.display = 'block';
+      badge.textContent = '⏳ Converting image to lightweight WebP...';
+
+      try {
+        const result = await convertFileToWebP(file, 500, 0.85);
+        if (result) {
+          currentBase64 = result.dataUrl;
+          const img = document.getElementById('upload-preview-img');
+          img.src = currentBase64;
+          img.style.display = 'block';
+          document.getElementById('upload-preview-text').textContent = file.name;
+          badge.textContent = `✅ Auto-converted to WebP (${Math.round(result.webpSize/1024)} KB) — Fast app load!`;
+        }
+      } catch (err) {
+        badge.textContent = '❌ Error converting image: ' + err.message;
+      }
     }
 
     async function handleAddProduct(e) {
@@ -810,7 +2147,8 @@
           alert('✅ Product added successfully! ID: ' + data.product.id);
           document.getElementById('add-product-form').reset();
           document.getElementById('upload-preview-img').style.display = 'none';
-          document.getElementById('upload-preview-text').textContent = '📸 Drop image here or click to browse';
+          document.getElementById('upload-preview-text').textContent = '📸 Drop image here or click to browse (Auto-converted to WebP)';
+          document.getElementById('upload-status-badge').style.display = 'none';
           currentBase64 = null;
           await loadProducts();
           await loadStats();
@@ -825,13 +2163,14 @@
     async function saveProductRow(id) {
       const catSelect = document.getElementById('p-cat-' + id);
       const catName = catSelect.options[catSelect.selectedIndex].textContent;
+      const prioVal = document.getElementById('p-prio-' + id).value;
       const payload = {
         name: document.getElementById('p-name-' + id).value,
         price: Number(document.getElementById('p-price-' + id).value),
         purchasePrice: document.getElementById('p-cost-' + id).value ? Number(document.getElementById('p-cost-' + id).value) : undefined,
         categoryId: catSelect.value,
         categoryName: catName,
-        priority: document.getElementById('p-prio-' + id).value ? Number(document.getElementById('p-prio-' + id).value) : undefined
+        priority: prioVal !== '' ? Number(prioVal) : 0
       };
 
       try {
@@ -860,9 +2199,9 @@
       container.innerHTML = '';
       allCategories.forEach((c, idx) => {
         const div = document.createElement('div');
-        div.className = 'btn btn-dark';
+        div.className = 'btn btn-light';
         div.style.justifyContent = 'space-between';
-        div.innerHTML = `<span>${idx + 1}. ${c.name}</span><span style="font-size: 11px; color: var(--accent);">View Items →</span>`;
+        div.innerHTML = `<span>${idx + 1}. ${c.name}</span><span style="font-size: 11px; color: #d97706; font-weight: 700;">View Items →</span>`;
         div.onclick = () => loadCategoryItems(c.id);
         container.appendChild(div);
       });
@@ -876,7 +2215,7 @@
       catProducts.forEach(p => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="font-weight: 700; color: var(--accent);">${p.id}</td>
+          <td style="font-weight: 700; color: #d97706;">${p.id}</td>
           <td>${p.name}</td>
           <td>Rs. ${p.price}</td>
           <td>
@@ -892,73 +2231,587 @@
 
     async function savePriority(id) {
       const prioVal = document.getElementById('cat-prio-' + id).value;
-      const payload = { priority: prioVal ? Number(prioVal) : undefined };
+      const num = prioVal ? Number(prioVal) : 0;
+      const payload = { priority: num };
       const res = await fetch('/api/products/' + id, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-      if (data.ok) alert('✅ Priority updated! Remember to 1-Click Publish to make it live in the app.');
+      if (data.ok) {
+        const prod = allProducts.find(p => p.id === id);
+        if (prod) prod.priority = num > 0 ? num : undefined;
+        alert('✅ Priority ' + (num > 0 ? '#' + num : 'removed') + ' successfully updated and synced to app & web!');
+      } else {
+        alert('❌ Error: ' + (data.error || 'Failed'));
+      }
     }
 
-    // TAB 3: DSR System
-    function renderDsrItemSelect() {
-      const sel = document.getElementById('dsr-item-select');
-      sel.innerHTML = '<option value="">Select an Item from Catalog...</option>';
-      allProducts.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.id + ' - ' + p.name + ' (Rs. ' + p.price + ')';
-        sel.appendChild(opt);
-      });
-      sel.onchange = function() {
-        const id = sel.value;
-        const p = allProducts.find(item => String(item.id) === String(id));
-        if (p) {
-          document.getElementById('dsr-item-rate').value = p.price;
-          document.getElementById('dsr-item-cost').value = purchaseRates[p.id] || Math.round(p.price * 0.85);
+    // ── DSR 2-Section Switcher ──
+    function switchDsrSubSection(sectionId) {
+      document.getElementById('btn-subnav-pos').classList.toggle('active', sectionId === 'pos');
+      document.getElementById('btn-subnav-analytics').classList.toggle('active', sectionId === 'analytics');
+      document.getElementById('dsr-sub-pos').style.display = sectionId === 'pos' ? 'block' : 'none';
+      document.getElementById('dsr-sub-analytics').style.display = sectionId === 'analytics' ? 'block' : 'none';
+    }
+
+    // TAB 3: DSR System & Profit Analytics Portal
+    let dsrAllData = { orders: [], expenses: [] };
+    let currentDsrFilter = 'today';
+    let dsrFilterCustomStart = null;
+    let dsrFilterCustomEnd = null;
+
+    let selectedDsrProduct = null;
+    let dsrSearchActiveIdx = -1;
+    let dsrSearchResultsList = [];
+
+    function cleanDsrStr(s) {
+      return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function stripDsrSpaces(s) {
+      return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function dsrEditDistance(a, b) {
+      if (a === b) return 0;
+      const la = a.length, lb = b.length;
+      if (!la) return lb;
+      if (!lb) return la;
+      if (Math.abs(la - lb) > 3) return Math.abs(la - lb) + 1;
+
+      const d = [];
+      for (let i = 0; i <= la; i++) d[i] = [i];
+      for (let j = 0; j <= lb; j++) d[0][j] = j;
+
+      for (let i = 1; i <= la; i++) {
+        for (let j = 1; j <= lb; j++) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          d[i][j] = Math.min(
+            d[i - 1][j] + 1,
+            d[i][j - 1] + 1,
+            d[i - 1][j - 1] + cost
+          );
+          if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+            d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+          }
         }
-      };
+      }
+      return d[la][lb];
+    }
+
+    function scoreDsrProduct(p, rawQuery) {
+      const queryClean = cleanDsrStr(rawQuery);
+      if (!queryClean) return 0;
+
+      const queryStripped = stripDsrSpaces(rawQuery);
+      const pIdStr = String(p.id);
+      const pName = p.name || '';
+      const pNameClean = cleanDsrStr(pName);
+      const pNameStripped = stripDsrSpaces(pName);
+
+      const isNumericQuery = /^[#]?\d+$/.test(rawQuery.trim());
+      if (isNumericQuery) {
+        const numOnly = rawQuery.replace(/[^0-9]/g, '');
+        if (pIdStr === numOnly) return 100000;
+        if (pIdStr.startsWith(numOnly)) return 50000 - (pIdStr.length * 100);
+        const pTokens = pNameClean.split(' ');
+        if (pTokens.includes(numOnly)) return 20000;
+        if (pNameClean.includes(numOnly)) return 10000;
+        return 0;
+      }
+
+      if (pNameClean === queryClean) return 90000;
+      if (pNameStripped === queryStripped) return 85000;
+      if (pNameClean.startsWith(queryClean)) return 70000;
+      if (pNameStripped.startsWith(queryStripped)) return 65000;
+
+      if (pNameStripped.includes(queryStripped)) {
+        const idx = pNameStripped.indexOf(queryStripped);
+        return 50000 - Math.min(idx * 50, 5000);
+      }
+
+      const qWords = queryClean.split(' ').filter(w => w.length > 0);
+      const pWords = pNameClean.split(' ').filter(w => w.length > 0);
+      if (qWords.length === 0) return 0;
+
+      let totalWordScore = 0;
+      let allWordsMatched = true;
+
+      for (const qWord of qWords) {
+        let bestWordMatch = 0;
+        for (const pWord of pWords) {
+          if (pWord === qWord) {
+            bestWordMatch = Math.max(bestWordMatch, 100);
+          } else if (pWord.startsWith(qWord)) {
+            bestWordMatch = Math.max(bestWordMatch, 85);
+          } else if (pWord.includes(qWord)) {
+            bestWordMatch = Math.max(bestWordMatch, 70);
+          } else if (qWord.length >= 3) {
+            const compareTarget = pWord.length >= qWord.length 
+              ? pWord.slice(0, qWord.length + (pWord.length > qWord.length ? 1 : 0))
+              : pWord;
+            const dist = dsrEditDistance(qWord, compareTarget);
+            const maxAllowed = qWord.length <= 4 ? 1 : 2;
+            if (dist <= maxAllowed) {
+              bestWordMatch = Math.max(bestWordMatch, 60 - (dist * 15));
+            }
+          }
+        }
+
+        if (bestWordMatch === 0) {
+          if (pNameStripped.includes(qWord)) {
+            bestWordMatch = 65;
+          } else if (qWord.length >= 4) {
+            for (let i = 0; i <= pNameStripped.length - qWord.length; i++) {
+              const sub = pNameStripped.substr(i, qWord.length);
+              if (dsrEditDistance(qWord, sub) <= 1) {
+                bestWordMatch = 45;
+                break;
+              }
+            }
+          }
+        }
+
+        if (bestWordMatch === 0) {
+          allWordsMatched = false;
+        } else {
+          totalWordScore += bestWordMatch;
+        }
+      }
+
+      if (allWordsMatched) {
+        return 20000 + (totalWordScore * 100);
+      }
+
+      if (qWords.length > 1) {
+        const matchedCount = qWords.filter(qw => {
+          return pWords.some(pw => pw.startsWith(qw) || (qw.length >= 3 && dsrEditDistance(qw, pw.slice(0, qw.length + 1)) <= 1));
+        }).length;
+        if (matchedCount >= 2 || matchedCount >= qWords.length * 0.6) {
+          return 5000 + (totalWordScore * 20);
+        }
+      }
+
+      if (queryStripped.length >= 4) {
+        let qIdx = 0;
+        for (let i = 0; i < pNameStripped.length && qIdx < queryStripped.length; i++) {
+          if (pNameStripped[i] === queryStripped[qIdx]) {
+            qIdx++;
+          }
+        }
+        if (qIdx === queryStripped.length) {
+          return 2000 - Math.min(pNameStripped.length * 10, 1000);
+        }
+      }
+
+      return 0;
+    }
+
+    function onDsrSearchType(val) {
+      val = val || '';
+      const clearBtn = document.getElementById('dsr-search-clear');
+      if (clearBtn) clearBtn.style.display = val.length > 0 ? 'flex' : 'none';
+
+      const resultsDiv = document.getElementById('dsr-search-results');
+      if (!resultsDiv) return;
+
+      if (!val.trim()) {
+        dsrSearchResultsList = allProducts.slice(0, 30);
+        renderDsrSearchResults(dsrSearchResultsList, '');
+        resultsDiv.style.display = 'block';
+        return;
+      }
+
+      const scored = [];
+      for (const p of allProducts) {
+        const score = scoreDsrProduct(p, val);
+        if (score > 0) scored.push({ product: p, score });
+      }
+      scored.sort((a, b) => b.score - a.score);
+
+      dsrSearchResultsList = scored.slice(0, 40).map(s => s.product);
+      renderDsrSearchResults(dsrSearchResultsList, val);
+      resultsDiv.style.display = 'block';
+    }
+
+    function onDsrSearchFocus() {
+      const input = document.getElementById('dsr-smart-search');
+      onDsrSearchType(input ? input.value : '');
+    }
+
+    function renderDsrSearchResults(items, query) {
+      const resultsDiv = document.getElementById('dsr-search-results');
+      if (!resultsDiv) return;
+      resultsDiv.innerHTML = '';
+      dsrSearchActiveIdx = -1;
+
+      if (!items || items.length === 0) {
+        resultsDiv.innerHTML = `
+          <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 12px;">
+            🔍 No product found matching <b>"${query}"</b>.<br>
+            <span style="font-size: 11px; color: #64748b;">Try typing another keyword or ID.</span>
+          </div>`;
+        return;
+      }
+
+      const countNotice = document.createElement('div');
+      countNotice.style.cssText = 'padding: 6px 10px; font-size: 11px; font-weight: 700; color: #d97706; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;';
+      countNotice.innerHTML = `<span>Top ${items.length} Matches:</span><span style="color: #64748b; font-weight: normal;">Click or use Arrow keys to select</span>`;
+      resultsDiv.appendChild(countNotice);
+
+      items.forEach((p, idx) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'dsr-search-item';
+        itemDiv.setAttribute('data-idx', idx);
+
+        const savedRate = purchaseRates[p.id];
+        const hasRate = savedRate !== undefined && Number(savedRate) > 0;
+        const purHtml = hasRate 
+          ? `<span class="dsr-search-item-cost">💾 Cost: Rs. ${Number(savedRate).toLocaleString()}</span>` 
+          : `<span style="font-size: 11px; color: #64748b;">⚡ Cost: Not set</span>`;
+
+        itemDiv.innerHTML = `
+          <div class="dsr-search-item-left" style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+            <img src="images/${p.id}.webp" onerror="this.src='images/${p.id}.png'; this.onerror=function(){this.src='icon-192.png';}" class="dsr-search-thumb">
+            <div class="dsr-search-item-info">
+              <div class="dsr-search-item-name">#${p.id} - ${p.name}</div>
+              <div class="dsr-search-item-meta">${p.categoryName || 'General Item'}</div>
+            </div>
+          </div>
+          <div class="dsr-search-item-right">
+            <span class="dsr-search-item-price">Rs. ${Number(p.price || 0).toLocaleString()}</span>
+            ${purHtml}
+          </div>
+        `;
+
+        itemDiv.onmousedown = (e) => {
+          e.preventDefault();
+          selectDsrProduct(p.id);
+        };
+        itemDiv.onmouseenter = () => {
+          highlightDsrSearchItem(idx);
+        };
+
+        resultsDiv.appendChild(itemDiv);
+      });
+    }
+
+    function highlightDsrSearchItem(idx) {
+      dsrSearchActiveIdx = idx;
+      const items = document.querySelectorAll('#dsr-search-results .dsr-search-item');
+      items.forEach((el, i) => {
+        if (i === idx) {
+          el.classList.add('highlighted');
+          el.scrollIntoView({ block: 'nearest' });
+        } else {
+          el.classList.remove('highlighted');
+        }
+      });
+    }
+
+    function handleDsrSearchKeydown(e) {
+      const resultsDiv = document.getElementById('dsr-search-results');
+      const isVisible = resultsDiv && resultsDiv.style.display !== 'none';
+
+      if (e.key === 'ArrowDown') {
+        if (!isVisible) {
+          onDsrSearchFocus();
+          return;
+        }
+        e.preventDefault();
+        const nextIdx = Math.min(dsrSearchActiveIdx + 1, dsrSearchResultsList.length - 1);
+        highlightDsrSearchItem(nextIdx);
+      } else if (e.key === 'ArrowUp') {
+        if (!isVisible) return;
+        e.preventDefault();
+        const prevIdx = Math.max(dsrSearchActiveIdx - 1, 0);
+        highlightDsrSearchItem(prevIdx);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (isVisible && dsrSearchResultsList.length > 0) {
+          const target = (dsrSearchActiveIdx >= 0 && dsrSearchActiveIdx < dsrSearchResultsList.length)
+            ? dsrSearchResultsList[dsrSearchActiveIdx]
+            : dsrSearchResultsList[0];
+          selectDsrProduct(target.id);
+        }
+      } else if (e.key === 'Escape') {
+        if (resultsDiv) resultsDiv.style.display = 'none';
+      }
+    }
+
+    function selectDsrProduct(id) {
+      const p = allProducts.find(item => String(item.id) === String(id));
+      if (!p) return;
+
+      selectedDsrProduct = p;
+      document.getElementById('dsr-selected-id').value = p.id;
+      document.getElementById('dsr-smart-search').value = `${p.name} (#${p.id})`;
+
+      const clearBtn = document.getElementById('dsr-search-clear');
+      if (clearBtn) clearBtn.style.display = 'flex';
+
+      const resultsDiv = document.getElementById('dsr-search-results');
+      if (resultsDiv) resultsDiv.style.display = 'none';
+
+      const tagDiv = document.getElementById('dsr-selected-tag');
+      if (tagDiv) {
+        tagDiv.style.display = 'flex';
+        document.getElementById('dsr-selected-name').textContent = p.name;
+        document.getElementById('dsr-selected-id-badge').textContent = `ID #${p.id} • ${p.categoryName || ''}`;
+      }
+
+      const rateInput = document.getElementById('dsr-item-rate');
+      const costInput = document.getElementById('dsr-item-cost');
+      const qtyInput = document.getElementById('dsr-item-qty');
+
+      rateInput.value = p.price;
+      if (purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) >= 0) {
+        costInput.value = purchaseRates[p.id];
+      } else {
+        costInput.value = Math.round(p.price * 0.85);
+      }
+      qtyInput.value = 1;
+
+      updateLivePreview();
+      qtyInput.focus();
+      qtyInput.select();
+    }
+
+    function clearDsrSearch() {
+      selectedDsrProduct = null;
+      const hiddenId = document.getElementById('dsr-selected-id');
+      if (hiddenId) hiddenId.value = '';
+
+      const searchInput = document.getElementById('dsr-smart-search');
+      if (searchInput) searchInput.value = '';
+
+      const clearBtn = document.getElementById('dsr-search-clear');
+      if (clearBtn) clearBtn.style.display = 'none';
+
+      const tagDiv = document.getElementById('dsr-selected-tag');
+      if (tagDiv) tagDiv.style.display = 'none';
+
+      const previewBar = document.getElementById('dsr-row-preview');
+      if (previewBar) previewBar.style.display = 'none';
+
+      document.getElementById('dsr-item-rate').value = '';
+      document.getElementById('dsr-item-cost').value = '';
+      document.getElementById('dsr-item-qty').value = '1';
+
+      const resultsDiv = document.getElementById('dsr-search-results');
+      if (resultsDiv) resultsDiv.style.display = 'none';
+
+      if (searchInput) searchInput.focus();
+    }
+
+    document.addEventListener('click', function(e) {
+      const wrapper = document.querySelector('.dsr-search-wrapper');
+      const resultsDiv = document.getElementById('dsr-search-results');
+      if (wrapper && resultsDiv && !wrapper.contains(e.target)) {
+        resultsDiv.style.display = 'none';
+      }
+
+      const pWrapper = document.querySelector('#tab-purchasing .dsr-search-wrapper');
+      const pResults = document.getElementById('purchasing-search-results');
+      if (pWrapper && pResults && !pWrapper.contains(e.target)) {
+        pResults.style.display = 'none';
+      }
+    });
+
+    function renderDsrItemSelect() {
+      clearDsrSearch();
+    }
+
+    function updateLivePreview() {
+      const p = selectedDsrProduct;
+      const previewBar = document.getElementById('dsr-row-preview');
+      if (!previewBar) return;
+
+      if (!p) {
+        previewBar.style.display = 'none';
+        return;
+      }
+
+      const qty = Math.max(1, Number(document.getElementById('dsr-item-qty').value) || 1);
+      const sellRate = Number(document.getElementById('dsr-item-rate').value) || 0;
+      const purRate = Number(document.getElementById('dsr-item-cost').value) || 0;
+
+      const lineTotal = qty * sellRate;
+      const lineCost = qty * purRate;
+      const lineProfit = lineTotal - lineCost;
+      const marginPct = lineTotal > 0 ? ((lineProfit / lineTotal) * 100) : 0;
+      const markupPct = lineCost > 0 ? ((lineProfit / lineCost) * 100) : 0;
+
+      document.getElementById('preview-item-name').textContent = p.name;
+      document.getElementById('preview-line-total').textContent = 'Rs. ' + lineTotal.toLocaleString();
+      document.getElementById('preview-line-cost').textContent = 'Rs. ' + lineCost.toLocaleString();
+      
+      const profitEl = document.getElementById('preview-line-profit');
+      profitEl.textContent = (lineProfit >= 0 ? 'Rs. +' : 'Rs. ') + lineProfit.toLocaleString();
+      profitEl.style.color = lineProfit >= 0 ? 'var(--emerald)' : '#ef4444';
+
+      const pctEl = document.getElementById('preview-profit-pct');
+      pctEl.className = marginPct >= 0 ? 'badge-profit-pos' : 'badge-profit-neg';
+      pctEl.textContent = (marginPct >= 0 ? '+' : '') + marginPct.toFixed(1) + '% (Markup: ' + markupPct.toFixed(1) + '%)';
+
+      const hasSavedRate = purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) > 0;
+      document.getElementById('preview-rate-source').textContent = hasSavedRate 
+        ? '💾 Auto-saved Purchase Rate (Rs. ' + purchaseRates[p.id] + ')' 
+        : '⚡ New Purchase Rate (Will be saved permanently with order)';
+
+      previewBar.style.display = 'flex';
+    }
+
+    async function saveSinglePurchaseRate(id, rate) {
+      if (!id || rate === undefined || rate === null) return;
+      purchaseRates[id] = Number(rate);
+      try {
+        await fetch('/api/purchase-rates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: Number(id), rate: Number(rate) })
+        });
+      } catch(e) {}
     }
 
     function addDsrRow() {
-      const sel = document.getElementById('dsr-item-select');
-      const id = sel.value;
-      if (!id) return alert('Select an item first');
-      const p = allProducts.find(item => String(item.id) === String(id));
-      const qty = Number(document.getElementById('dsr-item-qty').value) || 1;
-      const rate = Number(document.getElementById('dsr-item-rate').value) || p.price;
-      const cost = Number(document.getElementById('dsr-item-cost').value) || 0;
-      const lineTotal = qty * rate;
-      const lineCost = qty * cost;
-      const lineProfit = lineTotal - lineCost;
+      const p = selectedDsrProduct;
+      if (!p) return alert('Please search and select a product first!');
 
-      currentDsrItems.push({ id, name: p.name, qty, sellPrice: rate, purchasePrice: cost, lineTotal, lineCost, lineProfit });
+      const qty = Math.max(1, Number(document.getElementById('dsr-item-qty').value) || 1);
+      const sellPrice = Number(document.getElementById('dsr-item-rate').value) || p.price;
+      const purchasePrice = Number(document.getElementById('dsr-item-cost').value) || 0;
+
+      const lineTotal = qty * sellPrice;
+      const lineCost = qty * purchasePrice;
+      const lineProfit = lineTotal - lineCost;
+      const marginPct = lineTotal > 0 ? ((lineProfit / lineTotal) * 100) : 0;
+
+      saveSinglePurchaseRate(p.id, purchasePrice);
+
+      const existingIdx = currentDsrItems.findIndex(i => String(i.id) === String(p.id));
+      if (existingIdx >= 0) {
+        currentDsrItems[existingIdx].qty += qty;
+        currentDsrItems[existingIdx].sellPrice = sellPrice;
+        currentDsrItems[existingIdx].purchasePrice = purchasePrice;
+        currentDsrItems[existingIdx].lineTotal = currentDsrItems[existingIdx].qty * sellPrice;
+        currentDsrItems[existingIdx].lineCost = currentDsrItems[existingIdx].qty * purchasePrice;
+        currentDsrItems[existingIdx].lineProfit = currentDsrItems[existingIdx].lineTotal - currentDsrItems[existingIdx].lineCost;
+        currentDsrItems[existingIdx].marginPct = currentDsrItems[existingIdx].lineTotal > 0 ? ((currentDsrItems[existingIdx].lineProfit / currentDsrItems[existingIdx].lineTotal) * 100) : 0;
+      } else {
+        currentDsrItems.push({
+          id: p.id,
+          name: p.name,
+          qty,
+          sellPrice,
+          purchasePrice,
+          lineTotal,
+          lineCost,
+          lineProfit,
+          marginPct
+        });
+      }
+
+      clearDsrSearch();
+      renderDsrItemsTable();
+    }
+
+    function updateDsrItem(idx, field, value) {
+      const item = currentDsrItems[idx];
+      if (!item) return;
+
+      const numVal = Math.max(0, Number(value) || 0);
+      if (field === 'qty') item.qty = Math.max(1, numVal);
+      if (field === 'sellPrice') item.sellPrice = numVal;
+      if (field === 'purchasePrice') {
+        item.purchasePrice = numVal;
+        saveSinglePurchaseRate(item.id, numVal);
+      }
+
+      item.lineTotal = item.qty * item.sellPrice;
+      item.lineCost = item.qty * item.purchasePrice;
+      item.lineProfit = item.lineTotal - item.lineCost;
+      item.marginPct = item.lineTotal > 0 ? ((item.lineProfit / item.lineTotal) * 100) : 0;
+
       renderDsrItemsTable();
     }
 
     function renderDsrItemsTable() {
       const tbody = document.getElementById('dsr-items-tbody');
       tbody.innerHTML = '';
-      let totalSale = 0, totalProfit = 0;
+
+      if (currentDsrItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 24px;">No items added yet. Search and select a product above, then click "+ Add Item".</td></tr>`;
+        document.getElementById('dsr-summary-qty').textContent = '0 items';
+        document.getElementById('dsr-total-sale').textContent = 'Rs. 0';
+        document.getElementById('dsr-total-cost').textContent = 'Rs. 0';
+        document.getElementById('dsr-total-profit').textContent = 'Rs. 0';
+        document.getElementById('dsr-profit-percent').textContent = '0.0%';
+        document.getElementById('dsr-profit-percent').className = 'badge-profit-pos';
+        document.getElementById('dsr-markup-percent').textContent = '';
+        return;
+      }
+
+      let totalQty = 0;
+      let totalSale = 0;
+      let totalCost = 0;
+      let totalProfit = 0;
+
       currentDsrItems.forEach((item, idx) => {
+        totalQty += item.qty;
         totalSale += item.lineTotal;
+        totalCost += item.lineCost;
         totalProfit += item.lineProfit;
+
+        const isPos = item.lineProfit >= 0;
+        const badgeClass = isPos ? 'badge-profit-pos' : 'badge-profit-neg';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${item.name}</td>
-          <td>${item.qty}</td>
-          <td>Rs. ${item.sellPrice}</td>
-          <td>Rs. ${item.purchasePrice}</td>
-          <td style="font-weight: 700;">Rs. ${item.lineTotal}</td>
-          <td style="font-weight: 700; color: var(--emerald);">Rs. ${item.lineProfit}</td>
-          <td><button type="button" class="btn" style="color: var(--danger); padding: 2px 6px;" onclick="removeDsrItem(${idx})">✕</button></td>
+          <td style="color: var(--text-muted);">${idx + 1}</td>
+          <td style="font-weight: 700;">${item.name}</td>
+          <td style="text-align: right;">
+            <input type="number" class="dsr-table-input" min="1" value="${item.qty}" style="width: 55px;" onchange="updateDsrItem(${idx}, 'qty', this.value)">
+          </td>
+          <td style="text-align: right;">
+            <input type="number" class="dsr-table-input" value="${item.sellPrice}" style="width: 80px;" onchange="updateDsrItem(${idx}, 'sellPrice', this.value)">
+          </td>
+          <td style="text-align: right;">
+            <input type="number" class="dsr-table-input" value="${item.purchasePrice}" style="width: 80px;" onchange="updateDsrItem(${idx}, 'purchasePrice', this.value)">
+          </td>
+          <td style="text-align: right; font-weight: 700; color: #0284c7;">Rs. ${item.lineTotal.toLocaleString()}</td>
+          <td style="text-align: right; font-weight: 800; color: ${isPos ? 'var(--emerald)' : '#dc2626'};">
+            ${isPos ? 'Rs. +' : 'Rs. '}${item.lineProfit.toLocaleString()}
+          </td>
+          <td style="text-align: center;">
+            <span class="${badgeClass}">${isPos ? '+' : ''}${item.marginPct.toFixed(1)}%</span>
+          </td>
+          <td style="text-align: center;">
+            <button type="button" class="btn" style="color: var(--danger); padding: 2px 8px; font-weight: bold; background: transparent;" title="Remove Item" onclick="removeDsrItem(${idx})">✕</button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
+
+      const totalMarginPct = totalSale > 0 ? ((totalProfit / totalSale) * 100) : 0;
+      const totalMarkupPct = totalCost > 0 ? ((totalProfit / totalCost) * 100) : 0;
+      const isTotalPos = totalProfit >= 0;
+
+      document.getElementById('dsr-summary-qty').textContent = `${currentDsrItems.length} items (${totalQty} units)`;
       document.getElementById('dsr-total-sale').textContent = 'Rs. ' + totalSale.toLocaleString();
-      document.getElementById('dsr-total-profit').textContent = 'Rs. ' + totalProfit.toLocaleString();
+      document.getElementById('dsr-total-cost').textContent = 'Rs. ' + totalCost.toLocaleString();
+      
+      const profitDisplay = document.getElementById('dsr-total-profit');
+      profitDisplay.textContent = (isTotalPos ? 'Rs. +' : 'Rs. ') + totalProfit.toLocaleString();
+      profitDisplay.style.color = isTotalPos ? 'var(--emerald)' : '#dc2626';
+
+      const pctBadge = document.getElementById('dsr-profit-percent');
+      pctBadge.textContent = (isTotalPos ? '+' : '') + totalMarginPct.toFixed(1) + '% Margin';
+      pctBadge.className = isTotalPos ? 'badge-profit-pos' : 'badge-profit-neg';
+
+      document.getElementById('dsr-markup-percent').textContent = `(Markup: ${totalMarkupPct.toFixed(1)}%)`;
     }
 
     function removeDsrItem(idx) {
@@ -968,33 +2821,323 @@
 
     async function handleDsrOrder(e) {
       e.preventDefault();
-      if (currentDsrItems.length === 0) return alert('Add at least one item');
+      if (currentDsrItems.length === 0) return alert('Please add at least one item to this order first!');
+
       const totalSale = currentDsrItems.reduce((s, i) => s + i.lineTotal, 0);
       const totalCost = currentDsrItems.reduce((s, i) => s + i.lineCost, 0);
       const totalProfit = totalSale - totalCost;
 
+      const updatedRates = {};
+      currentDsrItems.forEach(it => {
+        if (it.id && it.purchasePrice !== undefined) {
+          updatedRates[it.id] = it.purchasePrice;
+          purchaseRates[it.id] = it.purchasePrice;
+        }
+      });
+
       const payload = {
-        date: document.getElementById('dsr-date').value,
+        date: document.getElementById('dsr-date').value || new Date().toISOString().slice(0, 10),
         customerName: document.getElementById('dsr-customer').value || 'Walk-in Customer',
         paymentMethod: document.getElementById('dsr-payment').value,
         items: currentDsrItems,
         totalSale,
         totalCost,
-        totalProfit
+        totalProfit,
+        updatedRates
       };
 
-      const res = await fetch('/api/dsr/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      try {
+        const res = await fetch('/api/dsr/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          const marginStr = totalSale > 0 ? ((totalProfit / totalSale) * 100).toFixed(1) + '%' : '0%';
+          alert(`✅ Order Recorded Successfully!\n\nCustomer: ${payload.customerName}\nTotal Bill: Rs. ${totalSale.toLocaleString()}\nPurchase Cost: Rs. ${totalCost.toLocaleString()}\nNet Profit: Rs. ${totalProfit.toLocaleString()} (${marginStr})\n\nAll product purchase rates permanently saved.`);
+          currentDsrItems = [];
+          renderDsrItemsTable();
+          await loadDsr();
+          await loadStats();
+          renderDsrItemSelect();
+        } else {
+          alert('❌ Failed to save order: ' + (data.error || 'Failed'));
+        }
+      } catch(err) {
+        alert('❌ Network error: ' + err.message);
+      }
+    }
+
+    async function handleDsrExpense(e) {
+      e.preventDefault();
+      const payload = {
+        date: document.getElementById('exp-date').value || new Date().toISOString().slice(0, 10),
+        title: document.getElementById('exp-title').value.trim(),
+        amount: Number(document.getElementById('exp-amount').value),
+        category: document.getElementById('exp-category').value
+      };
+      if (!payload.title || !payload.amount) return alert('Both title and amount are required.');
+
+      try {
+        const res = await fetch('/api/dsr/expense', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert('✅ Shop expense recorded: Rs. ' + payload.amount.toLocaleString());
+          document.getElementById('dsr-expense-form').reset();
+          document.getElementById('exp-date').value = new Date().toISOString().slice(0, 10);
+          await loadDsr();
+          await loadStats();
+        } else {
+          alert('❌ Error: ' + (data.error || 'Failed'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    async function deleteDsrOrder(orderId) {
+      if (!confirm(`Are you sure you want to delete order ${orderId}?\n\nThis will remove it from the sales history and profit reports.`)) return;
+      try {
+        const res = await fetch('/api/dsr/order/' + orderId, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.ok) {
+          alert(`✅ Order ${orderId} deleted.`);
+          await loadDsr();
+          await loadStats();
+        } else {
+          alert('❌ Delete failed: ' + (data.error || 'Unknown'));
+        }
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+      }
+    }
+
+    async function deleteDsrExpense(expId) {
+      if (!confirm(`Are you sure you want to delete expense ${expId}?`)) return;
+      try {
+        const res = await fetch('/api/dsr/expense/' + expId, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.ok) {
+          alert(`✅ Expense deleted.`);
+          await loadDsr();
+          await loadStats();
+        } else {
+          alert('❌ Delete failed: ' + (data.error || 'Unknown'));
+        }
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+      }
+    }
+
+    function setDsrPeriod(period, btn) {
+      currentDsrFilter = period;
+      dsrFilterCustomStart = null;
+      dsrFilterCustomEnd = null;
+
+      const buttons = document.querySelectorAll('#dsr-period-buttons .dsr-filter-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      filterAndRenderDsr();
+    }
+
+    function applyDsrCustomRange() {
+      const from = document.getElementById('dsr-filter-from').value;
+      const to = document.getElementById('dsr-filter-to').value;
+      if (!from || !to) return alert('Please select both From and To dates.');
+      if (from > to) return alert('From Date cannot be after To Date.');
+
+      currentDsrFilter = 'custom';
+      dsrFilterCustomStart = from;
+      dsrFilterCustomEnd = to;
+
+      const buttons = document.querySelectorAll('#dsr-period-buttons .dsr-filter-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+
+      filterAndRenderDsr();
+    }
+
+    function filterAndRenderDsr() {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const yesterdayObj = new Date(Date.now() - 86400000);
+      const yesterdayStr = yesterdayObj.toISOString().slice(0, 10);
+      const weekStartStr = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+      const currentMonthPrefix = todayStr.slice(0, 7);
+
+      const d = new Date();
+      d.setDate(1);
+      d.setMonth(d.getMonth() - 1);
+      const lastMonthPrefix = d.toISOString().slice(0, 7);
+
+      let filteredOrders = [];
+      let filteredExpenses = [];
+      let label = 'Today';
+
+      const allOrders = dsrAllData.orders || [];
+      const allExpenses = dsrAllData.expenses || [];
+
+      if (currentDsrFilter === 'today') {
+        label = `Today (${todayStr})`;
+        filteredOrders = allOrders.filter(o => o.date === todayStr);
+        filteredExpenses = allExpenses.filter(e => e.date === todayStr);
+      } else if (currentDsrFilter === 'yesterday') {
+        label = `Yesterday (${yesterdayStr})`;
+        filteredOrders = allOrders.filter(o => o.date === yesterdayStr);
+        filteredExpenses = allExpenses.filter(e => e.date === yesterdayStr);
+      } else if (currentDsrFilter === 'week') {
+        label = `Last 7 Days (${weekStartStr} to ${todayStr})`;
+        filteredOrders = allOrders.filter(o => o.date >= weekStartStr && o.date <= todayStr);
+        filteredExpenses = allExpenses.filter(e => e.date >= weekStartStr && e.date <= todayStr);
+      } else if (currentDsrFilter === 'month') {
+        label = `This Month (${currentMonthPrefix})`;
+        filteredOrders = allOrders.filter(o => o.date && o.date.startsWith(currentMonthPrefix));
+        filteredExpenses = allExpenses.filter(e => e.date && e.date.startsWith(currentMonthPrefix));
+      } else if (currentDsrFilter === 'last_month') {
+        label = `Last Month (${lastMonthPrefix})`;
+        filteredOrders = allOrders.filter(o => o.date && o.date.startsWith(lastMonthPrefix));
+        filteredExpenses = allExpenses.filter(e => e.date && e.date.startsWith(lastMonthPrefix));
+      } else if (currentDsrFilter === 'all') {
+        label = `All Time (Complete History)`;
+        filteredOrders = allOrders;
+        filteredExpenses = allExpenses;
+      } else if (currentDsrFilter === 'custom') {
+        label = `Custom Range (${dsrFilterCustomStart} to ${dsrFilterCustomEnd})`;
+        filteredOrders = allOrders.filter(o => o.date >= dsrFilterCustomStart && o.date <= dsrFilterCustomEnd);
+        filteredExpenses = allExpenses.filter(e => e.date >= dsrFilterCustomStart && e.date <= dsrFilterCustomEnd);
+      }
+
+      let totalSale = 0;
+      let totalCost = 0;
+      let totalGrossProfit = 0;
+      let totalUnitsSold = 0;
+
+      filteredOrders.forEach(o => {
+        totalSale += Number(o.totalSale) || 0;
+        
+        let orderCost = Number(o.totalCost);
+        if (!orderCost && Array.isArray(o.items)) {
+          orderCost = o.items.reduce((sum, item) => sum + (Number(item.lineCost) || (Number(item.qty || 1) * Number(item.purchasePrice || 0))), 0);
+        }
+        totalCost += (orderCost || 0);
+
+        let orderProfit = Number(o.totalProfit);
+        if (orderProfit === undefined || orderProfit === null) {
+          orderProfit = (Number(o.totalSale) || 0) - (orderCost || 0);
+        }
+        totalGrossProfit += orderProfit;
+
+        if (Array.isArray(o.items)) {
+          totalUnitsSold += o.items.reduce((sum, it) => sum + (Number(it.qty) || 1), 0);
+        }
       });
-      const data = await res.json();
-      if (data.ok) {
-        alert('✅ Order saved to Daily Sales!');
-        currentDsrItems = [];
-        renderDsrItemsTable();
-        await loadDsr();
-        await loadStats();
+
+      let totalExpenses = 0;
+      filteredExpenses.forEach(e => {
+        totalExpenses += Number(e.amount) || 0;
+      });
+
+      const netProfit = totalGrossProfit - totalExpenses;
+      const grossMarginPct = totalSale > 0 ? ((totalGrossProfit / totalSale) * 100) : 0;
+      const netMarginPct = totalSale > 0 ? ((netProfit / totalSale) * 100) : 0;
+
+      document.getElementById('dsr-stat-label').textContent = label;
+      document.getElementById('dsr-stat-sub').textContent = `${filteredOrders.length} orders recorded`;
+
+      document.getElementById('dsr-stat-sale').textContent = 'Rs. ' + totalSale.toLocaleString();
+      document.getElementById('dsr-stat-orders').textContent = `${filteredOrders.length} orders • ${totalUnitsSold} units sold`;
+
+      document.getElementById('dsr-stat-cost').textContent = 'Rs. ' + totalCost.toLocaleString();
+
+      const grossEl = document.getElementById('dsr-stat-gross');
+      grossEl.textContent = (totalGrossProfit >= 0 ? 'Rs. +' : 'Rs. ') + totalGrossProfit.toLocaleString();
+      grossEl.style.color = totalGrossProfit >= 0 ? '#059669' : '#dc2626';
+      document.getElementById('dsr-stat-gross-pct').textContent = `Margin: ${grossMarginPct.toFixed(1)}%`;
+
+      document.getElementById('dsr-stat-expenses').textContent = 'Rs. ' + totalExpenses.toLocaleString();
+      document.getElementById('dsr-stat-exp-count').textContent = `${filteredExpenses.length} recorded expenses`;
+
+      const netEl = document.getElementById('dsr-stat-net');
+      netEl.textContent = (netProfit >= 0 ? 'Rs. +' : 'Rs. ') + netProfit.toLocaleString();
+      netEl.style.color = netProfit >= 0 ? 'var(--emerald)' : '#dc2626';
+      document.getElementById('dsr-stat-net-pct').textContent = `Net Margin: ${netMarginPct.toFixed(1)}%`;
+
+      document.getElementById('dsr-filtered-count').textContent = `Showing ${filteredOrders.length} Orders`;
+
+      const tbody = document.getElementById('dsr-history-tbody');
+      tbody.innerHTML = '';
+      if (filteredOrders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">No orders recorded for this period (${label}).</td></tr>`;
+      } else {
+        filteredOrders.forEach(o => {
+          const isOnline = o.paymentMethod === 'online';
+          const payBadge = isOnline 
+            ? `<span style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;">Online</span>`
+            : `<span style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;">Cash</span>`;
+
+          const oSale = Number(o.totalSale) || 0;
+          let oCost = Number(o.totalCost);
+          if (!oCost && Array.isArray(o.items)) {
+            oCost = o.items.reduce((sum, item) => sum + (Number(item.lineCost) || (Number(item.qty || 1) * Number(item.purchasePrice || 0))), 0);
+          }
+          const oProfit = (o.totalProfit !== undefined && o.totalProfit !== null) ? Number(o.totalProfit) : (oSale - oCost);
+          const oMargin = oSale > 0 ? ((oProfit / oSale) * 100) : 0;
+          const isPos = oProfit >= 0;
+
+          const itemsSummary = (o.items || []).map(i => `${i.name} (x${i.qty})`).join(', ');
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="font-weight: 700; color: #d97706;">${o.id}</td>
+            <td style="font-size: 12px;">${o.date} <span style="color: var(--text-muted);">${o.time || ''}</span></td>
+            <td style="font-weight: 600;">${o.customerName || 'Walk-in'}</td>
+            <td>${payBadge}</td>
+            <td style="font-size: 12px; color: #334155; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${itemsSummary}">
+              ${(o.items || []).length} items: <span style="color: var(--text-muted);">${itemsSummary || 'No details'}</span>
+            </td>
+            <td style="font-weight: 700; text-align: right; color: #0284c7;">Rs. ${oSale.toLocaleString()}</td>
+            <td style="text-align: right; color: #64748b;">Rs. ${(oCost || 0).toLocaleString()}</td>
+            <td style="font-weight: 800; text-align: right; color: ${isPos ? 'var(--emerald)' : '#dc2626'};">
+              ${isPos ? 'Rs. +' : 'Rs. '}${oProfit.toLocaleString()}
+            </td>
+            <td style="text-align: center;">
+              <span class="${isPos ? 'badge-profit-pos' : 'badge-profit-neg'}">${isPos ? '+' : ''}${oMargin.toFixed(1)}%</span>
+            </td>
+            <td style="text-align: center;">
+              <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 11px;" title="Delete Order" onclick="deleteDsrOrder('${o.id}')">🗑️</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      const expTbody = document.getElementById('dsr-expenses-tbody');
+      if (expTbody) {
+        expTbody.innerHTML = '';
+        if (filteredExpenses.length === 0) {
+          expTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 18px;">No expenses recorded for this period.</td></tr>`;
+        } else {
+          filteredExpenses.forEach(exp => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td style="font-weight: 700; color: #d97706;">${exp.id}</td>
+              <td>${exp.date}</td>
+              <td style="font-weight: 600;">${exp.title}</td>
+              <td><span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-size: 11px;">${exp.category}</span></td>
+              <td style="font-weight: 800; color: #dc2626; text-align: right;">Rs. ${(Number(exp.amount) || 0).toLocaleString()}</td>
+              <td style="text-align: center;">
+                <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 11px;" title="Delete Expense" onclick="deleteDsrExpense('${exp.id}')">🗑️</button>
+              </td>
+            `;
+            expTbody.appendChild(tr);
+          });
+        }
+        const disp = document.getElementById('dsr-total-expenses-display');
+        if (disp) disp.textContent = 'Rs. ' + totalExpenses.toLocaleString();
       }
     }
 
@@ -1002,25 +3145,976 @@
       try {
         const res = await fetch('/api/dsr');
         const data = await res.json();
-        const tbody = document.getElementById('dsr-history-tbody');
-        tbody.innerHTML = '';
-        (data.orders || []).slice(0, 20).forEach(o => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td style="font-weight: 700; color: var(--accent);">${o.id}</td>
-            <td>${o.date} ${o.time || ''}</td>
-            <td>${o.customerName || 'Walk-in'}</td>
-            <td>${o.paymentMethod || 'cash'}</td>
-            <td>${(o.items || []).length} items</td>
-            <td style="font-weight: 700;">Rs. ${(o.totalSale || 0).toLocaleString()}</td>
-            <td style="font-weight: 700; color: var(--emerald);">Rs. ${(o.totalProfit || 0).toLocaleString()}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      } catch(e) {}
+        dsrAllData = data || { orders: [], expenses: [] };
+        filterAndRenderDsr();
+      } catch(e) {
+        console.error('Failed to load DSR:', e);
+      }
     }
 
-    // 1-Click Operations
+    function printDsrStatement() {
+      const label = document.getElementById('dsr-stat-label').textContent;
+      const sales = document.getElementById('dsr-stat-sale').textContent;
+      const cost = document.getElementById('dsr-stat-cost').textContent;
+      const gross = document.getElementById('dsr-stat-gross').textContent;
+      const grossPct = document.getElementById('dsr-stat-gross-pct').textContent;
+      const expenses = document.getElementById('dsr-stat-expenses').textContent;
+      const net = document.getElementById('dsr-stat-net').textContent;
+      const netPct = document.getElementById('dsr-stat-net-pct').textContent;
+      const ordersCount = document.getElementById('dsr-stat-orders').textContent;
+
+      const printWindow = window.open('', '_blank', 'width=850,height=900');
+      const orderRows = (document.getElementById('dsr-history-tbody').innerHTML || '')
+        .replace(/<button[^>]*>.*?<\/button>/gi, '');
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>ZS MART - Financial Statement (${label})</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 30px; color: #111; }
+            .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+            .header h1 { margin: 0 0 5px; font-size: 24px; color: #0f172a; }
+            .header p { margin: 0; color: #64748b; font-size: 13px; }
+            .badge { display: inline-block; background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-weight: bold; margin-top: 8px; font-size: 12px; }
+            .kpi-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+            .kpi-table th, .kpi-table td { border: 1px solid #cbd5e1; padding: 10px 14px; text-align: left; }
+            .kpi-table th { background: #f8fafc; font-size: 12px; color: #475569; }
+            .kpi-table .num { text-align: right; font-weight: bold; }
+            .highlight { background: #f0fdf4; }
+            .danger { background: #fef2f2; color: #b91c1c; }
+            .success { color: #15803d; }
+            .orders-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; }
+            .orders-table th, .orders-table td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
+            .orders-table th { background: #f1f5f9; }
+            .text-right { text-align: right; }
+            .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #777; border-top: 1px solid #ddd; padding-top: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>🛒 ZS MART - FINANCIAL SALES &amp; PROFIT STATEMENT</h1>
+            <p>Master Store Management &amp; Daily Sales Report (DSR)</p>
+            <div class="badge">Period: ${label}</div>
+          </div>
+
+          <table class="kpi-table">
+            <thead>
+              <tr>
+                <th>Financial Metric</th>
+                <th style="text-align: right;">Amount (PKR)</th>
+                <th>Details / Margin</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Total Gross Revenue (Sales)</strong></td>
+                <td class="num">${sales}</td>
+                <td>${ordersCount}</td>
+              </tr>
+              <tr>
+                <td><strong>Total Purchase Cost (COGS)</strong></td>
+                <td class="num">${cost}</td>
+                <td>Total Cost of Goods Sold</td>
+              </tr>
+              <tr class="highlight">
+                <td><strong>Gross Profit</strong></td>
+                <td class="num success">${gross}</td>
+                <td class="success"><strong>${grossPct}</strong></td>
+              </tr>
+              <tr class="danger">
+                <td><strong>Shop Expenses</strong></td>
+                <td class="num danger">${expenses}</td>
+                <td>Supplies, Utilities, Staff, Refreshment</td>
+              </tr>
+              <tr style="background: #ecfdf5; font-size: 14px;">
+                <td><strong>NET CLEAN PROFIT</strong></td>
+                <td class="num success" style="font-size: 16px;">${net}</td>
+                <td class="success"><strong>${netPct}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style="margin-top: 25px; margin-bottom: 8px; color: #0f172a;">Order Transactions Breakdown:</h3>
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Payment</th>
+                <th>Items</th>
+                <th class="text-right">Sale</th>
+                <th class="text-right">Cost</th>
+                <th class="text-right">Profit</th>
+                <th style="text-align: center;">Margin</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${orderRows}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            Generated on ${new Date().toLocaleString()} • ZS Mart Command Center
+          </div>
+
+          <script>
+            window.onload = function() { window.print(); };
+          <\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // PURCHASING & MARKET SHEET ENGINE (NEW USER REQUIREMENTS)
+    // ══════════════════════════════════════════════════════════════════
+
+    function onPurchasingSearchType(val) {
+      val = val || '';
+      const clearBtn = document.getElementById('purchasing-search-clear');
+      if (clearBtn) clearBtn.style.display = val.length > 0 ? 'flex' : 'none';
+
+      const resultsDiv = document.getElementById('purchasing-search-results');
+      if (!resultsDiv) return;
+
+      if (!val.trim()) {
+        purchasingSearchResultsList = allProducts.slice(0, 30);
+        renderPurchasingSearchResults(purchasingSearchResultsList, '');
+        resultsDiv.style.display = 'block';
+        return;
+      }
+
+      const scored = [];
+      for (const p of allProducts) {
+        const score = scoreDsrProduct(p, val);
+        if (score > 0) scored.push({ product: p, score });
+      }
+      scored.sort((a, b) => b.score - a.score);
+
+      purchasingSearchResultsList = scored.slice(0, 40).map(s => s.product);
+      renderPurchasingSearchResults(purchasingSearchResultsList, val);
+      resultsDiv.style.display = 'block';
+    }
+
+    function onPurchasingSearchFocus() {
+      const input = document.getElementById('purchasing-item-input');
+      onPurchasingSearchType(input ? input.value : '');
+    }
+
+    function renderPurchasingSearchResults(items, query) {
+      const resultsDiv = document.getElementById('purchasing-search-results');
+      if (!resultsDiv) return;
+      resultsDiv.innerHTML = '';
+      purchasingSearchActiveIdx = -1;
+
+      if (!items || items.length === 0) {
+        resultsDiv.innerHTML = `
+          <div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 12px;">
+            No existing catalog match for "<b>${query}</b>".<br>
+            <span style="font-size: 11px; color: #059669; font-weight: bold;">You can still add this as a custom market item!</span>
+          </div>`;
+        return;
+      }
+
+      const countNotice = document.createElement('div');
+      countNotice.style.cssText = 'padding: 6px 10px; font-size: 11px; font-weight: 700; color: #d97706; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;';
+      countNotice.innerHTML = `<span>Catalog Matches (${items.length}):</span><span style="color: #64748b; font-weight: normal;">Click or Arrow keys to select</span>`;
+      resultsDiv.appendChild(countNotice);
+
+      items.forEach((p, idx) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'dsr-search-item';
+        itemDiv.setAttribute('data-idx', idx);
+
+        const savedRate = purchaseRates[p.id];
+        const savedSection = itemSectionsMap[p.id] || '';
+        const hasRate = savedRate !== undefined && Number(savedRate) > 0;
+        const purHtml = hasRate 
+          ? `<span class="dsr-search-item-cost">💾 Pur: Rs. ${Number(savedRate).toLocaleString()}</span>` 
+          : `<span style="font-size: 11px; color: #64748b;">⚡ Pur: Not set</span>`;
+
+        itemDiv.innerHTML = `
+          <div class="dsr-search-item-left" style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+            <img src="images/${p.id}.webp" onerror="this.src='images/${p.id}.png'; this.onerror=function(){this.src='icon-192.png';}" class="dsr-search-thumb">
+            <div class="dsr-search-item-info">
+              <div class="dsr-search-item-name">#${p.id} - ${p.name}</div>
+              <div class="dsr-search-item-meta">${savedSection ? '📍 Section: ' + savedSection : (p.categoryName || 'General Item')}</div>
+            </div>
+          </div>
+          <div class="dsr-search-item-right">
+            ${purHtml}
+          </div>
+        `;
+
+        itemDiv.onmousedown = (e) => {
+          e.preventDefault();
+          selectPurchasingProduct(p.id);
+        };
+        itemDiv.onmouseenter = () => {
+          highlightPurchasingSearchItem(idx);
+        };
+
+        resultsDiv.appendChild(itemDiv);
+      });
+    }
+
+    function highlightPurchasingSearchItem(idx) {
+      purchasingSearchActiveIdx = idx;
+      const items = document.querySelectorAll('#purchasing-search-results .dsr-search-item');
+      items.forEach((el, i) => {
+        if (i === idx) {
+          el.classList.add('highlighted');
+          el.scrollIntoView({ block: 'nearest' });
+        } else {
+          el.classList.remove('highlighted');
+        }
+      });
+    }
+
+    function handlePurchasingSearchKeydown(e) {
+      const resultsDiv = document.getElementById('purchasing-search-results');
+      const isVisible = resultsDiv && resultsDiv.style.display !== 'none';
+
+      if (e.key === 'ArrowDown') {
+        if (!isVisible) {
+          onPurchasingSearchFocus();
+          return;
+        }
+        e.preventDefault();
+        const nextIdx = Math.min(purchasingSearchActiveIdx + 1, purchasingSearchResultsList.length - 1);
+        highlightPurchasingSearchItem(nextIdx);
+      } else if (e.key === 'ArrowUp') {
+        if (!isVisible) return;
+        e.preventDefault();
+        const prevIdx = Math.max(purchasingSearchActiveIdx - 1, 0);
+        highlightPurchasingSearchItem(prevIdx);
+      } else if (e.key === 'Enter') {
+        if (isVisible && purchasingSearchResultsList.length > 0 && purchasingSearchActiveIdx >= 0) {
+          e.preventDefault();
+          selectPurchasingProduct(purchasingSearchResultsList[purchasingSearchActiveIdx].id);
+        }
+      } else if (e.key === 'Escape') {
+        if (resultsDiv) resultsDiv.style.display = 'none';
+      }
+    }
+
+    function selectPurchasingProduct(id) {
+      const p = allProducts.find(item => String(item.id) === String(id));
+      if (!p) return;
+
+      selectedPurchasingProduct = p;
+      document.getElementById('purchasing-selected-id').value = p.id;
+      document.getElementById('purchasing-item-input').value = p.name;
+
+      const clearBtn = document.getElementById('purchasing-search-clear');
+      if (clearBtn) clearBtn.style.display = 'flex';
+
+      const resultsDiv = document.getElementById('purchasing-search-results');
+      if (resultsDiv) resultsDiv.style.display = 'none';
+
+      // Auto-fill Rate
+      const rateInput = document.getElementById('purchasing-item-rate');
+      if (purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) > 0) {
+        rateInput.value = purchaseRates[p.id];
+      } else {
+        rateInput.value = '';
+      }
+
+      // Auto-fill Section
+      const secInput = document.getElementById('purchasing-item-section');
+      if (itemSectionsMap[p.id]) {
+        secInput.value = itemSectionsMap[p.id];
+      } else if (!secInput.value) {
+        secInput.value = purchasingSections[0] || 'AY';
+      }
+
+      const hint = document.getElementById('purchasing-status-hint');
+      if (hint) {
+        hint.textContent = (purchaseRates[p.id] ? `✓ Pur Rate Rs. ${purchaseRates[p.id]} auto-filled` : '⚡ Enter Pur Rate') + 
+          (itemSectionsMap[p.id] ? ` • Section: ${itemSectionsMap[p.id]}` : '');
+      }
+
+      document.getElementById('purchasing-item-qty').focus();
+      document.getElementById('purchasing-item-qty').select();
+    }
+
+    function clearPurchasingSearch() {
+      selectedPurchasingProduct = null;
+      document.getElementById('purchasing-selected-id').value = '';
+      document.getElementById('purchasing-item-input').value = '';
+      document.getElementById('purchasing-search-clear').style.display = 'none';
+      document.getElementById('purchasing-item-rate').value = '';
+      document.getElementById('purchasing-item-qty').value = '1';
+      document.getElementById('purchasing-status-hint').textContent = '';
+      const resultsDiv = document.getElementById('purchasing-search-results');
+      if (resultsDiv) resultsDiv.style.display = 'none';
+      document.getElementById('purchasing-item-input').focus();
+    }
+
+    async function addPurchasingRow() {
+      const inputEl = document.getElementById('purchasing-item-input');
+      const itemName = inputEl.value.trim();
+      if (!itemName) return alert('Please enter or select an item name!');
+
+      const pId = document.getElementById('purchasing-selected-id').value;
+      const secInput = document.getElementById('purchasing-item-section');
+      let section = secInput.value.trim() || 'General Market';
+
+      const qty = Math.max(1, Number(document.getElementById('purchasing-item-qty').value) || 1);
+      const purRate = Number(document.getElementById('purchasing-item-rate').value) || 0;
+      const amount = qty * purRate;
+
+      // Add section to list if brand new
+      if (section && !purchasingSections.includes(section)) {
+        purchasingSections.push(section);
+        renderPurchasingSectionsDatalist();
+        // Persist new section to server
+        fetch('/api/purchasing/sections', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newSection: section })
+        }).catch(() => {});
+      }
+
+      // Check if user wants to remember section for item
+      const saveSecChk = document.getElementById('purchasing-save-section-chk');
+      if (saveSecChk && saveSecChk.checked) {
+        const itemKey = pId || itemName;
+        itemSectionsMap[itemKey] = section;
+        fetch('/api/purchasing/sections', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemId: itemKey, section: section })
+        }).catch(() => {});
+      }
+
+      // Check if user wants to save purchase rate permanently
+      const saveRateChk = document.getElementById('purchasing-save-rate-chk');
+      if (saveRateChk && saveRateChk.checked && purRate > 0) {
+        if (pId) {
+          saveSinglePurchaseRate(pId, purRate);
+        }
+      }
+
+      // Check if item already exists in current sheet with same name & section
+      const existingIdx = currentPurchasingItems.findIndex(i => 
+        (pId && i.id === pId) || (i.name.toLowerCase() === itemName.toLowerCase() && i.section.toLowerCase() === section.toLowerCase())
+      );
+
+      if (existingIdx >= 0) {
+        currentPurchasingItems[existingIdx].qty += qty;
+        currentPurchasingItems[existingIdx].purRate = purRate;
+        currentPurchasingItems[existingIdx].amount = currentPurchasingItems[existingIdx].qty * purRate;
+        currentPurchasingItems[existingIdx].section = section;
+      } else {
+        currentPurchasingItems.push({
+          id: pId || ('CUST-' + Date.now()),
+          name: itemName,
+          qty,
+          purRate,
+          amount,
+          section
+        });
+      }
+
+      // Clear search for rapid next entry
+      clearPurchasingSearch();
+
+      // Render the organized sheet
+      renderPurchasingSheetTable();
+    }
+
+    function updatePurchasingItem(idx, field, val) {
+      const item = currentPurchasingItems[idx];
+      if (!item) return;
+
+      if (field === 'qty') {
+        item.qty = Math.max(1, Number(val) || 1);
+        item.amount = item.qty * item.purRate;
+      } else if (field === 'purRate') {
+        item.purRate = Math.max(0, Number(val) || 0);
+        item.amount = item.qty * item.purRate;
+        if (item.id && !item.id.startsWith('CUST-')) {
+          saveSinglePurchaseRate(item.id, item.purRate);
+        }
+      } else if (field === 'section') {
+        const newSec = String(val).trim() || 'General Market';
+        item.section = newSec;
+        if (!purchasingSections.includes(newSec)) {
+          purchasingSections.push(newSec);
+          renderPurchasingSectionsDatalist();
+        }
+        if (item.id) {
+          itemSectionsMap[item.id] = newSec;
+        }
+      }
+
+      renderPurchasingSheetTable();
+    }
+
+    function removePurchasingItem(idx) {
+      currentPurchasingItems.splice(idx, 1);
+      renderPurchasingSheetTable();
+    }
+
+    function clearPurchasingSheet() {
+      if (currentPurchasingItems.length > 0 && !confirm('Are you sure you want to clear this purchasing sheet?')) return;
+      currentPurchasingItems = [];
+      renderPurchasingSheetTable();
+    }
+
+    // Helper: Group items by Section and sort items within each section Alphabetically
+    function getOrganizedPurchasingData() {
+      const groups = {};
+      currentPurchasingItems.forEach((item, origIdx) => {
+        const sec = (item.section || 'General Market').trim();
+        if (!groups[sec]) groups[sec] = [];
+        groups[sec].push({ ...item, origIdx });
+      });
+
+      // Sort items within each section alphabetically by name (A to Z)
+      const sortedSectionNames = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+      const result = [];
+
+      sortedSectionNames.forEach(secName => {
+        const items = groups[secName].sort((a, b) => a.name.localeCompare(b.name));
+        const secQty = items.reduce((s, i) => s + i.qty, 0);
+        const secAmount = items.reduce((s, i) => s + i.amount, 0);
+        result.push({
+          sectionName: secName,
+          items,
+          totalQty: secQty,
+          totalAmount: secAmount
+        });
+      });
+
+      return result;
+    }
+
+    function renderPurchasingSheetTable() {
+      const container = document.getElementById('purchasing-grouped-container');
+      if (!container) return;
+
+      if (currentPurchasingItems.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); padding: 40px; background: #f8fafc; border-radius: 12px; border: 1px dashed var(--card-border);">
+            🛒 Your purchasing sheet is empty.<br>
+            <span style="font-size: 12px; color: #94a3b8;">Use the Fast Item Entry strip above to search or type items.</span>
+          </div>`;
+        document.getElementById('purchasing-item-count').textContent = '0';
+        document.getElementById('purchasing-summary-sections').textContent = '0 sections';
+        document.getElementById('purchasing-summary-items').textContent = '0 items';
+        document.getElementById('purchasing-summary-qty').textContent = '0 units';
+        document.getElementById('purchasing-summary-amount').textContent = 'Rs. 0';
+        return;
+      }
+
+      const groupedData = getOrganizedPurchasingData();
+      let grandQty = 0;
+      let grandAmount = 0;
+      let globalSr = 1;
+
+      let rowsHtml = '';
+
+      groupedData.forEach(group => {
+        grandQty += group.totalQty;
+        grandAmount += group.totalAmount;
+
+        // Slim single-line Section Divider
+        rowsHtml += `
+          <tr class="excel-sec-divider">
+            <td colspan="6">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>📍 <b>SECTION: ${escapeHtml(group.sectionName).toUpperCase()}</b></span>
+                <span style="font-size: 11px; font-weight: 600; color: #475569;">(${group.items.length} items &middot; ${group.totalQty} units)</span>
+              </div>
+            </td>
+          </tr>
+        `;
+
+        // Item Rows: Ultra slim Excel row, exactly 1 line
+        group.items.forEach(item => {
+          rowsHtml += `
+            <tr class="excel-item-row" id="p-row-${item.origIdx}">
+              <td style="text-align: center; color: #64748b; font-weight: 700; width: 45px;">${globalSr++}</td>
+              <td style="font-weight: 700; color: #0f172a;">${escapeHtml(item.name)}</td>
+              <td style="text-align: center; font-weight: 700; color: #0f172a; width: 85px;">${item.qty}</td>
+              <td style="text-align: right; font-weight: 600; color: #334155; width: 110px;">Rs. ${item.purRate.toLocaleString()}</td>
+              <td style="text-align: right; font-weight: 800; color: #059669; width: 120px;">Rs. ${item.amount.toLocaleString()}</td>
+              <td style="text-align: center; width: 80px; white-space: nowrap;">
+                <button type="button" class="btn-excel-action btn-excel-edit" onclick="openEditPurchasingItemModal(${item.origIdx})" title="Edit Item">✏️ Edit</button>
+                <button type="button" class="btn-excel-action btn-excel-delete" onclick="removePurchasingItem(${item.origIdx})" title="Remove Item">✕</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        // Slim Section Subtotal Row
+        rowsHtml += `
+          <tr class="excel-sec-subtotal">
+            <td colspan="2" style="text-align: right; color: #475569; font-weight: 700;">
+              Subtotal [ ${escapeHtml(group.sectionName)} ]:
+            </td>
+            <td style="text-align: center; font-weight: 800; color: #0f172a;">${group.totalQty}</td>
+            <td></td>
+            <td style="text-align: right; font-weight: 800; color: #059669;">Rs. ${group.totalAmount.toLocaleString()}</td>
+            <td></td>
+          </tr>
+        `;
+      });
+
+      // Grand Total Row at bottom
+      rowsHtml += `
+        <tr class="excel-grand-total">
+          <td colspan="2" style="text-align: right; font-weight: 900; color: #0f172a;">
+            GRAND TOTAL (${currentPurchasingItems.length} ITEMS):
+          </td>
+          <td style="text-align: center; font-weight: 900; color: #0284c7; font-size: 13px;">${grandQty} units</td>
+          <td></td>
+          <td style="text-align: right; font-weight: 900; color: #059669; font-size: 14px;">Rs. ${grandAmount.toLocaleString()}</td>
+          <td></td>
+        </tr>
+      `;
+
+      // Render ONE continuous Excel-style table
+      container.innerHTML = `
+        <div class="excel-sheet-wrapper">
+          <table class="excel-table">
+            <thead>
+              <tr>
+                <th style="width: 45px; text-align: center;">SR #</th>
+                <th>Item Description / Name</th>
+                <th style="width: 85px; text-align: center;">Quantity</th>
+                <th style="width: 110px; text-align: right;">Pur Rate (Rs)</th>
+                <th style="width: 120px; text-align: right;">Total (Rs)</th>
+                <th style="width: 80px; text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('purchasing-item-count').textContent = currentPurchasingItems.length;
+      document.getElementById('purchasing-summary-sections').textContent = `${groupedData.length} sections`;
+      document.getElementById('purchasing-summary-items').textContent = `${currentPurchasingItems.length} items`;
+      document.getElementById('purchasing-summary-qty').textContent = `${grandQty} units`;
+      document.getElementById('purchasing-summary-amount').textContent = 'Rs. ' + grandAmount.toLocaleString();
+    }
+
+    async function saveCurrentPurchasingSheet() {
+      if (currentPurchasingItems.length === 0) return alert('Cannot save an empty sheet. Add items first!');
+
+      const groupedData = getOrganizedPurchasingData();
+      const grandQty = currentPurchasingItems.reduce((s, i) => s + i.qty, 0);
+      const grandAmount = currentPurchasingItems.reduce((s, i) => s + i.amount, 0);
+
+      const payload = {
+        date: document.getElementById('purchasing-date').value || new Date().toISOString().slice(0, 10),
+        marketName: document.getElementById('purchasing-market-name').value.trim() || 'Wholesale Market',
+        title: document.getElementById('purchasing-notes').value.trim() || 'Market Purchasing Sheet',
+        items: currentPurchasingItems,
+        sections: groupedData.map(g => g.sectionName),
+        totalItems: currentPurchasingItems.length,
+        totalQty: grandQty,
+        totalAmount: grandAmount,
+        updatedRates: purchaseRates,
+        updatedItemSections: itemSectionsMap
+      };
+
+      try {
+        const res = await fetch('/api/purchasing/sheets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert('✅ Purchasing sheet saved successfully!\n\nID: ' + data.sheet.id + '\nTotal Items: ' + payload.totalItems + '\nTotal Amount: Rs. ' + grandAmount.toLocaleString());
+          await loadPurchasingData();
+        } else {
+          alert('❌ Failed to save sheet: ' + (data.error || 'Failed'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    function renderSavedPurchasingSheets() {
+      const tbody = document.getElementById('purchasing-history-tbody');
+      if (!tbody) return;
+      document.getElementById('purchasing-sheets-count').textContent = `${savedPurchasingSheets.length} saved sheets`;
+      tbody.innerHTML = '';
+
+      if (savedPurchasingSheets.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No saved purchasing sheets yet.</td></tr>`;
+        return;
+      }
+
+      savedPurchasingSheets.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 700; color: #d97706;">${s.id}</td>
+          <td>${s.date}</td>
+          <td>
+            <div style="font-weight: 700; color: #0f172a;">${s.title || 'Purchasing Sheet'}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">${s.marketName || 'Market'}</div>
+          </td>
+          <td style="text-align: right; font-weight: 600;">${s.totalItems || (s.items ? s.items.length : 0)}</td>
+          <td style="text-align: right; font-weight: 700;">${s.totalQty || 0}</td>
+          <td style="text-align: right; font-weight: 800; color: #059669;">Rs. ${(Number(s.totalAmount) || 0).toLocaleString()}</td>
+          <td style="text-align: center; white-space: nowrap;">
+            <button class="btn btn-dark" style="padding: 4px 8px; font-size: 11px;" onclick="loadSavedSheet('${s.id}')">📥 Load</button>
+            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px; margin-left: 2px;" onclick="deleteSavedSheet('${s.id}')">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function loadSavedSheet(sheetId) {
+      const sheet = savedPurchasingSheets.find(s => s.id === sheetId);
+      if (!sheet) return;
+      if (currentPurchasingItems.length > 0 && !confirm('Replace current working sheet with this saved sheet?')) return;
+      currentPurchasingItems = JSON.parse(JSON.stringify(sheet.items || []));
+      document.getElementById('purchasing-date').value = sheet.date || new Date().toISOString().slice(0, 10);
+      document.getElementById('purchasing-market-name').value = sheet.marketName || '';
+      document.getElementById('purchasing-notes').value = sheet.title || '';
+      renderPurchasingSheetTable();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteSavedSheet(sheetId) {
+      if (!confirm('Are you sure you want to delete this saved purchasing sheet?')) return;
+      try {
+        const res = await fetch('/api/purchasing/sheets/' + sheetId, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.ok) {
+          savedPurchasingSheets = savedPurchasingSheets.filter(s => s.id !== sheetId);
+          renderSavedPurchasingSheets();
+        }
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+      }
+    }
+
+    // ── Official Printable Purchasing Sheet Engine ──
+    // Strictly formatted as requested:
+    // Left: ZS Traders | Address (R4C4+RV6, Safaid White Masjid Rd...)
+    // Right: Sahil & Zubair | 03368945775
+    // Columns: SR # | Item Description (alphabetical per section) | Quantity | Pur Rate | Amount
+    // Code column removed.
+    // Section subtotal at end of each section. Grand total at bottom. Clean multi-page handling.
+    function printPurchasingSheet() {
+      if (currentPurchasingItems.length === 0) return alert('Please add items to the sheet before printing!');
+
+      const groupedData = getOrganizedPurchasingData();
+      const printDateStr = document.getElementById('purchasing-date').value || new Date().toISOString().slice(0, 10);
+      const marketName = document.getElementById('purchasing-market-name').value.trim() || 'Wholesale Market';
+      const sheetTitle = document.getElementById('purchasing-notes').value.trim() || 'PURCHASING ORDER SHEET';
+      const grandQty = currentPurchasingItems.reduce((s, i) => s + i.qty, 0);
+      const grandAmount = currentPurchasingItems.reduce((s, i) => s + i.amount, 0);
+
+      const printWindow = window.open('', '_blank', 'width=950,height=1000');
+      
+      let rowsHtml = '';
+      let globalSr = 1;
+
+      groupedData.forEach(group => {
+        // Section Banner
+        rowsHtml += `
+          <tr class="section-banner-row">
+            <td colspan="5" class="section-banner-title">
+              📍 SECTION: ${group.sectionName.toUpperCase()} &nbsp;(${group.items.length} Items &middot; ${group.totalQty} Units)
+            </td>
+          </tr>
+        `;
+
+        // Section Items (Alphabetical)
+        group.items.forEach(item => {
+          rowsHtml += `
+            <tr class="item-row">
+              <td class="text-center">${globalSr++}</td>
+              <td class="item-name">${item.name}</td>
+              <td class="text-right font-bold">${item.qty}</td>
+              <td class="text-right">${item.purRate > 0 ? ('Rs. ' + item.purRate.toLocaleString()) : '—'}</td>
+              <td class="text-right font-bold">${item.amount > 0 ? ('Rs. ' + item.amount.toLocaleString()) : '—'}</td>
+            </tr>
+          `;
+        });
+
+        // Section Subtotal
+        rowsHtml += `
+          <tr class="section-subtotal-row">
+            <td colspan="2" class="subtotal-label">SUBTOTAL [ ${group.sectionName.toUpperCase()} ]:</td>
+            <td class="text-right font-black">${group.totalQty}</td>
+            <td></td>
+            <td class="text-right font-black">Rs. ${group.totalAmount.toLocaleString()}</td>
+          </tr>
+        `;
+      });
+
+      // Grand Total Row
+      rowsHtml += `
+        <tr class="grand-total-row">
+          <td colspan="2" class="grand-label">GRAND TOTAL PURCHASING:</td>
+          <td class="text-right grand-qty">${grandQty} Units</td>
+          <td></td>
+          <td class="text-right grand-amount">Rs. ${grandAmount.toLocaleString()}</td>
+        </tr>
+      `;
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>ZS Traders - Purchasing Sheet (${printDateStr})</title>
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 10mm 10mm 14mm 10mm;
+            }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+              color: #0f172a;
+              background: #ffffff;
+              font-size: 11px;
+              line-height: 1.35;
+              padding: 10px;
+            }
+
+            /* ── Header: 2 items on Left, 2 items on Right to save space ── */
+            .print-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              border-bottom: 2px solid #0f172a;
+              padding-bottom: 8px;
+              margin-bottom: 10px;
+            }
+            .header-left {
+              text-align: left;
+              max-width: 60%;
+            }
+            .company-name {
+              font-size: 20px;
+              font-weight: 900;
+              letter-spacing: 0.5px;
+              color: #0f172a;
+              text-transform: uppercase;
+              line-height: 1.1;
+            }
+            .company-address {
+              font-size: 9.5px;
+              color: #475569;
+              font-weight: 500;
+              margin-top: 3px;
+              line-height: 1.3;
+            }
+            .header-right {
+              text-align: right;
+            }
+            .owner-name {
+              font-size: 14px;
+              font-weight: 800;
+              color: #0f172a;
+              line-height: 1.2;
+            }
+            .owner-phone {
+              font-size: 13px;
+              font-weight: 800;
+              color: #059669;
+              letter-spacing: 0.5px;
+              margin-top: 2px;
+            }
+
+            /* ── Metadata Strip ── */
+            .meta-strip {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background: #f1f5f9;
+              border: 1px solid #cbd5e1;
+              border-radius: 6px;
+              padding: 6px 12px;
+              margin-bottom: 12px;
+              font-size: 10.5px;
+              font-weight: 700;
+              color: #334155;
+            }
+            .meta-strip span b {
+              color: #0f172a;
+            }
+
+            /* ── Table Styling ── */
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              font-size: 10.5px;
+            }
+            th {
+              background: #0f172a !important;
+              color: #ffffff !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              padding: 6px 8px;
+              font-size: 10px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              border: 1px solid #0f172a;
+            }
+            td {
+              padding: 5px 8px;
+              border: 1px solid #cbd5e1;
+              vertical-align: middle;
+            }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .font-bold { font-weight: 700; }
+            .font-black { font-weight: 900; }
+            .item-name {
+              font-weight: 700;
+              color: #0f172a;
+              word-break: break-word;
+            }
+
+            /* ── Section Header Banners ── */
+            .section-banner-row td {
+              background: #e2e8f0 !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              color: #0f172a;
+              font-weight: 900;
+              font-size: 11px;
+              padding: 6px 10px;
+              border: 1.5px solid #94a3b8;
+              letter-spacing: 0.5px;
+            }
+
+            /* ── Section Subtotal Row ── */
+            .section-subtotal-row td {
+              background: #f8fafc !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              border-top: 1.5px solid #0f172a;
+              border-bottom: 2px solid #0f172a;
+              font-size: 10.5px;
+              padding: 6px 8px;
+            }
+            .subtotal-label {
+              font-weight: 900;
+              text-transform: uppercase;
+              text-align: right;
+            }
+
+            /* ── Grand Total Row ── */
+            .grand-total-row td {
+              background: #0f172a !important;
+              color: #ffffff !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              border: 2px solid #0f172a;
+              padding: 8px 10px;
+            }
+            .grand-label {
+              font-weight: 900;
+              font-size: 12px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              text-align: right;
+            }
+            .grand-qty {
+              font-weight: 900;
+              font-size: 12px;
+            }
+            .grand-amount {
+              font-weight: 900;
+              font-size: 14px;
+              color: #34d399 !important;
+            }
+
+            /* ── Page Break Handling ── */
+            @media print {
+              .section-banner-row { page-break-after: avoid; }
+              .section-subtotal-row { page-break-before: avoid; }
+              tr { page-break-inside: avoid; }
+            }
+
+            /* Footer */
+            .print-footer {
+              margin-top: 16px;
+              padding-top: 8px;
+              border-top: 1px solid #cbd5e1;
+              display: flex;
+              justify-content: space-between;
+              font-size: 9px;
+              color: #64748b;
+            }
+          </style>
+        </head>
+        <body>
+          
+          <!-- Header (2 Left, 2 Right) -->
+          <div class="print-header">
+            <div class="header-left">
+              <div class="company-name">ZS Traders</div>
+              <div class="company-address">R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi, Pakistan</div>
+            </div>
+            <div class="header-right">
+              <div class="owner-name">Sahil &amp; Zubair</div>
+              <div class="owner-phone">03368945775</div>
+            </div>
+          </div>
+
+          <!-- Metadata Strip -->
+          <div class="meta-strip">
+            <span>Date: <b>${printDateStr}</b></span>
+            <span>Market / Notes: <b>${marketName} (${sheetTitle})</b></span>
+            <span>Sections: <b>${groupedData.length}</b></span>
+            <span>Total Items: <b>${currentPurchasingItems.length}</b></span>
+            <span>Total Qty: <b>${grandQty} Units</b></span>
+          </div>
+
+          <!-- Items Table (Code column omitted) -->
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 45px; text-align: center;">SR #</th>
+                <th>Item Description / Name (Alphabetical Order)</th>
+                <th style="width: 80px; text-align: right;">Quantity</th>
+                <th style="width: 100px; text-align: right;">Pur Rate</th>
+                <th style="width: 120px; text-align: right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+
+          <div class="print-footer">
+            <span>Printed on ${new Date().toLocaleString()} &middot; ZS Traders Purchasing Command</span>
+            <span>Generated from ZS Mart Master Admin Portal</span>
+          </div>
+
+          <script>
+            window.onload = function() { window.print(); };
+          <\/script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    // ── 1-Click Operations ──
     async function triggerPublishLive() {
       showTerminal('🚀 COMPILING JSX & PUBLISHING LIVE TO APP & WEB...');
       try {
@@ -1054,11 +4148,29 @@
       }
     }
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    // Navigation Switcher via Dropdown
+    function switchTabFromDropdown(tabId) {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      event.currentTarget.classList.add('active');
-      document.getElementById('tab-' + tabId).classList.add('active');
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.classList.add('active');
+
+      // Manage KPI Strip: Show ONLY on Products & Ordering tabs!
+      // HIDE completely on Purchasing (Screenshot 2), DSR, Settings, and System.
+      const kpiBanner = document.getElementById('global-kpi-container');
+      if (kpiBanner) {
+        if (tabId === 'products' || tabId === 'ordering') {
+          kpiBanner.style.display = 'flex';
+        } else {
+          kpiBanner.style.display = 'none';
+        }
+      }
+    }
+
+    // Legacy switchTab compatibility
+    function switchTab(tabId) {
+      const dropdown = document.getElementById('main-nav-dropdown');
+      if (dropdown) dropdown.value = tabId;
+      switchTabFromDropdown(tabId);
     }
 
     function showTerminal(title) {
@@ -1077,7 +4189,6 @@
       document.getElementById('terminal-modal').classList.remove('show');
     }
 
-
     async function loadSettings() {
       try {
         const res = await fetch('/api/settings');
@@ -1087,6 +4198,8 @@
           document.getElementById('setting-whatsapp').value = data.whatsapp || '+92 336 8945775';
           document.getElementById('setting-freedelivery').value = data.freeDeliveryThreshold || 2000;
           document.getElementById('setting-deliveryfee').value = data.deliveryFee || 150;
+          const annEl = document.getElementById('setting-announcement');
+          if (annEl) annEl.value = data.announcement || '';
         }
       } catch(e) { console.warn('Settings load failed:', e); }
     }
@@ -1096,7 +4209,8 @@
         deliveryTiming: document.getElementById('setting-timing').value.trim(),
         whatsapp: document.getElementById('setting-whatsapp').value.trim().replace(/[^0-9]/g, ''),
         freeDeliveryThreshold: Number(document.getElementById('setting-freedelivery').value),
-        deliveryFee: Number(document.getElementById('setting-deliveryfee').value)
+        deliveryFee: Number(document.getElementById('setting-deliveryfee').value),
+        announcement: document.getElementById('setting-announcement') ? document.getElementById('setting-announcement').value.trim() : ''
       };
 
       if (!payload.freeDeliveryThreshold || payload.freeDeliveryThreshold < 100) {
@@ -1127,6 +4241,224 @@
       await init();
       await loadSettings();
     };
+
+    /* ── SECTIONS MANAGER FUNCTIONS (Rename, Delete, Add) ── */
+    function openSectionsManagerModal() {
+      renderSectionsManagerList();
+      document.getElementById('sections-manager-modal').classList.add('show');
+    }
+
+    function closeSectionsManagerModal() {
+      document.getElementById('sections-manager-modal').classList.remove('show');
+    }
+
+    function renderSectionsManagerList() {
+      const container = document.getElementById('sections-manager-list');
+      if (!container) return;
+
+      if (!purchasingSections || purchasingSections.length === 0) {
+        container.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">No sections found. Add one below!</div>';
+        return;
+      }
+
+      let html = '';
+      purchasingSections.forEach(sec => {
+        const escaped = escapeHtml(sec);
+        const quoted = escaped.replace(/'/g, "\\'");
+        html += `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #f1f5f9;">
+            <div style="font-weight: 700; color: #0f172a; font-size: 13px;">📍 ${escaped}</div>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" class="btn btn-light" style="padding: 3px 8px; font-size: 11px; font-weight: 700; color: #2563eb;" onclick="renameSectionPrompt('${quoted}')">
+                ✏️ Rename
+              </button>
+              <button type="button" class="btn btn-light" style="padding: 3px 8px; font-size: 11px; font-weight: 700; color: #dc2626;" onclick="deleteSectionConfirm('${quoted}')">
+                🗑️ Delete
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    async function renameSectionPrompt(oldName) {
+      const newName = prompt('Enter new name for section "' + oldName + '":', oldName);
+      if (!newName || newName.trim() === '' || newName.trim() === oldName) return;
+
+      const trimmedNew = newName.trim();
+      try {
+        const res = await fetch('/api/purchasing/sections', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'rename', oldName: oldName, newName: trimmedNew })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          purchasingSections = data.sections || [];
+          itemSectionsMap = data.itemSections || itemSectionsMap;
+          
+          // Update any items in current sheet
+          currentPurchasingItems.forEach(it => {
+            if (it.section === oldName) it.section = trimmedNew;
+          });
+
+          renderPurchasingSectionsDatalist();
+          renderSectionsManagerList();
+          renderPurchasingSheetTable();
+          alert('✅ Section renamed to "' + trimmedNew + '" successfully!');
+        } else {
+          alert('❌ Rename failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    async function deleteSectionConfirm(secName) {
+      if (!confirm('Are you sure you want to delete section "' + secName + '"?\n\nAny items assigned to it will move to "General Market".')) return;
+
+      try {
+        const res = await fetch('/api/purchasing/sections', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', sectionName: secName })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          purchasingSections = data.sections || [];
+          itemSectionsMap = data.itemSections || itemSectionsMap;
+
+          // Update current items
+          currentPurchasingItems.forEach(it => {
+            if (it.section === secName) it.section = 'General Market';
+          });
+
+          renderPurchasingSectionsDatalist();
+          renderSectionsManagerList();
+          renderPurchasingSheetTable();
+          alert('🗑️ Section "' + secName + '" deleted successfully!');
+        } else {
+          alert('❌ Delete failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    async function addNewSectionFromManager() {
+      const input = document.getElementById('new-section-input');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return alert('Please enter a section name!');
+
+      try {
+        const res = await fetch('/api/purchasing/sections', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newSection: val })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          purchasingSections = data.sections || [];
+          input.value = '';
+          renderPurchasingSectionsDatalist();
+          renderSectionsManagerList();
+        } else {
+          alert('❌ Failed to add section: ' + (data.error || 'Failed'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    /* ── EDIT PURCHASING ITEM MODAL FUNCTIONS ── */
+    function openEditPurchasingItemModal(origIdx) {
+      const item = currentPurchasingItems[origIdx];
+      if (!item) return;
+
+      document.getElementById('edit-purchasing-item-index').value = origIdx;
+      document.getElementById('edit-purchasing-name').value = item.name || '';
+      document.getElementById('edit-purchasing-qty').value = item.qty || 1;
+      document.getElementById('edit-purchasing-rate').value = item.purRate || 0;
+
+      // Populate section select
+      const secSelect = document.getElementById('edit-purchasing-section');
+      secSelect.innerHTML = '';
+      purchasingSections.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        if (s === item.section) opt.selected = true;
+        secSelect.appendChild(opt);
+      });
+      if (item.section && !purchasingSections.includes(item.section)) {
+        const opt = document.createElement('option');
+        opt.value = item.section;
+        opt.textContent = item.section;
+        opt.selected = true;
+        secSelect.appendChild(opt);
+      }
+
+      calcEditPurchasingTotal();
+      document.getElementById('edit-purchasing-item-modal').classList.add('show');
+    }
+
+    function closeEditPurchasingItemModal() {
+      document.getElementById('edit-purchasing-item-modal').classList.remove('show');
+    }
+
+    function calcEditPurchasingTotal() {
+      const q = parseFloat(document.getElementById('edit-purchasing-qty').value) || 0;
+      const r = parseFloat(document.getElementById('edit-purchasing-rate').value) || 0;
+      document.getElementById('edit-purchasing-total-preview').textContent = 'Rs. ' + (q * r).toLocaleString();
+    }
+
+    async function saveEditPurchasingItem() {
+      const idxStr = document.getElementById('edit-purchasing-item-index').value;
+      const origIdx = parseInt(idxStr, 10);
+      if (isNaN(origIdx) || !currentPurchasingItems[origIdx]) return;
+
+      const newName = document.getElementById('edit-purchasing-name').value.trim();
+      const newSection = document.getElementById('edit-purchasing-section').value.trim() || 'General Market';
+      const newQty = Math.max(1, parseFloat(document.getElementById('edit-purchasing-qty').value) || 1);
+      const newRate = Math.max(0, parseFloat(document.getElementById('edit-purchasing-rate').value) || 0);
+
+      if (!newName) return alert('Item name cannot be empty!');
+
+      currentPurchasingItems[origIdx].name = newName;
+      currentPurchasingItems[origIdx].section = newSection;
+      currentPurchasingItems[origIdx].qty = newQty;
+      currentPurchasingItems[origIdx].purRate = newRate;
+      currentPurchasingItems[origIdx].amount = (newQty * newRate);
+
+      const itemId = currentPurchasingItems[origIdx].id;
+      const saveRate = document.getElementById('edit-purchasing-save-rate-chk').checked;
+      const saveSection = document.getElementById('edit-purchasing-save-section-chk').checked;
+
+      if (itemId) {
+        if (saveRate) {
+          purchaseRates[String(itemId)] = newRate;
+          fetch('/api/products/' + itemId + '/purchase-rate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ purchasePrice: newRate })
+          }).catch(e => console.warn('Rate sync error:', e));
+        }
+        if (saveSection) {
+          itemSectionsMap[String(itemId)] = newSection;
+          fetch('/api/purchasing/sections', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ itemId: String(itemId), section: newSection })
+          }).catch(e => console.warn('Section sync error:', e));
+        }
+      }
+
+      closeEditPurchasingItemModal();
+      renderPurchasingSheetTable();
+    }
+
   </script>
 </body>
 </html>

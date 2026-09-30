@@ -4511,7 +4511,15 @@ export default function SahilTraders() {
       const cached = localStorage.getItem("zs_groceries_products_cache");
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Merge priorities from bundled PRODUCTS so admin updates are always active immediately
+          if (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS) && PRODUCTS.length > 0) {
+            const prioMap = {};
+            PRODUCTS.forEach(p => { if (p && p.priority) prioMap[p.id] = p.priority; });
+            parsed.forEach(p => { if (prioMap[p.id]) p.priority = prioMap[p.id]; });
+          }
+          return parsed;
+        }
       }
     } catch (e) {}
     return PRODUCTS;
@@ -4678,14 +4686,12 @@ export default function SahilTraders() {
         }
         const cacheBuster = Date.now();
         const endpoints = [
+          `./products.json?v=${cacheBuster}`,
+          `http://localhost:8888/products.json?v=${cacheBuster}`,
           `https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`,
           `https://sahiltraders.vercel.app/products.json?v=${cacheBuster}`,
           `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/products.json?v=${cacheBuster}`
         ];
-
-        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-          endpoints.unshift(`http://localhost:8888/products.json?v=${cacheBuster}`);
-        }
 
         let loadedData = null;
         for (const url of endpoints) {

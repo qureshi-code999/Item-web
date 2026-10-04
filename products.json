@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-04T13:20:05.834Z",
+  "updatedAt": "2026-10-04T13:38:07.306Z",
   "total": 1049,
   "settings": {
     "deliveryFee": 99,
@@ -1102,7 +1102,8 @@
   "categories": [
     {
       "id": "soaps",
-      "name": "Local & Imported Soaps"
+      "name": "Local & Imported Soaps",
+      "priority": 1
     },
     {
       "id": "shampoo",

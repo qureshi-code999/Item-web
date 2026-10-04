@@ -17,6 +17,7 @@ const SETTINGS_FILE = path.join(ROOT, 'settings.json');
 const IMAGES_DIR = path.join(ROOT, 'images');
 const SECTIONS_FILE = path.join(ROOT, 'purchasing_sections.json');
 const PURCHASING_SHEETS_FILE = path.join(ROOT, 'purchasing_sheets.json');
+const CAT_PRIORITIES_FILE = path.join(ROOT, 'category_priorities.json');
 
 // Optional sharp for WebP compression
 let sharp = null;
@@ -74,7 +75,7 @@ function getMimeType(file) {
 function liveCloudSync(message) {
   try {
     const safeMsg = (message || 'Live update from Admin Panel').replace(/"/g, "'");
-    const gitCmd = `git add products.json settings.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js && git commit -m "${safeMsg}" && git push origin main`;
+    const gitCmd = `git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js && git commit -m "${safeMsg}" && git push origin main`;
     exec(gitCmd, { cwd: ROOT }, (err, stdout, stderr) => {
       if (err) {
         if (err.message && err.message.includes('nothing to commit')) {
@@ -387,6 +388,63 @@ function syncImageToTargets(fileName) {
       liveCloudSync('Admin deleted product #' + id);
 
       return sendJson(res, 200, { ok: true, deletedId: id });
+    }
+
+    // 5c. API: Category Priority PUT
+    if (pathname.startsWith('/api/categories/') && pathname.endsWith('/priority') && req.method === 'PUT') {
+      const parts = pathname.split('/');
+      const catId = parts[3];
+      const body = await parseBody(req);
+      if (!catId) return sendJson(res, 400, { ok: false, error: 'Invalid category ID' });
+
+      const prioNum = Number(body.priority) || 0;
+      let priorities = {};
+      if (fs.existsSync(CAT_PRIORITIES_FILE)) {
+        try { priorities = JSON.parse(fs.readFileSync(CAT_PRIORITIES_FILE, 'utf8')); } catch(e) {}
+      }
+
+      if (prioNum > 0) {
+        priorities[catId] = prioNum;
+      } else {
+        delete priorities[catId];
+      }
+
+      fs.writeFileSync(CAT_PRIORITIES_FILE, JSON.stringify(priorities, null, 2), 'utf8');
+
+      // Update INDEX.JSX DEFAULT_CATEGORIES directly
+      try {
+        let jsx = fs.readFileSync(JSX_FILE, 'utf8');
+        const catRegex = new RegExp(`(\\{\\s*id:\\s*"${catId}"[^\n\\}]*)(\\s*\\})`, 'm');
+        if (catRegex.test(jsx)) {
+          let updatedCatLine = jsx.match(catRegex)[0];
+          if (prioNum > 0) {
+            if (/priority:\s*\d+/.test(updatedCatLine)) {
+              updatedCatLine = updatedCatLine.replace(/priority:\s*\d+/, `priority: ${prioNum}`);
+            } else {
+              updatedCatLine = updatedCatLine.replace(/(\s*\})$/, `, priority: ${prioNum}$1`);
+            }
+          } else {
+            updatedCatLine = updatedCatLine.replace(/,?\s*priority:\s*\d+/, '');
+          }
+          jsx = jsx.replace(catRegex, updatedCatLine);
+          fs.writeFileSync(JSX_FILE, jsx, 'utf8');
+        }
+      } catch(e) {
+        console.warn('JSX category priority update notice:', e.message);
+      }
+
+      delete require.cache[require.resolve('./export_products.js')];
+      require('./export_products.js');
+      try { execSync('node compile_jsx.js', { cwd: ROOT }); } catch(e) {}
+      liveCloudSync(`Admin updated category '${catId}' priority to ${prioNum > 0 ? prioNum : 'default'}`);
+
+      let updatedCategories = [];
+      try {
+        const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+        updatedCategories = pj.categories || [];
+      } catch(e) {}
+
+      return sendJson(res, 200, { ok: true, catId, priority: prioNum, categories: updatedCategories });
     }
 
     // 6. API: DSR Sales GET
@@ -750,7 +808,7 @@ function syncImageToTargets(fileName) {
         
         let gitOut = '';
         try {
-          execSync('git add products.json settings.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js', { encoding: 'utf8', cwd: ROOT });
+          execSync('git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js', { encoding: 'utf8', cwd: ROOT });
           
           let diffStat = '';
           try {

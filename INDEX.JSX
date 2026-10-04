@@ -26,6 +26,15 @@ if (typeof window !== 'undefined') {
   } catch(e) {
     window.APP_SETTINGS = { ...DEFAULT_STORE_SETTINGS };
   }
+  try {
+    const cachedCats = localStorage.getItem('zs_groceries_categories_cache');
+    if (cachedCats) {
+      const parsedCats = JSON.parse(cachedCats);
+      if (Array.isArray(parsedCats) && parsedCats.length > 0) {
+        window.CATEGORIES = parsedCats;
+      }
+    }
+  } catch(e) {}
 }
 
 function getStoreSettings() {
@@ -1234,7 +1243,7 @@ function getTranslationValue(dictionary, key) {
     }
     // --- Product Categories and Data ---
     var DEFAULT_CATEGORIES = [
-      { id: "soaps",        name: "Local & Imported Soaps" },
+      { id: "soaps",        name: "Local & Imported Soaps", priority: 1 },
       { id: "shampoo",      name: "Shampoo & Conditioners" },
       { id: "creams",       name: "Creams & Lotions & Bleach" },
       { id: "stationary",   name: "Stationary & Tapes" },
@@ -1270,11 +1279,11 @@ function getTranslationValue(dictionary, key) {
           liveNameMap[p.categoryId] = p.categoryName;
         }
       }
-      // Override default category names with live names, preserving order
+      // Override default category names with live names, preserving order and priority
       var seenIds = {};
       var result = baseCategories.map(function(cat) {
         seenIds[cat.id] = true;
-        return { id: cat.id, name: liveNameMap[cat.id] || cat.name };
+        return { id: cat.id, name: liveNameMap[cat.id] || cat.name, priority: cat.priority };
       });
       // Append any brand-new categories from server not in defaults
       Object.keys(liveNameMap).forEach(function(catId) {
@@ -1283,6 +1292,15 @@ function getTranslationValue(dictionary, key) {
           seenIds[catId] = true;
         }
       });
+
+      // ⚡ Sort categories: priority 1, 2, 3... first, then unprioritized preserving original order
+      result.sort(function(a, b) {
+        var pa = (typeof a.priority === 'number' && a.priority > 0) ? a.priority : 999999;
+        var pb = (typeof b.priority === 'number' && b.priority > 0) ? b.priority : 999999;
+        if (pa !== pb) return pa - pb;
+        return 0;
+      });
+
       return result;
     }
     var CATEGORIES = DEFAULT_CATEGORIES;

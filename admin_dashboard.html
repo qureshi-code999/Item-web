@@ -1065,16 +1065,19 @@
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
           Select a category to view items and assign priority numbers (1, 2, 3...) so they appear at the very top of that category in the app and website.
         </p>
-        <div style="display: grid; grid-template-columns: 280px 1fr; gap: 20px;">
+        <div style="display: grid; grid-template-columns: minmax(350px, 400px) 1fr; gap: 24px; align-items: start;">
           <div>
-            <label style="margin-bottom: 8px; display: block;">Select Category</label>
-            <div id="category-order-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label style="margin: 0; font-weight: 700; font-size: 13px;">🏷️ Categories &amp; Priority (1, 2, 3...)</label>
+              <span style="font-size: 11px; color: var(--text-muted);">Set Category Rank</span>
+            </div>
+            <div id="category-order-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 540px; overflow-y: auto; padding-right: 4px;"></div>
           </div>
           <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <label>Top Items in Selected Category (Assign Priority Number 1, 2, 3...)</label>
+              <label style="font-weight: 700; font-size: 13px;">⭐ Top Items in Selected Category (Assign Priority Number 1, 2, 3...)</label>
             </div>
-            <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+            <div class="table-container" style="max-height: 540px; overflow-y: auto;">
               <table>
                 <thead>
                   <tr>
@@ -2391,32 +2394,128 @@
     }
 
     // TAB 2: Category & Top 20 Order
+    let selectedOrderingCatId = null;
+
     function renderCategoryOrderList() {
       const container = document.getElementById('category-order-list');
+      if (!container) return;
       container.innerHTML = '';
-      allCategories.forEach((c, idx) => {
-        const div = document.createElement('div');
-        div.className = 'btn btn-light';
-        div.style.justifyContent = 'space-between';
-        div.innerHTML = `<span>${idx + 1}. ${c.name}</span><span style="font-size: 11px; color: #d97706; font-weight: 700;">View Items →</span>`;
-        div.onclick = () => loadCategoryItems(c.id);
-        container.appendChild(div);
+
+      // Sort categories: priority 1, 2, 3... first, then unassigned
+      allCategories.sort((a, b) => {
+        const pa = (typeof a.priority === 'number' && a.priority > 0) ? a.priority : 999999;
+        const pb = (typeof b.priority === 'number' && b.priority > 0) ? b.priority : 999999;
+        if (pa !== pb) return pa - pb;
+        return 0;
       });
-      if (allCategories.length > 0) loadCategoryItems(allCategories[0].id);
+
+      if (!selectedOrderingCatId && allCategories.length > 0) {
+        selectedOrderingCatId = allCategories[0].id;
+      }
+
+      allCategories.forEach((c, idx) => {
+        const isSelected = (c.id === selectedOrderingCatId);
+        const card = document.createElement('div');
+        card.style.cssText = `
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          padding: 8px 12px;
+          background: ${isSelected ? '#fffbeb' : '#ffffff'};
+          border: 1.5px solid ${isSelected ? '#d97706' : '#e2e8f0'};
+          border-radius: 8px;
+          box-shadow: ${isSelected ? '0 2px 6px rgba(217, 119, 6, 0.15)' : 'none'};
+          transition: all 0.2s ease;
+        `;
+
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 6px; cursor: pointer; flex: 1;" onclick="selectCategoryForOrdering('${c.id}')">
+              ${c.priority ? `<span style="background: #d97706; color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 10px;">#${c.priority}</span>` : `<span style="color: #94a3b8; font-size: 12px; font-weight: 600;">${idx + 1}.</span>`}
+              <span style="font-weight: 700; font-size: 13px; color: ${isSelected ? '#92400e' : '#1e293b'};">${c.name}</span>
+            </div>
+            <button type="button" class="btn btn-light" style="padding: 2px 8px; font-size: 11px; height: 26px; border: 1px solid #cbd5e1; font-weight: 700; color: #d97706;" onclick="selectCategoryForOrdering('${c.id}')">
+              Items →
+            </button>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed ${isSelected ? '#fde68a' : '#f1f5f9'}; padding-top: 5px;">
+            <span style="font-size: 11px; color: #64748b; font-weight: 600;">Category Priority:</span>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <input type="number" id="cat-prio-input-${c.id}" value="${c.priority || ''}" placeholder="1-20" style="width: 60px; height: 26px; font-size: 12px; padding: 2px 4px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px;" onclick="event.stopPropagation()" onkeydown="if(event.key==='Enter') saveCategoryOrderPriority('${c.id}')">
+              <button type="button" class="btn btn-gold" style="padding: 2px 10px; font-size: 11px; height: 26px;" onclick="event.stopPropagation(); saveCategoryOrderPriority('${c.id}')">Set</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      if (selectedOrderingCatId) {
+        loadCategoryItems(selectedOrderingCatId);
+      }
+    }
+
+    function selectCategoryForOrdering(catId) {
+      selectedOrderingCatId = catId;
+      renderCategoryOrderList();
+    }
+
+    async function saveCategoryOrderPriority(catId) {
+      const input = document.getElementById('cat-prio-input-' + catId);
+      if (!input) return;
+      const prioVal = input.value.trim();
+      const num = prioVal ? Number(prioVal) : 0;
+
+      try {
+        const res = await fetch('/api/categories/' + encodeURIComponent(catId) + '/priority', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ priority: num })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          const cat = allCategories.find(c => c.id === catId);
+          if (cat) cat.priority = num > 0 ? num : undefined;
+          if (data.categories && Array.isArray(data.categories)) {
+            allCategories = data.categories;
+          }
+          renderCategoryDropdowns();
+          renderCategoryOrderList();
+          alert('✅ Category Priority ' + (num > 0 ? '#' + num : 'removed') + ' successfully updated and synced live to App & Web!');
+        } else {
+          alert('❌ Error: ' + (data.error || 'Failed'));
+        }
+      } catch(e) {
+        alert('❌ Network error: ' + e.message);
+      }
     }
 
     function loadCategoryItems(catId) {
+      selectedOrderingCatId = catId;
       const catProducts = allProducts.filter(p => p.categoryId === catId);
+      // Sort items: Priority 1, 2, 3... first so admin sees them at top!
+      catProducts.sort((a, b) => {
+        const pa = (a.priority && a.priority > 0) ? a.priority : 999999;
+        const pb = (b.priority && b.priority > 0) ? b.priority : 999999;
+        if (pa !== pb) return pa - pb;
+        return a.id - b.id;
+      });
+
       const tbody = document.getElementById('category-items-tbody');
       tbody.innerHTML = '';
       catProducts.forEach(p => {
         const tr = document.createElement('tr');
+        if (p.priority && p.priority > 0) {
+          tr.style.background = '#fefce8';
+        }
         tr.innerHTML = `
           <td style="font-weight: 700; color: #d97706;">${p.id}</td>
-          <td>${p.name}</td>
+          <td>
+            <div style="font-weight: 600;">${p.name}</div>
+            ${p.priority ? `<span style="font-size: 11px; color: #b45309; font-weight: 700;">★ Priority Rank #${p.priority}</span>` : ''}
+          </td>
           <td>Rs. ${p.price}</td>
           <td>
-            <input type="number" id="cat-prio-${p.id}" value="${p.priority || ''}" placeholder="1-20" style="width: 80px;">
+            <input type="number" id="cat-prio-${p.id}" value="${p.priority || ''}" placeholder="1-20" style="width: 80px;" onkeydown="if(event.key==='Enter') savePriority(${p.id})">
           </td>
           <td>
             <button class="btn btn-gold" style="padding: 4px 8px; font-size: 11px;" onclick="savePriority(${p.id})">Set</button>
@@ -2439,6 +2538,9 @@
       if (data.ok) {
         const prod = allProducts.find(p => p.id === id);
         if (prod) prod.priority = num > 0 ? num : undefined;
+        if (selectedOrderingCatId) {
+          loadCategoryItems(selectedOrderingCatId);
+        }
         alert('✅ Priority ' + (num > 0 ? '#' + num : 'removed') + ' successfully updated and synced to app & web!');
       } else {
         alert('❌ Error: ' + (data.error || 'Failed'));

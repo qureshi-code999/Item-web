@@ -10,6 +10,33 @@
   ],
   "orders": [
     {
+      "id": "ORD-1791120814434",
+      "date": "2026-10-04",
+      "time": "18:33",
+      "channel": "shop",
+      "paymentMethod": "cash",
+      "customerName": "csdcs",
+      "customerPhone": "",
+      "items": [
+        {
+          "id": 8,
+          "name": "ALOE VERA GEL TUBE (SMALL) 80ML",
+          "qty": 1,
+          "sellPrice": 70,
+          "retailPrice": 70,
+          "discount": 0,
+          "purchasePrice": 55,
+          "lineTotal": 70,
+          "lineCost": 55,
+          "lineProfit": 15,
+          "marginPct": 21.428571428571427
+        }
+      ],
+      "totalSale": 70,
+      "totalCost": 55,
+      "totalProfit": 15
+    },
+    {
       "id": "ORD-1790951055932",
       "date": "2026-10-02",
       "time": "19:24",

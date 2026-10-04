@@ -73,10 +73,15 @@ function getMimeType(file) {
 // ── LIVE CLOUD SYNC HELPER (Pushes instantly to GitHub & Vercel) ──
 function liveCloudSync(message) {
   try {
-    const gitCmd = `git add products.json settings.json images INDEX.JSX index.html app.js style.css sw.js www android/app/src/main/assets/public && git commit -m "${message || 'Live update from Admin Panel'}" && git push origin main`;
+    const safeMsg = (message || 'Live update from Admin Panel').replace(/"/g, "'");
+    const gitCmd = `git add products.json settings.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js && git commit -m "${safeMsg}" && git push origin main`;
     exec(gitCmd, { cwd: ROOT }, (err, stdout, stderr) => {
       if (err) {
-        console.warn('⚠️ Cloud Sync Notice (Local changes saved, cloud sync skipped):', err.message);
+        if (err.message && err.message.includes('nothing to commit')) {
+          console.log('ℹ️ Git status: Everything already up to date on GitHub.');
+        } else {
+          console.warn('⚠️ Cloud Sync Notice:', err.message);
+        }
       } else {
         console.log('🚀 LIVE CLOUD SYNC SUCCESS: Updated GitHub & Vercel CDN for all phones & web!');
         if (stdout) console.log(stdout.trim());
@@ -745,7 +750,25 @@ function syncImageToTargets(fileName) {
         
         let gitOut = '';
         try {
-          gitOut = execSync('git add products.json settings.json images INDEX.JSX index.html app.js style.css sw.js www android/app/src/main/assets/public && git commit -m "1-Click Live Publish to App & Web" && git push origin main', { encoding: 'utf8', cwd: ROOT });
+          execSync('git add products.json settings.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js', { encoding: 'utf8', cwd: ROOT });
+          
+          let diffStat = '';
+          try {
+            diffStat = execSync('git diff --cached --stat', { encoding: 'utf8', cwd: ROOT }).trim();
+          } catch(e) {}
+
+          if (diffStat) {
+            const commitOut = execSync('git commit -m "1-Click Live Publish to App & Web"', { encoding: 'utf8', cwd: ROOT });
+            const pushOut = execSync('git push origin main', { encoding: 'utf8', cwd: ROOT });
+            gitOut = commitOut + '\n' + pushOut;
+          } else {
+            try {
+              const pushOut = execSync('git push origin main', { encoding: 'utf8', cwd: ROOT });
+              gitOut = pushOut.trim() || 'Everything already committed and up-to-date on GitHub!';
+            } catch(pErr) {
+              gitOut = 'Everything already up-to-date on GitHub!';
+            }
+          }
         } catch(gitErr) {
           gitOut = (gitErr.stdout || '') + '\n' + (gitErr.stderr || '') + '\n' + gitErr.message;
         }

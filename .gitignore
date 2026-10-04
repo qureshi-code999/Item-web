@@ -50,3 +50,20 @@ android/.gradle/
 www/
 
 cloudflared.exe
+
+
+# === SECURITY SECRETS, KEYSTORES & TOKENS ===
+*.secret
+admin_token.secret
+admin_config.json
+.env
+.env.local
+.env.*
+*.keystore
+*.jks
+keystore.properties
+*.bak
+*.tmp
+*~
+scratch/
+

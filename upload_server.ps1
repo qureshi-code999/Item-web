@@ -1,6 +1,6 @@
 param([switch]$NoBrowser)
 
-# PowerShell Web Server for Sahil Traders - Item Upload Portal
+# PowerShell Web Server for ZS Mart - Item Upload Portal
 # $PSScriptRoot = script ki apni folder, kisi bhi PC par kaam karega
 $port     = 8888
 $url      = "http://localhost:$port/"
@@ -449,7 +449,7 @@ function Sync-ProductsJsonAndGitPush {
         # Background Git commit & push
         $gitScript = @"
 Set-Location '$rootDir'
-& 'C:\Program Files\Git\cmd\git.exe' add products.json www/products.json android/app/src/main/assets/public/products.json images/ index.html INDEX.JSX
+& 'C:\Program Files\Git\cmd\git.exe' add products.json images/ index.html INDEX.JSX app.js style.css settings.json
 & 'C:\Program Files\Git\cmd\git.exe' commit -m '$commitMessage'
 & 'C:\Program Files\Git\cmd\git.exe' push origin main
 "@
@@ -1147,7 +1147,7 @@ while ($true) {
                 }
                 
                 Set-Location $rootDir
-                & 'C:\Program Files\Git\cmd\git.exe' add products.json www/products.json android/app/src/main/assets/public/products.json images/ index.html INDEX.JSX
+                & 'C:\Program Files\Git\cmd\git.exe' add products.json images/ index.html INDEX.JSX app.js style.css settings.json
                 & 'C:\Program Files\Git\cmd\git.exe' commit -m "Live publish products from Admin Portal"
                 & 'C:\Program Files\Git\cmd\git.exe' push origin main 2>&1 | Out-Null
                 

@@ -11413,12 +11413,12 @@ function SahilTraders() {
       triggerHaptic('medium');
     }
     const cacheBuster = Date.now();
-    const endpoints = [`./products.json?v=${cacheBuster}`, `http://localhost:8888/products.json?v=${cacheBuster}`, `https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`, `https://sahiltraders.vercel.app/products.json?v=${cacheBuster}`, `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/products.json?v=${cacheBuster}`];
+    const endpoints = [`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`, `https://sahiltraders.vercel.app/products.json?v=${cacheBuster}`, `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/products.json?v=${cacheBuster}`, `http://localhost:8888/products.json?v=${cacheBuster}`, `./products.json?v=${cacheBuster}`];
     let loadedData = null;
     for (const url of endpoints) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
         const res = await fetch(url, {
           signal: controller.signal,
           cache: 'no-store'

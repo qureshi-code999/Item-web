@@ -951,7 +951,6 @@
         <option value="dsr">💰 Daily Sales &amp; Profit (DSR)</option>
         <option value="purchasing">🛒 Purchasing &amp; Market Sheet</option>
         <option value="settings">⚙️ App &amp; Store Settings</option>
-        <option value="system">🖥️ 1-Click Operations &amp; Logs</option>
       </select>
     </div>
 
@@ -1730,24 +1729,6 @@
       </div>
     </div>
 
-    <!-- TAB 6: SYSTEM & 1-CLICK PUBLISH -->
-    <div id="tab-system" class="tab-panel">
-      <div class="panel-card">
-        <div class="panel-card-title">🚀 1-Click Operations &amp; Compilations</div>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">
-          Synchronize your complete catalog, prices, categories, and settings with one click to the website and Android APK assets.
-        </p>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <button class="btn btn-gold" style="padding: 12px 24px; font-size: 14px;" onclick="triggerPublishLive()">
-            <span>🚀</span> Publish Live to App &amp; Web Now
-          </button>
-          <button class="btn btn-dark" style="padding: 12px 24px; font-size: 14px;" onclick="triggerBuildApk()">
-            <span>📱</span> Build Fresh Android APK (Desktop)
-          </button>
-        </div>
-      </div>
-    </div>
-
   </main>
 
   <!-- ── MODAL: EDIT PRODUCT & PICTURE (Auto-WebP) ── -->
@@ -2175,14 +2156,28 @@
     function openEditProductModal(id) {
       const p = allProducts.find(item => item.id === id);
       if (!p) return;
+
+      // Always read latest values from the table row inputs if present on page:
+      const nameEl = document.getElementById('p-name-' + id);
+      const priceEl = document.getElementById('p-price-' + id);
+      const costEl = document.getElementById('p-cost-' + id);
+      const catEl = document.getElementById('p-cat-' + id);
+      const prioEl = document.getElementById('p-prio-' + id);
+
+      const currentName = nameEl ? nameEl.value.trim() : p.name;
+      const currentPrice = priceEl ? Number(priceEl.value) : p.price;
+      const currentCost = costEl ? costEl.value : (purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : '');
+      const currentCat = catEl ? catEl.value : (p.categoryId || (allCategories[0] ? allCategories[0].id : ''));
+      const currentPrio = prioEl ? prioEl.value : (p.priority || '');
+
       document.getElementById('edit-p-id').value = p.id;
-      document.getElementById('edit-p-name').value = p.name;
-      document.getElementById('edit-p-price').value = p.price;
-      document.getElementById('edit-p-cost').value = purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : '';
-      document.getElementById('edit-p-prio').value = p.priority || '';
+      document.getElementById('edit-p-name').value = currentName;
+      document.getElementById('edit-p-price').value = currentPrice;
+      document.getElementById('edit-p-cost').value = currentCost;
+      document.getElementById('edit-p-prio').value = currentPrio;
       
       const catSelect = document.getElementById('edit-p-cat');
-      if (catSelect) catSelect.value = p.categoryId || (allCategories[0] ? allCategories[0].id : '');
+      if (catSelect) catSelect.value = currentCat;
 
       const imgPreview = document.getElementById('edit-p-img-preview');
       imgPreview.src = `images/${p.id}.webp`;
@@ -2381,10 +2376,18 @@
         });
         const data = await res.json();
         if (data.ok) {
-          alert('✅ Product #' + id + ' updated!');
+          const prod = allProducts.find(item => item.id === id);
+          if (prod) {
+            prod.name = payload.name;
+            prod.price = payload.price;
+            prod.categoryId = payload.categoryId;
+            prod.categoryName = payload.categoryName;
+            prod.priority = payload.priority > 0 ? payload.priority : undefined;
+          }
           if (payload.purchasePrice !== undefined) {
             purchaseRates[id] = payload.purchasePrice;
           }
+          alert('✅ Product #' + id + ' updated!');
         } else {
           alert('❌ Error: ' + data.error);
         }

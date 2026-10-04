@@ -866,6 +866,21 @@ function syncImageToTargets(fileName) {
   }
 });
 
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log('================================================================');
+    console.log(`  ℹ️  Admin Portal already active on http://localhost:${PORT}/`);
+    console.log('  👉 Opening dashboard in your browser...');
+    console.log('================================================================');
+    try {
+      exec(`start http://localhost:${PORT}/`);
+    } catch(e) {}
+    process.exit(0);
+  } else {
+    console.error('Server error:', err.message);
+  }
+});
+
 server.listen(PORT, () => {
   console.log('================================================================');
   console.log(`  ZS MART UNIFIED MASTER DASHBOARD RUNNING ON:`);

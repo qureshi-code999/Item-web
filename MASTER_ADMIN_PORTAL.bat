@@ -22,9 +22,6 @@ echo  DO NOT CLOSE THIS WINDOW WHILE USING THE ADMIN DASHBOARD!
 echo ================================================================
 echo.
 
-:loop
 node "%~dp0admin_server.js"
-echo Server stopped. Restarting in 2 seconds... (Press Ctrl+C to stop)
-timeout /t 2 /nobreak >nul
-goto loop
+pause
 

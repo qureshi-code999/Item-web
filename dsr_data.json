@@ -1,37 +1,38 @@
 {
-    "expenses":  [
-
-                 ],
-    "orders":  [
-                   {
-                       "date":  "2026-09-10",
-                       "channel":  "shop",
-                       "customerName":  "fdxfgx",
-                       "customerPhone":  "",
-                       "paymentMethod":  "cash",
-                       "deliveryAddress":  "",
-                       "deliveryCharge":  0,
-                       "discount":  0,
-                       "items":  [
-                                     {
-                                         "id":  "256",
-                                         "name":  "CONDITIONER MECLAY (BLACK)",
-                                         "qty":  1,
-                                         "sellPrice":  370,
-                                         "purchasePrice":  330,
-                                         "lineTotal":  370,
-                                         "lineCost":  330,
-                                         "lineProfit":  40
-                                     }
-                                 ],
-                       "totalSale":  370,
-                       "totalCost":  330,
-                       "totalProfit":  40,
-                       "updatedRates":  {
-                                            "256":  330
-                                        },
-                       "time":  "10:27",
-                       "id":  "ORD-20260910-8291"
-                   }
-               ]
+  "expenses": [
+    {
+      "id": "EXP-1790951536540",
+      "date": "2026-10-02",
+      "title": "petrol",
+      "amount": 500,
+      "category": "misc"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-1790951055932",
+      "date": "2026-10-02",
+      "time": "19:24",
+      "channel": "shop",
+      "paymentMethod": "cash",
+      "customerName": "UZAIR BHAI ",
+      "customerPhone": "",
+      "items": [
+        {
+          "id": 1271,
+          "name": "SURF EXCEL 500G RS,310",
+          "qty": 1,
+          "sellPrice": 299,
+          "purchasePrice": 254,
+          "lineTotal": 299,
+          "lineCost": 254,
+          "lineProfit": 45,
+          "marginPct": 15.050167224080269
+        }
+      ],
+      "totalSale": 299,
+      "totalCost": 254,
+      "totalProfit": 45
+    }
+  ]
 }

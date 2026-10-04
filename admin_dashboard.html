@@ -839,6 +839,58 @@
       overflow-y: auto;
     }
 
+    /* Customer Bill Modal & Print Layout */
+    #customer-bill-modal .modal-card {
+      max-width: 650px;
+      width: 95%;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    #customer-bill-paper {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 26px 22px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #1e293b;
+      max-width: 520px;
+      margin: 0 auto;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06);
+    }
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #customer-bill-paper, #customer-bill-paper * {
+        visibility: visible !important;
+      }
+      #customer-bill-modal {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        background: #fff !important;
+        display: block !important;
+        padding: 0 !important;
+        backdrop-filter: none !important;
+      }
+      #customer-bill-paper {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 10px !important;
+      }
+    }
+
     /* Terminal Console */
     .terminal-card {
       background: #0f172a;
@@ -894,10 +946,10 @@
     <div class="nav-dropdown-wrapper">
       <label class="nav-dropdown-label" for="main-nav-dropdown">Section:</label>
       <select id="main-nav-dropdown" class="nav-dropdown-select" onchange="switchTabFromDropdown(this.value)">
-        <option value="products">📦 Products &amp; Inventory</option>
+        <option value="products" selected>📦 Products &amp; Inventory</option>
         <option value="ordering">🔢 Category &amp; Top 20 Order</option>
         <option value="dsr">💰 Daily Sales &amp; Profit (DSR)</option>
-        <option value="purchasing" selected>🛒 Purchasing &amp; Market Sheet</option>
+        <option value="purchasing">🛒 Purchasing &amp; Market Sheet</option>
         <option value="settings">⚙️ App &amp; Store Settings</option>
         <option value="system">🖥️ 1-Click Operations &amp; Logs</option>
       </select>
@@ -914,7 +966,7 @@
   </header>
 
   <!-- Compact KPI Banner (Products & Catalog Stats Only - hidden in purchasing) -->
-  <div class="kpi-container" id="global-kpi-container" style="display: none;">
+  <div class="kpi-container" id="global-kpi-container" style="display: flex;">
     <div class="kpi-card">
       <span class="kpi-label">Active Products</span>
       <span class="kpi-value gold" id="kpi-products">1,049</span>
@@ -933,7 +985,7 @@
   <main class="main-content">
 
     <!-- TAB 1: PRODUCTS & INVENTORY -->
-    <div id="tab-products" class="tab-panel">
+    <div id="tab-products" class="tab-panel active">
       <!-- Add New Product Form with Automatic WebP Conversion -->
       <div class="panel-card">
         <div class="panel-card-title">➕ Add New Item to Catalog</div>
@@ -1043,13 +1095,16 @@
 
     <!-- TAB 3: DSR & DAILY SALES (Divided into 2 Clean Logical Sub-Sections) -->
     <div id="tab-dsr" class="tab-panel">
-      <!-- DSR 2-Section Sub-Navigation -->
+      <!-- DSR 3-Section Sub-Navigation -->
       <div class="dsr-subnav-bar">
         <button type="button" class="dsr-subnav-tab active" id="btn-subnav-pos" onclick="switchDsrSubSection('pos')">
           🛒 1. Record Sale Order (POS Entry)
         </button>
         <button type="button" class="dsr-subnav-tab" id="btn-subnav-analytics" onclick="switchDsrSubSection('analytics')">
-          📊 2. Sales, Profit &amp; Expenses (Reports &amp; Analytics)
+          📊 2. Sales &amp; Profit Reports
+        </button>
+        <button type="button" class="dsr-subnav-tab" id="btn-subnav-expenses" onclick="switchDsrSubSection('expenses')">
+          🧾 3. Shop Expenses &amp; Net Profit
         </button>
       </div>
 
@@ -1068,8 +1123,12 @@
                 <input type="date" id="dsr-date" required>
               </div>
               <div class="form-group">
-                <label>Customer Name / Channel</label>
-                <input type="text" id="dsr-customer" placeholder="e.g. Walk-in Customer / WhatsApp Order / Counter">
+                <label>Customer Name</label>
+                <input type="text" id="dsr-customer" placeholder="e.g. Uzair Bhai / Counter / Walk-in">
+              </div>
+              <div class="form-group">
+                <label>Customer WhatsApp / Phone (Optional)</label>
+                <input type="tel" id="dsr-phone" placeholder="e.g. 03368945775">
               </div>
               <div class="form-group">
                 <label>Payment Method</label>
@@ -1182,8 +1241,13 @@
                   <span id="dsr-markup-percent" style="font-size: 11px; color: #64748b;"></span>
                 </div>
               </div>
-              <div style="text-align: right;">
-                <button type="submit" class="btn btn-gold" style="font-weight: 800; padding: 10px 20px; font-size: 13px;">💾 Save Order to DSR</button>
+              <div style="text-align: right; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                <button type="button" id="dsr-btn-last-bill" class="btn btn-outline" style="display: none; font-weight: 700; padding: 10px 14px; font-size: 13px; color: #0284c7; border-color: #0284c7; background: #f0f9ff;" onclick="openLastCustomerBill()">
+                  🧾 View Last Bill
+                </button>
+                <button type="submit" class="btn btn-gold" style="font-weight: 800; padding: 10px 20px; font-size: 13px;">
+                  💾 Save &amp; Generate Bill
+                </button>
               </div>
             </div>
           </form>
@@ -1289,9 +1353,86 @@
           </div>
         </div>
 
-        <!-- Shop Expenses Card -->
-        <div class="panel-card" style="margin-top: 20px;">
-          <div class="panel-card-title">🧾 Daily Shop Expenses Tracker</div>
+      </div>
+
+      <!-- SECTION 3: SHOP EXPENSES & LIVE SAME-DAY NET PROFIT TRACKER -->
+      <div id="dsr-sub-expenses" class="dsr-sub-section" style="display: none;">
+        <!-- Live Same-Day Profit Calculation Banner & Date Selector -->
+        <div class="panel-card" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <div class="panel-card-title" style="margin-bottom: 2px;">⚡ Same-Day Profit &amp; Expenses Calculator</div>
+              <div style="font-size: 12px; color: var(--text-muted);">
+                Usi din ke orders ke munafay me se dukan ke ikhrajat minus kar ke asal bacha hua net profit live dekhein
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 12px; font-weight: 700; color: #334155; margin: 0;">Select Date:</label>
+              <input type="date" id="exp-calc-date" onchange="onExpensesDateChange()" style="padding: 6px 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 700; font-size: 13px;">
+              <button type="button" class="btn btn-outline" onclick="setExpensesDateToday()" style="padding: 6px 12px; font-size: 12px; font-weight: 700;">Today</button>
+            </div>
+          </div>
+
+          <!-- 3 KPI Cards for Same-Day Profit & Loss -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px;">
+            <!-- Card 1: Orders Gross Profit -->
+            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 14px 16px;">
+              <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">
+                💰 Orders Gross Profit (Same Day)
+              </div>
+              <div id="exp-kpi-sales-profit" style="font-size: 22px; font-weight: 900; color: #0284c7; margin: 6px 0 2px;">
+                Rs. 0
+              </div>
+              <div id="exp-kpi-sales-sub" style="font-size: 11.5px; color: #64748b;">
+                0 orders &bull; Sale: Rs. 0
+              </div>
+            </div>
+
+            <!-- Card 2: Total Shop Expenses -->
+            <div style="background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 10px; padding: 14px 16px;">
+              <div style="font-size: 11px; font-weight: 700; color: #991b1b; text-transform: uppercase; letter-spacing: 0.5px;">
+                🧾 Shop Expenses (Same Day)
+              </div>
+              <div id="exp-kpi-total-expenses" style="font-size: 22px; font-weight: 900; color: #dc2626; margin: 6px 0 2px;">
+                Rs. 0
+              </div>
+              <div id="exp-kpi-expenses-sub" style="font-size: 11.5px; color: #991b1b;">
+                0 recorded expenses
+              </div>
+            </div>
+
+            <!-- Card 3: ASAL NET PROFIT (Sales Profit - Expenses) -->
+            <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 10px; padding: 14px 16px;">
+              <div style="font-size: 11px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.5px;">
+                🌟 ASAL NET PROFIT (Bacha Hua Munafa)
+              </div>
+              <div id="exp-kpi-net-profit" style="font-size: 24px; font-weight: 900; color: #059669; margin: 6px 0 2px;">
+                Rs. 0
+              </div>
+              <div id="exp-kpi-net-sub" style="font-size: 11.5px; font-weight: 700; color: #15803d;">
+                Gross Profit − Expenses
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Equation Banner -->
+          <div id="exp-live-equation-banner" style="background: #f1f5f9; border-radius: 8px; padding: 10px 16px; font-size: 12.5px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <span>
+              <b>Live Calculation:</b> Sales Gross Profit (<span id="eq-sales-profit" style="color: #0284c7; font-weight: 700;">Rs. 0</span>) − Total Expenses (<span id="eq-expenses" style="color: #dc2626; font-weight: 700;">Rs. 0</span>) = <b id="eq-net-profit" style="color: #059669; font-size: 13.5px;">Rs. 0</b>
+            </span>
+            <span id="eq-status-badge" style="background: #dcfce7; color: #166534; font-weight: 700; padding: 3px 10px; border-radius: 6px; font-size: 11.5px;">
+              ✓ Net Profit Active
+            </span>
+          </div>
+        </div>
+
+        <!-- Expense Entry Form Card -->
+        <div class="panel-card" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+            <div class="panel-card-title" style="margin-bottom: 0;">➕ Add Shop Expense (Petrol, Lunch, Bijli, Helpers, etc.)</div>
+            <span style="font-size: 12px; color: var(--emerald); font-weight: 700;">⚡ Net profit updates immediately upon saving</span>
+          </div>
+
           <form id="dsr-expense-form" onsubmit="handleDsrExpense(event)">
             <div class="form-grid">
               <div class="form-group">
@@ -1300,49 +1441,65 @@
               </div>
               <div class="form-group">
                 <label>Expense Title / Description</label>
-                <input type="text" id="exp-title" required placeholder="e.g. Packaging, Staff Lunch, Electricity, Delivery Petrol">
+                <input type="text" id="exp-title" required placeholder="e.g. Delivery Petrol, Staff Tea &amp; Lunch, Shoppers / Tape, Bijli Bill">
               </div>
               <div class="form-group">
                 <label>Amount (Rs.)</label>
-                <input type="number" id="exp-amount" required placeholder="e.g. 250">
+                <input type="number" id="exp-amount" min="1" required placeholder="e.g. 500" oninput="updateLiveExpenseFormPreview()">
               </div>
               <div class="form-group">
                 <label>Category</label>
                 <select id="exp-category">
+                  <option value="utilities">Delivery Petrol / Fuel / Electricity</option>
+                  <option value="food">Refreshment &amp; Staff Tea / Lunch</option>
                   <option value="supplies">Packaging / Shoppers / Tape</option>
-                  <option value="food">Refreshment &amp; Tea</option>
-                  <option value="utilities">Electricity / Generator / Fuel</option>
-                  <option value="wage">Staff &amp; Helper Wages</option>
-                  <option value="misc">Miscellaneous Expenses</option>
+                  <option value="wage">Staff &amp; Helper Daily Wages</option>
+                  <option value="misc">Miscellaneous / Other Expenses</option>
                 </select>
               </div>
             </div>
-            <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
-              <button type="submit" class="btn btn-emerald">+ Record Expense</button>
+
+            <!-- Live Form Impact Preview Bar -->
+            <div id="exp-form-impact-bar" style="display: none; margin-top: 10px; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 8px 14px; font-size: 12px; color: #92400e;">
+              <span>ℹ️ <b>Live Impact:</b> Agar yeh expense add karein toh abhi ka net profit <b id="impact-before-profit">Rs. 0</b> se kam ho kar <b id="impact-after-profit" style="color: #059669;">Rs. 0</b> reh jaye ga.</span>
+            </div>
+
+            <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
+              <button type="submit" class="btn btn-emerald" style="padding: 10px 24px; font-weight: 800; font-size: 13px;">
+                + Record Expense &amp; Deduct from Profit
+              </button>
             </div>
           </form>
+        </div>
 
-          <!-- Expenses Table -->
-          <div style="margin-top: 18px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <div style="font-size: 13px; font-weight: 700; color: var(--text-muted);">Recorded Expenses for Selected Period:</div>
-              <div style="font-size: 13px; font-weight: 800; color: #dc2626;">Total Expenses: <span id="dsr-total-expenses-display">Rs. 0</span></div>
+        <!-- Recorded Expenses History for Selected Date Card -->
+        <div class="panel-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <div class="panel-card-title" style="margin-bottom: 2px;">📋 Recorded Expenses for Selected Date</div>
+              <div style="font-size: 12px; color: var(--text-muted);" id="exp-table-filter-label">Listing expenses on selected date</div>
             </div>
-            <div class="table-container" style="max-height: 280px; overflow-y: auto;">
-              <table>
-                <thead>
-                  <tr>
-                    <th style="width: 100px;">Expense ID</th>
-                    <th style="width: 110px;">Date</th>
-                    <th>Description</th>
-                    <th style="width: 150px;">Category</th>
-                    <th style="width: 120px; text-align: right;">Amount (Rs)</th>
-                    <th style="width: 60px; text-align: center;">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="dsr-expenses-tbody"></tbody>
-              </table>
+            <div style="font-size: 13px; font-weight: 800; color: #dc2626;">
+              Total Expenses: <span id="dsr-total-expenses-display">Rs. 0</span>
             </div>
+          </div>
+
+          <div class="table-container" style="max-height: 400px; overflow-y: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 110px;">Expense ID</th>
+                  <th style="width: 100px;">Date</th>
+                  <th>Description</th>
+                  <th style="width: 160px;">Category</th>
+                  <th style="width: 130px; text-align: right;">Amount (Rs)</th>
+                  <th style="width: 60px; text-align: center;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="dsr-expenses-tbody">
+                <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">No expenses recorded yet.</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -1351,7 +1508,7 @@
     <!-- ══════════════════════════════════════════════════════════════════ -->
     <!-- TAB 4: PURCHASING & WHOLESALE MARKET ORDER SHEET (NEW MODULE)   -->
     <!-- ══════════════════════════════════════════════════════════════════ -->
-    <div id="tab-purchasing" class="tab-panel active">
+    <div id="tab-purchasing" class="tab-panel">
       
       <!-- Top Action Bar & Entry Form Card -->
       <div class="panel-card">
@@ -1739,7 +1896,47 @@
     </div>
   </div>
 
+    <!-- Customer Bill / Invoice Modal -->
+  <div class="modal-backdrop" id="customer-bill-modal">
+    <div class="modal-card">
+      <div style="background: #0f172a; color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 18px;">🧾</span>
+          <span style="font-weight: 800; font-size: 14px; letter-spacing: 0.5px;">CUSTOMER INVOICE / BILL</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-emerald" onclick="printCustomerBillCurrent()" style="padding: 6px 14px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+            🖨️ Print Bill
+          </button>
+          <button type="button" class="btn btn-gold" onclick="downloadCustomerBillCurrent()" style="padding: 6px 14px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+            💾 Download Bill
+          </button>
+          <button type="button" class="btn btn-light" onclick="whatsappCustomerBillCurrent()" style="padding: 6px 12px; font-size: 12px; font-weight: 700; background: #25D366; color: #fff; border: none; display: inline-flex; align-items: center; gap: 4px;" title="Share receipt on WhatsApp">
+            💬 WhatsApp
+          </button>
+          <button type="button" class="btn btn-light" onclick="closeCustomerBillModal()" style="padding: 6px 12px; font-size: 12px; font-weight: 700; background: #334155; color: #fff; border: none;">
+            ✕ Close
+          </button>
+        </div>
+      </div>
+      <div style="overflow-y: auto; padding: 20px; background: #f8fafc; flex: 1;" id="customer-bill-scroll-area">
+        <div id="customer-bill-paper"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Global Safe HTML Escape Utility
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     let allProducts = [];
     let allCategories = [];
     let purchaseRates = {};
@@ -2248,12 +2445,26 @@
       }
     }
 
-    // ── DSR 2-Section Switcher ──
+    // ── DSR 3-Section Switcher ──
     function switchDsrSubSection(sectionId) {
       document.getElementById('btn-subnav-pos').classList.toggle('active', sectionId === 'pos');
       document.getElementById('btn-subnav-analytics').classList.toggle('active', sectionId === 'analytics');
+      if (document.getElementById('btn-subnav-expenses')) {
+        document.getElementById('btn-subnav-expenses').classList.toggle('active', sectionId === 'expenses');
+      }
       document.getElementById('dsr-sub-pos').style.display = sectionId === 'pos' ? 'block' : 'none';
       document.getElementById('dsr-sub-analytics').style.display = sectionId === 'analytics' ? 'block' : 'none';
+      if (document.getElementById('dsr-sub-expenses')) {
+        document.getElementById('dsr-sub-expenses').style.display = sectionId === 'expenses' ? 'block' : 'none';
+      }
+      if (sectionId === 'expenses') {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const calcDateEl = document.getElementById('exp-calc-date');
+        const expDateEl = document.getElementById('exp-date');
+        if (calcDateEl && !calcDateEl.value) calcDateEl.value = todayStr;
+        if (expDateEl && !expDateEl.value) expDateEl.value = calcDateEl ? calcDateEl.value : todayStr;
+        updateExpensesSectionCalculations();
+      }
     }
 
     // TAB 3: DSR System & Profit Analytics Portal
@@ -2567,10 +2778,10 @@
       const qtyInput = document.getElementById('dsr-item-qty');
 
       rateInput.value = p.price;
-      if (purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) >= 0) {
+      if (purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) > 0) {
         costInput.value = purchaseRates[p.id];
       } else {
-        costInput.value = Math.round(p.price * 0.85);
+        costInput.value = '';
       }
       qtyInput.value = 1;
 
@@ -2659,7 +2870,7 @@
       const hasSavedRate = purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) > 0;
       document.getElementById('preview-rate-source').textContent = hasSavedRate 
         ? '💾 Auto-saved Purchase Rate (Rs. ' + purchaseRates[p.id] + ')' 
-        : '⚡ New Purchase Rate (Will be saved permanently with order)';
+        : (purRate > 0 ? '⚡ New Purchase Rate (Will be saved permanently)' : 'ℹ️ Pur Rate not set (Optional)');
 
       previewBar.style.display = 'flex';
     }
@@ -2684,17 +2895,29 @@
       const sellPrice = Number(document.getElementById('dsr-item-rate').value) || p.price;
       const purchasePrice = Number(document.getElementById('dsr-item-cost').value) || 0;
 
+      // Extract retail price from name regex or product retailPrice
+      const match = (p.name || '').match(/(?:RS|RP|Rs|Rp)[\.,:\s]*(\d+)/i);
+      const parsedRetail = match ? parseInt(match[1], 10) : 0;
+      let retailPrice = Number(p.retailPrice) || parsedRetail || sellPrice;
+      if (retailPrice < sellPrice) retailPrice = sellPrice;
+      const discount = Math.max(0, retailPrice - sellPrice);
+
       const lineTotal = qty * sellPrice;
       const lineCost = qty * purchasePrice;
-      const lineProfit = lineTotal - lineCost;
-      const marginPct = lineTotal > 0 ? ((lineProfit / lineTotal) * 100) : 0;
+      const lineProfit = purchasePrice > 0 ? (lineTotal - lineCost) : 0;
+      const marginPct = (purchasePrice > 0 && lineTotal > 0) ? ((lineProfit / lineTotal) * 100) : 0;
 
-      saveSinglePurchaseRate(p.id, purchasePrice);
+      // Only save purchase rate if user explicitly typed a non-zero rate
+      if (purchasePrice > 0) {
+        saveSinglePurchaseRate(p.id, purchasePrice);
+      }
 
       const existingIdx = currentDsrItems.findIndex(i => String(i.id) === String(p.id));
       if (existingIdx >= 0) {
         currentDsrItems[existingIdx].qty += qty;
         currentDsrItems[existingIdx].sellPrice = sellPrice;
+        currentDsrItems[existingIdx].retailPrice = retailPrice;
+        currentDsrItems[existingIdx].discount = discount;
         currentDsrItems[existingIdx].purchasePrice = purchasePrice;
         currentDsrItems[existingIdx].lineTotal = currentDsrItems[existingIdx].qty * sellPrice;
         currentDsrItems[existingIdx].lineCost = currentDsrItems[existingIdx].qty * purchasePrice;
@@ -2706,6 +2929,8 @@
           name: p.name,
           qty,
           sellPrice,
+          retailPrice,
+          discount,
           purchasePrice,
           lineTotal,
           lineCost,
@@ -2819,6 +3044,8 @@
       renderDsrItemsTable();
     }
 
+    let lastSavedOrder = null;
+
     async function handleDsrOrder(e) {
       e.preventDefault();
       if (currentDsrItems.length === 0) return alert('Please add at least one item to this order first!');
@@ -2829,17 +3056,21 @@
 
       const updatedRates = {};
       currentDsrItems.forEach(it => {
-        if (it.id && it.purchasePrice !== undefined) {
-          updatedRates[it.id] = it.purchasePrice;
-          purchaseRates[it.id] = it.purchasePrice;
+        if (it.id && Number(it.purchasePrice) > 0) {
+          updatedRates[it.id] = Number(it.purchasePrice);
+          purchaseRates[it.id] = Number(it.purchasePrice);
         }
       });
 
+      const customerName = (document.getElementById('dsr-customer').value || '').trim() || 'Walk-in Customer';
+      const customerPhone = (document.getElementById('dsr-phone') ? document.getElementById('dsr-phone').value.trim() : '');
+
       const payload = {
         date: document.getElementById('dsr-date').value || new Date().toISOString().slice(0, 10),
-        customerName: document.getElementById('dsr-customer').value || 'Walk-in Customer',
+        customerName: customerName,
+        customerPhone: customerPhone,
         paymentMethod: document.getElementById('dsr-payment').value,
-        items: currentDsrItems,
+        items: JSON.parse(JSON.stringify(currentDsrItems)),
         totalSale,
         totalCost,
         totalProfit,
@@ -2854,13 +3085,27 @@
         });
         const data = await res.json();
         if (data.ok) {
-          const marginStr = totalSale > 0 ? ((totalProfit / totalSale) * 100).toFixed(1) + '%' : '0%';
-          alert(`✅ Order Recorded Successfully!\n\nCustomer: ${payload.customerName}\nTotal Bill: Rs. ${totalSale.toLocaleString()}\nPurchase Cost: Rs. ${totalCost.toLocaleString()}\nNet Profit: Rs. ${totalProfit.toLocaleString()} (${marginStr})\n\nAll product purchase rates permanently saved.`);
+          const savedOrder = data.order || payload;
+          lastSavedOrder = savedOrder;
+
+          const lastBtn = document.getElementById('dsr-btn-last-bill');
+          if (lastBtn) {
+            lastBtn.style.display = 'inline-flex';
+            lastBtn.textContent = `🧾 Last Bill (${savedOrder.id || 'Current'})`;
+          }
+
           currentDsrItems = [];
           renderDsrItemsTable();
+          if (document.getElementById('dsr-customer')) document.getElementById('dsr-customer').value = '';
+          if (document.getElementById('dsr-phone')) document.getElementById('dsr-phone').value = '';
+          clearDsrSearch();
+
           await loadDsr();
           await loadStats();
           renderDsrItemSelect();
+
+          // Immediately display professional bill modal!
+          openCustomerBill(savedOrder);
         } else {
           alert('❌ Failed to save order: ' + (data.error || 'Failed'));
         }
@@ -2871,8 +3116,9 @@
 
     async function handleDsrExpense(e) {
       e.preventDefault();
+      const expDateVal = document.getElementById('exp-date').value || new Date().toISOString().slice(0, 10);
       const payload = {
-        date: document.getElementById('exp-date').value || new Date().toISOString().slice(0, 10),
+        date: expDateVal,
         title: document.getElementById('exp-title').value.trim(),
         amount: Number(document.getElementById('exp-amount').value),
         category: document.getElementById('exp-category').value
@@ -2887,11 +3133,23 @@
         });
         const data = await res.json();
         if (data.ok) {
-          alert('✅ Shop expense recorded: Rs. ' + payload.amount.toLocaleString());
-          document.getElementById('dsr-expense-form').reset();
-          document.getElementById('exp-date').value = new Date().toISOString().slice(0, 10);
+          document.getElementById('exp-title').value = '';
+          document.getElementById('exp-amount').value = '';
+          const impactBar = document.getElementById('exp-form-impact-bar');
+          if (impactBar) impactBar.style.display = 'none';
+
           await loadDsr();
           await loadStats();
+          updateExpensesSectionCalculations();
+
+          // Calculate updated figures for notification
+          const dayOrders = (dsrAllData.orders || []).filter(o => o.date === payload.date);
+          const dayExpenses = (dsrAllData.expenses || []).filter(ex => ex.date === payload.date);
+          const grossProfit = dayOrders.reduce((s, o) => s + (Number(o.totalProfit) || 0), 0);
+          const totalExp = dayExpenses.reduce((s, ex) => s + (Number(ex.amount) || 0), 0);
+          const netProfit = grossProfit - totalExp;
+
+          alert(`✅ Shop Expense Recorded Successfully!\n\nExpense: ${payload.title} (Rs. ${payload.amount.toLocaleString()})\nDate: ${payload.date}\n\n💰 Same-Day Gross Sales Profit: Rs. ${grossProfit.toLocaleString()}\n🧾 Same-Day Total Expenses: Rs. ${totalExp.toLocaleString()}\n🌟 Updated Asal Net Profit Remaining: Rs. ${netProfit.toLocaleString()}`);
         } else {
           alert('❌ Error: ' + (data.error || 'Failed'));
         }
@@ -2926,6 +3184,7 @@
           alert(`✅ Expense deleted.`);
           await loadDsr();
           await loadStats();
+          updateExpensesSectionCalculations();
         } else {
           alert('❌ Delete failed: ' + (data.error || 'Unknown'));
         }
@@ -3107,7 +3366,8 @@
             <td style="text-align: center;">
               <span class="${isPos ? 'badge-profit-pos' : 'badge-profit-neg'}">${isPos ? '+' : ''}${oMargin.toFixed(1)}%</span>
             </td>
-            <td style="text-align: center;">
+            <td style="text-align: center; white-space: nowrap;">
+              <button type="button" class="btn btn-outline" style="padding: 3px 8px; font-size: 11px; margin-right: 4px; font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff;" title="View & Print Customer Bill" onclick="openCustomerBill('${o.id}')">🧾 Bill</button>
               <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 11px;" title="Delete Order" onclick="deleteDsrOrder('${o.id}')">🗑️</button>
             </td>
           `;
@@ -3147,9 +3407,577 @@
         const data = await res.json();
         dsrAllData = data || { orders: [], expenses: [] };
         filterAndRenderDsr();
+        updateExpensesSectionCalculations();
       } catch(e) {
         console.error('Failed to load DSR:', e);
       }
+    }
+
+        // ── Same-Day Expenses & Net Profit Engine ──
+    function setExpensesDateToday() {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const calcDate = document.getElementById('exp-calc-date');
+      const expDate = document.getElementById('exp-date');
+      if (calcDate) calcDate.value = todayStr;
+      if (expDate) expDate.value = todayStr;
+      updateExpensesSectionCalculations();
+    }
+
+    function onExpensesDateChange() {
+      const calcDate = document.getElementById('exp-calc-date');
+      const expDate = document.getElementById('exp-date');
+      if (calcDate && expDate) {
+        expDate.value = calcDate.value;
+      }
+      updateExpensesSectionCalculations();
+    }
+
+    function updateLiveExpenseFormPreview() {
+      const amtInput = document.getElementById('exp-amount');
+      const impactBar = document.getElementById('exp-form-impact-bar');
+      if (!amtInput || !impactBar) return;
+
+      const amt = Number(amtInput.value) || 0;
+      if (amt <= 0) {
+        impactBar.style.display = 'none';
+        return;
+      }
+
+      const targetDate = document.getElementById('exp-calc-date')?.value || new Date().toISOString().slice(0, 10);
+      const dayOrders = (dsrAllData.orders || []).filter(o => o.date === targetDate);
+      const dayExpenses = (dsrAllData.expenses || []).filter(e => e.date === targetDate);
+
+      const grossProfit = dayOrders.reduce((s, o) => s + (Number(o.totalProfit) || 0), 0);
+      const currentExpenses = dayExpenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+      const currentNetProfit = grossProfit - currentExpenses;
+      const afterNetProfit = currentNetProfit - amt;
+
+      document.getElementById('impact-before-profit').textContent = (currentNetProfit >= 0 ? 'Rs. +' : 'Rs. ') + currentNetProfit.toLocaleString();
+      const afterEl = document.getElementById('impact-after-profit');
+      afterEl.textContent = (afterNetProfit >= 0 ? 'Rs. +' : 'Rs. ') + afterNetProfit.toLocaleString();
+      afterEl.style.color = afterNetProfit >= 0 ? '#059669' : '#dc2626';
+
+      impactBar.style.display = 'block';
+    }
+
+    function updateExpensesSectionCalculations() {
+      const calcDateEl = document.getElementById('exp-calc-date');
+      if (!calcDateEl) return;
+
+      const todayStr = new Date().toISOString().slice(0, 10);
+      if (!calcDateEl.value) calcDateEl.value = todayStr;
+      const targetDate = calcDateEl.value;
+
+      const expDateEl = document.getElementById('exp-date');
+      if (expDateEl && !expDateEl.value) expDateEl.value = targetDate;
+
+      const allOrders = dsrAllData.orders || [];
+      const allExpenses = dsrAllData.expenses || [];
+
+      // Filter for target date
+      const dayOrders = allOrders.filter(o => o.date === targetDate);
+      const dayExpenses = allExpenses.filter(e => e.date === targetDate);
+
+      let dayTotalSale = 0;
+      let dayGrossProfit = 0;
+      dayOrders.forEach(o => {
+        dayTotalSale += Number(o.totalSale) || 0;
+        let oProfit = Number(o.totalProfit);
+        if (isNaN(oProfit) || oProfit === null || oProfit === undefined) {
+          const oSale = Number(o.totalSale) || 0;
+          const oCost = Number(o.totalCost) || 0;
+          oProfit = oSale - oCost;
+        }
+        dayGrossProfit += oProfit;
+      });
+
+      let dayTotalExpenses = 0;
+      dayExpenses.forEach(e => {
+        dayTotalExpenses += Number(e.amount) || 0;
+      });
+
+      const dayNetProfit = dayGrossProfit - dayTotalExpenses;
+      const isProfitable = dayNetProfit >= 0;
+
+      // Update KPI Cards
+      const kpiSalesProfit = document.getElementById('exp-kpi-sales-profit');
+      if (kpiSalesProfit) kpiSalesProfit.textContent = 'Rs. ' + dayGrossProfit.toLocaleString();
+
+      const kpiSalesSub = document.getElementById('exp-kpi-sales-sub');
+      if (kpiSalesSub) kpiSalesSub.textContent = `${dayOrders.length} orders &bull; Total Sale: Rs. ${dayTotalSale.toLocaleString()}`;
+
+      const kpiTotalExpenses = document.getElementById('exp-kpi-total-expenses');
+      if (kpiTotalExpenses) kpiTotalExpenses.textContent = 'Rs. ' + dayTotalExpenses.toLocaleString();
+
+      const kpiExpSub = document.getElementById('exp-kpi-expenses-sub');
+      if (kpiExpSub) kpiExpSub.textContent = `${dayExpenses.length} recorded expenses`;
+
+      const kpiNetProfit = document.getElementById('exp-kpi-net-profit');
+      if (kpiNetProfit) {
+        kpiNetProfit.textContent = (isProfitable ? 'Rs. +' : 'Rs. ') + dayNetProfit.toLocaleString();
+        kpiNetProfit.style.color = isProfitable ? '#059669' : '#dc2626';
+      }
+
+      const kpiNetSub = document.getElementById('exp-kpi-net-sub');
+      if (kpiNetSub) {
+        kpiNetSub.textContent = isProfitable 
+          ? `✓ Profit after ${dayTotalExpenses > 0 ? 'Rs. ' + dayTotalExpenses.toLocaleString() + ' expenses' : 'zero expenses'}`
+          : `⚠️ Loss of Rs. ${Math.abs(dayNetProfit).toLocaleString()} due to expenses`;
+        kpiNetSub.style.color = isProfitable ? '#15803d' : '#b91c1c';
+      }
+
+      // Update Live Equation Line
+      const eqSales = document.getElementById('eq-sales-profit');
+      if (eqSales) eqSales.textContent = 'Rs. ' + dayGrossProfit.toLocaleString();
+
+      const eqExp = document.getElementById('eq-expenses');
+      if (eqExp) eqExp.textContent = 'Rs. ' + dayTotalExpenses.toLocaleString();
+
+      const eqNet = document.getElementById('eq-net-profit');
+      if (eqNet) {
+        eqNet.textContent = (isProfitable ? 'Rs. +' : 'Rs. ') + dayNetProfit.toLocaleString();
+        eqNet.style.color = isProfitable ? '#059669' : '#dc2626';
+      }
+
+      const eqBadge = document.getElementById('eq-status-badge');
+      if (eqBadge) {
+        if (isProfitable) {
+          eqBadge.style.background = '#dcfce7';
+          eqBadge.style.color = '#166534';
+          eqBadge.textContent = `✓ Net Bacha Hua Profit: Rs. ${dayNetProfit.toLocaleString()}`;
+        } else {
+          eqBadge.style.background = '#fee2e2';
+          eqBadge.style.color = '#991b1b';
+          eqBadge.textContent = `⚠️ Net Deficit / Loss: -Rs. ${Math.abs(dayNetProfit).toLocaleString()}`;
+        }
+      }
+
+      const filterLabel = document.getElementById('exp-table-filter-label');
+      if (filterLabel) filterLabel.textContent = `Showing ${dayExpenses.length} expenses on ${targetDate}`;
+
+      const expTotalDisp = document.getElementById('dsr-total-expenses-display');
+      if (expTotalDisp) expTotalDisp.textContent = 'Rs. ' + dayTotalExpenses.toLocaleString();
+
+      // Render Expenses Table Body
+      const expTbody = document.getElementById('dsr-expenses-tbody');
+      if (expTbody) {
+        expTbody.innerHTML = '';
+        if (dayExpenses.length === 0) {
+          expTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 22px;">No expenses recorded for ${targetDate}. Add an expense above to deduct from profit.</td></tr>`;
+        } else {
+          dayExpenses.forEach(exp => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td style="font-weight: 700; color: #d97706;">${exp.id}</td>
+              <td style="font-size: 12px;">${exp.date}</td>
+              <td style="font-weight: 600;">${escapeHtml(exp.title)}</td>
+              <td><span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">${escapeHtml(exp.category || 'misc')}</span></td>
+              <td style="font-weight: 800; color: #dc2626; text-align: right;">Rs. ${(Number(exp.amount) || 0).toLocaleString()}</td>
+              <td style="text-align: center;">
+                <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 11px;" title="Delete Expense" onclick="deleteDsrExpense('${exp.id}')">🗑️</button>
+              </td>
+            `;
+            expTbody.appendChild(tr);
+          });
+        }
+      }
+    }
+
+    // ── Professional Customer Bill / Invoice System ──
+    let currentViewingOrder = null;
+
+    function cleanReceiptItemName(name) {
+      if (!name) return '';
+      return name.replace(/\s*\(?\b(?:RS|RP|Rs|Rp)[\.,:\s]*\d+\)?\s*$/i, '').trim();
+    }
+
+    function getItemPricing(it) {
+      const sellPrice = Number(it.sellPrice) || 0;
+      let retailPrice = Number(it.retailPrice) || 0;
+
+      // 1. Try parsing retail price from item name (e.g. "SURF EXCEL 500G RS,310")
+      if (!retailPrice && it.name) {
+        const m = it.name.match(/(?:RS|RP|Rs|Rp)[\.,:\s]*(\d+)/i);
+        if (m && m[1]) {
+          retailPrice = parseInt(m[1], 10);
+        }
+      }
+
+      // 2. Try looking up product in allProducts catalog
+      if (!retailPrice && it.id && allProducts && allProducts.length > 0) {
+        const foundP = allProducts.find(p => String(p.id) === String(it.id));
+        if (foundP) {
+          const m = (foundP.name || '').match(/(?:RS|RP|Rs|Rp)[\.,:\s]*(\d+)/i);
+          if (m && m[1]) {
+            retailPrice = parseInt(m[1], 10);
+          } else if (foundP.retailPrice) {
+            retailPrice = Number(foundP.retailPrice);
+          }
+        }
+      }
+
+      // 3. Fallback: if retail price is less than sell price or not found, retail = sellPrice
+      if (!retailPrice || retailPrice < sellPrice) {
+        retailPrice = sellPrice;
+      }
+
+      const discount = Math.max(0, retailPrice - sellPrice);
+      const qty = Number(it.qty) || 1;
+      const lineTotal = Number(it.lineTotal) || (qty * sellPrice);
+      const lineRetailTotal = qty * retailPrice;
+      const lineDiscountTotal = qty * discount;
+
+      return {
+        id: it.id,
+        name: it.name,
+        cleanName: cleanReceiptItemName(it.name) || it.name,
+        qty,
+        retailPrice,
+        discount,
+        sellPrice,
+        lineTotal,
+        lineRetailTotal,
+        lineDiscountTotal
+      };
+    }
+
+    function renderCustomerBillContent(order) {
+      const paper = document.getElementById('customer-bill-paper');
+      if (!paper || !order) return;
+
+      const items = (order.items || []).map(it => getItemPricing(it));
+      let totalRetail = 0;
+      let totalDiscount = 0;
+      let totalUnits = 0;
+
+      let itemsRowsHtml = '';
+      items.forEach((it, idx) => {
+        totalRetail += it.lineRetailTotal;
+        totalDiscount += it.lineDiscountTotal;
+        totalUnits += it.qty;
+
+        const hasDis = it.discount > 0;
+        itemsRowsHtml += `
+          <tr style="border-bottom: 1px dashed #e2e8f0;">
+            <td style="padding: 7px 4px; text-align: center; color: #64748b; font-size: 11px;">${idx + 1}</td>
+            <td style="padding: 7px 4px; font-weight: 700; color: #0f172a; line-height: 1.3;">
+              ${escapeHtml(it.cleanName)}
+            </td>
+            <td style="padding: 7px 4px; text-align: right; color: #64748b; font-size: 11.5px;">
+              Rs. ${it.retailPrice.toLocaleString()}
+            </td>
+            <td style="padding: 7px 4px; text-align: right; font-weight: 700; color: ${hasDis ? '#059669' : '#94a3b8'}; font-size: 11.5px;">
+              ${hasDis ? '-Rs. ' + it.discount.toLocaleString() : '—'}
+            </td>
+            <td style="padding: 7px 4px; text-align: right; font-weight: 700; color: #0284c7;">
+              Rs. ${it.sellPrice.toLocaleString()}
+            </td>
+            <td style="padding: 7px 4px; text-align: center; font-weight: 700; color: #0f172a;">
+              ${it.qty}
+            </td>
+            <td style="padding: 7px 4px; text-align: right; font-weight: 800; color: #0f172a;">
+              Rs. ${it.lineTotal.toLocaleString()}
+            </td>
+          </tr>
+        `;
+      });
+
+      const grandSale = Number(order.totalSale) || items.reduce((s, i) => s + i.lineTotal, 0);
+      const isOnline = order.paymentMethod === 'online';
+
+      paper.innerHTML = `
+        <!-- Store Branding Header -->
+        <div style="text-align: center; border-bottom: 2px dashed #94a3b8; padding-bottom: 14px; margin-bottom: 14px;">
+          <div style="font-size: 26px; font-weight: 900; letter-spacing: 1.5px; color: #0f172a; line-height: 1.1;">ZS MART</div>
+          <div style="font-size: 11.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px;">
+            Grocery, Cosmetics &amp; General Store
+          </div>
+          <div style="font-size: 11px; color: #475569; margin-top: 5px; line-height: 1.4;">
+            📍 Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi<br>
+            📞 <b>WhatsApp / Phone:</b> 03368945775
+          </div>
+        </div>
+
+        <!-- Invoice Info Box -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; margin-bottom: 12px;">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b;">Invoice #</div>
+            <div style="font-weight: 800; color: #0f172a; font-family: monospace; font-size: 13px;">${escapeHtml(order.id || 'N/A')}</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b;">Date &amp; Time</div>
+            <div style="font-weight: 700; color: #0f172a;">${order.date} ${order.time || ''}</div>
+          </div>
+          <div>
+            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b;">Customer</div>
+            <div style="font-weight: 800; color: #0f172a; font-size: 13px;">${escapeHtml(order.customerName || 'Walk-in Customer')}</div>
+            ${order.customerPhone ? `<div style="font-size: 11px; color: #0284c7; font-weight: 600;">📱 ${escapeHtml(order.customerPhone)}</div>` : ''}
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b;">Payment Mode</div>
+            <div style="font-weight: 800; color: ${isOnline ? '#059669' : '#0f172a'}; font-size: 12px;">
+              ${isOnline ? '🟢 Online (Paid)' : '💵 Cash on Counter'}
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoice Table -->
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 14px;">
+          <thead>
+            <tr style="border-top: 1.5px solid #0f172a; border-bottom: 1.5px solid #0f172a; background: #f8fafc; font-size: 10.5px; text-transform: uppercase; color: #334155;">
+              <th style="padding: 6px 4px; text-align: center; width: 24px;">#</th>
+              <th style="padding: 6px 4px; text-align: left;">Item Description</th>
+              <th style="padding: 6px 4px; text-align: right; width: 60px;">Retail</th>
+              <th style="padding: 6px 4px; text-align: right; width: 55px;">Dis.</th>
+              <th style="padding: 6px 4px; text-align: right; width: 60px;">Rate</th>
+              <th style="padding: 6px 4px; text-align: center; width: 35px;">Qty</th>
+              <th style="padding: 6px 4px; text-align: right; width: 70px;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsRowsHtml || '<tr><td colspan="7" style="text-align:center; padding: 15px; color:#94a3b8;">No items in this invoice</td></tr>'}
+          </tbody>
+        </table>
+
+        <!-- Summary & Savings Box -->
+        <div style="border-top: 1.5px solid #0f172a; padding-top: 10px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569; margin-bottom: 4px;">
+            <span>Total Items:</span>
+            <b style="color: #0f172a;">${items.length} items (${totalUnits} units)</b>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569; margin-bottom: 4px;">
+            <span>Gross Retail Total:</span>
+            <span>Rs. ${totalRetail.toLocaleString()}</span>
+          </div>
+          ${totalDiscount > 0 ? `
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #059669; font-weight: 800; margin: 6px 0; background: #ecfdf5; padding: 6px 10px; border-radius: 6px; border: 1px dashed #6ee7b7;">
+            <span>🎁 Aap Ki Bachat (Total Discount):</span>
+            <span>-Rs. ${totalDiscount.toLocaleString()}</span>
+          </div>
+          ` : ''}
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 17px; font-weight: 900; color: #0f172a; border-top: 2px dashed #94a3b8; border-bottom: 2px dashed #94a3b8; padding: 10px 0; margin-top: 8px;">
+            <span>GRAND TOTAL PAYABLE:</span>
+            <span style="color: #0284c7; font-size: 20px;">Rs. ${grandSale.toLocaleString()}</span>
+          </div>
+        </div>
+
+        <!-- Professional Greeting & Store Terms -->
+        <div style="text-align: center; border-top: 1px dashed #cbd5e1; padding-top: 14px; color: #64748b; font-size: 11px; line-height: 1.5;">
+          <div style="font-size: 13.5px; font-weight: 900; color: #0f172a; margin-bottom: 3px;">
+            ⭐ Thanks for Shopping with ZS Mart! ⭐
+          </div>
+          <div style="font-weight: 700; color: #059669; font-size: 12px; margin-bottom: 6px;">
+            آپ کی بچت، ہمارا اعتماد • پھر ضرور تشریف لائیں
+          </div>
+          <div style="font-size: 10px; color: #94a3b8; line-height: 1.4;">
+            Original receipt is required for exchange within 3 days.<br>
+            Opened, broken seal, or damaged items cannot be exchanged.
+          </div>
+          <div style="margin-top: 8px; font-family: monospace; letter-spacing: 2px; color: #1e293b; font-size: 12px;">
+            ||| | | |||| ||| |||||| | ||||| | ||
+          </div>
+          <div style="font-size: 9.5px; color: #94a3b8; margin-top: 3px;">
+            ZS Mart Smart POS &bull; 03368945775
+          </div>
+        </div>
+      `;
+    }
+
+    function openCustomerBill(orderOrId) {
+      let order = null;
+      if (typeof orderOrId === 'string' || typeof orderOrId === 'number') {
+        order = (dsrAllData.orders || []).find(o => String(o.id) === String(orderOrId));
+        if (!order && lastSavedOrder && String(lastSavedOrder.id) === String(orderOrId)) {
+          order = lastSavedOrder;
+        }
+      } else if (orderOrId && typeof orderOrId === 'object') {
+        order = orderOrId;
+      }
+
+      if (!order) {
+        return alert('Could not find order details.');
+      }
+
+      currentViewingOrder = order;
+      renderCustomerBillContent(order);
+      const modal = document.getElementById('customer-bill-modal');
+      if (modal) modal.classList.add('show');
+    }
+
+    function closeCustomerBillModal() {
+      const modal = document.getElementById('customer-bill-modal');
+      if (modal) modal.classList.remove('show');
+      currentViewingOrder = null;
+    }
+
+    function openLastCustomerBill() {
+      if (lastSavedOrder) {
+        openCustomerBill(lastSavedOrder);
+      } else if (dsrAllData.orders && dsrAllData.orders.length > 0) {
+        openCustomerBill(dsrAllData.orders[0]);
+      } else {
+        alert('No orders available yet.');
+      }
+    }
+
+    function printCustomerBillCurrent() {
+      if (!currentViewingOrder) return;
+      const printContent = document.getElementById('customer-bill-paper').innerHTML;
+      const printWin = window.open('', '_blank', 'width=460,height=720');
+      printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Invoice - ${currentViewingOrder.id || 'Bill'} - ZS Mart</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            @page {
+              size: auto;
+              margin: 6mm 8mm;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+              color: #000;
+              background: #fff;
+              padding: 10px;
+              margin: 0 auto;
+              max-width: 480px;
+              font-size: 12px;
+              line-height: 1.35;
+            }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { padding: 4px 3px; }
+            .no-print { display: none !important; }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+          <' + 'script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 600);
+            };
+          <' + '/script>
+        </body>
+        </html>
+      `);
+      printWin.document.close();
+    }
+
+    function downloadCustomerBillCurrent() {
+      if (!currentViewingOrder) return;
+      const printContent = document.getElementById('customer-bill-paper').innerHTML;
+      const orderId = currentViewingOrder.id || 'Order';
+      const custName = (currentViewingOrder.customerName || 'Customer').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const fileName = `ZS_Mart_Invoice_${orderId}_${custName}.html`;
+
+      const fullHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice ${orderId} - ZS Mart</title>
+  <' + 'style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f1f5f9;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .invoice-box {
+      background: #fff;
+      max-width: 520px;
+      width: 100%;
+      padding: 26px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 5px 4px; }
+    .btn-bar { text-align: center; margin-bottom: 20px; }
+    .btn-dl-print {
+      background: #0284c7; color: #fff; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 14px;
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .invoice-box { box-shadow: none; padding: 10px; max-width: 100%; }
+      .btn-bar { display: none; }
+    }
+  <' + '/style>
+</head>
+<body>
+  <div style="width: 100%; max-width: 520px;">
+    <div class="btn-bar">
+      <button class="btn-dl-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    </div>
+    <div class="invoice-box">
+      ${printContent}
+    </div>
+  </div>
+</body>
+</html>`;
+
+      const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    }
+
+    function whatsappCustomerBillCurrent() {
+      if (!currentViewingOrder) return;
+      const o = currentViewingOrder;
+      const items = (o.items || []).map(it => getItemPricing(it));
+      
+      let msg = `*🛒 ZS MART - CASH INVOICE*\n`;
+      msg += `📍 Safaid White Masjid Rd, Sector H Korangi, Karachi\n`;
+      msg += `📞 WhatsApp: 03368945775\n`;
+      msg += `--------------------------------\n`;
+      msg += `*Invoice #:* ${o.id || ''}\n`;
+      msg += `*Date:* ${o.date} ${o.time || ''}\n`;
+      msg += `*Customer:* ${o.customerName || 'Valued Customer'}\n`;
+      msg += `*Payment:* ${o.paymentMethod === 'online' ? 'Online Transfer (Paid)' : 'Cash'}\n`;
+      msg += `--------------------------------\n`;
+      msg += `*ITEMS PURCHASED:*\n`;
+
+      let totalRetail = 0;
+      let totalDiscount = 0;
+      let totalUnits = 0;
+
+      items.forEach((it, idx) => {
+        totalRetail += it.lineRetailTotal;
+        totalDiscount += it.lineDiscountTotal;
+        totalUnits += it.qty;
+        msg += `${idx + 1}. *${it.cleanName}*\n`;
+        if (it.discount > 0) {
+          msg += `   Retail: Rs. ${it.retailPrice} | Dis: -Rs. ${it.discount}\n`;
+          msg += `   Rate: Rs. ${it.sellPrice} × ${it.qty} = *Rs. ${it.lineTotal.toLocaleString()}*\n`;
+        } else {
+          msg += `   Rate: Rs. ${it.sellPrice} × ${it.qty} = *Rs. ${it.lineTotal.toLocaleString()}*\n`;
+        }
+      });
+
+      msg += `--------------------------------\n`;
+      msg += `*Total Units:* ${totalUnits} units (${items.length} items)\n`;
+      msg += `*Gross Retail:* Rs. ${totalRetail.toLocaleString()}\n`;
+      if (totalDiscount > 0) {
+        msg += `*🎁 Aap Ki Bachat (Discount):* Rs. ${totalDiscount.toLocaleString()}\n`;
+      }
+      msg += `*💰 GRAND TOTAL: Rs. ${(Number(o.totalSale) || 0).toLocaleString()}*\n`;
+      msg += `--------------------------------\n`;
+      msg += `✨ *Thank you for shopping with ZS Mart!* ✨\n`;
+      msg += `Phir zaroor tashreef layen! 🙏`;
+
+      let phone = (o.customerPhone || '').replace(/[^0-9]/g, '');
+      if (phone.startsWith('03')) phone = '92' + phone.slice(1);
+      const waUrl = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank');
     }
 
     function printDsrStatement() {
@@ -3460,12 +4288,28 @@
       const itemName = inputEl.value.trim();
       if (!itemName) return alert('Please enter or select an item name!');
 
-      const pId = document.getElementById('purchasing-selected-id').value;
+      let pId = document.getElementById('purchasing-selected-id').value;
       const secInput = document.getElementById('purchasing-item-section');
       let section = secInput.value.trim() || 'General Market';
 
       const qty = Math.max(1, Number(document.getElementById('purchasing-item-qty').value) || 1);
-      const purRate = Number(document.getElementById('purchasing-item-rate').value) || 0;
+      let purRate = Number(document.getElementById('purchasing-item-rate').value) || 0;
+
+      // Smart catalog lookup if typed without clicking dropdown
+      if (!pId || purRate === 0) {
+        const found = allProducts.find(p => p.name.toLowerCase().trim() === itemName.toLowerCase().trim()) ||
+                      allProducts.find(p => p.name.toLowerCase().includes(itemName.toLowerCase().trim()));
+        if (found) {
+          if (!pId) pId = String(found.id);
+          if (purRate === 0) {
+            purRate = (purchaseRates && purchaseRates[String(found.id)]) || 0;
+          }
+          if (section === 'General Market' && itemSectionsMap && itemSectionsMap[String(found.id)]) {
+            section = itemSectionsMap[String(found.id)];
+          }
+        }
+      }
+
       const amount = qty * purRate;
 
       // Add section to list if brand new
@@ -4262,17 +5106,16 @@
       }
 
       let html = '';
-      purchasingSections.forEach(sec => {
+      purchasingSections.forEach((sec, idx) => {
         const escaped = escapeHtml(sec);
-        const quoted = escaped.replace(/'/g, "\\'");
         html += `
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #f1f5f9;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; background: #ffffff;">
             <div style="font-weight: 700; color: #0f172a; font-size: 13px;">📍 ${escaped}</div>
-            <div style="display: flex; gap: 6px;">
-              <button type="button" class="btn btn-light" style="padding: 3px 8px; font-size: 11px; font-weight: 700; color: #2563eb;" onclick="renameSectionPrompt('${quoted}')">
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-light" style="padding: 4px 10px; font-size: 12px; font-weight: 700; color: #2563eb; border: 1px solid #bfdbfe; background: #eff6ff; cursor: pointer;" onclick="renameSectionByIndex(${idx})">
                 ✏️ Rename
               </button>
-              <button type="button" class="btn btn-light" style="padding: 3px 8px; font-size: 11px; font-weight: 700; color: #dc2626;" onclick="deleteSectionConfirm('${quoted}')">
+              <button type="button" class="btn btn-light" style="padding: 4px 10px; font-size: 12px; font-weight: 700; color: #dc2626; border: 1px solid #fecaca; background: #fee2e2; cursor: pointer;" onclick="deleteSectionByIndex(${idx})">
                 🗑️ Delete
               </button>
             </div>
@@ -4280,6 +5123,18 @@
         `;
       });
       container.innerHTML = html;
+    }
+
+    async function renameSectionByIndex(idx) {
+      const oldName = purchasingSections[idx];
+      if (!oldName) return;
+      return renameSectionPrompt(oldName);
+    }
+
+    async function deleteSectionByIndex(idx) {
+      const secName = purchasingSections[idx];
+      if (!secName) return;
+      return deleteSectionConfirm(secName);
     }
 
     async function renameSectionPrompt(oldName) {

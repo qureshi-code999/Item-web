@@ -42,18 +42,7 @@ public class MainActivity extends BridgeActivity {
             });
         }
 
-        // Request microphone, camera, and location permissions
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED ||
-                checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{
-                    android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.CAMERA,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION
-                }, 101);
-            }
-        }
+
 
         // ⚡ 120 FPS GPU Hardware Acceleration & Rasterization for WebView
         if (getBridge() != null && getBridge().getWebView() != null) {

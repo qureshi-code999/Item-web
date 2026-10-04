@@ -1,13 +1,15 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  NOTE: Jab aap live domain lein to "AAPKA-DOMAIN.com" ko apne domain se replace karein.
-  Example: https://sahiltraders.com/
--->
+<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://AAPKA-DOMAIN.com/</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://sahiltraders.com/</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://sahiltraders.com/privacy-policy.html</loc>
+    <lastmod>2026-09-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>

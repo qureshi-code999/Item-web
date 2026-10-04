@@ -1,13 +1,15 @@
 @echo off
-title ZS Mart - Website Server (PORT 8000)
+title ZS Mart - Store & Master Admin Server (PORT 8888)
 echo ==================================================
-echo   ZS MART WEBSITE SERVER - PORT 8000
+echo   ZS MART WEB & MASTER ADMIN SERVER - PORT 8888
 echo ==================================================
 echo.
-echo   Website: http://localhost:8000
+echo   Store Web:    http://localhost:8888/index.html
+echo   Admin Portal: http://localhost:8888/admin_dashboard.html
 echo.
 echo   [YE WINDOW BAND NA KAREIN - SERVER CHAL RAHA HAI]
 echo ==================================================
 echo.
-powershell -ExecutionPolicy Bypass -NoProfile -File "%~dp0admin_server.ps1"
+start "" "http://localhost:8888/index.html"
+node "%~dp0admin_server.js"
 pause

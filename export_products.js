@@ -93,6 +93,19 @@ if (fs.existsSync(imgDir)) {
       }
     }
   });
+
+  // Sync updated PRODUCT_IMAGE_MAP back into index.html if changed
+  const latestHtml = fs.readFileSync(htmlFile, 'utf8');
+  const freshImgMapMatch = latestHtml.match(/window\.PRODUCT_IMAGE_MAP\s*=\s*(\{[\s\S]*?\});/);
+  if (freshImgMapMatch) {
+    const serialized = JSON.stringify(imageMap);
+    const newMapSnippet = `window.PRODUCT_IMAGE_MAP = ${serialized};`;
+    if (freshImgMapMatch[0] !== newMapSnippet) {
+      const updatedHtml = latestHtml.replace(freshImgMapMatch[0], newMapSnippet);
+      fs.writeFileSync(htmlFile, updatedHtml, 'utf8');
+      console.log('Synchronized updated PRODUCT_IMAGE_MAP to index.html!');
+    }
+  }
 }
 
 // 3. Extract PRODUCT_VARIANTS from index.html
@@ -123,6 +136,31 @@ products.forEach(p => {
       name: p.categoryName || p.categoryId
     });
   }
+});
+
+// Merge category priorities from category_priorities.json if present
+const catPrioFile = path.join(rootDir, 'category_priorities.json');
+let categoryPriorities = {};
+if (fs.existsSync(catPrioFile)) {
+  try {
+    categoryPriorities = JSON.parse(fs.readFileSync(catPrioFile, 'utf8'));
+  } catch (e) {}
+}
+
+categories.forEach(c => {
+  if (categoryPriorities && categoryPriorities[c.id]) {
+    c.priority = Number(categoryPriorities[c.id]);
+  } else if (!c.priority) {
+    delete c.priority;
+  }
+});
+
+// Sort categories: priority 1, 2, 3... first, then unprioritized preserving original order
+categories.sort((a, b) => {
+  const pa = (typeof a.priority === 'number' && a.priority > 0) ? a.priority : 999999;
+  const pb = (typeof b.priority === 'number' && b.priority > 0) ? b.priority : 999999;
+  if (pa !== pb) return pa - pb;
+  return 0;
 });
 
 // 5. Extract SETTINGS from settings.json

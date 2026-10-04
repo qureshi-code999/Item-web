@@ -1,12 +1,13 @@
 {
-  "name": "sahil-traders-app",
+  "name": "zs-mart-app",
   "version": "1.0.0",
-  "description": "Sahil Traders Wholesale & Retail Mobile App",
+  "description": "ZS Mart - Supermarket & Grocery (Pakistan)",
   "private": true,
   "scripts": {
     "cap:sync": "npx cap sync",
     "cap:open": "npx cap open android",
-    "cap:build": "npx cap copy && npx cap sync"
+    "cap:build": "npx cap copy && npx cap sync",
+    "test": "node test_app.js"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.1",

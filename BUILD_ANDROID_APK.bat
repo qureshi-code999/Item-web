@@ -15,9 +15,16 @@ set PATH=%JAVA_HOME%\bin;%PATH%
 cd /d "%~dp0"
 call "C:\Program Files\nodejs\node.exe" compile_jsx.js
 
+del /f /q /s "%~dp0www\*.bak" 2>nul
+del /f /q /s "%~dp0android\app\src\main\assets\public\*.bak" 2>nul
+
 echo.
 echo  [2/4] Syncing Capacitor to Android...
 call "C:\Program Files\nodejs\npx.cmd" cap sync android
+
+del /f /q /s "%~dp0www\*.bak" 2>nul
+del /f /q /s "%~dp0android\app\src\main\assets\public\*.bak" 2>nul
+del /f /q /s "%~dp0android\app\build\intermediates\assets\debug\*.bak" 2>nul
 
 echo.
 echo  [3/4] Compiling Android APK with Gradle...
@@ -27,8 +34,6 @@ call gradlew.bat assembleDebug
 echo.
 echo  [4/4] Copying APK to Desktop...
 if exist "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" (
-    copy /y "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" "%USERPROFILE%\Desktop\ZS_Mart_App.apk" >nul
-    copy /y "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" "%USERPROFILE%\Desktop\ZS_Traders_App.apk" >nul
     copy /y "%~dp0android\app\build\outputs\apk\debug\app-debug.apk" "%USERPROFILE%\Desktop\ZS_Mart_App.apk" >nul
     echo.
     echo ================================================================

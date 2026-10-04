@@ -1,9 +1,7 @@
-﻿User-agent: *
+User-agent: *
 Allow: /
-Disallow: /admin_server.ps1
-Disallow: /upload_server.ps1
 Disallow: /archive/
 Disallow: /Backups/
+Disallow: /scratch/
 
-# NOTE: Jab aap domain khareedein, niche wali line update karein:
-# Sitemap: https://AAPKA-DOMAIN.com/sitemap.xml
+Sitemap: https://sahiltraders.com/sitemap.xml

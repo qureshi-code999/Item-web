@@ -100,8 +100,8 @@ try {
   console.error('Error exporting products.json:', err.message);
 }
 
-// Sync style.css, index.html, products.json, settings.json to www and android assets
-const syncFiles = ['style.css', 'index.html', 'products.json', 'tailwind.local.css', 'settings.json'];
+// Sync style.css, index.html, products.json, settings.json, sw.js to www and android assets
+const syncFiles = ['style.css', 'index.html', 'products.json', 'tailwind.local.css', 'settings.json', 'sw.js'];
 const syncDirs = [
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/www',
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/android/app/src/main/assets/public'

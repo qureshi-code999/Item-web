@@ -132,7 +132,7 @@ const server = http.createServer(async (req, res) => {
       if (fs.existsSync(dashboardPath)) {
         return sendFile(res, dashboardPath, 'text/html; charset=utf-8');
       }
-      return sendFile(res, path.join(ROOT, 'item_upload_portal.html'), 'text/html; charset=utf-8');
+      return sendJson(res, 404, { ok: false, error: 'admin_dashboard.html not found' });
     }
 
     // 1b. Customer Store Web (/index.html or /store or /shop)

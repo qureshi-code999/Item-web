@@ -1624,9 +1624,9 @@ var SWATCH_GRADIENTS = ["from-amber-400 to-orange-500", "from-violet-500 to-purp
 var PRODUCTS = [{
   id: 1,
   name: "7 HERBAL OIL 100ML RS,250",
-  price: 320,
-  categoryId: "condemn",
-  categoryName: "Condoms",
+  price: 220,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils",
   priority: 6
 }, {
   id: 2,

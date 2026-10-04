@@ -1315,7 +1315,7 @@ function getTranslationValue(dictionary, key) {
       "from-indigo-400 to-violet-600",
     ];
     var PRODUCTS = [
-      { id: 1, name: "7 HERBAL OIL 100ML RS,250", price: 320, categoryId: "condemn", categoryName: "Condoms" , priority: 6 },
+      { id: 1, name: "7 HERBAL OIL 100ML RS,250", price: 220, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" , priority: 6 },
       { id: 2, name: "7 HERBAL OIL 200ML RP,400", price: 469, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 1 },
       { id: 3, name: "7 HERBAL OIL 50ML RS,170", price: 255, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 2 },
       { id: 5, name: "AL RASHIEED OIL 100ML SASSO", price: 480, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },

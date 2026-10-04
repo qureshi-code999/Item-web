@@ -1244,7 +1244,7 @@ function getTranslationValue(dictionary, key) {
     // --- Product Categories and Data ---
     var DEFAULT_CATEGORIES = [
       { id: "soaps",        name: "Local & Imported Soaps", priority: 1 },
-      { id: "shampoo",      name: "Shampoo & Conditioners" },
+      { id: "shampoo",      name: "Shampoo & Conditioners", priority: 1 },
       { id: "creams",       name: "Creams & Lotions & Bleach" },
       { id: "stationary",   name: "Stationary & Tapes" },
       { id: "sports",       name: "Sports & Toys" },

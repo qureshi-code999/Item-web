@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-04T13:38:53.876Z",
+  "updatedAt": "2026-10-04T13:39:26.073Z",
   "total": 1049,
   "settings": {
     "deliveryFee": 99,
@@ -1101,14 +1101,14 @@
   },
   "categories": [
     {
-      "id": "soaps",
-      "name": "Local & Imported Soaps",
-      "priority": 1
-    },
-    {
       "id": "shampoo",
       "name": "Shampoo & Conditioners",
       "priority": 1
+    },
+    {
+      "id": "soaps",
+      "name": "Local & Imported Soaps",
+      "priority": 2
     },
     {
       "id": "creams",

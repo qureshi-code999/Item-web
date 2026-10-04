@@ -1524,7 +1524,7 @@ function PerfumeIcon({
 var DEFAULT_CATEGORIES = [{
   id: "soaps",
   name: "Local & Imported Soaps",
-  priority: 1
+  priority: 2
 }, {
   id: "shampoo",
   name: "Shampoo & Conditioners",

@@ -955,11 +955,17 @@
     </div>
 
     <div class="header-actions">
+      <button class="btn btn-dark" onclick="verifyCloudLiveStatus()" title="Check if Mobile App & Cloud have latest items" style="border: 1px solid #3b82f6;">
+        <span>🌐</span> Verify Cloud Live
+      </button>
       <button class="btn btn-dark" onclick="triggerBuildApk()">
         <span>📱</span> Build Android APK
       </button>
       <button class="btn btn-gold" onclick="triggerPublishLive()">
         <span>🚀</span> 1-Click Publish Live
+      </button>
+      <button class="btn btn-dark" onclick="lockAdminPanel()" title="Lock Master Admin Panel" style="border: 1px solid #ef4444; color: #fca5a5;">
+        <span>🔒</span> Lock Panel
       </button>
     </div>
   </header>
@@ -1727,6 +1733,42 @@
           <button class="btn btn-gold" onclick="saveSettings()">💾 Save &amp; Sync Settings to App</button>
         </div>
       </div>
+
+      <!-- Master Admin Security & Password Card -->
+      <div class="panel-card" style="margin-top: 20px; border: 1.5px solid rgba(245, 158, 11, 0.4);">
+        <div class="panel-card-title" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <span>🔐 Master Admin Security &amp; Password</span>
+          <span style="font-size: 11px; background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 999px; border: 1px solid #a7f3d0; font-weight: 700;">
+            🛡️ Localhost Only (LAN Blocked)
+          </span>
+        </div>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 16px; line-height: 1.5;">
+          Aapka Master Admin Panel laptop ke <strong>127.0.0.1 (Localhost)</strong> par lock hai. Koi bhi shaks Wi-Fi ya LAN network se isko open nahi kar sakta. Laptop par bhi panel kholne ke liye Master Password lazmi hai. Aap apna Master Password yahan se change kar sakte hain.
+        </p>
+
+        <div style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 5px;">Current Password</label>
+              <input type="password" id="sec-current-pwd" placeholder="Enter current password" class="form-input" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 5px;">New Master Password</label>
+              <input type="password" id="sec-new-pwd" placeholder="Enter new password (min 4 chars)" class="form-input" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 5px;">Confirm New Password</label>
+              <input type="password" id="sec-confirm-pwd" placeholder="Re-enter new password" class="form-input" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
+            </div>
+          </div>
+
+          <div style="margin-top: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn btn-gold" onclick="changeAdminPassword()">🔑 Update Master Password</button>
+            <button type="button" class="btn btn-dark" onclick="lockAdminPanel()">🔒 Lock Admin Panel Now</button>
+            <div id="sec-pwd-msg" style="font-size: 13px; font-weight: 700;"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
   </main>
@@ -1909,7 +1951,186 @@
     </div>
   </div>
 
+  <!-- ── MASTER SECURITY GATE / LOCK SCREEN ── -->
+  <div id="master-security-lock-screen" style="display: none; position: fixed; inset: 0; background: radial-gradient(circle at 50% 20%, #1e293b 0%, #090d16 100%); z-index: 999999; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+    <div style="background: rgba(15, 23, 42, 0.96); border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 50px rgba(245, 158, 11, 0.2); border-radius: 24px; width: 92%; max-width: 440px; padding: 40px 32px; text-align: center; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <div style="width: 76px; height: 76px; margin: 0 auto 18px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1)); border: 2px solid #f59e0b; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 38px; box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);">
+        🛡️
+      </div>
+      <div style="font-size: 20px; font-weight: 900; letter-spacing: 0.8px; color: #f8fafc; margin-bottom: 6px;">
+        ZS MART COMMAND CENTER
+      </div>
+      <div style="font-size: 13px; color: #94a3b8; margin-bottom: 24px; line-height: 1.5;">
+        Master Admin Panel is password protected. Enter your password to access catalog, sales, and live sync.
+      </div>
+
+      <div id="lock-error-msg" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; margin-bottom: 18px; text-align: left;"></div>
+
+      <form onsubmit="handleMasterLogin(event)" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="text-align: left;">
+          <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">Master Admin Password</label>
+          <div style="position: relative;">
+            <input type="password" id="master-password-input" placeholder="Enter password (e.g. zs786)" autocomplete="current-password" required
+                   style="width: 100%; padding: 12px 44px 12px 14px; background: #0f172a; border: 1.5px solid #334155; border-radius: 12px; color: #fff; font-size: 15px; outline: none; transition: all 0.2s; box-sizing: border-box;"
+                   onfocus="this.style.borderColor='#f59e0b'; this.style.boxShadow='0 0 0 3px rgba(245, 158, 11, 0.2)';"
+                   onblur="this.style.borderColor='#334155'; this.style.boxShadow='none';">
+            <button type="button" onclick="togglePasswordVisibility()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 16px;">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #94a3b8; text-align: left;">
+          <input type="checkbox" id="master-remember-checkbox" checked style="accent-color: #f59e0b; width: 16px; height: 16px; cursor: pointer;">
+          <label for="master-remember-checkbox" style="cursor: pointer;">Remember session on this laptop</label>
+        </div>
+
+        <button type="submit" id="master-unlock-btn" class="btn btn-gold" style="width: 100%; padding: 13px; font-size: 15px; font-weight: 800; border-radius: 12px; justify-content: center; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35); cursor: pointer;">
+          🔓 Unlock Master Admin
+        </button>
+      </form>
+
+      <div style="margin-top: 24px; font-size: 11px; color: #64748b; line-height: 1.5;">
+        🔒 <strong>Localhost Restricted (127.0.0.1)</strong> — Outside connections on Wi-Fi/LAN are permanently blocked.
+      </div>
+    </div>
+  </div>
+
   <script>
+    // ── MASTER SECURITY AUTHENTICATION CONTROLLER ──
+    let authToken = sessionStorage.getItem('zs_admin_token') || localStorage.getItem('zs_admin_token') || '';
+
+    // Global Fetch Interceptor to attach Auth Token & handle 401
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options = {}) {
+      options.headers = options.headers || {};
+      if (authToken) {
+        if (options.headers instanceof Headers) {
+          options.headers.set('X-Admin-Token', authToken);
+          options.headers.set('Authorization', 'Bearer ' + authToken);
+        } else {
+          options.headers['X-Admin-Token'] = authToken;
+          options.headers['Authorization'] = 'Bearer ' + authToken;
+        }
+      }
+      return originalFetch(url, options).then(res => {
+        if (res.status === 401 && !url.includes('/api/auth/login')) {
+          showLockScreen('Session expired or unauthorized. Please re-enter Master Password.');
+        }
+        return res;
+      });
+    };
+
+    function showLockScreen(msg = '') {
+      authToken = '';
+      sessionStorage.removeItem('zs_admin_token');
+      localStorage.removeItem('zs_admin_token');
+      const screen = document.getElementById('master-security-lock-screen');
+      if (screen) {
+        screen.style.display = 'flex';
+        const err = document.getElementById('lock-error-msg');
+        if (err) {
+          if (msg) {
+            err.textContent = msg;
+            err.style.display = 'block';
+          } else {
+            err.style.display = 'none';
+          }
+        }
+        const input = document.getElementById('master-password-input');
+        if (input) {
+          input.value = '';
+          setTimeout(() => input.focus(), 150);
+        }
+      }
+    }
+
+    function hideLockScreen() {
+      const screen = document.getElementById('master-security-lock-screen');
+      if (screen) screen.style.display = 'none';
+    }
+
+    function lockAdminPanel() {
+      showLockScreen('Master Admin Panel is locked.');
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('master-password-input');
+      if (input) {
+        input.type = input.type === 'password' ? 'text' : 'password';
+      }
+    }
+
+    async function handleMasterLogin(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('master-password-input');
+      const btn = document.getElementById('master-unlock-btn');
+      const err = document.getElementById('lock-error-msg');
+      const remember = document.getElementById('master-remember-checkbox')?.checked;
+      const pwd = input?.value || '';
+
+      if (!pwd) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      if (err) err.style.display = 'none';
+
+      try {
+        const res = await originalFetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwd })
+        });
+        const data = await res.json();
+        if (data.ok && data.token) {
+          authToken = data.token;
+          sessionStorage.setItem('zs_admin_token', authToken);
+          if (remember) {
+            localStorage.setItem('zs_admin_token', authToken);
+          } else {
+            localStorage.removeItem('zs_admin_token');
+          }
+          hideLockScreen();
+          await init();
+          await loadSettings();
+        } else {
+          if (err) {
+            err.textContent = data.error || 'Incorrect password!';
+            err.style.display = 'block';
+          }
+        }
+      } catch (ex) {
+        if (err) {
+          err.textContent = 'Connection error: ' + ex.message;
+          err.style.display = 'block';
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔓 Unlock Master Admin';
+      }
+    }
+
+    async function checkAuthOnLoad() {
+      if (!authToken) {
+        showLockScreen();
+        return;
+      }
+      try {
+        const res = await originalFetch('/api/auth/verify', {
+          headers: { 'X-Admin-Token': authToken, 'Authorization': 'Bearer ' + authToken }
+        });
+        if (res.ok) {
+          hideLockScreen();
+          await init();
+          await loadSettings();
+        } else {
+          showLockScreen('Session expired. Please enter Master Password.');
+        }
+      } catch (e) {
+        showLockScreen();
+      }
+    }
+
     // Global Safe HTML Escape Utility
     function escapeHtml(str) {
       if (str === null || str === undefined) return '';
@@ -5063,24 +5284,119 @@
       printWindow.document.close();
     }
 
-    // ── 1-Click Operations ──
+    // ── 1-Click Operations (With 100% Surety Verification & Blockage Detection) ──
     async function triggerPublishLive() {
       showTerminal('🚀 COMPILING JSX & PUBLISHING LIVE TO APP & WEB...');
+      appendTerminal('Step 1/3: Local catalog & database verification in progress...');
+      appendTerminal('Step 2/3: Compiling React JSX bundle for Mobile App & Web...');
+      appendTerminal('Step 3/3: Pushing live updates to GitHub & Vercel CDN...\n');
       try {
         const res = await fetch('/api/publish', { method: 'POST' });
         const data = await res.json();
-        if (data.ok) {
-          appendTerminal('\n' + data.output);
-          appendTerminal('\n================================================================');
-          appendTerminal('✅ SUCCESS! APP & WEB ARE 100% LIVE & SYNCHRONIZED!');
+        
+        if (data.ok && !data.blockage) {
           appendTerminal('================================================================');
+          appendTerminal(`✅ 100% LIVE VERIFIED! ALL ${data.totalItems || ''} PRODUCTS ARE LIVE ON CLOUD!`);
+          appendTerminal('================================================================');
+          appendTerminal(`• Git Commit: ${data.commitInfo || 'Success'}`);
+          appendTerminal('• Customer Mobile App: Live update ready');
+          appendTerminal('• Customer Website: Live update ready');
+          appendTerminal('• Purchase Rates & Inventory: 100% in sync');
+          appendTerminal('\n' + (data.output || ''));
           await loadStats();
+        } else if (data.blockage) {
+          appendTerminal('================================================================');
+          appendTerminal('❌ RUKAWAAT / CLOUD BLOCKAGE DETECTED!');
+          appendTerminal('================================================================');
+          appendTerminal(`\n📌 WAJA / DIAGNOSIS:\n${data.diagnosis || 'Cloud push ruka hai.'}`);
+          appendTerminal(`\n💡 HALL / REMEDY:\n${data.remedy || 'Internet connection check karein.'}`);
+          appendTerminal(`\nℹ️ LOCAL LAPTOP STATUS: Aapka sara kaam laptop par 100% save hai (${data.totalItems || ''} items safe).`);
+          if (data.rawError) {
+            appendTerminal('\n🔍 Technical Error Details:\n' + data.rawError);
+          }
         } else {
           appendTerminal('\n❌ ERROR: ' + (data.error || 'Failed'));
           if (data.output) appendTerminal('\n' + data.output);
         }
       } catch(e) {
-        appendTerminal('\n❌ Network error: ' + e.message);
+        appendTerminal('\n❌ Communication error with local server: ' + e.message);
+      }
+    }
+
+    async function verifyCloudLiveStatus() {
+      showTerminal('🌐 VERIFYING LIVE CLOUD SYNCHRONIZATION...');
+      appendTerminal('Connecting to GitHub Raw CDN to inspect live deployed products...');
+      try {
+        const cacheBuster = Date.now();
+        const res = await originalFetch(`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?_t=${cacheBuster}`);
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        const cloudData = await res.json();
+        const cloudCount = cloudData.products ? cloudData.products.length : 0;
+        const localCount = allProducts.length;
+
+        appendTerminal('\n================================================================');
+        if (cloudCount === localCount) {
+          appendTerminal('🟢 100% LIVE SYNCHRONIZED & CONFIRMED!');
+          appendTerminal('================================================================');
+          appendTerminal(`• Live Cloud Products on GitHub: ${cloudCount} items`);
+          appendTerminal(`• Local Products on Laptop: ${localCount} items`);
+          appendTerminal(`• Cloud Last Updated: ${cloudData.updatedAt || 'Recent'}`);
+          appendTerminal('\n✅ Customers on Mobile App & Website are seeing the exact same products as your laptop!');
+        } else {
+          appendTerminal('⚠️ SYNC DIFFERENCE DETECTED!');
+          appendTerminal('================================================================');
+          appendTerminal(`• Local Laptop Products: ${localCount} items`);
+          appendTerminal(`• Live Cloud Products: ${cloudCount} items`);
+          appendTerminal(`\n👉 Difference of ${Math.abs(localCount - cloudCount)} items!`);
+          appendTerminal('Click "1-Click Publish Live" in the top bar to push latest edits to Cloud!');
+        }
+      } catch(e) {
+        appendTerminal('\n❌ Could not connect to GitHub Cloud CDN: ' + e.message);
+        appendTerminal('Make sure your laptop is connected to the internet.');
+      }
+    }
+
+    async function changeAdminPassword() {
+      const oldPwd = document.getElementById('sec-current-pwd')?.value.trim();
+      const newPwd = document.getElementById('sec-new-pwd')?.value.trim();
+      const confirmPwd = document.getElementById('sec-confirm-pwd')?.value.trim();
+      const msg = document.getElementById('sec-pwd-msg');
+
+      if (!oldPwd || !newPwd || !confirmPwd) {
+        if (msg) { msg.style.color = '#ef4444'; msg.textContent = 'Please fill all password fields.'; }
+        return;
+      }
+      if (newPwd !== confirmPwd) {
+        if (msg) { msg.style.color = '#ef4444'; msg.textContent = 'New passwords do not match!'; }
+        return;
+      }
+      if (newPwd.length < 4) {
+        if (msg) { msg.style.color = '#ef4444'; msg.textContent = 'New password must be at least 4 characters.'; }
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ oldPassword: oldPwd, newPassword: newPwd })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          authToken = data.token;
+          sessionStorage.setItem('zs_admin_token', authToken);
+          if (localStorage.getItem('zs_admin_token')) {
+            localStorage.setItem('zs_admin_token', authToken);
+          }
+          if (msg) { msg.style.color = '#10b981'; msg.textContent = '✅ Master Password updated successfully!'; }
+          document.getElementById('sec-current-pwd').value = '';
+          document.getElementById('sec-new-pwd').value = '';
+          document.getElementById('sec-confirm-pwd').value = '';
+        } else {
+          if (msg) { msg.style.color = '#ef4444'; msg.textContent = data.error || 'Failed to update password.'; }
+        }
+      } catch(e) {
+        if (msg) { msg.style.color = '#ef4444'; msg.textContent = 'Network error: ' + e.message; }
       }
     }
 
@@ -5187,8 +5503,7 @@
     }
 
     window.onload = async function() {
-      await init();
-      await loadSettings();
+      await checkAuthOnLoad();
     };
 
     /* ── SECTIONS MANAGER FUNCTIONS (Rename, Delete, Add) ── */

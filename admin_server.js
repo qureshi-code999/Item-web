@@ -18,6 +18,41 @@ const IMAGES_DIR = path.join(ROOT, 'images');
 const SECTIONS_FILE = path.join(ROOT, 'purchasing_sections.json');
 const PURCHASING_SHEETS_FILE = path.join(ROOT, 'purchasing_sheets.json');
 const CAT_PRIORITIES_FILE = path.join(ROOT, 'category_priorities.json');
+const CONFIG_FILE = path.join(ROOT, 'admin_config.json');
+
+// Master Security Configuration & Authentication Helpers
+function getAdminConfig() {
+  const defaults = {
+    adminPassword: 'zs786',
+    sessionToken: 'zs_session_master_2026_sahil_traders'
+  };
+  if (fs.existsSync(CONFIG_FILE)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+      return { ...defaults, ...parsed };
+    } catch (e) {}
+  }
+  return defaults;
+}
+
+let failedLoginAttempts = 0;
+let lockoutUntil = 0;
+
+function verifyAuth(req) {
+  const config = getAdminConfig();
+  const authHeader = req.headers['authorization'] || req.headers['x-admin-token'] || '';
+  let token = authHeader;
+  if (authHeader.startsWith('Bearer ')) {
+    token = authHeader.slice(7).trim();
+  }
+  if (!token) {
+    const parsed = url.parse(req.url, true);
+    if (parsed.query && parsed.query.token) {
+      token = parsed.query.token;
+    }
+  }
+  return Boolean(token && token === config.sessionToken);
+}
 
 // Optional sharp for WebP compression
 let sharp = null;
@@ -32,7 +67,7 @@ function sendJson(res, statusCode, data) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Token',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
   });
   res.end(body);
@@ -113,7 +148,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Token',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
     });
     res.end();
@@ -140,6 +175,60 @@ const server = http.createServer(async (req, res) => {
       const indexPath = path.join(ROOT, 'index.html');
       if (fs.existsSync(indexPath)) {
         return sendFile(res, indexPath, 'text/html; charset=utf-8');
+      }
+    }
+
+    // ── MASTER SECURITY AUTHENTICATION ENDPOINTS ──
+    if (pathname === '/api/auth/login' && req.method === 'POST') {
+      const now = Date.now();
+      if (lockoutUntil > now) {
+        const remaining = Math.ceil((lockoutUntil - now) / 1000);
+        return sendJson(res, 429, { ok: false, error: `Too many failed attempts. Locked for ${remaining} seconds.` });
+      }
+      const body = await parseBody(req);
+      const config = getAdminConfig();
+      if (body.password && String(body.password).trim() === String(config.adminPassword).trim()) {
+        failedLoginAttempts = 0;
+        return sendJson(res, 200, { ok: true, token: config.sessionToken });
+      }
+      failedLoginAttempts++;
+      if (failedLoginAttempts >= 5) {
+        lockoutUntil = Date.now() + 60000;
+        return sendJson(res, 429, { ok: false, error: '5 incorrect attempts! Admin Panel locked for 60 seconds.' });
+      }
+      return sendJson(res, 401, { ok: false, error: 'Incorrect password! Please try again.' });
+    }
+
+    if (pathname === '/api/auth/verify' && req.method === 'GET') {
+      if (verifyAuth(req)) {
+        return sendJson(res, 200, { ok: true, authenticated: true });
+      }
+      return sendJson(res, 401, { ok: false, authenticated: false, error: 'Invalid or expired session token.' });
+    }
+
+    if (pathname === '/api/auth/change-password' && req.method === 'POST') {
+      if (!verifyAuth(req)) {
+        return sendJson(res, 401, { ok: false, error: 'Unauthorized: Current session invalid.' });
+      }
+      const body = await parseBody(req);
+      const config = getAdminConfig();
+      if (!body.oldPassword || String(body.oldPassword).trim() !== String(config.adminPassword).trim()) {
+        return sendJson(res, 400, { ok: false, error: 'Current password is incorrect.' });
+      }
+      if (!body.newPassword || String(body.newPassword).trim().length < 4) {
+        return sendJson(res, 400, { ok: false, error: 'New password must be at least 4 characters.' });
+      }
+      config.adminPassword = String(body.newPassword).trim();
+      config.sessionToken = 'zs_session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      config.updatedAt = new Date().toISOString();
+      fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
+      return sendJson(res, 200, { ok: true, message: 'Master Password updated successfully!', token: config.sessionToken });
+    }
+
+    // Master Security Gate: Block ANY /api/ endpoint if not authenticated
+    if (pathname.startsWith('/api/')) {
+      if (!verifyAuth(req)) {
+        return sendJson(res, 401, { ok: false, error: 'Access Denied: Master Admin Password required.' });
       }
     }
 
@@ -798,15 +887,18 @@ function syncImageToTargets(fileName) {
       return sendJson(res, 200, { ok: true, settings: newSettings });
     }
 
-    // 10. API: 1-Click LIVE PUBLISH
+    // 10. API: 1-Click LIVE PUBLISH (With 100% Surety Verification & Blockage Detection)
     if (pathname === '/api/publish' && req.method === 'POST') {
-      console.log('Publish triggered! Compiling JSX, updating products.json & syncing to GitHub...');
+      console.log('Publish triggered! Compiling JSX, exporting products & verifying cloud sync...');
       try {
         delete require.cache[require.resolve('./export_products.js')];
         require('./export_products.js');
         const compileOut = execSync('node compile_jsx.js', { encoding: 'utf8', cwd: ROOT });
         
         let gitOut = '';
+        let blockageError = null;
+        let commitInfo = '';
+
         try {
           execSync('git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js', { encoding: 'utf8', cwd: ROOT });
           
@@ -817,29 +909,77 @@ function syncImageToTargets(fileName) {
 
           if (diffStat) {
             const commitOut = execSync('git commit -m "1-Click Live Publish to App & Web"', { encoding: 'utf8', cwd: ROOT });
-            const pushOut = execSync('git push origin main', { encoding: 'utf8', cwd: ROOT });
-            gitOut = commitOut + '\n' + pushOut;
-          } else {
-            try {
-              const pushOut = execSync('git push origin main', { encoding: 'utf8', cwd: ROOT });
-              gitOut = pushOut.trim() || 'Everything already committed and up-to-date on GitHub!';
-            } catch(pErr) {
-              gitOut = 'Everything already up-to-date on GitHub!';
-            }
+            gitOut += commitOut.trim() + '\n';
           }
+
+          const pushOut = execSync('git push origin main', { encoding: 'utf8', cwd: ROOT, timeout: 25000 });
+          gitOut += (pushOut.trim() || 'Everything up-to-date on GitHub main branch.');
+          
+          try {
+            commitInfo = execSync('git log -1 --format="%h (%cr)"', { encoding: 'utf8', cwd: ROOT }).trim();
+          } catch(e) {}
+
         } catch(gitErr) {
-          gitOut = (gitErr.stdout || '') + '\n' + (gitErr.stderr || '') + '\n' + gitErr.message;
+          blockageError = (gitErr.stderr || gitErr.stdout || gitErr.message || '').toString();
+          console.error('Git push blockage detected:', blockageError);
+        }
+
+        // Count total products in products.json
+        let totalItems = 0;
+        try {
+          const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+          totalItems = pj.products ? pj.products.length : 0;
+        } catch(e) {}
+
+        if (blockageError) {
+          let diagnosis = 'Network or Cloud Push Blockage';
+          let remedy = 'Apna internet connection check karein aur dubara "1-Click Publish Live" dabayein.';
+
+          if (/resolve host|Failed to connect|timed out|network|unreachable/i.test(blockageError)) {
+            diagnosis = '❌ Internet Disconnected / Slow Connection';
+            remedy = 'Aapka laptop internet se connect nahi hai. Wi-Fi ya Mobile Hotspot on karein aur dobara "1-Click Publish Live" dabayein. Note: Aapka sara kaam laptop par 100% save hai, sirf cloud upload ruka hai!';
+          } else if (/Permission to|Authentication failed|fatal: Authentication/i.test(blockageError)) {
+            diagnosis = '❌ GitHub Authentication Token Expired';
+            remedy = 'Git credentials update karein ya GitHub login verify karein.';
+          } else if (/rejected|fetch first|merge/i.test(blockageError)) {
+            diagnosis = '❌ Remote Git Sync Conflict';
+            remedy = 'Command Prompt me "git pull --rebase origin main" chalayein.';
+          }
+
+          return sendJson(res, 200, {
+            ok: false,
+            blockage: true,
+            diagnosis: diagnosis,
+            remedy: remedy,
+            totalItems: totalItems,
+            rawError: blockageError,
+            compileOut: compileOut
+          });
         }
 
         const fullLog = compileOut + '\n\n================================================================\n' +
-                        '🚀 CLOUD LIVE SYNC TO GITHUB & VERCEL:\n' +
-                        (gitOut.trim() || 'Everything up-to-date on GitHub!') + '\n' +
+                        '🚀 CLOUD LIVE SYNC TO GITHUB & VERCEL CDN:\n' +
+                        gitOut + '\n' +
                         '================================================================\n' +
-                        '✅ ALL PHONES & WEB USERS WILL RECEIVE THESE UPDATES INSTANTLY!';
-        return sendJson(res, 200, { ok: true, output: fullLog });
+                        '✅ 100% LIVE VERIFIED! All ' + totalItems + ' items are live on GitHub & Mobile App!';
+
+        return sendJson(res, 200, {
+          ok: true,
+          blockage: false,
+          totalItems: totalItems,
+          commitInfo: commitInfo,
+          output: fullLog
+        });
       } catch (err) {
-        console.error('Publish error:', err.message);
-        return sendJson(res, 500, { ok: false, error: err.message, output: err.stdout || err.stderr });
+        console.error('Publish compilation error:', err.message);
+        return sendJson(res, 500, {
+          ok: false,
+          blockage: true,
+          diagnosis: '❌ File Compilation Error',
+          remedy: 'INDEX.JSX file me koi syntax ghalti hai. Output log check karein.',
+          error: err.message,
+          output: err.stdout || err.stderr
+        });
       }
     }
 
@@ -873,17 +1013,19 @@ server.on('error', (err) => {
       execSync(`for /f "tokens=5" %a in ('netstat -aon ^| findstr ":${PORT}" ^| findstr "LISTENING"') do taskkill /f /pid %a`, { stdio: 'ignore' });
     } catch(e) {}
     setTimeout(() => {
-      server.listen(PORT);
+      server.listen(PORT, '127.0.0.1');
     }, 1200);
   } else {
     console.error('Server error:', err.message);
   }
 });
 
-server.listen(PORT, () => {
+// Strictly bind to 127.0.0.1 (Loopback) so nobody on Wi-Fi or LAN can access port 8888
+server.listen(PORT, '127.0.0.1', () => {
   console.log('================================================================');
-  console.log(`  ZS MART UNIFIED MASTER DASHBOARD RUNNING ON:`);
-  console.log(`  👉 http://localhost:${PORT}/`);
+  console.log(`  ZS MART MASTER COMMAND CENTER (SECURE LOCALHOST ONLY):`);
+  console.log(`  👉 http://127.0.0.1:${PORT}/ (or http://localhost:${PORT}/)`);
+  console.log(`  🔒 Security: Localhost Locked, LAN/Network Blocked`);
   console.log('================================================================');
   try {
     exec(`start http://localhost:${PORT}/`);

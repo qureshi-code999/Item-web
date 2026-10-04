@@ -868,14 +868,13 @@ function syncImageToTargets(fileName) {
 
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.log('================================================================');
-    console.log(`  ℹ️  Admin Portal already active on http://localhost:${PORT}/`);
-    console.log('  👉 Opening dashboard in your browser...');
-    console.log('================================================================');
+    console.log(`Port ${PORT} was occupied. Freeing port and starting clean server...`);
     try {
-      exec(`start http://localhost:${PORT}/`);
+      execSync(`for /f "tokens=5" %a in ('netstat -aon ^| findstr ":${PORT}" ^| findstr "LISTENING"') do taskkill /f /pid %a`, { stdio: 'ignore' });
     } catch(e) {}
-    process.exit(0);
+    setTimeout(() => {
+      server.listen(PORT);
+    }, 1200);
   } else {
     console.error('Server error:', err.message);
   }

@@ -1527,8 +1527,7 @@ var DEFAULT_CATEGORIES = [{
   priority: 2
 }, {
   id: "shampoo",
-  name: "Shampoo & Conditioners",
-  priority: 1
+  name: "Shampoo & Conditioners"
 }, {
   id: "creams",
   name: "Creams & Lotions & Bleach"

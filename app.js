@@ -1638,7 +1638,7 @@ var PRODUCTS = [{
 }, {
   id: 3,
   name: "7 HERBAL OIL 50ML RS,170",
-  price: 255,
+  price: 155,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   priority: 2

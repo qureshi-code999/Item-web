@@ -75,17 +75,17 @@ targets.forEach(target => {
   console.log(`Compiled and wrote ${target} (${(size / 1024).toFixed(1)} KB)`);
 });
 
-// Clean up any stray backup or temp files (.bak, .tmp, etc.)
+// Clean up any stray backup, temp, or APK binary files (.bak, .tmp, .apk, etc.)
 function cleanStrayFiles(dir) {
   if (!fs.existsSync(dir)) return;
   fs.readdirSync(dir, { withFileTypes: true }).forEach(ent => {
     const full = path.join(dir, ent.name);
     if (ent.isDirectory()) {
       cleanStrayFiles(full);
-    } else if (ent.name.endsWith('.bak') || ent.name.endsWith('.tmp') || ent.name.endsWith('~')) {
+    } else if (ent.name.endsWith('.bak') || ent.name.endsWith('.tmp') || ent.name.endsWith('~') || ent.name.endsWith('.apk')) {
       try {
         fs.unlinkSync(full);
-        console.log(`Removed stray backup file: ${full}`);
+        console.log(`Removed stray file: ${full}`);
       } catch(e) {}
     }
   });
@@ -132,7 +132,12 @@ if (fs.existsSync(langSrc)) {
 }
 
 // Sync logo and icon assets to www and android assets
-const logoFiles = ['zs-mart-logo.png', 'zs-mart-logo.jpg', 'zs-groceries-logo.png', 'zs-groceries-logo.jpg', 'zs-traders-logo.png', 'zs-traders-logo.jpg', 'sahil-traders-logo.png'];
+const logoFiles = [
+  'zs-mart-logo.png', 'zs-mart-logo.jpg', 'zs-groceries-logo.png', 'zs-groceries-logo.jpg',
+  'zs-traders-logo.png', 'zs-traders-logo.jpg', 'sahil-traders-logo.png',
+  'brand_sprite.webp', 'brand_coca_cola.webp', 'brand_fanta.webp', 'brand_pepsi.webp',
+  'brand_7up.webp', 'brand_mirinda.webp', 'brand_dew.webp', 'brand_sting.webp', 'brand_pakola.webp'
+];
 syncDirs.forEach(dir => {
   const imagesDestDir = path.join(dir, 'images');
   if (!fs.existsSync(imagesDestDir)) fs.mkdirSync(imagesDestDir, { recursive: true });

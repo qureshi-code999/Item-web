@@ -16,14 +16,18 @@ cd /d "%~dp0"
 call "C:\Program Files\nodejs\node.exe" compile_jsx.js
 
 del /f /q /s "%~dp0www\*.bak" 2>nul
+del /f /q "%~dp0www\*.apk" 2>nul
 del /f /q /s "%~dp0android\app\src\main\assets\public\*.bak" 2>nul
+del /f /q "%~dp0android\app\src\main\assets\public\*.apk" 2>nul
 
 echo.
 echo  [2/4] Syncing Capacitor to Android...
 call "C:\Program Files\nodejs\npx.cmd" cap sync android
 
 del /f /q /s "%~dp0www\*.bak" 2>nul
+del /f /q "%~dp0www\*.apk" 2>nul
 del /f /q /s "%~dp0android\app\src\main\assets\public\*.bak" 2>nul
+del /f /q "%~dp0android\app\src\main\assets\public\*.apk" 2>nul
 del /f /q /s "%~dp0android\app\build\intermediates\assets\debug\*.bak" 2>nul
 
 echo.

@@ -723,7 +723,8 @@ function syncImageToTargets(fileName) {
         // Automatically purge jsDelivr cache so new picture appears on phones immediately
         try {
           const https = require('https');
-          https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${id}.webp`, () => {});
+          const purgeReq = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${id}.webp`, () => {});
+          purgeReq.on('error', () => {});
         } catch(e) {}
       }
 
@@ -1409,3 +1410,12 @@ server.listen(PORT, '127.0.0.1', () => {
   setTimeout(syncCloudOrders, 2500);
   setInterval(syncCloudOrders, 20000);
 });
+
+process.on('uncaughtException', (err) => {
+  console.error('[UNCAUGHT EXCEPTION]', err ? (err.stack || err.message || err) : 'Unknown error');
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[UNHANDLED REJECTION]', reason);
+});
+

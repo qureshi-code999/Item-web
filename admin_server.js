@@ -660,7 +660,7 @@ function syncImageToTargets(fileName) {
         updatedItemStr = updatedItemStr.replace(/name:\s*"[^"]*"/, `name: "${body.name.trim().replace(/"/g, '\\"')}"`);
       }
       if (body.price !== undefined) {
-        updatedItemStr = updatedItemStr.replace(/price:\s*\d+/, `price: ${Number(body.price)}`);
+        updatedItemStr = updatedItemStr.replace(/price:\s*[\d.]+/, `price: ${Number(body.price)}`);
       }
       if (body.categoryId) {
         updatedItemStr = updatedItemStr.replace(/categoryId:\s*"[^"]*"/, `categoryId: "${body.categoryId.trim()}"`);
@@ -719,6 +719,12 @@ function syncImageToTargets(fileName) {
         } catch(e) {}
 
         syncImageToTargets(`${id}.${imgExt}`);
+
+        // Automatically purge jsDelivr cache so new picture appears on phones immediately
+        try {
+          const https = require('https');
+          https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${id}.webp`, () => {});
+        } catch(e) {}
       }
 
       delete require.cache[require.resolve('./export_products.js')];

@@ -881,10 +881,11 @@ function getImgUrl(imgPath) {
   }
   // WebP → jsDelivr CDN (GitHub backed, global fast CDN, ~20-40KB per image)
   // PNG  → Vercel CDN as fallback (300KB+ per image, slower)
+  const buster = typeof window !== 'undefined' && window.__IMG_CACHE_BUSTER__ || typeof localStorage !== 'undefined' && localStorage.getItem('zs_img_cache_buster') || '20261010_fresh';
   if (imgPath.match(/\.webp$/i)) {
-    return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/${imgPath}?v=20261010c`;
+    return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/${imgPath}?v=${buster}`;
   }
-  return `https://sahiltraders.vercel.app/${imgPath}`;
+  return `https://sahiltraders.vercel.app/${imgPath}?v=${buster}`;
 }
 function translate(dictionary, key, params = {}) {
   let value = getTranslationValue(dictionary, key);
@@ -12225,6 +12226,13 @@ function SahilTraders() {
         try {
           localStorage.setItem("zs_groceries_products_cache", JSON.stringify(freshProducts));
         } catch (e) {}
+        if (loadedData.updatedAt) {
+          const ts = new Date(loadedData.updatedAt).getTime() || Date.now();
+          window.__IMG_CACHE_BUSTER__ = ts;
+          try {
+            localStorage.setItem('zs_img_cache_buster', String(ts));
+          } catch (e) {}
+        }
         if (loadedData.categories && Array.isArray(loadedData.categories) && loadedData.categories.length > 0) {
           window.CATEGORIES = loadedData.categories;
           try {

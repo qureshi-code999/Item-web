@@ -133,11 +133,14 @@ function getTranslationValue(dictionary, key) {
     function dispatchOrderToBackend(orderRecord) {
       if (!orderRecord) return;
       try {
+        const bodyStr = JSON.stringify(orderRecord);
+
         // 1. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
         fetch('/api/customer-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderRecord)
+          body: bodyStr,
+          keepalive: true
         }).catch(() => {});
 
         // 2. Global Cloud Relay Broadcast (Guarantees delivery from ANY mobile carrier / network globally)
@@ -148,7 +151,8 @@ function getTranslationValue(dictionary, key) {
             'Priority': 'default',
             'Tags': 'shopping_cart'
           },
-          body: JSON.stringify(orderRecord)
+          body: bodyStr,
+          keepalive: true
         }).catch(() => {});
       } catch(e) {}
     }
@@ -9033,13 +9037,14 @@ export default function SahilTraders() {
             };
           })
         };
+        // Dispatch order to server & cloud relay BEFORE opening WhatsApp
+        dispatchOrderToBackend(orderRecord);
         try {
           launchWhatsApp(getStoreSettings().whatsapp, msg);
         } catch (err) {}
         if (typeof saveOrderHistory === 'function') {
           saveOrderHistory(orderRecord);
         }
-        dispatchOrderToBackend(orderRecord);
         try {
           localStorage.setItem('zs_mart_customer_profile', JSON.stringify({
             name: name.trim(),

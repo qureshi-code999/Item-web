@@ -238,8 +238,42 @@ function calculateOrderProfit(order, rates, productsMap) {
   const grandTotal = Number(order.grandTotal) || (totalSale + deliveryFee);
   const profitMarginPct = totalSale > 0 ? Math.round((totalProfit / totalSale) * 1000) / 10 : 0;
 
+  const customerName = order.customerName || order.customer?.name || 'Online Customer';
+  const customerPhone = order.customerPhone || order.customer?.phone || '';
+  const customerAddress = order.customerAddress || order.customer?.address || '';
+  const source = order.source || order.channel || (order.isParchi ? 'parchi' : 'whatsapp');
+
+  // Robust local date & time resolution
+  let orderDate = order.date;
+  let orderTime = order.time;
+  if (!orderDate) {
+    if (order.id && /^\d{8}-/.test(String(order.id))) {
+      const idStr = String(order.id);
+      orderDate = `${idStr.slice(0,4)}-${idStr.slice(4,6)}-${idStr.slice(6,8)}`;
+      if (!orderTime && idStr.length >= 15) {
+        orderTime = `${idStr.slice(9,11)}:${idStr.slice(11,13)}`;
+      }
+    } else {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      orderDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    }
+  }
+  if (!orderTime) {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    orderTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  }
+
   return {
     ...order,
+    customerName: customerName,
+    customerPhone: customerPhone,
+    customerAddress: customerAddress,
+    source: source,
+    channel: source,
+    date: orderDate,
+    time: orderTime,
     items: processedItems,
     totalSale: totalSale,
     totalCost: totalCost,

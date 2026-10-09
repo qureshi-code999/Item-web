@@ -10,6 +10,147 @@
   ],
   "orders": [
     {
+      "id": "TEST-1791580262590",
+      "customerName": "Test Customer",
+      "items": [
+        {
+          "id": 1281,
+          "name": "Sprite 300ml",
+          "qty": 1,
+          "sellPrice": 75,
+          "purchasePrice": 65,
+          "hasPurchaseRate": true,
+          "lineTotal": 75,
+          "lineCost": 65,
+          "lineProfit": 10,
+          "marginPct": 13.3,
+          "variant": null
+        }
+      ],
+      "totalSale": 75,
+      "totalCost": 65,
+      "totalProfit": 10,
+      "deliveryFee": 0,
+      "grandTotal": 75,
+      "profitMarginPct": 13.3,
+      "missingCostCount": 0,
+      "allCostsSet": true,
+      "customerPhone": "",
+      "customerAddress": "",
+      "source": "whatsapp",
+      "channel": "whatsapp",
+      "date": "2026-10-10",
+      "time": "12:00"
+    },
+    {
+      "id": "20261010-014813",
+      "dateText": "10-Oct-2026, 01:48 am",
+      "customer": {
+        "name": "Sahil",
+        "phone": "03368945775",
+        "address": "Nsbsj",
+        "location": "https://maps.google.com/?q=24.8132996,67.1098226"
+      },
+      "deliveryMethod": "home",
+      "subtotal": 3069,
+      "totalSavings": 0,
+      "deliveryFee": 0,
+      "grandTotal": 3069,
+      "items": [
+        {
+          "id": 249,
+          "name": "CONDITIONER LOREAL (BLACK) RS,550",
+          "qty": 1,
+          "sellPrice": 499,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 499,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        },
+        {
+          "id": 256,
+          "name": "CONDITIONER MECLAY (BLACK)",
+          "qty": 1,
+          "sellPrice": 370,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 370,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        },
+        {
+          "id": 265,
+          "name": "CONDITIONER SUNSILK (COMPANY) BLACK RS,530",
+          "qty": 1,
+          "sellPrice": 490,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 490,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        },
+        {
+          "id": 263,
+          "name": "CONDITIONER MECLAY (WHITE)",
+          "qty": 1,
+          "sellPrice": 370,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 370,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        },
+        {
+          "id": 266,
+          "name": "CONDITIONER TRESEMME (IMP) 175ml KERATIN",
+          "qty": 1,
+          "sellPrice": 500,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 500,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        },
+        {
+          "id": 267,
+          "name": "CONDITIONER TRESEMME 400ml (MIX)",
+          "qty": 1,
+          "sellPrice": 840,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 840,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        }
+      ],
+      "totalSale": 3069,
+      "totalCost": 0,
+      "totalProfit": 0,
+      "profitMarginPct": 0,
+      "missingCostCount": 6,
+      "allCostsSet": false,
+      "customerName": "Sahil",
+      "customerPhone": "03368945775",
+      "customerAddress": "Nsbsj",
+      "source": "whatsapp",
+      "channel": "whatsapp",
+      "date": "2026-10-10",
+      "time": "01:48"
+    },
+    {
       "id": "20261009-190156",
       "dateText": "09-Oct-2026, 07:01 pm",
       "customer": {
@@ -95,7 +236,14 @@
       "totalProfit": 0,
       "profitMarginPct": 0,
       "missingCostCount": 5,
-      "allCostsSet": false
+      "allCostsSet": false,
+      "customerName": "Sahil",
+      "customerPhone": "03368945775",
+      "customerAddress": "Cjxjcjjc",
+      "source": "whatsapp",
+      "channel": "whatsapp",
+      "date": "2026-10-09",
+      "time": "19:01"
     },
     {
       "test": "hello world",
@@ -108,7 +256,14 @@
       "grandTotal": 0,
       "profitMarginPct": 0,
       "missingCostCount": 0,
-      "allCostsSet": true
+      "allCostsSet": true,
+      "customerName": "Online Customer",
+      "customerPhone": "",
+      "customerAddress": "",
+      "source": "whatsapp",
+      "channel": "whatsapp",
+      "date": "2026-10-10",
+      "time": "12:00"
     },
     {
       "id": "ORD-TEST-999",
@@ -136,7 +291,12 @@
       "grandTotal": 440,
       "profitMarginPct": 9.1,
       "missingCostCount": 0,
-      "allCostsSet": true
+      "allCostsSet": true,
+      "customerAddress": "",
+      "source": "whatsapp",
+      "channel": "whatsapp",
+      "date": "2026-10-10",
+      "time": "12:00"
     },
     {
       "id": "ORD-1791120814434",
@@ -152,18 +312,25 @@
           "name": "ALOE VERA GEL TUBE (SMALL) 80ML",
           "qty": 1,
           "sellPrice": 70,
-          "retailPrice": 70,
-          "discount": 0,
           "purchasePrice": 55,
+          "hasPurchaseRate": true,
           "lineTotal": 70,
           "lineCost": 55,
           "lineProfit": 15,
-          "marginPct": 21.428571428571427
+          "marginPct": 21.4,
+          "variant": null
         }
       ],
       "totalSale": 70,
       "totalCost": 55,
-      "totalProfit": 15
+      "totalProfit": 15,
+      "customerAddress": "",
+      "source": "shop",
+      "deliveryFee": 0,
+      "grandTotal": 70,
+      "profitMarginPct": 21.4,
+      "missingCostCount": 0,
+      "allCostsSet": true
     },
     {
       "id": "ORD-1790951055932",
@@ -180,15 +347,24 @@
           "qty": 1,
           "sellPrice": 299,
           "purchasePrice": 254,
+          "hasPurchaseRate": true,
           "lineTotal": 299,
           "lineCost": 254,
           "lineProfit": 45,
-          "marginPct": 15.050167224080269
+          "marginPct": 15.1,
+          "variant": null
         }
       ],
       "totalSale": 299,
       "totalCost": 254,
-      "totalProfit": 45
+      "totalProfit": 45,
+      "customerAddress": "",
+      "source": "shop",
+      "deliveryFee": 0,
+      "grandTotal": 299,
+      "profitMarginPct": 15.1,
+      "missingCostCount": 0,
+      "allCostsSet": true
     }
   ]
 }

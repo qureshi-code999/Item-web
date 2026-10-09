@@ -882,7 +882,7 @@ function getImgUrl(imgPath) {
   // WebP → jsDelivr CDN (GitHub backed, global fast CDN, ~20-40KB per image)
   // PNG  → Vercel CDN as fallback (300KB+ per image, slower)
   if (imgPath.match(/\.webp$/i)) {
-    return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/${imgPath}`;
+    return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/${imgPath}?v=20261010c`;
   }
   return `https://sahiltraders.vercel.app/${imgPath}`;
 }
@@ -10551,9 +10551,20 @@ function ParchiOrderModal({
         }
       } catch (err) {}
     }
+    const _pNow = new Date();
+    const _pPad = n => String(n).padStart(2, '0');
+    const pDateStr = `${_pNow.getFullYear()}-${_pPad(_pNow.getMonth() + 1)}-${_pPad(_pNow.getDate())}`;
+    const pTimeStr = `${_pPad(_pNow.getHours())}:${_pPad(_pNow.getMinutes())}`;
     const orderRecord = {
       id: orderId,
+      date: pDateStr,
+      time: pTimeStr,
       dateText: dateText,
+      customerName: name.trim(),
+      customerPhone: phone.trim(),
+      customerAddress: deliveryMethod === 'home' ? address.trim() : 'ZS Mart Store Pickup Karachi',
+      source: 'parchi',
+      channel: 'whatsapp_parchi',
       deliveryMethod: deliveryMethod,
       customer: {
         name: name.trim(),
@@ -12417,9 +12428,15 @@ function SahilTraders() {
         setSearchTerm('');
         return;
       }
+      // 10.5. If inside a Beverage Brand showcase (e.g. Coca-Cola, Pepsi, Sprite), return to Beverage Brand Hub first
+      if (selectedBrand && selectedBrand !== 'all') {
+        setSelectedBrand('all');
+        return;
+      }
       // 11. If inside a category (viewing products), go back to Category Home
       if (selectedCategory || activeCategory && activeCategory !== 'all') {
         setSelectedCategory(null);
+        setSelectedBrand('all');
         setActiveCategory('all');
         return;
       }
@@ -12438,7 +12455,7 @@ function SahilTraders() {
         backToastTimerRef.current = setTimeout(() => setBackToastVisible(false), 2000);
       }
     };
-  }, [exitModalOpen, sortModalOpen, filterMenuOpen, selectedProduct, checkoutOpen, cartOpen, parchiModalOpen, orderHistoryOpen, wishlistOpen, mobileMenuOpen, accountDrawerOpen, activeTab, searchTerm, selectedCategory, activeCategory, language]);
+  }, [exitModalOpen, sortModalOpen, filterMenuOpen, selectedProduct, checkoutOpen, cartOpen, parchiModalOpen, orderHistoryOpen, wishlistOpen, mobileMenuOpen, accountDrawerOpen, activeTab, searchTerm, selectedCategory, selectedBrand, activeCategory, language]);
   useEffect(() => {
     backStateRef.current = {
       checkoutOpen,
@@ -15248,49 +15265,6 @@ function SahilTraders() {
       marginBottom: 24
     }
   }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-      borderRadius: 16,
-      padding: '12px 16px',
-      color: '#ffffff',
-      marginBottom: 14,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 10,
-      boxShadow: '0 4px 14px rgba(0,0,0,0.08)'
-    }
-  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 15,
-      fontWeight: 900,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83E\uDD64"), /*#__PURE__*/React.createElement("span", null, "Cold Drinks & Beverages")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: '#94a3b8',
-      marginTop: 2
-    }
-  }, "Pehle brand select karein, phir uske tamam sizes aur flavors dekhein")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => {
-      triggerHaptic('light');
-      setSelectedBrand('__browse_all__');
-    },
-    style: {
-      background: 'rgba(255,255,255,0.12)',
-      border: '1px solid rgba(255,255,255,0.25)',
-      color: '#ffffff',
-      borderRadius: 10,
-      padding: '6px 12px',
-      fontSize: 11,
-      fontWeight: 800,
-      cursor: 'pointer',
-      whiteSpace: 'nowrap'
-    }
-  }, "View All Items (", baseFiltered.length, ")")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))',
@@ -19745,8 +19719,13 @@ function CheckoutModal({
     })}`].join('\n');
     const waUrl = buildWhatsAppUrl(getStoreSettings().whatsapp, msg);
     const orderDate = new Date();
+    const _pad = n => String(n).padStart(2, '0');
+    const localDateStr = `${orderDate.getFullYear()}-${_pad(orderDate.getMonth() + 1)}-${_pad(orderDate.getDate())}`;
+    const localTimeStr = `${_pad(orderDate.getHours())}:${_pad(orderDate.getMinutes())}`;
     const orderRecord = {
-      id: `${orderDate.getFullYear()}${String(orderDate.getMonth() + 1).padStart(2, '0')}${String(orderDate.getDate()).padStart(2, '0')}-${String(orderDate.getHours()).padStart(2, '0')}${String(orderDate.getMinutes()).padStart(2, '0')}${String(orderDate.getSeconds()).padStart(2, '0')}`,
+      id: `${orderDate.getFullYear()}${_pad(orderDate.getMonth() + 1)}${_pad(orderDate.getDate())}-${_pad(orderDate.getHours())}${_pad(orderDate.getMinutes())}${_pad(orderDate.getSeconds())}`,
+      date: localDateStr,
+      time: localTimeStr,
       dateText: orderDate.toLocaleDateString('en-PK', {
         day: '2-digit',
         month: 'short',
@@ -19754,12 +19733,17 @@ function CheckoutModal({
         hour: '2-digit',
         minute: '2-digit'
       }),
+      customerName: name.trim(),
+      customerPhone: phone.trim(),
+      customerAddress: address.trim(),
       customer: {
         name: name.trim(),
         phone: phone.trim(),
         address: address.trim(),
         location: location ? location.mapUrl : null
       },
+      channel: 'whatsapp',
+      source: 'whatsapp',
       deliveryMethod,
       subtotal: cartTotal,
       totalSavings: totalBulkSavings,

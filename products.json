@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-09T12:28:33.584Z",
-  "total": 1049,
+  "updatedAt": "2026-10-09T13:23:39.933Z",
+  "total": 1066,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -1019,7 +1019,24 @@
     "1277": "webp",
     "1278": "webp",
     "1279": "webp",
-    "1280": "webp"
+    "1280": "webp",
+    "1281": "webp",
+    "1282": "webp",
+    "1283": "webp",
+    "1284": "webp",
+    "1285": "webp",
+    "1286": "webp",
+    "1287": "webp",
+    "1288": "webp",
+    "1289": "webp",
+    "1290": "webp",
+    "1291": "webp",
+    "1292": "webp",
+    "1293": "webp",
+    "1294": "webp",
+    "1295": "webp",
+    "1296": "webp",
+    "1297": "webp"
   },
   "variants": {
     "183": {
@@ -1167,6 +1184,10 @@
     {
       "id": "groceryandkaryana",
       "name": "Grocery & Karyana"
+    },
+    {
+      "id": "beverages",
+      "name": "Beverages (Cold Drinks, Juices & Water)"
     }
   ],
   "products": [
@@ -9710,6 +9731,193 @@
       "hasImage": true,
       "gradient": null,
       "initial": "T"
+    },
+    {
+      "id": 1281,
+      "name": "SPRITE 300ML BOTTLE",
+      "price": 75,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Sprite",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S"
+    },
+    {
+      "id": 1282,
+      "name": "SPRITE 500ML BOTTLE",
+      "price": 105,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Sprite",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S"
+    },
+    {
+      "id": 1283,
+      "name": "SPRITE 1 LITRE BOTTLE",
+      "price": 149,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Sprite",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S"
+    },
+    {
+      "id": 1284,
+      "name": "SPRITE 1.5 LITRE BOTTLE",
+      "price": 199,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Sprite",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S"
+    },
+    {
+      "id": 1285,
+      "name": "SPRITE 2.25L JUMBO BOTTLE",
+      "price": 249,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Sprite",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S"
+    },
+    {
+      "id": 1286,
+      "name": "SPRITE 250ML CAN",
+      "price": 109,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Sprite",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S"
+    },
+    {
+      "id": 1287,
+      "name": "COCA COLA 300ML BOTTLE",
+      "price": 75,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Coca-Cola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "C"
+    },
+    {
+      "id": 1288,
+      "name": "COCA COLA 500ML BOTTLE",
+      "price": 105,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Coca-Cola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "C"
+    },
+    {
+      "id": 1289,
+      "name": "COCA COLA 1 LITRE BOTTLE",
+      "price": 149,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Coca-Cola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "C"
+    },
+    {
+      "id": 1290,
+      "name": "COCA COLA 1.5 LITRE BOTTLE",
+      "price": 199,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Coca-Cola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "C"
+    },
+    {
+      "id": 1291,
+      "name": "COCA COLA 2.25L JUMBO BOTTLE",
+      "price": 249,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Coca-Cola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "C"
+    },
+    {
+      "id": 1292,
+      "name": "COCA COLA 250ML CAN",
+      "price": 109,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Coca-Cola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "C"
+    },
+    {
+      "id": 1293,
+      "name": "FANTA 500ML BOTTLE",
+      "price": 105,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Fanta",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "F"
+    },
+    {
+      "id": 1294,
+      "name": "FANTA 1 LITRE BOTTLE",
+      "price": 149,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Fanta",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "F"
+    },
+    {
+      "id": 1295,
+      "name": "FANTA 1.5 LITRE BOTTLE",
+      "price": 199,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Fanta",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "F"
+    },
+    {
+      "id": 1296,
+      "name": "FANTA 2.25L JUMBO BOTTLE",
+      "price": 249,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Fanta",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "F"
+    },
+    {
+      "id": 1297,
+      "name": "FANTA 250ML CAN",
+      "price": 109,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Fanta",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "F"
     }
   ]
 }

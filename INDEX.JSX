@@ -1332,7 +1332,8 @@ function getTranslationValue(dictionary, key) {
       { id: "fragnances",   name: "Fragnances & Roll on" },
       { id: "toothpasteandbrush", name: "Dental Cares" },
       { id: "facewash",     name: "Face Wash & Body Washes" },
-      { id: "groceryandkaryana", name: "Grocery & Karyana" }
+      { id: "groceryandkaryana", name: "Grocery & Karyana" },
+      { id: "beverages",    name: "Beverages (Cold Drinks, Juices & Water)" }
     ];
     function getGlobalCategories(productsList) {
       // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories
@@ -2447,6 +2448,23 @@ function getTranslationValue(dictionary, key) {
       { id: 1279, name: "TIGER MOSTIK LOTION 100ML RS,180", price: 151, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "T" },
     
       { id: 1280, name: "TIGER INSECT KILLER POWDER RS,100", price: 75, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "T" },
+      { id: 1281, name: "SPRITE 300ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
+      { id: 1282, name: "SPRITE 500ML BOTTLE", price: 105, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
+      { id: 1283, name: "SPRITE 1 LITRE BOTTLE", price: 149, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
+      { id: 1284, name: "SPRITE 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
+      { id: 1285, name: "SPRITE 2.25L JUMBO BOTTLE", price: 249, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "S" },
+      { id: 1286, name: "SPRITE 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "S" },
+      { id: 1287, name: "COCA COLA 300ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "C" },
+      { id: 1288, name: "COCA COLA 500ML BOTTLE", price: 105, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "C" },
+      { id: 1289, name: "COCA COLA 1 LITRE BOTTLE", price: 149, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
+      { id: 1290, name: "COCA COLA 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "C" },
+      { id: 1291, name: "COCA COLA 2.25L JUMBO BOTTLE", price: 249, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
+      { id: 1292, name: "COCA COLA 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "C" },
+      { id: 1293, name: "FANTA 500ML BOTTLE", price: 105, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "F" },
+      { id: 1294, name: "FANTA 1 LITRE BOTTLE", price: 149, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "F" },
+      { id: 1295, name: "FANTA 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "F" },
+      { id: 1296, name: "FANTA 2.25L JUMBO BOTTLE", price: 249, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
+      { id: 1297, name: "FANTA 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "F" },
     ];
     var PAGE_SIZE = 10;
     const RECENT_LIMIT = 15;
@@ -2454,7 +2472,7 @@ function getTranslationValue(dictionary, key) {
       "SOAP","SOAPS","SHAMPOO","CONDITIONER","CREAM","LOTION","POWDER","SPRAY","BODY","FACE","WASH","TOOTH","PASTE","BRUSH","RAZOR","BLADE","OIL","HAIR","COLOUR","COLOR","BALL","PEN","TOY","TAPE","CELL","LOCK","CANDLE","PAD","WIPES","PERFUME","PERFUMES","DEO","DEODORANT","TALCUM","ROOM","FRESHNER","FRESHENER","ROLL","ON","AIR","LARGE","MEDIUM","SMALL","SACHET","PACK","PCS","PIECE","SIZE","FULL","HALF","MIX","ALL","GOOD","QUALITY","ORIGINAL","NON","IMP","PK","RS","RP","ML","G","GM","KG","INCH","BLACK","WHITE","BLUE","GREEN","RED","PINK","YELLOW","GOLDEN","BROWN","ORANGE","PURPLE","DARK","LIGHT"
     ]);
     const BRAND_PHRASES = [
-      "BIO AMLA","BLACK ROSE","AL RASHIEED","JUST FOR MEN","ONE MAN SHOW","WHITE ROSE","SOFT CREME","SOFT CREAM","SKIN WHITE","CHI CHI","7 HERBAL","BODY SHOP"
+      "BIO AMLA","BLACK ROSE","AL RASHIEED","JUST FOR MEN","ONE MAN SHOW","WHITE ROSE","SOFT CREME","SOFT CREAM","SKIN WHITE","CHI CHI","7 HERBAL","BODY SHOP","COCA COLA"
     ];
     function getProductBrand(name) {
       const clean = String(name || "")
@@ -2509,7 +2527,11 @@ function getTranslationValue(dictionary, key) {
       'daldaghee': 'dalda ghee', 'dalda': 'dalda oil ghee',
       'lifeboy': 'lifebuoy', 'fairlovely': 'fair lovely', 'harpicpower': 'harpic',
       'headshoulder': 'head shoulders', 'headandshoulder': 'head shoulders',
-      'safegaurd': 'safeguard', 'sensodine': 'sensodyne', 'vasline': 'vaseline'
+      'safegaurd': 'safeguard', 'sensodine': 'sensodyne', 'vasline': 'vaseline',
+      'pepsi': 'cold drink beverage', 'coke': 'coca cola cold drink beverage',
+      'cocacola': 'coca cola cold drink beverage', 'sprite': 'cold drink beverage',
+      'fanta': 'cold drink beverage', 'colddrink': 'cold drink beverage soda',
+      'botal': 'cold drink bottle beverage', 'thanda': 'cold drink beverage'
     };
 
     function levenshteinFast(s1, s2) {

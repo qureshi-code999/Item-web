@@ -381,19 +381,21 @@
       color: #ffffff;
     }
 
-    /* ── DSR 2-Section Sub-Navigation ── */
+    /* ── DSR Modern 5-Section Sub-Navigation ── */
     .dsr-subnav-bar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       background: #f1f5f9;
-      padding: 5px;
+      padding: 6px;
       border-radius: 12px;
       margin-bottom: 20px;
       border: 1px solid var(--card-border);
+      flex-wrap: wrap;
     }
     .dsr-subnav-tab {
       flex: 1;
-      padding: 10px 16px;
+      min-width: 140px;
+      padding: 10px 14px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 800;
@@ -405,17 +407,126 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
+      text-align: center;
     }
     .dsr-subnav-tab:hover {
       color: #0f172a;
-      background: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.6);
     }
     .dsr-subnav-tab.active {
       background: #ffffff;
       color: #0f172a;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       border: 1px solid #e2e8f0;
+    }
+    .dsr-subnav-badge {
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .dsr-subnav-tab.active .dsr-subnav-badge {
+      background: #0284c7;
+      color: #ffffff;
+    }
+
+    /* Single-Line Order Table & Badges */
+    .order-row-single {
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    .order-row-single:hover {
+      background-color: #f8fafc !important;
+    }
+    .badge-channel-wa {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-channel-pos {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-channel-web {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-channel-parchi {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-cost-complete {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .badge-cost-missing {
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fcd34d;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .order-inline-rate-input {
+      width: 75px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1.5px solid #cbd5e1;
+      font-weight: 700;
+      font-size: 12px;
+      text-align: right;
+    }
+    .order-inline-rate-input.missing {
+      border-color: #f59e0b;
+      background: #fffbeb;
     }
 
     /* ── DSR Period Filter Buttons (Screenshot 3: Professional English) ── */
@@ -1101,23 +1212,168 @@
       </div>
     </div>
 
-    <!-- TAB 3: DSR & DAILY SALES (Divided into 2 Clean Logical Sub-Sections) -->
+    <!-- TAB 3: DSR & DAILY SALES (Orders & Live Profit Breakdown) -->
     <div id="tab-dsr" class="tab-panel">
-      <!-- DSR 3-Section Sub-Navigation -->
+      <!-- DSR TOP SUMMARY & LIVE CATALOG PURCHASE RATES COVERAGE STRIP -->
+      <div class="panel-card" style="padding: 14px 20px; margin-bottom: 16px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1.5px solid #cbd5e1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <!-- Left: Store Profit Engine Title -->
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 10px rgba(15,23,42,0.15);">
+              💰
+            </div>
+            <div>
+              <div style="font-size: 17px; font-weight: 900; color: #0f172a; line-height: 1.2;">Live Orders &amp; Profit Engine</div>
+              <div style="font-size: 12px; color: #64748b;">Automated profit calculation (Sell Rate − Purchase Cost) for WhatsApp, Web &amp; POS orders</div>
+            </div>
+          </div>
+
+          <!-- Right: Catalog Purchase Rates Coverage Badge & Action Buttons -->
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <!-- Purchase Rates Coverage Pill -->
+            <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 6px 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+              <span style="font-size: 16px;">📦</span>
+              <div>
+                <div style="font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Rates Coverage</div>
+                <div style="font-size: 13px; font-weight: 800; color: #0f172a;">
+                  <span id="coverage-rated-count" style="color: #059669;">0</span> / <span id="coverage-total-count">0</span> items
+                  <span id="coverage-pct-badge" style="background: #dcfce7; color: #166534; font-size: 11px; padding: 2px 7px; border-radius: 999px; margin-left: 4px; font-weight: 800;">0%</span>
+                </div>
+              </div>
+              <div id="coverage-missing-indicator" style="font-size: 11px; font-weight: 800; color: #d97706; margin-left: 2px;">
+                (0 missing)
+              </div>
+            </div>
+
+            <!-- Review Missing Rates Button -->
+            <button type="button" class="btn btn-outline" onclick="openMissingRatesModal()" style="font-size: 12px; font-weight: 700; padding: 8px 14px; background: #ffffff; border-color: #cbd5e1; color: #334155; display: inline-flex; align-items: center; gap: 6px;" title="Set missing purchase rates for catalog products">
+              <span>⚙️</span> Review Missing Rates (<span id="btn-missing-count">0</span>)
+            </button>
+
+            <!-- Sync Cloud WhatsApp Orders Button -->
+            <button type="button" class="btn btn-light" onclick="syncOrdersNow()" id="btn-sync-cloud" style="font-size: 12px; font-weight: 700; padding: 8px 14px; background: #0284c7; color: #ffffff; border: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(2,132,199,0.25);" title="Check cloud relay for incoming WhatsApp customer orders">
+              <span id="sync-icon">🔄</span> Check WhatsApp Orders
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modern 5-Section Sub-Navigation -->
       <div class="dsr-subnav-bar">
-        <button type="button" class="dsr-subnav-tab active" id="btn-subnav-pos" onclick="switchDsrSubSection('pos')">
-          🛒 1. Record Sale Order (POS Entry)
+        <button type="button" class="dsr-subnav-tab active" id="btn-subnav-orders" onclick="switchDsrSubSection('orders')">
+          📦 1. All Orders &amp; WhatsApp Sync <span class="dsr-subnav-badge" id="dsr-orders-badge">0</span>
+        </button>
+        <button type="button" class="dsr-subnav-tab" id="btn-subnav-pos" onclick="switchDsrSubSection('pos')">
+          🧾 2. Create Bill (POS Counter)
+        </button>
+        <button type="button" class="dsr-subnav-tab" id="btn-subnav-paste" onclick="switchDsrSubSection('paste')">
+          📋 3. Paste WhatsApp Text
         </button>
         <button type="button" class="dsr-subnav-tab" id="btn-subnav-analytics" onclick="switchDsrSubSection('analytics')">
-          📊 2. Sales &amp; Profit Reports
+          📊 4. Financial &amp; Profit Reports
         </button>
         <button type="button" class="dsr-subnav-tab" id="btn-subnav-expenses" onclick="switchDsrSubSection('expenses')">
-          🧾 3. Shop Expenses &amp; Net Profit
+          💸 5. Shop Expenses
         </button>
       </div>
 
-      <!-- SECTION 1: POS / RECORD DAILY SALE ORDER -->
-      <div id="dsr-sub-pos" class="dsr-sub-section">
+      <!-- SECTION 1: ALL ORDERS & WHATSAPP SYNC (SINGLE-LINE TABLE) -->
+      <div id="dsr-sub-orders" class="dsr-sub-section" style="display: block;">
+        <div class="panel-card" style="padding: 18px 20px;">
+          <!-- Top Row: Section Heading & Quick Action Buttons -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div class="panel-card-title" style="margin-bottom: 2px;">📦 Customer Orders &amp; Live Profit Breakdown</div>
+              <div style="font-size: 12px; color: var(--text-muted);">
+                Orders from WhatsApp &amp; customer app automatically sync here. Click any order row to view full items, bill &amp; live profit.
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-emerald" onclick="switchDsrSubSection('pos')" style="font-size: 12px; font-weight: 800; padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                <span>+</span> Create New Bill (POS)
+              </button>
+              <button type="button" class="btn btn-gold" onclick="switchDsrSubSection('paste')" style="font-size: 12px; font-weight: 800; padding: 8px 14px; display: inline-flex; align-items: center; gap: 6px;">
+                <span>📋</span> Paste WhatsApp Order
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter Strip: Periods + Search + Source + Cost Filter -->
+          <div class="dsr-period-strip" style="margin-bottom: 14px; padding: 10px 14px;">
+            <!-- Date Filter Pills -->
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="dsr-orders-period-buttons">
+              <button type="button" class="dsr-filter-btn active" onclick="setDsrPeriod('today', this)">📅 Today</button>
+              <button type="button" class="dsr-filter-btn" onclick="setDsrPeriod('yesterday', this)">📅 Yesterday</button>
+              <button type="button" class="dsr-filter-btn" onclick="setDsrPeriod('week', this)">📅 Last 7 Days</button>
+              <button type="button" class="dsr-filter-btn" onclick="setDsrPeriod('month', this)">📅 This Month</button>
+              <button type="button" class="dsr-filter-btn" onclick="setDsrPeriod('all', this)">📅 All Time</button>
+            </div>
+
+            <!-- Search & Dropdown Filters -->
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <input type="text" id="dsr-orders-search" placeholder="🔍 Search customer, phone, order ID..." 
+                oninput="filterAndRenderDsr()" 
+                style="padding: 6px 12px; font-size: 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; min-width: 220px;">
+
+              <select id="dsr-orders-source-filter" onchange="filterAndRenderDsr()" 
+                style="padding: 6px 10px; font-size: 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 600;">
+                <option value="all">All Sources</option>
+                <option value="whatsapp">💬 WhatsApp Orders</option>
+                <option value="pos">🛒 In-Store / POS Bills</option>
+                <option value="parchi">📄 Parchi Slips</option>
+              </select>
+
+              <select id="dsr-orders-cost-filter" onchange="filterAndRenderDsr()" 
+                style="padding: 6px 10px; font-size: 12px; border-radius: 8px; border: 1.5px solid #cbd5e1; font-weight: 600;">
+                <option value="all">All Profit Status</option>
+                <option value="missing">⚠️ Missing Purchase Cost Only</option>
+                <option value="complete">✅ 100% Complete Profit Only</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Orders Summary Metric Ribbon (Spacious & Clean) -->
+          <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 12.5px;">
+              <span>Showing: <b id="dsr-orders-summary-count" style="color: #0f172a;">0 Orders</b></span>
+              <span style="color: #cbd5e1;">|</span>
+              <span>Total Sales: <b id="dsr-orders-summary-sales" style="color: #0284c7;">Rs. 0</b></span>
+              <span style="color: #cbd5e1;">|</span>
+              <span>Net Profit: <b id="dsr-orders-summary-profit" style="color: #059669;">Rs. 0</b> (<b id="dsr-orders-summary-margin">0%</b>)</span>
+            </div>
+            <div id="dsr-orders-summary-alert" style="font-size: 11.5px; font-weight: 700;">
+              <!-- Dynamic alert -->
+            </div>
+          </div>
+
+          <!-- Single-Line Orders Table -->
+          <div class="table-container" style="max-height: 540px; overflow-y: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 70px;">#</th>
+                  <th>Customer &amp; Channel</th>
+                  <th style="width: 140px;">Date &amp; Time</th>
+                  <th style="width: 130px; text-align: right;">Bill Amount</th>
+                  <th style="width: 150px; text-align: right;">Profit (Rs &amp; %)</th>
+                  <th style="width: 180px; text-align: center;">Purchase Cost Status</th>
+                  <th style="width: 110px; text-align: center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="dsr-orders-singleline-tbody">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                    Loading orders...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: POS / RECORD DAILY SALE ORDER -->
+      <div id="dsr-sub-pos" class="dsr-sub-section" style="display: none;">
         <div class="panel-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
             <div class="panel-card-title" style="margin-bottom: 0;">💵 Record Sale Order (Live Profit &amp; Loss)</div>
@@ -1262,7 +1518,112 @@
         </div>
       </div>
 
-      <!-- SECTION 2: REPORTS & ANALYTICS PORTAL -->
+      <!-- SECTION 3: PASTE WHATSAPP ORDER (INSTANT AUTO-BILL) -->
+      <div id="dsr-sub-paste" class="dsr-sub-section" style="display: none;">
+        <div class="panel-card" style="padding: 18px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <div class="panel-card-title" style="margin-bottom: 2px;">📋 1-Click WhatsApp Order Paste &amp; Auto-Bill</div>
+              <div style="font-size: 12px; color: var(--text-muted);">
+                Paste the customer's raw WhatsApp text or order message here. Products, quantities &amp; purchase costs are auto-detected instantly!
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline" onclick="switchDsrSubSection('orders')" style="font-size: 12px; font-weight: 700;">
+              ← Back to Orders
+            </button>
+          </div>
+
+          <div class="form-grid" style="margin-bottom: 14px;">
+            <div class="form-group full">
+              <label>Paste WhatsApp Text / Message</label>
+              <textarea id="dsr-paste-input" rows="6" placeholder="Paste customer message here... Example:&#10;Customer: Uzair Bhai 03368945775&#10;2 surf excel 500g&#10;1 dalda oil 1 litre&#10;3 lux soap" style="width: 100%; font-family: monospace; font-size: 12.5px; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px;"></textarea>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="btn btn-gold" onclick="parseWhatsAppOrderText()" style="font-weight: 800; padding: 9px 18px; font-size: 13px;">
+              ⚡ Parse &amp; Auto-Match Products
+            </button>
+            <button type="button" class="btn btn-light" onclick="document.getElementById('dsr-paste-input').value = ''" style="font-size: 12px;">
+              Clear Text
+            </button>
+          </div>
+
+          <!-- Parsed Order Preview Container -->
+          <div id="dsr-paste-preview" style="display: none; margin-top: 20px; border-top: 1.5px solid #e2e8f0; padding-top: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <div style="font-weight: 800; font-size: 14px; color: #0f172a;">
+                ✅ Parsed Order Preview (<span id="paste-preview-count">0</span> Items Matched)
+              </div>
+              <div style="font-size: 12px; color: var(--emerald); font-weight: 700;">
+                Purchase rates &amp; profits matched from store catalog
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-bottom: 14px;">
+              <div class="form-group">
+                <label>Customer Name</label>
+                <input type="text" id="paste-customer-name" placeholder="Customer Name">
+              </div>
+              <div class="form-group">
+                <label>Phone / WhatsApp</label>
+                <input type="tel" id="paste-customer-phone" placeholder="Phone Number">
+              </div>
+              <div class="form-group">
+                <label>Payment Method</label>
+                <select id="paste-customer-payment">
+                  <option value="cash">Cash on Delivery</option>
+                  <option value="online">Online Transfer (JazzCash/Bank)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>Product Name</th>
+                    <th style="width: 80px; text-align: right;">Qty</th>
+                    <th style="width: 100px; text-align: right;">Sell Rate</th>
+                    <th style="width: 110px; text-align: right;">Pur Cost</th>
+                    <th style="width: 110px; text-align: right;">Line Total</th>
+                    <th style="width: 110px; text-align: right;">Profit</th>
+                    <th style="width: 50px; text-align: center;">Del</th>
+                  </tr>
+                </thead>
+                <tbody id="paste-preview-tbody"></tbody>
+              </table>
+            </div>
+
+            <div class="dsr-summary-ribbon" style="margin-top: 14px;">
+              <div>
+                <div class="kpi-label">Total Sale (Bill)</div>
+                <div id="paste-summary-sale" style="font-size: 17px; font-weight: 800; color: #0284c7;">Rs. 0</div>
+              </div>
+              <div>
+                <div class="kpi-label">Total Cost</div>
+                <div id="paste-summary-cost" style="font-size: 17px; font-weight: 800; color: #64748b;">Rs. 0</div>
+              </div>
+              <div>
+                <div class="kpi-label">Total Profit</div>
+                <div id="paste-summary-profit" style="font-size: 18px; font-weight: 900; color: var(--emerald);">Rs. 0</div>
+              </div>
+              <div>
+                <div class="kpi-label">Profit Margin</div>
+                <div id="paste-summary-margin" class="badge-profit-pos" style="font-size: 13px;">0.0%</div>
+              </div>
+              <div style="text-align: right;">
+                <button type="button" class="btn btn-emerald" onclick="saveParsedWhatsAppOrder()" style="font-weight: 800; padding: 10px 22px; font-size: 13px;">
+                  💾 Save to Official Orders &amp; Print Bill
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: REPORTS & ANALYTICS PORTAL -->
       <div id="dsr-sub-analytics" class="dsr-sub-section" style="display: none;">
         <!-- Period Filter Bar (Screenshot 3: Clean Professional English) -->
         <div class="panel-card" style="padding: 16px;">
@@ -1947,6 +2308,186 @@
       </div>
       <div style="overflow-y: auto; padding: 20px; background: #f8fafc; flex: 1;" id="customer-bill-scroll-area">
         <div id="customer-bill-paper"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ORDER DETAILS & PROFIT BREAKDOWN MODAL ── -->
+  <div class="modal-backdrop" id="order-details-modal">
+    <div class="modal-card" style="max-width: 840px; width: 95%; max-height: 92vh; display: flex; flex-direction: column;">
+      <div style="background: #0f172a; color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 20px;">📦</span>
+          <div>
+            <div style="font-weight: 800; font-size: 15px; letter-spacing: 0.5px;">ORDER DETAILS &amp; PROFIT BREAKDOWN</div>
+            <div style="font-size: 11px; color: #94a3b8;" id="modal-order-id-sub">Order Details</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-emerald" onclick="printOrderThermalBillFromModal()" style="padding: 6px 12px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+            🖨️ Thermal Slip
+          </button>
+          <button type="button" class="btn btn-gold" onclick="openCustomerBillFromModal()" style="padding: 6px 12px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+            🧾 Full Bill
+          </button>
+          <button type="button" class="btn btn-light" onclick="closeOrderDetailsModal()" style="padding: 6px 12px; font-size: 12px; font-weight: 700; background: #334155; color: #fff; border: none;">
+            ✕ Close
+          </button>
+        </div>
+      </div>
+
+      <div style="overflow-y: auto; padding: 20px; background: #f8fafc; flex: 1;">
+        <!-- Missing Purchase Cost Warning Banner (Shown only if items are missing rates) -->
+        <div id="modal-missing-cost-alert" style="display: none; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span style="font-size: 20px;">⚠️</span>
+            <div>
+              <div style="font-weight: 800; font-size: 13px; color: #92400e; margin-bottom: 2px;">
+                Missing Purchase Rates Detected in This Order!
+              </div>
+              <div style="font-size: 12px; color: #b45309; line-height: 1.4;">
+                <span id="modal-missing-cost-desc">Some items do not have purchase cost saved.</span>
+                Enter purchase rates in the input box below and click <b>💾 Save</b> to calculate 100% accurate profit. Rates entered here will automatically be remembered permanently for all future orders too!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer & Order Meta Information Grid -->
+        <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px;">
+          <div>
+            <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Customer Name</div>
+            <div id="modal-order-customer" style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;">Customer</div>
+            <div id="modal-order-phone" style="font-size: 12px; color: #0284c7; font-weight: 600;">—</div>
+          </div>
+          <div>
+            <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Order Date &amp; Time</div>
+            <div id="modal-order-datetime" style="font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 2px;">—</div>
+            <div id="modal-order-channel" style="margin-top: 3px;">
+              <span class="badge-channel-wa">💬 WhatsApp Order</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Payment Method</div>
+            <div id="modal-order-payment" style="font-size: 13px; font-weight: 800; color: #059669; margin-top: 2px;">Cash on Delivery</div>
+            <div id="modal-order-delivery" style="font-size: 11.5px; color: #64748b;">Delivery: Free</div>
+          </div>
+          <div>
+            <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Cost Status</div>
+            <div id="modal-order-margin-badge" style="margin-top: 4px;">
+              <span class="badge-cost-complete">✅ All Rates Set</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optional Delivery Address / Parchi Notes Box -->
+        <div id="modal-order-notes-box" style="display: none; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; font-size: 12.5px;">
+          <b>📍 Delivery Address / Notes:</b> <span id="modal-order-notes-text" style="color: #475569;"></span>
+        </div>
+
+        <!-- Items Table with Inline Purchase Rate Inputs -->
+        <div style="font-weight: 800; font-size: 13px; color: #0f172a; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+          <span>📋 Order Items &amp; Profit Margins:</span>
+          <span style="font-size: 11.5px; color: #64748b;">Profit = (Sell Rate − Pur Cost) × Qty</span>
+        </div>
+
+        <div class="table-container" style="background: #fff; border-radius: 10px; border: 1.5px solid #e2e8f0;">
+          <table>
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="width: 40px;">#</th>
+                <th>Product Name</th>
+                <th style="width: 70px; text-align: center;">Qty</th>
+                <th style="width: 100px; text-align: right;">Sell Rate</th>
+                <th style="width: 150px; text-align: right;">Pur Cost (Rate)</th>
+                <th style="width: 110px; text-align: right;">Line Total</th>
+                <th style="width: 110px; text-align: right;">Line Profit</th>
+                <th style="width: 90px; text-align: center;">Margin %</th>
+              </tr>
+            </thead>
+            <tbody id="modal-order-items-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Live Financial Summary Strip -->
+        <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px 18px; margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; align-items: center;">
+          <div>
+            <div class="kpi-label">Customer Bill</div>
+            <div id="modal-summary-sale" style="font-size: 18px; font-weight: 800; color: #0284c7;">Rs. 0</div>
+          </div>
+          <div>
+            <div class="kpi-label">Total Cost</div>
+            <div id="modal-summary-cost" style="font-size: 18px; font-weight: 800; color: #64748b;">Rs. 0</div>
+          </div>
+          <div>
+            <div class="kpi-label">Net Profit</div>
+            <div id="modal-summary-profit" style="font-size: 19px; font-weight: 900; color: var(--emerald);">Rs. 0</div>
+          </div>
+          <div>
+            <div class="kpi-label">Profit Margin</div>
+            <div id="modal-summary-margin" class="badge-profit-pos" style="font-size: 13px;">0.0%</div>
+          </div>
+          <div style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" onclick="loadOrderIntoPosCurrent()" style="font-size: 12px; font-weight: 700; color: #0284c7; border-color: #0284c7;">
+              🛒 Edit in POS
+            </button>
+            <button type="button" class="btn btn-danger" onclick="deleteOrderFromModal()" style="font-size: 12px; font-weight: 700;">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CATALOG MISSING PURCHASE RATES MODAL ── -->
+  <div class="modal-backdrop" id="missing-rates-catalog-modal">
+    <div class="modal-card" style="max-width: 860px; width: 95%; max-height: 92vh; display: flex; flex-direction: column;">
+      <div style="background: #0f172a; color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 20px;">⚙️</span>
+          <div>
+            <div style="font-weight: 800; font-size: 15px; letter-spacing: 0.5px;">CATALOG PURCHASE RATES MANAGER</div>
+            <div style="font-size: 11px; color: #94a3b8;">Set purchase costs for items to ensure 100% accurate profit calculation across all orders</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="btn btn-emerald" onclick="saveAllEnteredMissingRates()" style="padding: 6px 14px; font-size: 12px; font-weight: 700;">
+            💾 Save All Entered Rates
+          </button>
+          <button type="button" class="btn btn-light" onclick="closeMissingRatesModal()" style="padding: 6px 12px; font-size: 12px; font-weight: 700; background: #334155; color: #fff; border: none;">
+            ✕ Close
+          </button>
+        </div>
+      </div>
+
+      <div style="padding: 14px 20px; background: #f8fafc; border-bottom: 1.5px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 260px;">
+          <input type="text" id="missing-rates-search" placeholder="🔍 Search missing products by name or category..." 
+            oninput="renderMissingRatesModalTable()" 
+            style="width: 100%; padding: 7px 12px; font-size: 13px; border-radius: 8px; border: 1.5px solid #cbd5e1;">
+        </div>
+        <div style="font-size: 12.5px; font-weight: 700; color: #475569;">
+          Showing: <span id="missing-rates-modal-count" style="color: #d97706; font-weight: 800;">0</span> missing items
+        </div>
+      </div>
+
+      <div style="overflow-y: auto; padding: 16px 20px; background: #ffffff; flex: 1;">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="width: 50px;">ID</th>
+                <th>Product Name</th>
+                <th style="width: 140px;">Category</th>
+                <th style="width: 100px; text-align: right;">Sell Price</th>
+                <th style="width: 130px; text-align: right;">Pur Cost (Rs)</th>
+                <th style="width: 80px; text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="missing-rates-modal-tbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -2771,18 +3312,16 @@
       }
     }
 
-    // ── DSR 3-Section Switcher ──
+    // ── DSR Modern 5-Section Switcher ──
     function switchDsrSubSection(sectionId) {
-      document.getElementById('btn-subnav-pos').classList.toggle('active', sectionId === 'pos');
-      document.getElementById('btn-subnav-analytics').classList.toggle('active', sectionId === 'analytics');
-      if (document.getElementById('btn-subnav-expenses')) {
-        document.getElementById('btn-subnav-expenses').classList.toggle('active', sectionId === 'expenses');
-      }
-      document.getElementById('dsr-sub-pos').style.display = sectionId === 'pos' ? 'block' : 'none';
-      document.getElementById('dsr-sub-analytics').style.display = sectionId === 'analytics' ? 'block' : 'none';
-      if (document.getElementById('dsr-sub-expenses')) {
-        document.getElementById('dsr-sub-expenses').style.display = sectionId === 'expenses' ? 'block' : 'none';
-      }
+      const tabs = ['orders', 'pos', 'paste', 'analytics', 'expenses'];
+      tabs.forEach(tab => {
+        const btn = document.getElementById('btn-subnav-' + tab);
+        if (btn) btn.classList.toggle('active', tab === sectionId);
+        const section = document.getElementById('dsr-sub-' + tab);
+        if (section) section.style.display = (tab === sectionId) ? 'block' : 'none';
+      });
+
       if (sectionId === 'expenses') {
         const todayStr = new Date().toISOString().slice(0, 10);
         const calcDateEl = document.getElementById('exp-calc-date');
@@ -3547,6 +4086,71 @@
       filterAndRenderDsr();
     }
 
+    // ── Audio Notification Engine (Synthesized Web Audio Ding) ──
+    function playNewOrderSound() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12); // A5
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.45);
+      } catch(e) {}
+    }
+
+    let knownOrderIds = new Set();
+    let currentModalOrder = null;
+    let parsedWhatsAppItems = [];
+
+    // ── Cloud Order Relay Sync ──
+    async function syncOrdersNow() {
+      const btn = document.getElementById('btn-sync-cloud');
+      const icon = document.getElementById('sync-icon');
+      if (btn) btn.disabled = true;
+      if (icon) icon.textContent = '⏳';
+
+      try {
+        await fetch('/api/dsr/sync-cloud').catch(() => {});
+        // Also poll cloud relay directly
+        try {
+          const cloudRes = await fetch('https://ntfy.sh/zsmart_orders_live_786/json?poll=1');
+          const text = await cloudRes.text();
+          const lines = text.trim().split('\n');
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const msg = JSON.parse(line);
+              if (msg.message) {
+                const orderData = JSON.parse(msg.message);
+                if (orderData && orderData.items) {
+                  await fetch('/api/customer-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                  });
+                }
+              }
+            } catch(e) {}
+          }
+        } catch(e) {}
+
+        await loadDsr();
+      } catch(err) {
+        console.warn('Sync error:', err);
+      } finally {
+        if (btn) btn.disabled = false;
+        if (icon) icon.textContent = '🔄';
+      }
+    }
+
     function filterAndRenderDsr() {
       const todayStr = new Date().toISOString().slice(0, 10);
       const yesterdayObj = new Date(Date.now() - 86400000);
@@ -3566,6 +4170,7 @@
       const allOrders = dsrAllData.orders || [];
       const allExpenses = dsrAllData.expenses || [];
 
+      // 1. Date Range Filter
       if (currentDsrFilter === 'today') {
         label = `Today (${todayStr})`;
         filteredOrders = allOrders.filter(o => o.date === todayStr);
@@ -3596,6 +4201,164 @@
         filteredExpenses = allExpenses.filter(e => e.date >= dsrFilterCustomStart && e.date <= dsrFilterCustomEnd);
       }
 
+      // Sync active button in Sub-Section 1 as well
+      const sub1Btns = document.querySelectorAll('#dsr-orders-period-buttons .dsr-filter-btn');
+      sub1Btns.forEach(b => {
+        const text = b.textContent.toLowerCase();
+        if (currentDsrFilter === 'today' && text.includes('today')) b.classList.add('active');
+        else if (currentDsrFilter === 'yesterday' && text.includes('yesterday')) b.classList.add('active');
+        else if (currentDsrFilter === 'week' && text.includes('7 days')) b.classList.add('active');
+        else if (currentDsrFilter === 'month' && text.includes('month')) b.classList.add('active');
+        else if (currentDsrFilter === 'all' && text.includes('all')) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+
+      // 2. Extra Filters for Sub-Section 1: All Orders Search, Source & Cost Status
+      const searchQuery = (document.getElementById('dsr-orders-search')?.value || '').toLowerCase().trim();
+      const sourceFilter = document.getElementById('dsr-orders-source-filter')?.value || 'all';
+      const costFilter = document.getElementById('dsr-orders-cost-filter')?.value || 'all';
+
+      let singleLineFiltered = filteredOrders.filter(o => {
+        // Search text
+        if (searchQuery) {
+          const matchId = String(o.id || '').toLowerCase().includes(searchQuery);
+          const matchCust = String(o.customerName || '').toLowerCase().includes(searchQuery);
+          const matchPhone = String(o.customerPhone || '').toLowerCase().includes(searchQuery);
+          if (!matchId && !matchCust && !matchPhone) return false;
+        }
+
+        // Source filter
+        if (sourceFilter !== 'all') {
+          const oSrc = String(o.source || 'pos').toLowerCase();
+          if (sourceFilter === 'whatsapp' && oSrc !== 'whatsapp') return false;
+          if (sourceFilter === 'pos' && oSrc !== 'pos' && oSrc !== 'store') return false;
+          if (sourceFilter === 'parchi' && oSrc !== 'parchi') return false;
+        }
+
+        // Cost filter
+        if (costFilter === 'missing') {
+          if ((o.missingCostCount || 0) <= 0) return false;
+        } else if (costFilter === 'complete') {
+          if ((o.missingCostCount || 0) > 0) return false;
+        }
+
+        return true;
+      });
+
+      // 3. Render Single-Line Orders Table (Sub-Section 1)
+      const singleLineTbody = document.getElementById('dsr-orders-singleline-tbody');
+      if (singleLineTbody) {
+        singleLineTbody.innerHTML = '';
+        if (singleLineFiltered.length === 0) {
+          singleLineTbody.innerHTML = `
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                No orders match your filter criteria.
+              </td>
+            </tr>
+          `;
+        } else {
+          singleLineFiltered.forEach(o => {
+            const isWa = (o.source === 'whatsapp');
+            const isParchi = (o.source === 'parchi');
+            const channelBadge = isWa 
+              ? `<span class="badge-channel-wa">💬 WhatsApp</span>`
+              : (isParchi 
+                  ? `<span class="badge-channel-parchi">📄 Parchi</span>`
+                  : `<span class="badge-channel-pos">🛒 Counter</span>`);
+
+            const missingCount = Number(o.missingCostCount || 0);
+            const hasMissing = missingCount > 0;
+            const costStatusBadge = hasMissing
+              ? `<span class="badge-cost-missing">⚠️ ${missingCount} Item${missingCount > 1 ? 's' : ''} Missing Cost</span>`
+              : `<span class="badge-cost-complete">✅ All Rates Set</span>`;
+
+            const oSale = Number(o.totalSale) || 0;
+            const oProfit = Number(o.totalProfit) || 0;
+            const oMargin = Number(o.profitMarginPct) || (oSale > 0 ? ((oProfit / oSale) * 100) : 0);
+            const isPosProfit = oProfit >= 0;
+
+            const tr = document.createElement('tr');
+            tr.className = 'order-row-single';
+            tr.title = 'Click to view complete itemized breakdown and edit purchase costs';
+            tr.onclick = () => openOrderDetailsModal(o.id);
+
+            tr.innerHTML = `
+              <td style="font-weight: 800; color: #d97706; font-family: monospace;">#${String(o.id).replace('ORD-', '')}</td>
+              <td>
+                <div style="font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <span>${escapeHtml(o.customerName || 'Walk-in Customer')}</span>
+                  ${channelBadge}
+                </div>
+                ${o.customerPhone ? `<div style="font-size: 11px; color: #64748b; margin-top: 2px;">📱 ${escapeHtml(o.customerPhone)}</div>` : ''}
+              </td>
+              <td style="font-size: 12px; color: #475569;">
+                ${o.date} <span style="color: #94a3b8; font-size: 11px;">${o.time || ''}</span>
+              </td>
+              <td style="text-align: right; font-weight: 800; color: #0284c7; font-size: 13.5px;">
+                Rs. ${oSale.toLocaleString()}
+              </td>
+              <td style="text-align: right;">
+                <div style="font-weight: 800; color: ${isPosProfit ? 'var(--emerald)' : '#dc2626'}; font-size: 13.5px;">
+                  ${isPosProfit ? 'Rs. +' : 'Rs. '}${oProfit.toLocaleString()}
+                </div>
+                <div style="font-size: 11px; font-weight: 700; color: ${isPosProfit ? '#059669' : '#dc2626'};">
+                  ${isPosProfit ? '+' : ''}${oMargin.toFixed(1)}% Margin
+                </div>
+              </td>
+              <td style="text-align: center;">
+                ${costStatusBadge}
+              </td>
+              <td style="text-align: center; white-space: nowrap;" onclick="event.stopPropagation()">
+                <button type="button" class="btn btn-outline" style="padding: 3px 8px; font-size: 11px; font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff; margin-right: 4px;" onclick="openOrderDetailsModal('${o.id}')" title="View Order Breakdown & Edit Cost">👁️ View</button>
+                <button type="button" class="btn btn-gold" style="padding: 3px 7px; font-size: 11px; font-weight: 700; margin-right: 4px;" onclick="openCustomerBill('${o.id}')" title="Customer Invoice">🧾 Bill</button>
+                <button type="button" class="btn btn-danger" style="padding: 3px 6px; font-size: 11px;" onclick="deleteDsrOrder('${o.id}')" title="Delete Order">🗑️</button>
+              </td>
+            `;
+            singleLineTbody.appendChild(tr);
+          });
+        }
+      }
+
+      // 4. Update Summary Ribbons
+      let sumSales = 0;
+      let sumCost = 0;
+      let sumProfit = 0;
+      let sumMissingOrders = 0;
+
+      singleLineFiltered.forEach(o => {
+        sumSales += Number(o.totalSale) || 0;
+        sumCost += Number(o.totalCost) || 0;
+        sumProfit += Number(o.totalProfit) || 0;
+        if ((o.missingCostCount || 0) > 0) sumMissingOrders++;
+      });
+
+      const sumMarginPct = sumSales > 0 ? ((sumProfit / sumSales) * 100) : 0;
+
+      const countEl = document.getElementById('dsr-orders-summary-count');
+      if (countEl) countEl.textContent = `${singleLineFiltered.length} Orders`;
+      const salesEl = document.getElementById('dsr-orders-summary-sales');
+      if (salesEl) salesEl.textContent = `Rs. ${sumSales.toLocaleString()}`;
+      const profitEl = document.getElementById('dsr-orders-summary-profit');
+      if (profitEl) {
+        profitEl.textContent = (sumProfit >= 0 ? 'Rs. +' : 'Rs. ') + sumProfit.toLocaleString();
+        profitEl.style.color = sumProfit >= 0 ? '#059669' : '#dc2626';
+      }
+      const marginEl = document.getElementById('dsr-orders-summary-margin');
+      if (marginEl) marginEl.textContent = `${sumMarginPct.toFixed(1)}% Margin`;
+
+      const alertEl = document.getElementById('dsr-orders-summary-alert');
+      if (alertEl) {
+        if (sumMissingOrders > 0) {
+          alertEl.innerHTML = `<span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 4px 10px; border-radius: 999px;">⚠️ ${sumMissingOrders} Order${sumMissingOrders > 1 ? 's' : ''} have missing purchase costs</span>`;
+        } else if (singleLineFiltered.length > 0) {
+          alertEl.innerHTML = `<span style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 999px;">✅ All orders have 100% complete purchase costs</span>`;
+        } else {
+          alertEl.innerHTML = '';
+        }
+      }
+
+      // 5. Update Reports & Analytics Tab (Sub-Section 4)
       let totalSale = 0;
       let totalCost = 0;
       let totalGrossProfit = 0;
@@ -3603,19 +4366,8 @@
 
       filteredOrders.forEach(o => {
         totalSale += Number(o.totalSale) || 0;
-        
-        let orderCost = Number(o.totalCost);
-        if (!orderCost && Array.isArray(o.items)) {
-          orderCost = o.items.reduce((sum, item) => sum + (Number(item.lineCost) || (Number(item.qty || 1) * Number(item.purchasePrice || 0))), 0);
-        }
-        totalCost += (orderCost || 0);
-
-        let orderProfit = Number(o.totalProfit);
-        if (orderProfit === undefined || orderProfit === null) {
-          orderProfit = (Number(o.totalSale) || 0) - (orderCost || 0);
-        }
-        totalGrossProfit += orderProfit;
-
+        totalCost += Number(o.totalCost) || 0;
+        totalGrossProfit += Number(o.totalProfit) || 0;
         if (Array.isArray(o.items)) {
           totalUnitsSold += o.items.reduce((sum, it) => sum + (Number(it.qty) || 1), 0);
         }
@@ -3630,77 +4382,81 @@
       const grossMarginPct = totalSale > 0 ? ((totalGrossProfit / totalSale) * 100) : 0;
       const netMarginPct = totalSale > 0 ? ((netProfit / totalSale) * 100) : 0;
 
-      document.getElementById('dsr-stat-label').textContent = label;
-      document.getElementById('dsr-stat-sub').textContent = `${filteredOrders.length} orders recorded`;
+      if (document.getElementById('dsr-stat-label')) document.getElementById('dsr-stat-label').textContent = label;
+      if (document.getElementById('dsr-stat-sub')) document.getElementById('dsr-stat-sub').textContent = `${filteredOrders.length} orders recorded`;
 
-      document.getElementById('dsr-stat-sale').textContent = 'Rs. ' + totalSale.toLocaleString();
-      document.getElementById('dsr-stat-orders').textContent = `${filteredOrders.length} orders • ${totalUnitsSold} units sold`;
+      if (document.getElementById('dsr-stat-sale')) document.getElementById('dsr-stat-sale').textContent = 'Rs. ' + totalSale.toLocaleString();
+      if (document.getElementById('dsr-stat-orders')) document.getElementById('dsr-stat-orders').textContent = `${filteredOrders.length} orders • ${totalUnitsSold} units sold`;
 
-      document.getElementById('dsr-stat-cost').textContent = 'Rs. ' + totalCost.toLocaleString();
+      if (document.getElementById('dsr-stat-cost')) document.getElementById('dsr-stat-cost').textContent = 'Rs. ' + totalCost.toLocaleString();
 
       const grossEl = document.getElementById('dsr-stat-gross');
-      grossEl.textContent = (totalGrossProfit >= 0 ? 'Rs. +' : 'Rs. ') + totalGrossProfit.toLocaleString();
-      grossEl.style.color = totalGrossProfit >= 0 ? '#059669' : '#dc2626';
-      document.getElementById('dsr-stat-gross-pct').textContent = `Margin: ${grossMarginPct.toFixed(1)}%`;
+      if (grossEl) {
+        grossEl.textContent = (totalGrossProfit >= 0 ? 'Rs. +' : 'Rs. ') + totalGrossProfit.toLocaleString();
+        grossEl.style.color = totalGrossProfit >= 0 ? '#059669' : '#dc2626';
+      }
+      if (document.getElementById('dsr-stat-gross-pct')) document.getElementById('dsr-stat-gross-pct').textContent = `Margin: ${grossMarginPct.toFixed(1)}%`;
 
-      document.getElementById('dsr-stat-expenses').textContent = 'Rs. ' + totalExpenses.toLocaleString();
-      document.getElementById('dsr-stat-exp-count').textContent = `${filteredExpenses.length} recorded expenses`;
+      if (document.getElementById('dsr-stat-expenses')) document.getElementById('dsr-stat-expenses').textContent = 'Rs. ' + totalExpenses.toLocaleString();
+      if (document.getElementById('dsr-stat-exp-count')) document.getElementById('dsr-stat-exp-count').textContent = `${filteredExpenses.length} recorded expenses`;
 
       const netEl = document.getElementById('dsr-stat-net');
-      netEl.textContent = (netProfit >= 0 ? 'Rs. +' : 'Rs. ') + netProfit.toLocaleString();
-      netEl.style.color = netProfit >= 0 ? 'var(--emerald)' : '#dc2626';
-      document.getElementById('dsr-stat-net-pct').textContent = `Net Margin: ${netMarginPct.toFixed(1)}%`;
+      if (netEl) {
+        netEl.textContent = (netProfit >= 0 ? 'Rs. +' : 'Rs. ') + netProfit.toLocaleString();
+        netEl.style.color = netProfit >= 0 ? 'var(--emerald)' : '#dc2626';
+      }
+      if (document.getElementById('dsr-stat-net-pct')) document.getElementById('dsr-stat-net-pct').textContent = `Net Margin: ${netMarginPct.toFixed(1)}%`;
 
-      document.getElementById('dsr-filtered-count').textContent = `Showing ${filteredOrders.length} Orders`;
+      if (document.getElementById('dsr-filtered-count')) document.getElementById('dsr-filtered-count').textContent = `Showing ${filteredOrders.length} Orders`;
 
-      const tbody = document.getElementById('dsr-history-tbody');
-      tbody.innerHTML = '';
-      if (filteredOrders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">No orders recorded for this period (${label}).</td></tr>`;
-      } else {
-        filteredOrders.forEach(o => {
-          const isOnline = o.paymentMethod === 'online';
-          const payBadge = isOnline 
-            ? `<span style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;">Online</span>`
-            : `<span style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;">Cash</span>`;
+      const histTbody = document.getElementById('dsr-history-tbody');
+      if (histTbody) {
+        histTbody.innerHTML = '';
+        if (filteredOrders.length === 0) {
+          histTbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">No orders recorded for this period (${label}).</td></tr>`;
+        } else {
+          filteredOrders.forEach(o => {
+            const isOnline = o.paymentMethod === 'online';
+            const payBadge = isOnline 
+              ? `<span style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;">Online</span>`
+              : `<span style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;">Cash</span>`;
 
-          const oSale = Number(o.totalSale) || 0;
-          let oCost = Number(o.totalCost);
-          if (!oCost && Array.isArray(o.items)) {
-            oCost = o.items.reduce((sum, item) => sum + (Number(item.lineCost) || (Number(item.qty || 1) * Number(item.purchasePrice || 0))), 0);
-          }
-          const oProfit = (o.totalProfit !== undefined && o.totalProfit !== null) ? Number(o.totalProfit) : (oSale - oCost);
-          const oMargin = oSale > 0 ? ((oProfit / oSale) * 100) : 0;
-          const isPos = oProfit >= 0;
+            const oSale = Number(o.totalSale) || 0;
+            const oCost = Number(o.totalCost) || 0;
+            const oProfit = Number(o.totalProfit) || 0;
+            const oMargin = oSale > 0 ? ((oProfit / oSale) * 100) : 0;
+            const isPos = oProfit >= 0;
 
-          const itemsSummary = (o.items || []).map(i => `${i.name} (x${i.qty})`).join(', ');
+            const itemsSummary = (o.items || []).map(i => `${i.name} (x${i.qty})`).join(', ');
 
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td style="font-weight: 700; color: #d97706;">${o.id}</td>
-            <td style="font-size: 12px;">${o.date} <span style="color: var(--text-muted);">${o.time || ''}</span></td>
-            <td style="font-weight: 600;">${o.customerName || 'Walk-in'}</td>
-            <td>${payBadge}</td>
-            <td style="font-size: 12px; color: #334155; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${itemsSummary}">
-              ${(o.items || []).length} items: <span style="color: var(--text-muted);">${itemsSummary || 'No details'}</span>
-            </td>
-            <td style="font-weight: 700; text-align: right; color: #0284c7;">Rs. ${oSale.toLocaleString()}</td>
-            <td style="text-align: right; color: #64748b;">Rs. ${(oCost || 0).toLocaleString()}</td>
-            <td style="font-weight: 800; text-align: right; color: ${isPos ? 'var(--emerald)' : '#dc2626'};">
-              ${isPos ? 'Rs. +' : 'Rs. '}${oProfit.toLocaleString()}
-            </td>
-            <td style="text-align: center;">
-              <span class="${isPos ? 'badge-profit-pos' : 'badge-profit-neg'}">${isPos ? '+' : ''}${oMargin.toFixed(1)}%</span>
-            </td>
-            <td style="text-align: center; white-space: nowrap;">
-              <button type="button" class="btn btn-outline" style="padding: 3px 8px; font-size: 11px; margin-right: 4px; font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff;" title="View & Print Customer Bill" onclick="openCustomerBill('${o.id}')">🧾 Bill</button>
-              <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 11px;" title="Delete Order" onclick="deleteDsrOrder('${o.id}')">🗑️</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td style="font-weight: 700; color: #d97706;">#${String(o.id).replace('ORD-', '')}</td>
+              <td style="font-size: 12px;">${o.date} <span style="color: var(--text-muted);">${o.time || ''}</span></td>
+              <td style="font-weight: 600;">${escapeHtml(o.customerName || 'Walk-in')}</td>
+              <td>${payBadge}</td>
+              <td style="font-size: 12px; color: #334155; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${itemsSummary}">
+                ${(o.items || []).length} items: <span style="color: var(--text-muted);">${itemsSummary || 'No details'}</span>
+              </td>
+              <td style="font-weight: 700; text-align: right; color: #0284c7;">Rs. ${oSale.toLocaleString()}</td>
+              <td style="text-align: right; color: #64748b;">Rs. ${oCost.toLocaleString()}</td>
+              <td style="font-weight: 800; text-align: right; color: ${isPos ? 'var(--emerald)' : '#dc2626'};">
+                ${isPos ? 'Rs. +' : 'Rs. '}${oProfit.toLocaleString()}
+              </td>
+              <td style="text-align: center;">
+                <span class="${isPos ? 'badge-profit-pos' : 'badge-profit-neg'}">${isPos ? '+' : ''}${oMargin.toFixed(1)}%</span>
+              </td>
+              <td style="text-align: center; white-space: nowrap;">
+                <button type="button" class="btn btn-outline" style="padding: 3px 8px; font-size: 11px; margin-right: 4px; font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff;" title="View & Print Customer Bill" onclick="openCustomerBill('${o.id}')">🧾 Bill</button>
+                <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 11px;" title="Delete Order" onclick="deleteDsrOrder('${o.id}')">🗑️</button>
+              </td>
+            `;
+            histTbody.appendChild(tr);
+          });
+        }
       }
 
+      // Expenses table
       const expTbody = document.getElementById('dsr-expenses-tbody');
       if (expTbody) {
         expTbody.innerHTML = '';
@@ -3712,8 +4468,8 @@
             tr.innerHTML = `
               <td style="font-weight: 700; color: #d97706;">${exp.id}</td>
               <td>${exp.date}</td>
-              <td style="font-weight: 600;">${exp.title}</td>
-              <td><span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-size: 11px;">${exp.category}</span></td>
+              <td style="font-weight: 600;">${escapeHtml(exp.title)}</td>
+              <td><span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; font-size: 11px;">${escapeHtml(exp.category || 'misc')}</span></td>
               <td style="font-weight: 800; color: #dc2626; text-align: right;">Rs. ${(Number(exp.amount) || 0).toLocaleString()}</td>
               <td style="text-align: center;">
                 <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 11px;" title="Delete Expense" onclick="deleteDsrExpense('${exp.id}')">🗑️</button>
@@ -3727,17 +4483,637 @@
       }
     }
 
-    async function loadDsr() {
+    async function loadDsr(isAutoPoll = false) {
       try {
         const res = await fetch('/api/dsr');
         const data = await res.json();
-        dsrAllData = data || { orders: [], expenses: [] };
+        
+        const previousOrdersCount = (dsrAllData.orders || []).length;
+        dsrAllData = data || { orders: [], expenses: [], coverage: {} };
+
+        // 1. Detect New Incoming Orders & Play Alert Sound
+        const currentOrders = dsrAllData.orders || [];
+        let hasNewIncomingOrder = false;
+        currentOrders.forEach(o => {
+          if (!knownOrderIds.has(String(o.id))) {
+            if (knownOrderIds.size > 0 && !isAutoPoll) {
+              hasNewIncomingOrder = true;
+            } else if (knownOrderIds.size > 0 && isAutoPoll) {
+              hasNewIncomingOrder = true;
+            }
+            knownOrderIds.add(String(o.id));
+          }
+        });
+
+        if (hasNewIncomingOrder) {
+          playNewOrderSound();
+        }
+
+        // 2. Update Top Catalog Purchase Rates Coverage Strip
+        const cov = dsrAllData.coverage || {};
+        const ratedCount = Number(cov.ratedCount || 0);
+        const totalCount = Number(cov.totalProducts || (allProducts ? allProducts.length : 0));
+        const missingCount = Number(cov.missingCount !== undefined ? cov.missingCount : Math.max(0, totalCount - ratedCount));
+        const coveragePct = Number(cov.coveragePct || (totalCount > 0 ? ((ratedCount / totalCount) * 100).toFixed(1) : 0));
+
+        if (document.getElementById('coverage-rated-count')) document.getElementById('coverage-rated-count').textContent = ratedCount.toLocaleString();
+        if (document.getElementById('coverage-total-count')) document.getElementById('coverage-total-count').textContent = totalCount.toLocaleString();
+        if (document.getElementById('coverage-pct-badge')) {
+          document.getElementById('coverage-pct-badge').textContent = `${coveragePct}% Covered`;
+          document.getElementById('coverage-pct-badge').style.background = coveragePct > 80 ? '#dcfce7' : (coveragePct > 50 ? '#fef3c7' : '#fee2e2');
+          document.getElementById('coverage-pct-badge').style.color = coveragePct > 80 ? '#166534' : (coveragePct > 50 ? '#92400e' : '#991b1b');
+        }
+        if (document.getElementById('coverage-missing-indicator')) {
+          document.getElementById('coverage-missing-indicator').textContent = `(${missingCount} missing)`;
+        }
+        if (document.getElementById('btn-missing-count')) {
+          document.getElementById('btn-missing-count').textContent = missingCount.toLocaleString();
+        }
+
+        // Update Subnav Badge
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const todayOrders = currentOrders.filter(o => o.date === todayStr);
+        if (document.getElementById('dsr-orders-badge')) {
+          document.getElementById('dsr-orders-badge').textContent = todayOrders.length;
+        }
+
         filterAndRenderDsr();
         updateExpensesSectionCalculations();
       } catch(e) {
         console.error('Failed to load DSR:', e);
       }
     }
+
+    // ── Order Details Modal Handlers ──
+    function openOrderDetailsModal(orderId) {
+      const order = (dsrAllData.orders || []).find(o => String(o.id) === String(orderId));
+      if (!order) return;
+      currentModalOrder = order;
+
+      const modal = document.getElementById('order-details-modal');
+      if (!modal) return;
+
+      document.getElementById('modal-order-id-sub').textContent = `Order #${order.id}`;
+      document.getElementById('modal-order-customer').textContent = order.customerName || 'Walk-in Customer';
+      document.getElementById('modal-order-phone').textContent = order.customerPhone ? `📱 ${order.customerPhone}` : 'No phone provided';
+      document.getElementById('modal-order-datetime').textContent = `${order.date} ${order.time || ''}`;
+      
+      const isWa = (order.source === 'whatsapp');
+      const isParchi = (order.source === 'parchi');
+      document.getElementById('modal-order-channel').innerHTML = isWa
+        ? `<span class="badge-channel-wa">💬 WhatsApp Order</span>`
+        : (isParchi 
+            ? `<span class="badge-channel-parchi">📄 Parchi Slip</span>`
+            : `<span class="badge-channel-pos">🛒 Counter / POS</span>`);
+
+      document.getElementById('modal-order-payment').textContent = (order.paymentMethod === 'online' ? '🟢 Online (Paid)' : '💵 Cash on Delivery');
+      document.getElementById('modal-order-delivery').textContent = `Delivery: ${order.deliveryFee ? 'Rs. ' + order.deliveryFee : 'Free'}`;
+
+      // Notes & Delivery Address
+      const notesBox = document.getElementById('modal-order-notes-box');
+      const notesText = document.getElementById('modal-order-notes-text');
+      if (order.deliveryAddress || order.notes) {
+        notesBox.style.display = 'block';
+        notesText.textContent = [order.deliveryAddress, order.notes].filter(Boolean).join(' • ');
+      } else {
+        notesBox.style.display = 'none';
+      }
+
+      // Missing Cost Alert
+      const missingAlert = document.getElementById('modal-missing-cost-alert');
+      const missingCount = Number(order.missingCostCount || 0);
+      if (missingCount > 0) {
+        missingAlert.style.display = 'block';
+        document.getElementById('modal-missing-cost-desc').textContent = `${missingCount} item${missingCount > 1 ? 's' : ''} in this order do not have purchase costs saved.`;
+        document.getElementById('modal-order-margin-badge').innerHTML = `<span class="badge-cost-missing">⚠️ ${missingCount} Items Missing Cost</span>`;
+      } else {
+        missingAlert.style.display = 'none';
+        document.getElementById('modal-order-margin-badge').innerHTML = `<span class="badge-cost-complete">✅ All Rates Set</span>`;
+      }
+
+      // Populate Items Table
+      const tbody = document.getElementById('modal-order-items-tbody');
+      tbody.innerHTML = '';
+      (order.items || []).forEach((it, idx) => {
+        const hasRate = (it.hasPurchaseRate || (Number(it.purchasePrice) > 0));
+        const pPrice = Number(it.purchasePrice) || 0;
+        const sellRate = Number(it.sellPrice) || 0;
+        const lineTotal = Number(it.lineTotal) || (it.qty * sellRate);
+        const lineCost = Number(it.lineCost) || (it.qty * pPrice);
+        const lineProfit = hasRate ? (lineTotal - lineCost) : 0;
+        const marginPct = (hasRate && lineTotal > 0) ? ((lineProfit / lineTotal) * 100) : 0;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color: var(--text-muted); text-align: center;">${idx + 1}</td>
+          <td>
+            <div style="font-weight: 700; color: #0f172a;">${escapeHtml(it.name || 'Item')}</div>
+            ${it.variant ? `<div style="font-size: 11px; color: #64748b;">${escapeHtml(it.variant)}</div>` : ''}
+          </td>
+          <td style="text-align: center; font-weight: 700;">${it.qty || 1}</td>
+          <td style="text-align: right; color: #0284c7; font-weight: 700;">Rs. ${sellRate.toLocaleString()}</td>
+          <td style="text-align: right;">
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
+              <input type="number" 
+                class="order-inline-rate-input ${!hasRate ? 'missing' : ''}" 
+                id="modal-item-cost-${it.id}" 
+                value="${hasRate ? pPrice : ''}" 
+                placeholder="${hasRate ? pPrice : 'Enter Cost'}"
+                min="0"
+                step="any">
+              <button type="button" class="btn btn-emerald" style="padding: 3px 7px; font-size: 11px; font-weight: 800;" 
+                onclick="saveOrderInlinePurchaseRate('${order.id}', '${it.id}', document.getElementById('modal-item-cost-${it.id}').value)" 
+                title="Save Purchase Rate Permanently">
+                💾
+              </button>
+            </div>
+          </td>
+          <td style="text-align: right; font-weight: 800; color: #0f172a;">Rs. ${lineTotal.toLocaleString()}</td>
+          <td style="text-align: right; font-weight: 800; color: ${hasRate ? (lineProfit >= 0 ? 'var(--emerald)' : '#dc2626') : '#d97706'};">
+            ${hasRate ? (lineProfit >= 0 ? 'Rs. +' : 'Rs. ') + lineProfit.toLocaleString() : '⚠️ Missing'}
+          </td>
+          <td style="text-align: center;">
+            ${hasRate 
+              ? `<span class="${lineProfit >= 0 ? 'badge-profit-pos' : 'badge-profit-neg'}">${lineProfit >= 0 ? '+' : ''}${marginPct.toFixed(1)}%</span>` 
+              : `<span style="color: #d97706; font-size: 11px; font-weight: 700;">—</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update Financials Summary Strip
+      document.getElementById('modal-summary-sale').textContent = `Rs. ${(Number(order.totalSale) || 0).toLocaleString()}`;
+      document.getElementById('modal-summary-cost').textContent = `Rs. ${(Number(order.totalCost) || 0).toLocaleString()}`;
+      
+      const profitEl = document.getElementById('modal-summary-profit');
+      const oProfit = Number(order.totalProfit) || 0;
+      profitEl.textContent = (oProfit >= 0 ? 'Rs. +' : 'Rs. ') + oProfit.toLocaleString();
+      profitEl.style.color = oProfit >= 0 ? 'var(--emerald)' : '#dc2626';
+
+      const marginEl = document.getElementById('modal-summary-margin');
+      marginEl.textContent = `${Number(order.profitMarginPct || 0).toFixed(1)}% Margin`;
+      marginEl.className = oProfit >= 0 ? 'badge-profit-pos' : 'badge-profit-neg';
+
+      modal.classList.add('show');
+    }
+
+    function closeOrderDetailsModal() {
+      const modal = document.getElementById('order-details-modal');
+      if (modal) modal.classList.remove('show');
+      currentModalOrder = null;
+    }
+
+    async function saveOrderInlinePurchaseRate(orderId, productId, rateValue) {
+      const numRate = Number(rateValue);
+      if (isNaN(numRate) || numRate <= 0) {
+        return alert('Please enter a valid purchase rate (cost) greater than 0.');
+      }
+
+      try {
+        const res = await fetch(`/api/products/${productId}/purchase-rate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rate: numRate })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          purchaseRates[productId] = numRate;
+          await loadDsr();
+          openOrderDetailsModal(orderId);
+        } else {
+          alert('❌ Failed to update purchase rate: ' + (data.error || 'Error'));
+        }
+      } catch(err) {
+        alert('❌ Network error: ' + err.message);
+      }
+    }
+
+    function loadOrderIntoPosCurrent() {
+      if (!currentModalOrder) return;
+      currentDsrItems = (currentModalOrder.items || []).map(it => ({
+        id: it.id,
+        name: it.name,
+        qty: Number(it.qty) || 1,
+        sellPrice: Number(it.sellPrice) || 0,
+        purchasePrice: Number(it.purchasePrice) || 0,
+        lineTotal: (Number(it.qty) || 1) * (Number(it.sellPrice) || 0),
+        lineCost: (Number(it.qty) || 1) * (Number(it.purchasePrice) || 0),
+        lineProfit: ((Number(it.qty) || 1) * (Number(it.sellPrice) || 0)) - ((Number(it.qty) || 1) * (Number(it.purchasePrice) || 0)),
+        marginPct: (Number(it.sellPrice) > 0) ? ((((Number(it.sellPrice) - (Number(it.purchasePrice) || 0))) / Number(it.sellPrice)) * 100) : 0
+      }));
+
+      if (document.getElementById('dsr-customer')) {
+        document.getElementById('dsr-customer').value = currentModalOrder.customerName || '';
+      }
+      if (document.getElementById('dsr-phone')) {
+        document.getElementById('dsr-phone').value = currentModalOrder.customerPhone || '';
+      }
+
+      renderDsrItemsTable();
+      closeOrderDetailsModal();
+      switchDsrSubSection('pos');
+    }
+
+    function deleteOrderFromModal() {
+      if (!currentModalOrder) return;
+      const id = currentModalOrder.id;
+      closeOrderDetailsModal();
+      deleteDsrOrder(id);
+    }
+
+    function printOrderThermalBillFromModal() {
+      if (!currentModalOrder) return;
+      const order = currentModalOrder;
+      const printWin = window.open('', '_blank', 'width=380,height=600');
+      if (!printWin) return alert('Please allow popups to print ticket');
+
+      let itemsHtml = (order.items || []).map(it => `
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px;">
+          <span>${escapeHtml(it.name)} x${it.qty}</span>
+          <span>Rs. ${Number(it.lineTotal || (it.qty * it.sellPrice)).toLocaleString()}</span>
+        </div>
+      `).join('');
+
+      printWin.document.write(`
+        <html>
+        <head>
+          <title>Order #${order.id}</title>
+          <style>
+            body { font-family: monospace; padding: 12px; margin: 0; color: #000; }
+            .center { text-align: center; }
+            .divider { border-bottom: 1px dashed #000; margin: 8px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="center">
+            <h2 style="margin:0;">ZS MART</h2>
+            <div style="font-size:11px;">Korangi, Karachi • 03368945775</div>
+            <div style="font-size:11px;">Order #${order.id}</div>
+            <div style="font-size:11px;">${order.date} ${order.time || ''}</div>
+          </div>
+          <div class="divider"></div>
+          <div style="font-size:11.5px; margin-bottom: 6px;">
+            <b>Customer:</b> ${escapeHtml(order.customerName || 'Customer')}<br>
+            ${order.customerPhone ? `<b>Phone:</b> ${escapeHtml(order.customerPhone)}<br>` : ''}
+            <b>Mode:</b> ${order.paymentMethod === 'online' ? 'Online Transfer' : 'Cash on Delivery'}
+          </div>
+          <div class="divider"></div>
+          ${itemsHtml}
+          <div class="divider"></div>
+          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px;">
+            <span>TOTAL BILL:</span>
+            <span>Rs. ${(Number(order.totalSale) || 0).toLocaleString()}</span>
+          </div>
+          <div class="divider"></div>
+          <div class="center" style="font-size:10.5px; margin-top:10px;">
+            Thank you for shopping at ZS Mart!<br>
+            WhatsApp Orders: 03368945775
+          </div>
+          <script>window.onload = function() { window.print(); window.close(); }<\/script>
+        </body>
+        </html>
+      `);
+      printWin.document.close();
+    }
+
+    function openCustomerBillFromModal() {
+      if (!currentModalOrder) return;
+      const order = currentModalOrder;
+      closeOrderDetailsModal();
+      openCustomerBill(order);
+    }
+
+    // ── Catalog Missing Purchase Rates Manager ──
+    function openMissingRatesModal() {
+      const modal = document.getElementById('missing-rates-catalog-modal');
+      if (!modal) return;
+      renderMissingRatesModalTable();
+      modal.classList.add('show');
+    }
+
+    function closeMissingRatesModal() {
+      const modal = document.getElementById('missing-rates-catalog-modal');
+      if (modal) modal.classList.remove('show');
+    }
+
+    function renderMissingRatesModalTable() {
+      const tbody = document.getElementById('missing-rates-modal-tbody');
+      if (!tbody) return;
+
+      const search = (document.getElementById('missing-rates-search')?.value || '').toLowerCase().trim();
+      const unrated = (allProducts || []).filter(p => {
+        const hasRate = (purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) > 0);
+        if (hasRate) return false;
+        if (search) {
+          const matchName = String(p.name || '').toLowerCase().includes(search);
+          const matchCat = String(p.categoryName || '').toLowerCase().includes(search);
+          const matchId = String(p.id).includes(search);
+          return matchName || matchCat || matchId;
+        }
+        return true;
+      });
+
+      if (document.getElementById('missing-rates-modal-count')) {
+        document.getElementById('missing-rates-modal-count').textContent = unrated.length;
+      }
+
+      tbody.innerHTML = '';
+      if (unrated.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--emerald); font-weight: 700; padding: 24px;">🎉 All catalog items have purchase rates configured!</td></tr>`;
+        return;
+      }
+
+      // Show top 100 for maximum smoothness
+      unrated.slice(0, 100).forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color: var(--text-muted); font-weight: 700;">#${p.id}</td>
+          <td style="font-weight: 700; color: #0f172a;">${escapeHtml(p.name)}</td>
+          <td><span style="background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 6px; font-size: 11px;">${escapeHtml(p.categoryName || 'General')}</span></td>
+          <td style="text-align: right; color: #0284c7; font-weight: 700;">Rs. ${Number(p.price || 0).toLocaleString()}</td>
+          <td style="text-align: right;">
+            <input type="number" 
+              class="catalog-rate-input" 
+              data-id="${p.id}" 
+              id="cat-missing-input-${p.id}" 
+              placeholder="Pur Rate" 
+              style="width: 85px; padding: 5px 8px; border-radius: 6px; border: 1.5px solid #cbd5e1; font-weight: 700; text-align: right;">
+          </td>
+          <td style="text-align: center;">
+            <button type="button" class="btn btn-emerald" style="padding: 4px 10px; font-size: 11px; font-weight: 800;" onclick="saveCatalogMissingRate('${p.id}', document.getElementById('cat-missing-input-${p.id}').value)">
+              💾 Save
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function saveCatalogMissingRate(productId, rate) {
+      const numRate = Number(rate);
+      if (isNaN(numRate) || numRate <= 0) return alert('Please enter a valid purchase rate.');
+
+      try {
+        const res = await fetch(`/api/products/${productId}/purchase-rate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rate: numRate })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          purchaseRates[productId] = numRate;
+          await loadDsr();
+          renderMissingRatesModalTable();
+        } else {
+          alert('❌ Save failed: ' + data.error);
+        }
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+      }
+    }
+
+    async function saveAllEnteredMissingRates() {
+      const inputs = document.querySelectorAll('.catalog-rate-input');
+      const updates = {};
+      inputs.forEach(inp => {
+        const val = Number(inp.value);
+        const id = inp.getAttribute('data-id');
+        if (id && val > 0) {
+          updates[id] = val;
+        }
+      });
+
+      const count = Object.keys(updates).length;
+      if (count === 0) return alert('Please enter at least one purchase rate in the input fields first.');
+
+      try {
+        for (const [pId, pRate] of Object.entries(updates)) {
+          purchaseRates[pId] = pRate;
+          await fetch(`/api/products/${pId}/purchase-rate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rate: pRate })
+          }).catch(() => {});
+        }
+
+        await loadDsr();
+        renderMissingRatesModalTable();
+        alert(`✅ Successfully saved purchase rates for ${count} product${count > 1 ? 's' : ''}! Profit reports and all orders updated.`);
+      } catch(e) {
+        alert('❌ Error: ' + e.message);
+      }
+    }
+
+    // ── 1-Click WhatsApp Order Paste & Parser ──
+    function parseWhatsAppOrderText() {
+      const rawText = (document.getElementById('dsr-paste-input')?.value || '').trim();
+      if (!rawText) return alert('Please paste customer WhatsApp text or message first.');
+
+      parsedWhatsAppItems = [];
+
+      // 1. Extract customer name & phone if present
+      let custName = 'WhatsApp Customer';
+      let custPhone = '';
+
+      const nameMatch = rawText.match(/(?:customer|name|naam|bhai)[\s:=-]+([^\n\r,\d]+)/i);
+      if (nameMatch && nameMatch[1]) custName = nameMatch[1].trim();
+
+      const phoneMatch = rawText.match(/(?:03\d{2}[-\s]?\d{7}|923\d{2}[-\s]?\d{7})/);
+      if (phoneMatch) custPhone = phoneMatch[0].replace(/[-\s]/g, '');
+
+      // 2. Process line by line
+      const lines = rawText.split('\n');
+      lines.forEach(line => {
+        let clean = line.trim();
+        if (!clean || clean.length < 3) return;
+        if (/^(?:customer|phone|address|date|total|delivery|notes)/i.test(clean)) return;
+
+        // Try extracting qty (e.g. "2 surf excel", "lux soap 3", "1x dalda")
+        let qty = 1;
+        const qtyPrefixMatch = clean.match(/^(\d+)\s*(?:x|packet|piece|pcs|pouch|kg|litre|ltr|box)?\s*(.+)/i);
+        const qtySuffixMatch = clean.match(/^(.+?)\s+(\d+)\s*(?:x|packet|piece|pcs|pouch|kg|litre|ltr|box)?$/i);
+
+        let query = clean;
+        if (qtyPrefixMatch && qtyPrefixMatch[1]) {
+          qty = parseInt(qtyPrefixMatch[1], 10);
+          query = qtyPrefixMatch[2];
+        } else if (qtySuffixMatch && qtySuffixMatch[2]) {
+          qty = parseInt(qtySuffixMatch[2], 10);
+          query = qtySuffixMatch[1];
+        }
+
+        query = query.toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!query) return;
+
+        // Match against allProducts
+        let bestMatch = null;
+        let bestScore = 0;
+
+        (allProducts || []).forEach(p => {
+          const pNameClean = (p.name || '').toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+          if (pNameClean === query) {
+            bestMatch = p;
+            bestScore = 100;
+          } else if (pNameClean.includes(query) && query.length > 3) {
+            const score = 50 + (query.length / pNameClean.length) * 30;
+            if (score > bestScore) {
+              bestScore = score;
+              bestMatch = p;
+            }
+          } else {
+            // Token match
+            const queryTokens = query.split(' ').filter(t => t.length > 2);
+            let matchTokens = 0;
+            queryTokens.forEach(t => {
+              if (pNameClean.includes(t)) matchTokens++;
+            });
+            if (queryTokens.length > 0 && matchTokens === queryTokens.length) {
+              const score = 40 + matchTokens * 10;
+              if (score > bestScore) {
+                bestScore = score;
+                bestMatch = p;
+              }
+            }
+          }
+        });
+
+        if (bestMatch) {
+          const sellPrice = Number(bestMatch.price || 0);
+          const purCost = Number(purchaseRates[bestMatch.id] || bestMatch.purchasePrice || 0);
+          const lineTotal = qty * sellPrice;
+          const lineCost = qty * purCost;
+          const profit = lineTotal - lineCost;
+
+          parsedWhatsAppItems.push({
+            id: bestMatch.id,
+            name: bestMatch.name,
+            qty: qty,
+            sellPrice: sellPrice,
+            purchasePrice: purCost,
+            lineTotal: lineTotal,
+            lineCost: lineCost,
+            profit: profit
+          });
+        }
+      });
+
+      if (parsedWhatsAppItems.length === 0) {
+        return alert('Could not automatically match products. Please ensure item names in message correspond to store products.');
+      }
+
+      // Populate preview
+      document.getElementById('paste-customer-name').value = custName;
+      document.getElementById('paste-customer-phone').value = custPhone;
+      document.getElementById('paste-preview-count').textContent = parsedWhatsAppItems.length;
+
+      renderPastePreviewTable();
+      document.getElementById('dsr-paste-preview').style.display = 'block';
+    }
+
+    function renderPastePreviewTable() {
+      const tbody = document.getElementById('paste-preview-tbody');
+      tbody.innerHTML = '';
+
+      let totalSale = 0;
+      let totalCost = 0;
+      let totalProfit = 0;
+
+      parsedWhatsAppItems.forEach((it, idx) => {
+        totalSale += it.lineTotal;
+        totalCost += it.lineCost;
+        totalProfit += it.profit;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color: var(--text-muted);">${idx + 1}</td>
+          <td style="font-weight: 700;">${escapeHtml(it.name)}</td>
+          <td style="text-align: right;">
+            <input type="number" min="1" value="${it.qty}" style="width: 55px; padding: 4px; text-align: center;" onchange="updateParsedItemQty(${idx}, this.value)">
+          </td>
+          <td style="text-align: right; color: #0284c7; font-weight: 700;">Rs. ${it.sellPrice.toLocaleString()}</td>
+          <td style="text-align: right; color: #64748b;">Rs. ${it.purchasePrice.toLocaleString()}</td>
+          <td style="text-align: right; font-weight: 700;">Rs. ${it.lineTotal.toLocaleString()}</td>
+          <td style="text-align: right; font-weight: 800; color: ${it.profit >= 0 ? 'var(--emerald)' : '#dc2626'};">Rs. +${it.profit.toLocaleString()}</td>
+          <td style="text-align: center;">
+            <button type="button" class="btn" style="color: var(--danger); padding: 2px 6px;" onclick="removeParsedItem(${idx})">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const marginPct = totalSale > 0 ? ((totalProfit / totalSale) * 100) : 0;
+      document.getElementById('paste-summary-sale').textContent = `Rs. ${totalSale.toLocaleString()}`;
+      document.getElementById('paste-summary-cost').textContent = `Rs. ${totalCost.toLocaleString()}`;
+      document.getElementById('paste-summary-profit').textContent = `Rs. +${totalProfit.toLocaleString()}`;
+      document.getElementById('paste-summary-margin').textContent = `${marginPct.toFixed(1)}% Margin`;
+    }
+
+    function updateParsedItemQty(idx, newQty) {
+      const q = Math.max(1, parseInt(newQty, 10) || 1);
+      parsedWhatsAppItems[idx].qty = q;
+      parsedWhatsAppItems[idx].lineTotal = q * parsedWhatsAppItems[idx].sellPrice;
+      parsedWhatsAppItems[idx].lineCost = q * parsedWhatsAppItems[idx].purchasePrice;
+      parsedWhatsAppItems[idx].profit = parsedWhatsAppItems[idx].lineTotal - parsedWhatsAppItems[idx].lineCost;
+      renderPastePreviewTable();
+    }
+
+    function removeParsedItem(idx) {
+      parsedWhatsAppItems.splice(idx, 1);
+      renderPastePreviewTable();
+    }
+
+    async function saveParsedWhatsAppOrder() {
+      if (parsedWhatsAppItems.length === 0) return alert('No items to save.');
+
+      const custName = (document.getElementById('paste-customer-name')?.value || '').trim() || 'WhatsApp Customer';
+      const custPhone = (document.getElementById('paste-customer-phone')?.value || '').trim();
+      const paymentMethod = document.getElementById('paste-customer-payment')?.value || 'cash';
+
+      const totalSale = parsedWhatsAppItems.reduce((s, i) => s + i.lineTotal, 0);
+      const totalCost = parsedWhatsAppItems.reduce((s, i) => s + i.lineCost, 0);
+      const totalProfit = totalSale - totalCost;
+
+      const payload = {
+        date: new Date().toISOString().slice(0, 10),
+        customerName: custName,
+        customerPhone: custPhone,
+        paymentMethod: paymentMethod,
+        source: 'whatsapp',
+        items: parsedWhatsAppItems,
+        totalSale: totalSale,
+        totalCost: totalCost,
+        totalProfit: totalProfit
+      };
+
+      try {
+        const res = await fetch('/api/dsr/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          const savedOrder = data.order || payload;
+          parsedWhatsAppItems = [];
+          document.getElementById('dsr-paste-input').value = '';
+          document.getElementById('dsr-paste-preview').style.display = 'none';
+
+          await loadDsr();
+          switchDsrSubSection('orders');
+          openCustomerBill(savedOrder);
+          alert('✅ WhatsApp Order Saved Successfully! Profit added to daily statement.');
+        } else {
+          alert('❌ Failed: ' + data.error);
+        }
+      } catch(e) {
+        alert('❌ Network error: ' + e.message);
+      }
+    }
+
+    // Auto-poll cloud relay & orders every 18 seconds
+    setInterval(() => {
+      loadDsr(true);
+    }, 18000);
 
         // ── Same-Day Expenses & Net Profit Engine ──
     function setExpensesDateToday() {

@@ -143,6 +143,200 @@ function parseBody(req) {
   });
 }
 
+// ── PURCHASE RATES & ORDER PROFIT ENGINE ──
+function getSavedPurchaseRates() {
+  if (fs.existsSync(RATES_FILE)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8'));
+      return data.rates || {};
+    } catch (e) {}
+  }
+  return {};
+}
+
+function getProductsCatalogMap() {
+  const map = {};
+  if (fs.existsSync(PRODUCTS_JSON)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+      if (Array.isArray(data.products)) {
+        data.products.forEach(p => {
+          map[String(p.id)] = p;
+        });
+      }
+    } catch (e) {}
+  }
+  return map;
+}
+
+function calculateOrderProfit(order, rates, productsMap) {
+  const activeRates = rates || getSavedPurchaseRates();
+  const catalog = productsMap || getProductsCatalogMap();
+  const items = Array.isArray(order.items) ? order.items : [];
+
+  let totalSale = 0;
+  let totalCost = 0;
+  let totalProfit = 0;
+  let missingCostCount = 0;
+
+  const processedItems = items.map(it => {
+    const pId = String(it.id || '');
+    const pObj = catalog[pId] || {};
+    const sellPrice = Number(it.sellPrice !== undefined ? it.sellPrice : (it.price !== undefined ? it.price : (pObj.price || 0)));
+    const qty = Number(it.qty || 1);
+    const lineTotal = Number(it.lineTotal !== undefined ? it.lineTotal : (it.total !== undefined ? it.total : (sellPrice * qty)));
+
+    let purchasePrice = null;
+    let hasPurchaseRate = false;
+
+    if (it.purchasePrice !== undefined && it.purchasePrice !== null && Number(it.purchasePrice) > 0) {
+      purchasePrice = Number(it.purchasePrice);
+      hasPurchaseRate = true;
+    } else if (activeRates[pId] !== undefined && Number(activeRates[pId]) > 0) {
+      purchasePrice = Number(activeRates[pId]);
+      hasPurchaseRate = true;
+    } else if (pObj.purchasePrice !== undefined && Number(pObj.purchasePrice) > 0) {
+      purchasePrice = Number(pObj.purchasePrice);
+      hasPurchaseRate = true;
+    }
+
+    let lineCost = 0;
+    let lineProfit = 0;
+    let marginPct = 0;
+
+    if (hasPurchaseRate) {
+      lineCost = Math.round(purchasePrice * qty * 100) / 100;
+      lineProfit = Math.round((lineTotal - lineCost) * 100) / 100;
+      marginPct = lineTotal > 0 ? Math.round((lineProfit / lineTotal) * 1000) / 10 : 0;
+    } else {
+      missingCostCount++;
+      lineCost = 0;
+      lineProfit = 0;
+      marginPct = 0;
+    }
+
+    totalSale += lineTotal;
+    totalCost += lineCost;
+    totalProfit += lineProfit;
+
+    return {
+      id: it.id,
+      name: it.name || pObj.name || `Item #${it.id}`,
+      qty: qty,
+      sellPrice: sellPrice,
+      purchasePrice: hasPurchaseRate ? purchasePrice : null,
+      hasPurchaseRate: hasPurchaseRate,
+      lineTotal: lineTotal,
+      lineCost: lineCost,
+      lineProfit: lineProfit,
+      marginPct: marginPct,
+      variant: it.variant || null
+    };
+  });
+
+  const deliveryFee = Number(order.deliveryFee) || 0;
+  const grandTotal = Number(order.grandTotal) || (totalSale + deliveryFee);
+  const profitMarginPct = totalSale > 0 ? Math.round((totalProfit / totalSale) * 1000) / 10 : 0;
+
+  return {
+    ...order,
+    items: processedItems,
+    totalSale: totalSale,
+    totalCost: totalCost,
+    totalProfit: totalProfit,
+    deliveryFee: deliveryFee,
+    grandTotal: grandTotal,
+    profitMarginPct: profitMarginPct,
+    missingCostCount: missingCostCount,
+    allCostsSet: missingCostCount === 0
+  };
+}
+
+function getPurchaseRatesCoverage() {
+  const rates = getSavedPurchaseRates();
+  const catalog = getProductsCatalogMap();
+  const allProducts = Object.values(catalog);
+  const totalProducts = allProducts.length;
+
+  let ratedCount = 0;
+  const missingItems = [];
+
+  allProducts.forEach(p => {
+    const pId = String(p.id);
+    if (rates[pId] !== undefined && Number(rates[pId]) > 0) {
+      ratedCount++;
+    } else {
+      missingItems.push({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        categoryId: p.categoryId,
+        categoryName: p.categoryName || 'General'
+      });
+    }
+  });
+
+  const missingCount = totalProducts - ratedCount;
+  const coveragePct = totalProducts > 0 ? Math.round((ratedCount / totalProducts) * 1000) / 10 : 0;
+
+  return {
+    totalProducts,
+    ratedCount,
+    missingCount,
+    coveragePct,
+    missingItems
+  };
+}
+
+const CLOUD_ORDER_TOPIC = 'zsmart_orders_live_786';
+
+function syncCloudOrders() {
+  try {
+    const https = require('https');
+    const req = https.get(`https://ntfy.sh/${CLOUD_ORDER_TOPIC}/json?poll=1`, res => {
+      let raw = '';
+      res.on('data', chunk => raw += chunk);
+      res.on('end', () => {
+        if (!raw) return;
+        const lines = raw.trim().split('\n').filter(Boolean);
+        if (lines.length === 0) return;
+
+        let dsr = { orders: [], expenses: [] };
+        if (fs.existsSync(DSR_FILE)) {
+          try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
+        }
+        if (!Array.isArray(dsr.orders)) dsr.orders = [];
+
+        const rates = getSavedPurchaseRates();
+        const catalog = getProductsCatalogMap();
+        let addedCount = 0;
+
+        lines.forEach(line => {
+          try {
+            const msgObj = JSON.parse(line);
+            if (msgObj.event !== 'message' || !msgObj.message) return;
+            const orderData = JSON.parse(msgObj.message);
+            if (!orderData || !orderData.id) return;
+
+            const exists = dsr.orders.some(o => String(o.id) === String(orderData.id));
+            if (!exists) {
+              const processed = calculateOrderProfit(orderData, rates, catalog);
+              dsr.orders.unshift(processed);
+              addedCount++;
+            }
+          } catch(e) {}
+        });
+
+        if (addedCount > 0) {
+          fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+          console.log(`[Cloud Sync] Received and saved ${addedCount} new orders from WhatsApp / Web!`);
+        }
+      });
+    });
+    req.on('error', () => {});
+  } catch(e) {}
+}
+
 const server = http.createServer(async (req, res) => {
   // CORS Preflight
   if (req.method === 'OPTIONS') {
@@ -223,6 +417,61 @@ const server = http.createServer(async (req, res) => {
       config.updatedAt = new Date().toISOString();
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
       return sendJson(res, 200, { ok: true, message: 'Master Password updated successfully!', token: config.sessionToken });
+    }
+
+    // 0. PUBLIC: Customer Order Placement Endpoint (Zero Auth Required)
+    if (pathname === '/api/customer-order' && req.method === 'POST') {
+      const body = await parseBody(req);
+      if (!body || !body.items || !Array.isArray(body.items)) {
+        return sendJson(res, 400, { ok: false, error: 'Invalid order data' });
+      }
+
+      let dsr = { orders: [], expenses: [] };
+      if (fs.existsSync(DSR_FILE)) {
+        try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
+      }
+      if (!Array.isArray(dsr.orders)) dsr.orders = [];
+
+      const rates = getSavedPurchaseRates();
+      const catalog = getProductsCatalogMap();
+
+      const orderId = body.id || ('ORD-' + Date.now());
+      const now = new Date();
+      const orderDate = body.date || now.toISOString().slice(0, 10);
+      const orderTime = body.time || now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+      const rawOrder = {
+        id: orderId,
+        date: orderDate,
+        time: orderTime,
+        channel: body.channel || (body.isParchi ? 'whatsapp_parchi' : 'whatsapp_web'),
+        paymentMethod: body.paymentMethod || 'cash',
+        customerName: body.customer?.name || body.customerName || 'Online Customer',
+        customerPhone: body.customer?.phone || body.customerPhone || '',
+        customerAddress: body.customer?.address || body.customerAddress || '',
+        deliveryMethod: body.deliveryMethod || 'home',
+        location: body.customer?.location || body.location || null,
+        notes: body.notes || '',
+        photoUrl: body.photoUrl || null,
+        items: body.items,
+        deliveryFee: Number(body.deliveryFee) || 0,
+        status: 'pending'
+      };
+
+      const calculated = calculateOrderProfit(rawOrder, rates, catalog);
+
+      // Check if already exists to prevent duplicate insertion
+      const existingIdx = dsr.orders.findIndex(o => String(o.id) === String(orderId));
+      if (existingIdx >= 0) {
+        dsr.orders[existingIdx] = calculated;
+      } else {
+        dsr.orders.unshift(calculated);
+      }
+
+      fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+      console.log(`[Order Received] Order #${orderId} saved with live profit: Rs. ${calculated.totalProfit} (${calculated.profitMarginPct}%)`);
+
+      return sendJson(res, 200, { ok: true, order: calculated });
     }
 
     // Master Security Gate: Block ANY /api/ endpoint if not authenticated
@@ -536,15 +785,37 @@ function syncImageToTargets(fileName) {
       return sendJson(res, 200, { ok: true, catId, priority: prioNum, categories: updatedCategories });
     }
 
-    // 6. API: DSR Sales GET
+    // 6. API: DSR Sales GET (With live profit recalculation and catalog coverage)
     if (pathname === '/api/dsr' && req.method === 'GET') {
+      let dsr = { orders: [], expenses: [] };
       if (fs.existsSync(DSR_FILE)) {
-        return sendFile(res, DSR_FILE, 'application/json; charset=utf-8');
+        try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
       }
-      return sendJson(res, 200, { orders: [], expenses: [] });
+      if (!Array.isArray(dsr.orders)) dsr.orders = [];
+      if (!Array.isArray(dsr.expenses)) dsr.expenses = [];
+
+      const rates = getSavedPurchaseRates();
+      const catalog = getProductsCatalogMap();
+
+      // Recalculate profit live for all orders so newly added rates immediately reflect!
+      dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, rates, catalog));
+
+      const coverage = getPurchaseRatesCoverage();
+
+      return sendJson(res, 200, {
+        orders: dsr.orders,
+        expenses: dsr.expenses,
+        coverage: coverage
+      });
     }
 
-    // 7. API: DSR Order POST
+    // 6b. API: Manual Cloud Orders Sync Trigger
+    if (pathname === '/api/dsr/sync-cloud' && req.method === 'GET') {
+      syncCloudOrders();
+      return sendJson(res, 200, { ok: true, message: 'Cloud sync triggered' });
+    }
+
+    // 7. API: DSR Order POST (Manual / Counter / WhatsApp import)
     if (pathname === '/api/dsr/order' && req.method === 'POST') {
       const body = await parseBody(req);
       let dsr = { orders: [], expenses: [] };
@@ -553,50 +824,100 @@ function syncImageToTargets(fileName) {
       }
       if (!Array.isArray(dsr.orders)) dsr.orders = [];
 
-      const orderId = body.id || 'ORD-' + Date.now();
-      const orderRecord = {
-        id: orderId,
-        date: body.date || new Date().toISOString().slice(0, 10),
-        time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
-        channel: body.channel || 'shop',
-        paymentMethod: body.paymentMethod || 'cash',
-        customerName: body.customerName || 'Walk-in Customer',
-        customerPhone: body.customerPhone || '',
-        items: body.items || [],
-        totalSale: Number(body.totalSale) || 0,
-        totalCost: Number(body.totalCost) || 0,
-        totalProfit: Number(body.totalProfit) || 0
-      };
-
-      dsr.orders.unshift(orderRecord);
-      fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
-
-      // Auto-update purchase rates from order items and/or updatedRates
-      let rates = { rates: {} };
+      let ratesObj = { rates: {} };
       if (fs.existsSync(RATES_FILE)) {
-        try { rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
+        try { ratesObj = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
       }
-      if (!rates.rates) rates.rates = {};
-      let ratesChanged = false;
+      if (!ratesObj.rates) ratesObj.rates = {};
 
+      // If user provided purchase rates inside items or in updatedRates, save them permanently!
+      let ratesChanged = false;
       if (Array.isArray(body.items)) {
         body.items.forEach(it => {
           if (it.id && it.purchasePrice !== undefined && Number(it.purchasePrice) > 0) {
-            rates.rates[String(it.id)] = Number(it.purchasePrice);
+            ratesObj.rates[String(it.id)] = Number(it.purchasePrice);
             ratesChanged = true;
           }
         });
       }
-      if (body.updatedRates && Object.keys(body.updatedRates).length > 0) {
-        Object.assign(rates.rates, body.updatedRates);
+      if (body.updatedRates && typeof body.updatedRates === 'object') {
+        Object.assign(ratesObj.rates, body.updatedRates);
         ratesChanged = true;
       }
       if (ratesChanged) {
-        rates.updatedAt = new Date().toISOString();
-        fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+        ratesObj.updatedAt = new Date().toISOString();
+        fs.writeFileSync(RATES_FILE, JSON.stringify(ratesObj, null, 2), 'utf8');
       }
 
-      return sendJson(res, 200, { ok: true, order: orderRecord });
+      const catalog = getProductsCatalogMap();
+      const orderId = body.id || ('ORD-' + Date.now());
+      const now = new Date();
+      const orderDate = body.date || now.toISOString().slice(0, 10);
+      const orderTime = body.time || now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+      const rawOrder = {
+        id: orderId,
+        date: orderDate,
+        time: orderTime,
+        channel: body.channel || 'shop',
+        paymentMethod: body.paymentMethod || 'cash',
+        customerName: body.customerName || body.customer?.name || 'Walk-in Customer',
+        customerPhone: body.customerPhone || body.customer?.phone || '',
+        customerAddress: body.customerAddress || body.customer?.address || '',
+        deliveryMethod: body.deliveryMethod || 'pickup',
+        location: body.location || body.customer?.location || null,
+        notes: body.notes || '',
+        photoUrl: body.photoUrl || null,
+        items: body.items || [],
+        deliveryFee: Number(body.deliveryFee) || 0,
+        status: body.status || 'completed'
+      };
+
+      const processed = calculateOrderProfit(rawOrder, ratesObj.rates, catalog);
+
+      const existingIdx = dsr.orders.findIndex(o => String(o.id) === String(orderId));
+      if (existingIdx >= 0) {
+        dsr.orders[existingIdx] = processed;
+      } else {
+        dsr.orders.unshift(processed);
+      }
+
+      fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+      return sendJson(res, 200, { ok: true, order: processed });
+    }
+
+    // 7b. API: Single Product Purchase Rate Update (With instant order profit recalculation)
+    if (pathname.startsWith('/api/products/') && pathname.endsWith('/purchase-rate') && req.method === 'POST') {
+      const parts = pathname.split('/');
+      const itemId = parts[3];
+      const body = await parseBody(req);
+      const newRate = Number(body.purchasePrice !== undefined ? body.purchasePrice : (body.rate !== undefined ? body.rate : body.price));
+
+      if (itemId && !isNaN(newRate) && newRate >= 0) {
+        let ratesObj = { rates: {} };
+        if (fs.existsSync(RATES_FILE)) {
+          try { ratesObj = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
+        }
+        if (!ratesObj.rates) ratesObj.rates = {};
+        ratesObj.rates[String(itemId)] = newRate;
+        ratesObj.updatedAt = new Date().toISOString();
+        fs.writeFileSync(RATES_FILE, JSON.stringify(ratesObj, null, 2), 'utf8');
+
+        // Recalculate orders in dsr_data.json
+        if (fs.existsSync(DSR_FILE)) {
+          try {
+            const dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8'));
+            if (Array.isArray(dsr.orders)) {
+              const catalog = getProductsCatalogMap();
+              dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, ratesObj.rates, catalog));
+              fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+            }
+          } catch(e) {}
+        }
+
+        return sendJson(res, 200, { ok: true, id: itemId, rate: newRate });
+      }
+      return sendJson(res, 400, { ok: false, error: 'Invalid purchase rate' });
     }
 
     // 8. API: DSR Expense POST
@@ -647,6 +968,19 @@ function syncImageToTargets(fileName) {
       }
       rates.updatedAt = new Date().toISOString();
       fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+
+      // Recalculate orders in dsr_data.json
+      if (fs.existsSync(DSR_FILE)) {
+        try {
+          const dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8'));
+          if (Array.isArray(dsr.orders)) {
+            const catalog = getProductsCatalogMap();
+            dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, rates.rates, catalog));
+            fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+          }
+        } catch(e) {}
+      }
+
       return sendJson(res, 200, { ok: true, count: Object.keys(rates.rates).length, rates: rates.rates });
     }
 
@@ -1030,4 +1364,8 @@ server.listen(PORT, '127.0.0.1', () => {
   try {
     exec(`start http://localhost:${PORT}/`);
   } catch(e) {}
+
+  // Start Background Cloud Order Sync (Polls for incoming WhatsApp orders every 20s)
+  setTimeout(syncCloudOrders, 2500);
+  setInterval(syncCloudOrders, 20000);
 });

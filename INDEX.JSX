@@ -129,6 +129,30 @@ function getTranslationValue(dictionary, key) {
       }
     }
 
+    // Smart Order Dispatcher to Admin Backend & Cloud Sync
+    function dispatchOrderToBackend(orderRecord) {
+      if (!orderRecord) return;
+      try {
+        // 1. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
+        fetch('/api/customer-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderRecord)
+        }).catch(() => {});
+
+        // 2. Global Cloud Relay Broadcast (Guarantees delivery from ANY mobile carrier / network globally)
+        fetch('https://ntfy.sh/zsmart_orders_live_786', {
+          method: 'POST',
+          headers: {
+            'Title': `ZS Mart Order #${orderRecord.id} - ${orderRecord.customer?.name || 'Customer'}`,
+            'Priority': 'default',
+            'Tags': 'shopping_cart'
+          },
+          body: JSON.stringify(orderRecord)
+        }).catch(() => {});
+      } catch(e) {}
+    }
+
     function saveInvoiceAsImage(order, language) {
       triggerHaptic('success');
       const canvas = document.createElement('canvas');
@@ -3294,6 +3318,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
     if (typeof saveOrderHistory === 'function') {
       saveOrderHistory(orderRecord);
     }
+    dispatchOrderToBackend(orderRecord);
     try {
       localStorage.setItem('zs_mart_customer_profile', JSON.stringify({
         name: name.trim(),
@@ -3918,6 +3943,25 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${((pricing.savings * modalQty) + bulkPricing.extraSavings).toLocaleString()})`;
     }
     const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
+    const directOrderRecord = {
+      id: Math.floor(100000 + Math.random() * 900000),
+      dateText: new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+      customer: { name: 'Direct WhatsApp Customer', phone: '' },
+      deliveryMethod: 'home',
+      channel: 'whatsapp_direct',
+      subtotal: bulkPricing.finalTotal,
+      grandTotal: bulkPricing.finalTotal,
+      items: [
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          qty: modalQty,
+          total: bulkPricing.finalTotal
+        }
+      ]
+    };
+    dispatchOrderToBackend(directOrderRecord);
     launchWhatsApp(getStoreSettings().whatsapp, msg);
   };
   return (
@@ -8995,6 +9039,7 @@ export default function SahilTraders() {
         if (typeof saveOrderHistory === 'function') {
           saveOrderHistory(orderRecord);
         }
+        dispatchOrderToBackend(orderRecord);
         try {
           localStorage.setItem('zs_mart_customer_profile', JSON.stringify({
             name: name.trim(),

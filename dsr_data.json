@@ -10,6 +10,34 @@
   ],
   "orders": [
     {
+      "id": "ORD-TEST-999",
+      "customerName": "Ahmad Khan",
+      "customerPhone": "03001234567",
+      "items": [
+        {
+          "id": 1,
+          "name": "7 Herbal Oil",
+          "qty": 2,
+          "sellPrice": 220,
+          "purchasePrice": 200,
+          "hasPurchaseRate": true,
+          "lineTotal": 440,
+          "lineCost": 400,
+          "lineProfit": 40,
+          "marginPct": 9.1,
+          "variant": null
+        }
+      ],
+      "totalSale": 440,
+      "totalCost": 400,
+      "totalProfit": 40,
+      "deliveryFee": 0,
+      "grandTotal": 440,
+      "profitMarginPct": 9.1,
+      "missingCostCount": 0,
+      "allCostsSet": true
+    },
+    {
       "id": "ORD-1791120814434",
       "date": "2026-10-04",
       "time": "18:33",

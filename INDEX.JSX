@@ -72,15 +72,60 @@ function getTranslationValue(dictionary, key) {
         }
       } catch (e) {}
     }
+    // Universal Smart WhatsApp URL Builder
     function buildWhatsAppUrl(phoneNumber, message) {
       const activePhone = phoneNumber || (getStoreSettings().whatsapp || '923368945775');
       const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
       const encodedText = encodeURIComponent(message || '');
-      const isMobile = typeof navigator !== 'undefined' && (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()));
+      // Official WhatsApp Meta universal deep-link (prioritizes regular WhatsApp across all platforms)
+      return `https://wa.me/${cleanPhone}?text=${encodedText}`;
+    }
+
+    // Smart WhatsApp App Launcher: Opens Regular WhatsApp First!
+    function launchWhatsApp(phoneNumber, message) {
+      const activePhone = phoneNumber || (getStoreSettings().whatsapp || '923368945775');
+      const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
+      const encodedText = encodeURIComponent(message || '');
+      const isCapacitor = typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+      const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
+      const isMobile = typeof navigator !== 'undefined' && (
+        /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || isCapacitor
+      );
+
+      const universalWaUrl = `https://wa.me/${cleanPhone}?text=${encodedText}`;
+      const regularWaScheme = `whatsapp://send?phone=${cleanPhone}&text=${encodedText}`;
+
       if (isMobile) {
-        return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;
+        if (isAndroid && !isCapacitor) {
+          // Explicit Android Intent: strictly targets regular WhatsApp (package: com.whatsapp)
+          // If com.whatsapp is NOT installed, Android uses browser_fallback_url (wa.me) which then opens WhatsApp Business or web!
+          const intentUrl = `intent://send?phone=${cleanPhone}&text=${encodedText}#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url=https%3A%2F%2Fwa.me%2F${cleanPhone}%3Ftext%3D${encodedText};end`;
+          try {
+            window.location.href = intentUrl;
+            return;
+          } catch(e) {}
+        }
+
+        // Standard scheme for Capacitor or iOS
+        let appOpened = false;
+        const blurHandler = () => { appOpened = true; };
+        window.addEventListener('blur', blurHandler, { once: true });
+
+        // Trigger regular WhatsApp protocol
+        try {
+          window.location.href = regularWaScheme;
+        } catch(e) {}
+
+        // Fallback: If regular WhatsApp is not installed or didn't launch, open universal wa.me
+        setTimeout(() => {
+          window.removeEventListener('blur', blurHandler);
+          if (!appOpened && document.hasFocus && document.hasFocus()) {
+            window.open(universalWaUrl, '_blank');
+          }
+        }, 1200);
       } else {
-        return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;
+        // Laptop / PC: open wa.me which defaults to regular WhatsApp Web / Desktop
+        window.open(universalWaUrl, '_blank');
       }
     }
 
@@ -2804,10 +2849,12 @@ function AboutUsModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
           <a
-            href={`https://api.whatsapp.com/send?phone=${getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}&text=${encodeURIComponent(tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
+            href={buildWhatsAppUrl(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}
+            onClick={(e) => {
+              e.preventDefault();
+              launchWhatsApp(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'));
+            }}
+            className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none cursor-pointer"
           >
             <span>💬</span>
             <span>{tr(modalLang, 'Chat on WhatsApp', 'WhatsApp par Rabta Karein', 'واٹس ایپ پر رابطہ کریں')}</span>
@@ -2965,10 +3012,12 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shrink-0">
           <a
-            href={`https://api.whatsapp.com/send?phone=${getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775'}&text=${encodeURIComponent(tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none"
+            href={buildWhatsAppUrl(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}
+            onClick={(e) => {
+              e.preventDefault();
+              launchWhatsApp(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'));
+            }}
+            className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none cursor-pointer"
           >
             <span>💬</span>
             <span>{tr(language, 'WhatsApp Claim', 'WhatsApp par Claim Karein', 'واٹس ایپ پر کلیم کریں')}</span>
@@ -3069,6 +3118,8 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submittedOrderId, setSubmittedOrderId] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedUrl, setUploadedUrl] = useState(null);
   const [location, setLocation] = useState(() => (window.__prefetchedLocation || null));
   const [locLoading, setLocLoading] = useState(false);
   const [locError, setLocError] = useState(null);
@@ -3125,6 +3176,58 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
     }
   };
 
+  const compressImageBlob = (dataUrl, maxWidth = 1200, quality = 0.75) => {
+    return new Promise((resolve) => {
+      try {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => {
+            resolve(blob);
+          }, 'image/jpeg', quality);
+        };
+        img.onerror = () => resolve(null);
+        img.src = dataUrl;
+      } catch(e) {
+        resolve(null);
+      }
+    });
+  };
+
+  const uploadParchiToCloud = async (blob) => {
+    if (!blob) return null;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const formData = new FormData();
+      formData.append('file', blob, 'zs_mart_parchi.jpg');
+      const res = await fetch('https://tmpfiles.org/api/v1/upload', {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) return null;
+      const json = await res.json();
+      if (json && json.data && json.data.url) {
+        return json.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+      }
+    } catch(err) {
+      console.warn('Parchi cloud upload warning:', err);
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -3140,11 +3243,25 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       return;
     }
 
+    setIsUploading(true);
     triggerHaptic('success');
     const orderId = Math.floor(100000 + Math.random() * 900000);
     setSubmittedOrderId(orderId);
     const now = new Date();
     const dateText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    let cloudImgUrl = null;
+    if (orderMode === 'photo' && photo) {
+      try {
+        const compressedBlob = await compressImageBlob(photo);
+        if (compressedBlob) {
+          cloudImgUrl = await uploadParchiToCloud(compressedBlob);
+          if (cloudImgUrl) {
+            setUploadedUrl(cloudImgUrl);
+          }
+        }
+      } catch(err) {}
+    }
 
     const orderRecord = {
       id: orderId,
@@ -3162,14 +3279,16 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
           name: `📸 Parchi Slip Order (${notes ? notes.substring(0, 30) : 'Handwritten List'})`,
           qty: 1,
           price: 0,
-          total: 0
+          total: 0,
+          photoUrl: cloudImgUrl || null
         }
       ],
       subtotal: 0,
       deliveryFee: deliveryMethod === "home" ? getDeliveryFee() : 0,
       grandTotal: 0,
       isParchi: true,
-      notes: notes.trim()
+      notes: notes.trim(),
+      photoUrl: cloudImgUrl || null
     };
 
     if (typeof saveOrderHistory === 'function') {
@@ -3184,11 +3303,22 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
     } catch(e) {}
 
     const locText = (deliveryMethod === 'home' && location) ? `\n📍 *Live GPS Map Pin:* ${location.mapUrl}` : '';
-    const orderTitle = orderMode === 'voice' ? '🎙️ *Salam ZS Mart! Voice Note Order*' : '*Salam ZS Mart!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*';
-    const attachNote = orderMode === 'voice' ? '_(Voice note audio is WhatsApp chat mein send ki ja rahi hai)_' : '_(Parchi ki photo chat mein send ki ja rahi hai)_';
-    const waText = `${orderTitle}\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}\n${notes.trim() ? `📝 *Notes:* ${notes.trim()}\n` : ''}\n${attachNote}`;
+    const orderTitle = orderMode === 'voice' 
+      ? '🎙️ *Salam ZS Mart! Voice Note Order*' 
+      : '*Salam ZS Mart!* 📸\n*Mene Parchi (Handwritten Slip) Order diya hai.*';
 
-    // Try direct native Web Share with photo file (opens WhatsApp with actual photo attached on mobile)
+    let photoLinkText = '';
+    if (cloudImgUrl) {
+      photoLinkText = `\n\n📸 *PARCHI SLIP PHOTO (Haath se likhi list):*\n👉 ${cloudImgUrl}\n_(Link par click karke parchi photo dekhein)_`;
+    }
+
+    const attachNote = orderMode === 'voice' 
+      ? '\n🎙️ _(Voice note audio is WhatsApp chat mein send ki ja rahi hai)_' 
+      : (cloudImgUrl ? '' : '\n📸 _(Parchi ki photo chat mein send ki ja rahi hai)_');
+
+    const waText = `${orderTitle}\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}${notes.trim() ? `\n📝 *Notes:* ${notes.trim()}` : ''}${photoLinkText}${attachNote}`;
+
+    // Try native share first if available and user attached file
     let sharedWithFile = false;
     if (photoFile && navigator.canShare && navigator.canShare({ files: [photoFile] })) {
       try {
@@ -3198,24 +3328,25 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
           text: waText
         });
         sharedWithFile = true;
-      } catch (err) {
-        // User cancelled share sheet or share failed
-      }
+      } catch (err) {}
     }
 
     if (!sharedWithFile) {
-      const waUrl = buildWhatsAppUrl(getStoreSettings().whatsapp, waText);
-      window.open(waUrl, '_blank');
+      launchWhatsApp(getStoreSettings().whatsapp, waText);
     }
 
+    setIsUploading(false);
     setSubmitted(true);
   };
 
   const handleOpenWhatsAppDirect = () => {
     const locText = (deliveryMethod === 'home' && location) ? `\n📍 *Live GPS Map Pin:* ${location.mapUrl}` : '';
-    const waText = `*Salam ZS Mart!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}`;
-    const waUrl = buildWhatsAppUrl(getStoreSettings().whatsapp, waText);
-    window.open(waUrl, '_blank');
+    let photoLinkText = '';
+    if (uploadedUrl) {
+      photoLinkText = `\n\n📸 *PARCHI PHOTO:* ${uploadedUrl}`;
+    }
+    const waText = `*Salam ZS Mart!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}${photoLinkText}`;
+    launchWhatsApp(getStoreSettings().whatsapp, waText);
   };
 
   return (
@@ -3254,28 +3385,85 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
               
               {/* Photo Preview in Success Screen */}
               {photo && (
-                <div className="w-28 h-28 mx-auto rounded-2xl border-2 border-emerald-400 overflow-hidden bg-gray-50 shadow-sm flex items-center justify-center p-1">
+                <div className="w-32 h-32 mx-auto rounded-2xl border-2 border-emerald-400 overflow-hidden bg-gray-50 shadow-sm flex items-center justify-center p-1">
                   <img src={photo} alt="Slip" className="w-full h-full object-contain rounded-xl" />
                 </div>
               )}
 
-              {/* Photo Attachment Guidance Notice */}
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left text-xs text-amber-900 space-y-1 shadow-2xs">
-                <p className="font-black flex items-center gap-1.5 text-amber-950">
-                  <span>💡</span>
-                  <span>{tr(language, 'WhatsApp Photo Reminder', 'Zaroori Baat (Photo Attach Karein)', 'ضروری نوٹ: تصویر منسلک کریں')}</span>
-                </p>
-                <p className="leading-relaxed text-[11px] text-amber-900/90">
-                  {tr(
-                    language,
-                    'WhatsApp chat is now open! Please tap the Attach (📎) or Camera icon in WhatsApp to send this slip photo so we can prepare your order.',
-                    'WhatsApp chat khul chuki hai! WhatsApp mein Attach (📎) ya Camera button daba kar yeh parchi ki photo lazmi send kar dein.',
-                    'واٹس ایپ چیٹ کھل چکی ہے۔ واٹس ایپ میں اٹیچ (📎) کے بٹن سے پرچی کی تصویر بھیج دیں۔'
-                  )}
-                </p>
-              </div>
+              {/* Photo Status / Cloud URL Notification */}
+              {uploadedUrl ? (
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center text-xs text-emerald-900 space-y-1 shadow-2xs">
+                  <p className="font-black flex items-center justify-center gap-1.5 text-emerald-950">
+                    <span>✅</span>
+                    <span>{tr(language, 'Parchi Photo Link Sent on WhatsApp!', 'Parchi Photo Ka Link WhatsApp Par Bhej Diya Gaya!', 'پرچی کی تصویر کا لنک واٹس ایپ پر شامل ہے!')}</span>
+                  </p>
+                  <p className="leading-relaxed text-[11px] text-emerald-800">
+                    {tr(language, 'The store received the direct link to view your slip photo.', 'Store walon ko aapki parchi photo ka direct link mil chuka hai.', 'دکاندار تصویر پر کلک کر کے پرچی دیکھ سکتے ہیں۔')}
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-left text-xs text-amber-900 space-y-1 shadow-2xs">
+                  <p className="font-black flex items-center gap-1.5 text-amber-950">
+                    <span>💡</span>
+                    <span>{tr(language, 'WhatsApp Photo Reminder', 'Zaroori Baat (Photo Attach Karein)', 'ضروری نوٹ: تصویر منسلک کریں')}</span>
+                  </p>
+                  <p className="leading-relaxed text-[11px] text-amber-900/90">
+                    {tr(
+                      language,
+                      'WhatsApp chat is now open! Please tap the Attach (📎) or Camera icon in WhatsApp to send this slip photo so we can prepare your order.',
+                      'WhatsApp chat khul chuki hai! WhatsApp mein Attach (📎) ya Camera button daba kar yeh parchi ki photo lazmi send kar dein.',
+                      'واٹس ایپ چیٹ کھل چکی ہے۔ واٹس ایپ میں اٹیچ (📎) کے بٹن سے پرچی کی تصویر بھیج دیں۔'
+                    )}
+                  </p>
+                </div>
+              )}
 
               <div className="pt-2 flex flex-col gap-2">
+                {/* Option to share photo directly via native share */}
+                {photoFile && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (navigator.canShare && navigator.canShare({ files: [photoFile] })) {
+                        try {
+                          await navigator.share({
+                            files: [photoFile],
+                            title: `ZS Mart Parchi #${submittedOrderId}`,
+                            text: `*Salam ZS Mart!* 📸\nOrder Ref: #${submittedOrderId}\nYe meri parchi ki photo hai.`
+                          });
+                        } catch(e) {}
+                      } else {
+                        handleOpenWhatsAppDirect();
+                      }
+                    }}
+                    className="w-full py-2.5 px-4 bg-teal-600 hover:bg-teal-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <span>📤</span>
+                    <span>{tr(language, 'Share Photo on WhatsApp', 'WhatsApp Par Photo Bhejein', 'واٹس ایپ پر تصویر شیئر کریں')}</span>
+                  </button>
+                )}
+
+                {/* Option to save photo to mobile gallery */}
+                {photo && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const a = document.createElement('a');
+                      a.href = photo;
+                      a.download = `ZS_Mart_Parchi_Order_${submittedOrderId || 'slip'}.jpg`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      triggerHaptic('success');
+                      alert(tr(language, 'Photo saved to your phone! You can easily attach it in WhatsApp.', 'Photo phone mein save ho gayi! WhatsApp mein aasani se attach kar dein.', 'تصویر محفوظ ہو گئی۔'));
+                    }}
+                    className="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <span>💾</span>
+                    <span>{tr(language, 'Save Photo to Gallery', 'Photo Phone Mein Save Karein', 'تصویر موبائل میں محفوظ کریں')}</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={handleOpenWhatsAppDirect}
@@ -3284,6 +3472,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
                   <span>💬</span>
                   <span>{tr(language, 'Open WhatsApp Chat Again', 'WhatsApp Chat Dobara Kholein', 'دوبارہ واٹس ایپ کھولیں')}</span>
                 </button>
+
                 <button
                   type="button"
                   onClick={onClose}
@@ -3543,10 +3732,20 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
               <button
                 type="submit"
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all active:scale-95 cursor-pointer mt-2"
+                disabled={isUploading}
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all active:scale-95 cursor-pointer mt-2 disabled:opacity-80 disabled:cursor-wait"
               >
-                <span>💬</span>
-                <span>{tr(language, 'Submit & Send on WhatsApp', 'Parchi Order WhatsApp Par Bhejein', 'پرچی آرڈر واٹس ایپ پر بھیجیں')}</span>
+                {isUploading ? (
+                  <>
+                    <span className="animate-spin inline-block">⏳</span>
+                    <span>{tr(language, 'Uploading Slip & Preparing WhatsApp...', 'Parchi Upload Ho Rahi Hai...', 'پرچی اپلوڈ ہو رہی ہے...')}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>💬</span>
+                    <span>{tr(language, 'Submit & Send on WhatsApp', 'Parchi Order WhatsApp Par Bhejein', 'پرچی آرڈر واٹس ایپ پر بھیجیں')}</span>
+                  </>
+                )}
               </button>
             </form>
           )}
@@ -3719,7 +3918,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${((pricing.savings * modalQty) + bulkPricing.extraSavings).toLocaleString()})`;
     }
     const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
-    window.open(buildWhatsAppUrl(getStoreSettings().whatsapp, msg), '_blank');
+    launchWhatsApp(getStoreSettings().whatsapp, msg);
   };
   return (
     <div 
@@ -3957,6 +4156,28 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                   </div>
                 </div>
 
+                {/* Action Buttons */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  <button
+                    onClick={() => { 
+                      onAddToCart(product, null, modalQty); 
+                      onClose(); 
+                    }}
+                    className="w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>🛒</span>
+                    <span>{translate(langData, "addToCart")} ({modalQty})</span>
+                  </button>
+                  
+                  <button
+                    onClick={handleDirectWhatsAppOrder}
+                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <span>💬</span>
+                    <span>{tr(language, 'Buy on WhatsApp', 'WhatsApp par Order Karein', 'واٹس ایپ پر آرڈر کریں')}</span>
+                  </button>
+                </div>
+
                 {/* Live Total / Subtotal Calculation with Bulk Discount */}
                 <div className={`border rounded-xl px-3 py-2 shadow-2xs ${
                   bulkPricing.extraPercent > 0 
@@ -4027,28 +4248,6 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                     );
                   })()}
                 </div>
-
-              {/* Action Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                <button
-                  onClick={() => { 
-                    onAddToCart(product, null, modalQty); 
-                    onClose(); 
-                  }}
-                  className="w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <span>🛒</span>
-                  <span>{translate(langData, "addToCart")} ({modalQty})</span>
-                </button>
-                
-                <button
-                  onClick={handleDirectWhatsAppOrder}
-                  className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <span>💬</span>
-                  <span>{tr(language, 'Buy on WhatsApp', 'WhatsApp par Order Karein', 'واٹس ایپ پر آرڈر کریں')}</span>
-                </button>
-              </div>
             </div>
           </div>
           {/* Product Highlights & Guarantees */}
@@ -6326,7 +6525,8 @@ export default function SahilTraders() {
 
                   {/* WhatsApp Support */}
                   <a
-                    href={`https://api.whatsapp.com/send?phone=${getStoreSettings().whatsapp || '923368945775'}`}
+                    href={buildWhatsAppUrl(getStoreSettings().whatsapp, 'Assalam U Alaikum ZS Mart!')}
+                    onClick={(e) => { e.preventDefault(); launchWhatsApp(getStoreSettings().whatsapp, 'Assalam U Alaikum ZS Mart!'); }}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)', borderRadius: '18px', padding: '14px 16px', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', cursor: 'pointer', textDecoration: 'none', boxShadow: '0 4px 14px rgba(37,211,102,0.3)' }}
@@ -7042,7 +7242,8 @@ export default function SahilTraders() {
                     {/* Drawer Footer - WhatsApp & Timing */}
                     <div className="pt-4 border-t border-gray-100 mt-4 space-y-3">
                       <a
-                        href={`https://api.whatsapp.com/send?phone=${getStoreSettings().whatsapp || '923368945775'}`}
+                        href={buildWhatsAppUrl(getStoreSettings().whatsapp, 'Assalam U Alaikum ZS Mart!')}
+                        onClick={(e) => { e.preventDefault(); launchWhatsApp(getStoreSettings().whatsapp, 'Assalam U Alaikum ZS Mart!'); }}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer"
@@ -8789,7 +8990,7 @@ export default function SahilTraders() {
           })
         };
         try {
-          window.open(waUrl, '_blank');
+          launchWhatsApp(getStoreSettings().whatsapp, msg);
         } catch (err) {}
         if (typeof saveOrderHistory === 'function') {
           saveOrderHistory(orderRecord);

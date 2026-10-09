@@ -10,6 +10,94 @@
   ],
   "orders": [
     {
+      "id": "20261009-190156",
+      "dateText": "09-Oct-2026, 07:01 pm",
+      "customer": {
+        "name": "Sahil",
+        "phone": "03368945775",
+        "address": "Cjxjcjjc",
+        "location": "https://maps.google.com/?q=24.8133324,67.1098118"
+      },
+      "deliveryMethod": "home",
+      "subtotal": 2740,
+      "totalSavings": 0,
+      "deliveryFee": 0,
+      "grandTotal": 2740,
+      "items": [
+        {
+          "id": 250,
+          "name": "CONDITIONER LOREAL (DREAM LONG) RS,550",
+          "qty": 1,
+          "sellPrice": 510,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 510,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        },
+        {
+          "id": 251,
+          "name": "CONDITIONER LOREAL (GOLDEN) RS,550",
+          "qty": 1,
+          "sellPrice": 510,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 510,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        },
+        {
+          "id": 255,
+          "name": "CONDITIONER LOREAL (WHITE) RS,540",
+          "qty": 1,
+          "sellPrice": 510,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 510,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        },
+        {
+          "id": 262,
+          "name": "CONDITIONER MECLAY (RED)",
+          "qty": 1,
+          "sellPrice": 370,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 370,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        },
+        {
+          "id": 267,
+          "name": "CONDITIONER TRESEMME 400ml (MIX)",
+          "qty": 1,
+          "sellPrice": 840,
+          "purchasePrice": null,
+          "hasPurchaseRate": false,
+          "lineTotal": 840,
+          "lineCost": 0,
+          "lineProfit": 0,
+          "marginPct": 0,
+          "variant": null
+        }
+      ],
+      "totalSale": 2740,
+      "totalCost": 0,
+      "totalProfit": 0,
+      "profitMarginPct": 0,
+      "missingCostCount": 5,
+      "allCostsSet": false
+    },
+    {
       "test": "hello world",
       "id": 123,
       "items": [],

@@ -2465,6 +2465,33 @@ function getTranslationValue(dictionary, key) {
       { id: 1295, name: "FANTA 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "F" },
       { id: 1296, name: "FANTA 2.25L JUMBO BOTTLE", price: 249, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
       { id: 1297, name: "FANTA 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "F" },
+      { id: 1298, name: "PEPSI 345ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "P" },
+      { id: 1299, name: "PEPSI 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
+      { id: 1300, name: "PEPSI 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
+      { id: 1301, name: "PEPSI 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
+      { id: 1302, name: "PEPSI 2.25L JUMBO BOTTLE", price: 259, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
+      { id: 1303, name: "PEPSI 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
+      { id: 1304, name: "7UP 345ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "7" },
+      { id: 1305, name: "7UP 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "7" },
+      { id: 1306, name: "7UP 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "7" },
+      { id: 1307, name: "7UP 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "7" },
+      { id: 1308, name: "7UP 2.25L JUMBO BOTTLE", price: 259, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "7" },
+      { id: 1309, name: "7UP 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "7" },
+      { id: 1310, name: "MIRINDA 345ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "M" },
+      { id: 1311, name: "MIRINDA 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "M" },
+      { id: 1312, name: "MIRINDA 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "M" },
+      { id: 1313, name: "MIRINDA 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "M" },
+      { id: 1314, name: "MIRINDA 2.25L JUMBO BOTTLE", price: 259, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
+      { id: 1315, name: "MIRINDA 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
+      { id: 1316, name: "MOUNTAIN DEW 345ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mountain Dew", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "M" },
+      { id: 1317, name: "MOUNTAIN DEW 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mountain Dew", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "M" },
+      { id: 1318, name: "MOUNTAIN DEW 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mountain Dew", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "M" },
+      { id: 1319, name: "MOUNTAIN DEW 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mountain Dew", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "M" },
+      { id: 1320, name: "MOUNTAIN DEW 2.25L JUMBO BOTTLE", price: 259, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mountain Dew", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "M" },
+      { id: 1321, name: "MOUNTAIN DEW 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mountain Dew", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "M" },
+      { id: 1322, name: "STING BERRY 300ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
+      { id: 1323, name: "STING BERRY 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
+      { id: 1324, name: "STING BERRY 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
     ];
     var PAGE_SIZE = 10;
     const RECENT_LIMIT = 15;
@@ -2472,7 +2499,18 @@ function getTranslationValue(dictionary, key) {
       "SOAP","SOAPS","SHAMPOO","CONDITIONER","CREAM","LOTION","POWDER","SPRAY","BODY","FACE","WASH","TOOTH","PASTE","BRUSH","RAZOR","BLADE","OIL","HAIR","COLOUR","COLOR","BALL","PEN","TOY","TAPE","CELL","LOCK","CANDLE","PAD","WIPES","PERFUME","PERFUMES","DEO","DEODORANT","TALCUM","ROOM","FRESHNER","FRESHENER","ROLL","ON","AIR","LARGE","MEDIUM","SMALL","SACHET","PACK","PCS","PIECE","SIZE","FULL","HALF","MIX","ALL","GOOD","QUALITY","ORIGINAL","NON","IMP","PK","RS","RP","ML","G","GM","KG","INCH","BLACK","WHITE","BLUE","GREEN","RED","PINK","YELLOW","GOLDEN","BROWN","ORANGE","PURPLE","DARK","LIGHT"
     ]);
     const BRAND_PHRASES = [
-      "BIO AMLA","BLACK ROSE","AL RASHIEED","JUST FOR MEN","ONE MAN SHOW","WHITE ROSE","SOFT CREME","SOFT CREAM","SKIN WHITE","CHI CHI","7 HERBAL","BODY SHOP","COCA COLA"
+      "BIO AMLA","BLACK ROSE","AL RASHIEED","JUST FOR MEN","ONE MAN SHOW","WHITE ROSE","SOFT CREME","SOFT CREAM","SKIN WHITE","CHI CHI","7 HERBAL","BODY SHOP","COCA COLA","MOUNTAIN DEW","7UP","PEPSI","MIRINDA","STING"
+    ];
+    const BEVERAGE_BRANDS = [
+      { id: "Sprite", name: "Sprite", tag: "Lemon & Mint Soda", sizes: "6 Sizes & Varieties", logo: "images/brand_sprite.webp", fromPrice: 75, color: "#059669", bg: "#ecfdf5" },
+      { id: "Coca-Cola", name: "Coca-Cola", tag: "Original Taste & Zero", sizes: "6 Sizes & Varieties", logo: "images/brand_coca_cola.webp", fromPrice: 75, color: "#dc2626", bg: "#fef2f2" },
+      { id: "Fanta", name: "Fanta", tag: "Orange Flavor", sizes: "5 Sizes & Varieties", logo: "images/brand_fanta.webp", fromPrice: 105, color: "#ea580c", bg: "#fff7ed" },
+      { id: "Pepsi", name: "Pepsi", tag: "Refreshing Cola", sizes: "6 Sizes & Varieties", logo: "images/brand_pepsi.webp", fromPrice: 75, color: "#2563eb", bg: "#eff6ff" },
+      { id: "7Up", name: "7Up", tag: "Lemon & Lime Flavor", sizes: "6 Sizes & Varieties", logo: "images/brand_7up.webp", fromPrice: 75, color: "#16a34a", bg: "#f0fdf4" },
+      { id: "Mirinda", name: "Mirinda", tag: "Orange Soft Drink", sizes: "6 Sizes & Varieties", logo: "images/brand_mirinda.webp", fromPrice: 75, color: "#f97316", bg: "#fff7ed" },
+      { id: "Mountain Dew", name: "Mountain Dew", tag: "Citrus Charge Energy", sizes: "6 Sizes & Varieties", logo: "images/brand_dew.webp", fromPrice: 75, color: "#65a30d", bg: "#f7fee7" },
+      { id: "Sting", name: "Sting Energy", tag: "Berry Blast Energy", sizes: "3 Sizes & Varieties", logo: "images/brand_sting.webp", fromPrice: 75, color: "#e11d48", bg: "#fff1f2" },
+      { id: "Pakola", name: "Pakola", tag: "Ice Cream Soda", sizes: "Coming Soon", logo: "images/brand_pakola.webp", fromPrice: 0, color: "#047857", bg: "#ecfdf5" }
     ];
     function getProductBrand(name) {
       const clean = String(name || "")
@@ -5799,7 +5837,7 @@ export default function SahilTraders() {
         return getBrandFilters(baseFiltered);
       }, [baseFiltered, selectedCategory, isSearching]);
       const filtered = useMemo(() => {
-        if (!selectedCategory || isSearching || selectedBrand === "all") return baseFiltered;
+        if (!selectedCategory || isSearching || selectedBrand === "all" || selectedBrand === "__browse_all__") return baseFiltered;
         return baseFiltered.filter(p => getProductFilterName(p) === selectedBrand);
       }, [baseFiltered, selectedCategory, isSearching, selectedBrand]);
       const sortedProducts = useMemo(() => {
@@ -6932,11 +6970,202 @@ export default function SahilTraders() {
                   </div>
                 ) : (
                   <>
-                    <div className="product-grid">
-                      {sortedProducts.slice(0, visibleCount).map((p) => (
-                        <ProductCard key={p.id} product={p} langData={langData} language={language} onAddToCart={addToCart} onSelectProduct={selectProductWithHash} isWishlisted={wishlist.includes(p.id)} onToggleWishlist={toggleWishlist} />
-                      ))}
-                    </div>
+                    {/* 🥤 SPECIAL BEVERAGES BRAND HUB — Clean Brand Cards First */}
+                    {selectedCategory === 'beverages' && selectedBrand === 'all' && !isSearching ? (
+                      <div style={{ marginBottom: 24 }}>
+                        <div style={{
+                          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                          borderRadius: 16,
+                          padding: '12px 16px',
+                          color: '#ffffff',
+                          marginBottom: 14,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 10,
+                          boxShadow: '0 4px 14px rgba(0,0,0,0.08)'
+                        }}>
+                          <div>
+                            <div style={{ fontSize: 15, fontWeight: 900, display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span>🥤</span>
+                              <span>Cold Drinks & Beverages</span>
+                            </div>
+                            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                              Pehle brand select karein, phir uske tamam sizes aur flavors dekhein
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => { triggerHaptic('light'); setSelectedBrand('__browse_all__'); }}
+                            style={{
+                              background: 'rgba(255,255,255,0.12)',
+                              border: '1px solid rgba(255,255,255,0.25)',
+                              color: '#ffffff',
+                              borderRadius: 10,
+                              padding: '6px 12px',
+                              fontSize: 11,
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            View All Items ({baseFiltered.length})
+                          </button>
+                        </div>
+
+                        {/* Brand Hub Cards Grid */}
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))',
+                          gap: 12
+                        }}>
+                          {BEVERAGE_BRANDS.map((b) => (
+                            <div
+                              key={b.id}
+                              onClick={() => {
+                                triggerHaptic('light');
+                                if (b.id === 'Pakola') {
+                                  alert('Pakola products are coming soon!');
+                                  return;
+                                }
+                                setSelectedBrand(b.id);
+                              }}
+                              style={{
+                                background: '#ffffff',
+                                border: '1.5px solid #e2e8f0',
+                                borderRadius: 18,
+                                padding: '16px 10px 12px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                boxShadow: '0 3px 10px rgba(0,0,0,0.03)',
+                                transition: 'all 0.15s ease',
+                                position: 'relative'
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = b.color; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                            >
+                              <div style={{ width: 76, height: 76, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                                <img
+                                  src={b.logo}
+                                  alt={b.name}
+                                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                                  loading="lazy"
+                                />
+                              </div>
+                              <div style={{ fontSize: 15, fontWeight: 900, color: '#0f172a', marginBottom: 2 }}>
+                                {b.name}
+                              </div>
+                              <div style={{ fontSize: 10.5, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>
+                                {b.tag}
+                              </div>
+                              <div style={{
+                                fontSize: 10,
+                                fontWeight: 800,
+                                background: b.bg,
+                                color: b.color,
+                                borderRadius: 999,
+                                padding: '2px 8px',
+                                marginBottom: 12
+                              }}>
+                                {b.sizes}
+                              </div>
+                              <div style={{
+                                marginTop: 'auto',
+                                width: '100%',
+                                padding: '7px 8px',
+                                borderRadius: 9,
+                                background: b.id === 'Pakola' ? '#94a3b8' : b.color,
+                                color: '#ffffff',
+                                fontSize: 11,
+                                fontWeight: 800,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 4
+                              }}>
+                                <span>{b.id === 'Pakola' ? 'Coming Soon' : 'Click for more'}</span>
+                                {b.id !== 'Pakola' && <span>➔</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Selected Brand Hero Bar for Beverages */}
+                        {selectedCategory === 'beverages' && !isSearching && (
+                          <div style={{
+                            background: '#ffffff',
+                            border: '1.5px solid #e2e8f0',
+                            borderRadius: 16,
+                            padding: '10px 14px',
+                            marginBottom: 14,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 8,
+                            flexWrap: 'wrap',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <button
+                                onClick={() => { triggerHaptic('light'); setSelectedBrand('all'); }}
+                                style={{
+                                  background: '#f1f5f9',
+                                  border: '1px solid #cbd5e1',
+                                  borderRadius: 8,
+                                  padding: '5px 10px',
+                                  fontSize: 11.5,
+                                  fontWeight: 800,
+                                  color: '#334155',
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: 4
+                                }}
+                              >
+                                <span>←</span>
+                                <span>All Brands</span>
+                              </button>
+                              <div style={{ fontSize: 13.5, fontWeight: 900, color: '#0f172a' }}>
+                                {selectedBrand === '__browse_all__' ? 'All Drinks' : selectedBrand} ({sortedProducts.length} Sizes)
+                              </div>
+                            </div>
+
+                            {/* Horizontal Brand Switcher */}
+                            <div style={{ display: 'flex', gap: 5, overflowX: 'auto', maxWidth: '100%', paddingBottom: 2 }}>
+                              {BEVERAGE_BRANDS.filter(b => b.id !== 'Pakola').map((b) => (
+                                <button
+                                  key={b.id}
+                                  onClick={() => { triggerHaptic('light'); setSelectedBrand(b.id); }}
+                                  style={{
+                                    border: selectedBrand === b.id ? `1.5px solid ${b.color}` : '1px solid #e2e8f0',
+                                    background: selectedBrand === b.id ? b.bg : '#ffffff',
+                                    color: selectedBrand === b.id ? b.color : '#475569',
+                                    borderRadius: 999,
+                                    padding: '4px 10px',
+                                    fontSize: 10.5,
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  {b.name}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="product-grid">
+                          {sortedProducts.slice(0, visibleCount).map((p) => (
+                            <ProductCard key={p.id} product={p} langData={langData} language={language} onAddToCart={addToCart} onSelectProduct={selectProductWithHash} isWishlisted={wishlist.includes(p.id)} onToggleWishlist={toggleWishlist} />
+                          ))}
+                        </div>
+                      </>
+                    )}
                     {visibleCount < sortedProducts.length && (
                       <div style={{ marginTop: 32, marginBottom: 20, textAlign: 'center' }}>
                         <button

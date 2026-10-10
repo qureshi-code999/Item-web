@@ -879,13 +879,23 @@ function getImgUrl(imgPath) {
   if (!isNativeApp && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     return './' + imgPath;
   }
-  // WebP → jsDelivr CDN (GitHub backed, global fast CDN, ~20-40KB per image)
-  // PNG  → Vercel CDN as fallback (300KB+ per image, slower)
-  const buster = typeof window !== 'undefined' && window.__IMG_CACHE_BUSTER__ || typeof localStorage !== 'undefined' && localStorage.getItem('zs_img_cache_buster') || '20261010_fresh';
-  if (imgPath.match(/\.webp$/i)) {
-    return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/${imgPath}?v=${buster}`;
+  // Check per-item image version
+  const idMatch = imgPath.match(/\/(\d+)\.(webp|png|jpg)$/i);
+  let itemVer = '';
+  if (idMatch && typeof window !== 'undefined') {
+    const pId = idMatch[1];
+    if (window.__ITEM_IMG_VERSIONS__ && window.__ITEM_IMG_VERSIONS__[pId]) {
+      itemVer = window.__ITEM_IMG_VERSIONS__[pId];
+    } else {
+      try {
+        const stored = JSON.parse(localStorage.getItem('zs_item_img_versions') || '{}');
+        if (stored[pId]) itemVer = stored[pId];
+      } catch (e) {}
+    }
   }
-  return `https://sahiltraders.vercel.app/${imgPath}?v=${buster}`;
+  const buster = itemVer || typeof window !== 'undefined' && window.__IMG_CACHE_BUSTER__ || typeof localStorage !== 'undefined' && localStorage.getItem('zs_img_cache_buster') || '20261010_fresh';
+  const cleanName = imgPath.replace(/^(\.\/)?images\//, '');
+  return `https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/${cleanName}?v=${buster}`;
 }
 function translate(dictionary, key, params = {}) {
   let value = getTranslationValue(dictionary, key);
@@ -12018,14 +12028,19 @@ function SahilTraders() {
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge priorities from bundled PRODUCTS so admin updates are always active immediately
+          // Merge latest prices and priorities from bundled PRODUCTS so updates are always active immediately
           if (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS) && PRODUCTS.length > 0) {
             const prioMap = {};
+            const priceMap = {};
             PRODUCTS.forEach(p => {
-              if (p && p.priority) prioMap[p.id] = p.priority;
+              if (p) {
+                if (p.priority) prioMap[p.id] = p.priority;
+                if (typeof p.price === 'number') priceMap[p.id] = p.price;
+              }
             });
             parsed.forEach(p => {
               if (prioMap[p.id]) p.priority = prioMap[p.id];
+              if (priceMap[p.id] !== undefined) p.price = priceMap[p.id];
             });
           }
           return parsed;
@@ -12186,7 +12201,7 @@ function SahilTraders() {
     })();
   }, []);
 
-  // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync) ══════════
+  // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync via Supabase) ══════════
   async function fetchLiveProducts(isManual) {
     isManual = !!isManual;
     setIsSyncingProducts(true);
@@ -12194,84 +12209,105 @@ function SahilTraders() {
       triggerHaptic('medium');
     }
     const cacheBuster = Date.now();
-    const endpoints = [`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`, `https://sahiltraders.vercel.app/products.json?v=${cacheBuster}`, `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/products.json?v=${cacheBuster}`, `http://localhost:8888/products.json?v=${cacheBuster}`, `./products.json?v=${cacheBuster}`];
-    let loadedData = null;
-    for (const url of endpoints) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
-        const res = await fetch(url, {
-          signal: controller.signal,
-          cache: 'no-store'
-        });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          const json = await res.json();
-          if (json && (Array.isArray(json) || json.products && Array.isArray(json.products))) {
-            loadedData = json;
-            break;
-          }
+    const sbUrl = "https://tmssjdczywukramcpcxc.supabase.co";
+    const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
+    let freshProducts = null;
+    let freshCategories = null;
+    let freshSettings = null;
+
+    // 1. PRIMARY: Fetch directly from Supabase Real-time Cloud Database (Fast ~200ms)
+    try {
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 3500);
+      const sbRes = await fetch(`${sbUrl}/rest/v1/products?select=*&order=id.asc`, {
+        signal: controller.signal,
+        cache: 'no-store',
+        headers: {
+          'apikey': sbKey,
+          'Authorization': `Bearer ${sbKey}`
         }
-      } catch (err) {
-        // continue next endpoint
+      });
+      clearTimeout(tid);
+      if (sbRes.ok) {
+        const sbData = await sbRes.json();
+        if (Array.isArray(sbData) && sbData.length >= 800) {
+          freshProducts = sbData.map(p => ({
+            id: Number(p.id),
+            name: p.name,
+            price: Number(p.price),
+            categoryId: p.category_id || p.categoryId || 'general',
+            categoryName: p.category_name || p.categoryName || 'General Items',
+            priority: p.priority ? Number(p.priority) : undefined,
+            filterName: p.filter_name || p.filterName || undefined,
+            hasImage: !!p.has_image,
+            imageUrl: p.image_url,
+            imageVersion: p.image_version || p.imageVersion,
+            purchasePrice: p.purchase_price !== null && p.purchase_price !== undefined ? Number(p.purchase_price) : undefined
+          }));
+        }
+      }
+    } catch (e) {}
+
+    // 2. FALLBACK ENDPOINTS (Local server or bundled JSON if offline)
+    if (!freshProducts) {
+      const endpoints = [`http://localhost:8888/products.json?v=${cacheBuster}`, `./products.json?v=${cacheBuster}`, `https://sahiltraders.vercel.app/products.json?v=${cacheBuster}`, `https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`];
+      for (const url of endpoints) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2500);
+          const res = await fetch(url, {
+            signal: controller.signal,
+            cache: 'no-store'
+          });
+          clearTimeout(timeoutId);
+          if (res.ok) {
+            const json = await res.json();
+            if (json && (Array.isArray(json) || json.products && Array.isArray(json.products))) {
+              const prods = Array.isArray(json) ? json : json.products || [];
+              if (prods.length >= 800) {
+                freshProducts = prods;
+                if (json.categories) freshCategories = json.categories;
+                if (json.settings) freshSettings = json.settings;
+                break;
+              }
+            }
+          }
+        } catch (err) {}
       }
     }
-    if (loadedData) {
-      const freshProducts = Array.isArray(loadedData) ? loadedData : loadedData.products || [];
-      // Security & Integrity check: Ensure payload has valid items and wasn't corrupted/truncated
-      const isValid = Array.isArray(freshProducts) && freshProducts.length >= 800 && freshProducts.every(p => p && typeof p.id === 'number' && p.name && typeof p.price === 'number' && p.price >= 0);
-      if (isValid) {
-        setProductsList(freshProducts);
-        window.PRODUCTS = freshProducts;
-        try {
-          localStorage.setItem("zs_groceries_products_cache", JSON.stringify(freshProducts));
-        } catch (e) {}
-        if (loadedData.updatedAt) {
-          const ts = new Date(loadedData.updatedAt).getTime() || Date.now();
-          window.__IMG_CACHE_BUSTER__ = ts;
-          try {
-            localStorage.setItem('zs_img_cache_buster', String(ts));
-          } catch (e) {}
+    if (freshProducts && freshProducts.length >= 800) {
+      setProductsList(freshProducts);
+      window.PRODUCTS = freshProducts;
+      try {
+        localStorage.setItem("zs_groceries_products_cache", JSON.stringify(freshProducts));
+      } catch (e) {}
+      const newImgMap = {
+        ...(window.PRODUCT_IMAGE_MAP || {})
+      };
+      const imgVerMap = {
+        ...(window.__ITEM_IMG_VERSIONS__ || {})
+      };
+      let maxVer = Date.now();
+      freshProducts.forEach(p => {
+        if (p.hasImage || p.imageUrl) {
+          newImgMap[p.id] = 'webp';
         }
-        if (loadedData.categories && Array.isArray(loadedData.categories) && loadedData.categories.length > 0) {
-          window.CATEGORIES = loadedData.categories;
-          try {
-            localStorage.setItem("zs_groceries_categories_cache", JSON.stringify(loadedData.categories));
-          } catch (e) {}
+        if (p.imageVersion) {
+          imgVerMap[p.id] = p.imageVersion;
+          maxVer = Math.max(maxVer, Number(p.imageVersion));
         }
-        if (loadedData.settings) {
-          const s = {
-            deliveryFee: Number(loadedData.settings.deliveryFee ?? 150),
-            freeDeliveryThreshold: Number(loadedData.settings.freeDeliveryThreshold ?? 2000),
-            deliveryTiming: String(loadedData.settings.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
-            whatsapp: String(loadedData.settings.whatsapp || '923368945775'),
-            announcement: String(loadedData.settings.announcement || '')
-          };
-          if (typeof window !== "undefined") window.APP_SETTINGS = s;
-          setAppSettings(s);
-          try {
-            localStorage.setItem('zs_mart_settings', JSON.stringify(s));
-          } catch (e) {}
-        }
-        if (loadedData.imageMap && typeof window !== 'undefined') {
-          window.PRODUCT_IMAGE_MAP = {
-            ...(window.PRODUCT_IMAGE_MAP || {}),
-            ...loadedData.imageMap
-          };
-          try {
-            localStorage.setItem("zs_groceries_imagemap_cache", JSON.stringify(window.PRODUCT_IMAGE_MAP));
-          } catch (e) {}
-        }
-        if (loadedData.variants && typeof window !== 'undefined') {
-          window.PRODUCT_VARIANTS = {
-            ...(window.PRODUCT_VARIANTS || {}),
-            ...loadedData.variants
-          };
-        }
-        if (isManual) {
-          setSyncToast(tr(language, `✅ ${freshProducts.length} items live synced!`, `✅ ${freshProducts.length} items live update ho gaye!`, `✅ ${freshProducts.length} آئٹمز لائیو اپ ڈیٹ ہوگئے!`));
-          setTimeout(() => setSyncToast(null), 3000);
-        }
+      });
+      window.PRODUCT_IMAGE_MAP = newImgMap;
+      window.__ITEM_IMG_VERSIONS__ = imgVerMap;
+      window.__IMG_CACHE_BUSTER__ = maxVer;
+      try {
+        localStorage.setItem("zs_groceries_imagemap_cache", JSON.stringify(newImgMap));
+        localStorage.setItem("zs_item_img_versions", JSON.stringify(imgVerMap));
+        localStorage.setItem("zs_img_cache_buster", String(maxVer));
+      } catch (e) {}
+      if (isManual) {
+        setSyncToast(tr(language, `✅ ${freshProducts.length} items live synced from Cloud!`, `✅ ${freshProducts.length} items live cloud update ho gaye!`, `✅ ${freshProducts.length} آئٹمز کلاؤڈ سے لائیو اپ ڈیٹ ہوگئے!`));
+        setTimeout(() => setSyncToast(null), 3000);
       }
     } else if (isManual) {
       setSyncToast(tr(language, "⚠️ Offline or server busy", "⚠️ Internet/server connect nahi ho saka", "⚠️ سرور سے رابطہ نہیں ہو سکا"));

@@ -1,6 +1,7 @@
 // ZS MART - UNIFIED MASTER ADMIN SERVER
 // High performance native Node.js HTTP Server
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { exec, execSync } = require('child_process');
@@ -19,6 +20,94 @@ const SECTIONS_FILE = path.join(ROOT, 'purchasing_sections.json');
 const PURCHASING_SHEETS_FILE = path.join(ROOT, 'purchasing_sheets.json');
 const CAT_PRIORITIES_FILE = path.join(ROOT, 'category_priorities.json');
 const CONFIG_FILE = path.join(ROOT, 'admin_config.json');
+const SUPABASE_CONFIG_FILE = path.join(ROOT, 'supabase_config.json');
+
+function getSupabaseConfig() {
+  if (fs.existsSync(SUPABASE_CONFIG_FILE)) {
+    try { return JSON.parse(fs.readFileSync(SUPABASE_CONFIG_FILE, 'utf8')); } catch (e) {}
+  }
+  return null;
+}
+
+function supabaseApiRequest(endpoint, method, body = null) {
+  const cfg = getSupabaseConfig();
+  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseKey) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    try {
+      const fullUrl = new URL(endpoint, cfg.supabaseUrl);
+      const req = https.request({
+        hostname: fullUrl.hostname,
+        port: 443,
+        path: fullUrl.pathname + fullUrl.search,
+        method: method,
+        headers: {
+          'apikey': cfg.supabaseKey,
+          'Authorization': 'Bearer ' + cfg.supabaseKey,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates, return=minimal'
+        }
+      }, (res) => {
+        let data = '';
+        res.on('data', c => data += c);
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            resolve({ ok: true });
+          } else {
+            console.warn(`[Supabase API] ${method} ${endpoint} -> ${res.statusCode}: ${data}`);
+            resolve({ ok: false, error: data });
+          }
+        });
+      });
+      req.on('error', (e) => {
+        console.warn('[Supabase API Error]', e.message);
+        resolve({ ok: false, error: e.message });
+      });
+      if (body) req.write(JSON.stringify(body));
+      req.end();
+    } catch (e) {
+      resolve({ ok: false, error: e.message });
+    }
+  });
+}
+
+function supabaseUploadStorageImage(fileName, imgBuffer, mimeType = 'image/webp') {
+  const cfg = getSupabaseConfig();
+  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseKey) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    try {
+      const targetPath = `/storage/v1/object/product-images/${fileName}`;
+      const fullUrl = new URL(targetPath, cfg.supabaseUrl);
+      const req = https.request({
+        hostname: fullUrl.hostname,
+        port: 443,
+        path: fullUrl.pathname,
+        method: 'POST',
+        headers: {
+          'apikey': cfg.supabaseKey,
+          'Authorization': 'Bearer ' + cfg.supabaseKey,
+          'Content-Type': mimeType,
+          'x-upsert': 'true'
+        }
+      }, (res) => {
+        let data = '';
+        res.on('data', c => data += c);
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            const publicUrl = `${cfg.supabaseUrl}/storage/v1/object/public/product-images/${fileName}`;
+            resolve(publicUrl);
+          } else {
+            resolve(null);
+          }
+        });
+      });
+      req.on('error', () => resolve(null));
+      req.write(imgBuffer);
+      req.end();
+    } catch (e) {
+      resolve(null);
+    }
+  });
+}
 
 // Master Security Configuration & Authentication Helpers
 function getAdminConfig() {
@@ -582,6 +671,7 @@ function syncImageToTargets(fileName) {
 
       // Handle image upload if provided (Always save as optimized WebP)
       let ext = 'webp';
+      let publicImgUrl = null;
       if (body.imageBase64) {
         const base64Data = body.imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, '');
         const imgBuffer = Buffer.from(base64Data, 'base64');
@@ -596,7 +686,33 @@ function syncImageToTargets(fileName) {
           ext = 'webp';
         }
         syncImageToTargets(`${newId}.${ext}`);
+
+        try {
+          publicImgUrl = await supabaseUploadStorageImage(`${newId}.webp`, imgBuffer, 'image/webp');
+          if (publicImgUrl) {
+            newProduct.hasImage = true;
+            newProduct.imageUrl = publicImgUrl;
+            newProduct.imageVersion = Date.now();
+          }
+        } catch(e) {}
       }
+
+      // Instant Supabase Cloud Database Insert
+      const sbCfg = getSupabaseConfig();
+      const sbNewProd = {
+        id: newId,
+        name: newProduct.name,
+        price: newProduct.price,
+        purchase_price: body.purchasePrice !== undefined ? Number(body.purchasePrice) : null,
+        category_id: newProduct.categoryId,
+        category_name: newProduct.categoryName,
+        priority: newProduct.priority || null,
+        filter_name: newProduct.filterName || null,
+        has_image: !!body.imageBase64,
+        image_url: publicImgUrl || (sbCfg ? `${sbCfg.supabaseUrl}/storage/v1/object/public/product-images/${newId}.webp` : null),
+        image_version: Date.now()
+      };
+      supabaseApiRequest('/rest/v1/products', 'POST', [sbNewProd]).catch(e => console.warn('Supabase insert warning:', e));
 
       // Append to INDEX.JSX
       let jsxContent = fs.readFileSync(JSX_FILE, 'utf8');
@@ -637,45 +753,52 @@ function syncImageToTargets(fileName) {
       const body = await parseBody(req);
       if (!id) return sendJson(res, 400, { ok: false, error: 'Invalid product ID' });
 
+      // ── SUPABASE REAL-TIME CLOUD UPDATE (Instant 50ms) ──
+      const sbCfg = getSupabaseConfig();
+      const sbUpdate = { updated_at: new Date().toISOString() };
+      if (body.name) sbUpdate.name = String(body.name).trim().toUpperCase();
+      if (body.price !== undefined) sbUpdate.price = Number(body.price);
+      if (body.categoryId) sbUpdate.category_id = String(body.categoryId).trim();
+      if (body.categoryName) sbUpdate.category_name = String(body.categoryName).trim();
+      if (body.priority !== undefined) sbUpdate.priority = Number(body.priority) > 0 ? Number(body.priority) : null;
+      if (body.purchasePrice !== undefined) sbUpdate.purchase_price = Number(body.purchasePrice);
+
       let jsxContent = fs.readFileSync(JSX_FILE, 'utf8');
       const itemRegex = new RegExp(`\\{\\s*id:\\s*${id}\\s*,[^\\}]*\\}`, 'm');
       const match = jsxContent.match(itemRegex);
 
-      if (!match) {
-        return sendJson(res, 404, { ok: false, error: 'Product not found in INDEX.JSX' });
-      }
+      if (match) {
+        const currentItemStr = match[0];
+        let updatedItemStr = currentItemStr;
 
-      const currentItemStr = match[0];
-      let updatedItemStr = currentItemStr;
-
-      if (body.name) {
-        updatedItemStr = updatedItemStr.replace(/name:\s*"[^"]*"/, `name: "${body.name.trim().replace(/"/g, '\\"')}"`);
-      }
-      if (body.price !== undefined) {
-        updatedItemStr = updatedItemStr.replace(/price:\s*[\d.]+/, `price: ${Number(body.price)}`);
-      }
-      if (body.categoryId) {
-        updatedItemStr = updatedItemStr.replace(/categoryId:\s*"[^"]*"/, `categoryId: "${body.categoryId.trim()}"`);
-      }
-      if (body.categoryName) {
-        updatedItemStr = updatedItemStr.replace(/categoryName:\s*"[^"]*"/, `categoryName: "${body.categoryName.trim()}"`);
-      }
-      if (body.priority !== undefined) {
-        const prioNum = Number(body.priority);
-        if (prioNum > 0) {
-          if (/priority:\s*\d+/.test(updatedItemStr)) {
-            updatedItemStr = updatedItemStr.replace(/priority:\s*\d+/, `priority: ${prioNum}`);
-          } else {
-            updatedItemStr = updatedItemStr.replace(/(\s*\})$/, `, priority: ${prioNum}$1`);
-          }
-        } else {
-          // Remove priority if 0 or cleared
-          updatedItemStr = updatedItemStr.replace(/,?\s*priority:\s*\d+/, '');
+        if (body.name) {
+          updatedItemStr = updatedItemStr.replace(/name:\s*"[^"]*"/, `name: "${body.name.trim().replace(/"/g, '\\"')}"`);
         }
-      }
+        if (body.price !== undefined) {
+          updatedItemStr = updatedItemStr.replace(/price:\s*[\d.]+/, `price: ${Number(body.price)}`);
+        }
+        if (body.categoryId) {
+          updatedItemStr = updatedItemStr.replace(/categoryId:\s*"[^"]*"/, `categoryId: "${body.categoryId.trim()}"`);
+        }
+        if (body.categoryName) {
+          updatedItemStr = updatedItemStr.replace(/categoryName:\s*"[^"]*"/, `categoryName: "${body.categoryName.trim()}"`);
+        }
+        if (body.priority !== undefined) {
+          const prioNum = Number(body.priority);
+          if (prioNum > 0) {
+            if (/priority:\s*\d+/.test(updatedItemStr)) {
+              updatedItemStr = updatedItemStr.replace(/priority:\s*\d+/, `priority: ${prioNum}`);
+            } else {
+              updatedItemStr = updatedItemStr.replace(/(\s*\})$/, `, priority: ${prioNum}$1`);
+            }
+          } else {
+            updatedItemStr = updatedItemStr.replace(/,?\s*priority:\s*\d+/, '');
+          }
+        }
 
-      jsxContent = jsxContent.replace(currentItemStr, updatedItemStr);
-      fs.writeFileSync(JSX_FILE, jsxContent, 'utf8');
+        jsxContent = jsxContent.replace(currentItemStr, updatedItemStr);
+        fs.writeFileSync(JSX_FILE, jsxContent, 'utf8');
+      }
 
       // Update purchase rate
       if (body.purchasePrice !== undefined) {
@@ -704,20 +827,29 @@ function syncImageToTargets(fileName) {
           fs.writeFileSync(path.join(IMAGES_DIR, `${id}.webp`), imgBuffer);
           imgExt = 'webp';
         }
-        // Remove stale png if it existed
         try {
           const oldPng = path.join(IMAGES_DIR, `${id}.png`);
           if (fs.existsSync(oldPng)) fs.unlinkSync(oldPng);
         } catch(e) {}
 
         syncImageToTargets(`${id}.${imgExt}`);
+
+        // Upload to Supabase Storage immediately
+        try {
+          const publicImgUrl = await supabaseUploadStorageImage(`${id}.${imgExt}`, imgBuffer, 'image/webp');
+          sbUpdate.has_image = true;
+          sbUpdate.image_url = publicImgUrl || (sbCfg ? `${sbCfg.supabaseUrl}/storage/v1/object/public/product-images/${id}.${imgExt}` : null);
+          sbUpdate.image_version = Date.now();
+        } catch(e) {}
       }
+
+      // Push update to Supabase Cloud Database (Instantly reflects on all phones!)
+      supabaseApiRequest(`/rest/v1/products?id=eq.${id}`, 'PATCH', sbUpdate).catch(e => console.warn('Supabase patch warning:', e));
 
       delete require.cache[require.resolve('./export_products.js')];
       require('./export_products.js');
       try { execSync('node compile_jsx.js', { cwd: ROOT }); } catch(e) {}
       liveCloudSync('Admin updated product #' + id, () => {
-        // Automatically purge jsDelivr cache AFTER git push has safely landed on GitHub
         try {
           const https = require('https');
           const purgeReq = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${id}.webp`, (pRes) => {
@@ -737,14 +869,15 @@ function syncImageToTargets(fileName) {
       const id = parseInt(pathname.split('/').pop(), 10);
       if (!id) return sendJson(res, 400, { ok: false, error: 'Invalid product ID' });
 
+      // Delete from Supabase Cloud Database immediately
+      supabaseApiRequest(`/rest/v1/products?id=eq.${id}`, 'DELETE').catch(e => console.warn('Supabase delete warning:', e));
+
       let jsxContent = fs.readFileSync(JSX_FILE, 'utf8');
       const itemRegex = new RegExp(`\\s*\\{\\s*id:\\s*${id}\\s*,[^\\}]*\\},?`, 'm');
-      if (!itemRegex.test(jsxContent)) {
-        return sendJson(res, 404, { ok: false, error: 'Product not found in INDEX.JSX' });
+      if (itemRegex.test(jsxContent)) {
+        jsxContent = jsxContent.replace(itemRegex, '');
+        fs.writeFileSync(JSX_FILE, jsxContent, 'utf8');
       }
-
-      jsxContent = jsxContent.replace(itemRegex, '');
-      fs.writeFileSync(JSX_FILE, jsxContent, 'utf8');
 
       // Also remove from purchase rates
       if (fs.existsSync(RATES_FILE)) {

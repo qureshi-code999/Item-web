@@ -226,13 +226,27 @@ function parseBody(req) {
 
 // ── PURCHASE RATES & ORDER PROFIT ENGINE ──
 function getSavedPurchaseRates() {
+  let rates = {};
   if (fs.existsSync(RATES_FILE)) {
     try {
       const data = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8'));
-      return data.rates || {};
+      if (data.rates) rates = { ...data.rates };
     } catch (e) {}
   }
-  return {};
+  // Fallback / Auto-sync: populate any missing rates from products catalog (synced with Supabase)
+  if (fs.existsSync(PRODUCTS_JSON)) {
+    try {
+      const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+      if (Array.isArray(pj.products)) {
+        pj.products.forEach(p => {
+          if (p.purchasePrice !== undefined && p.purchasePrice !== null && rates[String(p.id)] === undefined) {
+            rates[String(p.id)] = Number(p.purchasePrice);
+          }
+        });
+      }
+    } catch(e) {}
+  }
+  return rates;
 }
 
 function getProductsCatalogMap() {
@@ -1279,6 +1293,12 @@ function syncImageToTargets(fileName) {
         ratesObj.updatedAt = new Date().toISOString();
         fs.writeFileSync(RATES_FILE, JSON.stringify(ratesObj, null, 2), 'utf8');
 
+        // Sync purchase price directly to Supabase Cloud Database!
+        supabaseApiRequest(`/rest/v1/products?id=eq.${itemId}`, 'PATCH', {
+          purchase_price: newRate,
+          updated_at: new Date().toISOString()
+        }).catch(() => {});
+
         // Recalculate orders in dsr_data.json
         if (fs.existsSync(DSR_FILE)) {
           try {
@@ -1344,6 +1364,21 @@ function syncImageToTargets(fileName) {
       }
       rates.updatedAt = new Date().toISOString();
       fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+
+      // Sync updated rates to Supabase Cloud Database!
+      if (body.id !== undefined && body.rate !== undefined) {
+        supabaseApiRequest(`/rest/v1/products?id=eq.${body.id}`, 'PATCH', {
+          purchase_price: Number(body.rate),
+          updated_at: new Date().toISOString()
+        }).catch(() => {});
+      } else if (body.rates && typeof body.rates === 'object') {
+        for (const [k, v] of Object.entries(body.rates)) {
+          supabaseApiRequest(`/rest/v1/products?id=eq.${k}`, 'PATCH', {
+            purchase_price: Number(v) || 0,
+            updated_at: new Date().toISOString()
+          }).catch(() => {});
+        }
+      }
 
       // Recalculate orders in dsr_data.json
       if (fs.existsSync(DSR_FILE)) {

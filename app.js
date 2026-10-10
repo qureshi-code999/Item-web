@@ -1753,10 +1753,10 @@ var PRODUCTS = [{
 }, {
   id: 2,
   name: "7 HERBAL OIL 200ML RP,400",
-  price: 379,
+  price: 369,
   categoryId: "condemn",
   categoryName: "Condoms",
-  priority: 1
+  priority: 3
 }, {
   id: 3,
   name: "7 HERBAL OIL 50ML RS,170",

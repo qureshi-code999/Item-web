@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-10T15:17:40.398Z",
+  "updatedAt": "2026-10-10T15:18:00.488Z",
   "total": 1093,
   "settings": {
     "deliveryFee": 99,
@@ -2284,10 +2284,10 @@
     {
       "id": 2,
       "name": "7 HERBAL OIL 200ML RP,400",
-      "price": 379,
+      "price": 369,
       "categoryId": "condemn",
       "categoryName": "Condoms",
-      "priority": 1,
+      "priority": 3,
       "imageVersion": 1788525481429
     },
     {

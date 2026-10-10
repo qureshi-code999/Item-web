@@ -1,5 +1,14 @@
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
+
+// Run automated system & data integrity validator before compiling
+try {
+  execSync('node validate_system.js', { stdio: 'inherit', cwd: __dirname });
+} catch (e) {
+  console.error('\n🛑 COMPILATION ABORTED: System validation failed! Please fix errors above.');
+  process.exit(1);
+}
 
 // Load Babel Standalone in Node
 const babelCode = fs.readFileSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/babel.min.js', 'utf8');

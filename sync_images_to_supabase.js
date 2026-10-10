@@ -12,13 +12,22 @@ const IMAGES_DIR = path.join(ROOT, 'images');
 const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 const { supabaseUrl, supabaseKey } = config;
 
+const mimeTypes = {
+  '.webp': 'image/webp',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg'
+};
+
 function uploadSingleImage(fileName) {
   return new Promise((resolve) => {
     const fullPath = path.join(IMAGES_DIR, fileName);
     if (!fs.existsSync(fullPath)) return resolve({ fileName, status: 'missing' });
 
+    const ext = path.extname(fileName).toLowerCase();
+    const contentType = mimeTypes[ext] || 'application/octet-stream';
     const fileBuf = fs.readFileSync(fullPath);
-    const targetPath = `/storage/v1/object/product-images/${fileName}`;
+    const targetPath = `/storage/v1/object/product-images/${encodeURIComponent(fileName)}`;
     const fullUrl = new URL(targetPath, supabaseUrl);
 
     const req = https.request({
@@ -29,7 +38,7 @@ function uploadSingleImage(fileName) {
       headers: {
         'apikey': supabaseKey,
         'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'image/webp',
+        'Content-Type': contentType,
         'x-upsert': 'true'
       }
     }, (res) => {
@@ -52,8 +61,8 @@ function uploadSingleImage(fileName) {
 
 async function runBatchUpload() {
   console.log('Scanning images folder...');
-  const files = fs.readdirSync(IMAGES_DIR).filter(f => /^\d+\.webp$/i.test(f));
-  console.log(`Found ${files.length} WebP images to sync to Supabase Storage.`);
+  const files = fs.readdirSync(IMAGES_DIR).filter(f => /\.(webp|png|jpg|jpeg)$/i.test(f));
+  console.log(`Found ${files.length} product, brand, and logo images to sync to Supabase Storage.`);
 
   const CONCURRENCY = 15;
   let completed = 0;

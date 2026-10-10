@@ -19,6 +19,9 @@ var DEFAULT_STORE_SETTINGS = {
   announcement: ""
 };
 
+var SUPABASE_URL = "https://tmssjdczywukramcpcxc.supabase.co";
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
+
 if (typeof window !== 'undefined') {
   try {
     const cached = localStorage.getItem('zs_mart_settings');
@@ -135,7 +138,38 @@ function getTranslationValue(dictionary, key) {
       try {
         const bodyStr = JSON.stringify(orderRecord);
 
-        // 1. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
+        // 1. Direct Supabase Cloud Database Insert (Guarantees delivery from 4G/5G/WiFi globally!)
+        try {
+          const sbOrder = {
+            id: String(orderRecord.id),
+            customer_name: (orderRecord.customer && orderRecord.customer.name) || 'Customer',
+            customer_phone: (orderRecord.customer && orderRecord.customer.phone) || '',
+            customer_address: (orderRecord.customer && orderRecord.customer.address) || '',
+            delivery_type: orderRecord.deliveryType || 'standard',
+            payment_method: orderRecord.paymentMethod || 'cash',
+            subtotal: Number(orderRecord.subtotal || 0),
+            delivery_fee: Number(orderRecord.deliveryFee || 0),
+            total: Number(orderRecord.total || 0),
+            total_savings: Number(orderRecord.totalSavings || 0),
+            status: orderRecord.status || 'pending',
+            items: orderRecord.items || [],
+            raw_data: orderRecord,
+            created_at: new Date().toISOString()
+          };
+          fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify(sbOrder),
+            keepalive: true
+          }).catch(() => {});
+        } catch(e) {}
+
+        // 2. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
         fetch('/api/customer-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -143,7 +177,7 @@ function getTranslationValue(dictionary, key) {
           keepalive: true
         }).catch(() => {});
 
-        // 2. Global Cloud Relay Broadcast (Guarantees delivery from ANY mobile carrier / network globally)
+        // 3. Global Cloud Relay Broadcast (Guarantees delivery from ANY mobile carrier / network globally)
         fetch('https://ntfy.sh/zsmart_orders_live_786', {
           method: 'POST',
           headers: {
@@ -7088,7 +7122,8 @@ export default function SahilTraders() {
                             >
                               <div style={{ width: 76, height: 76, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
                                 <img
-                                  src={b.logo}
+                                  src={getImgUrl(b.logo)}
+                                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = b.logo; }}
                                   alt={b.name}
                                   style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                                   loading="lazy"

@@ -91,3 +91,39 @@ CREATE POLICY "Allow upload product images" ON storage.objects FOR INSERT WITH C
 
 DROP POLICY IF EXISTS "Allow update product images" ON storage.objects;
 CREATE POLICY "Allow update product images" ON storage.objects FOR UPDATE USING (bucket_id = 'product-images');
+
+-- 7. Create Orders Table (Direct Real-time Sync between Customer App & Master Admin)
+CREATE TABLE IF NOT EXISTS public.orders (
+  id TEXT PRIMARY KEY,
+  customer_name TEXT,
+  customer_phone TEXT,
+  customer_address TEXT,
+  delivery_type TEXT,
+  payment_method TEXT,
+  subtotal NUMERIC DEFAULT 0,
+  delivery_fee NUMERIC DEFAULT 0,
+  total NUMERIC DEFAULT 0,
+  total_savings NUMERIC DEFAULT 0,
+  profit NUMERIC DEFAULT 0,
+  status TEXT DEFAULT 'pending',
+  items JSONB DEFAULT '[]'::jsonb,
+  raw_data JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON public.orders(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_phone ON public.orders(customer_phone);
+
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can insert orders" ON public.orders;
+CREATE POLICY "Public can insert orders" ON public.orders FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public can view orders" ON public.orders;
+CREATE POLICY "Public can view orders" ON public.orders FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can update orders" ON public.orders;
+CREATE POLICY "Public can update orders" ON public.orders FOR ALL USING (true) WITH CHECK (true);
+
+ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;

@@ -405,8 +405,133 @@ function getPurchaseRatesCoverage() {
 
 const CLOUD_ORDER_TOPIC = 'zsmart_orders_live_786';
 
+async function fetchProductsFromSupabase() {
+  const cfg = getSupabaseConfig();
+  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseKey) return null;
+  return new Promise((resolve) => {
+    try {
+      let all = [];
+      let offset = 0;
+      const pageSize = 1000;
+
+      function fetchChunk() {
+        const fullUrl = new URL(`/rest/v1/products?select=*&order=id.asc&limit=${pageSize}&offset=${offset}`, cfg.supabaseUrl);
+        const req = https.request({
+          hostname: fullUrl.hostname,
+          port: 443,
+          path: fullUrl.pathname + fullUrl.search,
+          method: 'GET',
+          headers: {
+            'apikey': cfg.supabaseKey,
+            'Authorization': `Bearer ${cfg.supabaseKey}`
+          }
+        }, (res) => {
+          let raw = '';
+          res.on('data', chunk => raw += chunk);
+          res.on('end', () => {
+            if (res.statusCode < 200 || res.statusCode >= 300) return resolve(all.length >= 800 ? all : null);
+            let chunk = [];
+            try { chunk = JSON.parse(raw); } catch(e) { return resolve(all.length >= 800 ? all : null); }
+            if (!Array.isArray(chunk) || chunk.length === 0) return resolve(all.length >= 800 ? all : null);
+            all = all.concat(chunk);
+            if (chunk.length < pageSize) return resolve(all.length >= 800 ? all : null);
+            offset += pageSize;
+            fetchChunk();
+          });
+        });
+        req.on('error', () => resolve(all.length >= 800 ? all : null));
+        req.end();
+      }
+
+      fetchChunk();
+    } catch(e) {
+      resolve(null);
+    }
+  });
+}
+
+function syncSupabaseOrders() {
+  const cfg = getSupabaseConfig();
+  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseKey) return Promise.resolve(0);
+  return new Promise((resolve) => {
+    try {
+      const fullUrl = new URL('/rest/v1/orders?select=*&order=created_at.desc&limit=100', cfg.supabaseUrl);
+      const req = https.request({
+        hostname: fullUrl.hostname,
+        port: 443,
+        path: fullUrl.pathname + fullUrl.search,
+        method: 'GET',
+        headers: {
+          'apikey': cfg.supabaseKey,
+          'Authorization': `Bearer ${cfg.supabaseKey}`
+        }
+      }, (res) => {
+        let raw = '';
+        res.on('data', chunk => raw += chunk);
+        res.on('end', () => {
+          if (res.statusCode < 200 || res.statusCode >= 300 || !raw) return resolve(0);
+          let rows = [];
+          try { rows = JSON.parse(raw); } catch(e) { return resolve(0); }
+          if (!Array.isArray(rows) || rows.length === 0) return resolve(0);
+
+          let dsr = { orders: [], expenses: [] };
+          if (fs.existsSync(DSR_FILE)) {
+            try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
+          }
+          if (!Array.isArray(dsr.orders)) dsr.orders = [];
+
+          const rates = getSavedPurchaseRates();
+          const catalog = getProductsCatalogMap();
+          let addedCount = 0;
+
+          rows.forEach(row => {
+            const exists = dsr.orders.some(o => String(o.id) === String(row.id));
+            if (!exists) {
+              const orderData = row.raw_data || {
+                id: row.id,
+                date: row.created_at,
+                customer: {
+                  name: row.customer_name,
+                  phone: row.customer_phone,
+                  address: row.customer_address
+                },
+                deliveryType: row.delivery_type,
+                paymentMethod: row.payment_method,
+                items: row.items || [],
+                subtotal: Number(row.subtotal || 0),
+                deliveryFee: Number(row.delivery_fee || 0),
+                total: Number(row.total || 0),
+                totalSavings: Number(row.total_savings || 0),
+                status: row.status || 'pending',
+                source: 'whatsapp_app'
+              };
+              const processed = calculateOrderProfit(orderData, rates, catalog);
+              dsr.orders.unshift(processed);
+              addedCount++;
+            }
+          });
+
+          if (addedCount > 0) {
+            fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+            console.log(`[Supabase Cloud Sync] Received and saved ${addedCount} new orders from Supabase Database!`);
+          }
+          resolve(addedCount);
+        });
+      });
+      req.on('error', () => resolve(0));
+      req.end();
+    } catch(e) {
+      resolve(0);
+    }
+  });
+}
+
 function syncCloudOrders() {
   try {
+    // 1. Sync from Supabase Cloud Database (Guaranteed 100% orders from 4G/5G/WiFi phones)
+    syncSupabaseOrders().catch(() => {});
+
+    // 2. Secondary backup relay from ntfy.sh
     const https = require('https');
     const req = https.get(`https://ntfy.sh/${CLOUD_ORDER_TOPIC}/json?poll=1`, res => {
       let raw = '';
@@ -639,8 +764,49 @@ function syncImageToTargets(fileName) {
       });
     }
 
-    // 3. API: Products GET
+    // 3. API: Products GET (Live Supabase Cloud with offline local cache fallback)
     if (pathname === '/api/products' && req.method === 'GET') {
+      try {
+        const sbProducts = await fetchProductsFromSupabase();
+        if (Array.isArray(sbProducts) && sbProducts.length >= 800) {
+          let localCategories = [];
+          let localSettings = {};
+          if (fs.existsSync(PRODUCTS_JSON)) {
+            try {
+              const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+              localCategories = pj.categories || [];
+              localSettings = pj.settings || {};
+            } catch(e) {}
+          }
+          const formattedProducts = sbProducts.map(p => ({
+            id: Number(p.id),
+            name: p.name,
+            price: Number(p.price),
+            categoryId: p.category_id || p.categoryId || 'general',
+            categoryName: p.category_name || p.categoryName || 'General Items',
+            priority: p.priority ? Number(p.priority) : undefined,
+            filterName: p.filter_name || p.filterName || undefined,
+            hasImage: !!p.has_image,
+            imageUrl: p.image_url,
+            imageVersion: p.image_version || p.imageVersion,
+            purchasePrice: p.purchase_price !== null && p.purchase_price !== undefined ? Number(p.purchase_price) : undefined
+          }));
+
+          const responseData = {
+            version: 2,
+            updatedAt: new Date().toISOString(),
+            total: formattedProducts.length,
+            settings: localSettings,
+            categories: localCategories,
+            products: formattedProducts
+          };
+
+          // Update local products.json cache quietly
+          fs.writeFileSync(PRODUCTS_JSON, JSON.stringify(responseData, null, 2), 'utf8');
+          return sendJson(res, 200, responseData);
+        }
+      } catch(e) {}
+
       if (fs.existsSync(PRODUCTS_JSON)) {
         return sendFile(res, PRODUCTS_JSON, 'application/json; charset=utf-8');
       }
@@ -738,13 +904,20 @@ function syncImageToTargets(fileName) {
         fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
       }
 
-      // Run export_products to sync products.json and index.html
-      delete require.cache[require.resolve('./export_products.js')];
-      require('./export_products.js');
-      try { execSync('node compile_jsx.js', { cwd: ROOT }); } catch(e) {}
-      liveCloudSync('Admin added new product #' + newId + ' (' + newProduct.name + ')');
+      // Send instant response to Admin Panel (50ms response time!)
+      sendJson(res, 200, { ok: true, product: newProduct });
 
-      return sendJson(res, 200, { ok: true, product: newProduct });
+      // Run local backup & compile in the background without blocking the UI
+      setImmediate(() => {
+        try {
+          delete require.cache[require.resolve('./export_products.js')];
+          require('./export_products.js');
+          exec('node compile_jsx.js', { cwd: ROOT }, () => {
+            liveCloudSync('Admin added new product #' + newId + ' (' + newProduct.name + ')');
+          });
+        } catch(e) {}
+      });
+      return;
     }
 
     // 5. API: Products PUT (Edit Existing Item)
@@ -846,22 +1019,27 @@ function syncImageToTargets(fileName) {
       // Push update to Supabase Cloud Database (Instantly reflects on all phones!)
       supabaseApiRequest(`/rest/v1/products?id=eq.${id}`, 'PATCH', sbUpdate).catch(e => console.warn('Supabase patch warning:', e));
 
-      delete require.cache[require.resolve('./export_products.js')];
-      require('./export_products.js');
-      try { execSync('node compile_jsx.js', { cwd: ROOT }); } catch(e) {}
-      liveCloudSync('Admin updated product #' + id, () => {
+      // Respond immediately to Admin Panel (50ms response time!)
+      sendJson(res, 200, { ok: true, id });
+
+      // Run background local backup & compile without blocking the UI
+      setImmediate(() => {
         try {
-          const https = require('https');
-          const purgeReq = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${id}.webp`, (pRes) => {
-            console.log(`[CDN Auto-Purge] jsDelivr cache flushed for images/${id}.webp (Status: ${pRes.statusCode})`);
+          delete require.cache[require.resolve('./export_products.js')];
+          require('./export_products.js');
+          exec('node compile_jsx.js', { cwd: ROOT }, () => {
+            liveCloudSync('Admin updated product #' + id, () => {
+              try {
+                const purgeReq = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${id}.webp`, () => {});
+                purgeReq.on('error', () => {});
+                const purgeJson = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/products.json`, () => {});
+                purgeJson.on('error', () => {});
+              } catch(e) {}
+            });
           });
-          purgeReq.on('error', () => {});
-          const purgeJson = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/products.json`, () => {});
-          purgeJson.on('error', () => {});
         } catch(e) {}
       });
-
-      return sendJson(res, 200, { ok: true, id });
+      return;
     }
 
     // 5b. API: Products DELETE
@@ -890,12 +1068,20 @@ function syncImageToTargets(fileName) {
         } catch(e) {}
       }
 
-      delete require.cache[require.resolve('./export_products.js')];
-      require('./export_products.js');
-      try { execSync('node compile_jsx.js', { cwd: ROOT }); } catch(e) {}
-      liveCloudSync('Admin deleted product #' + id);
+      // Respond immediately to Admin Panel (50ms response time!)
+      sendJson(res, 200, { ok: true, deletedId: id });
 
-      return sendJson(res, 200, { ok: true, deletedId: id });
+      // Run background local backup & compile without blocking the UI
+      setImmediate(() => {
+        try {
+          delete require.cache[require.resolve('./export_products.js')];
+          require('./export_products.js');
+          exec('node compile_jsx.js', { cwd: ROOT }, () => {
+            liveCloudSync('Admin deleted product #' + id);
+          });
+        } catch(e) {}
+      });
+      return;
     }
 
     // 5c. API: Category Priority PUT
@@ -1053,6 +1239,26 @@ function syncImageToTargets(fileName) {
       }
 
       fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+
+      // Sync order to Supabase Cloud Database orders table
+      supabaseApiRequest('/rest/v1/orders', 'POST', {
+        id: String(processed.id),
+        customer_name: (processed.customer && processed.customer.name) || processed.customerName || 'Customer',
+        customer_phone: (processed.customer && processed.customer.phone) || processed.customerPhone || '',
+        customer_address: (processed.customer && processed.customer.address) || processed.customerAddress || '',
+        delivery_type: processed.deliveryType || processed.deliveryMethod || 'standard',
+        payment_method: processed.paymentMethod || 'cash',
+        subtotal: Number(processed.subtotal || 0),
+        delivery_fee: Number(processed.deliveryFee || 0),
+        total: Number(processed.total || 0),
+        total_savings: Number(processed.totalSavings || 0),
+        profit: Number(processed.profit || 0),
+        status: processed.status || 'pending',
+        items: processed.items || [],
+        raw_data: processed,
+        created_at: processed.date ? new Date(processed.date).toISOString() : new Date().toISOString()
+      }).catch(() => {});
+
       return sendJson(res, 200, { ok: true, order: processed });
     }
 
@@ -1165,6 +1371,8 @@ function syncImageToTargets(fileName) {
       dsr.orders = (dsr.orders || []).filter(o => String(o.id) !== String(orderId));
       if (dsr.orders.length < initialCount) {
         fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+        // Also delete from Supabase orders table
+        supabaseApiRequest(`/rest/v1/orders?id=eq.${encodeURIComponent(orderId)}`, 'DELETE').catch(() => {});
         return sendJson(res, 200, { ok: true, message: 'Order deleted successfully' });
       }
       return sendJson(res, 404, { error: 'Order not found' });

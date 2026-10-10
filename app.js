@@ -1749,7 +1749,7 @@ var PRODUCTS = [{
   price: 220,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
-  priority: 6
+  priority: 9
 }, {
   id: 2,
   name: "7 HERBAL OIL 200ML RP,400",

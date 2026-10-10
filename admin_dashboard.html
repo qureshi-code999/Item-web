@@ -4291,6 +4291,7 @@
             </tr>
           `;
         } else {
+          singleLineFiltered.forEach(o => {
             const oSrc = String(o.source || o.channel || '').toLowerCase();
             const isWa = oSrc.includes('wa') || oSrc.includes('whats');
             const isParchi = oSrc.includes('parchi');

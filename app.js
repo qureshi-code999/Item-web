@@ -1965,10 +1965,11 @@ var PRODUCTS = [{
   priority: 5
 }, {
   id: 53,
-  name: "BIO AMLA HAIR OIL 50ml FARVAL ORIGINAL RS,160",
+  name: "BIO AMLA HAIR OIL 50ML FARVAL ORIGINAL RS,160",
   price: 140,
   categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils"
+  categoryName: "Hair Colors & Care & Oils",
+  priority: 6
 }, {
   id: 54,
   name: "BIRTHDAY CANDLE 0 TO 9 NUMBERS",

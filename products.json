@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-10T15:32:25.671Z",
+  "updatedAt": "2026-10-10T15:32:35.867Z",
   "total": 1093,
   "settings": {
     "deliveryFee": 99,
@@ -2562,10 +2562,11 @@
     },
     {
       "id": 53,
-      "name": "BIO AMLA HAIR OIL 50ml FARVAL ORIGINAL RS,160",
+      "name": "BIO AMLA HAIR OIL 50ML FARVAL ORIGINAL RS,160",
       "price": 140,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
+      "priority": 6,
       "imageVersion": 1788525503608
     },
     {

@@ -11,7 +11,17 @@
   "orders": [
     {
       "id": "TEST-1791580262590",
+      "date": "2026-10-10",
+      "time": "05:12",
+      "channel": "whatsapp_web",
+      "paymentMethod": "cash",
       "customerName": "Test Customer",
+      "customerPhone": "",
+      "customerAddress": "",
+      "deliveryMethod": "home",
+      "location": null,
+      "notes": "",
+      "photoUrl": null,
       "items": [
         {
           "id": 1281,
@@ -27,35 +37,30 @@
           "variant": null
         }
       ],
+      "deliveryFee": 0,
+      "status": "pending",
+      "source": "whatsapp_web",
       "totalSale": 75,
       "totalCost": 65,
       "totalProfit": 10,
-      "deliveryFee": 0,
       "grandTotal": 75,
       "profitMarginPct": 13.3,
       "missingCostCount": 0,
-      "allCostsSet": true,
-      "customerPhone": "",
-      "customerAddress": "",
-      "source": "whatsapp",
-      "channel": "whatsapp",
-      "date": "2026-10-10",
-      "time": "12:00"
+      "allCostsSet": true
     },
     {
       "id": "20261010-014813",
-      "dateText": "10-Oct-2026, 01:48 am",
-      "customer": {
-        "name": "Sahil",
-        "phone": "03368945775",
-        "address": "Nsbsj",
-        "location": "https://maps.google.com/?q=24.8132996,67.1098226"
-      },
+      "date": "2026-10-10",
+      "time": "05:12",
+      "channel": "whatsapp_web",
+      "paymentMethod": "cash",
+      "customerName": "Sahil",
+      "customerPhone": "03368945775",
+      "customerAddress": "Nsbsj",
       "deliveryMethod": "home",
-      "subtotal": 3069,
-      "totalSavings": 0,
-      "deliveryFee": 0,
-      "grandTotal": 3069,
+      "location": "https://maps.google.com/?q=24.8132996,67.1098226",
+      "notes": "",
+      "photoUrl": null,
       "items": [
         {
           "id": 249,
@@ -136,34 +141,30 @@
           "variant": null
         }
       ],
+      "deliveryFee": 0,
+      "status": "pending",
+      "source": "whatsapp_web",
       "totalSale": 3069,
       "totalCost": 0,
       "totalProfit": 0,
+      "grandTotal": 3069,
       "profitMarginPct": 0,
       "missingCostCount": 6,
-      "allCostsSet": false,
-      "customerName": "Sahil",
-      "customerPhone": "03368945775",
-      "customerAddress": "Nsbsj",
-      "source": "whatsapp",
-      "channel": "whatsapp",
-      "date": "2026-10-10",
-      "time": "01:48"
+      "allCostsSet": false
     },
     {
       "id": "20261009-190156",
-      "dateText": "09-Oct-2026, 07:01 pm",
-      "customer": {
-        "name": "Sahil",
-        "phone": "03368945775",
-        "address": "Cjxjcjjc",
-        "location": "https://maps.google.com/?q=24.8133324,67.1098118"
-      },
+      "date": "2026-10-10",
+      "time": "05:12",
+      "channel": "whatsapp_web",
+      "paymentMethod": "cash",
+      "customerName": "Sahil",
+      "customerPhone": "03368945775",
+      "customerAddress": "Cjxjcjjc",
       "deliveryMethod": "home",
-      "subtotal": 2740,
-      "totalSavings": 0,
-      "deliveryFee": 0,
-      "grandTotal": 2740,
+      "location": "https://maps.google.com/?q=24.8133324,67.1098118",
+      "notes": "",
+      "photoUrl": null,
       "items": [
         {
           "id": 250,
@@ -231,19 +232,16 @@
           "variant": null
         }
       ],
+      "deliveryFee": 0,
+      "status": "pending",
+      "source": "whatsapp_web",
       "totalSale": 2740,
       "totalCost": 328,
       "totalProfit": 42,
+      "grandTotal": 2740,
       "profitMarginPct": 1.5,
       "missingCostCount": 4,
-      "allCostsSet": false,
-      "customerName": "Sahil",
-      "customerPhone": "03368945775",
-      "customerAddress": "Cjxjcjjc",
-      "source": "whatsapp",
-      "channel": "whatsapp",
-      "date": "2026-10-09",
-      "time": "19:01"
+      "allCostsSet": false
     },
     {
       "test": "hello world",

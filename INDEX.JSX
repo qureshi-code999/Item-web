@@ -2272,7 +2272,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1087, name: "SOAP DETTOL SMALL COMPANY (COOL)", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
       { id: 1088, name: "SOAP DOVE LARGE WHITE (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 1 },
       { id: 1089, name: "SOAP DOVE LARGE PINK (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S", priority: 2 },
-      { id: 1090, name: "SOAP DOVE SMALL WHITE (IMP)", price: 0, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
+      { id: 1090, name: "SOAP DOVE SMALL WHITE (IMP)", price: 459, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
       { id: 1091, name: "SOAP DOVE SMALL PINK (IMP)", price: 0, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
       { id: 1092, name: "SOAP FAIZA (NEEM)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
       { id: 1093, name: "SOAP FAIZA (PP)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
@@ -5053,36 +5053,46 @@ export default function SahilTraders() {
         let freshCategories = null;
         let freshSettings = null;
 
-        // 1. PRIMARY: Fetch directly from Supabase Real-time Cloud Database (Fast ~200ms)
+        // 1. PRIMARY: Fetch directly from Supabase Cloud Database with auto-pagination (Bypasses 1000 limit)
         try {
           const controller = new AbortController();
-          const tid = setTimeout(() => controller.abort(), 3500);
-          const sbRes = await fetch(`${sbUrl}/rest/v1/products?select=*&order=id.asc`, {
-            signal: controller.signal,
-            cache: 'no-store',
-            headers: {
-              'apikey': sbKey,
-              'Authorization': `Bearer ${sbKey}`
-            }
-          });
+          const tid = setTimeout(() => controller.abort(), 6000);
+          let allSbRows = [];
+          let offset = 0;
+          const pageSize = 1000;
+
+          while (true) {
+            const sbRes = await fetch(`${sbUrl}/rest/v1/products?select=*&order=id.asc&limit=${pageSize}&offset=${offset}`, {
+              signal: controller.signal,
+              cache: 'no-store',
+              headers: {
+                'apikey': sbKey,
+                'Authorization': `Bearer ${sbKey}`
+              }
+            });
+            if (!sbRes.ok) break;
+            const chunk = await sbRes.json();
+            if (!Array.isArray(chunk) || chunk.length === 0) break;
+            allSbRows = allSbRows.concat(chunk);
+            if (chunk.length < pageSize) break;
+            offset += pageSize;
+          }
           clearTimeout(tid);
-          if (sbRes.ok) {
-            const sbData = await sbRes.json();
-            if (Array.isArray(sbData) && sbData.length >= 800) {
-              freshProducts = sbData.map(p => ({
-                id: Number(p.id),
-                name: p.name,
-                price: Number(p.price),
-                categoryId: p.category_id || p.categoryId || 'general',
-                categoryName: p.category_name || p.categoryName || 'General Items',
-                priority: p.priority ? Number(p.priority) : undefined,
-                filterName: p.filter_name || p.filterName || undefined,
-                hasImage: !!p.has_image,
-                imageUrl: p.image_url,
-                imageVersion: p.image_version || p.imageVersion,
-                purchasePrice: (p.purchase_price !== null && p.purchase_price !== undefined) ? Number(p.purchase_price) : undefined
-              }));
-            }
+
+          if (allSbRows.length >= 800) {
+            freshProducts = allSbRows.map(p => ({
+              id: Number(p.id),
+              name: p.name,
+              price: Number(p.price),
+              categoryId: p.category_id || p.categoryId || 'general',
+              categoryName: p.category_name || p.categoryName || 'General Items',
+              priority: p.priority ? Number(p.priority) : undefined,
+              filterName: p.filter_name || p.filterName || undefined,
+              hasImage: !!p.has_image,
+              imageUrl: p.image_url,
+              imageVersion: p.image_version || p.imageVersion,
+              purchasePrice: (p.purchase_price !== null && p.purchase_price !== undefined) ? Number(p.purchase_price) : undefined
+            }));
           }
         } catch(e) {}
 

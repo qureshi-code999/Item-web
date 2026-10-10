@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-10T12:30:07.378Z",
+  "updatedAt": "2026-10-10T13:01:34.154Z",
   "total": 1093,
   "settings": {
     "deliveryFee": 99,
@@ -10185,7 +10185,7 @@
     {
       "id": 1090,
       "name": "SOAP DOVE SMALL WHITE (IMP)",
-      "price": 0,
+      "price": 459,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
       "hasImage": true,

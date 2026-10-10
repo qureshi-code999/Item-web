@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-10T15:19:50.213Z",
+  "updatedAt": "2026-10-10T15:20:28.452Z",
   "total": 1093,
   "settings": {
     "deliveryFee": 99,
@@ -395,6 +395,7 @@
     "497": "webp",
     "499": "webp",
     "500": "webp",
+    "506": "webp",
     "512": "webp",
     "513": "webp",
     "514": "webp",
@@ -1449,6 +1450,7 @@
     "497": 1788525502635,
     "499": 1788525502671,
     "500": 1788525502831,
+    "506": 1791645621102,
     "512": 1788525502924,
     "513": 1788525502957,
     "514": 1788525502987,
@@ -5786,7 +5788,8 @@
       "name": "FEEDER GLASS SMALL",
       "price": 0,
       "categoryId": "babycare",
-      "categoryName": "Baby Care & Powders"
+      "categoryName": "Baby Care & Powders",
+      "imageVersion": 1791645621102
     },
     {
       "id": 507,

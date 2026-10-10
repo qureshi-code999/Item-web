@@ -1796,7 +1796,8 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
-  initial: "A"
+  initial: "A",
+  priority: 1
 }, {
   id: 14,
   name: "SNOW FALL SPRAY (LARGE)",

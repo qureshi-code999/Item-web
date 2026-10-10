@@ -2475,7 +2475,8 @@ var PRODUCTS = [{
   name: "BRYLCREEM (MEDIUM) (ORIGINAL) RED",
   price: 580,
   categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils"
+  categoryName: "Hair Colors & Care & Oils",
+  priority: 9
 }, {
   id: 148,
   name: "BUTTERFLY PAD ALWAYS DARK BLUE RS,480",

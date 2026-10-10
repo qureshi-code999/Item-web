@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-10T13:01:34.154Z",
+  "updatedAt": "2026-10-10T13:01:40.288Z",
   "total": 1093,
   "settings": {
     "deliveryFee": 99,
@@ -10196,7 +10196,7 @@
     {
       "id": 1091,
       "name": "SOAP DOVE SMALL PINK (IMP)",
-      "price": 0,
+      "price": 459,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
       "hasImage": true,

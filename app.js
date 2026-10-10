@@ -2420,7 +2420,8 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
-  initial: "B"
+  initial: "B",
+  priority: 19
 }, {
   id: 139,
   name: "BRUSH ORAL-B (WITH CAP)",

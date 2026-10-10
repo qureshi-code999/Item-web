@@ -1969,7 +1969,7 @@ var PRODUCTS = [{
   price: 140,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
-  priority: 6
+  priority: 12
 }, {
   id: 54,
   name: "BIRTHDAY CANDLE 0 TO 9 NUMBERS",

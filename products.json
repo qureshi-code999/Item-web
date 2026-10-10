@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-10T15:35:30.178Z",
+  "updatedAt": "2026-10-10T15:36:00.393Z",
   "total": 1093,
   "settings": {
     "deliveryFee": 99,
@@ -2566,7 +2566,7 @@
       "price": 140,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
-      "priority": 6,
+      "priority": 12,
       "imageVersion": 1788525503608
     },
     {

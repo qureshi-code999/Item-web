@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-10T15:16:30.885Z",
+  "updatedAt": "2026-10-10T15:16:48.371Z",
   "total": 1093,
   "settings": {
     "deliveryFee": 99,
@@ -2285,8 +2285,8 @@
       "id": 2,
       "name": "7 HERBAL OIL 200ML RP,400",
       "price": 369,
-      "categoryId": "haircolour",
-      "categoryName": "Hair Colors & Care & Oils",
+      "categoryId": "condemn",
+      "categoryName": "Condoms",
       "priority": 1,
       "imageVersion": 1788525481429
     },

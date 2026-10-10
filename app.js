@@ -1754,8 +1754,8 @@ var PRODUCTS = [{
   id: 2,
   name: "7 HERBAL OIL 200ML RP,400",
   price: 369,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
+  categoryId: "condemn",
+  categoryName: "Condoms",
   priority: 1
 }, {
   id: 3,

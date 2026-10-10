@@ -908,9 +908,25 @@ function getTranslationValue(dictionary, key) {
       if (!isNativeApp && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
         return './' + imgPath;
       }
+      // Check per-item image version
+      const idMatch = imgPath.match(/\/(\d+)\.(webp|png|jpg)$/i);
+      let itemVer = '';
+      if (idMatch && typeof window !== 'undefined') {
+        const pId = idMatch[1];
+        if (window.__ITEM_IMG_VERSIONS__ && window.__ITEM_IMG_VERSIONS__[pId]) {
+          itemVer = window.__ITEM_IMG_VERSIONS__[pId];
+        } else {
+          try {
+            const stored = JSON.parse(localStorage.getItem('zs_item_img_versions') || '{}');
+            if (stored[pId]) itemVer = stored[pId];
+          } catch(e) {}
+        }
+      }
+
       // WebP → jsDelivr CDN (GitHub backed, global fast CDN, ~20-40KB per image)
       // PNG  → Vercel CDN as fallback (300KB+ per image, slower)
-      const buster = (typeof window !== 'undefined' && window.__IMG_CACHE_BUSTER__) 
+      const buster = itemVer 
+        || (typeof window !== 'undefined' && window.__IMG_CACHE_BUSTER__) 
         || (typeof localStorage !== 'undefined' && localStorage.getItem('zs_img_cache_buster')) 
         || '20261010_fresh';
       if (imgPath.match(/\.webp$/i)) {
@@ -5070,6 +5086,13 @@ export default function SahilTraders() {
               window.__IMG_CACHE_BUSTER__ = ts;
               try {
                 localStorage.setItem('zs_img_cache_buster', String(ts));
+              } catch(e) {}
+            }
+
+            if (loadedData.itemImageVersions) {
+              window.__ITEM_IMG_VERSIONS__ = loadedData.itemImageVersions;
+              try {
+                localStorage.setItem('zs_item_img_versions', JSON.stringify(loadedData.itemImageVersions));
               } catch(e) {}
             }
 

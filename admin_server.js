@@ -96,7 +96,7 @@ function getMimeType(file) {
 
 
 // ── LIVE CLOUD SYNC HELPER (Pushes instantly to GitHub & Vercel) ──
-function liveCloudSync(message) {
+function liveCloudSync(message, onComplete) {
   try {
     const safeMsg = (message || 'Live update from Admin Panel').replace(/"/g, "'");
     const gitCmd = `git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js && git commit -m "${safeMsg}" && git push origin main`;
@@ -110,6 +110,9 @@ function liveCloudSync(message) {
       } else {
         console.log('🚀 LIVE CLOUD SYNC SUCCESS: Updated GitHub & Vercel CDN for all phones & web!');
         if (stdout) console.log(stdout.trim());
+      }
+      if (typeof onComplete === 'function') {
+        try { onComplete(); } catch(e) {}
       }
     });
   } catch(e) {
@@ -708,19 +711,23 @@ function syncImageToTargets(fileName) {
         } catch(e) {}
 
         syncImageToTargets(`${id}.${imgExt}`);
-
-        // Automatically purge jsDelivr cache so new picture appears on phones immediately
-        try {
-          const https = require('https');
-          const purgeReq = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${id}.webp`, () => {});
-          purgeReq.on('error', () => {});
-        } catch(e) {}
       }
 
       delete require.cache[require.resolve('./export_products.js')];
       require('./export_products.js');
       try { execSync('node compile_jsx.js', { cwd: ROOT }); } catch(e) {}
-      liveCloudSync('Admin updated product #' + id);
+      liveCloudSync('Admin updated product #' + id, () => {
+        // Automatically purge jsDelivr cache AFTER git push has safely landed on GitHub
+        try {
+          const https = require('https');
+          const purgeReq = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${id}.webp`, (pRes) => {
+            console.log(`[CDN Auto-Purge] jsDelivr cache flushed for images/${id}.webp (Status: ${pRes.statusCode})`);
+          });
+          purgeReq.on('error', () => {});
+          const purgeJson = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/products.json`, () => {});
+          purgeJson.on('error', () => {});
+        } catch(e) {}
+      });
 
       return sendJson(res, 200, { ok: true, id });
     }

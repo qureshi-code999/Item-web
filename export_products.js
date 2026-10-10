@@ -178,12 +178,35 @@ if (fs.existsSync(settingsFile)) {
   } catch (e) {}
 }
 
+// Scan images directory timestamps to generate itemImageVersions
+const itemImageVersions = {};
+if (fs.existsSync(imgDir)) {
+  const allImgFiles = fs.readdirSync(imgDir);
+  allImgFiles.forEach(f => {
+    const m = f.match(/^(\d+)\.(png|jpg|jpeg|webp)$/i);
+    if (m) {
+      const id = m[1];
+      try {
+        const stat = fs.statSync(path.join(imgDir, f));
+        itemImageVersions[id] = Math.floor(stat.mtimeMs);
+      } catch(e) {}
+    }
+  });
+}
+// Assign imageVersion to each product so React.memo detects image updates
+products.forEach(p => {
+  if (itemImageVersions[p.id]) {
+    p.imageVersion = itemImageVersions[p.id];
+  }
+});
+
 const payload = {
   version: 2,
   updatedAt: new Date().toISOString(),
   total: products.length,
   settings: storeSettings,
   imageMap: imageMap,
+  itemImageVersions: itemImageVersions,
   variants: variants,
   categories: categories,
   products: products

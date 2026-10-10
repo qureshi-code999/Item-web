@@ -1439,7 +1439,7 @@ function getTranslationValue(dictionary, key) {
     ];
     var PRODUCTS = [
       { id: 1, name: "7 HERBAL OIL 100ML RS,250", price: 220, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" , priority: 9 },
-      { id: 2, name: "7 HERBAL OIL 200ML RP,400", price: 369, categoryId: "condemn", categoryName: "Condoms", priority: 3 },
+      { id: 2, name: "7 HERBAL OIL 200ML RP,400", price: 369, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 3 },
       { id: 3, name: "7 HERBAL OIL 50ML RS,170", price: 155, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 2 },
       { id: 5, name: "AL RASHIEED OIL 100ML SASSO", price: 480, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 6, name: "ALOE VERA GEL TUBE (LARGE)", price: 140, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "A" },

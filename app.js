@@ -2410,7 +2410,8 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
-  initial: "B"
+  initial: "B",
+  priority: 11
 }, {
   id: 137,
   name: "BRUSH HAIR (THAPA) GOOD QUALITY",

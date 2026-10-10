@@ -1763,7 +1763,7 @@ var PRODUCTS = [{
   price: 155,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
-  priority: 2
+  priority: 1
 }, {
   id: 5,
   name: "AL RASHIEED OIL 100ML SASSO",

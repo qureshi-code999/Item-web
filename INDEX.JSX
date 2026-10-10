@@ -2272,7 +2272,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1087, name: "SOAP DETTOL SMALL COMPANY (COOL)", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
       { id: 1088, name: "SOAP DOVE LARGE WHITE (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 1 },
       { id: 1089, name: "SOAP DOVE LARGE PINK (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S", priority: 2 },
-      { id: 1090, name: "SOAP DOVE SMALL WHITE (IMP)", price: 459, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
+      { id: 1090, name: "SOAP DOVE SMALL WHITE (IMP)", price: 0, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
       { id: 1091, name: "SOAP DOVE SMALL PINK (IMP)", price: 459, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
       { id: 1092, name: "SOAP FAIZA (NEEM)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
       { id: 1093, name: "SOAP FAIZA (PP)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps" },

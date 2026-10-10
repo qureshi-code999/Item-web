@@ -7897,7 +7897,7 @@ var PRODUCTS = [{
 }, {
   id: 1090,
   name: "SOAP DOVE SMALL WHITE (IMP)",
-  price: 459,
+  price: 0,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps",
   hasImage: true,

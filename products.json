@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-10T15:19:34.458Z",
+  "updatedAt": "2026-10-10T15:19:50.213Z",
   "total": 1093,
   "settings": {
     "deliveryFee": 99,
@@ -2338,7 +2338,6 @@
       "hasImage": true,
       "gradient": null,
       "initial": "A",
-      "priority": 1,
       "imageVersion": 1788525525905
     },
     {

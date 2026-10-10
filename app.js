@@ -1955,7 +1955,7 @@ var PRODUCTS = [{
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "B",
-  priority: 4
+  priority: 6
 }, {
   id: 52,
   name: "BIO AMLA HAIR OIL 200ML FARVAL ORIGINAL RS,475",

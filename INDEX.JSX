@@ -1469,7 +1469,7 @@ function getTranslationValue(dictionary, key) {
       { id: 48, name: "BANYAN (# 42)", price: 185, categoryId: "general", categoryName: "General Items & Others" },
       { id: 49, name: "BANYAN (# 44)" ,price: 195, categoryId: "general", categoryName: "General Items & Others" },
       { id: 50, name: "BANYAN CHILD  30# GOOD QUALITY", price: 80, categoryId: "general", categoryName: "General Items & Others" },
-      { id: 51, name: "BIO AMLA HAIR OIL 100ml RS,280", price: 190, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
+      { id: 51, name: "BIO AMLA HAIR OIL 100ML RS,280", price: 190, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B", priority: 4 },
       { id: 52, name: "BIO AMLA HAIR OIL 200ml FARVAL ORIGINAL RS,475", price: 380, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 53, name: "BIO AMLA HAIR OIL 50ml FARVAL ORIGINAL RS,160", price: 140, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 54, name: "BIRTHDAY CANDLE 0 TO 9 NUMBERS", price: 50, categoryId: "sports", categoryName: "Sports & Toys & Birthday", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "B" },

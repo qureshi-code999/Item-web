@@ -1948,13 +1948,14 @@ var PRODUCTS = [{
   categoryName: "General Items & Others"
 }, {
   id: 51,
-  name: "BIO AMLA HAIR OIL 100ml RS,280",
+  name: "BIO AMLA HAIR OIL 100ML RS,280",
   price: 190,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
-  initial: "B"
+  initial: "B",
+  priority: 4
 }, {
   id: 52,
   name: "BIO AMLA HAIR OIL 200ml FARVAL ORIGINAL RS,475",

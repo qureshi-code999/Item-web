@@ -9675,15 +9675,6 @@ const BEVERAGE_BRANDS = [{
   color: "#f97316",
   bg: "#fff7ed"
 }, {
-  id: "Mountain Dew",
-  name: "Mountain Dew",
-  tag: "Citrus Charge Energy",
-  sizes: "6 Sizes & Varieties",
-  logo: "images/brand_dew.webp",
-  fromPrice: 75,
-  color: "#65a30d",
-  bg: "#f7fee7"
-}, {
   id: "Sting",
   name: "Sting Energy",
   tag: "Berry Blast Energy",

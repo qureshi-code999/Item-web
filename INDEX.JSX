@@ -2536,7 +2536,6 @@ function getTranslationValue(dictionary, key) {
       { id: "Pepsi", name: "Pepsi", tag: "Refreshing Cola", sizes: "6 Sizes & Varieties", logo: "images/brand_pepsi.webp", fromPrice: 75, color: "#2563eb", bg: "#eff6ff" },
       { id: "7Up", name: "7Up", tag: "Lemon & Lime Flavor", sizes: "6 Sizes & Varieties", logo: "images/brand_7up.webp", fromPrice: 75, color: "#16a34a", bg: "#f0fdf4" },
       { id: "Mirinda", name: "Mirinda", tag: "Orange Soft Drink", sizes: "6 Sizes & Varieties", logo: "images/brand_mirinda.webp", fromPrice: 75, color: "#f97316", bg: "#fff7ed" },
-      { id: "Mountain Dew", name: "Mountain Dew", tag: "Citrus Charge Energy", sizes: "6 Sizes & Varieties", logo: "images/brand_dew.webp", fromPrice: 75, color: "#65a30d", bg: "#f7fee7" },
       { id: "Sting", name: "Sting Energy", tag: "Berry Blast Energy", sizes: "3 Sizes & Varieties", logo: "images/brand_sting.webp", fromPrice: 75, color: "#e11d48", bg: "#fff1f2" },
       { id: "Pakola", name: "Pakola", tag: "Ice Cream Soda", sizes: "Coming Soon", logo: "images/brand_pakola.webp", fromPrice: 0, color: "#047857", bg: "#ecfdf5" }
     ];

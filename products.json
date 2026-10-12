@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T20:19:38.467Z",
-  "total": 1091,
+  "updatedAt": "2026-10-12T20:19:42.400Z",
+  "total": 1090,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -12245,18 +12245,6 @@
       "gradient": null,
       "initial": "M",
       "imageVersion": 1791557146949
-    },
-    {
-      "id": 1316,
-      "name": "MOUNTAIN DEW 345ML BOTTLE",
-      "price": 75,
-      "categoryId": "beverages",
-      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
-      "filterName": "Mountain Dew",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "M",
-      "imageVersion": 1791836253660
     },
     {
       "id": 1317,

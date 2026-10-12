@@ -9448,7 +9448,7 @@ var PRODUCTS = [{
 }, {
   id: 1303,
   name: "PEPSI 250ML CAN",
-  price: 1090000000000,
+  price: 1.09e+36,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",

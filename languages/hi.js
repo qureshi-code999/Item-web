@@ -1,6 +1,6 @@
 window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.hi = {
-  appTitle: "साहिल ट्रेडर्स",
+  appTitle: "ज़ेडएस मार्ट",
   subtitle: "थोक एवं खुदरा",
   skipIntro: "परिचय छोड़ें",
   searchPlaceholder: "उत्पाद खोजें...",
@@ -9,7 +9,7 @@ window.TRANSLATIONS.hi = {
   noMatch: "कोई मेल खाने वाला उत्पाद नहीं",
   noProducts: "आपकी खोज से कोई उत्पाद नहीं मिला।",
   loadMore: "और लोड करें",
-  footer: "साहिल ट्रेडर्स — थोक एवं खुदरा",
+  footer: "ज़ेडएस मार्ट — थोक एवं खुदरा",
   productsInStock: "{count}+ उत्पाद स्टॉक में",
   productsFound: "{count} उत्पाद मिले",
   languageLabel: "भाषा",

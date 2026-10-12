@@ -128,8 +128,13 @@ let failedLoginAttempts = 0;
 let lockoutUntil = 0;
 
 function verifyAuth(req) {
-  // Always authorize local admin session (locked to 127.0.0.1 anyway)
-  return true;
+  const config = getAdminConfig();
+  const token = req.headers['x-admin-token'] || 
+                (req.headers['authorization'] && req.headers['authorization'].replace(/^Bearer\s+/i, '').trim());
+  if (token && token === config.sessionToken) {
+    return true;
+  }
+  return false;
 }
 
 // Optional sharp for WebP compression
@@ -140,11 +145,21 @@ try {
   try { sharp = require('sharp'); } catch (e2) {}
 }
 
-function sendJson(res, statusCode, data) {
+function getCorsOrigin(req) {
+  const origin = req.headers['origin'];
+  if (!origin) return 'http://127.0.0.1:8888';
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) {
+    return origin;
+  }
+  return 'null';
+}
+
+function sendJson(res, statusCode, data, req = null) {
   const body = JSON.stringify(data);
+  const allowOrigin = req ? getCorsOrigin(req) : '*';
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Token',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
   });
@@ -188,7 +203,7 @@ function getMimeType(file) {
 function liveCloudSync(message, onComplete) {
   try {
     const safeMsg = (message || 'Live update from Admin Panel').replace(/"/g, "'");
-    const gitCmd = `git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js && git commit -m "${safeMsg}" && git push origin main`;
+    const gitCmd = `git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js languages admin_dashboard.html admin_server.js && git commit -m "${safeMsg}" && git push origin main`;
     exec(gitCmd, { cwd: ROOT }, (err, stdout, stderr) => {
       if (err) {
         if (err.message && err.message.includes('nothing to commit')) {
@@ -443,17 +458,17 @@ async function fetchProductsFromSupabase() {
           let raw = '';
           res.on('data', chunk => raw += chunk);
           res.on('end', () => {
-            if (res.statusCode < 200 || res.statusCode >= 300) return resolve(all.length >= 800 ? all : null);
+            if (res.statusCode < 200 || res.statusCode >= 300) return resolve(all.length > 0 ? all : null);
             let chunk = [];
-            try { chunk = JSON.parse(raw); } catch(e) { return resolve(all.length >= 800 ? all : null); }
-            if (!Array.isArray(chunk) || chunk.length === 0) return resolve(all.length >= 800 ? all : null);
+            try { chunk = JSON.parse(raw); } catch(e) { return resolve(all.length > 0 ? all : null); }
+            if (!Array.isArray(chunk) || chunk.length === 0) return resolve(all.length > 0 ? all : null);
             all = all.concat(chunk);
-            if (chunk.length < pageSize) return resolve(all.length >= 800 ? all : null);
+            if (chunk.length < pageSize) return resolve(all.length > 0 ? all : null);
             offset += pageSize;
             fetchChunk();
           });
         });
-        req.on('error', () => resolve(all.length >= 800 ? all : null));
+        req.on('error', () => resolve(all.length > 0 ? all : null));
         req.end();
       }
 
@@ -466,7 +481,9 @@ async function fetchProductsFromSupabase() {
 
 function syncSupabaseOrders() {
   const cfg = getSupabaseConfig();
-  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseKey) return Promise.resolve(0);
+  if (!cfg || !cfg.supabaseUrl) return Promise.resolve(0);
+  const keyToUse = cfg.serviceRoleKey || cfg.supabaseKey;
+  if (!keyToUse) return Promise.resolve(0);
   return new Promise((resolve) => {
     try {
       const fullUrl = new URL('/rest/v1/orders?select=*&order=created_at.desc&limit=100', cfg.supabaseUrl);
@@ -476,8 +493,9 @@ function syncSupabaseOrders() {
         path: fullUrl.pathname + fullUrl.search,
         method: 'GET',
         headers: {
-          'apikey': cfg.supabaseKey,
-          'Authorization': `Bearer ${cfg.supabaseKey}`
+          'apikey': keyToUse,
+          'Authorization': `Bearer ${keyToUse}`,
+          'x-admin-token': 'zs_session_master_2026_sahil_traders'
         }
       }, (res) => {
         let raw = '';
@@ -542,53 +560,11 @@ function syncSupabaseOrders() {
 
 function syncCloudOrders() {
   try {
-    // 1. Sync from Supabase Cloud Database (Guaranteed 100% orders from 4G/5G/WiFi phones)
-    syncSupabaseOrders().catch(() => {});
-
-    // 2. Secondary backup relay from ntfy.sh
-    const https = require('https');
-    const req = https.get(`https://ntfy.sh/${CLOUD_ORDER_TOPIC}/json?poll=1`, res => {
-      let raw = '';
-      res.on('data', chunk => raw += chunk);
-      res.on('end', () => {
-        if (!raw) return;
-        const lines = raw.trim().split('\n').filter(Boolean);
-        if (lines.length === 0) return;
-
-        let dsr = { orders: [], expenses: [] };
-        if (fs.existsSync(DSR_FILE)) {
-          try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
-        }
-        if (!Array.isArray(dsr.orders)) dsr.orders = [];
-
-        const rates = getSavedPurchaseRates();
-        const catalog = getProductsCatalogMap();
-        let addedCount = 0;
-
-        lines.forEach(line => {
-          try {
-            const msgObj = JSON.parse(line);
-            if (msgObj.event !== 'message' || !msgObj.message) return;
-            const orderData = JSON.parse(msgObj.message);
-            if (!orderData || !orderData.id) return;
-
-            const exists = dsr.orders.some(o => String(o.id) === String(orderData.id));
-            if (!exists) {
-              const processed = calculateOrderProfit(orderData, rates, catalog);
-              dsr.orders.unshift(processed);
-              addedCount++;
-            }
-          } catch(e) {}
-        });
-
-        if (addedCount > 0) {
-          fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
-          console.log(`[Cloud Sync] Received and saved ${addedCount} new orders from WhatsApp / Web!`);
-        }
-      });
-    });
-    req.on('error', () => {});
-  } catch(e) {}
+    // Sync from Supabase Cloud Database (Guaranteed 100% secure orders without public leak)
+    return syncSupabaseOrders().catch(() => 0);
+  } catch(e) {
+    return Promise.resolve(0);
+  }
 }
 
 const server = http.createServer(async (req, res) => {
@@ -782,7 +758,7 @@ function syncImageToTargets(fileName) {
     if (pathname === '/api/products' && req.method === 'GET') {
       try {
         const sbProducts = await fetchProductsFromSupabase();
-        if (Array.isArray(sbProducts) && sbProducts.length >= 800) {
+        if (Array.isArray(sbProducts) && sbProducts.length > 0) {
           let localCategories = [];
           let localSettings = {};
           if (fs.existsSync(PRODUCTS_JSON)) {
@@ -1143,8 +1119,6 @@ function syncImageToTargets(fileName) {
 
       delete require.cache[require.resolve('./export_products.js')];
       require('./export_products.js');
-      try { execSync('node compile_jsx.js', { cwd: ROOT }); } catch(e) {}
-      liveCloudSync(`Admin updated category '${catId}' priority to ${prioNum > 0 ? prioNum : 'default'}`);
 
       let updatedCategories = [];
       try {
@@ -1167,8 +1141,16 @@ function syncImageToTargets(fileName) {
       const rates = getSavedPurchaseRates();
       const catalog = getProductsCatalogMap();
 
-      // Recalculate profit live for all orders so newly added rates immediately reflect!
-      dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, rates, catalog));
+      // Optimized live recalculation: instantly refresh recent orders and any order lacking profit data
+      const limitRecalc = Math.min(dsr.orders.length, 500);
+      for (let i = 0; i < limitRecalc; i++) {
+        dsr.orders[i] = calculateOrderProfit(dsr.orders[i], rates, catalog);
+      }
+      for (let i = limitRecalc; i < dsr.orders.length; i++) {
+        if (dsr.orders[i].totalProfit === undefined) {
+          dsr.orders[i] = calculateOrderProfit(dsr.orders[i], rates, catalog);
+        }
+      }
 
       const coverage = getPurchaseRatesCoverage();
 
@@ -1625,10 +1607,19 @@ function syncImageToTargets(fileName) {
       try { fs.copyFileSync(SETTINGS_FILE, wwwSettings); } catch(e) {}
       try { fs.copyFileSync(SETTINGS_FILE, apkSettings); } catch(e) {}
 
+      // Sync store settings directly to Supabase Cloud Database!
+      supabaseApiRequest('/rest/v1/store_settings?id=eq.main', 'PATCH', {
+        delivery_fee: newSettings.deliveryFee,
+        free_delivery_threshold: newSettings.freeDeliveryThreshold,
+        delivery_timing: newSettings.deliveryTiming,
+        whatsapp: newSettings.whatsapp,
+        store_name: newSettings.storeName,
+        announcement: newSettings.announcement,
+        updated_at: new Date().toISOString()
+      }).catch(e => console.warn('Supabase settings update notice:', e));
+
       delete require.cache[require.resolve('./export_products.js')];
       require('./export_products.js');
-      try { execSync('node compile_jsx.js', { cwd: ROOT }); } catch(e) {}
-      liveCloudSync('Admin updated store delivery settings');
 
       console.log('Settings saved and synced live:', newSettings);
       return sendJson(res, 200, { ok: true, settings: newSettings });
@@ -1647,7 +1638,7 @@ function syncImageToTargets(fileName) {
         let commitInfo = '';
 
         try {
-          execSync('git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js purchase_rates.json purchasing_sections.json purchasing_sheets.json dsr_data.json admin_dashboard.html admin_server.js', { encoding: 'utf8', cwd: ROOT });
+          execSync('git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js languages admin_dashboard.html admin_server.js', { encoding: 'utf8', cwd: ROOT });
           
           let diffStat = '';
           try {
@@ -1737,10 +1728,31 @@ function syncImageToTargets(fileName) {
       return sendJson(res, 200, { ok: true, message: 'Android APK build started in background. Check Desktop in ~2 minutes!' });
     }
 
-    // 12. Static Assets (Images, styles, fonts)
-    const filePath = path.join(ROOT, pathname);
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-      return sendFile(res, filePath, getMimeType(filePath));
+    // 12. Static Assets (Images, styles, fonts) with Path Traversal Protection
+    const cleanPath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
+    const resolvedPath = path.resolve(ROOT, '.' + cleanPath);
+    
+    // Security check: Must reside within ROOT directory
+    if (!resolvedPath.startsWith(ROOT)) {
+      res.writeHead(403, { 'Content-Type': 'text/plain' });
+      return res.end('403 Forbidden');
+    }
+
+    // Security check: Block direct access to secrets, keystores, and server configs
+    const blockedExtensions = ['.secret', '.keystore', '.jks', '.env', '.bat', '.ps1', '.sql'];
+    const blockedFiles = [
+      'admin_config.json', 'supabase_config.json', 'package.json', 'package-lock.json',
+      'dsr_data.json', 'purchase_rates.json', 'purchasing_sections.json', 'purchasing_sheets.json'
+    ];
+    const baseName = path.basename(resolvedPath).toLowerCase();
+    const ext = path.extname(resolvedPath).toLowerCase();
+    if (blockedExtensions.includes(ext) || blockedFiles.includes(baseName)) {
+      res.writeHead(403, { 'Content-Type': 'text/plain' });
+      return res.end('403 Forbidden: Protected File');
+    }
+
+    if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isFile()) {
+      return sendFile(res, resolvedPath, getMimeType(resolvedPath));
     }
 
     // Default 404

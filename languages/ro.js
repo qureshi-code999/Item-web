@@ -1,6 +1,6 @@
 window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.ro = {
-  appTitle: "ZS Groceries",
+  appTitle: "ZS Mart",
   subtitle: "Wholesale aur Retail",
   skipIntro: "Aage Jao",
   searchPlaceholder: "Koi bhi cheez dhundein...",
@@ -9,7 +9,7 @@ window.TRANSLATIONS.ro = {
   noMatch: "Koi cheez nahi mili",
   noProducts: "Koi cheez nahi mili apki search se.",
   loadMore: "Aur Dekhein",
-  footer: "ZS Groceries - Wholesale aur Retail",
+  footer: "ZS Mart - Wholesale aur Retail",
   productsInStock: "{count}+ cheezein stock mein hain",
   productsFound: "{count} cheez mili",
   languageLabel: "Zaban",
@@ -36,7 +36,7 @@ window.TRANSLATIONS.ro = {
   whatsappNotice: "Order button dabaane par sab details WhatsApp par apne aap chali jayengi.",
   placeOrderBtn: "WhatsApp par Order Bhejo",
   placingOrder: "Order bheja ja raha hai...",
-  orderPlacedSuccess: "Mubarak! Order Bhej Diya Gaya \uD83C\uDF89",
+  orderPlacedSuccess: "Mubarak! Order Bhej Diya Gaya 🎉",
   successNotice: "Apke order ki list WhatsApp par bhej di gayi hai. Hum aap se jald rabta karenge!",
 
   categoriesLabel: "Categories",
@@ -45,7 +45,7 @@ window.TRANSLATIONS.ro = {
     soaps:              "Sabun (Soaps)",
     shampoo:            "Shampoo aur Conditioner",
     creams:             "Cream aur Lotion",
-    stationary:         "Stationary aur Tapes",
+    stationary:         "Stationery aur Tapes",
     sports:             "Khel Ka Samaan (Sports)",
     birthday:           "Birthday Ka Samaan",
     shaving:            "Shaving, Razor aur Blade",
@@ -56,7 +56,7 @@ window.TRANSLATIONS.ro = {
     babycare:           "Baby Care aur Powder",
     mosquito:           "Machar Bhagane Ka Samaan",
     personalcare:       "Zaati Safaai (Personal Care)",
-    fragnances:         "Khushbuein (Fragnances)",
+    fragnances:         "Khushbuein (Fragrances)",
     toothpasteandbrush: "Tooth Paste aur Brush",
     facewash:           "Face Wash"
   }

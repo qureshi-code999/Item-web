@@ -2385,6 +2385,17 @@
           <b>📍 Delivery Address / Notes:</b> <span id="modal-order-notes-text" style="color: #475569;"></span>
         </div>
 
+        <!-- Customer Handwritten Parchi Slip Photo Card -->
+        <div id="modal-order-parchi-box" style="display: none; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <b style="color: #92400e; font-size: 13px;">📸 Customer Handwritten Parchi Slip:</b>
+            <a id="modal-order-parchi-link" href="#" target="_blank" class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;">🔍 View Full Image</a>
+          </div>
+          <div style="text-align: center;">
+            <img id="modal-order-parchi-img" src="" alt="Parchi Slip" style="max-height: 280px; max-width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; object-fit: contain; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" />
+          </div>
+        </div>
+
         <!-- Items Table with Inline Purchase Rate Inputs -->
         <div style="font-weight: 800; font-size: 13px; color: #0f172a; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
           <span>📋 Order Items &amp; Profit Margins:</span>
@@ -2557,7 +2568,24 @@
     };
 
     function showLockScreen(msg = '') {
-      hideLockScreen();
+      const screen = document.getElementById('master-security-lock-screen');
+      const errBox = document.getElementById('lock-error-msg');
+      if (errBox) {
+        if (msg) {
+          errBox.textContent = msg;
+          errBox.style.display = 'block';
+        } else {
+          errBox.style.display = 'none';
+        }
+      }
+      if (screen) {
+        screen.style.display = 'flex';
+      }
+      const pwdInput = document.getElementById('master-password-input');
+      if (pwdInput) {
+        pwdInput.value = '';
+        setTimeout(() => pwdInput.focus(), 100);
+      }
     }
 
     function hideLockScreen() {
@@ -2566,7 +2594,10 @@
     }
 
     function lockAdminPanel() {
-      hideLockScreen();
+      authToken = '';
+      sessionStorage.removeItem('zs_admin_token');
+      localStorage.removeItem('zs_admin_token');
+      showLockScreen();
     }
 
     function togglePasswordVisibility() {
@@ -2578,15 +2609,54 @@
 
     async function handleMasterLogin(e) {
       if (e) e.preventDefault();
-      hideLockScreen();
-      await init();
-      await loadSettings();
+      const pwdInput = document.getElementById('master-password-input');
+      const password = pwdInput ? pwdInput.value : '';
+      if (!password) {
+        showLockScreen('Please enter your Master Admin Password.');
+        return;
+      }
+      const btn = document.getElementById('btn-unlock-panel');
+      if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
+
+      try {
+        const res = await originalFetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+        if (data.ok && data.token) {
+          authToken = data.token;
+          sessionStorage.setItem('zs_admin_token', data.token);
+          hideLockScreen();
+          await init();
+          await loadSettings();
+        } else {
+          showLockScreen(data.error || 'Incorrect password! Please try again.');
+        }
+      } catch (err) {
+        showLockScreen('Connection error: ' + err.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Unlock Command Center'; }
+      }
     }
 
     async function checkAuthOnLoad() {
-      hideLockScreen();
-      await init();
-      await loadSettings();
+      if (authToken) {
+        try {
+          const res = await originalFetch('/api/auth/verify', {
+            headers: { 'X-Admin-Token': authToken }
+          });
+          const data = await res.json();
+          if (data.ok && data.authenticated) {
+            hideLockScreen();
+            await init();
+            await loadSettings();
+            return;
+          }
+        } catch(e) {}
+      }
+      showLockScreen();
     }
 
     // Global Safe HTML Escape Utility
@@ -2787,11 +2857,31 @@
       });
     }
 
-    function renderProductsTable(products) {
+    let productPage = 1;
+    const PRODUCTS_PER_PAGE = 50;
+    let lastFilteredProducts = [];
+
+    function changeProductPage(newPage) {
+      const maxPage = Math.ceil(lastFilteredProducts.length / PRODUCTS_PER_PAGE) || 1;
+      if (newPage < 1 || newPage > maxPage) return;
+      productPage = newPage;
+      renderProductsTable(lastFilteredProducts, false);
+    }
+
+    function renderProductsTable(products, resetPage = true) {
+      if (resetPage) productPage = 1;
+      lastFilteredProducts = products || [];
       const tbody = document.getElementById('products-tbody');
-      document.getElementById('table-count').textContent = products.length;
+      document.getElementById('table-count').textContent = lastFilteredProducts.length;
       tbody.innerHTML = '';
-      products.forEach(p => {
+
+      const totalPages = Math.ceil(lastFilteredProducts.length / PRODUCTS_PER_PAGE) || 1;
+      if (productPage > totalPages) productPage = totalPages;
+      const startIdx = (productPage - 1) * PRODUCTS_PER_PAGE;
+      const endIdx = Math.min(startIdx + PRODUCTS_PER_PAGE, lastFilteredProducts.length);
+      const pageSlice = lastFilteredProducts.slice(startIdx, endIdx);
+
+      pageSlice.forEach(p => {
         const tr = document.createElement('tr');
         const costRate = purchaseRates[p.id] || '';
         tr.innerHTML = `
@@ -2803,31 +2893,55 @@
             </div>
           </td>
           <td>
-            <input type="text" id="p-name-${p.id}" value="${p.name.replace(/"/g, '&quot;')}" style="width: 100%;">
+            <input type="text" id="p-name-${p.id}" value="${p.name.replace(/"/g, '&quot;')}" style="width: 100%;" onkeydown="if(event.key==='Enter') saveProductRow(${p.id})">
           </td>
           <td>
-            <select id="p-cat-${p.id}" style="width: 100%;">
+            <select id="p-cat-${p.id}" style="width: 100%;" onchange="saveProductRow(${p.id})">
               ${allCategories.map(c => `<option value="${c.id}" ${c.id === p.categoryId ? 'selected' : ''}>${c.name}</option>`).join('')}
               ${!allCategories.some(c => c.id === p.categoryId) && p.categoryId ? `<option value="${p.categoryId}" selected>${p.categoryName || p.categoryId}</option>` : ''}
             </select>
           </td>
           <td>
-            <input type="number" step="any" id="p-price-${p.id}" value="${p.price}" style="width: 85px;">
+            <input type="number" step="any" id="p-price-${p.id}" value="${p.price}" style="width: 85px;" onkeydown="if(event.key==='Enter') saveProductRow(${p.id})">
           </td>
           <td>
-            <input type="number" step="any" id="p-cost-${p.id}" value="${costRate}" placeholder="Cost" style="width: 85px;">
+            <input type="number" step="any" id="p-cost-${p.id}" value="${costRate}" placeholder="Cost" style="width: 85px;" onkeydown="if(event.key==='Enter') saveProductRow(${p.id})">
           </td>
           <td>
-            <input type="number" id="p-prio-${p.id}" value="${p.priority || ''}" placeholder="Prio" style="width: 55px;">
+            <input type="number" id="p-prio-${p.id}" value="${p.priority || ''}" placeholder="Prio" style="width: 55px;" onkeydown="if(event.key==='Enter') saveProductRow(${p.id})">
           </td>
           <td style="text-align: center; white-space: nowrap;">
             <button class="btn btn-dark" style="padding: 5px 8px; font-size: 11px;" title="Full Edit & Change Photo" onclick="openEditProductModal(${p.id})">✏️ Edit</button>
-            <button class="btn btn-emerald" style="padding: 5px 8px; font-size: 11px; margin-left: 2px;" onclick="saveProductRow(${p.id})">Save</button>
+            <button class="btn btn-emerald" id="btn-save-row-${p.id}" style="padding: 5px 8px; font-size: 11px; margin-left: 2px;" onclick="saveProductRow(${p.id})">Save</button>
             <button class="btn btn-danger" style="padding: 5px 8px; font-size: 11px; margin-left: 2px;" title="Delete Product" onclick="deleteProductRow(${p.id})">🗑️</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
+
+      // Render Pagination Bar
+      let pagEl = document.getElementById('products-pagination-controls');
+      if (!pagEl) {
+        pagEl = document.createElement('div');
+        pagEl.id = 'products-pagination-controls';
+        pagEl.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding:10px 16px; background:rgba(15,23,42,0.6); border-radius:10px; border:1px solid var(--border-color); font-size:13px; font-weight:700;';
+        const tableContainer = tbody.closest('.table-container') || tbody.parentElement;
+        if (tableContainer && tableContainer.parentElement) {
+          tableContainer.parentElement.appendChild(pagEl);
+        }
+      }
+      if (pagEl) {
+        pagEl.innerHTML = `
+          <div style="color:var(--text-muted); font-size:12px;">
+            Showing <span style="color:#f59e0b;">${lastFilteredProducts.length > 0 ? (startIdx + 1) : 0}–${endIdx}</span> of <span style="color:#fff;">${lastFilteredProducts.length}</span> items
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button class="btn btn-dark" style="padding:5px 12px; font-size:12px;" onclick="changeProductPage(${productPage - 1})" ${productPage <= 1 ? 'disabled' : ''}>← Previous</button>
+            <span style="color:#f8fafc; padding:0 6px;">Page ${productPage} of ${totalPages}</span>
+            <button class="btn btn-dark" style="padding:5px 12px; font-size:12px;" onclick="changeProductPage(${productPage + 1})" ${productPage >= totalPages ? 'disabled' : ''}>Next →</button>
+          </div>
+        `;
+      }
     }
 
     // Modal: Full Product & Picture Editor with WebP auto-conversion
@@ -3034,18 +3148,43 @@
       }
     }
 
+    function showDashboardToast(msg, isError = false) {
+      let toast = document.getElementById('dash-floating-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'dash-floating-toast';
+        toast.style.cssText = 'position:fixed; bottom:25px; right:25px; z-index:999999; padding:12px 20px; border-radius:10px; font-weight:800; font-size:13px; color:#fff; box-shadow:0 8px 25px rgba(0,0,0,0.3); transition:all 0.25s ease; display:flex; align-items:center; gap:8px; pointer-events:none;';
+        document.body.appendChild(toast);
+      }
+      toast.style.background = isError ? '#dc2626' : '#059669';
+      toast.innerHTML = msg;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+      clearTimeout(window.__dashToastTimer);
+      window.__dashToastTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(15px)';
+      }, 2500);
+    }
+
     async function saveProductRow(id) {
       const catSelect = document.getElementById('p-cat-' + id);
-      const catName = catSelect.options[catSelect.selectedIndex].textContent;
-      const prioVal = document.getElementById('p-prio-' + id).value;
+      const catName = catSelect ? catSelect.options[catSelect.selectedIndex].textContent : '';
+      const prioVal = document.getElementById('p-prio-' + id) ? document.getElementById('p-prio-' + id).value : '';
       const payload = {
-        name: document.getElementById('p-name-' + id).value,
-        price: Number(document.getElementById('p-price-' + id).value),
-        purchasePrice: document.getElementById('p-cost-' + id).value ? Number(document.getElementById('p-cost-' + id).value) : undefined,
-        categoryId: catSelect.value,
+        name: document.getElementById('p-name-' + id) ? document.getElementById('p-name-' + id).value : '',
+        price: Number(document.getElementById('p-price-' + id) ? document.getElementById('p-price-' + id).value : 0),
+        purchasePrice: (document.getElementById('p-cost-' + id) && document.getElementById('p-cost-' + id).value) ? Number(document.getElementById('p-cost-' + id).value) : undefined,
+        categoryId: catSelect ? catSelect.value : 'general',
         categoryName: catName,
         priority: prioVal !== '' ? Number(prioVal) : 0
       };
+
+      const saveBtn = document.getElementById('btn-save-row-' + id);
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '⏳ Saving...';
+      }
 
       try {
         const res = await fetch('/api/products/' + id, {
@@ -3066,12 +3205,26 @@
           if (payload.purchasePrice !== undefined) {
             purchaseRates[id] = payload.purchasePrice;
           }
-          alert('✅ Product #' + id + ' updated!');
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '✓ Saved!';
+            saveBtn.style.background = '#059669';
+            setTimeout(() => { saveBtn.innerHTML = 'Save'; saveBtn.style.background = ''; }, 1600);
+          }
+          showDashboardToast('✅ Product #' + id + ' (' + payload.name + ') saved & synced live!');
         } else {
-          alert('❌ Error: ' + data.error);
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = 'Save';
+          }
+          showDashboardToast('❌ Error: ' + data.error, true);
         }
       } catch(err) {
-        alert('❌ Error: ' + err.message);
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = 'Save';
+        }
+        showDashboardToast('❌ Error: ' + err.message, true);
       }
     }
 
@@ -3223,9 +3376,9 @@
         if (selectedOrderingCatId) {
           loadCategoryItems(selectedOrderingCatId);
         }
-        alert('✅ Priority ' + (num > 0 ? '#' + num : 'removed') + ' successfully updated and synced to app & web!');
+        showDashboardToast('✅ Priority ' + (num > 0 ? '#' + num : 'removed') + ' updated & synced to Cloud!');
       } else {
-        alert('❌ Error: ' + (data.error || 'Failed'));
+        showDashboardToast('❌ Error: ' + (data.error || 'Failed'), true);
       }
     }
 
@@ -4036,29 +4189,6 @@
 
       try {
         await fetch('/api/dsr/sync-cloud').catch(() => {});
-        // Also poll cloud relay directly
-        try {
-          const cloudRes = await fetch('https://ntfy.sh/zsmart_orders_live_786/json?poll=1');
-          const text = await cloudRes.text();
-          const lines = text.trim().split('\n');
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            try {
-              const msg = JSON.parse(line);
-              if (msg.message) {
-                const orderData = JSON.parse(msg.message);
-                if (orderData && orderData.items) {
-                  await fetch('/api/customer-order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(orderData)
-                  });
-                }
-              }
-            } catch(e) {}
-          }
-        } catch(e) {}
-
         await loadDsr();
       } catch(err) {
         console.warn('Sync error:', err);
@@ -4533,6 +4663,21 @@
         notesText.textContent = [order.deliveryAddress, order.notes].filter(Boolean).join(' • ');
       } else {
         notesBox.style.display = 'none';
+      }
+
+      // Handwritten Parchi Slip Photo Preview
+      const parchiUrl = order.parchiPhoto || order.photoUrl || (order.raw_data && (order.raw_data.parchiPhoto || order.raw_data.photoUrl));
+      const parchiBox = document.getElementById('modal-order-parchi-box');
+      const parchiImg = document.getElementById('modal-order-parchi-img');
+      const parchiLink = document.getElementById('modal-order-parchi-link');
+      if (parchiBox && parchiImg && parchiLink) {
+        if (parchiUrl) {
+          parchiBox.style.display = 'block';
+          parchiImg.src = parchiUrl;
+          parchiLink.href = parchiUrl;
+        } else {
+          parchiBox.style.display = 'none';
+        }
       }
 
       // Missing Cost Alert

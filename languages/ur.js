@@ -1,15 +1,15 @@
-﻿window.TRANSLATIONS = window.TRANSLATIONS || {};
+window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.ur = {
-  appTitle: "زیڈ ایس گروسریز (ZS Groceries)",
+  appTitle: "زیڈ ایس مارٹ (ZS Mart)",
   subtitle: "ہول سیل اور پرچون ریٹ",
   skipIntro: "آگے جائیں",
   searchPlaceholder: "کوئی بھی چیز تلاش کریں...",
   recentSearches: "پچھلی تلاش",
   allCategories: "تمام چیزیں",
   noMatch: "کوئی چیز نہیں ملی",
-  noProducts: "تلاش کے مطابق کوئی چیز نہیں ملی ۴",
+  noProducts: "تلاش کے مطابق کوئی چیز نہیں ملی",
   loadMore: "اور دیکھیں",
-  footer: "زیڈ ایس گروسریز — ہول سیل اور پرچون ریٹ",
+  footer: "زیڈ ایس مارٹ — ہول سیل اور پرچون ریٹ",
   productsInStock: "{count}+ چیزیں اسٹاک میں ہیں",
   productsFound: "{count} چیزیں ملیں",
   languageLabel: "زبان",
@@ -37,7 +37,7 @@ window.TRANSLATIONS.ur = {
   placeOrderBtn: "واٹس ایپ پر آرڈر بھیجیں",
   placingOrder: "آرڈر بھیجا جا رہا ہے...",
   orderPlacedSuccess: "مبارک ہو! آرڈر بھیج دیا گیا 🎉",
-  successNotice: "آپ کے آرڈر کی لسٹ واٹس ایپ پر بھیج دی گی ہے। ہم آپ سے جلد رابطہ کریں گے",
+  successNotice: "آپ کے آرڈر کی لسٹ واٹس ایپ پر بھیج دی گئی ہے۔ ہم آپ سے جلد رابطہ کریں گے",
 
   categoriesLabel: "کیٹیگریز",
   itemsLabel: "چیزیں",
@@ -45,9 +45,9 @@ window.TRANSLATIONS.ur = {
     soaps:        "Local & Imported Soaps",
     shampoo:      "Shampoo & Conditioners",
     creams:       "Creams & Lotions & Bleach",
-    stationary:   "Stationary & Tapes",
+    stationary:   "Stationery & Tapes",
     sports:       "Sports & Toys & Birthday",
-shaving:      "شیونگ، ریزر اور بلیڈ (Shaving & Razers & Blades)",
+    shaving:      "شیونگ، ریزر اور بلیڈ (Shaving & Razors & Blades)",
     haircolour:   "Hair Colors & Care & Oils",
     condemn:      "کنڈم (Condoms)",
     lock:         "Locks & Cells & Lighters",
@@ -55,7 +55,7 @@ shaving:      "شیونگ، ریزر اور بلیڈ (Shaving & Razers & Blades)
     babycare:     "Baby Care & Powders",
     mosquito:     "Anti- Mosquitoes",
     personalcare: "ذاتی صفائی (Personal Care)",
-    fragnances:   "Fragnances & Roll on",
+    fragnances:   "Fragrances & Roll on",
     toothpasteandbrush: "Dental Cares",
     facewash:     "Face Wash & Body Washes"
   }

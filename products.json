@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-10T15:36:28.697Z",
+  "updatedAt": "2026-10-12T18:38:09.486Z",
   "total": 1093,
   "settings": {
     "deliveryFee": 99,
@@ -2368,10 +2368,11 @@
     },
     {
       "id": 17,
-      "name": "BAJAJ ALMOND OIL 100ml",
+      "name": "BAJAJ ALMOND OIL 100ML",
       "price": 950,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
+      "priority": 4,
       "imageVersion": 1788525480309
     },
     {
@@ -2548,7 +2549,6 @@
       "hasImage": true,
       "gradient": null,
       "initial": "B",
-      "priority": 6,
       "imageVersion": 1788525502883
     },
     {
@@ -2557,7 +2557,6 @@
       "price": 380,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
-      "priority": 5,
       "imageVersion": 1788525503148
     },
     {
@@ -2566,7 +2565,6 @@
       "price": 140,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
-      "priority": 12,
       "imageVersion": 1788525503608
     },
     {
@@ -3134,7 +3132,6 @@
       "hasImage": true,
       "gradient": null,
       "initial": "B",
-      "priority": 11,
       "imageVersion": 1788525478156
     },
     {
@@ -3146,7 +3143,6 @@
       "hasImage": true,
       "gradient": null,
       "initial": "B",
-      "priority": 19,
       "imageVersion": 1788525478191
     },
     {
@@ -3217,7 +3213,6 @@
       "price": 580,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
-      "priority": 9,
       "imageVersion": 1788525478620
     },
     {
@@ -3712,6 +3707,7 @@
       "price": 0,
       "categoryId": "condemn",
       "categoryName": "Condoms",
+      "priority": 1,
       "imageVersion": 1788525482563
     },
     {
@@ -12131,7 +12127,7 @@
     {
       "id": 1306,
       "name": "7UP 1 LITRE BOTTLE",
-      "price": 160,
+      "price": 170,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "7Up",

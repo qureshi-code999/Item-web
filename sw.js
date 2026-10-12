@@ -1,32 +1,48 @@
-const CACHE_NAME = 'zs-mart-v12.0';
+const CACHE_NAME = 'zs-mart-v13.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './app.js?v=11.0',
   './style.css?v=12.0',
+  './tailwind.local.css',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './react.production.min.js',
-  './react-dom.production.min.js',
   './images/zs-mart-logo.png'
 ];
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(STATIC_ASSETS);
+    }).then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
-      return Promise.all(keys.map((key) => caches.delete(key)));
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME && !key.startsWith('zs-images-cache')) {
+            return caches.delete(key);
+          }
+        })
+      );
     }).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  // Always fetch fresh network first for dynamic app bundle
+  if (event.request.method !== 'GET') return;
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) return cachedResponse;
+      return fetch(event.request).catch(() => {
+        if (event.request.headers.get('accept')?.includes('text/html')) {
+          return caches.match('./index.html');
+        }
+      });
+    })
   );
 });

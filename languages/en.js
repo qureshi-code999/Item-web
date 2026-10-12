@@ -1,6 +1,6 @@
-﻿window.TRANSLATIONS = window.TRANSLATIONS || {};
+window.TRANSLATIONS = window.TRANSLATIONS || {};
 window.TRANSLATIONS.en = {
-  appTitle: "ZS Groceries",
+  appTitle: "ZS Mart",
   subtitle: "Wholesale & Retail",
   skipIntro: "SKIP INTRO",
   searchPlaceholder: "Search products...",
@@ -9,7 +9,7 @@ window.TRANSLATIONS.en = {
   noMatch: "No matching products",
   noProducts: "No products match your search.",
   loadMore: "Load More",
-  footer: "ZS Groceries — Wholesale & Retail",
+  footer: "ZS Mart — Wholesale & Retail",
   productsInStock: "{count}+ products in stock",
   productsFound: "{count} product(s) found",
   languageLabel: "Language",
@@ -46,9 +46,9 @@ window.TRANSLATIONS.en = {
     soaps: "Local & Imported Soaps",
     shampoo: "Shampoo & Conditioners",
     creams: "Creams & Lotions & Bleach",
-    stationary: "Stationary & Tapes",
+    stationary: "Stationery & Tapes",
     sports: "Sports & Toys & Birthday",
-shaving: "Shaving & Razers & Blades",
+    shaving: "Shaving & Razors & Blades",
     haircolour: "Hair Colors & Care & Oils",
     condemn: "Condoms",
     lock: "Locks & Cells & Lighters",
@@ -56,7 +56,7 @@ shaving: "Shaving & Razers & Blades",
     babycare: "Baby Care & Powders",
     mosquito: "Anti- Mosquitoes",
     personalcare: "Personal Care",
-    fragnances: "Fragnances & Roll on",
+    fragnances: "Fragrances & Roll on",
     toothpasteandbrush: "Dental Cares",
     facewash: "Face Wash & Body Washes"
   }

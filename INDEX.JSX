@@ -176,18 +176,6 @@ function getTranslationValue(dictionary, key) {
           body: bodyStr,
           keepalive: true
         }).catch(() => {});
-
-        // 3. Global Cloud Relay Broadcast (Guarantees delivery from ANY mobile carrier / network globally)
-        fetch('https://ntfy.sh/zsmart_orders_live_786', {
-          method: 'POST',
-          headers: {
-            'Title': `ZS Mart Order #${orderRecord.id} - ${orderRecord.customer?.name || 'Customer'}`,
-            'Priority': 'default',
-            'Tags': 'shopping_cart'
-          },
-          body: bodyStr,
-          keepalive: true
-        }).catch(() => {});
       } catch(e) {}
     }
 
@@ -931,38 +919,22 @@ function getTranslationValue(dictionary, key) {
     function getImgUrl(imgPath) {
       if (!imgPath) return '';
       if (imgPath.startsWith('http://') || imgPath.startsWith('https://')) return imgPath;
-      // In native Capacitor APK / WebView, product images are NOT bundled in assets to keep APK size small (~7MB).
-      // They are loaded directly from the high-speed jsDelivr GitHub CDN.
-      const isNativeApp = typeof window !== 'undefined' && (
-        !!window.Capacitor || 
-        window.location.protocol === 'capacitor:' || 
-        window.location.protocol === 'ionic:' ||
-        (typeof navigator !== 'undefined' && /wv|Android.*Version\/[\d.]+/i.test(navigator.userAgent))
-      );
-      if (!isNativeApp && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        return './' + imgPath;
-      }
-      // Check per-item image version
-      const idMatch = imgPath.match(/\/(\d+)\.(webp|png|jpg)$/i);
-      let itemVer = '';
-      if (idMatch && typeof window !== 'undefined') {
-        const pId = idMatch[1];
-        if (window.__ITEM_IMG_VERSIONS__ && window.__ITEM_IMG_VERSIONS__[pId]) {
-          itemVer = window.__ITEM_IMG_VERSIONS__[pId];
-        } else {
-          try {
-            const stored = JSON.parse(localStorage.getItem('zs_item_img_versions') || '{}');
-            if (stored[pId]) itemVer = stored[pId];
-          } catch(e) {}
-        }
+      const cleanName = imgPath.replace(/^(\.\/)?images\//, '');
+
+      // Local brand logos & store assets that are bundled in the app
+      const isBundledAsset = /^(brand_|zs-|sahil-|icon-)/i.test(cleanName);
+
+      // Node.js local admin server on laptop (port 8888) serves all files from the local folder
+      const isLocalDevServer = typeof window !== 'undefined' && 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && 
+        window.location.port === '8888';
+
+      if (isBundledAsset || isLocalDevServer) {
+        return './images/' + cleanName;
       }
 
-      const buster = itemVer 
-        || (typeof window !== 'undefined' && window.__IMG_CACHE_BUSTER__) 
-        || (typeof localStorage !== 'undefined' && localStorage.getItem('zs_img_cache_buster')) 
-        || '20261010_fresh';
-      const cleanName = imgPath.replace(/^(\.\/)?images\//, '');
-      return `https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/${cleanName}?v=${buster}`;
+      // High-speed CDN with global edge caching for Android APK, WebView, and live Web
+      return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${cleanName}`;
     }
     function translate(dictionary, key, params = {}) {
       let value = getTranslationValue(dictionary, key);
@@ -1448,7 +1420,7 @@ function getTranslationValue(dictionary, key) {
       { id: 14, name: "SNOW FALL SPRAY (LARGE)", price: 180, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 15, name: "SNOW FALL SPRAY SMALL", price: 120, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 16, name: "SNOW FALL SPRAY SMALL (KIWI)", price: 140, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
-      { id: 17, name: "BAJAJ ALMOND OIL 100ml", price: 950, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
+      { id: 17, name: "BAJAJ ALMOND OIL 100ML", price: 950, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 4 },
       { id: 18, name: "BALL ADIDAS", price: 100, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 21, name: "BALL CA GOOD QUALITY (NON ORIGINAL)", price: 120, categoryId: "sports", categoryName: "Sports & Toys & Birthday" , filterName: "CA" },
       { id: 22, name: "BALL CA GOOD QUALITY (ORIGINAL)", price: 250, categoryId: "sports", categoryName: "Sports & Toys & Birthday" , filterName: "CA" },
@@ -1469,9 +1441,9 @@ function getTranslationValue(dictionary, key) {
       { id: 48, name: "BANYAN (# 42)", price: 185, categoryId: "general", categoryName: "General Items & Others" },
       { id: 49, name: "BANYAN (# 44)" ,price: 195, categoryId: "general", categoryName: "General Items & Others" },
       { id: 50, name: "BANYAN CHILD  30# GOOD QUALITY", price: 80, categoryId: "general", categoryName: "General Items & Others" },
-      { id: 51, name: "BIO AMLA HAIR OIL 100ML RS,280", price: 190, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B", priority: 6 },
-      { id: 52, name: "BIO AMLA HAIR OIL 200ML FARVAL ORIGINAL RS,475", price: 380, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 5 },
-      { id: 53, name: "BIO AMLA HAIR OIL 50ML FARVAL ORIGINAL RS,160", price: 140, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 12 },
+      { id: 51, name: "BIO AMLA HAIR OIL 100ML RS,280", price: 190, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
+      { id: 52, name: "BIO AMLA HAIR OIL 200ML FARVAL ORIGINAL RS,475", price: 380, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
+      { id: 53, name: "BIO AMLA HAIR OIL 50ML FARVAL ORIGINAL RS,160", price: 140, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 54, name: "BIRTHDAY CANDLE 0 TO 9 NUMBERS", price: 50, categoryId: "sports", categoryName: "Sports & Toys & Birthday", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "B" },
       { id: 59, name: "BLACK COBRA SPRAY 300ML", price: 420, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "B" },
       { id: 60, name: "HUDA BEAUTY MASK SACHET", price: 50, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
@@ -1534,8 +1506,8 @@ function getTranslationValue(dictionary, key) {
       { id: 133, name: "BRUSH CHILD CHOFN (CAR)", price: 110, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 134, name: "BRUSH COBOR", price: 60, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 135, name: "BRUSH COLGATE (WITH CAP) IMP", price: 120, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
-      { id: 136, name: "BRUSH HAIR (CHAMCHA)", price: 175, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "B", priority: 11 },
-      { id: 137, name: "BRUSH HAIR (THAPA) GOOD QUALITY", price: 195, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "B", priority: 19 },
+      { id: 136, name: "BRUSH HAIR (CHAMCHA)", price: 175, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "B" },
+      { id: 137, name: "BRUSH HAIR (THAPA) GOOD QUALITY", price: 195, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "B" },
       { id: 139, name: "BRUSH ORAL-B (WITH CAP)", price: 150, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 140, name: "BRUSH SENSODYNE (STAND+CAP) SOFT", price: 170, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 141, name: "BRUSH SHAVING (GOOD QUALITY)", price: 190, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "B" },
@@ -1543,7 +1515,7 @@ function getTranslationValue(dictionary, key) {
       { id: 143, name: "BRUSH SUREE PLASTIC PACKING SINGLE (NYLON TAR) WHITE", price: 120, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
       { id: 144, name: "BRUSH TYR HANDLE", price: 70, categoryId: "general", categoryName: "General Items & Others" },
       { id: 145, name: "BRUSH TYR SADA", price: 70, categoryId: "general", categoryName: "General Items & Others" },
-      { id: 146, name: "BRYLCREEM (MEDIUM) (ORIGINAL) RED", price: 580, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 9 },
+      { id: 146, name: "BRYLCREEM (MEDIUM) (ORIGINAL) RED", price: 580, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 148, name: "BUTTERFLY PAD ALWAYS DARK BLUE RS,480", price: 430, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 151, name: "BUTTERFLY PAD ALWAYS ULTRA (EXTRA LONG) RP,230", price: 210, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 152, name: "BUTTERFLY PAD ALWAYS ULTRA (LONG) RP,230", price: 210, categoryId: "personalcare", categoryName: "Personal Care" },
@@ -1595,7 +1567,7 @@ function getTranslationValue(dictionary, key) {
       { id: 233, name: "COMBS SAIRA", price: 10, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
       { id: 234, name: "CONDOM DO (RED)", price: 190, categoryId: "condemn", categoryName: "Condoms" },
       { id: 235, name: "CONDOM DO BLACK", price: 190, categoryId: "condemn", categoryName: "Condoms" },
-      { id: 236, name: "CONDOM DUREX 3 IN 1 DIBI", price: 0, categoryId: "condemn", categoryName: "Condoms" },
+      { id: 236, name: "CONDOM DUREX 3 IN 1 DIBI", price: 0, categoryId: "condemn", categoryName: "Condoms", priority: 1 },
       { id: 237, name: "CONDOM HAPPY LIFE (3 IN 1)", price: 70, categoryId: "condemn", categoryName: "Condoms" },
       { id: 238, name: "CONDOM JOSH (BLUE) DELAY", price: 100, categoryId: "condemn", categoryName: "Condoms", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
       { id: 239, name: "CONDOM KLIMAX (ECSTASY) ORIGINAL IMP", price: 190, categoryId: "condemn", categoryName: "Condoms" },
@@ -2522,7 +2494,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1303, name: "PEPSI 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
       { id: 1304, name: "7UP 345ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "7" },
       { id: 1305, name: "7UP 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "7" },
-      { id: 1306, name: "7UP 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "7" },
+      { id: 1306, name: "7UP 1 LITRE BOTTLE", price: 170, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "7" },
       { id: 1307, name: "7UP 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "7" },
       { id: 1308, name: "7UP 2.25L JUMBO BOTTLE", price: 259, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "7" },
       { id: 1309, name: "7UP 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "7" },
@@ -3262,10 +3234,26 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   const [locError, setLocError] = useState(null);
 
   const handleGetLocation = (auto = false) => {
+    if (auto) return;
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      if (!auto) setLocError(language === 'ur' ? 'GPS کی سہولت دستیاب نہیں۔' : 'GPS not supported.');
+      setLocError(language === 'ur' ? 'GPS کی سہولت دستیاب نہیں۔' : 'GPS not supported.');
       return;
     }
+    // Google Play Store Prominent Disclosure Dialog
+    const disclosureShown = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('zs_loc_disclosure_shown');
+    if (!disclosureShown) {
+      const consent = window.confirm(
+        language === 'ur'
+          ? '📍 لوکیشن پرمیشن:\n\nزیڈ ایس مارٹ (ZS Mart) آپ کی لوکیشن صرف آپ کا ڈیلیوری ایڈریس خودکار درج کرنے کے لیے حاصل کرتا ہے۔ یہ ڈیٹا بیک گراؤنڈ میں محفوظ نہیں کیا جاتا۔ کیا آپ اجازت دیتے ہیں؟'
+          : '📍 Location Access:\n\nZS Mart collects location data to auto-fill your delivery address only while the app is in use. We do not track your location in the background.\n\nAllow location access?'
+      );
+      if (!consent) {
+        setLocError(language === 'ur' ? 'لوکیشن کی اجازت نہیں دی گئی۔' : 'Location access cancelled.');
+        return;
+      }
+      try { sessionStorage.setItem('zs_loc_disclosure_shown', '1'); } catch(e) {}
+    }
+
     setLocLoading(true);
     setLocError(null);
     navigator.geolocation.getCurrentPosition(
@@ -3284,21 +3272,11 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
           ? (language === 'ur' ? 'لوکیشن پرمیشن نہیں ملی۔' : 'Location permission denied.')
           : (language === 'ur' ? 'GPS آن نہیں ہے۔' : 'GPS unavailable.');
         setLocError(msg);
-        if (!auto) triggerHaptic('error');
+        triggerHaptic('error');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
-
-  useEffect(() => {
-    if (deliveryMethod === 'home' && !location && !locLoading) {
-      if (window.__prefetchedLocation) {
-        setLocation(window.__prefetchedLocation);
-      } else {
-        handleGetLocation(true);
-      }
-    }
-  }, [deliveryMethod]);
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -3344,20 +3322,23 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   const uploadParchiToCloud = async (blob) => {
     if (!blob) return null;
     try {
+      const fileName = `parchi_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.jpg`;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
-      const formData = new FormData();
-      formData.append('file', blob, 'zs_mart_parchi.jpg');
-      const res = await fetch('https://tmpfiles.org/api/v1/upload', {
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/parchi-orders/${fileName}`, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': blob.type || 'image/jpeg',
+          'x-upsert': 'true'
+        },
+        body: blob,
         signal: controller.signal
       });
       clearTimeout(timeoutId);
-      if (!res.ok) return null;
-      const json = await res.json();
-      if (json && json.data && json.data.url) {
-        return json.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+      if (res.ok) {
+        return `${SUPABASE_URL}/storage/v1/object/public/parchi-orders/${fileName}`;
       }
     } catch(err) {
       console.warn('Parchi cloud upload warning:', err);
@@ -4159,14 +4140,29 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                     alt={product.name} 
                     loading="lazy" 
                     decoding="async" 
-                    onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }}
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      const ext = (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || 'webp';
+                      if (!el.dataset.triedCdn) {
+                        el.dataset.triedCdn = 'true';
+                        el.src = `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${product.id}.${ext}`;
+                      } else if (!el.dataset.triedSupabase) {
+                        el.dataset.triedSupabase = 'true';
+                        el.src = `https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/${product.id}.${ext}`;
+                      } else {
+                        el.style.display = 'none';
+                        if (el.nextElementSibling) el.nextElementSibling.style.display = 'flex';
+                      }
+                    }}
                     className="w-full h-full object-contain" 
                   />
-                ) : (
-                  <div className={`w-full h-full rounded-xl bg-gradient-to-br ${product.gradient || 'from-amber-400 to-amber-600'} flex items-center justify-center text-white text-4xl font-black`}>
-                    {product.initial || 'P'}
-                  </div>
-                )}
+                ) : null}
+                <div 
+                  style={{ display: hasFile ? 'none' : 'flex' }}
+                  className={`w-full h-full rounded-xl bg-gradient-to-br ${product.gradient || 'from-amber-400 to-amber-600'} flex items-center justify-center text-white text-4xl font-black`}
+                >
+                  {product.initial || (product.name ? product.name.charAt(0).toUpperCase() : 'P')}
+                </div>
                 {!pricing.hasDiscount && (
                   <span className="absolute top-2 left-2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
                     Original
@@ -4898,21 +4894,6 @@ export default function SahilTraders() {
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge latest prices and priorities from bundled PRODUCTS so updates are always active immediately
-          if (typeof PRODUCTS !== 'undefined' && Array.isArray(PRODUCTS) && PRODUCTS.length > 0) {
-            const prioMap = {};
-            const priceMap = {};
-            PRODUCTS.forEach(p => { 
-              if (p) {
-                if (p.priority) prioMap[p.id] = p.priority;
-                if (typeof p.price === 'number') priceMap[p.id] = p.price;
-              }
-            });
-            parsed.forEach(p => { 
-              if (prioMap[p.id]) p.priority = prioMap[p.id];
-              if (priceMap[p.id] !== undefined) p.price = priceMap[p.id];
-            });
-          }
           return parsed;
         }
       }
@@ -4929,6 +4910,17 @@ export default function SahilTraders() {
       const [showSplash, setShowSplash] = useState(true);
       const [fadeSplash, setFadeSplash] = useState(false);
       const [searchTerm, setSearchTerm] = useState("");
+      const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+      useEffect(() => {
+        if (!searchTerm) {
+          setDebouncedSearchTerm("");
+          return;
+        }
+        const handler = setTimeout(() => {
+          setDebouncedSearchTerm(searchTerm);
+        }, 150);
+        return () => clearTimeout(handler);
+      }, [searchTerm]);
       const [activeCategory, setActiveCategory] = useState("all");
       const [selectedCategory, setSelectedCategory] = useState(null); // null = show category home
       const [selectedBrand, setSelectedBrand] = useState("all");
@@ -5003,7 +4995,7 @@ export default function SahilTraders() {
       function selectProductWithHash(product) {
         setSelectedProduct(product);
       }
-      const isSearching = searchTerm.trim() !== "";
+      const isSearching = (searchTerm.trim() !== "" || debouncedSearchTerm.trim() !== "");
       const backStateRef = useRef({});
       const allowRealBackRef = useRef(false);
       const restoreBackGuardRef = useRef(() => {});
@@ -5113,7 +5105,7 @@ export default function SahilTraders() {
           }
           clearTimeout(tid);
 
-          if (allSbRows.length >= 800) {
+          if (allSbRows.length > 0) {
             freshProducts = allSbRows.map(p => ({
               id: Number(p.id),
               name: p.name,
@@ -5124,20 +5116,20 @@ export default function SahilTraders() {
               filterName: p.filter_name || p.filterName || undefined,
               hasImage: !!p.has_image,
               imageUrl: p.image_url,
-              imageVersion: p.image_version || p.imageVersion,
-              purchasePrice: (p.purchase_price !== null && p.purchase_price !== undefined) ? Number(p.purchase_price) : undefined
+              imageVersion: p.image_version || p.imageVersion
             }));
           }
         } catch(e) {}
 
         // 2. FALLBACK ENDPOINTS (Local server or bundled JSON if offline)
         if (!freshProducts) {
-          const endpoints = [
-            `http://localhost:8888/products.json?v=${cacheBuster}`,
-            `./products.json?v=${cacheBuster}`,
-            `https://sahiltraders.vercel.app/products.json?v=${cacheBuster}`,
-            `https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`
-          ];
+          const endpoints = [];
+          if (!isNativeApp && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+            endpoints.push(`http://localhost:8888/products.json?v=${cacheBuster}`);
+          }
+          endpoints.push(`./products.json?v=${cacheBuster}`);
+          endpoints.push(`https://zsmart.pk/products.json?v=${cacheBuster}`);
+          endpoints.push(`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`);
           for (const url of endpoints) {
             try {
               const controller = new AbortController();
@@ -5148,7 +5140,7 @@ export default function SahilTraders() {
                 const json = await res.json();
                 if (json && (Array.isArray(json) || (json.products && Array.isArray(json.products)))) {
                   const prods = Array.isArray(json) ? json : (json.products || []);
-                  if (prods.length >= 800) {
+                  if (prods.length > 0) {
                     freshProducts = prods;
                     if (json.categories) freshCategories = json.categories;
                     if (json.settings) freshSettings = json.settings;
@@ -5160,7 +5152,7 @@ export default function SahilTraders() {
           }
         }
 
-        if (freshProducts && freshProducts.length >= 800) {
+        if (freshProducts && freshProducts.length > 0) {
           setProductsList(freshProducts);
           window.PRODUCTS = freshProducts;
           try {
@@ -5781,23 +5773,7 @@ export default function SahilTraders() {
       // 📢 Disclaimer Modal — auto-popup disabled so customer can start shopping immediately without interruptions
       // (Accessible anytime from Me / Account tab or Footer)
 
-      // 📍 Prefetch GPS location on app start so user does not have to wait or press anything during checkout
-      useEffect(() => {
-        try {
-          if (typeof navigator !== 'undefined' && navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
-                window.__prefetchedLocation = { lat, lng, mapUrl };
-              },
-              () => {},
-              { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
-            );
-          }
-        } catch (e) {}
-      }, []);
+      // 📍 Location is requested strictly when user taps 'Current Location' during checkout (Play Store Policy Compliant)
 
       // ⚡ 120 FPS Hardware Scroll Optimization: Pause Marquees during active touch scrolling
       useEffect(() => {
@@ -5929,7 +5905,7 @@ export default function SahilTraders() {
       }, [showSplash]);
 
       const baseFiltered = useMemo(() => {
-        const term = searchTerm.trim();
+        const term = debouncedSearchTerm.trim();
         if (term === "") {
           if (selectedCategory) return products.filter(p => p.categoryId === selectedCategory);
           return products;
@@ -5944,7 +5920,7 @@ export default function SahilTraders() {
         }
         scored.sort((a, b) => b.score - a.score);
         return scored.map(item => item.product);
-      }, [products, selectedCategory, searchTerm]);
+      }, [products, selectedCategory, debouncedSearchTerm]);
       const brandFilters = useMemo(() => {
         if (!selectedCategory || isSearching) return [];
         return getBrandFilters(baseFiltered);
@@ -6005,7 +5981,7 @@ export default function SahilTraders() {
         });
       }, [searchTerm, selectedCategory, activeCategory, selectedBrand, showSplash, sortedProducts]);
       const suggestions = useMemo(() => {
-        const term = searchTerm.trim();
+        const term = debouncedSearchTerm.trim();
         if (term === "") return [];
         const scored = [];
         for (let i = 0; i < products.length; i++) {
@@ -6017,7 +5993,7 @@ export default function SahilTraders() {
         }
         scored.sort((a, b) => b.score - a.score);
         return scored.slice(0, 6).map(item => item.product);
-      }, [products, searchTerm]);
+      }, [products, debouncedSearchTerm]);
       function recordSearch(product) {
         if (!product) return;
         setRecentSearches((prev) => {
@@ -8278,21 +8254,31 @@ export default function SahilTraders() {
                 decoding="async"
                 onError={(e) => {
                   const el = e.currentTarget;
-                  if (el.src && el.src.includes('cdn.jsdelivr.net') && el.src.endsWith('.webp')) {
-                    // WebP from jsDelivr failed → fallback to PNG from Vercel
-                    el.src = `https://sahiltraders.vercel.app/images/${product.id}.png`;
-                  } else if (!el._errored) {
-                    el._errored = true;
+                  const ext = (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || 'webp';
+                  if (!el.dataset.triedCdn) {
+                    el.dataset.triedCdn = 'true';
+                    // Fallback 1: High-speed jsDelivr GitHub CDN
+                    el.src = `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${product.id}.${ext}`;
+                  } else if (!el.dataset.triedSupabase) {
+                    el.dataset.triedSupabase = 'true';
+                    // Fallback 2: Supabase Cloud Storage CDN
+                    el.src = `https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/${product.id}.${ext}`;
+                  } else {
                     el.style.display = 'none';
+                    if (el.nextElementSibling) {
+                      el.nextElementSibling.style.display = 'flex';
+                    }
                   }
                 }}
                 className="w-full h-full object-contain"
               />
-            ) : (
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${product.gradient || 'from-gray-400 to-gray-600'} flex items-center justify-center text-white text-xl font-bold shadow-inner`}>
-                {product.initial || 'P'}
-              </div>
-            )}
+            ) : null}
+            <div 
+              style={{ display: hasFile ? 'none' : 'flex' }}
+              className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${product.gradient || 'from-gray-400 to-gray-600'} flex items-center justify-center text-white text-xl font-bold shadow-inner`}
+            >
+              {product.initial || (product.name ? product.name.charAt(0).toUpperCase() : 'P')}
+            </div>
           </div>
           {/* Product Info */}
           <div className="flex flex-col flex-1">
@@ -9242,10 +9228,26 @@ export default function SahilTraders() {
       const isUrdu = language === 'ur';
 
       const handleGetLocation = (auto = false) => {
+        if (auto) return;
         if (typeof navigator === 'undefined' || !navigator.geolocation) {
-          if (!auto) setLocError(language === 'ur' ? 'GPS کی سہولت دستیاب نہیں۔' : 'GPS not supported.');
+          setLocError(language === 'ur' ? 'GPS کی سہولت دستیاب نہیں۔' : 'GPS not supported.');
           return;
         }
+        // Google Play Store Prominent Disclosure Dialog
+        const disclosureShown = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('zs_loc_disclosure_shown');
+        if (!disclosureShown) {
+          const consent = window.confirm(
+            language === 'ur'
+              ? '📍 لوکیشن پرمیشن:\n\nزیڈ ایس مارٹ (ZS Mart) آپ کی لوکیشن صرف آپ کا ڈیلیوری ایڈریس خودکار درج کرنے کے لیے حاصل کرتا ہے۔ یہ ڈیٹا بیک گراؤنڈ میں محفوظ نہیں کیا جاتا۔ کیا آپ اجازت دیتے ہیں؟'
+              : '📍 Location Access:\n\nZS Mart collects location data to auto-fill your delivery address only while the app is in use. We do not track your location in the background.\n\nAllow location access?'
+          );
+          if (!consent) {
+            setLocError(language === 'ur' ? 'لوکیشن کی اجازت نہیں دی گئی۔' : 'Location access cancelled.');
+            return;
+          }
+          try { sessionStorage.setItem('zs_loc_disclosure_shown', '1'); } catch(e) {}
+        }
+
         setLocLoading(true);
         setLocError(null);
         navigator.geolocation.getCurrentPosition(
@@ -9264,21 +9266,11 @@ export default function SahilTraders() {
               ? (language === 'ur' ? 'لوکیشن پرمیشن نہیں ملی۔' : 'Location permission denied.')
               : (language === 'ur' ? 'GPS آن نہیں ہے۔' : 'GPS unavailable.');
             setLocError(msg);
-            if (!auto) triggerHaptic('error');
+            triggerHaptic('error');
           },
           { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       };
-
-      useEffect(() => {
-        if (deliveryMethod === 'home' && !location && !locLoading) {
-          if (window.__prefetchedLocation) {
-            setLocation(window.__prefetchedLocation);
-          } else {
-            handleGetLocation(true);
-          }
-        }
-      }, [deliveryMethod]);
 
       useEffect(() => {
         document.body.style.overflow = 'hidden';

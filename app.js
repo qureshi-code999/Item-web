@@ -9478,7 +9478,7 @@ var PRODUCTS = [{
 }, {
   id: 1306,
   name: "7UP 1 LITRE BOTTLE",
-  price: 160,
+  price: 165,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -15346,100 +15346,104 @@ function SahilTraders() {
       gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))',
       gap: 12
     }
-  }, BEVERAGE_BRANDS.map(b => /*#__PURE__*/React.createElement("div", {
-    key: b.id,
-    onClick: () => {
-      triggerHaptic('light');
-      if (b.id === 'Pakola') {
-        alert('Pakola products are coming soon!');
-        return;
+  }, BEVERAGE_BRANDS.map(b => {
+    const brandProdsCount = (products || []).filter(p => p.categoryId === 'beverages' && getProductFilterName(p) === b.id).length;
+    const displaySizes = b.id === 'Pakola' ? 'Coming Soon' : brandProdsCount > 0 ? `${brandProdsCount} Sizes & Varieties` : b.sizes;
+    return /*#__PURE__*/React.createElement("div", {
+      key: b.id,
+      onClick: () => {
+        triggerHaptic('light');
+        if (b.id === 'Pakola') {
+          alert('Pakola products are coming soon!');
+          return;
+        }
+        setSelectedBrand(b.id);
+      },
+      style: {
+        background: '#ffffff',
+        border: '1.5px solid #e2e8f0',
+        borderRadius: 18,
+        padding: '16px 10px 12px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        cursor: 'pointer',
+        boxShadow: '0 3px 10px rgba(0,0,0,0.03)',
+        transition: 'all 0.15s ease',
+        position: 'relative'
+      },
+      onMouseEnter: e => {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.borderColor = b.color;
+      },
+      onMouseLeave: e => {
+        e.currentTarget.style.transform = 'none';
+        e.currentTarget.style.borderColor = '#e2e8f0';
       }
-      setSelectedBrand(b.id);
-    },
-    style: {
-      background: '#ffffff',
-      border: '1.5px solid #e2e8f0',
-      borderRadius: 18,
-      padding: '16px 10px 12px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center',
-      cursor: 'pointer',
-      boxShadow: '0 3px 10px rgba(0,0,0,0.03)',
-      transition: 'all 0.15s ease',
-      position: 'relative'
-    },
-    onMouseEnter: e => {
-      e.currentTarget.style.transform = 'translateY(-2px)';
-      e.currentTarget.style.borderColor = b.color;
-    },
-    onMouseLeave: e => {
-      e.currentTarget.style.transform = 'none';
-      e.currentTarget.style.borderColor = '#e2e8f0';
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 76,
-      height: 76,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: 8
-    }
-  }, /*#__PURE__*/React.createElement("img", {
-    src: getImgUrl(b.logo),
-    onError: e => {
-      e.currentTarget.onerror = null;
-      e.currentTarget.src = b.logo;
-    },
-    alt: b.name,
-    style: {
-      maxWidth: '100%',
-      maxHeight: '100%',
-      objectFit: 'contain'
-    },
-    loading: "lazy"
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 15,
-      fontWeight: 900,
-      color: '#0f172a',
-      marginBottom: 2
-    }
-  }, b.name), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10.5,
-      fontWeight: 600,
-      color: '#64748b',
-      marginBottom: 6
-    }
-  }, b.tag), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10,
-      fontWeight: 800,
-      background: b.bg,
-      color: b.color,
-      borderRadius: 999,
-      padding: '2px 8px',
-      marginBottom: 12
-    }
-  }, b.sizes), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 'auto',
-      width: '100%',
-      padding: '7px 8px',
-      borderRadius: 9,
-      background: b.id === 'Pakola' ? '#94a3b8' : b.color,
-      color: '#ffffff',
-      fontSize: 11,
-      fontWeight: 800,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 4
-    }
-  }, /*#__PURE__*/React.createElement("span", null, b.id === 'Pakola' ? 'Coming Soon' : 'Click for more'), b.id !== 'Pakola' && /*#__PURE__*/React.createElement("span", null, "\u2794")))))) : /*#__PURE__*/React.createElement(React.Fragment, null, selectedCategory === 'beverages' && !isSearching && /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: 76,
+        height: 76,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 8
+      }
+    }, /*#__PURE__*/React.createElement("img", {
+      src: getImgUrl(b.logo),
+      onError: e => {
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = b.logo;
+      },
+      alt: b.name,
+      style: {
+        maxWidth: '100%',
+        maxHeight: '100%',
+        objectFit: 'contain'
+      },
+      loading: "lazy"
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 15,
+        fontWeight: 900,
+        color: '#0f172a',
+        marginBottom: 2
+      }
+    }, b.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10.5,
+        fontWeight: 600,
+        color: '#64748b',
+        marginBottom: 6
+      }
+    }, b.tag), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        fontWeight: 800,
+        background: b.bg,
+        color: b.color,
+        borderRadius: 999,
+        padding: '2px 8px',
+        marginBottom: 12
+      }
+    }, displaySizes), /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginTop: 'auto',
+        width: '100%',
+        padding: '7px 8px',
+        borderRadius: 9,
+        background: b.id === 'Pakola' ? '#94a3b8' : b.color,
+        color: '#ffffff',
+        fontSize: 11,
+        fontWeight: 800,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4
+      }
+    }, /*#__PURE__*/React.createElement("span", null, b.id === 'Pakola' ? 'Coming Soon' : 'Click for more'), b.id !== 'Pakola' && /*#__PURE__*/React.createElement("span", null, "\u2794")));
+  }))) : /*#__PURE__*/React.createElement(React.Fragment, null, selectedCategory === 'beverages' && !isSearching && /*#__PURE__*/React.createElement("div", {
     style: {
       background: '#ffffff',
       border: '1.5px solid #e2e8f0',

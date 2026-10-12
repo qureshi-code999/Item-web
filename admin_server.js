@@ -929,7 +929,6 @@ function syncImageToTargets(fileName) {
       if (body.categoryId) sbUpdate.category_id = String(body.categoryId).trim();
       if (body.categoryName) sbUpdate.category_name = String(body.categoryName).trim();
       if (body.priority !== undefined) sbUpdate.priority = Number(body.priority) > 0 ? Number(body.priority) : null;
-      if (body.purchasePrice !== undefined) sbUpdate.purchase_price = Number(body.purchasePrice);
 
       let jsxContent = fs.readFileSync(JSX_FILE, 'utf8');
       const itemRegex = new RegExp(`\\{\\s*id:\\s*${id}\\s*,[^\\}]*\\}`, 'm');
@@ -968,7 +967,7 @@ function syncImageToTargets(fileName) {
         fs.writeFileSync(JSX_FILE, jsxContent, 'utf8');
       }
 
-      // Update purchase rate
+      // Update purchase rate locally and sync to Supabase purchase_rates table
       if (body.purchasePrice !== undefined) {
         let rates = { rates: {} };
         if (fs.existsSync(RATES_FILE)) {
@@ -978,6 +977,13 @@ function syncImageToTargets(fileName) {
         rates.rates[String(id)] = Number(body.purchasePrice);
         rates.updatedAt = new Date().toISOString();
         fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+
+        // Sync to secure private purchase_rates table
+        supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', {
+          product_id: id,
+          purchase_price: Number(body.purchasePrice),
+          updated_at: new Date().toISOString()
+        }).catch(() => {});
       }
 
       // Handle image update if sent (Always save as optimized WebP)
@@ -1280,8 +1286,9 @@ function syncImageToTargets(fileName) {
         ratesObj.updatedAt = new Date().toISOString();
         fs.writeFileSync(RATES_FILE, JSON.stringify(ratesObj, null, 2), 'utf8');
 
-        // Sync purchase price directly to Supabase Cloud Database!
-        supabaseApiRequest(`/rest/v1/products?id=eq.${itemId}`, 'PATCH', {
+        // Sync purchase price directly to Supabase purchase_rates table!
+        supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', {
+          product_id: Number(itemId),
           purchase_price: newRate,
           updated_at: new Date().toISOString()
         }).catch(() => {});
@@ -1352,18 +1359,21 @@ function syncImageToTargets(fileName) {
       rates.updatedAt = new Date().toISOString();
       fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
 
-      // Sync updated rates to Supabase Cloud Database!
+      // Sync updated rates to Supabase purchase_rates table!
       if (body.id !== undefined && body.rate !== undefined) {
-        supabaseApiRequest(`/rest/v1/products?id=eq.${body.id}`, 'PATCH', {
+        supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', {
+          product_id: Number(body.id),
           purchase_price: Number(body.rate),
           updated_at: new Date().toISOString()
         }).catch(() => {});
       } else if (body.rates && typeof body.rates === 'object') {
-        for (const [k, v] of Object.entries(body.rates)) {
-          supabaseApiRequest(`/rest/v1/products?id=eq.${k}`, 'PATCH', {
-            purchase_price: Number(v) || 0,
-            updated_at: new Date().toISOString()
-          }).catch(() => {});
+        const rateRows = Object.entries(body.rates).map(([k, v]) => ({
+          product_id: Number(k),
+          purchase_price: Number(v) || 0,
+          updated_at: new Date().toISOString()
+        }));
+        if (rateRows.length > 0) {
+          supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', rateRows).catch(() => {});
         }
       }
 

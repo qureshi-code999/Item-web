@@ -9364,7 +9364,8 @@ var PRODUCTS = [{
   filterName: "Fanta",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
-  initial: "F"
+  initial: "F",
+  priority: 3
 }, {
   id: 1294,
   name: "FANTA 1 LITRE BOTTLE",

@@ -2530,7 +2530,8 @@ var PRODUCTS = [{
   categoryName: "General Items & Others",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
-  initial: "C"
+  initial: "C",
+  priority: 1
 }, {
   id: 168,
   name: "CHEERY POLISH (BLACK) SMALL RS,325",

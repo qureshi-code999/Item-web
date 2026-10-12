@@ -524,25 +524,33 @@ function syncSupabaseOrders() {
 
           rows.forEach(row => {
             const exists = dsr.orders.some(o => String(o.id) === String(row.id));
-            if (!exists) {
-              const orderData = row.raw_data || {
-                id: row.id,
+            if (!exists && row && row.id) {
+              const raw = (row.raw_data && typeof row.raw_data === 'object' && Object.keys(row.raw_data).length > 0) ? row.raw_data : null;
+              const orderData = raw ? { ...raw, id: String(row.id) } : {
+                id: String(row.id),
                 date: row.created_at,
+                customerName: row.customer_name || 'Customer',
+                customerPhone: row.customer_phone || '',
+                customerAddress: row.customer_address || '',
                 customer: {
-                  name: row.customer_name,
-                  phone: row.customer_phone,
-                  address: row.customer_address
+                  name: row.customer_name || 'Customer',
+                  phone: row.customer_phone || '',
+                  address: row.customer_address || ''
                 },
-                deliveryType: row.delivery_type,
-                paymentMethod: row.payment_method,
-                items: row.items || [],
+                deliveryType: row.delivery_type || 'standard',
+                deliveryMethod: row.delivery_type || 'standard',
+                paymentMethod: row.payment_method || 'cash',
+                items: Array.isArray(row.items) ? row.items : [],
                 subtotal: Number(row.subtotal || 0),
                 deliveryFee: Number(row.delivery_fee || 0),
                 total: Number(row.total || 0),
+                grandTotal: Number(row.total || 0),
                 totalSavings: Number(row.total_savings || 0),
                 status: row.status || 'pending',
-                source: 'whatsapp_app'
+                source: 'whatsapp_app',
+                channel: 'whatsapp'
               };
+              orderData.id = String(row.id);
               const processed = calculateOrderProfit(orderData, rates, catalog);
               dsr.orders.unshift(processed);
               addedCount++;

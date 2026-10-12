@@ -150,14 +150,14 @@ function dispatchOrderToBackend(orderRecord) {
     try {
       const sbOrder = {
         id: String(orderRecord.id),
-        customer_name: orderRecord.customer && orderRecord.customer.name || 'Customer',
-        customer_phone: orderRecord.customer && orderRecord.customer.phone || '',
-        customer_address: orderRecord.customer && orderRecord.customer.address || '',
-        delivery_type: orderRecord.deliveryType || 'standard',
+        customer_name: orderRecord.customer && orderRecord.customer.name || orderRecord.customerName || 'Customer',
+        customer_phone: orderRecord.customer && orderRecord.customer.phone || orderRecord.customerPhone || '',
+        customer_address: orderRecord.customer && orderRecord.customer.address || orderRecord.customerAddress || '',
+        delivery_type: orderRecord.deliveryType || orderRecord.deliveryMethod || 'standard',
         payment_method: orderRecord.paymentMethod || 'cash',
         subtotal: Number(orderRecord.subtotal || 0),
         delivery_fee: Number(orderRecord.deliveryFee || 0),
-        total: Number(orderRecord.total || 0),
+        total: Number(orderRecord.grandTotal !== undefined ? orderRecord.grandTotal : orderRecord.total || 0),
         total_savings: Number(orderRecord.totalSavings || 0),
         status: orderRecord.status || 'pending',
         items: orderRecord.items || [],
@@ -170,7 +170,7 @@ function dispatchOrderToBackend(orderRecord) {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
+          'Prefer': 'return=minimal'
         },
         body: JSON.stringify(sbOrder),
         keepalive: true
@@ -1904,12 +1904,6 @@ var PRODUCTS = [{
   price: 18,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
-}, {
-  id: 46,
-  name: "BANYAN (# 38)",
-  price: 165,
-  categoryId: "general",
-  categoryName: "General Items & Others"
 }, {
   id: 47,
   name: "BANYAN (# 40)",
@@ -9675,11 +9669,41 @@ var PRODUCTS = [{
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "P"
+}, {
+  id: 1332,
+  name: "SLICE MANGO JUICE 200ML TETRA PACK",
+  price: 49,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Slice",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[0],
+  initial: "S"
+}, {
+  id: 1333,
+  name: "SLICE MANGO JUICE 355ML BOTTLE",
+  price: 0,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Slice",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[1],
+  initial: "S"
+}, {
+  id: 1334,
+  name: "SLICE MANGO JUICE 1 LITRE BOTTLE",
+  price: 185,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Slice",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[2],
+  initial: "S"
 }];
 var PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
 const BRAND_STOP_WORDS = new Set(["SOAP", "SOAPS", "SHAMPOO", "CONDITIONER", "CREAM", "LOTION", "POWDER", "SPRAY", "BODY", "FACE", "WASH", "TOOTH", "PASTE", "BRUSH", "RAZOR", "BLADE", "OIL", "HAIR", "COLOUR", "COLOR", "BALL", "PEN", "TOY", "TAPE", "CELL", "LOCK", "CANDLE", "PAD", "WIPES", "PERFUME", "PERFUMES", "DEO", "DEODORANT", "TALCUM", "ROOM", "FRESHNER", "FRESHENER", "ROLL", "ON", "AIR", "LARGE", "MEDIUM", "SMALL", "SACHET", "PACK", "PCS", "PIECE", "SIZE", "FULL", "HALF", "MIX", "ALL", "GOOD", "QUALITY", "ORIGINAL", "NON", "IMP", "PK", "RS", "RP", "ML", "G", "GM", "KG", "INCH", "BLACK", "WHITE", "BLUE", "GREEN", "RED", "PINK", "YELLOW", "GOLDEN", "BROWN", "ORANGE", "PURPLE", "DARK", "LIGHT"]);
-const BRAND_PHRASES = ["BIO AMLA", "BLACK ROSE", "AL RASHIEED", "JUST FOR MEN", "ONE MAN SHOW", "WHITE ROSE", "SOFT CREME", "SOFT CREAM", "SKIN WHITE", "CHI CHI", "7 HERBAL", "BODY SHOP", "COCA COLA", "MOUNTAIN DEW", "7UP", "PEPSI", "MIRINDA", "STING"];
+const BRAND_PHRASES = ["BIO AMLA", "BLACK ROSE", "AL RASHIEED", "JUST FOR MEN", "ONE MAN SHOW", "WHITE ROSE", "SOFT CREME", "SOFT CREAM", "SKIN WHITE", "CHI CHI", "7 HERBAL", "BODY SHOP", "COCA COLA", "MOUNTAIN DEW", "7UP", "PEPSI", "MIRINDA", "STING", "SLICE"];
 const BEVERAGE_BRANDS = [{
   id: "Sprite",
   name: "Sprite",
@@ -9752,6 +9776,15 @@ const BEVERAGE_BRANDS = [{
   fromPrice: 70,
   color: "#047857",
   bg: "#ecfdf5"
+}, {
+  id: "Slice",
+  name: "Slice",
+  tag: "Mango Fruit Drink",
+  sizes: "3 Sizes & Varieties",
+  logo: "images/brand_slice.webp",
+  fromPrice: 49,
+  color: "#d97706",
+  bg: "#fffbeb"
 }];
 function getProductBrand(name) {
   const clean = String(name || "").toUpperCase().replace(/[#(),.&/+_-]/g, " ").replace(/\b\d+\s*(ML|G|GM|KG|PCS|PC|INCH|METER)\b/g, " ").replace(/\b(RS|RP)\s*\d+\b/g, " ").replace(/\s+/g, " ").trim();
@@ -15347,7 +15380,7 @@ function SahilTraders() {
       gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))',
       gap: 12
     }
-  }, BEVERAGE_BRANDS.map(b => {
+  }, BEVERAGE_BRANDS.filter(b => (products || []).some(p => p.categoryId === 'beverages' && getProductFilterName(p) === b.id)).map(b => {
     const brandProducts = (products || []).filter(p => p.categoryId === 'beverages' && getProductFilterName(p) === b.id);
     const brandProdsCount = brandProducts.length;
     const isComingSoon = brandProdsCount === 0;

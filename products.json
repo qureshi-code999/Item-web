@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T20:51:55.494Z",
-  "total": 1094,
+  "updatedAt": "2026-10-12T23:23:52.072Z",
+  "total": 1095,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -1071,7 +1071,10 @@
     "1328": "webp",
     "1329": "webp",
     "1330": "webp",
-    "1331": "webp"
+    "1331": "webp",
+    "1332": "webp",
+    "1333": "webp",
+    "1334": "webp"
   },
   "itemImageVersions": {
     "1": 1788525460576,
@@ -2133,7 +2136,10 @@
     "1328": 1791837679209,
     "1329": 1791837679868,
     "1330": 1791837687963,
-    "1331": 1791837688373
+    "1331": 1791837688373,
+    "1332": 1791841761415,
+    "1333": 1791841761484,
+    "1334": 1791841761602
   },
   "variants": {
     "183": {
@@ -2513,22 +2519,6 @@
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "imageVersion": 1788525493135
-    },
-    {
-      "id": 46,
-      "name": "BANYAN (# 38)",
-      "price": 165,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
-      "imageVersion": 1788525499220
-    },
-    {
-      "id": 47,
-      "name": "BANYAN (# 40)",
-      "price": 175,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
-      "imageVersion": 1788525499910
     },
     {
       "id": 48,
@@ -12378,6 +12368,42 @@
       "gradient": null,
       "initial": "P",
       "imageVersion": 1791837688373
+    },
+    {
+      "id": 1332,
+      "name": "SLICE MANGO JUICE 200ML TETRA PACK",
+      "price": 49,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Slice",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S",
+      "imageVersion": 1791841761415
+    },
+    {
+      "id": 1333,
+      "name": "SLICE MANGO JUICE 355ML BOTTLE",
+      "price": 0,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Slice",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S",
+      "imageVersion": 1791841761484
+    },
+    {
+      "id": 1334,
+      "name": "SLICE MANGO JUICE 1 LITRE BOTTLE",
+      "price": 185,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Slice",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "S",
+      "imageVersion": 1791841761602
     }
   ]
 }

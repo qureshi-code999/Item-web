@@ -1,8 +1,8 @@
-const CACHE_NAME = 'zs-mart-v17.0';
+const CACHE_NAME = 'zs-mart-v19.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
-  './app.js?v=15.0',
+  './app.js?v=17.0',
   './style.css?v=12.0',
   './tailwind.local.css',
   './manifest.json',

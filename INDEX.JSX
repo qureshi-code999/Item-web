@@ -8028,6 +8028,10 @@ export default function SahilTraders() {
     const CategoryHome = React.memo(function CategoryHome({ products, onSelectCategory, langData, language }) {
       const isUrdu = language === 'ur';
       const categoriesList = getGlobalCategories(products);
+      const isNativeApp = typeof window !== 'undefined' && (
+        (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ||
+        (window.location && (window.location.protocol === 'capacitor:' || window.location.protocol === 'ionic:'))
+      );
 
       // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
       const categoryData = useMemo(() => {
@@ -8066,7 +8070,7 @@ export default function SahilTraders() {
               {categoriesList.length} Categories &middot; {products.length.toLocaleString()}+ Items
             </span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+          <div className={`categories-grid ${!isNativeApp ? 'categories-web-5col' : ''}`} style={isNativeApp ? { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 } : undefined}>
             {categoryData.map(({ cat, count, meta, imageProducts, doubleItems, animSpeed }) => {
               return (
                 <div

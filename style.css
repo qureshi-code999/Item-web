@@ -753,3 +753,25 @@ img[loading="lazy"] {
   animation: floatCartPulse 3s ease-in-out infinite;
 }
 
+/* ── Categories Grid: 3 columns on app/mobile, exactly 5 columns on website desktop ── */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+@media (min-width: 960px) {
+  .categories-web-5col {
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+@media (min-width: 680px) and (max-width: 959px) {
+  .categories-web-5col {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 10px !important;
+  }
+}
+
+

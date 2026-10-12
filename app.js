@@ -17200,6 +17200,7 @@ const CategoryHome = React.memo(function CategoryHome({
 }) {
   const isUrdu = language === 'ur';
   const categoriesList = getGlobalCategories(products);
+  const isNativeApp = typeof window !== 'undefined' && (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() || window.location && (window.location.protocol === 'capacitor:' || window.location.protocol === 'ionic:'));
 
   // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
   const categoryData = useMemo(() => {
@@ -17266,11 +17267,12 @@ const CategoryHome = React.memo(function CategoryHome({
       whiteSpace: 'nowrap'
     }
   }, categoriesList.length, " Categories \xB7 ", products.length.toLocaleString(), "+ Items")), /*#__PURE__*/React.createElement("div", {
-    style: {
+    className: `categories-grid ${!isNativeApp ? 'categories-web-5col' : ''}`,
+    style: isNativeApp ? {
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
       gap: 8
-    }
+    } : undefined
   }, categoryData.map(({
     cat,
     count,

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T23:24:10.122Z",
+  "updatedAt": "2026-10-12T23:24:44.666Z",
   "total": 1092,
   "settings": {
     "deliveryFee": 99,
@@ -3395,7 +3395,7 @@
     {
       "id": 175,
       "name": "COFFEE SACHET (60 PCS)",
-      "price": 40,
+      "price": 35,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "hasImage": true,

@@ -2585,7 +2585,7 @@ var PRODUCTS = [{
 }, {
   id: 175,
   name: "COFFEE SACHET (60 PCS)",
-  price: 40,
+  price: 35,
   categoryId: "general",
   categoryName: "General Items & Others",
   hasImage: true,

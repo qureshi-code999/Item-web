@@ -9478,7 +9478,7 @@ var PRODUCTS = [{
 }, {
   id: 1306,
   name: "7UP 1 LITRE BOTTLE",
-  price: 170,
+  price: 160,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T19:17:35.411Z",
+  "updatedAt": "2026-10-12T19:17:42.365Z",
   "total": 1094,
   "settings": {
     "deliveryFee": 99,
@@ -12129,7 +12129,7 @@
     {
       "id": 1306,
       "name": "7UP 1 LITRE BOTTLE",
-      "price": 170,
+      "price": 160,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "7Up",

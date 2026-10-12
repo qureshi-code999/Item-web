@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T23:24:44.666Z",
-  "total": 1092,
+  "updatedAt": "2026-10-12T23:25:22.256Z",
+  "total": 1091,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -10982,13 +10982,6 @@
       "gradient": null,
       "initial": "T",
       "imageVersion": 1788525470912
-    },
-    {
-      "id": 1193,
-      "name": "TUSBHI (LED) GREEN",
-      "price": 135,
-      "categoryId": "general",
-      "categoryName": "General Items & Others"
     },
     {
       "id": 1194,

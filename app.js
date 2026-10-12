@@ -8541,12 +8541,6 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[1],
   initial: "T"
 }, {
-  id: 1193,
-  name: "TUSBHI (LED) GREEN",
-  price: 135,
-  categoryId: "general",
-  categoryName: "General Items & Others"
-}, {
   id: 1194,
   name: "TUSBHI (LED) PATA",
   price: 115,

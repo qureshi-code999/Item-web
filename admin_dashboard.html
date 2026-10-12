@@ -2888,7 +2888,7 @@
           <td style="font-weight: 800; color: #d97706;">${p.id}</td>
           <td>
             <div class="product-thumb-container" onclick="openEditProductModal(${p.id})" title="Click to view/change picture">
-              <img src="images/${p.id}.webp" onerror="this.src='images/${p.id}.png'; this.onerror=function(){this.src='icon-192.png';}" class="product-thumb">
+              <img src="images/${p.id}.webp?v=${p.imageVersion || Date.now()}" onerror="this.src='images/${p.id}.png?v=${p.imageVersion || Date.now()}'; this.onerror=function(){this.src='icon-192.png';}" class="product-thumb">
               <div class="thumb-overlay-badge">📷</div>
             </div>
           </td>
@@ -2973,9 +2973,9 @@
       if (catSelect) catSelect.value = currentCat;
 
       const imgPreview = document.getElementById('edit-p-img-preview');
-      imgPreview.src = `images/${p.id}.webp`;
+      imgPreview.src = `images/${p.id}.webp?v=${Date.now()}`;
       imgPreview.onerror = function() {
-        this.src = `images/${p.id}.png`;
+        this.src = `images/${p.id}.png?v=${Date.now()}`;
         this.onerror = function() { this.src = 'icon-192.png'; };
       };
 

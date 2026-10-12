@@ -25,9 +25,7 @@ echo.
 :: Free port 8888 if an old process is hanging
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8888" ^| findstr "LISTENING"') do taskkill /f /pid %%a >nul 2>&1
 
-:: Open Dashboard in default browser
-start http://localhost:8888/
-
 node "%~dp0admin_server.js"
 pause
+
 

@@ -929,12 +929,24 @@ function getTranslationValue(dictionary, key) {
         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && 
         window.location.port === '8888';
 
+      let vQuery = '';
+      if (!isBundledAsset) {
+        const idMatch = cleanName.match(/^(\d+)\./);
+        if (idMatch) {
+          const pId = idMatch[1];
+          const ver = (typeof window !== 'undefined' && window.__ITEM_IMG_VERSIONS__ && window.__ITEM_IMG_VERSIONS__[pId]) 
+            || (typeof window !== 'undefined' && window.__IMG_CACHE_BUSTER__) 
+            || '';
+          if (ver) vQuery = `?v=${ver}`;
+        }
+      }
+
       if (isBundledAsset || isLocalDevServer) {
-        return './images/' + cleanName;
+        return './images/' + cleanName + vQuery;
       }
 
       // High-speed CDN with global edge caching for Android APK, WebView, and live Web
-      return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${cleanName}`;
+      return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${cleanName}${vQuery}`;
     }
     function translate(dictionary, key, params = {}) {
       let value = getTranslationValue(dictionary, key);
@@ -4038,8 +4050,10 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
     const combined = Array.from(new Set([...sameCat, ...sameBrand]));
     return combined.slice(0, 6);
   }, [product, products]);
-  const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-  const imageSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+  const hasFile = (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || product.hasImage || !!product.imageUrl;
+  const imageSrc = product.imageUrl 
+    ? `${product.imageUrl}?v=${product.imageVersion || Date.now()}` 
+    : (hasFile ? getImgUrl(`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || 'webp'}`) : null);
   const handleDirectWhatsAppOrder = () => {
     const pName = getProductDisplayName(product, language);
     let discountInfo = '';
@@ -8219,8 +8233,10 @@ export default function SahilTraders() {
     const ProductCard = React.memo(function ProductCard({ product, onAddToCart, langData, language, onSelectProduct, isWishlisted, onToggleWishlist }) {
       const isUrdu = language === 'ur';
       const pricing = useMemo(() => getProductPricing(product), [product]);
-      const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-      const imageSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+      const hasFile = (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || product.hasImage || !!product.imageUrl;
+      const imageSrc = product.imageUrl 
+        ? `${product.imageUrl}?v=${product.imageVersion || Date.now()}` 
+        : (hasFile ? getImgUrl(`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || 'webp'}`) : null);
       return (
         <div
           onClick={() => onSelectProduct && onSelectProduct(product)}

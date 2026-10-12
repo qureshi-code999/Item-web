@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T20:36:18.025Z",
-  "total": 1088,
+  "updatedAt": "2026-10-12T20:51:55.494Z",
+  "total": 1094,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -1065,7 +1065,13 @@
     "1322": "webp",
     "1323": "webp",
     "1324": "webp",
-    "1325": "webp"
+    "1325": "webp",
+    "1326": "webp",
+    "1327": "webp",
+    "1328": "webp",
+    "1329": "webp",
+    "1330": "webp",
+    "1331": "webp"
   },
   "itemImageVersions": {
     "1": 1788525460576,
@@ -2121,7 +2127,13 @@
     "1322": 1791557155209,
     "1323": 1791557158394,
     "1324": 1791581007563,
-    "1325": 1791830640151
+    "1325": 1791830640151,
+    "1326": 1791837677369,
+    "1327": 1791837678507,
+    "1328": 1791837679209,
+    "1329": 1791837679868,
+    "1330": 1791837687963,
+    "1331": 1791837688373
   },
   "variants": {
     "183": {
@@ -12093,7 +12105,7 @@
     {
       "id": 1303,
       "name": "PEPSI 250ML CAN",
-      "price": 1.09e+38,
+      "price": 109,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pepsi",
@@ -12294,6 +12306,78 @@
       "initial": "F",
       "priority": 1,
       "imageVersion": 1791830640151
+    },
+    {
+      "id": 1326,
+      "name": "PAKOLA CHOCOLATE JUICE 250ML",
+      "price": 110,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Pakola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "P",
+      "imageVersion": 1791837677369
+    },
+    {
+      "id": 1327,
+      "name": "PAKOLA BADAM JUICE 250ML",
+      "price": 110,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Pakola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "P",
+      "imageVersion": 1791837678507
+    },
+    {
+      "id": 1328,
+      "name": "PAKOLA STRAWBERRY JUICE 250ML",
+      "price": 110,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Pakola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "P",
+      "imageVersion": 1791837679209
+    },
+    {
+      "id": 1329,
+      "name": "PAKOLA DRINK 300ML BOTTLE",
+      "price": 70,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Pakola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "P",
+      "imageVersion": 1791837679868
+    },
+    {
+      "id": 1330,
+      "name": "PAKOLA DRINK 500ML BOTTLE",
+      "price": 100,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Pakola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "P",
+      "imageVersion": 1791837687963
+    },
+    {
+      "id": 1331,
+      "name": "PAKOLA DRINK 1.5 LITRE BOTTLE",
+      "price": 190,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Pakola",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "P",
+      "imageVersion": 1791837688373
     }
   ]
 }

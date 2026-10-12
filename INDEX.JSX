@@ -2504,7 +2504,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1300, name: "PEPSI 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
       { id: 1301, name: "PEPSI 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
       { id: 1302, name: "PEPSI 2.25L JUMBO BOTTLE", price: 259, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
-      { id: 1303, name: "PEPSI 250ML CAN", price: 109e+36, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
+      { id: 1303, name: "PEPSI 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
       { id: 1304, name: "7UP 345ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "7" },
       { id: 1305, name: "7UP 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "7" },
       { id: 1306, name: "7UP 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "7" },
@@ -2520,6 +2520,12 @@ function getTranslationValue(dictionary, key) {
       { id: 1322, name: "STING BERRY 300ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
       { id: 1323, name: "STING BERRY 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
       { id: 1324, name: "STING BERRY 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
+      { id: 1326, name: "PAKOLA CHOCOLATE JUICE 250ML", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
+      { id: 1327, name: "PAKOLA BADAM JUICE 250ML", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "P" },
+      { id: 1328, name: "PAKOLA STRAWBERRY JUICE 250ML", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "P" },
+      { id: 1329, name: "PAKOLA DRINK 300ML BOTTLE", price: 70, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
+      { id: 1330, name: "PAKOLA DRINK 500ML BOTTLE", price: 100, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
+      { id: 1331, name: "PAKOLA DRINK 1.5 LITRE BOTTLE", price: 190, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
     ];
     var PAGE_SIZE = 10;
     const RECENT_LIMIT = 15;
@@ -2537,7 +2543,7 @@ function getTranslationValue(dictionary, key) {
       { id: "7Up", name: "7Up", tag: "Lemon & Lime Flavor", sizes: "6 Sizes & Varieties", logo: "images/brand_7up.webp", fromPrice: 75, color: "#16a34a", bg: "#f0fdf4" },
       { id: "Mirinda", name: "Mirinda", tag: "Orange Soft Drink", sizes: "6 Sizes & Varieties", logo: "images/brand_mirinda.webp", fromPrice: 75, color: "#f97316", bg: "#fff7ed" },
       { id: "Sting", name: "Sting Energy", tag: "Berry Blast Energy", sizes: "3 Sizes & Varieties", logo: "images/brand_sting.webp", fromPrice: 75, color: "#e11d48", bg: "#fff1f2" },
-      { id: "Pakola", name: "Pakola", tag: "Ice Cream Soda", sizes: "Coming Soon", logo: "images/brand_pakola.webp", fromPrice: 0, color: "#047857", bg: "#ecfdf5" }
+      { id: "Pakola", name: "Pakola", tag: "Ice Cream Soda & Juices", sizes: "6 Sizes & Varieties", logo: "images/brand_pakola.webp", fromPrice: 70, color: "#047857", bg: "#ecfdf5" }
     ];
     function getProductBrand(name) {
       const clean = String(name || "")

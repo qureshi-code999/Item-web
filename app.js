@@ -9458,7 +9458,7 @@ var PRODUCTS = [{
 }, {
   id: 1303,
   name: "PEPSI 250ML CAN",
-  price: 109e+36,
+  price: 109,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9615,6 +9615,66 @@ var PRODUCTS = [{
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "S"
+}, {
+  id: 1326,
+  name: "PAKOLA CHOCOLATE JUICE 250ML",
+  price: 110,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[0],
+  initial: "P"
+}, {
+  id: 1327,
+  name: "PAKOLA BADAM JUICE 250ML",
+  price: 110,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[1],
+  initial: "P"
+}, {
+  id: 1328,
+  name: "PAKOLA STRAWBERRY JUICE 250ML",
+  price: 110,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[2],
+  initial: "P"
+}, {
+  id: 1329,
+  name: "PAKOLA DRINK 300ML BOTTLE",
+  price: 70,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[3],
+  initial: "P"
+}, {
+  id: 1330,
+  name: "PAKOLA DRINK 500ML BOTTLE",
+  price: 100,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[4],
+  initial: "P"
+}, {
+  id: 1331,
+  name: "PAKOLA DRINK 1.5 LITRE BOTTLE",
+  price: 190,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[5],
+  initial: "P"
 }];
 var PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
@@ -9686,10 +9746,10 @@ const BEVERAGE_BRANDS = [{
 }, {
   id: "Pakola",
   name: "Pakola",
-  tag: "Ice Cream Soda",
-  sizes: "Coming Soon",
+  tag: "Ice Cream Soda & Juices",
+  sizes: "6 Sizes & Varieties",
   logo: "images/brand_pakola.webp",
-  fromPrice: 0,
+  fromPrice: 70,
   color: "#047857",
   bg: "#ecfdf5"
 }];

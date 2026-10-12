@@ -9336,6 +9336,16 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[4],
   initial: "C"
 }, {
+  id: 1325,
+  name: "FANTA 300ML BOTTLE",
+  price: 75,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Fanta",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[4],
+  initial: "F"
+}, {
   id: 1293,
   name: "FANTA 500ML BOTTLE",
   price: 105,
@@ -9468,7 +9478,7 @@ var PRODUCTS = [{
 }, {
   id: 1306,
   name: "7UP 1 LITRE BOTTLE",
-  price: 170,
+  price: 160,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -9682,9 +9692,9 @@ const BEVERAGE_BRANDS = [{
   id: "Fanta",
   name: "Fanta",
   tag: "Orange Flavor",
-  sizes: "5 Sizes & Varieties",
+  sizes: "6 Sizes & Varieties",
   logo: "images/brand_fanta.webp",
-  fromPrice: 105,
+  fromPrice: 75,
   color: "#ea580c",
   bg: "#fff7ed"
 }, {

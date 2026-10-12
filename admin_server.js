@@ -31,7 +31,9 @@ function getSupabaseConfig() {
 
 function supabaseApiRequest(endpoint, method, body = null) {
   const cfg = getSupabaseConfig();
-  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseKey) return Promise.resolve(null);
+  if (!cfg || !cfg.supabaseUrl) return Promise.resolve(null);
+  const keyToUse = (cfg.serviceRoleKey && cfg.serviceRoleKey.trim()) || cfg.supabaseKey;
+  if (!keyToUse) return Promise.resolve(null);
   return new Promise((resolve) => {
     try {
       const fullUrl = new URL(endpoint, cfg.supabaseUrl);
@@ -41,8 +43,8 @@ function supabaseApiRequest(endpoint, method, body = null) {
         path: fullUrl.pathname + fullUrl.search,
         method: method,
         headers: {
-          'apikey': cfg.supabaseKey,
-          'Authorization': 'Bearer ' + cfg.supabaseKey,
+          'apikey': keyToUse,
+          'Authorization': 'Bearer ' + keyToUse,
           'Content-Type': 'application/json',
           'Prefer': 'resolution=merge-duplicates, return=minimal'
         }
@@ -72,7 +74,9 @@ function supabaseApiRequest(endpoint, method, body = null) {
 
 function supabaseUploadStorageImage(fileName, imgBuffer, mimeType = 'image/webp') {
   const cfg = getSupabaseConfig();
-  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseKey) return Promise.resolve(null);
+  if (!cfg || !cfg.supabaseUrl) return Promise.resolve(null);
+  const keyToUse = (cfg.serviceRoleKey && cfg.serviceRoleKey.trim()) || cfg.supabaseKey;
+  if (!keyToUse) return Promise.resolve(null);
   return new Promise((resolve) => {
     try {
       const targetPath = `/storage/v1/object/product-images/${fileName}`;
@@ -83,8 +87,8 @@ function supabaseUploadStorageImage(fileName, imgBuffer, mimeType = 'image/webp'
         path: fullUrl.pathname,
         method: 'POST',
         headers: {
-          'apikey': cfg.supabaseKey,
-          'Authorization': 'Bearer ' + cfg.supabaseKey,
+          'apikey': keyToUse,
+          'Authorization': 'Bearer ' + keyToUse,
           'Content-Type': mimeType,
           'x-upsert': 'true'
         }
@@ -436,7 +440,9 @@ const CLOUD_ORDER_TOPIC = 'zsmart_orders_live_786';
 
 async function fetchProductsFromSupabase() {
   const cfg = getSupabaseConfig();
-  if (!cfg || !cfg.supabaseUrl || !cfg.supabaseKey) return null;
+  if (!cfg || !cfg.supabaseUrl) return null;
+  const keyToUse = (cfg.serviceRoleKey && cfg.serviceRoleKey.trim()) || cfg.supabaseKey;
+  if (!keyToUse) return null;
   return new Promise((resolve) => {
     try {
       let all = [];
@@ -451,8 +457,8 @@ async function fetchProductsFromSupabase() {
           path: fullUrl.pathname + fullUrl.search,
           method: 'GET',
           headers: {
-            'apikey': cfg.supabaseKey,
-            'Authorization': `Bearer ${cfg.supabaseKey}`
+            'apikey': keyToUse,
+            'Authorization': `Bearer ${keyToUse}`
           }
         }, (res) => {
           let raw = '';
@@ -859,7 +865,6 @@ function syncImageToTargets(fileName) {
         id: newId,
         name: newProduct.name,
         price: newProduct.price,
-        purchase_price: body.purchasePrice !== undefined ? Number(body.purchasePrice) : null,
         category_id: newProduct.categoryId,
         category_name: newProduct.categoryName,
         priority: newProduct.priority || null,
@@ -1787,7 +1792,8 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(`  🔒 Security: Localhost Locked, LAN/Network Blocked`);
   console.log('================================================================');
   try {
-    exec(`start http://localhost:${PORT}/`);
+    const openPath = process.env.OPEN_PATH || '/';
+    exec(`start http://localhost:${PORT}${openPath}`);
   } catch(e) {}
 
   // Start Background Cloud Order Sync (Polls for incoming WhatsApp orders every 20s)

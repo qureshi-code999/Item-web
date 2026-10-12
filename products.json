@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T18:39:15.385Z",
-  "total": 1093,
+  "updatedAt": "2026-10-12T19:02:40.477Z",
+  "total": 1094,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -1064,7 +1064,8 @@
     "1321": "webp",
     "1322": "webp",
     "1323": "webp",
-    "1324": "webp"
+    "1324": "webp",
+    "1325": "webp"
   },
   "itemImageVersions": {
     "1": 1788525460576,
@@ -2119,7 +2120,8 @@
     "1321": 1791581007499,
     "1322": 1791557155209,
     "1323": 1791557158394,
-    "1324": 1791581007563
+    "1324": 1791581007563,
+    "1325": 1791830640151
   },
   "variants": {
     "183": {
@@ -12127,7 +12129,7 @@
     {
       "id": 1306,
       "name": "7UP 1 LITRE BOTTLE",
-      "price": 170,
+      "price": 160,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "7Up",
@@ -12351,6 +12353,18 @@
       "gradient": null,
       "initial": "S",
       "imageVersion": 1791581007563
+    },
+    {
+      "id": 1325,
+      "name": "FANTA 300ML BOTTLE",
+      "price": 75,
+      "categoryId": "beverages",
+      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
+      "filterName": "Fanta",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "F",
+      "imageVersion": 1791830640151
     }
   ]
 }

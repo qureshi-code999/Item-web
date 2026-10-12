@@ -7070,15 +7070,17 @@ export default function SahilTraders() {
                           gap: 12
                         }}>
                           {BEVERAGE_BRANDS.map((b) => {
-                            const brandProdsCount = (products || []).filter(p => p.categoryId === 'beverages' && getProductFilterName(p) === b.id).length;
-                            const displaySizes = b.id === 'Pakola' ? 'Coming Soon' : (brandProdsCount > 0 ? `${brandProdsCount} Sizes & Varieties` : b.sizes);
+                            const brandProducts = (products || []).filter(p => p.categoryId === 'beverages' && getProductFilterName(p) === b.id);
+                            const brandProdsCount = brandProducts.length;
+                            const isComingSoon = brandProdsCount === 0;
+                            const displaySizes = isComingSoon ? 'Coming Soon' : `${brandProdsCount} ${brandProdsCount === 1 ? 'Size / Variety' : 'Sizes & Varieties'}`;
                             return (
                             <div
                               key={b.id}
                               onClick={() => {
                                 triggerHaptic('light');
-                                if (b.id === 'Pakola') {
-                                  alert('Pakola products are coming soon!');
+                                if (isComingSoon) {
+                                  alert(b.name + ' products are coming soon!');
                                   return;
                                 }
                                 setSelectedBrand(b.id);
@@ -7131,7 +7133,7 @@ export default function SahilTraders() {
                                 width: '100%',
                                 padding: '7px 8px',
                                 borderRadius: 9,
-                                background: b.id === 'Pakola' ? '#94a3b8' : b.color,
+                                background: isComingSoon ? '#94a3b8' : b.color,
                                 color: '#ffffff',
                                 fontSize: 11,
                                 fontWeight: 800,
@@ -7140,8 +7142,8 @@ export default function SahilTraders() {
                                 justifyContent: 'center',
                                 gap: 4
                               }}>
-                                <span>{b.id === 'Pakola' ? 'Coming Soon' : 'Click for more'}</span>
-                                {b.id !== 'Pakola' && <span>➔</span>}
+                                <span>{isComingSoon ? 'Coming Soon' : 'Click for more'}</span>
+                                {!isComingSoon && <span>➔</span>}
                               </div>
                             </div>
                           );
@@ -7192,7 +7194,7 @@ export default function SahilTraders() {
 
                             {/* Horizontal Brand Switcher */}
                             <div style={{ display: 'flex', gap: 5, overflowX: 'auto', maxWidth: '100%', paddingBottom: 2 }}>
-                              {BEVERAGE_BRANDS.filter(b => b.id !== 'Pakola').map((b) => (
+                              {BEVERAGE_BRANDS.filter(b => (products || []).some(p => p.categoryId === 'beverages' && getProductFilterName(p) === b.id)).map((b) => (
                                 <button
                                   key={b.id}
                                   onClick={() => { triggerHaptic('light'); setSelectedBrand(b.id); }}

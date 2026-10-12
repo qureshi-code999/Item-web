@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T23:23:58.410Z",
-  "total": 1094,
+  "updatedAt": "2026-10-12T23:24:06.198Z",
+  "total": 1093,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -2519,14 +2519,6 @@
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "imageVersion": 1788525493135
-    },
-    {
-      "id": 49,
-      "name": "BANYAN (# 44)",
-      "price": 195,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
-      "imageVersion": 1788525502023
     },
     {
       "id": 50,

@@ -1905,12 +1905,6 @@ var PRODUCTS = [{
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
-  id: 49,
-  name: "BANYAN (# 44)",
-  price: 195,
-  categoryId: "general",
-  categoryName: "General Items & Others"
-}, {
   id: 50,
   name: "BANYAN CHILD  30# GOOD QUALITY",
   price: 80,

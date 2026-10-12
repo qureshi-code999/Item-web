@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T20:19:42.400Z",
-  "total": 1090,
+  "updatedAt": "2026-10-12T20:19:46.170Z",
+  "total": 1089,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -12257,18 +12257,6 @@
       "gradient": null,
       "initial": "M",
       "imageVersion": 1791581007250
-    },
-    {
-      "id": 1318,
-      "name": "MOUNTAIN DEW 1 LITRE BOTTLE",
-      "price": 160,
-      "categoryId": "beverages",
-      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
-      "filterName": "Mountain Dew",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "M",
-      "imageVersion": 1791836289974
     },
     {
       "id": 1322,

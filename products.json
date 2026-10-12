@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T19:18:36.620Z",
+  "updatedAt": "2026-10-12T19:18:45.127Z",
   "total": 1094,
   "settings": {
     "deliveryFee": 99,
@@ -12093,7 +12093,7 @@
     {
       "id": 1303,
       "name": "PEPSI 250ML CAN",
-      "price": 0,
+      "price": 1.09e+38,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pepsi",

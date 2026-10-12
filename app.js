@@ -9596,16 +9596,6 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[5],
   initial: "M"
 }, {
-  id: 1318,
-  name: "MOUNTAIN DEW 1 LITRE BOTTLE",
-  price: 160,
-  categoryId: "beverages",
-  categoryName: "Beverages (Cold Drinks, Juices & Water)",
-  filterName: "Mountain Dew",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[6],
-  initial: "M"
-}, {
   id: 1322,
   name: "STING BERRY 300ML BOTTLE",
   price: 75,

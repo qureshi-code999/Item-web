@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T20:19:46.170Z",
-  "total": 1089,
+  "updatedAt": "2026-10-12T20:19:49.768Z",
+  "total": 1088,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -12245,18 +12245,6 @@
       "gradient": null,
       "initial": "M",
       "imageVersion": 1791557146949
-    },
-    {
-      "id": 1317,
-      "name": "MOUNTAIN DEW 500ML BOTTLE",
-      "price": 110,
-      "categoryId": "beverages",
-      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
-      "filterName": "Mountain Dew",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "M",
-      "imageVersion": 1791581007250
     },
     {
       "id": 1322,

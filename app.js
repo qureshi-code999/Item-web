@@ -1905,12 +1905,6 @@ var PRODUCTS = [{
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
-  id: 50,
-  name: "BANYAN CHILD  30# GOOD QUALITY",
-  price: 80,
-  categoryId: "general",
-  categoryName: "General Items & Others"
-}, {
   id: 51,
   name: "BIO AMLA HAIR OIL 100ML RS,280",
   price: 190,

@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T23:24:06.198Z",
-  "total": 1093,
+  "updatedAt": "2026-10-12T23:24:10.122Z",
+  "total": 1092,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -2519,14 +2519,6 @@
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "imageVersion": 1788525493135
-    },
-    {
-      "id": 50,
-      "name": "BANYAN CHILD  30# GOOD QUALITY",
-      "price": 80,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
-      "imageVersion": 1788525502750
     },
     {
       "id": 51,

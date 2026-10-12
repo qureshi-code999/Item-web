@@ -1647,7 +1647,8 @@ var DEFAULT_CATEGORIES = [{
   name: "Shaving & Razers & Blades"
 }, {
   id: "haircolour",
-  name: "Hair Colors & Care & Oils"
+  name: "Hair Colors & Care & Oils",
+  priority: 2
 }, {
   id: "condemn",
   name: "Condoms"
@@ -1677,7 +1678,8 @@ var DEFAULT_CATEGORIES = [{
   name: "Face Wash & Body Washes"
 }, {
   id: "groceryandkaryana",
-  name: "Grocery & Karyana"
+  name: "Grocery & Karyana",
+  priority: 1
 }, {
   id: "beverages",
   name: "Beverages (Cold Drinks, Juices & Water)"

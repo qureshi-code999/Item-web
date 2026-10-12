@@ -1355,7 +1355,7 @@ function getTranslationValue(dictionary, key) {
       { id: "stationary",   name: "Stationary & Tapes" },
       { id: "sports",       name: "Sports & Toys" },
       { id: "shaving",      name: "Shaving & Razers & Blades" },
-      { id: "haircolour",   name: "Hair Colors & Care & Oils" },
+      { id: "haircolour",   name: "Hair Colors & Care & Oils", priority: 2 },
       { id: "condemn",      name: "Condoms" },
       { id: "lock",         name: "Locks & Cells & Lighters" },
       { id: "general",      name: "General Items & Others" },
@@ -1365,7 +1365,7 @@ function getTranslationValue(dictionary, key) {
       { id: "fragnances",   name: "Fragnances & Roll on" },
       { id: "toothpasteandbrush", name: "Dental Cares" },
       { id: "facewash",     name: "Face Wash & Body Washes" },
-      { id: "groceryandkaryana", name: "Grocery & Karyana" },
+      { id: "groceryandkaryana", name: "Grocery & Karyana", priority: 1 },
       { id: "beverages",    name: "Beverages (Cold Drinks, Juices & Water)" }
     ];
     function getGlobalCategories(productsList) {

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-12T23:26:11.372Z",
+  "updatedAt": "2026-10-12T23:27:35.425Z",
   "total": 1091,
   "settings": {
     "deliveryFee": 99,
@@ -2221,6 +2221,16 @@
   },
   "categories": [
     {
+      "id": "groceryandkaryana",
+      "name": "Grocery & Karyana",
+      "priority": 1
+    },
+    {
+      "id": "haircolour",
+      "name": "Hair Colors & Care & Oils",
+      "priority": 2
+    },
+    {
       "id": "soaps",
       "name": "Local & Imported Soaps"
     },
@@ -2243,10 +2253,6 @@
     {
       "id": "shaving",
       "name": "Shaving & Razers & Blades"
-    },
-    {
-      "id": "haircolour",
-      "name": "Hair Colors & Care & Oils"
     },
     {
       "id": "condemn",
@@ -2283,10 +2289,6 @@
     {
       "id": "facewash",
       "name": "Face Wash & Body Washes"
-    },
-    {
-      "id": "groceryandkaryana",
-      "name": "Grocery & Karyana"
     },
     {
       "id": "beverages",

@@ -1860,8 +1860,8 @@ var CATEGORIES = DEFAULT_CATEGORIES;
 var SWATCH_GRADIENTS = ["from-amber-400 to-orange-500", "from-violet-500 to-purple-600", "from-emerald-400 to-teal-600", "from-rose-400 to-pink-600", "from-sky-400 to-blue-600", "from-fuchsia-400 to-purple-600", "from-teal-400 to-cyan-600", "from-indigo-400 to-violet-600"];
 var PRODUCTS = [{
   id: 1,
-  name: "7 HERBAL OIL 10ML RS,250",
-  price: 230,
+  name: "7 HERBAL OIL 100ML RS,250",
+  price: 220,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   priority: 2

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-18T15:36:54.893Z",
+  "updatedAt": "2026-10-18T15:37:51.410Z",
   "total": 1091,
   "settings": {
     "deliveryFee": 99,
@@ -2286,8 +2286,8 @@
   "products": [
     {
       "id": 1,
-      "name": "7 HERBAL OIL 10ML RS,250",
-      "price": 230,
+      "name": "7 HERBAL OIL 100ML RS,250",
+      "price": 220,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
       "priority": 2,

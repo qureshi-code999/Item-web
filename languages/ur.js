@@ -57,6 +57,8 @@ window.TRANSLATIONS.ur = {
     personalcare: "ذاتی صفائی (Personal Care)",
     fragnances:   "Fragrances & Roll on",
     toothpasteandbrush: "Dental Cares",
-    facewash:     "Face Wash & Body Washes"
+    facewash:     "Face Wash & Body Washes",
+    groceryandkaryana: "گروسری اور کریانہ (Grocery & Karyana)",
+    beverages:    "کولڈ ڈرنکس، جوس اور پانی (Beverages)"
   }
 };

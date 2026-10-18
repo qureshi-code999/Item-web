@@ -58,6 +58,8 @@ window.TRANSLATIONS.ro = {
     personalcare:       "Zaati Safaai (Personal Care)",
     fragnances:         "Khushbuein (Fragrances)",
     toothpasteandbrush: "Tooth Paste aur Brush",
-    facewash:           "Face Wash"
+    facewash:           "Face Wash",
+    groceryandkaryana:  "Grocery aur Karyana",
+    beverages:          "Cold Drinks, Juices aur Pani"
   }
 };

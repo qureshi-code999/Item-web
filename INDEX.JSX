@@ -11,8 +11,8 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 
 // ── GLOBAL STORE SETTINGS & BULLETPROOF ACCESSORS (Accessible everywhere) ──
 var DEFAULT_STORE_SETTINGS = {
-  deliveryFee: 150,
-  freeDeliveryThreshold: 2000,
+  deliveryFee: 99,
+  freeDeliveryThreshold: 1999,
   minOrderAmount: 0,
   deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
   whatsapp: "923368945775",
@@ -34,6 +34,12 @@ if (typeof window !== 'undefined') {
     if (cachedCats) {
       const parsedCats = JSON.parse(cachedCats);
       if (Array.isArray(parsedCats) && parsedCats.length > 0) {
+        parsedCats.sort((a, b) => {
+          const pa = (a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0) ? Number(a.priority) : 999999;
+          const pb = (b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0) ? Number(b.priority) : 999999;
+          if (pa !== pb) return pa - pb;
+          return 0;
+        });
         window.CATEGORIES = parsedCats;
       }
     }
@@ -49,12 +55,12 @@ function getStoreSettings() {
 
 function getDeliveryFee() {
   const s = getStoreSettings();
-  return typeof s.deliveryFee === 'number' ? s.deliveryFee : 150;
+  return typeof s.deliveryFee === 'number' ? s.deliveryFee : 99;
 }
 
 function getFreeDeliveryThreshold() {
   const s = getStoreSettings();
-  return typeof s.freeDeliveryThreshold === 'number' ? s.freeDeliveryThreshold : 2000;
+  return typeof s.freeDeliveryThreshold === 'number' ? s.freeDeliveryThreshold : 1999;
 }
 
 function getTranslationValue(dictionary, key) {
@@ -84,12 +90,22 @@ function getTranslationValue(dictionary, key) {
       return `https://wa.me/${cleanPhone}?text=${encodedText}`;
     }
 
+    // Global Helper: Check if running in native Capacitor / Android shell
+    function checkIsNativeApp() {
+      if (typeof window === 'undefined') return false;
+      return Boolean(
+        (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ||
+        (window.location && (window.location.protocol === 'capacitor:' || window.location.protocol === 'ionic:')) ||
+        (typeof navigator !== 'undefined' && /wv|Android.*Version\/[\d.]+/i.test(navigator.userAgent))
+      );
+    }
+
     // Smart WhatsApp App Launcher: Opens Regular WhatsApp First!
     function launchWhatsApp(phoneNumber, message) {
       const activePhone = phoneNumber || (getStoreSettings().whatsapp || '923368945775');
       const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
       const encodedText = encodeURIComponent(message || '');
-      const isCapacitor = typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+      const isCapacitor = checkIsNativeApp();
       const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
       const isMobile = typeof navigator !== 'undefined' && (
         /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || isCapacitor
@@ -132,6 +148,55 @@ function getTranslationValue(dictionary, key) {
       }
     }
 
+    // 🔒 Collision-proof unique Order ID generator (Chronological + Random Entropy)
+    function generateUniqueOrderId(prefix = '') {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const datePart = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+      const timePart = `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+      const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+      return prefix ? `${prefix}-${datePart}-${timePart}-${randomSuffix}` : `${datePart}-${timePart}-${randomSuffix}`;
+    }
+
+    // 🕒 Bulletproof Timestamp Extractor for Order Tracking (Supports numeric epoch, ISO, date+time, & prefixed IDs)
+    function parseOrderCreatedAt(order) {
+      if (!order) return Date.now();
+      if (typeof order.createdAt === 'number' && !isNaN(order.createdAt) && order.createdAt > 0) return order.createdAt;
+      if (order.createdAt) {
+        const num = Number(order.createdAt);
+        if (!isNaN(num) && num > 1000000000000) return num;
+        const t = new Date(order.createdAt).getTime();
+        if (!isNaN(t) && t > 0) return t;
+      }
+      if (order.createdAtIso) {
+        const t = new Date(order.createdAtIso).getTime();
+        if (!isNaN(t) && t > 0) return t;
+      }
+      if (order.date && order.time) {
+        const tStr = order.time.length === 5 ? order.time + ':00' : order.time;
+        const t = new Date(`${order.date}T${tStr}`).getTime();
+        if (!isNaN(t) && t > 0) return t;
+      }
+      if (order.id && typeof order.id === 'string' && order.id.includes('-')) {
+        const parts = order.id.split('-');
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (/^\d{8}$/.test(parts[i]) && /^\d{4,6}$/.test(parts[i + 1])) {
+            const dStr = parts[i];
+            const tStr = parts[i + 1];
+            const y = parseInt(dStr.slice(0, 4), 10);
+            const m = parseInt(dStr.slice(4, 6), 10) - 1;
+            const d = parseInt(dStr.slice(6, 8), 10);
+            const hh = parseInt(tStr.slice(0, 2), 10);
+            const mm = parseInt(tStr.slice(2, 4), 10);
+            const ss = tStr.length >= 6 ? parseInt(tStr.slice(4, 6), 10) : 0;
+            const parsed = new Date(y, m, d, hh, mm, ss).getTime();
+            if (!isNaN(parsed) && parsed > 0) return parsed;
+          }
+        }
+      }
+      return Date.now();
+    }
+
     // Smart Order Dispatcher to Admin Backend & Cloud Sync
     function dispatchOrderToBackend(orderRecord) {
       if (!orderRecord) return;
@@ -151,10 +216,10 @@ function getTranslationValue(dictionary, key) {
             delivery_fee: Number(orderRecord.deliveryFee || 0),
             total: Number(orderRecord.grandTotal !== undefined ? orderRecord.grandTotal : (orderRecord.total || 0)),
             total_savings: Number(orderRecord.totalSavings || 0),
-            status: orderRecord.status || 'pending',
+            status: orderRecord.status || 'placed',
             items: orderRecord.items || [],
             raw_data: orderRecord,
-            created_at: new Date().toISOString()
+            created_at: orderRecord.createdAtIso || new Date().toISOString()
           };
           fetch(`${SUPABASE_URL}/rest/v1/orders`, {
             method: 'POST',
@@ -428,14 +493,24 @@ function getTranslationValue(dictionary, key) {
       ctx.fillText('For exchanges or inquiries, WhatsApp us at +92 336 8945775', width / 2, curY);
 
       canvas.toBlob(async function(blob) {
-        if (!blob) {
-          generatePDFReceipt(order, language);
-          return;
-        }
+        if (!blob) return;
         const fileName = `ZS_Mart_Invoice_#ST-${order.id || 'order'}.png`;
-        const file = new File([blob], fileName, { type: 'image/png' });
 
-        // 1. Try Web Share API (native sheet on Android / iOS)
+        // 1. Android Native Bridge: Direct save to MediaStore Gallery (Scoped Storage)
+        try {
+          const base64Data = canvas.toDataURL('image/png');
+          if (window.AndroidBridge && typeof window.AndroidBridge.saveImageToGallery === 'function') {
+            const saved = window.AndroidBridge.saveImageToGallery(base64Data, fileName);
+            if (saved) {
+              triggerHaptic('success');
+              alert(tr(language, '✅ Bill saved to your device Gallery / Photos!', '✅ Bill aapke phone ki Gallery mein save ho gaya!', 'بل گیلری میں محفوظ ہو گیا۔'));
+              return;
+            }
+          }
+        } catch(e) {}
+
+        // 2. Web Share API (Android Chrome / iOS Safari)
+        const file = new File([blob], fileName, { type: 'image/png' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
@@ -449,7 +524,7 @@ function getTranslationValue(dictionary, key) {
           }
         }
 
-        // 2. Direct Anchor Download
+        // 3. Desktop Web Anchor Download Fallback
         try {
           const link = document.createElement('a');
           link.download = fileName;
@@ -460,22 +535,20 @@ function getTranslationValue(dictionary, key) {
             document.body.removeChild(link);
             URL.revokeObjectURL(link.href);
           }, 1000);
+          triggerHaptic('success');
+          alert(tr(language, '✅ Bill downloaded to your device!', '✅ Bill download ho gaya!', 'بل ڈاؤن لوڈ ہو گیا۔'));
         } catch(e) {}
-
-        // 3. Also open PDF / Printable receipt window as guaranteed viewable receipt
-        setTimeout(() => {
-          generatePDFReceipt(order, language);
-        }, 300);
       }, 'image/png');
     }
 
     function generatePDFReceipt(order, language) {
       triggerHaptic('success');
+      const escHtml = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       const totalBulkSaved = order.totalSavings || (order.items || []).reduce((acc, it) => acc + (it.extraSavings || 0), 0);
       const itemsRows = (order.items || []).map((item, idx) => {
         const itemExtraSavings = Number(item.extraSavings || 0);
         const itemExtraPercent = Number(item.extraPercent || 0);
-        const variantText = item.variant ? `<div style="font-size: 11px; color: #b45309; font-weight: 700; margin-top: 2px;">🎨 Shade/Colour: ${item.variant}</div>` : '';
+        const variantText = item.variant ? `<div style="font-size: 11px; color: #b45309; font-weight: 700; margin-top: 2px;">🎨 Shade/Colour: ${escHtml(item.variant)}</div>` : '';
         const discountBadge = itemExtraPercent > 0 ? `
           <div style="font-size: 11px; color: #15803d; font-weight: 700; margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 6px; border-radius: 4px;">
             🎁 Bulk Discount (${itemExtraPercent}% OFF): Saved Rs ${itemExtraSavings.toLocaleString()}
@@ -486,11 +559,11 @@ function getTranslationValue(dictionary, key) {
         <tr>
           <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; text-align: center; color: #64748b; vertical-align: top;">${idx + 1}</td>
           <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; font-weight: 600; color: #0f172a; vertical-align: top;">
-            <div>${item.name}</div>
+            <div>${escHtml(item.name)}</div>
             ${variantText}
             ${discountBadge}
           </td>
-          <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center; color: #0f172a; vertical-align: top; font-weight: 700;">${item.qty || 1}</td>
+          <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center; color: #0f172a; vertical-align: top; font-weight: 700;">${Number(item.qty || 1)}</td>
           <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; color: #0f172a; vertical-align: top;">
             <div>Rs ${Number(item.price || 0).toLocaleString()}</div>
             ${itemExtraPercent > 0 ? `<div style="font-size: 10.5px; color: #16a34a; font-weight: 700;">(Effective: Rs ${Math.round(item.total / (item.qty || 1)).toLocaleString()}/pc)</div>` : ''}
@@ -510,7 +583,7 @@ function getTranslationValue(dictionary, key) {
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Invoice #${order.id} - ZS Mart</title>
+          <title>Invoice #${escHtml(order.id)} - ZS Mart</title>
           <style>
             * { box-sizing: border-box; }
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: #f8fafc; margin: 0; padding: 16px; }
@@ -546,21 +619,21 @@ function getTranslationValue(dictionary, key) {
               </div>
               <div style="text-align: right;">
                 <span class="inv-badge">OFFICIAL INVOICE</span>
-                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 6px;">#ST-${order.id}</div>
-                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${order.dateText || new Date().toLocaleDateString()}</div>
+                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 6px;">#ST-${escHtml(order.id)}</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${escHtml(order.dateText || new Date().toLocaleDateString())}</div>
               </div>
             </div>
 
             <div class="meta-grid">
               <div>
                 <div class="meta-label">Customer Details</div>
-                <div class="meta-val">${order.customer?.name || 'Walk-in Customer'}</div>
-                <div style="color: #64748b; font-size: 11px;">${order.customer?.phone || ''}</div>
+                <div class="meta-val">${escHtml(order.customer?.name || 'Walk-in Customer')}</div>
+                <div style="color: #64748b; font-size: 11px;">${escHtml(order.customer?.phone || '')}</div>
               </div>
               <div>
                 <div class="meta-label">Delivery Destination</div>
                 <div class="meta-val">${order.deliveryMethod === 'pickup' ? '🏬 Store Pickup (ZS Mart Karachi)' : '🚚 Home Delivery'}</div>
-                <div style="color: #64748b; font-size: 11px;">${order.customer?.address || 'ZS Mart Karachi Store'}</div>
+                <div style="color: #64748b; font-size: 11px;">${escHtml(order.customer?.address || 'ZS Mart Karachi Store')}</div>
               </div>
             </div>
 
@@ -909,11 +982,47 @@ function getTranslationValue(dictionary, key) {
         </html>
       `;
 
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.open();
-        printWindow.document.write(printHtml);
-        printWindow.document.close();
+      // 1. Android Native Print: Call native PrintManager via AndroidBridge (Opens Android Print Spooler / Save as PDF)
+      if (window.AndroidBridge && typeof window.AndroidBridge.printInvoice === 'function') {
+        try {
+          window.AndroidBridge.printInvoice(printHtml, String(order.id || 'order'));
+          return;
+        } catch(e) {}
+      }
+
+      // 2. Desktop Web / Browser Print: Use isolated hidden iframe so React App DOM is NEVER wiped!
+      try {
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        iframe.style.opacity = '0';
+        iframe.style.pointerEvents = 'none';
+        document.body.appendChild(iframe);
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(printHtml);
+        doc.close();
+        iframe.contentWindow.focus();
+        setTimeout(() => {
+          try { iframe.contentWindow.print(); } catch(e) {}
+          setTimeout(() => {
+            try { document.body.removeChild(iframe); } catch(e) {}
+          }, 4000);
+        }, 500);
+      } catch(e) {
+        // Safe fallback only if iframe creation failed, verifying window reference is not self
+        try {
+          const printWindow = window.open('', '_blank');
+          if (printWindow && printWindow !== window) {
+            printWindow.document.open();
+            printWindow.document.write(printHtml);
+            printWindow.document.close();
+          }
+        } catch(err) {}
       }
     }
     function getImgUrl(imgPath) {
@@ -948,6 +1057,26 @@ function getTranslationValue(dictionary, key) {
       // High-speed CDN with global edge caching for Android APK, WebView, and live Web
       return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${cleanName}${vQuery}`;
     }
+
+    function getProductImgSrc(product) {
+      if (!product) return null;
+      if (product.imageUrl) {
+        const ver = product.imageVersion || (typeof window !== 'undefined' && window.__IMG_CACHE_BUSTER__) || '';
+        return ver ? `${product.imageUrl}?v=${ver}` : product.imageUrl;
+      }
+      const ext = (typeof window !== 'undefined' && window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) 
+        || (product.hasImage ? 'webp' : null)
+        || product.imageExt
+        || null;
+      if (ext) {
+        return getImgUrl(`images/${product.id}.${ext}`);
+      }
+      return null;
+    }
+    if (typeof window !== 'undefined') {
+      window.getProductImgSrc = getProductImgSrc;
+    }
+
     function translate(dictionary, key, params = {}) {
       let value = getTranslationValue(dictionary, key);
       if (!value) value = key;
@@ -1349,13 +1478,14 @@ function getTranslationValue(dictionary, key) {
     }
     // --- Product Categories and Data ---
     var DEFAULT_CATEGORIES = [
-      { id: "soaps",        name: "Local & Imported Soaps" },
+      { id: "groceryandkaryana", name: "Grocery & Karyana", priority: 1 },
+      { id: "haircolour",   name: "Hair Colors & Care & Oils", priority: 2 },
+      { id: "soaps",        name: "Local & Imported Soaps", priority: 3 },
       { id: "shampoo",      name: "Shampoo & Conditioners" },
       { id: "creams",       name: "Creams & Lotions & Bleach" },
       { id: "stationary",   name: "Stationary & Tapes" },
       { id: "sports",       name: "Sports & Toys" },
       { id: "shaving",      name: "Shaving & Razers & Blades" },
-      { id: "haircolour",   name: "Hair Colors & Care & Oils", priority: 2 },
       { id: "condemn",      name: "Condoms" },
       { id: "lock",         name: "Locks & Cells & Lighters" },
       { id: "general",      name: "General Items & Others" },
@@ -1365,7 +1495,6 @@ function getTranslationValue(dictionary, key) {
       { id: "fragnances",   name: "Fragnances & Roll on" },
       { id: "toothpasteandbrush", name: "Dental Cares" },
       { id: "facewash",     name: "Face Wash & Body Washes" },
-      { id: "groceryandkaryana", name: "Grocery & Karyana", priority: 1 },
       { id: "beverages",    name: "Beverages (Cold Drinks, Juices & Water)" }
     ];
     function getGlobalCategories(productsList) {
@@ -1375,15 +1504,15 @@ function getTranslationValue(dictionary, key) {
         : DEFAULT_CATEGORIES;
       var winProds = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0) ? window.PRODUCTS : null;
       var liveProducts = productsList || ((winProds && winProds.length >= PRODUCTS.length) ? winProds : PRODUCTS);
-      if (!liveProducts || liveProducts.length === 0) {
-        return baseCategories;
-      }
+
       // Build a map of categoryId -> latest categoryName from products
       var liveNameMap = {};
-      for (var i = 0; i < liveProducts.length; i++) {
-        var p = liveProducts[i];
-        if (p.categoryId && p.categoryName && !liveNameMap[p.categoryId]) {
-          liveNameMap[p.categoryId] = p.categoryName;
+      if (liveProducts && liveProducts.length > 0) {
+        for (var i = 0; i < liveProducts.length; i++) {
+          var p = liveProducts[i];
+          if (p.categoryId && p.categoryName && !liveNameMap[p.categoryId]) {
+            liveNameMap[p.categoryId] = p.categoryName;
+          }
         }
       }
       // Override default category names with live names, preserving order and priority
@@ -1402,8 +1531,8 @@ function getTranslationValue(dictionary, key) {
 
       // ⚡ Sort categories: priority 1, 2, 3... first, then unprioritized preserving original order
       result.sort(function(a, b) {
-        var pa = (typeof a.priority === 'number' && a.priority > 0) ? a.priority : 999999;
-        var pb = (typeof b.priority === 'number' && b.priority > 0) ? b.priority : 999999;
+        var pa = (a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0) ? Number(a.priority) : 999999;
+        var pb = (b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0) ? Number(b.priority) : 999999;
         if (pa !== pb) return pa - pb;
         return 0;
       });
@@ -1422,7 +1551,7 @@ function getTranslationValue(dictionary, key) {
       "from-indigo-400 to-violet-600",
     ];
     var PRODUCTS = [
-      { id: 1, name: "7 HERBAL OIL 100ML RS,250", price: 220, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" , priority: 2 },
+      { id: 1, name: "7 HERBAL OIL 100ML RS,250", price: 230, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" , priority: 2 },
       { id: 2, name: "7 HERBAL OIL 200ML RP,400", price: 369, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 3 },
       { id: 3, name: "7 HERBAL OIL 50ML RS,170", price: 155, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 1 },
       { id: 5, name: "AL RASHIEED OIL 100ML SASSO", price: 480, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
@@ -1565,8 +1694,8 @@ function getTranslationValue(dictionary, key) {
       { id: 222, name: "COLOUR SAMSOLE (# 45) BLACK SMALL RS,160", price: 145, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "C" },
       { id: 223, name: "COLOUR SAMSOLE (# 43) DARK BROWN LARGE RS,300", price: 260, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "C" },
       { id: 224, name: "COLOUR SAMSOLE (# 45) BLACK LARGE RS,300", price: 260, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "C" },
-      { id: 225, name: "COLOUR WAJEE TUBE ( # 43 DARK BROWN) RS,70", price: 0, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
-      { id: 226, name: "COLOUR WAJEE TUBE ( # 45 BLACK) RS,70", price: 0, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
+      { id: 225, name: "COLOUR WAJEE TUBE ( # 43 DARK BROWN) RS,70", price: 70, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
+      { id: 226, name: "COLOUR WAJEE TUBE ( # 45 BLACK) RS,70", price: 70, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 227, name: "COMBS ANTI LICE HANDLE LARGE", price: 80, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
       { id: 228, name: "COMBS ANTI LICE HANDLE MEDIUM", price: 80, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "C" },
       { id: 229, name: "COMBS CASET", price: 10, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "C" },
@@ -1807,8 +1936,8 @@ function getTranslationValue(dictionary, key) {
       { id: 507, name: "FEEDER MINI TREE (LARGE)", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 508, name: "FEEDER MINI TREE (MEDIUM)", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 509, name: "FEEDER MINI TREE (SMALL)", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 510, name: "FEEDER PP (IMP) HANDLE LARGE", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "F" },
-      { id: 511, name: "FEEDER PP (IMP) HANDLE MEDIUM", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
+      { id: 510, name: "FEEDER PP (IMP) HANDLE LARGE", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 511, name: "FEEDER PP (IMP) HANDLE MEDIUM", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 512, name: "FEEDER PURE LOVE COLOR (LARGE)", price: 280, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "F" },
       { id: 513, name: "FORHANS HAIR TONIC 100ML (BLUE) RS,320", price: 310, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "F" },
       { id: 514, name: "FORHANS HAIR TONIC 100ML (RED) RS,320", price: 310, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
@@ -1901,10 +2030,10 @@ function getTranslationValue(dictionary, key) {
       { id: 620, name: "LOCK SILVER 70MM (WOHU)", price: 580, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "L" },
       { id: 621, name: "LOTION CARE (SMALL) RS,250", price: 230, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
       { id: 622, name: "LOTION ENCHANTEUR 100ML (SMALL)", price: 460, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
-      { id: 623, name: "LOTION MOTHER CARE 115ML RS,450", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 624, name: "LOTION MOTHER CARE 60ML RS,150", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 625, name: "LOTION NEXTON 125ML RP,499", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 626, name: "LOTION NEXTON 65ML RP,299", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 623, name: "LOTION MOTHER CARE 115ML RS,450", price: 450, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 624, name: "LOTION MOTHER CARE 60ML RS,150", price: 150, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 625, name: "LOTION NEXTON 125ML RP,499", price: 499, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 626, name: "LOTION NEXTON 65ML RP,299", price: 299, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 627, name: "LOTION NIVEA 100ML SMALL (MIX)", price: 509, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 628, name: "LOTION NIVEA 200ML (MIX)", price: 889, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 629, name: "LOTION NIVEA 400ML (MIX)", price: 1800, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
@@ -1969,14 +2098,14 @@ function getTranslationValue(dictionary, key) {
       { id: 689, name: "MIRROR DOUBLE SIDED (SMALL)", price: 129, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
       { id: 690, name: "MOOV SPRAY", price: 849, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "M" },
       { id: 691, name: "MORTEIN COIL LARGE", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
-      { id: 692, name: "MORTEIN MACHINE RP,560", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
+      { id: 692, name: "MORTEIN MACHINE RP,560", price: 560, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 693, name: "MORTEIN REFILLL (30 NIGHT)", price: 239, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 694, name: "MORTEIN REFILLL (60 NIGHT)", price: 439, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 695, name: "MORTEIN SPRAY 300ML", price: 529, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "M" },
       { id: 696, name: "MORTEIN SPRAY 375ML", price: 699, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 697, name: "MORTEIN SPRAY 600ML LARGE", price: 899, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 698, name: "MOSPEL RS,350", price: 319, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
-      { id: 700, name: "MOTHER CARE OIL 125ML RP,480", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 700, name: "MOTHER CARE OIL 125ML RP,480", price: 480, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 701, name: "MOTHER CARE OIL 65ML", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 702, name: "MOUTH WASH COLGATE 250ML (IMP) MIX", price: 489, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 703, name: "MOUTH WASH LISTERINE (MIX)", price: 489, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
@@ -1996,18 +2125,18 @@ function getTranslationValue(dictionary, key) {
       { id: 718, name: "NEXTON BABY COLOGNE BLUE", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 719, name: "NEXTON BABY KIT MEDIUM", price: 1800, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 720, name: "NEXTON BABY KIT SMALL", price: 999, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 721, name: "NEXTON BABY LOTION 125ML RP,525", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 721, name: "NEXTON BABY LOTION 125ML RP,525", price: 525, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 722, name: "NEXTON BABY LOTION 250ML", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 723, name: "NEXTON BABY LOTION 65ML RP,315", price: 299, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 724, name: "NEXTON BABY POWDER 100g RP,275 (MIX)", price: 249, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 725, name: "NEXTON BABY POWDER 200g RP,430 (MIX)", price: 399, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 726, name: "NEXTON BABY SHAMPOO 125ML RP,399", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 727, name: "NEXTON BABY SHAMPOO 250ML RP,699", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 728, name: "NEXTON BABY SHAMPOO 500ML RP,999", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 729, name: "NEXTON BABY SHAMPOO 65ML RP,260", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 726, name: "NEXTON BABY SHAMPOO 125ML RP,399", price: 399, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 727, name: "NEXTON BABY SHAMPOO 250ML RP,699", price: 699, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 728, name: "NEXTON BABY SHAMPOO 500ML RP,999", price: 999, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 729, name: "NEXTON BABY SHAMPOO 65ML RP,260", price: 260, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 730, name: "NEXTON BABY SHAMPOO PUMP", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 731, name: "NEXTON BABY SOAP RP,225", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 732, name: "NEXTON OIL 125ML RP,470", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 731, name: "NEXTON BABY SOAP RP,225", price: 225, categoryId: "babycare", categoryName: "Baby Care & Powders" },
+      { id: 732, name: "NEXTON OIL 125ML RP,470", price: 470, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 733, name: "NEXTON WIPES", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 734, name: "NIPLE PP SMALL", price: 29, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 735, name: "NIPPLE PP LARGE", price: 49, categoryId: "babycare", categoryName: "Baby Care & Powders" },
@@ -2120,8 +2249,8 @@ function getTranslationValue(dictionary, key) {
       { id: 858, name: "POWDER BLACK CAT (LARGE) RS,480", price: 430, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 859, name: "POWDER BLACK CAT (SMALL) RS,250", price: 210, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
       { id: 861, name: "POWDER COOL COOL RS,210", price: 170, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 862, name: "POWDER DENTONIC BOX 100GM (MEDIUM) RS,75", price: 0, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
-      { id: 863, name: "POWDER DENTONIC BOX 200GM (LARGE) RS,130", price: 0, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
+      { id: 862, name: "POWDER DENTONIC BOX 100GM (MEDIUM) RS,75", price: 75, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
+      { id: 863, name: "POWDER DENTONIC BOX 200GM (LARGE) RS,130", price: 130, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 864, name: "POWDER EDEN ROCK (LARGE) RS,310", price: 260, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
       { id: 865, name: "POWDER EDEN ROCK (SMALL) RS,210", price: 180, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
       { id: 866, name: "POWDER ENCHANTEUR 125g (PURPLE)", price: 479, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
@@ -2343,7 +2472,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1155, name: "TOY YOYO DORI LIGHT WALA (GOOD QUALITY)", price: 0, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 1156, name: "TAPE DOUBLE 2 INCH", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 1157, name: "TAPE DOUBLE SIDED (1 INCH)", price: 65, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "T" },
-      { id: 1158, name: "TAPE DOUBLE SIDED (1 INCH)", price: 63, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "T" },
+      { id: 1158, name: "TAPE DOUBLE SIDED (1 INCH)", price: 63, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 1159, name: "TAPE DOUBLE SIDED (1 INCH) TRANSPARENT", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 1160, name: "TAPE KAGHAZ (0.5 INCH) HALF INCH 12 PIECES", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 1161, name: "TAPE KAGHAZ 1 INCH", price: 65, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "T" },
@@ -2371,10 +2500,10 @@ function getTranslationValue(dictionary, key) {
       { id: 1183, name: "TOOTH PICK DENTAL FLOSS", price: 59, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "T" },
       { id: 1184, name: "TOOTH PICK LARGE", price: 89, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "T" },
       { id: 1185, name: "TOYS MIX", price: 0, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
-      { id: 1186, name: "TRUST PAD LARGE (ORANGE) R,P 190", price: 0, categoryId: "personalcare", categoryName: "Personal Care" },
-      { id: 1187, name: "TRUST PAD LARGE (PURPLE) RS,340", price: 0, categoryId: "personalcare", categoryName: "Personal Care" },
-      { id: 1188, name: "TRUST PAD LARGE (PINK) RS,220", price: 0, categoryId: "personalcare", categoryName: "Personal Care" },
-      { id: 1189, name: "TRUST PAD LARGE (YELLOW) RS,290", price: 0, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1186, name: "TRUST PAD LARGE (ORANGE) R,P 190", price: 190, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1187, name: "TRUST PAD LARGE (PURPLE) RS,340", price: 340, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1188, name: "TRUST PAD LARGE (PINK) RS,220", price: 220, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1189, name: "TRUST PAD LARGE (YELLOW) RS,290", price: 290, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1190, name: "TUSAR GENTS", price: 80, categoryId: "general", categoryName: "General Items & Others" },
       { id: 1191, name: "TUSAR LADIES", price: 80, categoryId: "general", categoryName: "General Items & Others" },
       { id: 1192, name: "TUSBHI (LED)", price: 135, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "T" },
@@ -2388,7 +2517,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1201, name: "UNDERWEAR LADIES  BLACK & SKIN (MEDIUM) GOOD QUALITY (# 320)", price: 200,categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1202, name: "UNDERWEAR LADIES  BLACK & SKIN (SMALL) GOOD QUALITY (# 120)", price: 200,categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1203, name: "UNDERWEAR LADIES  BLACK & SKIN (X,L) GOOD QUALITY (# 620)", price: 200,categoryId: "personalcare", categoryName: "Personal Care" },
-      { id: 1204, name: "VASELINE HAIR TONIC 100ml (NON ORIGINAL)", price: 199, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "V" },
+      { id: 1204, name: "VASELINE HAIR TONIC 100ml (NON ORIGINAL)", price: 199, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 1205, name: "VASELINE HAIR TONIC 100ml (ORIGINAL)", price: 499,categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 1206, name: "VASELINE HAIR TONIC 200ml (NON ORIGINAL)", price: 299,categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 1207, name: "VASELINE HAIR TONIC 200ml (ORIGINAL)", price: 899,categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
@@ -2415,11 +2544,11 @@ function getTranslationValue(dictionary, key) {
       { id: 1228, name: "VATIKA HAIR OIL 200ml (ONION)", price: 599,categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 1229, name: "VEET JAR LARGE (BLUE) RS,595", price: 559,categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1230, name: "VEET JAR LARGE (GREEN) RS,595", price:559, categoryId: "personalcare", categoryName: "Personal Care" },
-      { id: 1231, name: "VEET JAR LARGE (MIX) RS,595", price: 559, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "V" },
+      { id: 1231, name: "VEET JAR LARGE (MIX) RS,595", price: 559, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1232, name: "VEET JAR LARGE (PINK) RS,595", price: 559,categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1233, name: "VEET JAR SMALL (GREEN) RS,300", price:269, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1234, name: "VEET JAR SMALL (PINK) RS,300", price:269, categoryId: "personalcare", categoryName: "Personal Care" },
-      { id: 1235, name: "VEET JAR SMALL 40G (MIX) RS,300", price: 269, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "V" },
+      { id: 1235, name: "VEET JAR SMALL 40G (MIX) RS,300", price: 269, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1236, name: "VEET STRIPS (BLUE)", price: 349,categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1237, name: "VEET STRIPS (GREEN)", price: 349,categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1238, name: "VEET STRIPS (PINK)", price: 349,categoryId: "personalcare", categoryName: "Personal Care" },
@@ -2438,7 +2567,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1251, name: "WASH ROOM TIKI (GOOD QUALITY) FRESH", price: 150, categoryId: "general", categoryName: "General Items & Others" },
       { id: 1252, name: "WASH ROOM TIKI (SASTI)", price: 70, categoryId: "general", categoryName: "General Items & Others" },
       { id: 1253, name: "WAX PATI", price: 80, categoryId: "personalcare", categoryName: "Personal Care" },
-      { id: 1254, name: "WAX PATI BUKRAM", price: 90, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "W" },
+      { id: 1254, name: "WAX PATI BUKRAM", price: 90, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1255, name: "WAX PATI BUKRAM", price: 90, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "W" },
       { id: 1256, name: "WHITE ROSE H,R JAR (LARGE) RS,280", price: 239, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1257, name: "WHITE ROSE H,R JAR (MEDIUM) RS,220", price: 199, categoryId: "personalcare", categoryName: "Personal Care" },
@@ -2447,7 +2576,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1260, name: "WIPES JEEP CAMERA", price: 169, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1261, name: "WIPES NEXTON", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1262, name: "WIPES PAMPER (NON ORIGINAL)", price: 249, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "W" },
-      { id: 1263, name: "WIPES SOFT CREME (MIX)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "W" },
+      { id: 1263, name: "WIPES SOFT CREME (MIX)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1264, name: "WIPES SOFT-CREAM (BLUE)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1265, name: "WIPES SOFT-CREAM (WHITE)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1266, name: "ZERO MOSQUITO SACHET BOX RS,10", price: 8, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "Z" },
@@ -2694,9 +2823,9 @@ function getTranslationValue(dictionary, key) {
       return score;
     }
 function AboutUsModal({ isOpen, onClose, language }) {
-  if (!isOpen) return null;
   const [modalLang, setModalLang] = React.useState('ro');
   const isUrdu = modalLang === 'ur';
+  if (!isOpen) return null;
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 shadow-lg animate-fade-in"
@@ -2908,7 +3037,7 @@ function AboutUsModal({ isOpen, onClose, language }) {
             <div className="bg-white/90 border border-purple-100 rounded-xl p-3 text-xs flex justify-between items-center shadow-xs">
               <div>
                 <div className="font-bold text-gray-900">{tr(modalLang, 'Daily (7 Days a Week):', 'Rozana (7 Din Khula, Koi Chutti Nahi):', 'روزانہ (7 دن کھلا، کوئی چھٹی نہیں):')}</div>
-                <div className="text-purple-700 font-extrabold text-sm mt-0.5">{tr(modalLang, '8:00 AM – 11:30 PM', 'Subha 8:00 se Raat 11:30 tak', 'صبح 8:00 بجے سے رات 11:30 بجے تک')}</div>
+                <div className="text-purple-700 font-extrabold text-sm mt-0.5">{tr(modalLang, '10:00 AM – 10:00 PM', 'Subha 10:00 se Raat 10:00 tak', 'صبح 10:00 بجے سے رات 10:00 بجے تک')}</div>
               </div>
               <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase">
                 {tr(modalLang, 'Open', 'Khula Hai', 'کھلا ہے')}
@@ -3153,10 +3282,169 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
   );
 }
 
-function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
+function PrivacyPolicyModal({ isOpen, onClose, language }) {
   if (!isOpen) return null;
+  const isUrdu = language === 'ur';
+
+  const openFullPolicyPage = () => {
+    try {
+      if (checkIsNativeApp()) {
+        window.open('https://qureshi-code999.github.io/Item-web/privacy-policy.html', '_blank');
+        return;
+      }
+      const base = window.location.href.replace(/\/[^\/]*$/, '/');
+      window.open(base + 'privacy-policy.html', '_blank');
+    } catch(e) {
+      window.open('https://qureshi-code999.github.io/Item-web/privacy-policy.html', '_blank');
+    }
+  };
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 shadow-2xl animate-fade-in"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col"
+        style={{ maxHeight: '92vh' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header Banner */}
+        <div className="relative bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-900 text-white p-5 pb-6 text-center shrink-0">
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-300 hover:text-white w-8 h-8 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+          <div className="w-12 h-12 mx-auto mb-2.5 rounded-2xl bg-white/15 border border-white/20 p-2 shadow-lg flex items-center justify-center text-2xl">
+            🔒
+          </div>
+          <h2 className="text-lg sm:text-xl font-black tracking-wider uppercase text-emerald-300 font-poppins">
+            {tr(language, 'Privacy Policy & Data Safety', 'Zati Maloomat ki Hifazat (Privacy Policy)', 'پرائیویسی پالیسی اور ڈیٹا سیفٹی')}
+          </h2>
+          <p className="text-[11px] text-emerald-100 font-semibold mt-0.5">
+            {tr(language, 'Google Play User Data & Security Compliant', 'Google Play Policy ke Ain Mutabiq', 'گوگل پلے پالیسی کے مطابق مکمل شفاف')}
+          </p>
+        </div>
+
+        {/* Scrollable Body */}
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 text-gray-800 text-xs leading-relaxed">
+          
+          {/* Urdu / Roman Summary Card */}
+          <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-3.5 text-emerald-950 shadow-xs space-y-1">
+            <div className="flex items-center gap-2 font-black text-xs text-emerald-900">
+              <span>🛡️</span>
+              <span>{tr(language, '100% Confidential & Secure Guarantee', 'Aapki Privacy Hamari Zimmedari Hai', 'آپ کا ڈیٹا 100% محفوظ ہے')}</span>
+            </div>
+            <p className={isUrdu ? 'font-urdu text-right text-xs leading-loose font-bold' : 'text-xs text-emerald-950 leading-relaxed font-semibold'}>
+              {tr(language,
+                'ZS Mart respects your privacy. We collect your contact details strictly to process and deliver your grocery orders via WhatsApp. We NEVER sell or share your data with advertisers or third parties.',
+                'ZS Mart aapki zati maloomat ki hifazat karta hai. Hum aapka naam, phone number aur pata sirf aapka grocery order WhatsApp ke zariye deliver karne ke liye istemal karte hain. Hamara app aapka data kisi teesri party ko nahi bechta.',
+                'زیڈ ایس مارٹ (ZS Mart) آپ کی پرائیویسی کا مکمل احترام کرتا ہے۔ ہم آپ کا نام، فون نمبر اور پتہ صرف آپ کا گروسری آرڈر ڈیلیور کرنے کے لیے استعمال کرتے ہیں۔ ہم آپ کا ڈیٹا کسی تیسری پارٹی یا اشتہاری کمپنی کو کبھی فروخت نہیں کرتے۔'
+              )}
+            </p>
+          </div>
+
+          {/* 4 Core Pillars Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-1">
+              <div className="flex items-center gap-1.5 font-black text-gray-900">
+                <span>📍</span>
+                <span>{tr(language, 'Location (GPS)', 'Location (GPS)', 'لوکیشن (GPS)')}</span>
+              </div>
+              <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
+                {tr(language,
+                  'Used only when you tap "Use Current Location" to auto-fill delivery address. No background tracking.',
+                  'Sirf order address auto-fill karne ke liye, background mein koi tracking nahi hoti.',
+                  'صرف ڈیلیوری ایڈریس درج کرنے کے لیے، بیک گراؤنڈ میں ٹریکنگ نہیں ہوتی۔'
+                )}
+              </p>
+            </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-1">
+              <div className="flex items-center gap-1.5 font-black text-gray-900">
+                <span>🎙️</span>
+                <span>{tr(language, 'Microphone / Voice', 'Microphone / Voice', 'مائیکروفون / وائس')}</span>
+              </div>
+              <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
+                {tr(language,
+                  'Activated only when you tap Record Voice Note or Voice Search. Mic is released immediately on close.',
+                  'Sirf bol kar search ya voice note ke liye, band karte hi mic foran release ho jata hai.',
+                  'صرف وائس آرڈر کے لیے، موڈل بند ہوتے ہی مائیک فوری بند ہو جاتا ہے۔'
+                )}
+              </p>
+            </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-1">
+              <div className="flex items-center gap-1.5 font-black text-gray-900">
+                <span>📷</span>
+                <span>{tr(language, 'Slip / Parchi Photos', 'Parchi Photos', 'پرچی فوٹو')}</span>
+              </div>
+              <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
+                {tr(language,
+                  'Used only to pack your handwritten grocery list items accurately.',
+                  'Sirf aapki haath se likhi list dekh kar order pack karne ke liye istemal hota hai.',
+                  'صرف لسٹ دیکھ کر سامان پیک کرنے کے لیے استعمال ہوتی ہے۔'
+                )}
+              </p>
+            </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-1">
+              <div className="flex items-center gap-1.5 font-black text-gray-900">
+                <span>🗑️</span>
+                <span>{tr(language, 'Right to Delete', 'Data Delete Karwana', 'ڈیٹا ڈیلیٹ کروانے کا حق')}</span>
+              </div>
+              <p className="text-[11px] text-gray-600 font-medium leading-relaxed">
+                {tr(language,
+                  'You can request deletion of your order profile at any time via WhatsApp helpline.',
+                  'Aap kisi bhi waqt WhatsApp par message bhej kar apna data delete karwa sakte hain.',
+                  'آپ کسی بھی وقت واٹس ایپ پر کہہ کر اپنا ڈیٹا ڈیلیٹ کروا سکتے ہیں۔'
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* Contact & Address */}
+          <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-3 text-[11px] space-y-1 text-blue-950">
+            <div className="font-bold flex items-center gap-1.5">
+              <span>🏬</span>
+              <span>ZS Mart Wholesale & Retail • Karachi, Pakistan</span>
+            </div>
+            <p className="text-gray-600">
+              R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi. Helpline: 0336-8945775
+            </p>
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="p-3 sm:p-4 bg-gray-50 border-t border-gray-100 flex items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={openFullPolicyPage}
+            className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+          >
+            <span>🌐</span>
+            <span>{tr(language, 'Full Web Policy', 'Puri Policy Kholein', 'مکمل پالیسی پیج')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="py-2.5 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
+          >
+            {tr(language, 'Close', 'Band Karein', 'بند کریں')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, onOpenPrivacyPolicy, language }) {
   const [modalLang, setModalLang] = React.useState('ro');
   const isUrdu = modalLang === 'ur';
+  if (!isOpen) return null;
   return (
     <div 
       className="fixed inset-0 z-[99] flex items-center justify-center p-4 bg-black/75 shadow-2xl animate-fade-in"
@@ -3204,6 +3492,19 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
           >
             {tr(modalLang, 'Understood, Continue', 'Theek Hai, Aage Barhein', 'ٹھیک ہے، آگے بڑھیں')}
           </button>
+
+          <div className="pt-2 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof onOpenPrivacyPolicy === 'function') onOpenPrivacyPolicy();
+                onClose();
+              }}
+              className="text-[11px] font-semibold text-gray-500 hover:text-emerald-700 underline bg-transparent border-none cursor-pointer p-0"
+            >
+              🔒 {tr(modalLang, 'Privacy Policy & Data Safety', 'Privacy Policy (Zati Maloomat)', 'پرائیویسی پالیسی اور ڈیٹا کا تحفظ')}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -3211,7 +3512,6 @@ function WelcomeDisclaimerModal({ isOpen, onClose, onOpenAbout, language }) {
 }
 
 function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
-  if (!open) return null;
   const [orderMode, setOrderMode] = useState('photo'); // 'photo' | 'voice'
   const [photo, setPhoto] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
@@ -3242,6 +3542,234 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
   const [location, setLocation] = useState(() => (window.__prefetchedLocation || null));
   const [locLoading, setLocLoading] = useState(false);
   const [locError, setLocError] = useState(null);
+
+  // ── IN-APP VOICE NOTE RECORDING & LIFECYCLE MEMORY CLEANUP ──
+  const [voiceAudioBlob, setVoiceAudioBlob] = useState(null);
+  const [voiceAudioUrl, setVoiceAudioUrl] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [audioVolume, setAudioVolume] = useState(0);
+
+  const mediaRecorderRef = useRef(null);
+  const audioStreamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const animFrameRef = useRef(null);
+  const timerIntervalRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+  // Bulletproof cleanup: safely stops MediaRecorder, closes AudioContext, cancels requestAnimationFrame, and releases all audio tracks
+  const cleanupVoiceRecording = (abort = false) => {
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        if (abort) {
+          mediaRecorderRef.current.ondataavailable = null;
+          mediaRecorderRef.current.onstop = null;
+        }
+        mediaRecorderRef.current.stop();
+      } catch(e) {}
+      mediaRecorderRef.current = null;
+    }
+    if (audioStreamRef.current) {
+      try {
+        audioStreamRef.current.getTracks().forEach(track => {
+          try { track.stop(); } catch(e) {}
+        });
+      } catch(e) {}
+      audioStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      try {
+        if (audioContextRef.current.state !== 'closed') {
+          audioContextRef.current.close();
+        }
+      } catch(e) {}
+      audioContextRef.current = null;
+    }
+    if (abort && voiceAudioUrl) {
+      try { URL.revokeObjectURL(voiceAudioUrl); } catch(e) {}
+      setVoiceAudioUrl(null);
+      setVoiceAudioBlob(null);
+    }
+    analyserRef.current = null;
+    setIsRecording(false);
+    setAudioVolume(0);
+  };
+
+  useEffect(() => {
+    window.__parchiCleanupRecording = () => {
+      cleanupVoiceRecording(true);
+    };
+    return () => {
+      cleanupVoiceRecording(true);
+      window.__parchiCleanupRecording = null;
+    };
+  }, []);
+
+  const handleModalClose = () => {
+    cleanupVoiceRecording(true);
+    if (onClose) onClose();
+  };
+
+  const handleSwitchMode = (mode) => {
+    triggerHaptic('light');
+    if (orderMode !== mode) {
+      if (isRecording) {
+        cleanupVoiceRecording(true);
+      }
+      setOrderMode(mode);
+    }
+  };
+
+  const startRecording = async () => {
+    triggerHaptic('medium');
+    cleanupVoiceRecording(true);
+    setVoiceAudioBlob(null);
+    if (voiceAudioUrl) {
+      try { URL.revokeObjectURL(voiceAudioUrl); } catch(e) {}
+      setVoiceAudioUrl(null);
+    }
+    setRecordingSeconds(0);
+    audioChunksRef.current = [];
+
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert(language === 'ur' ? 'آپ کے براؤزر میں مائیکروفون دستیاب نہیں ہے۔' : 'Microphone access is not supported on this device.');
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioStreamRef.current = stream;
+
+      // AudioContext + Analyser for live visualizer
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          audioContextRef.current = ctx;
+          const source = ctx.createMediaStreamSource(stream);
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 64;
+          source.connect(analyser);
+          analyserRef.current = analyser;
+
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          let lastMeterUpdate = 0;
+          const updateMeter = (ts) => {
+            if (!analyserRef.current) return;
+            if (!ts || ts - lastMeterUpdate >= 80) {
+              lastMeterUpdate = ts || performance.now();
+              analyserRef.current.getByteFrequencyData(dataArray);
+              let sum = 0;
+              for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+              }
+              const avg = sum / dataArray.length;
+              const nextVol = Math.min(100, Math.round((avg / 128) * 100));
+              setAudioVolume(prev => Math.abs(prev - nextVol) >= 2 ? nextVol : prev);
+            }
+            animFrameRef.current = requestAnimationFrame(updateMeter);
+          };
+          animFrameRef.current = requestAnimationFrame(updateMeter);
+        }
+      } catch(err) {
+        console.warn('AudioContext visualization warning:', err);
+      }
+
+      // MediaRecorder with cross-platform mimeType selection
+      const mimeTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', ''];
+      let selectedMime = '';
+      for (const m of mimeTypes) {
+        if (!m || (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m))) {
+          selectedMime = m;
+          break;
+        }
+      }
+
+      const recorder = selectedMime ? new MediaRecorder(stream, { mimeType: selectedMime }) : new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const finalBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+        setVoiceAudioBlob(finalBlob);
+        const url = URL.createObjectURL(finalBlob);
+        setVoiceAudioUrl(url);
+      };
+
+      recorder.start(250);
+      setIsRecording(true);
+
+      timerIntervalRef.current = setInterval(() => {
+        setRecordingSeconds(prev => {
+          if (prev >= 120) {
+            stopRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+
+    } catch(err) {
+      console.error('Microphone error:', err);
+      cleanupVoiceRecording(true);
+      alert(language === 'ur' ? 'مائیکروفون کی اجازت نہیں ملی۔ براہ کرم اجازت دیں یا واٹس ایپ پر بولیں۔' : 'Microphone permission denied. Please allow microphone access or use WhatsApp voice note.');
+    }
+  };
+
+  const stopRecording = () => {
+    triggerHaptic('success');
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try { mediaRecorderRef.current.stop(); } catch(e) {}
+    }
+    if (audioStreamRef.current) {
+      try {
+        audioStreamRef.current.getTracks().forEach(track => {
+          try { track.stop(); } catch(e) {}
+        });
+      } catch(e) {}
+      audioStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      try {
+        if (audioContextRef.current.state !== 'closed') audioContextRef.current.close();
+      } catch(e) {}
+      audioContextRef.current = null;
+    }
+    setIsRecording(false);
+    setAudioVolume(0);
+  };
+
+  const discardRecording = () => {
+    triggerHaptic('light');
+    cleanupVoiceRecording(true);
+    setVoiceAudioBlob(null);
+    if (voiceAudioUrl) {
+      try { URL.revokeObjectURL(voiceAudioUrl); } catch(e) {}
+      setVoiceAudioUrl(null);
+    }
+    setRecordingSeconds(0);
+  };
 
   const handleGetLocation = (auto = false) => {
     if (auto) return;
@@ -3331,17 +3859,20 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
   const uploadParchiToCloud = async (blob) => {
     if (!blob) return null;
+    if (blob.size && blob.size > 10 * 1024 * 1024) {
+      console.warn('Parchi image exceeds 10MB limit, skipping cloud upload.');
+      return null;
+    }
     try {
       const fileName = `parchi_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.jpg`;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       const res = await fetch(`${SUPABASE_URL}/storage/v1/object/parchi-orders/${fileName}`, {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Content-Type': blob.type || 'image/jpeg',
-          'x-upsert': 'true'
+          'Content-Type': blob.type || 'image/jpeg'
         },
         body: blob,
         signal: controller.signal
@@ -3356,8 +3887,42 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
     return null;
   };
 
+  const uploadVoiceAudioToCloud = async (blob) => {
+    if (!blob) return null;
+    if (blob.size && blob.size > 10 * 1024 * 1024) {
+      console.warn('Voice recording exceeds 10MB limit, skipping cloud upload.');
+      return null;
+    }
+    try {
+      const ext = blob.type && blob.type.includes('mp4') ? 'mp4' : (blob.type && blob.type.includes('ogg') ? 'ogg' : 'webm');
+      const fileName = `voice_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/parchi-orders/${fileName}`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': blob.type || 'audio/webm'
+        },
+        body: blob,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        return `${SUPABASE_URL}/storage/v1/object/public/parchi-orders/${fileName}`;
+      }
+    } catch(err) {
+      console.warn('Voice cloud upload warning:', err);
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isRecording) {
+      stopRecording();
+    }
     if (!name.trim()) {
       alert(tr(language, 'Please enter your name.', 'Apna naam darj karein.', 'براہ کرم اپنا نام درج کریں۔'));
       return;
@@ -3373,7 +3938,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
     setIsUploading(true);
     triggerHaptic('success');
-    const orderId = Math.floor(100000 + Math.random() * 900000);
+    const orderId = generateUniqueOrderId('P');
     setSubmittedOrderId(orderId);
     const now = new Date();
     const dateText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -3391,6 +3956,13 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       } catch(err) {}
     }
 
+    let cloudVoiceUrl = null;
+    if (orderMode === 'voice' && voiceAudioBlob) {
+      try {
+        cloudVoiceUrl = await uploadVoiceAudioToCloud(voiceAudioBlob);
+      } catch(err) {}
+    }
+
     const _pNow = new Date();
     const _pPad = (n) => String(n).padStart(2, '0');
     const pDateStr = `${_pNow.getFullYear()}-${_pPad(_pNow.getMonth() + 1)}-${_pPad(_pNow.getDate())}`;
@@ -3398,6 +3970,9 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
     const orderRecord = {
       id: orderId,
+      createdAt: _pNow.getTime(),
+      createdAtIso: _pNow.toISOString(),
+      status: 'placed',
       date: pDateStr,
       time: pTimeStr,
       dateText: dateText,
@@ -3415,12 +3990,15 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       },
       items: [
         {
-          id: 'parchi-slip',
-          name: `📸 Parchi Slip Order (${notes ? notes.substring(0, 30) : 'Handwritten List'})`,
+          id: orderMode === 'voice' ? 'parchi-voice' : 'parchi-slip',
+          name: orderMode === 'voice'
+            ? `🎙️ Voice Note Order (${notes ? notes.substring(0, 30) : (cloudVoiceUrl ? 'Audio Attached' : 'Voice Message')})`
+            : `📸 Parchi Slip Order (${notes ? notes.substring(0, 30) : 'Handwritten List'})`,
           qty: 1,
           price: 0,
           total: 0,
-          photoUrl: cloudImgUrl || null
+          photoUrl: cloudImgUrl || null,
+          audioUrl: cloudVoiceUrl || null
         }
       ],
       subtotal: 0,
@@ -3428,7 +4006,8 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       grandTotal: 0,
       isParchi: true,
       notes: notes.trim(),
-      photoUrl: cloudImgUrl || null
+      photoUrl: cloudImgUrl || null,
+      audioUrl: cloudVoiceUrl || null
     };
 
     if (typeof saveOrderHistory === 'function') {
@@ -3453,11 +4032,16 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
       photoLinkText = `\n\n📸 *PARCHI SLIP PHOTO (Haath se likhi list):*\n👉 ${cloudImgUrl}\n_(Link par click karke parchi photo dekhein)_`;
     }
 
+    let voiceLinkText = '';
+    if (cloudVoiceUrl) {
+      voiceLinkText = `\n\n🎙️ *VOICE RECORDING (Awaaz ka recording link):*\n👉 ${cloudVoiceUrl}\n_(Link par click karke voice recording sunein)_`;
+    }
+
     const attachNote = orderMode === 'voice' 
-      ? '\n🎙️ _(Voice note audio is WhatsApp chat mein send ki ja rahi hai)_' 
+      ? (cloudVoiceUrl ? '' : '\n🎙️ _(Voice note audio is WhatsApp chat mein send ki ja rahi hai)_') 
       : (cloudImgUrl ? '' : '\n📸 _(Parchi ki photo chat mein send ki ja rahi hai)_');
 
-    const waText = `${orderTitle}\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}${notes.trim() ? `\n📝 *Notes:* ${notes.trim()}` : ''}${photoLinkText}${attachNote}`;
+    const waText = `${orderTitle}\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}${notes.trim() ? `\n📝 *Notes:* ${notes.trim()}` : ''}${photoLinkText}${voiceLinkText}${attachNote}`;
 
     // Try native share first if available and user attached file
     let sharedWithFile = false;
@@ -3490,8 +4074,10 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
     launchWhatsApp(getStoreSettings().whatsapp, waText);
   };
 
+  if (!open) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 shadow-2xl animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 shadow-2xl animate-fade-in" onClick={handleModalClose}>
       <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col" style={{ maxHeight: '92vh' }} onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-emerald-600 to-teal-700 text-white" style={{ background: 'linear-gradient(135deg, #059669 0%, #0f766e 100%)', color: '#ffffff' }}>
           <div className="flex items-center gap-2">
@@ -3507,7 +4093,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleModalClose}
             className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center cursor-pointer transition-colors"
           >
             ✕
@@ -3589,14 +4175,25 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
                   <button
                     type="button"
                     onClick={() => {
-                      const a = document.createElement('a');
-                      a.href = photo;
-                      a.download = `ZS_Mart_Parchi_Order_${submittedOrderId || 'slip'}.jpg`;
-                      document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
-                      triggerHaptic('success');
-                      alert(tr(language, 'Photo saved to your phone! You can easily attach it in WhatsApp.', 'Photo phone mein save ho gayi! WhatsApp mein aasani se attach kar dein.', 'تصویر محفوظ ہو گئی۔'));
+                      const fileName = `ZS_Mart_Parchi_Order_${submittedOrderId || 'slip'}.jpg`;
+                      if (window.AndroidBridge && typeof window.AndroidBridge.saveImageToGallery === 'function') {
+                        const saved = window.AndroidBridge.saveImageToGallery(photo, fileName);
+                        if (saved) {
+                          triggerHaptic('success');
+                          alert(tr(language, 'Photo saved to your phone Gallery! You can easily attach it in WhatsApp.', 'Photo phone gallery mein save ho gayi! WhatsApp mein aasani se attach kar dein.', 'تصویر موبائل گیلری میں محفوظ ہو گئی۔'));
+                          return;
+                        }
+                      }
+                      try {
+                        const a = document.createElement('a');
+                        a.href = photo;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(() => document.body.removeChild(a), 500);
+                        triggerHaptic('success');
+                        alert(tr(language, 'Photo downloaded to your device!', 'Photo device mein download ho gayi!', 'تصویر ڈاؤن لوڈ ہو گئی۔'));
+                      } catch(e) {}
                     }}
                     className="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                   >
@@ -3616,7 +4213,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={handleModalClose}
                   className="w-full py-2.5 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl uppercase tracking-wider cursor-pointer"
                 >
                   {tr(language, 'Continue Shopping', 'Kharidari Jari Rakhein', 'خریداری جاری رکھیں')}
@@ -3629,7 +4226,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: 3, background: '#f1f5f9', borderRadius: 14 }}>
                 <button
                   type="button"
-                  onClick={() => { triggerHaptic('light'); setOrderMode('photo'); }}
+                  onClick={() => handleSwitchMode('photo')}
                   style={{
                     padding: '8px 10px', borderRadius: 11, border: 'none', cursor: 'pointer',
                     background: orderMode === 'photo' ? '#ffffff' : 'transparent',
@@ -3644,7 +4241,7 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { triggerHaptic('light'); setOrderMode('voice'); }}
+                  onClick={() => handleSwitchMode('voice')}
                   style={{
                     padding: '8px 10px', borderRadius: 11, border: 'none', cursor: 'pointer',
                     background: orderMode === 'voice' ? '#ffffff' : 'transparent',
@@ -3661,15 +4258,118 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 
               {orderMode === 'voice' ? (
                 <div style={{ background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)', border: '1.5px solid #a7f3d0', borderRadius: 16, padding: '16px', textAlign: 'center' }}>
-                  <div style={{ width: 50, height: 50, borderRadius: '50%', background: '#10b981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 10px', boxShadow: '0 4px 14px rgba(16,185,129,0.35)' }}>
-                    🎙️
-                  </div>
-                  <h4 style={{ fontSize: 14, fontWeight: 900, color: '#065f46', margin: '0 0 4px' }}>
-                    {tr(language, 'Voice Note Order on WhatsApp', 'WhatsApp par Bol Kar Order Karein', 'واٹس ایپ پر بول کر آرڈر کریں')}
-                  </h4>
-                  <p style={{ fontSize: 11.5, color: '#047857', lineHeight: 1.4, margin: '0 0 10px' }}>
-                    {tr(language, 'Enter your details below and click submit. WhatsApp will open directly to send your voice recording.', 'Neeche apna naam aur pata likhein aur submit dabayein. WhatsApp par voice note record karke foran bhejein.', 'نیچے تفصیلات درج کریں اور بٹن دبائیں۔ واٹس ایپ پر وائس میسج بھیجیں۔')}
-                  </p>
+                  {isRecording ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
+                        <span style={{ fontSize: 13, fontWeight: 900, color: '#dc2626' }}>
+                          {tr(language, 'Recording Voice Note...', 'Awaaz Record Ho Rahi Hai...', 'آواز ریکارڈ ہو رہی ہے...')}
+                        </span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: '#475569', background: '#ffffff', padding: '2px 8px', borderRadius: 6, border: '1px solid #cbd5e1' }}>
+                          {String(Math.floor(recordingSeconds / 60)).padStart(2, '0')}:{String(recordingSeconds % 60).padStart(2, '0')}
+                        </span>
+                      </div>
+
+                      {/* Live Waveform Pulse Bars (requestAnimationFrame + AudioContext Analyser) */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, height: 32, margin: '2px 0' }}>
+                        {[0.6, 1.2, 0.8, 1.5, 0.9, 1.3, 0.7].map((factor, idx) => {
+                          const barHeight = Math.max(6, Math.min(28, Math.round((audioVolume * factor) / 3)));
+                          return (
+                            <div
+                              key={idx}
+                              style={{
+                                width: 5,
+                                height: `${barHeight}px`,
+                                borderRadius: 3,
+                                background: '#10b981',
+                                transition: 'height 0.08s ease'
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: 8, width: '100%', justifyContent: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={stopRecording}
+                          style={{
+                            padding: '9px 16px', borderRadius: 12, border: 'none', background: '#dc2626', color: '#ffffff',
+                            fontWeight: 900, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                            boxShadow: '0 3px 10px rgba(220,38,38,0.3)'
+                          }}
+                        >
+                          <span>⏹️</span>
+                          <span>{tr(language, 'Stop & Save', 'Recording Khatam Karein', 'ریکارڈنگ مکمل کریں')}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={discardRecording}
+                          style={{
+                            padding: '9px 12px', borderRadius: 12, border: '1px solid #cbd5e1', background: '#ffffff', color: '#64748b',
+                            fontWeight: 700, fontSize: 12, cursor: 'pointer'
+                          }}
+                        >
+                          {tr(language, 'Cancel', 'Cancel', 'منسوخ')}
+                        </button>
+                      </div>
+                    </div>
+                  ) : voiceAudioUrl ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#065f46', fontWeight: 900, fontSize: 13 }}>
+                        <span>✅</span>
+                        <span>{tr(language, 'Voice Note Recorded!', 'Voice Note Record Ho Gaya!', 'وائس نوٹ ریکارڈ ہو گیا!')}</span>
+                      </div>
+                      <audio controls src={voiceAudioUrl} style={{ width: '100%', maxWidth: 280, height: 36, borderRadius: 8 }} />
+                      <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                        <button
+                          type="button"
+                          onClick={startRecording}
+                          style={{
+                            padding: '6px 12px', borderRadius: 8, border: '1px solid #a7f3d0', background: '#ffffff', color: '#047857',
+                            fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+                          }}
+                        >
+                          <span>🔄</span>
+                          <span>{tr(language, 'Re-record', 'Dobara Record Karein', 'دوبارہ ریکارڈ کریں')}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={discardRecording}
+                          style={{
+                            padding: '6px 12px', borderRadius: 8, border: '1px solid #fecaca', background: '#ffffff', color: '#dc2626',
+                            fontWeight: 800, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+                          }}
+                        >
+                          <span>🗑️</span>
+                          <span>{tr(language, 'Delete', 'Delete Karein', 'حذف کریں')}</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={startRecording}
+                        style={{
+                          width: 54, height: 54, borderRadius: '50%', background: '#10b981', color: '#ffffff',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, margin: '0 auto 10px',
+                          boxShadow: '0 4px 14px rgba(16,185,129,0.35)', border: 'none', cursor: 'pointer'
+                        }}
+                      >
+                        🎙️
+                      </button>
+                      <h4 style={{ fontSize: 14, fontWeight: 900, color: '#065f46', margin: '0 0 4px' }}>
+                        {tr(language, 'Tap Mic to Record Voice Order', 'Mic Daba Kar Bol Kar Order Dein', 'مائیک دبا کر بولیں')}
+                      </h4>
+                      <p style={{ fontSize: 11.5, color: '#047857', lineHeight: 1.4, margin: '0 0 6px' }}>
+                        {tr(language, 'Speak your items (e.g. 2kg sugar, 1 tea box) and submit.', 'Apna samaan bol kar batayein aur submit karein.', 'اپنا مطلوبہ سامان بولیں اور آرڈر بھیجیں۔')}
+                      </p>
+                      <span style={{ fontSize: 10, color: '#059669', fontStyle: 'italic' }}>
+                        {tr(language, 'Or click submit below to record directly on WhatsApp', 'Ya neeche submit daba kar direct WhatsApp par bol kar bhejein', 'یا نیچے بٹن دبا کر براہ راست واٹس ایپ پر بولیں')}
+                      </span>
+                    </div>
+                  )}
                 </div>
               ) : (
               <div>
@@ -3897,7 +4597,6 @@ function ParchiOrderModal({ open, onClose, language, saveOrderHistory }) {
 }
 
 function WishlistDrawer({ open, onClose, wishlist, products, onAddToCart, onRemoveWishlist, language, langData }) {
-  if (!open) return null;
   const wishlistedProducts = useMemo(() => {
     if (!products || !wishlist) return [];
     return products.filter(p => wishlist.includes(p.id));
@@ -3910,6 +4609,8 @@ function WishlistDrawer({ open, onClose, wishlist, products, onAddToCart, onRemo
     });
     onClose();
   };
+
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/60  flex justify-end animate-fade-in" onClick={onClose}>
@@ -3954,12 +4655,11 @@ function WishlistDrawer({ open, onClose, wishlist, products, onAddToCart, onRemo
           ) : (
             wishlistedProducts.map(product => {
               const pricing = getProductPricing(product);
-              const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-              const imgSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+              const imgSrc = getProductImgSrc(product);
               return (
                 <div key={product.id} className="flex items-center gap-3 p-2.5 rounded-2xl border border-gray-100 hover:border-gray-300 bg-white transition-all shadow-2xs">
                   <div className="w-14 h-14 bg-gray-50 rounded-xl p-1 flex items-center justify-center shrink-0">
-                    {hasFile ? (
+                    {imgSrc ? (
                       <img src={imgSrc} alt={product.name} className="w-full h-full object-contain" />
                     ) : (
                       <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center font-bold text-gray-700 text-sm">
@@ -4028,30 +4728,32 @@ function WishlistDrawer({ open, onClose, wishlist, products, onAddToCart, onRemo
   );
 }
 
-function ProductDetailModal({ product, open, onClose, onAddToCart, products, langData, language, onSelectProduct, isWishlisted, onToggleWishlist }) {
-  if (!open || !product) return null;
+function ProductDetailModal({ product, open, onClose, onAddToCart, products, langData, language, onSelectProduct, isWishlisted, onToggleWishlist, onSaveOrderHistory }) {
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
   const [packMenuOpen, setPackMenuOpen] = React.useState(false);
-  const pricing = useMemo(() => getProductPricing(product), [product]);
+  const pricing = useMemo(() => (product ? getProductPricing(product) : { sellingPrice: 0, retailPrice: 0, savings: 0, hasDiscount: false }), [product]);
   const bulkPricing = useMemo(() => calculateBulkPricing(pricing.sellingPrice, modalQty), [pricing.sellingPrice, modalQty]);
-  // Find 4-6 Related Products from the same category (excluding current product)
+  // Find 4-6 Related Products from the same category (excluding current product and zero-priced items)
   const relatedProducts = useMemo(() => {
     if (!product || !products) return [];
-    const sameCat = products.filter(p => p.categoryId === product.categoryId && p.id !== product.id);
+    const sameCat = products.filter(p => p && Number(p.price) > 0 && p.categoryId === product.categoryId && p.id !== product.id);
     if (sameCat.length >= 4) return sameCat.slice(0, 6);
     
     // Fallback: items with same brand or general items
     const brand = getProductFilterName(product);
-    const sameBrand = products.filter(p => p.id !== product.id && getProductFilterName(p) === brand);
+    const sameBrand = products.filter(p => p && Number(p.price) > 0 && p.id !== product.id && getProductFilterName(p) === brand);
     const combined = Array.from(new Set([...sameCat, ...sameBrand]));
     return combined.slice(0, 6);
   }, [product, products]);
-  const hasFile = (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || product.hasImage || !!product.imageUrl;
-  const imageSrc = product.imageUrl 
-    ? `${product.imageUrl}?v=${product.imageVersion || Date.now()}` 
-    : (hasFile ? getImgUrl(`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || 'webp'}`) : null);
+
+  if (!open || !product) return null;
+  const imageSrc = getProductImgSrc(product);
   const handleDirectWhatsAppOrder = () => {
+    if (!product || product.price === undefined || product.price === null || Number(product.price) <= 0 || bulkPricing.finalTotal <= 0) {
+      alert(isUrdu ? 'اس پروڈکٹ کی قیمت فی الحال دستیاب نہیں ہے۔' : 'This product is currently unavailable.');
+      return;
+    }
     const pName = getProductDisplayName(product, language);
     let discountInfo = '';
     if (bulkPricing.extraPercent > 0) {
@@ -4061,25 +4763,40 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${((pricing.savings * modalQty) + bulkPricing.extraSavings).toLocaleString()})`;
     }
     const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
+    const _dwNow = new Date();
+    const deliveryFee = typeof calculateDeliveryFee === 'function' ? calculateDeliveryFee(bulkPricing.finalTotal) : 0;
     const directOrderRecord = {
-      id: Math.floor(100000 + Math.random() * 900000),
-      dateText: new Date().toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+      id: generateUniqueOrderId('DW'),
+      createdAt: _dwNow.getTime(),
+      createdAtIso: _dwNow.toISOString(),
+      date: _dwNow.toISOString().slice(0, 10),
+      time: _dwNow.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      status: 'placed',
+      dateText: _dwNow.toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
       customer: { name: 'Direct WhatsApp Customer', phone: '' },
       deliveryMethod: 'home',
+      deliveryFee: deliveryFee,
       channel: 'whatsapp_direct',
       subtotal: bulkPricing.finalTotal,
-      grandTotal: bulkPricing.finalTotal,
+      grandTotal: bulkPricing.finalTotal + deliveryFee,
       items: [
         {
           id: product.id,
           name: product.name,
           price: product.price,
           qty: modalQty,
-          total: bulkPricing.finalTotal
+          total: bulkPricing.finalTotal,
+          imageUrl: product.imageUrl || null,
+          imageExt: (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || null
         }
       ]
     };
     dispatchOrderToBackend(directOrderRecord);
+    if (typeof onSaveOrderHistory === 'function') {
+      onSaveOrderHistory(directOrderRecord);
+    } else if (typeof window !== 'undefined' && typeof window.__saveOrderHistory === 'function') {
+      window.__saveOrderHistory(directOrderRecord);
+    }
     launchWhatsApp(getStoreSettings().whatsapp, msg);
   };
   return (
@@ -4336,19 +5053,22 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                 {/* Action Buttons */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                   <button
+                    disabled={!product || !product.price || Number(product.price) <= 0}
                     onClick={() => { 
+                      if (!product || !product.price || Number(product.price) <= 0) return;
                       onAddToCart(product, null, modalQty); 
                       onClose(); 
                     }}
-                    className="w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>🛒</span>
-                    <span>{translate(langData, "addToCart")} ({modalQty})</span>
+                    <span>{(!product || !product.price || Number(product.price) <= 0) ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں') : `${translate(langData, "addToCart")} (${modalQty})`}</span>
                   </button>
                   
                   <button
+                    disabled={!product || !product.price || Number(product.price) <= 0}
                     onClick={handleDirectWhatsAppOrder}
-                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>💬</span>
                     <span>{tr(language, 'Buy on WhatsApp', 'WhatsApp par Order Karein', 'واٹس ایپ پر آرڈر کریں')}</span>
@@ -4467,8 +5187,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {relatedProducts.map(rel => {
                   const relPricing = getProductPricing(rel);
-                  const relHasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[rel.id];
-                  const relImgSrc = relHasFile ? getImgUrl(`images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}`) : null;
+                  const relImgSrc = getProductImgSrc(rel);
                   return (
                     <div 
                       key={rel.id}
@@ -4481,7 +5200,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                         </span>
                       )}
                       <div className="h-20 w-full bg-gray-50 rounded-xl p-1 mb-2 flex items-center justify-center overflow-hidden">
-                        {relHasFile ? (
+                        {relImgSrc ? (
                           <img 
                             src={relImgSrc} 
                             alt={rel.name} 
@@ -4635,8 +5354,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
 // Variant Selection Modal (for Hair Colour Shades and options)
 // -----------------------------------------------------------------------------
 function VariantSelectionModal({ product, open, onClose, onConfirm, language, langData }) {
-  if (!open || !product) return null;
-  const config = (window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id]) || {
+  const config = (product && window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id]) || {
     title: "Select Option",
     options: []
   };
@@ -4650,7 +5368,9 @@ function VariantSelectionModal({ product, open, onClose, onConfirm, language, la
     setQty(1);
   }, [product]);
 
-  const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+  if (!open || !product) return null;
+
+  const modalImgSrc = getProductImgSrc(product);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 shadow-2xl animate-fade-in">
@@ -4658,9 +5378,9 @@ function VariantSelectionModal({ product, open, onClose, onConfirm, language, la
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-3">
-            {ext ? (
+            {modalImgSrc ? (
               <img
-                src={getImgUrl(`images/${product.id}.${ext}`)}
+                src={modalImgSrc}
                 alt=""
                 className="w-12 h-12 rounded-xl object-contain bg-white border border-gray-200 p-1 shrink-0"
               />
@@ -4872,6 +5592,7 @@ class RootErrorBoundary extends React.Component {
             onClick={() => {
               try {
                 // Clear cart from storage so it does not loop crash
+                localStorage.removeItem('zs_mart_cart');
                 localStorage.removeItem('sahil_traders_cart');
               } catch(e) {}
               window.location.reload();
@@ -4897,7 +5618,7 @@ class RootErrorBoundary extends React.Component {
   }
 }
 
-export default function SahilTraders() {
+export default function ZSMart() {
   const [productsList, setProductsList] = useState(() => {
     const winProds = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0) ? window.PRODUCTS : null;
     if (winProds && winProds.length > 0) return winProds;
@@ -4913,10 +5634,13 @@ export default function SahilTraders() {
     return PRODUCTS;
   });
   const products = productsList;
+  const isNativeApp = checkIsNativeApp();
   const [isSyncingProducts, setIsSyncingProducts] = useState(false);
   const [syncToast, setSyncToast] = useState(null);
+  const [categoriesVersion, setCategoriesVersion] = useState(0);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [returnPolicyOpen, setReturnPolicyOpen] = useState(false);
+  const [privacyPolicyOpen, setPrivacyPolicyOpen] = useState(false);
   const [language, setLanguage] = useState("en");
   const [welcomeOpen, setWelcomeOpen] = useState(false);
       const [showSplash, setShowSplash] = useState(true);
@@ -5030,24 +5754,64 @@ export default function SahilTraders() {
           if (cached) return JSON.parse(cached);
         } catch(e) {}
         return {
-          deliveryFee: 150,
-          freeDeliveryThreshold: 2000,
+          deliveryFee: 99,
+          freeDeliveryThreshold: 1999,
           deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
           whatsapp: "923368945775",
           announcement: ""
         };
       });
+
+      const applySyncedSettings = (raw) => {
+        if (!raw || typeof raw !== 'object') return false;
+        const s = {
+          deliveryFee: Number(raw.delivery_fee ?? raw.deliveryFee ?? 99),
+          freeDeliveryThreshold: Number(raw.free_delivery_threshold ?? raw.freeDeliveryThreshold ?? 1999),
+          deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
+          whatsapp: String(raw.whatsapp || '923368945775'),
+          announcement: String(raw.announcement ?? '')
+        };
+        if (!isNaN(s.deliveryFee) && s.deliveryFee >= 0 && !isNaN(s.freeDeliveryThreshold) && s.freeDeliveryThreshold > 0) {
+          if (typeof window !== "undefined") window.APP_SETTINGS = s;
+          setAppSettings(s);
+          try { localStorage.setItem('zs_mart_settings', JSON.stringify(s)); } catch(e) {}
+          return true;
+        }
+        return false;
+      };
+
       useEffect(() => {
-        // Fetch fresh settings from local server or bundled settings.json or remote fallback
         const cacheBuster = Date.now();
-        const settingsUrls = [
-          `settings.json?v=${cacheBuster}`,
-          `/settings.json?v=${cacheBuster}`,
-          `https://raw.githubusercontent.com/qureshi-code999/Item-web/main/settings.json?v=${cacheBuster}`,
-          `https://sahiltraders.vercel.app/settings.json?v=${cacheBuster}`,
-          `http://localhost:8888/api/settings`
-        ];
+        const sbUrl = "https://tmssjdczywukramcpcxc.supabase.co";
+        const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
         (async () => {
+          // 1. Primary: Live Supabase store_settings table (so Android APK & Web always get live Admin settings)
+          try {
+            const sbController = new AbortController();
+            const sbTid = setTimeout(() => sbController.abort(), 4000);
+            const sbRes = await fetch(`${sbUrl}/rest/v1/store_settings?id=eq.main&select=*`, {
+              signal: sbController.signal,
+              cache: 'no-store',
+              headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` }
+            });
+            clearTimeout(sbTid);
+            if (sbRes.ok) {
+              const rows = await sbRes.json();
+              if (Array.isArray(rows) && rows.length > 0 && applySyncedSettings(rows[0])) {
+                return;
+              }
+            }
+          } catch(e) {}
+
+          // 2. Fallback: Local server, GitHub raw, or bundled settings.json if offline
+          const settingsUrls = [];
+          if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '8888') {
+            settingsUrls.push(`http://localhost:8888/api/settings`);
+          }
+          settingsUrls.push(`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/settings.json?v=${cacheBuster}`);
+          settingsUrls.push(`settings.json?v=${cacheBuster}`);
+          settingsUrls.push(`/settings.json?v=${cacheBuster}`);
+
           for (const url of settingsUrls) {
             try {
               const controller = new AbortController();
@@ -5057,17 +5821,7 @@ export default function SahilTraders() {
               if (res.ok) {
                 const data = await res.json();
                 const raw = data.settings || data;
-                const s = {
-                  deliveryFee: Number(raw.deliveryFee ?? 150),
-                  freeDeliveryThreshold: Number(raw.freeDeliveryThreshold ?? 2000),
-                  deliveryTiming: String(raw.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
-                  whatsapp: String(raw.whatsapp || '923368945775'),
-                  announcement: String(raw.announcement || '')
-                };
-                if (s.deliveryFee >= 0 && s.freeDeliveryThreshold > 0) {
-                  if (typeof window !== "undefined") window.APP_SETTINGS = s;
-                  setAppSettings(s);
-                  try { localStorage.setItem('zs_mart_settings', JSON.stringify(s)); } catch(e) {}
+                if (applySyncedSettings(raw)) {
                   break;
                 }
               }
@@ -5077,131 +5831,315 @@ export default function SahilTraders() {
       }, []);
 
       // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync via Supabase) ══════════
+      const isFetchingProductsRef = useRef(false);
+      const lastProductsFetchTimeRef = useRef(0);
+      const lastProductSyncTimestampRef = useRef(null);
+      const fetchLiveProductsRef = useRef(null);
+      function syncCartWithFreshProducts(freshList) {
+        if (!freshList || freshList.length === 0) return;
+        const prodMap = new Map(freshList.map(p => [Number(p.id), p]));
+        setCart(prevCart => {
+          if (!prevCart || prevCart.length === 0) return prevCart;
+          let changed = false;
+          const updated = prevCart.map(item => {
+            const fresh = prodMap.get(Number(item.product && item.product.id));
+            if (fresh && (fresh.price !== item.product.price || fresh.name !== item.product.name || fresh.imageUrl !== item.product.imageUrl)) {
+              changed = true;
+              return {
+                ...item,
+                product: {
+                  ...item.product,
+                  price: fresh.price,
+                  name: fresh.name,
+                  imageUrl: fresh.imageUrl,
+                  hasImage: fresh.hasImage,
+                  imageVersion: fresh.imageVersion
+                }
+              };
+            }
+            return item;
+          });
+          return changed ? updated : prevCart;
+        });
+      }
+
       async function fetchLiveProducts(isManual) {
         isManual = !!isManual;
+        if (isFetchingProductsRef.current) return;
+        const now = Date.now();
+        // Guard: Minimum 45 seconds between automatic background fetches
+        if (!isManual && now - lastProductsFetchTimeRef.current < 45000) return;
+
+        isFetchingProductsRef.current = true;
+        lastProductsFetchTimeRef.current = now;
         setIsSyncingProducts(true);
         if (isManual) {
           triggerHaptic('medium');
         }
-        const cacheBuster = Date.now();
-        const sbUrl = "https://tmssjdczywukramcpcxc.supabase.co";
-        const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
 
-        let freshProducts = null;
-        let freshCategories = null;
-        let freshSettings = null;
-
-        // 1. PRIMARY: Fetch directly from Supabase Cloud Database with auto-pagination (Bypasses 1000 limit)
         try {
-          const controller = new AbortController();
-          const tid = setTimeout(() => controller.abort(), 6000);
-          let allSbRows = [];
-          let offset = 0;
-          const pageSize = 1000;
+          const cacheBuster = Date.now();
+          const sbUrl = "https://tmssjdczywukramcpcxc.supabase.co";
+          const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
 
-          while (true) {
-            const sbRes = await fetch(`${sbUrl}/rest/v1/products?select=*&order=id.asc&limit=${pageSize}&offset=${offset}`, {
-              signal: controller.signal,
-              cache: 'no-store',
-              headers: {
-                'apikey': sbKey,
-                'Authorization': `Bearer ${sbKey}`
+          const persistProductsToLocalCache = (prods) => {
+            if (!prods || prods.length === 0) return;
+            try {
+              const compact = prods.map(p => ({
+                id: p.id,
+                name: p.name,
+                price: p.price,
+                categoryId: p.categoryId,
+                categoryName: p.categoryName,
+                priority: p.priority,
+                filterName: p.filterName,
+                hasImage: p.hasImage,
+                imageUrl: p.imageUrl,
+                imageVersion: p.imageVersion
+              }));
+              localStorage.setItem("zs_groceries_products_cache", JSON.stringify(compact));
+            } catch(e) {
+              console.warn('LocalStorage quota limit reached; relying on in-memory state');
+            }
+
+            const newImgMap = { ...(window.PRODUCT_IMAGE_MAP || {}) };
+            const imgVerMap = { ...(window.__ITEM_IMG_VERSIONS__ || {}) };
+            let maxVer = Date.now();
+            prods.forEach(p => {
+              if (p.hasImage || p.imageUrl) {
+                newImgMap[p.id] = 'webp';
+              }
+              if (p.imageVersion) {
+                imgVerMap[p.id] = p.imageVersion;
+                maxVer = Math.max(maxVer, Number(p.imageVersion));
               }
             });
-            if (!sbRes.ok) break;
-            const chunk = await sbRes.json();
-            if (!Array.isArray(chunk) || chunk.length === 0) break;
-            allSbRows = allSbRows.concat(chunk);
-            if (chunk.length < pageSize) break;
-            offset += pageSize;
-          }
-          clearTimeout(tid);
-
-          if (allSbRows.length > 0) {
-            freshProducts = allSbRows.map(p => ({
-              id: Number(p.id),
-              name: p.name,
-              price: Number(p.price),
-              categoryId: p.category_id || p.categoryId || 'general',
-              categoryName: p.category_name || p.categoryName || 'General Items',
-              priority: p.priority ? Number(p.priority) : undefined,
-              filterName: p.filter_name || p.filterName || undefined,
-              hasImage: !!p.has_image,
-              imageUrl: p.image_url,
-              imageVersion: p.image_version || p.imageVersion
-            }));
-          }
-        } catch(e) {}
-
-        // 2. FALLBACK ENDPOINTS (Local server or bundled JSON if offline)
-        if (!freshProducts) {
-          const endpoints = [];
-          if (!isNativeApp && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-            endpoints.push(`http://localhost:8888/products.json?v=${cacheBuster}`);
-          }
-          endpoints.push(`./products.json?v=${cacheBuster}`);
-          endpoints.push(`https://zsmart.pk/products.json?v=${cacheBuster}`);
-          endpoints.push(`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`);
-          for (const url of endpoints) {
+            window.PRODUCT_IMAGE_MAP = newImgMap;
+            window.__ITEM_IMG_VERSIONS__ = imgVerMap;
+            window.__IMG_CACHE_BUSTER__ = maxVer;
             try {
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 2500);
-              const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
-              clearTimeout(timeoutId);
-              if (res.ok) {
-                const json = await res.json();
-                if (json && (Array.isArray(json) || (json.products && Array.isArray(json.products)))) {
-                  const prods = Array.isArray(json) ? json : (json.products || []);
-                  if (prods.length > 0) {
-                    freshProducts = prods;
-                    if (json.categories) freshCategories = json.categories;
-                    if (json.settings) freshSettings = json.settings;
-                    break;
-                  }
+              localStorage.setItem("zs_groceries_imagemap_cache", JSON.stringify(newImgMap));
+              localStorage.setItem("zs_item_img_versions", JSON.stringify(imgVerMap));
+              localStorage.setItem("zs_img_cache_buster", String(maxVer));
+            } catch(e) {}
+          };
+
+          const syncCloudCategoriesAndSettings = async () => {
+            try {
+              const [catRes, setRes] = await Promise.all([
+                fetch(`${sbUrl}/rest/v1/categories?select=*&order=priority.asc.nullslast`, {
+                  cache: 'no-store',
+                  headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` }
+                }).catch(() => null),
+                fetch(`${sbUrl}/rest/v1/store_settings?id=eq.main&select=*`, {
+                  cache: 'no-store',
+                  headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` }
+                }).catch(() => null)
+              ]);
+              if (catRes && catRes.ok) {
+                const sbCats = await catRes.json();
+                if (Array.isArray(sbCats) && sbCats.length > 0) {
+                  const mappedCats = sbCats.map(c => ({
+                    id: c.id,
+                    name: c.name,
+                    priority: (typeof c.priority === 'number' && c.priority > 0) ? c.priority : undefined
+                  }));
+                  mappedCats.sort((a, b) => {
+                    const pa = (a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0) ? Number(a.priority) : 999999;
+                    const pb = (b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0) ? Number(b.priority) : 999999;
+                    if (pa !== pb) return pa - pb;
+                    return 0;
+                  });
+                  window.CATEGORIES = mappedCats;
+                  try { localStorage.setItem("zs_groceries_categories_cache", JSON.stringify(mappedCats)); } catch(e) {}
+                  setCategoriesVersion(v => v + 1);
                 }
               }
-            } catch (err) {}
+              if (setRes && setRes.ok) {
+                const sbSettings = await setRes.json();
+                if (Array.isArray(sbSettings) && sbSettings.length > 0) {
+                  applySyncedSettings(sbSettings[0]);
+                }
+              }
+            } catch(e) {}
+          };
+
+          // Efficient Delta Sync for Background Polls (Saves 99% Supabase Egress & Mobile Bandwidth)
+          if (!isManual && lastProductSyncTimestampRef.current && productsList && productsList.length > 0) {
+            try {
+              const deltaUrl = `${sbUrl}/rest/v1/products?select=*&updated_at=gt.${encodeURIComponent(lastProductSyncTimestampRef.current)}&order=updated_at.desc&limit=500`;
+              const deltaRes = await fetch(deltaUrl, {
+                cache: 'no-store',
+                headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` }
+              });
+              if (deltaRes.ok) {
+                const deltaRows = await deltaRes.json();
+                // 30s safety buffer against device-to-cloud clock skew
+                lastProductSyncTimestampRef.current = new Date(Date.now() - 30000).toISOString();
+                if (Array.isArray(deltaRows) && deltaRows.length > 0) {
+                  const map = new Map((productsList || []).map(p => [Number(p.id), p]));
+                  deltaRows.forEach(p => {
+                    map.set(Number(p.id), {
+                      id: Number(p.id),
+                      name: p.name,
+                      price: Number(p.price),
+                      categoryId: p.category_id || p.categoryId || 'general',
+                      categoryName: p.category_name || p.categoryName || 'General Items',
+                      priority: p.priority ? Number(p.priority) : undefined,
+                      filterName: p.filter_name || p.filterName || undefined,
+                      hasImage: !!p.has_image,
+                      imageUrl: p.image_url,
+                      imageVersion: p.image_version || p.imageVersion
+                    });
+                  });
+                  const merged = Array.from(map.values()).sort((a,b) => a.id - b.id);
+                  setProductsList(merged);
+                  window.PRODUCTS = merged;
+                  persistProductsToLocalCache(merged);
+                  syncCartWithFreshProducts(merged);
+                }
+                await syncCloudCategoriesAndSettings();
+                return;
+              }
+            } catch(e) {}
           }
-        }
 
-        if (freshProducts && freshProducts.length > 0) {
-          setProductsList(freshProducts);
-          window.PRODUCTS = freshProducts;
+          let freshProducts = null;
+          let freshCategories = null;
+          let freshSettings = null;
+
+          // 1. PRIMARY: Fetch directly from Supabase Cloud Database with per-chunk timeout (Bypasses 1000 limit)
           try {
-            localStorage.setItem("zs_groceries_products_cache", JSON.stringify(freshProducts));
+            let allSbRows = [];
+            let offset = 0;
+            const pageSize = 1000;
+
+            while (true) {
+              const chunkController = new AbortController();
+              const chunkTid = setTimeout(() => chunkController.abort(), 15000);
+              try {
+                const sbRes = await fetch(`${sbUrl}/rest/v1/products?select=*&order=id.asc&limit=${pageSize}&offset=${offset}`, {
+                  signal: chunkController.signal,
+                  cache: 'no-store',
+                  headers: {
+                    'apikey': sbKey,
+                    'Authorization': `Bearer ${sbKey}`
+                  }
+                });
+                clearTimeout(chunkTid);
+                if (!sbRes.ok) break;
+                const chunk = await sbRes.json();
+                if (!Array.isArray(chunk) || chunk.length === 0) break;
+                allSbRows = allSbRows.concat(chunk);
+                if (chunk.length < pageSize) break;
+                offset += pageSize;
+              } catch(chunkErr) {
+                clearTimeout(chunkTid);
+                break;
+              }
+            }
+
+            if (allSbRows.length > 0) {
+              lastProductSyncTimestampRef.current = new Date(Date.now() - 30000).toISOString();
+              freshProducts = allSbRows.map(p => ({
+                id: Number(p.id),
+                name: p.name,
+                price: Number(p.price),
+                categoryId: p.category_id || p.categoryId || 'general',
+                categoryName: p.category_name || p.categoryName || 'General Items',
+                priority: p.priority ? Number(p.priority) : undefined,
+                filterName: p.filter_name || p.filterName || undefined,
+                hasImage: !!p.has_image,
+                imageUrl: p.image_url,
+                imageVersion: p.image_version || p.imageVersion
+              }));
+            }
+
+            await syncCloudCategoriesAndSettings();
           } catch(e) {}
 
-          const newImgMap = { ...(window.PRODUCT_IMAGE_MAP || {}) };
-          const imgVerMap = { ...(window.__ITEM_IMG_VERSIONS__ || {}) };
-          let maxVer = Date.now();
-          freshProducts.forEach(p => {
-            if (p.hasImage || p.imageUrl) {
-              newImgMap[p.id] = 'webp';
+          // 2. FALLBACK ENDPOINTS (Local server or bundled JSON if offline)
+          if (!freshProducts) {
+            try {
+              const isNative = typeof isNativeApp !== 'undefined' ? isNativeApp : checkIsNativeApp();
+              const endpoints = [];
+              if (!isNative && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+                endpoints.push(`http://localhost:8888/products.json?v=${cacheBuster}`);
+              }
+              endpoints.push(`./products.json?v=${cacheBuster}`);
+              endpoints.push(`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`);
+              for (const url of endpoints) {
+                try {
+                  const controller = new AbortController();
+                  const timeoutId = setTimeout(() => controller.abort(), 2500);
+                  const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+                  clearTimeout(timeoutId);
+                  if (res.ok) {
+                    const json = await res.json();
+                    if (json && (Array.isArray(json) || (json.products && Array.isArray(json.products)))) {
+                      const prods = Array.isArray(json) ? json : (json.products || []);
+                      if (prods.length > 0) {
+                        freshProducts = prods;
+                        if (json.categories) freshCategories = json.categories;
+                        if (json.settings) freshSettings = json.settings;
+                        if (json.imageMap && typeof json.imageMap === 'object') {
+                          window.PRODUCT_IMAGE_MAP = { ...(window.PRODUCT_IMAGE_MAP || {}), ...json.imageMap };
+                        }
+                        if (json.itemImageVersions && typeof json.itemImageVersions === 'object') {
+                          window.__ITEM_IMG_VERSIONS__ = { ...(window.__ITEM_IMG_VERSIONS__ || {}), ...json.itemImageVersions };
+                        }
+                        if (json.variants && typeof json.variants === 'object') {
+                          window.PRODUCT_VARIANTS = { ...(window.PRODUCT_VARIANTS || {}), ...json.variants };
+                        }
+                        break;
+                      }
+                    }
+                  }
+                } catch (err) {}
+              }
+            } catch (fbErr) {
+              console.warn('Fallback endpoints error:', fbErr);
             }
-            if (p.imageVersion) {
-              imgVerMap[p.id] = p.imageVersion;
-              maxVer = Math.max(maxVer, Number(p.imageVersion));
-            }
-          });
-          window.PRODUCT_IMAGE_MAP = newImgMap;
-          window.__ITEM_IMG_VERSIONS__ = imgVerMap;
-          window.__IMG_CACHE_BUSTER__ = maxVer;
-          try {
-            localStorage.setItem("zs_groceries_imagemap_cache", JSON.stringify(newImgMap));
-            localStorage.setItem("zs_item_img_versions", JSON.stringify(imgVerMap));
-            localStorage.setItem("zs_img_cache_buster", String(maxVer));
-          } catch(e) {}
+          }
 
-          if (isManual) {
-            setSyncToast(tr(language, `✅ ${freshProducts.length} items live synced from Cloud!`, `✅ ${freshProducts.length} items live cloud update ho gaye!`, `✅ ${freshProducts.length} آئٹمز کلاؤڈ سے لائیو اپ ڈیٹ ہوگئے!`));
+          if (freshSettings) {
+            applySyncedSettings(freshSettings);
+          }
+
+          if (freshCategories && Array.isArray(freshCategories) && freshCategories.length > 0) {
+            freshCategories.sort((a, b) => {
+              const pa = (a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0) ? Number(a.priority) : 999999;
+              const pb = (b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0) ? Number(b.priority) : 999999;
+              if (pa !== pb) return pa - pb;
+              return 0;
+            });
+            window.CATEGORIES = freshCategories;
+            try {
+              localStorage.setItem("zs_groceries_categories_cache", JSON.stringify(freshCategories));
+            } catch(e) {}
+            setCategoriesVersion(v => v + 1);
+          }
+
+          if (freshProducts && freshProducts.length > 0) {
+            setProductsList(freshProducts);
+            window.PRODUCTS = freshProducts;
+            persistProductsToLocalCache(freshProducts);
+            syncCartWithFreshProducts(freshProducts);
+
+            if (isManual) {
+              setSyncToast(tr(language, `✅ ${freshProducts.length} items live synced from Cloud!`, `✅ ${freshProducts.length} items live cloud update ho gaye!`, `✅ ${freshProducts.length} آئٹمز کلاؤڈ سے لائیو اپ ڈیٹ ہوگئے!`));
+              setTimeout(() => setSyncToast(null), 3000);
+            }
+          } else if (isManual) {
+            setSyncToast(tr(language, "⚠️ Offline or server busy", "⚠️ Internet/server connect nahi ho saka", "⚠️ سرور سے رابطہ نہیں ہو سکا"));
             setTimeout(() => setSyncToast(null), 3000);
           }
-        } else if (isManual) {
-          setSyncToast(tr(language, "⚠️ Offline or server busy", "⚠️ Internet/server connect nahi ho saka", "⚠️ سرور سے رابطہ نہیں ہو سکا"));
-          setTimeout(() => setSyncToast(null), 3000);
+        } finally {
+          isFetchingProductsRef.current = false;
+          setIsSyncingProducts(false);
         }
-        setIsSyncingProducts(false);
       }
+      fetchLiveProductsRef.current = fetchLiveProducts;
 
       useEffect(() => {
         try {
@@ -5209,7 +6147,14 @@ export default function SahilTraders() {
           if (cachedCats && typeof window !== 'undefined') {
             const parsedCats = JSON.parse(cachedCats);
             if (Array.isArray(parsedCats) && parsedCats.length > 0) {
+              parsedCats.sort((a, b) => {
+                const pa = (a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0) ? Number(a.priority) : 999999;
+                const pb = (b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0) ? Number(b.priority) : 999999;
+                if (pa !== pb) return pa - pb;
+                return 0;
+              });
               window.CATEGORIES = parsedCats;
+              setCategoriesVersion(v => v + 1);
             }
           }
         } catch(e) {}
@@ -5222,16 +6167,20 @@ export default function SahilTraders() {
           }
         } catch(e) {}
 
-        // Initial fetch on app start
-        fetchLiveProducts(false);
+        // Initial fetch on app mount
+        if (fetchLiveProductsRef.current) {
+          fetchLiveProductsRef.current(false);
+        }
 
-        // Auto-refresh when app comes to foreground or window gets focus
+        // Auto-refresh when app comes to foreground or window gets focus (throttled)
         const onVisibilityChange = () => {
           if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-            fetchLiveProducts(false);
+            if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(false);
           }
         };
-        const onFocus = () => fetchLiveProducts(false);
+        const onFocus = () => {
+          if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(false);
+        };
 
         if (typeof document !== 'undefined') {
           document.addEventListener('visibilitychange', onVisibilityChange);
@@ -5240,10 +6189,10 @@ export default function SahilTraders() {
           window.addEventListener('focus', onFocus);
         }
 
-        // Periodic background poll every 25 seconds
+        // Periodic background poll every 2 minutes (optimized low battery & egress footprint)
         const intervalId = setInterval(() => {
-          fetchLiveProducts(false);
-        }, 25000);
+          if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(false);
+        }, 120000);
 
         return () => {
           if (typeof document !== 'undefined') {
@@ -5254,7 +6203,7 @@ export default function SahilTraders() {
           }
           clearInterval(intervalId);
         };
-      }, [fetchLiveProducts]);
+      }, []);
 
       // Auto-scroll to absolute top of page whenever category or brand selection changes
       useEffect(() => {
@@ -5265,9 +6214,11 @@ export default function SahilTraders() {
       function persistCartSnapshot(nextCart) {
         try {
           if (!nextCart || nextCart.length === 0) {
+            localStorage.removeItem("zs_mart_cart");
             localStorage.removeItem("sahil_traders_cart");
           } else {
             localStorage.setItem("zs_mart_cart", JSON.stringify(nextCart));
+            localStorage.removeItem("sahil_traders_cart");
           }
         } catch (e) {}
       }
@@ -5289,9 +6240,51 @@ export default function SahilTraders() {
 
       useEffect(() => {
         window.handleAppBackButton = () => {
+          // Abort any active speech recognition / microphone immediately
+          if (window.__activeSpeechRec) {
+            try { window.__activeSpeechRec.abort(); } catch(e) {}
+            window.__activeSpeechRec = null;
+          }
+          if (isListening) {
+            setIsListening(false);
+          }
+
           // 1. If Exit Modal is open, close it
           if (exitModalOpen) {
             setExitModalOpen(false);
+            return;
+          }
+          // 1.2. If Hair Colour Shade Variant Modal is open, close it
+          if (variantModalProduct) {
+            setVariantModalProduct(null);
+            return;
+          }
+          // 1.3. If Welcome / Onboarding Popup is open, close it
+          if (welcomeOpen) {
+            setWelcomeOpen(false);
+            return;
+          }
+          // 1.4. If Policy or About Modals are open, close them
+          if (aboutOpen) {
+            setAboutOpen(false);
+            return;
+          }
+          if (returnPolicyOpen) {
+            setReturnPolicyOpen(false);
+            return;
+          }
+          if (privacyPolicyOpen) {
+            setPrivacyPolicyOpen(false);
+            return;
+          }
+          // 1.5. If Mobile Search is focused, blur input and close search mode
+          if (mobileSearchFocused) {
+            setMobileSearchFocused(false);
+            try {
+              if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                document.activeElement.blur();
+              }
+            } catch(e) {}
             return;
           }
           // 2. If Sort Modal or Filter Menu is open, close it
@@ -5318,8 +6311,11 @@ export default function SahilTraders() {
             setCartOpen(false);
             return;
           }
-          // 5. If Parchi modal is open, close it
+          // 5. If Parchi modal is open, close it & clean up any voice recording streams/contexts
           if (parchiModalOpen) {
+            if (typeof window.__parchiCleanupRecording === 'function') {
+              try { window.__parchiCleanupRecording(); } catch(e) {}
+            }
             setParchiModalOpen(false);
             return;
           }
@@ -5384,7 +6380,8 @@ export default function SahilTraders() {
           }
         };
       }, [
-        exitModalOpen, sortModalOpen, filterMenuOpen, selectedProduct, checkoutOpen, cartOpen,
+        exitModalOpen, variantModalProduct, welcomeOpen, aboutOpen, returnPolicyOpen, privacyPolicyOpen, mobileSearchFocused,
+        sortModalOpen, filterMenuOpen, selectedProduct, checkoutOpen, cartOpen,
         parchiModalOpen, orderHistoryOpen, wishlistOpen,
         mobileMenuOpen, accountDrawerOpen, activeTab,
         searchTerm, selectedCategory, selectedBrand, activeCategory, language
@@ -5419,7 +6416,7 @@ export default function SahilTraders() {
             const snapshot = getSnapshot(backStateRef.current || {});
             const key = keyOf(snapshot);
             if (!force && !replace && key === lastHistoryKeyRef.current) return;
-            const entry = { page: 'sahil-app-state', sahilApp: true, snapshot };
+            const entry = { page: 'zs-app-state', zsApp: true, sahilApp: true, snapshot };
             if (replace) window.history.replaceState(entry, '', window.location.href);
             else {
               window.history.pushState(entry, '', window.location.href);
@@ -5432,14 +6429,21 @@ export default function SahilTraders() {
         const exitStore = () => {
           allowRealBackRef.current = true;
           setExitModalOpen(false);
+          if (window.AndroidBridge && typeof window.AndroidBridge.exitApp === 'function') {
+            try { window.AndroidBridge.exitApp(); return; } catch(e) {}
+          }
+          if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App && typeof window.Capacitor.Plugins.App.exitApp === 'function') {
+            try { window.Capacitor.Plugins.App.exitApp(); return; } catch(e) {}
+          }
           const steps = Math.max(2, appHistoryDepthRef.current + 1);
           try {
             window.history.go(-steps);
           } catch(e) {}
-          setTimeout(() => {
-            try { window.location.replace('about:blank'); } catch(e) {}
-          }, 900);
+          try {
+            window.close();
+          } catch(e) {}
         };
+        window.zsExitStore = exitStore;
         window.sahilExitStore = exitStore;
         const restoreSnapshot = (snapshot) => {
           restoringHistoryRef.current = true;
@@ -5455,14 +6459,14 @@ export default function SahilTraders() {
           setTimeout(() => { restoringHistoryRef.current = false; }, 0);
         };
         try {
-          window.history.replaceState({ page: 'sahil-back-base' }, '', window.location.href);
+          window.history.replaceState({ page: 'zs-back-base' }, '', window.location.href);
           pushCurrentAppState(false);
           appHistoryReadyRef.current = true;
         } catch(e) {}
         const handlePopState = (event) => {
           if (allowRealBackRef.current) return;
           if (event && event.preventDefault) event.preventDefault();
-          if (event.state && event.state.sahilApp && event.state.snapshot) {
+          if (event.state && (event.state.zsApp || event.state.sahilApp) && event.state.snapshot) {
             lastHistoryKeyRef.current = keyOf(event.state.snapshot);
             restoreSnapshot(event.state.snapshot);
             return;
@@ -5481,6 +6485,7 @@ export default function SahilTraders() {
         return () => {
           window.removeEventListener('popstate', handlePopState);
           window.removeEventListener('pageshow', handlePageShow);
+          if (window.zsExitStore === exitStore) delete window.zsExitStore;
           if (window.sahilExitStore === exitStore) delete window.sahilExitStore;
         };
       }, []);
@@ -5496,6 +6501,10 @@ export default function SahilTraders() {
       const cartTotal = cart.reduce((sum, i) => sum + calculateBulkPricing(i.product.price, i.qty).finalTotal, 0);
       const cartBulkSavings = cart.reduce((sum, i) => sum + calculateBulkPricing(i.product.price, i.qty).extraSavings, 0);
       function addToCart(product, variant = null, qtyToAdd = 1, sourceElement = null) {
+        if (!product || product.price === undefined || product.price === null || Number(product.price) <= 0) {
+          console.warn('Blocked adding item with zero or invalid price to cart:', product);
+          return;
+        }
         triggerHaptic('medium');
         if (window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id] && !variant) {
           setVariantModalProduct(product);
@@ -5633,13 +6642,30 @@ export default function SahilTraders() {
         triggerHaptic('light');
         setCart([]);
         try {
+          localStorage.removeItem("zs_mart_cart");
           localStorage.removeItem("sahil_traders_cart");
         } catch (e) {}
       }
       function saveOrderHistory(order) {
         if (!order) return;
+        const normalized = {
+          ...order,
+          createdAt: order.createdAt || parseOrderCreatedAt(order),
+          createdAtIso: order.createdAtIso || new Date(order.createdAt || parseOrderCreatedAt(order)).toISOString(),
+          status: order.status || 'placed'
+        };
         setOrderHistory(prev => {
-          const next = [order, ...prev].slice(0, 50);
+          const next = [normalized, ...prev.filter(o => String(o.id) !== String(normalized.id))].slice(0, 50);
+          try {
+            localStorage.setItem("zs_mart_order_history", JSON.stringify(next));
+          } catch (e) {}
+          return next;
+        });
+      }
+      function updateOrderInHistory(orderId, patch) {
+        if (!orderId || !patch) return;
+        setOrderHistory(prev => {
+          const next = prev.map(o => String(o.id) === String(orderId) ? { ...o, ...patch } : o);
           try {
             localStorage.setItem("zs_mart_order_history", JSON.stringify(next));
           } catch (e) {}
@@ -5650,11 +6676,20 @@ export default function SahilTraders() {
         triggerHaptic('light');
         setOrderHistory([]);
         try {
+          localStorage.removeItem("zs_mart_order_history");
           localStorage.removeItem("sahil_traders_order_history");
         } catch (e) {}
       }
       function handleVoiceSearch() {
         triggerHaptic('medium');
+        const focusActiveSearchInput = () => {
+          const target = (mobileSearchFocused && mobileSearchInputRef.current)
+            ? mobileSearchInputRef.current
+            : (searchInputRef.current && searchInputRef.current.offsetParent !== null ? searchInputRef.current : (mobileSearchInputRef.current || searchInputRef.current));
+          if (target) {
+            try { target.focus(); } catch(e) {}
+          }
+        };
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRec) {
           try {
@@ -5664,27 +6699,27 @@ export default function SahilTraders() {
             rec.maxAlternatives = 1;
 
             rec.onstart = () => {
+              window.__activeSpeechRec = rec;
               setIsListening(true);
             };
             rec.onresult = (event) => {
+              window.__activeSpeechRec = null;
               const transcript = event.results && event.results[0] && event.results[0][0] && event.results[0][0].transcript;
               if (transcript) {
                 triggerHaptic('success');
                 setSearchTerm(transcript);
                 setSuggestOpen(true);
-                if (searchInputRef.current) {
-                  searchInputRef.current.focus();
-                }
+                focusActiveSearchInput();
               }
             };
             rec.onerror = (err) => {
+              window.__activeSpeechRec = null;
               setIsListening(false);
-              if (searchInputRef.current) {
-                searchInputRef.current.focus();
-                setSuggestOpen(true);
-              }
+              focusActiveSearchInput();
+              setSuggestOpen(true);
             };
             rec.onend = () => {
+              window.__activeSpeechRec = null;
               setIsListening(false);
             };
             rec.start();
@@ -5695,10 +6730,8 @@ export default function SahilTraders() {
         }
         
         // Fallback for Android WebView where SpeechRecognition is not bundled:
-        if (searchInputRef.current) {
-          searchInputRef.current.focus();
-          setSuggestOpen(true);
-        }
+        focusActiveSearchInput();
+        setSuggestOpen(true);
         alert(tr(
           language,
           '🎙️ Voice Search Active! Please speak using the Microphone 🎤 on your keyboard.',
@@ -5712,22 +6745,26 @@ export default function SahilTraders() {
         setCart(prev => {
           let next = [...prev];
           items.forEach(item => {
-            const existing = next.find(i => i.product?.id === item.id);
+            const itemVariant = item.variant || null;
+            const existing = next.find(i => String(i.product?.id) === String(item.id) && (i.variant || null) === itemVariant);
             if (existing) {
               existing.qty += (item.qty || 1);
             } else {
-              const fullProduct = products.find(p => p.id === item.id) || {
+              const fullProduct = products.find(p => String(p.id) === String(item.id)) || {
                 id: item.id,
                 name: item.name,
                 price: item.price,
                 categoryId: item.categoryId || 'soaps',
                 hasImage: !!item.imageExt
               };
-              next.push({
-                product: fullProduct,
-                qty: item.qty || 1,
-                variant: item.variant || null
-              });
+              // Security: ensure unpriced or zero-rate items are never added via reorder
+              if (fullProduct && Number(fullProduct.price) > 0) {
+                next.push({
+                  product: fullProduct,
+                  qty: item.qty || 1,
+                  variant: itemVariant
+                });
+              }
             }
           });
           persistCartSnapshot(next);
@@ -5775,6 +6812,9 @@ export default function SahilTraders() {
         }, 2200);
         const removeTimer = setTimeout(() => {
           setShowSplash(false);
+          if (window.AndroidBridge && typeof window.AndroidBridge.setStatusBarLight === 'function') {
+            try { window.AndroidBridge.setStatusBarLight(true); } catch(e) {}
+          }
         }, 2600);
         return () => {
           clearTimeout(fadeTimer);
@@ -5857,74 +6897,19 @@ export default function SahilTraders() {
       }, [selectedCategory, searchTerm]);
       
 
-      // 🚀 Lightweight Idle Image Storage Caching Engine (Zero UI Lag)
-      useEffect(() => {
-        if (showSplash) return;
-        if (typeof window === 'undefined' || !window.PRODUCT_IMAGE_MAP) return;
-        
-        let isCancelled = false;
-        const imageMap = window.PRODUCT_IMAGE_MAP;
-        const ids = Object.keys(imageMap);
-        let index = 0;
-        const batchSize = 2; // Small 2-item batches so CPU never freezes
+      // 🚀 Native On-Demand Image Loading (Browser loading="lazy" handles on-demand viewport caching without background network choking)
 
-        async function processBatch() {
-          if (isCancelled || index >= ids.length) return;
-          const currentBatch = ids.slice(index, index + batchSize);
-          index += batchSize;
-
-          for (const id of currentBatch) {
-            if (isCancelled) break;
-            const ext = imageMap[id];
-            // WebP → jsDelivr (10x smaller, faster second load), PNG → Vercel
-            const url = (ext === 'webp')
-              ? 'https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/' + id + '.webp'
-              : 'https://sahiltraders.vercel.app/images/' + id + '.' + ext;
-            try {
-              if ('caches' in window) {
-                const cache = await caches.open('zs-images-cache-v2');
-                const matched = await cache.match(url);
-                if (!matched) {
-                  const resp = await fetch(url, { mode: 'cors', cache: 'force-cache' });
-                  if (resp.ok) await cache.put(url, resp);
-                }
-              }
-            } catch (e) {}
-          }
-
-          if (!isCancelled && index < ids.length) {
-            if ('requestIdleCallback' in window) {
-              window.requestIdleCallback(processBatch, { timeout: 2000 });
-            } else {
-              setTimeout(processBatch, 400);
-            }
-          }
-        }
-
-        // Wait 4 full seconds after app open before starting background idle caching
-        const startTimer = setTimeout(() => {
-          if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(processBatch, { timeout: 3000 });
-          } else {
-            setTimeout(processBatch, 1000);
-          }
-        }, 4000);
-
-        return () => {
-          isCancelled = true;
-          clearTimeout(startTimer);
-        };
-      }, [showSplash]);
 
       const baseFiltered = useMemo(() => {
+        const validProducts = (products || []).filter(p => p && p.price !== undefined && p.price !== null && Number(p.price) > 0);
         const term = debouncedSearchTerm.trim();
         if (term === "") {
-          if (selectedCategory) return products.filter(p => p.categoryId === selectedCategory);
-          return products;
+          if (selectedCategory) return validProducts.filter(p => p.categoryId === selectedCategory);
+          return validProducts;
         }
         const scored = [];
-        for (let i = 0; i < products.length; i++) {
-          const p = products[i];
+        for (let i = 0; i < validProducts.length; i++) {
+          const p = validProducts[i];
           const score = matchProductTokens(p, term);
           if (score > 0) {
             scored.push({ product: p, score });
@@ -5994,10 +6979,11 @@ export default function SahilTraders() {
       }, [searchTerm, selectedCategory, activeCategory, selectedBrand, showSplash, sortedProducts]);
       const suggestions = useMemo(() => {
         const term = debouncedSearchTerm.trim();
-        if (term === "") return [];
+        if (term === "") return (recentSearches || []).filter(p => p && Number(p.price) > 0);
         const scored = [];
         for (let i = 0; i < products.length; i++) {
           const p = products[i];
+          if (!p || Number(p.price) <= 0) continue;
           const score = matchProductTokens(p, term);
           if (score > 0) {
             scored.push({ product: p, score });
@@ -6005,7 +6991,7 @@ export default function SahilTraders() {
         }
         scored.sort((a, b) => b.score - a.score);
         return scored.slice(0, 6).map(item => item.product);
-      }, [products, debouncedSearchTerm]);
+      }, [products, debouncedSearchTerm, recentSearches]);
       function recordSearch(product) {
         if (!product) return;
         setRecentSearches((prev) => {
@@ -6040,7 +7026,7 @@ export default function SahilTraders() {
       }
       // Show search results if searching, else show category home or products
       const showCategoryHome = !isSearching && !selectedCategory;
-      const categoriesList = getGlobalCategories(products);
+      const categoriesList = useMemo(() => getGlobalCategories(products), [products, categoriesVersion]);
       const selectedCategoryName = selectedCategory
         ? (langData.categories?.[selectedCategory] || categoriesList.find(c => c.id === selectedCategory)?.name || selectedCategory)
         : null;
@@ -6250,8 +7236,7 @@ export default function SahilTraders() {
                             <div style={{ padding: '8px 14px 4px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>Recent</div>
                           )}
                           {suggestions.slice(0, 8).map((product) => {
-                            const hasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-                            const imgUrl = hasImg ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+                            const imgUrl = getProductImgSrc(product);
                             return (
                               <button
                                 key={product.id}
@@ -6294,6 +7279,11 @@ export default function SahilTraders() {
                       <button onClick={() => setReturnPolicyOpen(true)} title={tr(language,'Return Policy','Wapsi Policy','واپسی پالیسی')} style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
                         <svg style={{width:'14px',height:'14px',color:'#10b981'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
                         <span>{tr(language,'Policy','Policy','پالیسی')}</span>
+                      </button>
+
+                      <button onClick={() => setPrivacyPolicyOpen(true)} title={tr(language,'Privacy Policy','Privacy Policy','پرائیویسی پالیسی')} style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
+                        <svg style={{width:'14px',height:'14px',color:'#38bdf8'}} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                        <span>{tr(language,'Privacy','Privacy','پرائیویسی')}</span>
                       </button>
 
                       <button onClick={() => setAboutOpen(true)} title={tr(language,'About Us','Hamare Baare Mein','ہمارے بارے میں')} style={{ background: 'rgba(255,255,255,0.06)', border: '1.5px solid rgba(255,255,255,0.09)', borderRadius: '10px', padding: '7px 11px', fontSize: '11.5px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.18s', whiteSpace: 'nowrap' }} onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.12)';e.currentTarget.style.color='#fff';}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.06)';e.currentTarget.style.color='rgba(255,255,255,0.7)';}}>
@@ -6403,49 +7393,80 @@ export default function SahilTraders() {
                       </div>
                     </div>
 
-                    {/* Normal State: Compact Search Pill Button (Right) */}
-                    <div 
-                      className="flex-1 max-w-[160px] relative cursor-pointer"
-                      onClick={() => {
-                        setMobileSearchFocused(true);
-                        setSuggestOpen(true);
-                        setTimeout(() => {
-                          if (mobileSearchInputRef.current) mobileSearchInputRef.current.focus();
-                        }, 50);
-                      }}
-                    >
+                    {/* Normal State: Compact Search Pill + Hamburger Navigation Menu */}
+                    <div className="flex items-center gap-1.5 flex-1 justify-end max-w-[210px]">
                       <div 
-                        style={{
-                          height: '34px',
-                          background: 'rgba(255,255,255,0.08)',
-                          border: '1px solid rgba(255,255,255,0.14)',
-                          borderRadius: '10px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          paddingLeft: '28px',
-                          paddingRight: '28px',
-                          position: 'relative'
+                        className="flex-1 max-w-[160px] relative cursor-pointer"
+                        onClick={() => {
+                          setMobileSearchFocused(true);
+                          setSuggestOpen(true);
+                          setTimeout(() => {
+                            if (mobileSearchInputRef.current) mobileSearchInputRef.current.focus();
+                          }, 50);
                         }}
                       >
-                        <svg 
-                          style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'rgba(255,255,255,0.5)', pointerEvents: 'none' }} 
-                          fill="none" 
-                          stroke="currentColor" 
-                          strokeWidth="2.2" 
-                          viewBox="0 0 24 24"
+                        <div 
+                          style={{
+                            height: '34px',
+                            background: 'rgba(255,255,255,0.08)',
+                            border: '1px solid rgba(255,255,255,0.14)',
+                            borderRadius: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            paddingLeft: '28px',
+                            paddingRight: '28px',
+                            position: 'relative'
+                          }}
                         >
-                          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M16.5 16.5L21 21" />
-                        </svg>
-                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {searchTerm || translate(langData, "searchPlaceholder")}
-                        </span>
-                        <div style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
-                          <svg style={{ width: '11px', height: '11px', color: 'rgba(255,255,255,0.45)' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/>
+                          <svg 
+                            style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', width: '13px', height: '13px', color: 'rgba(255,255,255,0.5)', pointerEvents: 'none' }} 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2.2" 
+                            viewBox="0 0 24 24"
+                          >
+                            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M16.5 16.5L21 21" />
                           </svg>
+                          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {searchTerm || translate(langData, "searchPlaceholder")}
+                          </span>
+                          <div style={{ position: 'absolute', right: '6px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
+                            <svg style={{ width: '11px', height: '11px', color: 'rgba(255,255,255,0.45)' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/>
+                            </svg>
+                          </div>
                         </div>
                       </div>
+
+                      {/* Hamburger Menu Trigger Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          triggerHaptic('light');
+                          setMobileMenuOpen(true);
+                        }}
+                        style={{
+                          width: '34px',
+                          height: '34px',
+                          borderRadius: '10px',
+                          background: 'rgba(255,255,255,0.08)',
+                          border: '1px solid rgba(255,255,255,0.14)',
+                          color: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          flexShrink: 0
+                        }}
+                        title={tr(language, 'Menu', 'Menu', 'مینو')}
+                        aria-label="Navigation Menu"
+                      >
+                        <svg style={{ width: '18px', height: '18px' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                      </button>
                     </div>
 
                     {/* EXPANDED FULL-ROW SEARCH OVERLAY (Zero reflows, Pure GPU transform & opacity) */}
@@ -6592,8 +7613,7 @@ export default function SahilTraders() {
                             <div style={{ padding: '7px 12px 3px', fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8' }}>Recent</div>
                           )}
                           {suggestions.slice(0, 8).map((product) => {
-                            const hasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-                            const imgUrl = hasImg ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+                            const imgUrl = getProductImgSrc(product);
                             return (
                               <button
                                 key={product.id}
@@ -6768,7 +7788,7 @@ export default function SahilTraders() {
                       <div>
                         <div style={{ fontSize: '13.5px', fontWeight: 900 }}>{tr(language, 'Call Official Helpline', 'Helpline par Call Karen', 'ہیلپ لائن پر کال کریں')}</div>
                         <div style={{ fontSize: '10.5px', color: '#38bdf8', fontWeight: 800, marginTop: '2px' }}>
-                          0336-8945775 (10:00 AM – 9:00 PM, 7 Days)
+                          0336-8945775 (10:00 AM – 10:00 PM, 7 Days)
                         </div>
                       </div>
                     </div>
@@ -6825,7 +7845,7 @@ export default function SahilTraders() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>{tr(language, 'Return & Exchange Policy', 'Wapsi Policy', 'واپسی اور تبدیلی کی پالیسی')}</div>
-                      <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px' }}>{tr(language, '7-day easy returns & exchange guarantee', '7 din me asan wapsi guarantee', '7 دن میں آسان واپسی کی گارنٹی')}</div>
+                      <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px' }}>{tr(language, 'Same-day return & exchange guarantee', 'Usi din asan wapsi & tabdeeli guarantee', 'اسی دن آسان واپسی اور تبدیلی کی گارنٹی')}</div>
                     </div>
                     <span style={{ fontSize: '16px', color: '#94a3b8' }}>›</span>
                   </button>
@@ -6833,7 +7853,7 @@ export default function SahilTraders() {
                   {/* About Store */}
                   <button
                     onClick={() => { triggerHaptic('light'); setAboutOpen(true); }}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: 'transparent', border: 'none', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left' }}
                   >
                     <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
                       ℹ️
@@ -6841,6 +7861,21 @@ export default function SahilTraders() {
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>{tr(language, 'About ZS Mart', 'ZS Mart ke Baare Mein', 'ZS Mart کے بارے میں')}</div>
                       <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px' }}>{tr(language, 'Owners, wholesale history & store info', 'Malikan aur dukan ki maloomat', 'مالکان اور دکان کی تفصیلات')}</div>
+                    </div>
+                    <span style={{ fontSize: '16px', color: '#94a3b8' }}>›</span>
+                  </button>
+
+                  {/* Privacy Policy */}
+                  <button
+                    onClick={() => { triggerHaptic('light'); setPrivacyPolicyOpen(true); }}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                  >
+                    <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
+                      🔒
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>{tr(language, 'Privacy Policy', 'Privacy Policy', 'پرائیویسی پالیسی')}</div>
+                      <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px' }}>{tr(language, 'User data protection & Google Play compliance', 'Aapka data mehfooz hai - Mukammal policy', 'صارف کے ڈیٹا کا تحفظ اور پالیسی')}</div>
                     </div>
                     <span style={{ fontSize: '16px', color: '#94a3b8' }}>›</span>
                   </button>
@@ -6859,7 +7894,7 @@ export default function SahilTraders() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#059669', fontWeight: 700 }}>
                       <span>⏰</span>
-                      <span>10:00 AM – 9:00 PM (7 Days a Week, No Holiday)</span>
+                      <span>10:00 AM – 10:00 PM (7 Days a Week, No Holiday)</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#2563eb', fontWeight: 700 }}>
                       <span>📞</span>
@@ -6872,6 +7907,15 @@ export default function SahilTraders() {
                 <div style={{ textAlign: 'center', padding: '6px 0 16px' }}>
                   <div style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b' }}>ZS Mart Official App v9.6</div>
                   <div style={{ fontSize: '9.5px', color: '#94a3b8', marginTop: '2px' }}>Sahil Saleem &amp; Muhammad Zubair Moin • Karachi 🇵🇰</div>
+                  <div style={{ marginTop: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => { triggerHaptic('light'); setPrivacyPolicyOpen(true); }}
+                      style={{ background: 'none', border: 'none', color: '#059669', fontSize: '11px', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer', padding: '2px 6px' }}
+                    >
+                      🔒 {tr(language, 'Privacy Policy', 'Privacy Policy', 'پرائیویسی پالیسی')}
+                    </button>
+                  </div>
                 </div>
 
               </div>
@@ -7267,15 +8311,29 @@ export default function SahilTraders() {
               <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(0,0,0,0.12)' }}>
                 <div className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs">
                   <span className="text-amber-600">⏰</span>
-                  <span>{getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 10:00 AM – 9:00 PM (7 Days a Week, No Holiday)', 'Delivery Timing: Subah 10:00 AM se Raat 9:00 PM tak (7 Din Khula, Koi Chutti Nahi)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 9:00 بجے تک (7 دن کھلا، کوئی چھٹی نہیں)')}</span>
+                  <span>{getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 10:00 AM – 10:00 PM (7 Days a Week, No Holiday)', 'Delivery Timing: Subah 10:00 AM se Raat 10:00 PM tak (7 Din Khula, Koi Chutti Nahi)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 10:00 بجے تک (7 دن کھلا، کوئی چھٹی نہیں)')}</span>
                 </div>
-                <div>
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-3 px-3">
                   <button
                     onClick={() => setAboutOpen(true)}
-                    className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-4 py-1.5 transition-colors cursor-pointer bg-white"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-3.5 py-1.5 transition-colors cursor-pointer bg-white shadow-2xs"
                   >
                     <span>🏬</span>
-                    <span>{tr(language, 'About ZS Mart', 'Hamare Baare Mein (About ZS Mart)', 'ہمارے بارے میں (About ZS Mart)')}</span>
+                    <span>{tr(language, 'About ZS Mart', 'About ZS Mart', 'ہمارے بارے میں')}</span>
+                  </button>
+                  <button
+                    onClick={() => setReturnPolicyOpen(true)}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-3.5 py-1.5 transition-colors cursor-pointer bg-white shadow-2xs"
+                  >
+                    <span>🛡️</span>
+                    <span>{tr(language, 'Return Policy', 'Wapsi Policy', 'واپسی پالیسی')}</span>
+                  </button>
+                  <button
+                    onClick={() => setPrivacyPolicyOpen(true)}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 border border-emerald-300 rounded-full px-3.5 py-1.5 transition-colors cursor-pointer bg-emerald-50 shadow-2xs"
+                  >
+                    <span>🔒</span>
+                    <span>{tr(language, 'Privacy Policy', 'Privacy Policy', 'پرائیویسی پالیسی')}</span>
                   </button>
                 </div>
                 <p className="text-xs tracking-[0.3em] uppercase" style={{ color: 'rgba(0,0,0,0.12)' }}>{translate(langData, "footer")}</p>
@@ -7295,69 +8353,93 @@ export default function SahilTraders() {
                 </div>
               )}
               {/* Product Detail Modal */}
-              <ProductDetailModal
-                product={selectedProduct}
-                open={!!selectedProduct}
-                onClose={() => setSelectedProduct(null)}
-                onAddToCart={addToCart}
-                products={products}
-                langData={langData}
-                language={language}
-                onSelectProduct={selectProductWithHash}
-                isWishlisted={selectedProduct ? wishlist.includes(selectedProduct.id) : false}
-                onToggleWishlist={toggleWishlist}
-              />
+              {!!selectedProduct && (
+                <ProductDetailModal
+                  product={selectedProduct}
+                  open={true}
+                  onClose={() => setSelectedProduct(null)}
+                  onAddToCart={addToCart}
+                  products={products}
+                  langData={langData}
+                  language={language}
+                  onSelectProduct={selectProductWithHash}
+                  isWishlisted={selectedProduct ? wishlist.includes(selectedProduct.id) : false}
+                  onToggleWishlist={toggleWishlist}
+                  onSaveOrderHistory={saveOrderHistory}
+                />
+              )}
               {/* Parchi / Slip Order Modal */}
-              <ParchiOrderModal
-                open={parchiModalOpen}
-                onClose={() => setParchiModalOpen(false)}
-                language={language}
-                saveOrderHistory={saveOrderHistory}
-              />
+              {parchiModalOpen && (
+                <ParchiOrderModal
+                  open={true}
+                  onClose={() => setParchiModalOpen(false)}
+                  language={language}
+                  saveOrderHistory={saveOrderHistory}
+                />
+              )}
               {/* Wishlist Drawer */}
-              <WishlistDrawer
-                open={wishlistOpen}
-                onClose={() => setWishlistOpen(false)}
-                wishlist={wishlist}
-                products={products}
-                onAddToCart={addToCart}
-                onRemoveWishlist={toggleWishlist}
-                language={language}
-                langData={langData}
-              />
+              {wishlistOpen && (
+                <WishlistDrawer
+                  open={true}
+                  onClose={() => setWishlistOpen(false)}
+                  wishlist={wishlist}
+                  products={products}
+                  onAddToCart={addToCart}
+                  onRemoveWishlist={toggleWishlist}
+                  language={language}
+                  langData={langData}
+                />
+              )}
               {/* Variant Selection Modal (Hair Colour Shades, etc.) */}
-              <VariantSelectionModal
-                product={variantModalProduct}
-                open={!!variantModalProduct}
-                onClose={() => setVariantModalProduct(null)}
-                language={language}
-                langData={langData}
-                onConfirm={(product, shade, qty) => {
-                  setVariantModalProduct(null);
-                  addToCart(product, shade, qty);
-                }}
-              />
+              {!!variantModalProduct && (
+                <VariantSelectionModal
+                  product={variantModalProduct}
+                  open={true}
+                  onClose={() => setVariantModalProduct(null)}
+                  language={language}
+                  langData={langData}
+                  onConfirm={(product, shade, qty) => {
+                    setVariantModalProduct(null);
+                    addToCart(product, shade, qty);
+                  }}
+                />
+              )}
               {/* Return & Exchange Policy Modal */}
-              <ReturnPolicyModal
-                isOpen={returnPolicyOpen}
-                onClose={() => setReturnPolicyOpen(false)}
-                language={language}
-              />
+              {returnPolicyOpen && (
+                <ReturnPolicyModal
+                  isOpen={true}
+                  onClose={() => setReturnPolicyOpen(false)}
+                  language={language}
+                />
+              )}
+              {/* Privacy Policy Modal */}
+              {privacyPolicyOpen && (
+                <PrivacyPolicyModal
+                  isOpen={true}
+                  onClose={() => setPrivacyPolicyOpen(false)}
+                  language={language}
+                />
+              )}
               {/* About Us Modal */}
-              <AboutUsModal
-                isOpen={aboutOpen}
-                onClose={() => setAboutOpen(false)}
-                language={language}
-              />
+              {aboutOpen && (
+                <AboutUsModal
+                  isOpen={true}
+                  onClose={() => setAboutOpen(false)}
+                  language={language}
+                />
+              )}
               {/* Welcome Disclaimer Modal — shown once per session after splash */}
-              {!showSplash && (
+              {!showSplash && welcomeOpen && (
                 <WelcomeDisclaimerModal
-                  isOpen={welcomeOpen}
+                  isOpen={true}
                   onClose={() => {
                     setWelcomeOpen(false);
-                    try { sessionStorage.setItem("sahil_traders_welcome_seen", "1"); } catch(e) {}
+                    try { 
+                      sessionStorage.setItem("zs_mart_welcome_seen", "1");
+                    } catch(e) {}
                   }}
                   onOpenAbout={() => setAboutOpen(true)}
+                  onOpenPrivacyPolicy={() => setPrivacyPolicyOpen(true)}
                   language={language}
                 />
               )}
@@ -7375,20 +8457,23 @@ export default function SahilTraders() {
                 onCheckout={() => { setCartOpen(false); setCheckoutOpen(true); }}
                 onSelectProduct={handleSelectProductFromCart}
               />
-              <OrderHistoryModal
-                open={orderHistoryOpen}
-                orders={orderHistory}
-                langData={langData}
-                language={language}
-                onClose={() => setOrderHistoryOpen(false)}
-                onClear={clearOrderHistory}
-                onReorder={handleReorder}
-                onSelectProduct={(item) => {
-                  setOrderHistoryOpen(false);
-                  const p = products.find(prod => String(prod.id) === String(item.id)) || item;
-                  setSelectedProduct(p);
-                }}
-              />
+              {orderHistoryOpen && (
+                <OrderHistoryModal
+                  open={true}
+                  orders={orderHistory}
+                  langData={langData}
+                  language={language}
+                  onClose={() => setOrderHistoryOpen(false)}
+                  onClear={clearOrderHistory}
+                  onReorder={handleReorder}
+                  onUpdateOrder={updateOrderInHistory}
+                  onSelectProduct={(item) => {
+                    setOrderHistoryOpen(false);
+                    const p = products.find(prod => String(prod.id) === String(item.id)) || item;
+                    setSelectedProduct(p);
+                  }}
+                />
+              )}
               {/* Checkout Modal */}
               {checkoutOpen && (
                 <CheckoutModal
@@ -7551,6 +8636,22 @@ export default function SahilTraders() {
                           </div>
                           <span className="text-gray-400 text-xs">&rsaquo;</span>
                         </button>
+                        {/* Privacy Policy */}
+                        <button
+                          onClick={() => { setMobileMenuOpen(false); setPrivacyPolicyOpen(true); }}
+                          className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-lg">
+                              <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-gray-900">{tr(language, 'Privacy Policy', 'Privacy Policy', 'پرائیویسی پالیسی')}</p>
+                              <p className="text-[11px] text-gray-500">{tr(language, 'User data protection & safety', 'Aapka data 100% mehfooz hai', 'صارف کے ڈیٹا کا مکمل تحفظ')}</p>
+                            </div>
+                          </div>
+                          <span className="text-gray-400 text-xs">&rsaquo;</span>
+                        </button>
                         {/* Direct Call */}
                         <a
                           href="tel:03368945775"
@@ -7621,24 +8722,20 @@ export default function SahilTraders() {
                         <span>{tr(language, `WhatsApp (${getStoreSettings().whatsapp || '+92 336 8945775'})`, `WhatsApp (${getStoreSettings().whatsapp || '+92 336 8945775'})`, '\u0648\u0627\u067c\u0633 \u0627\u06cc\u067e \u067e\u0631 \u0631\u0627\u0628\u0637\u06c1 \u06a9\u0631\u06cc\u06ba')}</span>
                       </a>
                       <div className="text-center text-[10px] text-gray-500 space-y-0.5">
-                        <p className="font-semibold text-gray-700">{tr(language, 'Open 7 Days a Week (No Holiday)', '7 Din Khula (Koi Chutti Nahi)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 9:00 \u0628\u062c\u06d2 (7 \u062f\u0646 \u06a9\u06be\u0644\u0627\u060c \u06a9\u0648\u0626\u06cc \u0686DA\u0679\u06cc \u0646\u06c1\u06cc\u06ba)')}</p>
+                        <p className="font-semibold text-gray-700">{tr(language, 'Open 7 Days a Week (No Holiday)', '7 Din Khula (Koi Chutti Nahi)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 10:00 \u0628\u062c\u06d2 (7 \u062f\u0646 \u06a9\u06be\u0644\u0627\u060c \u06a9\u0648\u0626\u06cc \u0686DA\u0679\u06cc \u0646\u06c1\u06cc\u06ba)')}</p>
                         <p>{tr(language, 'Sahil Saleem & Muhammad Zubair Moin', 'Sahil Saleem & Muhammad Zubair Moin', '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646')}</p>
                         <div className="pt-2">
-                           <button
-                             onClick={() => {
-                               try {
-                                 const base = window.location.href.replace(/\/[^\/]*$/, '/');
-                                 window.open(base + 'privacy-policy.html', '_system');
-                               } catch(e) {
-                                 window.open('privacy-policy.html', '_blank');
-                               }
-                             }}
-                             className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 underline bg-transparent border-none cursor-pointer p-0"
-                           >
+                          <button
+                            onClick={() => {
+                              setMobileMenuOpen(false);
+                              setPrivacyPolicyOpen(true);
+                            }}
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 underline bg-transparent border-none cursor-pointer p-0"
+                          >
                             <span>🔒</span>
                             <span>{tr(language, 'Privacy Policy', 'Privacy Policy (Zati Maloomat ki Hifazat)', '\u067e\u0631\u0627\u0626\u06cc\u0648\u06cc\u0633\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc')}</span>
-                           </button>
-                         </div>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -7673,7 +8770,7 @@ export default function SahilTraders() {
                         {tr(language, 'No, Stay', 'Nahi, Wapis Rahein', 'نہیں، واپس رہیں')}
                       </button>
                       <button
-                        onClick={() => { if (window.sahilExitStore) window.sahilExitStore(); }}
+                        onClick={() => { const fn = window.zsExitStore || window.sahilExitStore; if (fn) fn(); }}
                         className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-extrabold uppercase tracking-wider hover:brightness-110 transition-all shadow-md cursor-pointer"
                       >
                         {tr(language, 'Yes, Exit', 'Haan, Bahar Jaein', 'ہاں، باہر جائیں')}
@@ -7696,7 +8793,7 @@ export default function SahilTraders() {
                 WebkitTransform: 'translateZ(0)',
                 willChange: 'transform',
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-                display: 'flex', alignItems: 'stretch', height: '58px',
+                display: 'flex', alignItems: 'stretch', minHeight: '58px', height: 'calc(58px + env(safe-area-inset-bottom, 0px))', boxSizing: 'border-box',
               }}>
                 {/* 1. HOME TAB */}
                 <button
@@ -8027,15 +9124,17 @@ export default function SahilTraders() {
       cells:        { image: '', gradient: 'linear-gradient(135deg,#56ab2f,#a8e063)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="7" y="4" width="10" height="16" rx="2"/><path d="M10 2h4"/><path d="M12 9v4"/></svg>) },
       mosquito:     { image: '', gradient: 'linear-gradient(135deg,#11998e,#38ef7d)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><path d="M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/></svg>) },
       personalcare: { image: '', gradient: 'linear-gradient(135deg,#ee9ca7,#ffdde1)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>) },
+      groceryandkaryana: { image: '', gradient: 'linear-gradient(135deg,#059669,#10b981)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-2H6z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>) },
+      beverages:    { image: '', gradient: 'linear-gradient(135deg,#f59e0b,#ef4444)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"/><path d="M9 3h6v4H9z"/><path d="M12 11v6"/></svg>) },
+      fragnances:   { image: '', gradient: 'linear-gradient(135deg,#8b5cf6,#ec4899)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>) },
+      toothpasteandbrush: { image: '', gradient: 'linear-gradient(135deg,#06b6d4,#3b82f6)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>) },
+      facewash:     { image: '', gradient: 'linear-gradient(135deg,#14b8a6,#0284c7)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>) },
     };
     // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
     const CategoryHome = React.memo(function CategoryHome({ products, onSelectCategory, langData, language }) {
       const isUrdu = language === 'ur';
-      const categoriesList = getGlobalCategories(products);
-      const isNativeApp = typeof window !== 'undefined' && (
-        (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) ||
-        (window.location && (window.location.protocol === 'capacitor:' || window.location.protocol === 'ionic:'))
-      );
+      const categoriesList = useMemo(() => getGlobalCategories(products), [products]);
+      const isNativeApp = checkIsNativeApp();
 
       // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
       const categoryData = useMemo(() => {
@@ -8056,7 +9155,7 @@ export default function SahilTraders() {
             if (pa !== pb) return pa - pb;
             return a.id - b.id;
           });
-          const imageProducts = sortedCatProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage).slice(0, 6);
+          const imageProducts = sortedCatProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage || p.imageUrl).slice(0, 6);
           const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
           const animSpeed = (imageProducts.length * 3.5) + 's';
           return { cat, count, meta, imageProducts, doubleItems, animSpeed };
@@ -8122,21 +9221,16 @@ export default function SahilTraders() {
                         {/* Infinite Sliding Track */}
                         <div className="cat-marquee-track" style={{ animation: `catSlideTrack ${animSpeed} linear infinite` }}>
                           {doubleItems.map((item, idx) => {
-                            const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
+                            const itemImgSrc = getProductImgSrc(item);
                             return (
                               <div key={idx} className="cat-img-box">
-                                {ext && (
+                                {itemImgSrc && (
                                   <img
-                                    src={getImgUrl(`images/${item.id}.${ext}`)}
+                                    src={itemImgSrc}
                                     alt=""
                                     loading="lazy"
                                     onError={(e) => {
-                                      if (!e.target.dataset.triedCdn) {
-                                        e.target.dataset.triedCdn = 'true';
-                                        e.target.src = `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${item.id}.${ext}`;
-                                      } else {
-                                        e.target.style.display = 'none';
-                                      }
+                                      e.target.style.display = 'none';
                                     }}
                                   />
                                 )}
@@ -8209,7 +9303,7 @@ export default function SahilTraders() {
             <span>{tr(language, 'All Categories', 'Tamam Categories', 'تمام کیٹیگریز')}</span>
             {activeCategory === "all" && <span style={{ color: '#000000' }}>✓</span>}
           </button>
-          {CATEGORIES.map(cat => (
+          {categoriesList.map(cat => (
             <button
               key={cat.id}
               onClick={() => {
@@ -8328,25 +9422,47 @@ export default function SahilTraders() {
               </div>
             ) : (
               <p className="product-price-text font-extrabold text-sm sm:text-base" style={{ color: '#000000' }}>
-                {translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })}
+                {Number(product.price) > 0 
+                  ? translate(langData, 'priceLabel', { amount: product.price.toLocaleString() })
+                  : tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں')}
               </p>
             )}
             {/* Click to Buy button — opens product detail page */}
             <button
-              onClick={(e) => { e.stopPropagation(); if (onSelectProduct) onSelectProduct(product); }}
+              disabled={!product.price || Number(product.price) <= 0}
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                if (product.price && Number(product.price) > 0 && onSelectProduct) onSelectProduct(product); 
+              }}
               className="product-add-btn mt-2.5 sm:mt-3 w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2"
               style={{
-                background: '#111111',
-                border: '1px solid #111111',
+                background: (!product.price || Number(product.price) <= 0) ? '#9ca3af' : '#111111',
+                border: '1px solid ' + ((!product.price || Number(product.price) <= 0) ? '#9ca3af' : '#111111'),
                 color: '#ffffff',
-                boxShadow: '0 6px 14px rgba(0,0,0,0.16)',
+                boxShadow: (!product.price || Number(product.price) <= 0) ? 'none' : '0 6px 14px rgba(0,0,0,0.16)',
+                cursor: (!product.price || Number(product.price) <= 0) ? 'not-allowed' : 'pointer',
+                opacity: (!product.price || Number(product.price) <= 0) ? 0.6 : 1,
                 transform: 'translateY(0)'
               }}
-              onMouseEnter={e => { e.currentTarget.style.background='#1f2937'; e.currentTarget.style.borderColor='#1f2937'; e.currentTarget.style.transform='translateY(-1px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background='#111111'; e.currentTarget.style.borderColor='#111111'; e.currentTarget.style.transform='translateY(0)'; }}
+              onMouseEnter={e => { 
+                if (product.price && Number(product.price) > 0) {
+                  e.currentTarget.style.background='#1f2937'; 
+                  e.currentTarget.style.borderColor='#1f2937'; 
+                  e.currentTarget.style.transform='translateY(-1px)'; 
+                }
+              }}
+              onMouseLeave={e => { 
+                if (product.price && Number(product.price) > 0) {
+                  e.currentTarget.style.background='#111111'; 
+                  e.currentTarget.style.borderColor='#111111'; 
+                  e.currentTarget.style.transform='translateY(0)'; 
+                }
+              }}
             >
-              <span>🛒</span>
-              <span>{tr(language, 'Click to Buy', 'Click to Buy', 'خریدیں')}</span>
+              <span>{(!product.price || Number(product.price) <= 0) ? '⏳' : '🛒'}</span>
+              <span>{(!product.price || Number(product.price) <= 0)
+                ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں')
+                : tr(language, 'Click to Buy', 'Click to Buy', 'خریدیں')}</span>
             </button>
           </div>
         </div>
@@ -8473,9 +9589,9 @@ export default function SahilTraders() {
                               {pricing.discountPercent}%
                             </span>
                           )}
-                          {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
+                          {getProductImgSrc(product) ? (
                             <img
-                              src={getImgUrl(`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`)}
+                              src={getProductImgSrc(product)}
                               onError={(e) => { e.target.onerror = null; }}
                               alt={product.name}
                               className="w-12 h-12 rounded-xl object-contain bg-white p-1 border border-gray-200 hover:border-gray-300 transition-colors shadow-2xs"
@@ -8758,25 +9874,118 @@ export default function SahilTraders() {
       );
     }
 
-        function OrderHistoryModal({ open, orders, langData, language, onClose, onClear, onReorder, onSelectProduct }) {
-      if (!open) return null;
+    function OrderHistoryModal({ open, orders, langData, language, onClose, onClear, onReorder, onSelectProduct, onUpdateOrder }) {
       const [selectedOrder, setSelectedOrder] = React.useState(null);
       const [nowTs, setNowTs] = React.useState(() => Date.now());
 
       React.useEffect(() => {
+        if (!open) return;
         window.__orderDetailSelected = !!selectedOrder;
         window.__closeOrderDetail = () => setSelectedOrder(null);
         return () => {
           window.__orderDetailSelected = false;
           window.__closeOrderDetail = null;
         };
-      }, [selectedOrder]);
+      }, [open, selectedOrder]);
 
       React.useEffect(() => {
-        if (!selectedOrder) return;
+        if (!open || !selectedOrder) return;
         const timer = setInterval(() => setNowTs(Date.now()), 10000);
         return () => clearInterval(timer);
-      }, [selectedOrder]);
+      }, [open, selectedOrder]);
+
+      // 🔄 Real-time Order Status Sync (Supabase Cloud + Local Admin Server)
+      React.useEffect(() => {
+        if (!open) return;
+        let isMounted = true;
+        async function fetchRealStatus() {
+          // 1. Check privacy-safe cloud order_statuses map in store_settings (updates all orders in list + selectedOrder)
+          try {
+            const stRes = await fetch(`${SUPABASE_URL}/rest/v1/store_settings?id=eq.order_statuses&select=announcement,updated_at`, {
+              cache: 'no-store',
+              headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+              }
+            });
+            if (stRes.ok) {
+              const stRows = await stRes.json();
+              if (Array.isArray(stRows) && stRows.length > 0 && stRows[0].announcement && isMounted) {
+                const statusMap = JSON.parse(stRows[0].announcement);
+                if (statusMap && typeof statusMap === 'object') {
+                  if (Array.isArray(orders)) {
+                    orders.forEach(o => {
+                      const oid = String(o.id);
+                      const mappedStatus = statusMap[oid] ? String(statusMap[oid]).trim().toLowerCase() : null;
+                      if (mappedStatus && mappedStatus !== String(o.status || '').trim().toLowerCase()) {
+                        if (typeof onUpdateOrder === 'function') onUpdateOrder(oid, { status: mappedStatus });
+                      }
+                    });
+                  }
+                  if (selectedOrder && selectedOrder.id) {
+                    const selId = String(selectedOrder.id);
+                    const liveStatus = statusMap[selId] ? String(statusMap[selId]).trim().toLowerCase() : null;
+                    if (liveStatus && liveStatus !== String(selectedOrder.status || '').trim().toLowerCase()) {
+                      setSelectedOrder(prev => prev && String(prev.id) === selId ? { ...prev, status: liveStatus } : prev);
+                      if (typeof onUpdateOrder === 'function') onUpdateOrder(selId, { status: liveStatus });
+                      return;
+                    }
+                  }
+                }
+              }
+            }
+          } catch(e) {}
+
+          if (!selectedOrder || !selectedOrder.id) return;
+          const ordId = String(selectedOrder.id);
+
+          // 2. Check Supabase orders table directly (if allowed by policy)
+          try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${encodeURIComponent(ordId)}&select=status,updated_at`, {
+              cache: 'no-store',
+              headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+              }
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (Array.isArray(data) && data.length > 0 && data[0].status && isMounted) {
+                const liveStatus = String(data[0].status).trim().toLowerCase();
+                if (liveStatus !== (selectedOrder.status || '').toLowerCase()) {
+                  setSelectedOrder(prev => prev && String(prev.id) === ordId ? { ...prev, status: liveStatus } : prev);
+                  if (typeof onUpdateOrder === 'function') onUpdateOrder(ordId, { status: liveStatus });
+                  return;
+                }
+              }
+            }
+          } catch(e) {}
+
+          // 3. Local admin server fallback
+          try {
+            const localRes = await fetch(`/api/order-status?id=${encodeURIComponent(ordId)}`);
+            if (localRes.ok) {
+              const data = await localRes.json();
+              if (data && data.status && isMounted) {
+                const liveStatus = String(data.status).trim().toLowerCase();
+                if (liveStatus !== (selectedOrder.status || '').toLowerCase()) {
+                  setSelectedOrder(prev => prev && String(prev.id) === ordId ? { ...prev, status: liveStatus } : prev);
+                  if (typeof onUpdateOrder === 'function') onUpdateOrder(ordId, { status: liveStatus });
+                }
+              }
+            }
+          } catch(e) {}
+        }
+
+        fetchRealStatus();
+        const poll = setInterval(fetchRealStatus, 15000);
+        return () => {
+          isMounted = false;
+          clearInterval(poll);
+        };
+      }, [open, selectedOrder?.id]);
+
+      if (!open) return null;
 
       // ─── Detail View (When a single order is clicked) ────────
       if (selectedOrder) {
@@ -8818,66 +10027,131 @@ export default function SahilTraders() {
             {/* Detail Body */}
             <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 640, width: '100%', margin: '0 auto' }}>
               
-              {/* Visual 4-Step Order Status Tracker */}
+              {/* Visual 4-Step Order Status Tracker (Real Status Driven) */}
               {(() => {
-                let orderCreatedTime = Date.now();
-                if (order.createdAt) {
-                  orderCreatedTime = Number(order.createdAt);
-                } else if (order.id && typeof order.id === 'string' && order.id.includes('-')) {
-                  const parts = order.id.split('-');
-                  const dStr = parts[0];
-                  const tStr = parts[1];
-                  if (dStr.length === 8 && tStr.length >= 6) {
-                    const y = parseInt(dStr.slice(0, 4), 10);
-                    const m = parseInt(dStr.slice(4, 6), 10) - 1;
-                    const d = parseInt(dStr.slice(6, 8), 10);
-                    const hh = parseInt(tStr.slice(0, 2), 10);
-                    const mm = parseInt(tStr.slice(2, 4), 10);
-                    const ss = parseInt(tStr.slice(4, 6), 10);
-                    orderCreatedTime = new Date(y, m, d, hh, mm, ss).getTime();
-                  }
-                }
+                const orderCreatedTime = parseOrderCreatedAt(order);
                 const diffMinutes = Math.max(0, Math.floor((nowTs - orderCreatedTime) / (1000 * 60)));
-                const isStep2 = diffMinutes >= 5;
-                const isStep3 = diffMinutes >= 35;
-                const isStep4 = diffMinutes >= 47;
+                
+                let elapsedText = '';
+                if (diffMinutes < 1) {
+                  elapsedText = tr(language, 'Just now', 'Abhi', 'ابھی');
+                } else if (diffMinutes < 60) {
+                  elapsedText = `${diffMinutes}m ${tr(language, 'ago', 'pehle', 'پہلے')}`;
+                } else if (diffMinutes < 1440) {
+                  const hrs = Math.floor(diffMinutes / 60);
+                  const rem = diffMinutes % 60;
+                  elapsedText = `${hrs}h ${rem}m ${tr(language, 'ago', 'pehle', 'پہلے')}`;
+                } else {
+                  const days = Math.floor(diffMinutes / 1440);
+                  elapsedText = `${days}d ${tr(language, 'ago', 'pehle', 'پہلے')}`;
+                }
+
+                const normStatus = String(order.status || 'placed').trim().toLowerCase();
+                const isCancelled = ['cancelled', 'rejected'].includes(normStatus);
+                const isStep1 = !isCancelled;
+                const isStep2 = ['confirmed', 'accepted', 'processing', 'packed', 'dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery', 'delivered', 'completed'].includes(normStatus);
+                const isStep3 = ['dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery', 'delivered', 'completed'].includes(normStatus);
+                const isStep4 = ['delivered', 'completed'].includes(normStatus);
+
+                let statusBadgeText = '';
+                let statusBadgeColor = '#2563eb';
+                if (isCancelled) {
+                  statusBadgeText = '● ' + tr(language, 'Cancelled', 'Mansookh', 'منسوخ');
+                  statusBadgeColor = '#ef4444';
+                } else if (isStep4) {
+                  statusBadgeText = '● ' + tr(language, 'Delivered', 'Delivered', 'پہنچ چکا');
+                  statusBadgeColor = '#059669';
+                } else if (isStep3) {
+                  statusBadgeText = '● ' + tr(language, 'On The Way', 'Rawaana', 'روانہ');
+                  statusBadgeColor = '#2563eb';
+                } else if (isStep2) {
+                  statusBadgeText = '● ' + tr(language, 'Confirmed', 'Tasdeeq', 'تصدیق');
+                  statusBadgeColor = '#0d9488';
+                } else {
+                  statusBadgeText = '● ' + tr(language, 'Placed', 'Mausool', 'موصول') + ` (${elapsedText})`;
+                  statusBadgeColor = '#4f46e5';
+                }
 
                 return (
                   <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                     <div style={{ fontSize: 11, fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>{tr(language, 'Live Order Tracking', 'Live Order Status', 'آرڈر ٹریکنگ')}</span>
-                      <span style={{ color: isStep4 ? '#059669' : '#2563eb', fontWeight: 900 }}>
-                        {isStep4 ? '● ' + tr(language, 'Delivered', 'Delivered', 'پہنچ چکا') : '● ' + tr(language, 'Active', 'Faal', 'فعال')} ({diffMinutes}m)
+                      <span>{tr(language, 'Order Tracking', 'Order Status', 'آرڈر اسٹیٹس')}</span>
+                      <span style={{ color: statusBadgeColor, fontWeight: 900 }}>
+                        {statusBadgeText}
                       </span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, position: 'relative', textAlign: 'center' }}>
-                      {/* Step 1: Placed */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#10b981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, marginBottom: 4 }}>✓</div>
-                        <div style={{ fontSize: 10, fontWeight: 800, color: '#0f172a' }}>{tr(language, 'Placed', 'Mausool', 'موصول')}</div>
-                        <div style={{ fontSize: '9px', color: '#64748b', marginTop: 2 }}>0m</div>
+
+                    {isCancelled ? (
+                      <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 12, padding: '12px 14px', textAlign: 'center', color: '#991b1b', fontSize: 12, fontWeight: 700 }}>
+                        ❌ {tr(language, 'This order has been cancelled.', 'Yeh order cancel kar diya gaya hai.', 'یہ آرڈر منسوخ کر دیا گیا ہے۔')}
                       </div>
-                      {/* Step 2: Confirmed */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: isStep2 ? '#10b981' : '#f1f5f9', border: isStep2 ? 'none' : '1px dashed #cbd5e1', color: isStep2 ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, marginBottom: 4 }}>
-                          {isStep2 ? '✓' : '⏳'}
+                    ) : (
+                      <>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, position: 'relative', textAlign: 'center' }}>
+                          {/* Step 1: Placed */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#10b981', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, marginBottom: 4 }}>✓</div>
+                            <div style={{ fontSize: 10, fontWeight: 800, color: '#0f172a' }}>{tr(language, 'Placed', 'Mausool', 'موصول')}</div>
+                            <div style={{ fontSize: '9px', color: '#64748b', marginTop: 2 }}>{elapsedText}</div>
+                          </div>
+                          {/* Step 2: Confirmed */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ width: 28, height: 28, borderRadius: '50%', background: isStep2 ? '#10b981' : '#f1f5f9', border: isStep2 ? 'none' : '1px dashed #cbd5e1', color: isStep2 ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, marginBottom: 4 }}>
+                              {isStep2 ? '✓' : '⏳'}
+                            </div>
+                            <div style={{ fontSize: 10, fontWeight: isStep2 ? 800 : 600, color: isStep2 ? '#0f172a' : '#94a3b8' }}>{tr(language, 'Confirmed', 'Tasdeeq', 'تصدیق')}</div>
+                            <div style={{ fontSize: '9px', color: isStep2 ? '#059669' : '#94a3b8', marginTop: 2 }}>{isStep2 ? '✓ ' + tr(language, 'Done', 'Shuda', 'شدہ') : tr(language, 'Review', 'Jaiza', 'زیرِ جائزہ')}</div>
+                          </div>
+                          {/* Step 3: Dispatched */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ width: 28, height: 28, borderRadius: '50%', background: isStep3 ? '#3b82f6' : '#f1f5f9', border: isStep3 ? 'none' : '1px dashed #cbd5e1', color: isStep3 ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, marginBottom: 4 }}>🚚</div>
+                            <div style={{ fontSize: 10, fontWeight: isStep3 ? 800 : 600, color: isStep3 ? '#2563eb' : '#94a3b8' }}>{tr(language, 'On Way', 'Rawaana', 'روانہ')}</div>
+                            <div style={{ fontSize: '9px', color: isStep3 ? '#2563eb' : '#94a3b8', marginTop: 2 }}>{isStep3 ? '✓ ' + tr(language, 'Dispatched', 'Rawaana', 'روانہ') : tr(language, 'Pending', 'Baqi', 'باقی')}</div>
+                          </div>
+                          {/* Step 4: Delivered */}
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ width: 28, height: 28, borderRadius: '50%', background: isStep4 ? '#10b981' : '#f1f5f9', border: isStep4 ? 'none' : '1px dashed #cbd5e1', color: isStep4 ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, marginBottom: 4 }}>🏠</div>
+                            <div style={{ fontSize: 10, fontWeight: isStep4 ? 800 : 600, color: isStep4 ? '#059669' : '#94a3b8' }}>{tr(language, 'Delivered', 'Pahoncha', 'پہنچا')}</div>
+                            <div style={{ fontSize: '9px', color: isStep4 ? '#059669' : '#94a3b8', marginTop: 2 }}>{isStep4 ? '✓ ' + tr(language, 'Delivered', 'Pahonch gaya', 'پہنچ گیا') : tr(language, 'Pending', 'Baqi', 'باقی')}</div>
+                          </div>
                         </div>
-                        <div style={{ fontSize: 10, fontWeight: isStep2 ? 800 : 600, color: isStep2 ? '#0f172a' : '#94a3b8' }}>{tr(language, 'Confirmed', 'Tasdeeq', 'تصدیق')}</div>
-                        <div style={{ fontSize: '9px', color: isStep2 ? '#059669' : '#94a3b8', marginTop: 2 }}>5m</div>
-                      </div>
-                      {/* Step 3: Dispatched */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: isStep3 ? '#3b82f6' : '#f1f5f9', border: isStep3 ? 'none' : '1px dashed #cbd5e1', color: isStep3 ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, marginBottom: 4 }}>🚚</div>
-                        <div style={{ fontSize: 10, fontWeight: isStep3 ? 800 : 600, color: isStep3 ? '#2563eb' : '#94a3b8' }}>{tr(language, 'On Way', 'Rawaana', 'روانہ')}</div>
-                        <div style={{ fontSize: '9px', color: isStep3 ? '#2563eb' : '#94a3b8', marginTop: 2 }}>35m</div>
-                      </div>
-                      {/* Step 4: Delivered */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: isStep4 ? '#10b981' : '#f1f5f9', border: isStep4 ? 'none' : '1px dashed #cbd5e1', color: isStep4 ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, marginBottom: 4 }}>🏠</div>
-                        <div style={{ fontSize: 10, fontWeight: isStep4 ? 800 : 600, color: isStep4 ? '#059669' : '#94a3b8' }}>{tr(language, 'Delivered', 'Pahoncha', 'پہنچا')}</div>
-                        <div style={{ fontSize: '9px', color: isStep4 ? '#059669' : '#94a3b8', marginTop: 2 }}>47m</div>
-                      </div>
-                    </div>
+
+                        {/* Status Description Box */}
+                        <div style={{ background: isStep4 ? '#ecfdf5' : '#f8fafc', border: isStep4 ? '1px solid #a7f3d0' : '1px solid #e2e8f0', borderRadius: 12, padding: '10px 12px', marginTop: 14, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 11 }}>
+                            <span style={{ color: '#64748b', fontWeight: 700 }}>
+                              {order.deliveryMethod === 'pickup' ? '🏪 ' + tr(language, 'Store Pickup Timing:', 'Pickup Timing:', 'پک اپ ٹائمنگ:') : '🚚 ' + tr(language, 'Estimated Delivery Window:', 'Takhmeena Delivery:', 'تخمینہ ڈلیوری:')}
+                            </span>
+                            <span style={{ fontWeight: 800, color: '#0f172a' }}>
+                              {order.deliveryMethod === 'pickup' ? tr(language, '20 – 45 mins', '20 se 45 min', '20 تا 45 منٹ') : tr(language, '30 – 60 mins', '30 se 60 min', '30 تا 60 منٹ')}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 11, color: isStep4 ? '#059669' : '#475569', lineHeight: 1.45, fontWeight: isStep4 ? 700 : 500 }}>
+                            {isStep4
+                              ? tr(language, 'Order successfully delivered. Thank you for shopping with ZS Mart!', 'Order kamyabi se deliver ho chuka hai. ZS Mart par shopping ka shukriya!', 'آرڈر کامیابی سے پہنچ چکا ہے۔ خریداری کا شکریہ!')
+                              : isStep3
+                              ? tr(language, 'Rider is on the way to your delivery address.', 'Rider order le kar aap ki taraf nikal chuka hai.', 'رائڈر آرڈر لے کر آپ کی طرف روانہ ہے۔')
+                              : isStep2
+                              ? tr(language, 'Order confirmed by store. Items are being packed.', 'Order tasdeeq ho gaya hai, samaan pack kiya ja raha hai.', 'آرڈر تصدیق ہو چکا ہے، سامان پیک ہو رہا ہے۔')
+                              : tr(language, 'Order placed via WhatsApp. Our team is reviewing and confirming.', 'Order receive ho gaya hai. Hamari team check aur tasdeeq kar rahi hai.', 'آرڈر موصول ہو چکا ہے۔ ہماری ٹیم جائزہ لے رہی ہے۔')}
+                          </div>
+                        </div>
+
+                        {/* WhatsApp Live Status Inquiry Button */}
+                        {!isStep4 && (
+                          <a
+                            href={buildWhatsAppUrl(getStoreSettings().whatsapp, `Assalam U Alaikum ZS Mart!\n\nMere Order No #${order.id} ka live status bata dein.\n📅 Date: ${order.dateText || order.date || ''}\n💰 Total: Rs ${Number(order.grandTotal || 0).toLocaleString()}`)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ marginTop: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 12px', borderRadius: 10, background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', fontSize: 11.5, fontWeight: 800, textDecoration: 'none' }}
+                            className="hover:bg-green-100 transition-colors"
+                          >
+                            <svg style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="#15803d"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            <span>{tr(language, 'Inquire Live Status on WhatsApp', 'WhatsApp par Live Status Poochein', 'واٹس ایپ پر لائیو اسٹیٹس پوچھیں')}</span>
+                          </a>
+                        )}
+                      </>
+                    )}
                   </div>
                 );
               })()}
@@ -8920,8 +10194,7 @@ export default function SahilTraders() {
                 </div>
                 
                 {order.items && order.items.map((item, i) => {
-                  const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
-                  const imgSrc = hasFile ? getImgUrl(`images/${item.id}.${window.PRODUCT_IMAGE_MAP[item.id]}`) : (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
+                  const imgSrc = getProductImgSrc(item) || (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
                   return (
                     <div
                       key={i}
@@ -9145,6 +10418,18 @@ export default function SahilTraders() {
                           <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#ecfdf5', color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669', border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0' }}>
                             {order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Delivery'}
                           </span>
+                          {(() => {
+                            const nSt = String(order.status || 'placed').toLowerCase();
+                            const isDeliv = ['delivered', 'completed'].includes(nSt);
+                            const isOnWay = ['dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery'].includes(nSt);
+                            const isConf = ['confirmed', 'accepted', 'processing', 'packed'].includes(nSt);
+                            const isCanc = ['cancelled', 'rejected'].includes(nSt);
+                            if (isCanc) return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }}>● Cancelled</span>;
+                            if (isDeliv) return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0' }}>● Delivered</span>;
+                            if (isOnWay) return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>● On Way</span>;
+                            if (isConf) return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#f0fdf4', color: '#0d9488', border: '1px solid #bbf7d0' }}>● Confirmed</span>;
+                            return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }}>● Placed</span>;
+                          })()}
                         </div>
                         <div style={{ fontSize: 15, fontWeight: 900, color: '#059669' }}>
                           Rs {Number(order.grandTotal || 0).toLocaleString()}
@@ -9161,8 +10446,7 @@ export default function SahilTraders() {
                       {/* Small Thumbnail Icons of items (Clicking open order detail) */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, overflowX: 'auto', paddingBottom: 2 }}>
                         {order.items && order.items.slice(0, 5).map((it, itemIdx) => {
-                          const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[it.id];
-                          const imgSrc = hasFile ? getImgUrl(`images/${it.id}.${window.PRODUCT_IMAGE_MAP[it.id]}`) : (it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null);
+                          const imgSrc = getProductImgSrc(it) || (it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null);
                           return (
                             <div
                               key={itemIdx}
@@ -9313,6 +10597,15 @@ export default function SahilTraders() {
       function handleOrder() {
         const e = validate();
         if (Object.keys(e).length > 0) { setErrors(e); return; }
+        if (!cart || cart.length === 0 || cartTotal <= 0) {
+          alert(isUrdu ? 'کارٹ خالی ہے یا رقم درست نہیں۔' : 'Cart is empty or invalid.');
+          return;
+        }
+        const hasInvalidPrice = cart.some(({ product }) => !product || product.price === undefined || product.price === null || Number(product.price) <= 0);
+        if (hasInvalidPrice) {
+          alert(isUrdu ? 'کارٹ میں موجود بعض اشیاء کی قیمت درست نہیں۔ براہ کرم دوبارہ کوشش کریں۔' : 'Some items in cart have invalid pricing.');
+          return;
+        }
         setPlacing(true);
         const totalBulkSavings = cart.reduce((sum, { product, qty }) => {
           const bulk = calculateBulkPricing(product.price, qty);
@@ -9358,7 +10651,10 @@ export default function SahilTraders() {
         const localDateStr = `${orderDate.getFullYear()}-${_pad(orderDate.getMonth() + 1)}-${_pad(orderDate.getDate())}`;
         const localTimeStr = `${_pad(orderDate.getHours())}:${_pad(orderDate.getMinutes())}`;
         const orderRecord = {
-          id: `${orderDate.getFullYear()}${_pad(orderDate.getMonth() + 1)}${_pad(orderDate.getDate())}-${_pad(orderDate.getHours())}${_pad(orderDate.getMinutes())}${_pad(orderDate.getSeconds())}`,
+          id: generateUniqueOrderId('ORD'),
+          createdAt: orderDate.getTime(),
+          createdAtIso: orderDate.toISOString(),
+          status: 'placed',
           date: localDateStr,
           time: localTimeStr,
           dateText: orderDate.toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
@@ -9385,6 +10681,7 @@ export default function SahilTraders() {
               extraSavings: bulk.extraSavings,
               total: bulk.finalTotal,
               initial: product.initial,
+              imageUrl: product.imageUrl || null,
               imageExt: window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? window.PRODUCT_IMAGE_MAP[product.id] : null
             };
           })
@@ -9549,9 +10846,9 @@ export default function SahilTraders() {
                     </button>
                     <span style={{ fontSize: 16, fontWeight: 800, color: '#000000', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Poppins',sans-serif" }}>{translate(langData, "checkoutTitle")}</span>
                   </div>
-                  <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', display: 'flex' }}
-                    onMouseEnter={e=>e.currentTarget.style.color='white'}
-                    onMouseLeave={e=>e.currentTarget.style.color='rgba(255,255,255,0.4)'}
+                  <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex' }}
+                    onMouseEnter={e=>e.currentTarget.style.color='#0f172a'}
+                    onMouseLeave={e=>e.currentTarget.style.color='#64748b'}
                   >
                     <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
@@ -9565,9 +10862,9 @@ export default function SahilTraders() {
                         return (
                           <div key={`${product.id}-${variant || ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                              {(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) ? (
+                              {getProductImgSrc(product) ? (
                                 <img
-                                  src={getImgUrl(`images/${product.id}.${(window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || "png"}`)}
+                                  src={getProductImgSrc(product)}
                                   onError={(e) => { e.target.onerror = null; }}
                                   alt={product.name}
                                   className="w-7 h-7 rounded-lg object-contain bg-white p-0.5 shrink-0 border border-gray-200"

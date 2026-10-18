@@ -58,6 +58,8 @@ window.TRANSLATIONS.en = {
     personalcare: "Personal Care",
     fragnances: "Fragrances & Roll on",
     toothpasteandbrush: "Dental Cares",
-    facewash: "Face Wash & Body Washes"
+    facewash: "Face Wash & Body Washes",
+    groceryandkaryana: "Grocery & Karyana",
+    beverages: "Beverages (Cold Drinks, Juices & Water)"
   }
 };

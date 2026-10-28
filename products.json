@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-18T15:37:51.410Z",
-  "total": 1091,
+  "updatedAt": "2026-10-28T22:22:47.504Z",
+  "total": 1186,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -1074,12 +1074,138 @@
     "1331": "webp",
     "1332": "webp",
     "1333": "webp",
-    "1334": "webp"
+    "1334": "webp",
+    "1335": "webp",
+    "1336": "webp",
+    "1337": "webp",
+    "1338": "webp",
+    "1339": "webp",
+    "1340": "webp",
+    "1341": "webp",
+    "1342": "webp",
+    "1343": "webp",
+    "1344": "webp",
+    "1345": "webp",
+    "1346": "webp",
+    "1347": "webp",
+    "1348": "webp",
+    "1349": "webp",
+    "1350": "webp",
+    "1351": "webp",
+    "1352": "webp",
+    "1353": "webp",
+    "1354": "webp",
+    "1355": "webp",
+    "1356": "webp",
+    "1357": "webp",
+    "1358": "webp",
+    "1359": "webp",
+    "1360": "webp",
+    "1361": "webp",
+    "1362": "webp",
+    "1363": "webp",
+    "1364": "webp",
+    "1365": "webp",
+    "1366": "webp",
+    "1367": "webp",
+    "1368": "webp",
+    "1369": "webp",
+    "1370": "webp",
+    "1371": "webp",
+    "1372": "webp",
+    "1373": "webp",
+    "1374": "webp",
+    "1375": "webp",
+    "1376": "webp",
+    "1377": "webp",
+    "1378": "webp",
+    "1379": "webp",
+    "1380": "webp",
+    "1381": "webp",
+    "1382": "webp",
+    "1383": "webp",
+    "1384": "webp",
+    "1385": "webp",
+    "1386": "webp",
+    "1387": "webp",
+    "1388": "webp",
+    "1389": "webp",
+    "1390": "webp",
+    "1391": "webp",
+    "1392": "webp",
+    "1393": "webp",
+    "1394": "webp",
+    "1395": "webp",
+    "1396": "webp",
+    "1397": "webp",
+    "1398": "webp",
+    "1399": "webp",
+    "1400": "webp",
+    "1401": "webp",
+    "1402": "webp",
+    "1403": "webp",
+    "1404": "webp",
+    "1405": "webp",
+    "1406": "webp",
+    "1407": "webp",
+    "1408": "webp",
+    "1409": "webp",
+    "1410": "webp",
+    "1411": "webp",
+    "1412": "webp",
+    "1413": "webp",
+    "1414": "webp",
+    "1415": "webp",
+    "1416": "webp",
+    "1417": "webp",
+    "1418": "webp",
+    "1419": "webp",
+    "1420": "webp",
+    "1421": "webp",
+    "1422": "webp",
+    "1423": "webp",
+    "1424": "webp",
+    "1425": "webp",
+    "1426": "webp",
+    "1427": "webp",
+    "1428": "webp",
+    "1429": "webp",
+    "1430": "webp",
+    "1431": "webp",
+    "1432": "webp",
+    "1433": "webp",
+    "1434": "webp",
+    "1435": "webp",
+    "1436": "webp",
+    "1437": "webp",
+    "1438": "webp",
+    "1439": "webp",
+    "1440": "webp",
+    "1441": "webp",
+    "1442": "webp",
+    "1443": "webp",
+    "1444": "webp",
+    "1445": "webp",
+    "1446": "webp",
+    "1447": "webp",
+    "1448": "webp",
+    "1449": "webp",
+    "1450": "webp",
+    "1451": "webp",
+    "1452": "webp",
+    "1453": "webp",
+    "1454": "webp",
+    "1455": "webp",
+    "1456": "webp",
+    "1457": "webp",
+    "1458": "webp",
+    "1459": "webp",
+    "1460": "webp",
+    "1461": "webp",
+    "1462": "webp",
+    "1463": "webp"
   },
   "itemImageVersions": {
-    "1": 1788525460576,
-    "2": 1788525481429,
-    "3": 1788525488963,
     "5": 1788525502717,
     "6": 1788525507896,
     "7": 1788525517401,
@@ -1087,7 +1213,6 @@
     "14": 1788525478250,
     "15": 1788525478784,
     "16": 1788525479824,
-    "17": 1788525480309,
     "18": 1788525480658,
     "21": 1788525481649,
     "22": 1788525481731,
@@ -1338,10 +1463,8 @@
     "359": 1788525491750,
     "360": 1788525491785,
     "362": 1788525491817,
-    "363": 1788525491845,
     "364": 1788525491872,
     "365": 1788525491900,
-    "366": 1788525491933,
     "367": 1788525491960,
     "368": 1788525491999,
     "370": 1788525492100,
@@ -1353,7 +1476,7 @@
     "377": 1788525492890,
     "378": 1788525493008,
     "379": 1788525493063,
-    "380": 1788525493175,
+    "380": 1792939307410,
     "381": 1788525493202,
     "382": 1788525493233,
     "383": 1788525493271,
@@ -1478,9 +1601,8 @@
     "538": 1788525504176,
     "539": 1788525504210,
     "540": 1788525504302,
-    "541": 1788525504343,
     "542": 1788525504384,
-    "543": 1788525504427,
+    "543": 1793211895014,
     "544": 1788525504466,
     "545": 1788525504506,
     "548": 1788525504540,
@@ -1592,8 +1714,8 @@
     "665": 1788525514398,
     "666": 1788525514529,
     "667": 1788525514914,
-    "668": 1788525514952,
-    "669": 1788525514996,
+    "668": 1793212059746,
+    "669": 1793212082323,
     "670": 1788525515429,
     "671": 1788525515610,
     "672": 1788525515717,
@@ -1601,9 +1723,7 @@
     "674": 1788525515864,
     "675": 1788525515904,
     "676": 1788525515948,
-    "677": 1788525515999,
-    "678": 1788525516038,
-    "679": 1788525516080,
+    "679": 1793212317592,
     "681": 1788525516161,
     "682": 1788525516211,
     "683": 1788525516263,
@@ -1716,12 +1836,10 @@
     "807": 1788525526276,
     "808": 1788525526382,
     "809": 1788525526421,
-    "810": 1788525526600,
     "811": 1788525526811,
-    "812": 1788525526853,
-    "813": 1788525526886,
-    "814": 1788525526930,
-    "815": 1788525526953,
+    "812": 1793211368750,
+    "813": 1793211392705,
+    "814": 1793211410460,
     "816": 1788525526997,
     "817": 1788525527026,
     "818": 1788525527107,
@@ -1787,7 +1905,6 @@
     "882": 1788525533816,
     "883": 1788525533855,
     "884": 1788525533988,
-    "904": 1788525534301,
     "905": 1788525534335,
     "906": 1788525534373,
     "907": 1788525534413,
@@ -1915,7 +2032,7 @@
     "1059": 1788525463588,
     "1060": 1788525463737,
     "1061": 1788525463777,
-    "1062": 1788525463817,
+    "1062": 1793210487106,
     "1063": 1788525463848,
     "1064": 1788525463893,
     "1065": 1788525463933,
@@ -1925,10 +2042,7 @@
     "1075": 1788525464171,
     "1076": 1788525464309,
     "1081": 1788525464365,
-    "1083": 1788525464415,
     "1084": 1788525464460,
-    "1086": 1788525464505,
-    "1087": 1788525464547,
     "1088": 1788525464604,
     "1089": 1788525464642,
     "1090": 1788525464792,
@@ -1940,11 +2054,10 @@
     "1096": 1788525465403,
     "1097": 1788525465453,
     "1098": 1788525465486,
-    "1099": 1788525465520,
-    "1100": 1788525465786,
+    "1100": 1793197267852,
     "1101": 1788525465840,
     "1102": 1788525465972,
-    "1103": 1788525466105,
+    "1103": 1793197650514,
     "1104": 1788525466152,
     "1105": 1788525466198,
     "1109": 1788525466333,
@@ -1978,17 +2091,13 @@
     "1152": 1788525468717,
     "1154": 1788525468826,
     "1155": 1788525468884,
-    "1156": 1788525468978,
     "1157": 1788525469022,
     "1160": 1788525469175,
     "1161": 1788525469202,
     "1162": 1788525469230,
     "1163": 1788525469360,
-    "1164": 1788525469413,
     "1165": 1788525469446,
-    "1166": 1788525469477,
     "1167": 1788525469615,
-    "1168": 1788525469678,
     "1169": 1788525469747,
     "1173": 1788525469807,
     "1174": 1788525469848,
@@ -2067,13 +2176,6 @@
     "1266": 1788525477412,
     "1267": 1788525477453,
     "1268": 1788525477495,
-    "1269": 1788525477525,
-    "1270": 1788525477625,
-    "1271": 1790065130769,
-    "1272": 1790065130857,
-    "1273": 1790065131014,
-    "1274": 1790065131056,
-    "1275": 1790065131103,
     "1276": 1790065131146,
     "1277": 1790065131187,
     "1278": 1790065131291,
@@ -2110,13 +2212,12 @@
     "1309": 1791836063558,
     "1310": 1791557136753,
     "1311": 1791557139046,
-    "1312": 1791557139046,
+    "1312": 1792357881384,
     "1313": 1791557141733,
     "1314": 1791557144272,
     "1315": 1791557146949,
     "1322": 1791557155209,
     "1323": 1791557158394,
-    "1324": 1791581007563,
     "1325": 1791830640151,
     "1326": 1791837677369,
     "1327": 1791837678507,
@@ -2126,7 +2227,136 @@
     "1331": 1791837688373,
     "1332": 1791841761415,
     "1333": 1791841761484,
-    "1334": 1791841761602
+    "1334": 1791841761602,
+    "1335": 1792418800147,
+    "1336": 1792418988246,
+    "1337": 1792419532962,
+    "1338": 1792574155490,
+    "1339": 1792574345765,
+    "1340": 1792577387598,
+    "1341": 1792577444280,
+    "1342": 1792577531873,
+    "1343": 1792577583625,
+    "1344": 1792578163638,
+    "1345": 1792578205083,
+    "1346": 1792578248548,
+    "1347": 1792578518189,
+    "1348": 1792578552942,
+    "1349": 1792578714707,
+    "1350": 1792579101137,
+    "1351": 1792579426751,
+    "1352": 1792579481292,
+    "1353": 1792579559674,
+    "1354": 1792586159552,
+    "1355": 1792586275526,
+    "1356": 1792586727041,
+    "1357": 1792587969425,
+    "1358": 1792588406191,
+    "1359": 1792588516696,
+    "1360": 1792589007186,
+    "1361": 1792589566269,
+    "1362": 1792589729974,
+    "1363": 1792589839905,
+    "1364": 1792589927061,
+    "1365": 1792590219688,
+    "1366": 1792590410466,
+    "1367": 1792590832860,
+    "1368": 1792590919221,
+    "1369": 1792591047957,
+    "1370": 1792591249829,
+    "1371": 1792591305128,
+    "1372": 1792591437181,
+    "1373": 1792591779632,
+    "1374": 1792591840197,
+    "1375": 1792591897229,
+    "1376": 1792591951670,
+    "1377": 1792592002852,
+    "1378": 1792592055916,
+    "1379": 1792592138332,
+    "1380": 1792592230705,
+    "1381": 1792592276170,
+    "1382": 1792592318061,
+    "1383": 1792592381509,
+    "1384": 1792592420842,
+    "1385": 1792592496645,
+    "1386": 1792592541171,
+    "1387": 1792592602029,
+    "1388": 1792592655710,
+    "1389": 1792592970470,
+    "1390": 1792593040128,
+    "1391": 1792606209069,
+    "1392": 1792606689981,
+    "1393": 1792607027203,
+    "1394": 1792607271182,
+    "1395": 1792607605387,
+    "1396": 1792757352017,
+    "1397": 1792938748220,
+    "1398": 1792938881539,
+    "1399": 1792940052557,
+    "1400": 1792940140221,
+    "1401": 1792940223956,
+    "1402": 1792940251389,
+    "1403": 1792940270676,
+    "1404": 1792940557170,
+    "1405": 1792943213694,
+    "1406": 1793196266285,
+    "1407": 1793196310292,
+    "1408": 1793196401456,
+    "1409": 1793197967784,
+    "1410": 1793203932595,
+    "1411": 1793203990352,
+    "1412": 1793204038344,
+    "1413": 1793204152261,
+    "1414": 1793204191039,
+    "1415": 1793204294981,
+    "1416": 1793204346780,
+    "1417": 1793204390715,
+    "1418": 1793204430718,
+    "1419": 1793204478653,
+    "1420": 1793204744978,
+    "1421": 1793204781264,
+    "1422": 1793204846130,
+    "1423": 1793205113940,
+    "1424": 1793205172332,
+    "1425": 1793205249388,
+    "1426": 1793205291939,
+    "1427": 1793205447397,
+    "1428": 1793205511182,
+    "1429": 1793210272798,
+    "1430": 1793210361033,
+    "1431": 1793210709339,
+    "1432": 1793210790096,
+    "1433": 1793211004774,
+    "1434": 1793211097393,
+    "1435": 1793219113609,
+    "1436": 1793219279260,
+    "1437": 1793219403997,
+    "1438": 1793219516204,
+    "1439": 1793219685732,
+    "1440": 1793219866560,
+    "1441": 1793219994141,
+    "1442": 1793220462853,
+    "1443": 1793220478741,
+    "1444": 1793220493915,
+    "1445": 1793220543908,
+    "1446": 1793220568656,
+    "1447": 1793221143756,
+    "1448": 1793221238240,
+    "1449": 1793221456079,
+    "1450": 1793221539748,
+    "1451": 1793221701824,
+    "1452": 1793221918747,
+    "1453": 1793221996735,
+    "1454": 1793222092774,
+    "1455": 1793222264919,
+    "1456": 1793222391146,
+    "1457": 1793222494280,
+    "1458": 1793222734331,
+    "1459": 1793222827441,
+    "1460": 1793222923093,
+    "1461": 1793223002446,
+    "1462": 1793223092648,
+    "1463": 1793223211128
   },
   "variants": {
     "183": {
@@ -2213,104 +2443,103 @@
       "priority": 1
     },
     {
-      "id": "haircolour",
-      "name": "Hair Colors & Care & Oils",
+      "id": "masale",
+      "name": "Masale (Khule & Packed)",
       "priority": 2
     },
     {
-      "id": "soaps",
-      "name": "Local & Imported Soaps",
+      "id": "milkliquidpowder",
+      "name": "Milk & Tea Essentials",
       "priority": 3
     },
     {
+      "id": "beverages",
+      "name": "Beverages (Cold Drinks, Juices & Water)",
+      "priority": 4
+    },
+    {
       "id": "shampoo",
-      "name": "Shampoo & Conditioners"
+      "name": "Shampoo & Conditioners",
+      "priority": 4
+    },
+    {
+      "id": "facewash",
+      "name": "Face Wash & Body Washes",
+      "priority": 5
+    },
+    {
+      "id": "personalcare",
+      "name": "Personal Care",
+      "priority": 6
+    },
+    {
+      "id": "babycare",
+      "name": "Baby Care & Powders",
+      "priority": 7
     },
     {
       "id": "creams",
-      "name": "Creams & Lotions & Bleach"
+      "name": "Creams & Lotions & Bleach",
+      "priority": 8
+    },
+    {
+      "id": "shaving",
+      "name": "Shaving & Razers & Blades",
+      "priority": 9
+    },
+    {
+      "id": "haircolour",
+      "name": "Hair Colors & Care & Oils",
+      "priority": 10
+    },
+    {
+      "id": "lock",
+      "name": "Locks & Cells & Lighters",
+      "priority": 10
+    },
+    {
+      "id": "general",
+      "name": "General Items & Others",
+      "priority": 11
+    },
+    {
+      "id": "mosquito",
+      "name": "Anti- Mosquitoes",
+      "priority": 13
+    },
+    {
+      "id": "fragnances",
+      "name": "Fragnances & Roll on",
+      "priority": 15
+    },
+    {
+      "id": "toothpasteandbrush",
+      "name": "Dental Cares",
+      "priority": 16
     },
     {
       "id": "stationary",
-      "name": "Stationary & Tapes"
+      "name": "Stationary & Tapes",
+      "priority": 17
+    },
+    {
+      "id": "attacheenidaalchawal",
+      "name": "Atta & Chenee & Daal & Chawal"
     },
     {
       "id": "sports",
       "name": "Sports & Toys"
     },
     {
-      "id": "shaving",
-      "name": "Shaving & Razers & Blades"
-    },
-    {
       "id": "condemn",
       "name": "Condoms"
     },
     {
-      "id": "lock",
-      "name": "Locks & Cells & Lighters"
-    },
-    {
-      "id": "general",
-      "name": "General Items & Others"
-    },
-    {
-      "id": "babycare",
-      "name": "Baby Care & Powders"
-    },
-    {
-      "id": "mosquito",
-      "name": "Anti- Mosquitoes"
-    },
-    {
-      "id": "personalcare",
-      "name": "Personal Care"
-    },
-    {
-      "id": "fragnances",
-      "name": "Fragnances & Roll on"
-    },
-    {
-      "id": "toothpasteandbrush",
-      "name": "Dental Cares"
-    },
-    {
-      "id": "facewash",
-      "name": "Face Wash & Body Washes"
-    },
-    {
-      "id": "beverages",
-      "name": "Beverages (Cold Drinks, Juices & Water)"
+      "id": "soaps",
+      "name": "Local & Imported Soaps"
     }
   ],
   "products": [
-    {
-      "id": 1,
-      "name": "7 HERBAL OIL 100ML RS,250",
-      "price": 220,
-      "categoryId": "haircolour",
-      "categoryName": "Hair Colors & Care & Oils",
-      "priority": 2,
-      "imageVersion": 1788525460576
-    },
-    {
-      "id": 2,
-      "name": "7 HERBAL OIL 200ML RP,400",
-      "price": 369,
-      "categoryId": "haircolour",
-      "categoryName": "Hair Colors & Care & Oils",
-      "priority": 3,
-      "imageVersion": 1788525481429
-    },
-    {
-      "id": 3,
-      "name": "7 HERBAL OIL 50ML RS,170",
-      "price": 155,
-      "categoryId": "haircolour",
-      "categoryName": "Hair Colors & Care & Oils",
-      "priority": 1,
-      "imageVersion": 1788525488963
-    },
     {
       "id": 5,
       "name": "AL RASHIEED OIL 100ML SASSO",
@@ -2350,7 +2579,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "A",
-      "imageVersion": 1788525525905
+      "imageVersion": 1788525525905,
+      "purchasePrice": 55
     },
     {
       "id": 14,
@@ -2375,15 +2605,6 @@
       "categoryId": "sports",
       "categoryName": "Sports & Toys & Birthday",
       "imageVersion": 1788525479824
-    },
-    {
-      "id": 17,
-      "name": "BAJAJ ALMOND OIL 100ML",
-      "price": 950,
-      "categoryId": "haircolour",
-      "categoryName": "Hair Colors & Care & Oils",
-      "priority": 4,
-      "imageVersion": 1788525480309
     },
     {
       "id": 18,
@@ -2452,7 +2673,8 @@
       "price": 15,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525488387
+      "imageVersion": 1788525488387,
+      "purchasePrice": 11
     },
     {
       "id": 30,
@@ -2460,7 +2682,8 @@
       "price": 15,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525489051
+      "imageVersion": 1788525489051,
+      "purchasePrice": 11
     },
     {
       "id": 31,
@@ -2468,47 +2691,53 @@
       "price": 15,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525489456
+      "imageVersion": 1788525489456,
+      "purchasePrice": 11
     },
     {
       "id": 32,
       "name": "BALL PEN PIANO YELLOW BLUE CAP",
-      "price": 15,
+      "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525489948
+      "imageVersion": 1788525489948,
+      "purchasePrice": 13.2
     },
     {
       "id": 33,
-      "name": "BALL PEN PICASSO BLUE",
-      "price": 18,
+      "name": "BALL PEN PICASSO GRIP BLUE",
+      "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525490439
+      "imageVersion": 1788525490439,
+      "purchasePrice": 13.5
     },
     {
       "id": 34,
-      "name": "BALL PEN PICASSO RED",
-      "price": 18,
+      "name": "BALL PEN PICASSO GRIP RED",
+      "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525491003
+      "imageVersion": 1788525491003,
+      "purchasePrice": 13.5
     },
     {
       "id": 37,
-      "name": "BALL POINT PEN SIGNATURE (BLACK)",
-      "price": 18,
+      "name": "BALL  PEN SIGNATURE (BLACK) RS,30",
+      "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525492063
+      "imageVersion": 1788525492063,
+      "purchasePrice": 14.5
     },
     {
       "id": 38,
-      "name": "BALL POINT PEN SIGNATURE (BLUE)",
-      "price": 18,
+      "name": "BALL PEN SIGNATURE (BLUE) RS,30",
+      "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525493135
+      "imageVersion": 1788525493135,
+      "purchasePrice": 14.5
     },
     {
       "id": 51,
@@ -3254,57 +3483,63 @@
     },
     {
       "id": 158,
-      "name": "CELL POWER PLUS AA",
-      "price": 30,
+      "name": "CELL POWER PLUS AA RS,40",
+      "price": 34,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525479701
+      "imageVersion": 1788525479701,
+      "purchasePrice": 25.83
     },
     {
       "id": 159,
-      "name": "CELL TOSHIBA AA (BLACK)",
-      "price": 35,
+      "name": "CELL TOSHIBA AA (BLACK) RS,50",
+      "price": 39,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525479784
+      "imageVersion": 1788525479784,
+      "purchasePrice": 31
     },
     {
       "id": 161,
-      "name": "CELL TOSHIBA AA (RED)",
-      "price": 35,
+      "name": "CELL TOSHIBA AA (RED) RS,40",
+      "price": 34,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525479996
+      "imageVersion": 1788525479996,
+      "purchasePrice": 27.5
     },
     {
       "id": 162,
-      "name": "CELL TOSHIBA AAA (BLACK)",
-      "price": 35,
+      "name": "CELL TOSHIBA AAA (BLACK) RS,50",
+      "price": 39,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525480046
+      "imageVersion": 1788525480046,
+      "purchasePrice": 31
     },
     {
       "id": 163,
-      "name": "CELL TOSHIBA AAA (RED)",
-      "price": 35,
+      "name": "CELL TOSHIBA AAA (RED) RS,40",
+      "price": 34,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525480099
+      "imageVersion": 1788525480099,
+      "purchasePrice": 27.5
     },
     {
       "id": 165,
-      "name": "CELL TOSHIBA SIZE (D)",
-      "price": 140,
+      "name": "CELL TOSHIBA SIZE (D) RS,220",
+      "price": 179,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525480135
+      "imageVersion": 1788525480135,
+      "purchasePrice": 121.5
     },
     {
       "id": 167,
@@ -3315,7 +3550,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525480198
+      "imageVersion": 1788525480198,
+      "purchasePrice": 1
     },
     {
       "id": 168,
@@ -3384,14 +3620,15 @@
     },
     {
       "id": 175,
-      "name": "COFFEE SACHET (60 PCS)",
-      "price": 35,
+      "name": "COFFEE SACHET (60 PCS) RS,50",
+      "price": 34,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525480545
+      "imageVersion": 1788525480545,
+      "purchasePrice": 28.33
     },
     {
       "id": 177,
@@ -3433,25 +3670,27 @@
     },
     {
       "id": 187,
-      "name": "COLOUR GODREJ SACHET (DARK,BROWN)",
-      "price": 70,
+      "name": "COLOUR GODREJ SACHET (DARK,BROWN) RS,80",
+      "price": 59,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525480902
+      "imageVersion": 1788525480902,
+      "purchasePrice": 48.12
     },
     {
       "id": 188,
-      "name": "COLOUR GODREJ SACHET (NATURAL BROWN)",
-      "price": 70,
+      "name": "COLOUR GODREJ SACHET (NATURAL BROWN) RS,80",
+      "price": 59,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525480944
+      "imageVersion": 1788525480944,
+      "purchasePrice": 48.12
     },
     {
       "id": 189,
@@ -3513,24 +3752,26 @@
     {
       "id": 208,
       "name": "COLOUR PRIMA HAIR (# 43 BROWN) RS,80",
-      "price": 60,
+      "price": 59,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525481577
+      "imageVersion": 1788525481577,
+      "purchasePrice": 35
     },
     {
       "id": 209,
       "name": "COLOUR PRIMA HAIR (# 45 BLACK) RS,80",
-      "price": 60,
+      "price": 59,
       "categoryId": "haircolour",
       "categoryName": "Hair Colors & Care & Oils",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525481613
+      "imageVersion": 1788525481613,
+      "purchasePrice": 35
     },
     {
       "id": 219,
@@ -3902,7 +4143,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525484314
+      "imageVersion": 1788525484314,
+      "purchasePrice": 328
     },
     {
       "id": 263,
@@ -4387,14 +4629,15 @@
     },
     {
       "id": 326,
-      "name": "CREAM PARLEY BLEACH SACHET BLACK RS,70",
-      "price": 60,
+      "name": "PARLEY BLEACH SACHET BLACK RS,70",
+      "price": 59,
       "categoryId": "creams",
       "categoryName": "Creams & Lotions & Bleach",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1788525490322
+      "imageVersion": 1788525490322,
+      "purchasePrice": 50
     },
     {
       "id": 327,
@@ -4679,89 +4922,81 @@
     },
     {
       "id": 362,
-      "name": "DETTOL PANI 50ML (SMALL) RP,250",
-      "price": 220,
+      "name": "DETTOL PANI 50ML (SMALL) RS,250",
+      "price": 229,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "hasImage": true,
       "gradient": null,
       "initial": "D",
-      "imageVersion": 1788525491817
-    },
-    {
-      "id": 363,
-      "name": "DOLLAR GEL PEN (BLACK)",
-      "price": 40,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525491845
+      "imageVersion": 1788525491817,
+      "purchasePrice": 185
     },
     {
       "id": 364,
-      "name": "DOLLAR GEL PEN (BLUE)",
-      "price": 40,
+      "name": "DOLLAR GEL PEN (BLUE) RS,80",
+      "price": 49,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525491872
+      "imageVersion": 1788525491872,
+      "purchasePrice": 36
     },
     {
       "id": 365,
-      "name": "DOLLAR GEL PEN (GREEN)",
-      "price": 40,
+      "name": "DOLLAR GEL PEN (GREEN) RS,80",
+      "price": 49,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525491900
-    },
-    {
-      "id": 366,
-      "name": "DOLLAR GEL PEN (RED)",
-      "price": 40,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525491933
+      "imageVersion": 1788525491900,
+      "purchasePrice": 36
     },
     {
       "id": 367,
-      "name": "DOLLAR PEN (CLIPPER) BLACK",
-      "price": 18,
+      "name": "DOLLAR PEN (CLIPPER) BLACK RS,30",
+      "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525491960
+      "imageVersion": 1788525491960,
+      "purchasePrice": 13.7
     },
     {
       "id": 368,
-      "name": "DOLLAR PEN (CLIPPER) BLUE",
-      "price": 18,
+      "name": "DOLLAR PEN (CLIPPER) BLUE RS,30",
+      "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "D",
-      "imageVersion": 1788525491999
+      "imageVersion": 1788525491999,
+      "purchasePrice": 13.7
     },
     {
       "id": 370,
-      "name": "DOLLAR PEN (CLIPPER) RED",
-      "price": 18,
+      "name": "DOLLAR PEN (CLIPPER) RED RS,30",
+      "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525492100
+      "imageVersion": 1788525492100,
+      "purchasePrice": 13.7
     },
     {
       "id": 371,
-      "name": "DOLLAR POINTER (BLACK)",
+      "name": "DOLLAR POINTER (BLACK) RS,50",
       "price": 30,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525492142
+      "imageVersion": 1788525492142,
+      "purchasePrice": 22.5
     },
     {
       "id": 372,
-      "name": "DOLLAR POINTER (BLUE)",
-      "price": 0,
+      "name": "DOLLAR POINTER (BLUE) RS,50",
+      "price": 30,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525492180
+      "imageVersion": 1788525492180,
+      "purchasePrice": 22.5
     },
     {
       "id": 373,
@@ -4782,13 +5017,14 @@
     {
       "id": 375,
       "name": "DORCO RAZOR",
-      "price": 190,
+      "price": 179,
       "categoryId": "shaving",
       "categoryName": "Shaving & Razers & Blades",
       "hasImage": true,
       "gradient": null,
       "initial": "D",
-      "imageVersion": 1788525492308
+      "imageVersion": 1788525492308,
+      "purchasePrice": 150
     },
     {
       "id": 377,
@@ -4808,25 +5044,27 @@
     },
     {
       "id": 379,
-      "name": "ELFY JIMSA BOTTLE 20GM",
-      "price": 140,
+      "name": "ELFY GMSA BOTTLE 20GM RS,150",
+      "price": 124,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "E",
-      "imageVersion": 1788525493063
+      "imageVersion": 1788525493063,
+      "purchasePrice": 108
     },
     {
       "id": 380,
-      "name": "ELFY JIMSA BOX",
-      "price": 25,
+      "name": "ELFY GMSA PATA RS,30",
+      "price": 24,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "E",
-      "imageVersion": 1788525493175
+      "imageVersion": 1792939307410,
+      "purchasePrice": 17.2
     },
     {
       "id": 381,
@@ -5975,10 +6213,11 @@
     {
       "id": 536,
       "name": "HIGHLIGHTER",
-      "price": 70,
+      "price": 49,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525503837
+      "imageVersion": 1788525503837,
+      "purchasePrice": 37.5
     },
     {
       "id": 537,
@@ -6019,31 +6258,25 @@
       "imageVersion": 1788525504302
     },
     {
-      "id": 541,
-      "name": "INK PEN DOLLAR",
-      "price": 70,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525504343
-    },
-    {
       "id": 542,
       "name": "INK PEN PIANO CRYSTAL",
-      "price": 70,
+      "price": 64,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525504384
+      "imageVersion": 1788525504384,
+      "purchasePrice": 45
     },
     {
       "id": 543,
-      "name": "INK REMOVER MARKER (ORO)",
-      "price": 40,
+      "name": "INK REMOVER MARKER (SANY)",
+      "price": 29,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "I",
-      "imageVersion": 1788525504427
+      "imageVersion": 1793211895014,
+      "purchasePrice": 18
     },
     {
       "id": 544,
@@ -6287,22 +6520,24 @@
     },
     {
       "id": 576,
-      "name": "KING COIL BLAKI (LARGE)",
-      "price": 110,
+      "name": "KINGTOX COIL BLACK RS,120",
+      "price": 99,
       "categoryId": "mosquito",
       "categoryName": "Anti- Mosquitoes",
       "hasImage": true,
       "gradient": null,
       "initial": "K",
-      "imageVersion": 1788525507053
+      "imageVersion": 1788525507053,
+      "purchasePrice": 84.66
     },
     {
       "id": 577,
-      "name": "KING COIL GREEN (LARGE)",
-      "price": 110,
+      "name": "KINGTOX COIL GREEN RS,120",
+      "price": 99,
       "categoryId": "mosquito",
       "categoryName": "Anti- Mosquitoes",
-      "imageVersion": 1788525507102
+      "imageVersion": 1788525507102,
+      "purchasePrice": 84.66
     },
     {
       "id": 578,
@@ -6453,14 +6688,15 @@
     },
     {
       "id": 600,
-      "name": "LIGHTER (HEATER)",
-      "price": 30,
+      "name": "LIGHTER (HEATER) RS,40",
+      "price": 29,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
       "hasImage": true,
       "gradient": null,
       "initial": "L",
-      "imageVersion": 1788525508219
+      "imageVersion": 1788525508219,
+      "purchasePrice": 18.4
     },
     {
       "id": 601,
@@ -6514,8 +6750,8 @@
       "id": 608,
       "name": "LIP OIL",
       "price": 40,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
+      "categoryId": "babycare",
+      "categoryName": "Baby Care & Powders",
       "hasImage": true,
       "gradient": null,
       "initial": "L",
@@ -7046,55 +7282,60 @@
     },
     {
       "id": 668,
-      "name": "MARKER 604 (BLACK)",
-      "price": 20,
+      "name": "MARKER MERCURY BLUE (CUT ) RS,40",
+      "price": 24,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1788525514952
+      "imageVersion": 1793212059746,
+      "purchasePrice": 17
     },
     {
       "id": 669,
-      "name": "MARKER 604 (BLUE)",
-      "price": 20,
+      "name": "MARKER MERCURY BLUE (GOL) RS,40",
+      "price": 24,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1788525514996
+      "imageVersion": 1793212082323,
+      "purchasePrice": 17
     },
     {
       "id": 670,
-      "name": "MARKER MERCURY (BLUE)",
-      "price": 20,
+      "name": "MARKER MERCURY BLUE (GOL) RS,40",
+      "price": 24,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1788525515429
+      "imageVersion": 1788525515429,
+      "purchasePrice": 17
     },
     {
       "id": 671,
-      "name": "MARKER MERCURY (BLACK)",
-      "price": 20,
+      "name": "MERCURY MARKER  BLACK (GOL) RS,40",
+      "price": 24,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1788525515610
+      "imageVersion": 1788525515610,
+      "purchasePrice": 17
     },
     {
       "id": 672,
-      "name": "MARKER BOARD INK",
-      "price": 89,
+      "name": "DOLLAR BOARD MARKER INK RS,100",
+      "price": 69,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525515717
+      "imageVersion": 1788525515717,
+      "purchasePrice": 50
     },
     {
       "id": 673,
@@ -7120,52 +7361,33 @@
     },
     {
       "id": 675,
-      "name": "MARKER PERMANENT (BLACK) DEER",
-      "price": 69,
+      "name": "DEER PERMANENT MARKER BLACK RS,100",
+      "price": 59,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1788525515904
+      "imageVersion": 1788525515904,
+      "purchasePrice": 36.66
     },
     {
       "id": 676,
-      "name": "MARKER PERMANENT (BLUE) DEER",
-      "price": 69,
+      "name": "DEER PERMANENT MARKER BLUE RS,100",
+      "price": 59,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525515948
-    },
-    {
-      "id": 677,
-      "name": "MARKER SADA (BLACK)",
-      "price": 15,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "M",
-      "imageVersion": 1788525515999
-    },
-    {
-      "id": 678,
-      "name": "MARKER SADA (BLUE)",
-      "price": 15,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "M",
-      "imageVersion": 1788525516038
+      "imageVersion": 1788525515948,
+      "purchasePrice": 36.66
     },
     {
       "id": 679,
-      "name": "MARKER SADA DOLLAR (BLUE)",
-      "price": 21,
+      "name": "BELO MARKER PACKET  MIX 10 PIECE RS,120",
+      "price": 89,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525516080
+      "imageVersion": 1793212317592,
+      "purchasePrice": 60
     },
     {
       "id": 681,
@@ -7203,16 +7425,16 @@
       "id": 685,
       "name": "METRO +7 AGAER BATTI (LARGE)",
       "price": 120,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
       "imageVersion": 1788525516465
     },
     {
       "id": 686,
       "name": "METRO AGHER BATTI (SMALL)",
       "price": 50,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
@@ -7650,11 +7872,12 @@
     },
     {
       "id": 753,
-      "name": "PAPER COPY (ALL TYPES)",
-      "price": 0,
+      "name": "PAPER COPY (GOOD QUALITY) RS,60",
+      "price": 44,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525522886
+      "imageVersion": 1788525522886,
+      "purchasePrice": 31.66
     },
     {
       "id": 754,
@@ -8141,71 +8364,57 @@
     },
     {
       "id": 809,
-      "name": "PEN (BLUE SIGNATURE) BLACK",
-      "price": 17,
+      "name": "BALL PEN SIGNATURE (RED) RS,30",
+      "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525526421
-    },
-    {
-      "id": 810,
-      "name": "PEN (BLUE SIGNATURE) BLUE",
-      "price": 17,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525526600
+      "imageVersion": 1788525526421,
+      "purchasePrice": 14.5
     },
     {
       "id": 811,
       "name": "PEN DOLLAR SP 10",
-      "price": 70,
+      "price": 74,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525526811
+      "imageVersion": 1788525526811,
+      "purchasePrice": 51
     },
     {
       "id": 812,
-      "name": "PEN PIANO (BLACK) GRIPPER 0.8MM",
-      "price": 20,
+      "name": "PEN PIANO CLICK  (BLACK) RS,20",
+      "price": 14,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1788525526853
+      "imageVersion": 1793211368750,
+      "purchasePrice": 10
     },
     {
       "id": 813,
-      "name": "PEN PIANO (BLUE) GRIPPER 0.8MM",
-      "price": 20,
+      "name": "PEN PIANO CLICK  (BLUE) RS,20",
+      "price": 14,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1788525526886
+      "imageVersion": 1793211392705,
+      "purchasePrice": 10
     },
     {
       "id": 814,
-      "name": "PEN PIANO (RED) GRIPPER 0.8MM",
-      "price": 20,
+      "name": "PEN PIANO CLICK  (BLACK) RS,20",
+      "price": 14,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1788525526930
-    },
-    {
-      "id": 815,
-      "name": "PEN PIANO OLD YELLOW",
-      "price": 17,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "P",
-      "imageVersion": 1788525526953
+      "imageVersion": 1793211410460,
+      "purchasePrice": 10
     },
     {
       "id": 816,
@@ -8216,18 +8425,20 @@
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1788525526997
+      "imageVersion": 1788525526997,
+      "purchasePrice": 13.5
     },
     {
       "id": 817,
-      "name": "PENCIL MY DOLLAR",
+      "name": "DOLLAR MY PENCIL",
       "price": 19,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1788525527026
+      "imageVersion": 1788525527026,
+      "purchasePrice": 12.916
     },
     {
       "id": 818,
@@ -8842,14 +9053,6 @@
       "imageVersion": 1788525533988
     },
     {
-      "id": 904,
-      "name": "REGISTER (ALL TYPES)",
-      "price": 0,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525534301
-    },
-    {
       "id": 905,
       "name": "RACKET (SET) (EXCELLENT QUALITY)",
       "price": 2250,
@@ -9086,25 +9289,27 @@
     },
     {
       "id": 934,
-      "name": "SCALE ORO LARGE",
-      "price": 59,
+      "name": "ORO SCALE  LARGE",
+      "price": 49,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1788525536579
+      "imageVersion": 1788525536579,
+      "purchasePrice": 36
     },
     {
       "id": 935,
-      "name": "SCALE ORO SMALL",
+      "name": "ORO SCALE  SMALL",
       "price": 35,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1788525536699
+      "imageVersion": 1788525536699,
+      "purchasePrice": 23
     },
     {
       "id": 936,
@@ -10011,14 +10216,15 @@
     },
     {
       "id": 1062,
-      "name": "SHARPENER ORO RS,10",
-      "price": 9,
+      "name": "APPLE SHARPENER  RS,10",
+      "price": 8,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1788525463817
+      "imageVersion": 1793210487106,
+      "purchasePrice": 4.4
     },
     {
       "id": 1063,
@@ -10073,14 +10279,15 @@
     },
     {
       "id": 1075,
-      "name": "SHIELD NIPPLE BOX",
-      "price": 80,
+      "name": "SHIELD NIPPLE (1 PEICE) RS,50",
+      "price": 39,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1788525464171
+      "imageVersion": 1788525464171,
+      "purchasePrice": 31.5
     },
     {
       "id": 1076,
@@ -10088,6 +10295,7 @@
       "price": 130,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
+      "priority": 27,
       "imageVersion": 1788525464309
     },
     {
@@ -10096,39 +10304,18 @@
       "price": 350,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
+      "priority": 28,
       "imageVersion": 1788525464365
     },
     {
-      "id": 1083,
-      "name": "SOAP DETTOL JUMBO COMPANY RS,150 (COOL)",
-      "price": 139,
-      "categoryId": "soaps",
-      "categoryName": "Local & Imported Soaps",
-      "imageVersion": 1788525464415
-    },
-    {
       "id": 1084,
-      "name": "SOAP DETTOL JUMBO COMPANY RS,150 (GREEN)",
-      "price": 139,
+      "name": "SOAP DETTOL JUMBO (GREEN) RS,160",
+      "price": 149,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
-      "imageVersion": 1788525464460
-    },
-    {
-      "id": 1086,
-      "name": "SOAP DETTOL MEDIUM COMPANY (COOL) RS,140",
-      "price": 129,
-      "categoryId": "soaps",
-      "categoryName": "Local & Imported Soaps",
-      "imageVersion": 1788525464505
-    },
-    {
-      "id": 1087,
-      "name": "SOAP DETTOL SMALL COMPANY (COOL)",
-      "price": 129,
-      "categoryId": "soaps",
-      "categoryName": "Local & Imported Soaps",
-      "imageVersion": 1788525464547
+      "priority": 6,
+      "imageVersion": 1788525464460,
+      "purchasePrice": 136.11
     },
     {
       "id": 1088,
@@ -10154,23 +10341,25 @@
     {
       "id": 1090,
       "name": "SOAP DOVE SMALL WHITE (IMP)",
-      "price": 0,
+      "price": 1,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 3,
       "imageVersion": 1788525464792
     },
     {
       "id": 1091,
       "name": "SOAP DOVE SMALL PINK (IMP)",
-      "price": 0,
+      "price": 1,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 4,
       "imageVersion": 1788525464912
     },
     {
@@ -10179,6 +10368,7 @@
       "price": 110,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
+      "priority": 32,
       "imageVersion": 1788525464952
     },
     {
@@ -10187,6 +10377,7 @@
       "price": 110,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
+      "priority": 33,
       "imageVersion": 1788525464995
     },
     {
@@ -10198,6 +10389,7 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 9,
       "imageVersion": 1788525465173
     },
     {
@@ -10209,6 +10401,7 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 10,
       "imageVersion": 1788525465217
     },
     {
@@ -10220,6 +10413,7 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 11,
       "imageVersion": 1788525465403
     },
     {
@@ -10228,6 +10422,7 @@
       "price": 390,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
+      "priority": 26,
       "imageVersion": 1788525465453
     },
     {
@@ -10239,63 +10434,66 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 25,
       "imageVersion": 1788525465486
     },
     {
-      "id": 1099,
-      "name": "SOAP LIFEBUOY (LARGE) GREEN RS,125",
-      "price": 119,
-      "categoryId": "soaps",
-      "categoryName": "Local & Imported Soaps",
-      "imageVersion": 1788525465520
-    },
-    {
       "id": 1100,
-      "name": "SOAP LIFEBUOY (MEDIUM) (BLUE) RS,95",
-      "price": 90,
+      "name": "SOAP LIFEBUOY (SMALL) RED RS,75",
+      "price": 69,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
-      "imageVersion": 1788525465786
+      "priority": 14,
+      "imageVersion": 1793197267852,
+      "purchasePrice": 64.81
     },
     {
       "id": 1101,
-      "name": "SOAP LIFEBUOY (XL) BLUE RS,125",
-      "price": 119,
+      "name": "SOAP LIFEBUOY (MEDIUM) BLUE RS,110",
+      "price": 104,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
+      "priority": 13,
       "imageVersion": 1788525465840
     },
     {
       "id": 1102,
-      "name": "SOAP LIFEBUOY (XL) GREEN RS,125",
-      "price": 119,
+      "name": "SOAP LIFEBUOY (MEDIUM) GREEN RS,110",
+      "price": 104,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
+      "priority": 12,
       "imageVersion": 1788525465972
     },
     {
       "id": 1103,
-      "name": "SOAP PALMOLIVE (LARGE) RS,150 BLACK",
-      "price": 139,
+      "name": "SOAP PALMOLIVE GREEN (LARGE) RS,160",
+      "price": 151,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
-      "imageVersion": 1788525466105
+      "priority": 16,
+      "imageVersion": 1793197650514,
+      "purchasePrice": 142.59
     },
     {
       "id": 1104,
-      "name": "SOAP PALMOLIVE (LARGE) RS,150 ORANGE",
-      "price": 139,
+      "name": "SOAP PALMOLIVE ORANGE (LARGE) RS,160",
+      "price": 151,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
-      "imageVersion": 1788525466152
+      "priority": 17,
+      "imageVersion": 1788525466152,
+      "purchasePrice": 142.59
     },
     {
       "id": 1105,
-      "name": "SOAP PALMOLIVE (LARGE) RS,150 YELLOW",
-      "price": 139,
+      "name": "SOAP PALMOLIVE PINK (LARGE) RS,160",
+      "price": 151,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
-      "imageVersion": 1788525466198
+      "priority": 18,
+      "imageVersion": 1788525466198,
+      "purchasePrice": 142.59
     },
     {
       "id": 1109,
@@ -10303,6 +10501,7 @@
       "price": 399,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
+      "priority": 19,
       "imageVersion": 1788525466333
     },
     {
@@ -10314,6 +10513,7 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 20,
       "imageVersion": 1788525466495
     },
     {
@@ -10322,6 +10522,7 @@
       "price": 399,
       "categoryId": "soaps",
       "categoryName": "Local & Imported Soaps",
+      "priority": 21,
       "imageVersion": 1788525466549
     },
     {
@@ -10333,7 +10534,9 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1788525466593
+      "priority": 22,
+      "imageVersion": 1788525466593,
+      "purchasePrice": 113
     },
     {
       "id": 1113,
@@ -10344,7 +10547,9 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1788525466634
+      "priority": 23,
+      "imageVersion": 1788525466634,
+      "purchasePrice": 113
     },
     {
       "id": 1114,
@@ -10355,7 +10560,9 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1788525466672
+      "priority": 24,
+      "imageVersion": 1788525466672,
+      "purchasePrice": 113
     },
     {
       "id": 1115,
@@ -10366,6 +10573,7 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 31,
       "imageVersion": 1788525466804
     },
     {
@@ -10377,6 +10585,7 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 30,
       "imageVersion": 1788525466953
     },
     {
@@ -10388,6 +10597,7 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
+      "priority": 29,
       "imageVersion": 1788525466993
     },
     {
@@ -10645,37 +10855,16 @@
       "imageVersion": 1788525468884
     },
     {
-      "id": 1156,
-      "name": "TAPE DOUBLE 2 INCH",
-      "price": 0,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525468978
-    },
-    {
       "id": 1157,
-      "name": "TAPE DOUBLE SIDED (1 INCH)",
-      "price": 65,
+      "name": "DOUBLE SIDED TAPE  (1 INCH) RS,80",
+      "price": 49,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "T",
-      "imageVersion": 1788525469022
-    },
-    {
-      "id": 1158,
-      "name": "TAPE DOUBLE SIDED (1 INCH)",
-      "price": 63,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes"
-    },
-    {
-      "id": 1159,
-      "name": "TAPE DOUBLE SIDED (1 INCH) TRANSPARENT",
-      "price": 0,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes"
+      "imageVersion": 1788525469022,
+      "purchasePrice": 37
     },
     {
       "id": 1160,
@@ -10688,13 +10877,14 @@
     {
       "id": 1161,
       "name": "TAPE KAGHAZ 1 INCH",
-      "price": 65,
+      "price": 39,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "T",
-      "imageVersion": 1788525469202
+      "imageVersion": 1788525469202,
+      "purchasePrice": 31.86
     },
     {
       "id": 1162,
@@ -10707,59 +10897,38 @@
     {
       "id": 1163,
       "name": "TAPE OSAKA (BLACK)",
-      "price": 45,
+      "price": 48,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "T",
-      "imageVersion": 1788525469360
-    },
-    {
-      "id": 1164,
-      "name": "TAPE OSAKA (BLACK) FULL LENGTH",
-      "price": 59,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525469413
+      "imageVersion": 1788525469360,
+      "purchasePrice": 40
     },
     {
       "id": 1165,
       "name": "TAPE OSAKA (RED)",
-      "price": 45,
+      "price": 48,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "T",
-      "imageVersion": 1788525469446
-    },
-    {
-      "id": 1166,
-      "name": "TAPE OSAKA (RED) FULL LENGTH",
-      "price": 59,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525469477
+      "imageVersion": 1788525469446,
+      "purchasePrice": 40
     },
     {
       "id": 1167,
       "name": "TAPE OSAKA (WHITE)",
-      "price": 45,
+      "price": 48,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "T",
-      "imageVersion": 1788525469615
-    },
-    {
-      "id": 1168,
-      "name": "TAPE OSAKA (WHITE) FULL LENGTH",
-      "price": 59,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes",
-      "imageVersion": 1788525469678
+      "imageVersion": 1788525469615,
+      "purchasePrice": 40
     },
     {
       "id": 1169,
@@ -10775,20 +10944,6 @@
     {
       "id": 1170,
       "name": "TAPE PACKING BROWN (2 INCH) 45 METER",
-      "price": 0,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes"
-    },
-    {
-      "id": 1171,
-      "name": "TAPE PACKING BROWN (2 INCH) 65 METER",
-      "price": 0,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes"
-    },
-    {
-      "id": 1172,
-      "name": "TAPE PACKING BROWN (2 INCH) SHORT LENGTH (SMALL)",
       "price": 0,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes"
@@ -10813,13 +10968,6 @@
       "imageVersion": 1788525469848
     },
     {
-      "id": 1175,
-      "name": "TAPE TRANSPARENT (1 INCH) FULL LENGTH",
-      "price": 0,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes"
-    },
-    {
       "id": 1176,
       "name": "TAPE TRANSPARENT (2 INCH)",
       "price": 95,
@@ -10831,22 +10979,16 @@
       "imageVersion": 1788525469864
     },
     {
-      "id": 1177,
-      "name": "TAPE TRANSPARENT (2 INCH) (MOTI)",
-      "price": 0,
-      "categoryId": "stationary",
-      "categoryName": "Stationary & Tapes"
-    },
-    {
       "id": 1178,
       "name": "TAPE TRANSPARENT RS,10",
-      "price": 85,
+      "price": 7,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "hasImage": true,
       "gradient": null,
       "initial": "T",
-      "imageVersion": 1788525469925
+      "imageVersion": 1788525469925,
+      "purchasePrice": 3.16
     },
     {
       "id": 1179,
@@ -10992,7 +11134,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "U",
-      "imageVersion": 1788525471059
+      "imageVersion": 1788525471059,
+      "purchasePrice": 39
     },
     {
       "id": 1197,
@@ -11610,8 +11753,8 @@
       "id": 1267,
       "name": "NATIONAL SALT RS,60",
       "price": 58,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
       "hasImage": true,
       "gradient": null,
       "initial": "N",
@@ -11621,114 +11764,36 @@
       "id": 1268,
       "name": "LAHORI NAMAK RS,35",
       "price": 29,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
       "hasImage": true,
       "gradient": null,
       "initial": "L",
       "imageVersion": 1788525477495
     },
     {
-      "id": 1269,
-      "name": "LEMON MAX LONG BAR RS,100",
-      "price": 95,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "L",
-      "imageVersion": 1788525477525
-    },
-    {
-      "id": 1270,
-      "name": "LEMON MAX BAR SMALL RS,35",
-      "price": 34,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "L",
-      "imageVersion": 1788525477625
-    },
-    {
-      "id": 1271,
-      "name": "SURF EXCEL 500G RS,310",
-      "price": 299,
-      "categoryId": "groceryandkaryana",
-      "categoryName": "Grocery & Karyana",
-      "priority": 1,
-      "hasImage": true,
-      "gradient": null,
-      "initial": "S",
-      "imageVersion": 1790065130769
-    },
-    {
-      "id": 1272,
-      "name": "SURF ARIEL RS,310",
-      "price": 299,
-      "categoryId": "groceryandkaryana",
-      "categoryName": "Grocery & Karyana",
-      "priority": 2,
-      "hasImage": true,
-      "gradient": null,
-      "initial": "S",
-      "imageVersion": 1790065130857
-    },
-    {
-      "id": 1273,
-      "name": "SURF BRITE RS,300",
-      "price": 285,
-      "categoryId": "groceryandkaryana",
-      "categoryName": "Grocery & Karyana",
-      "priority": 3,
-      "hasImage": true,
-      "gradient": null,
-      "initial": "S",
-      "imageVersion": 1790065131014
-    },
-    {
-      "id": 1274,
-      "name": "SURF SUNLIGHT RS,199",
-      "price": 185,
-      "categoryId": "groceryandkaryana",
-      "categoryName": "Grocery & Karyana",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "S",
-      "imageVersion": 1790065131056
-    },
-    {
-      "id": 1275,
-      "name": "SURF BONUS 1KG RS,230",
-      "price": 210,
-      "categoryId": "groceryandkaryana",
-      "categoryName": "Grocery & Karyana",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "S",
-      "imageVersion": 1790065131103
-    },
-    {
       "id": 1276,
       "name": "TIGER JUMBO COIL RS,120",
-      "price": 105,
+      "price": 99,
       "categoryId": "mosquito",
       "categoryName": "Anti- Mosquitoes",
       "hasImage": true,
       "gradient": null,
       "initial": "T",
-      "imageVersion": 1790065131146
+      "imageVersion": 1790065131146,
+      "purchasePrice": 89.16
     },
     {
       "id": 1277,
       "name": "BODY RAZER BIG PAKI RS,50",
-      "price": 37,
+      "price": 29,
       "categoryId": "shaving",
       "categoryName": "Shaving & Razers & Blades",
       "hasImage": true,
       "gradient": null,
       "initial": "B",
-      "imageVersion": 1790065131187
+      "imageVersion": 1790065131187,
+      "purchasePrice": 17.7
     },
     {
       "id": 1278,
@@ -11766,26 +11831,28 @@
     {
       "id": 1281,
       "name": "SPRITE 300ML BOTTLE",
-      "price": 75,
+      "price": 74,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Sprite",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791551844032
+      "imageVersion": 1791551844032,
+      "purchasePrice": 65
     },
     {
       "id": 1282,
       "name": "SPRITE 500ML BOTTLE",
-      "price": 105,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Sprite",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791551844306
+      "imageVersion": 1791551844306,
+      "purchasePrice": 84.16
     },
     {
       "id": 1283,
@@ -11797,67 +11864,73 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791551845384
+      "imageVersion": 1791551845384,
+      "purchasePrice": 125.83
     },
     {
       "id": 1284,
       "name": "SPRITE 1.5 LITRE BOTTLE",
-      "price": 199,
+      "price": 189,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Sprite",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791551845703
+      "imageVersion": 1791551845703,
+      "purchasePrice": 161.66
     },
     {
       "id": 1285,
       "name": "SPRITE 2.25L JUMBO BOTTLE",
-      "price": 249,
+      "price": 229,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Sprite",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791551845970
+      "imageVersion": 1791551845970,
+      "purchasePrice": 181.66
     },
     {
       "id": 1286,
       "name": "SPRITE 250ML CAN",
-      "price": 109,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Sprite",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791551846218
+      "imageVersion": 1791551846218,
+      "purchasePrice": 83.33
     },
     {
       "id": 1287,
       "name": "COCA COLA 300ML BOTTLE",
-      "price": 75,
+      "price": 74,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Coca-Cola",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1791592905177
+      "imageVersion": 1791592905177,
+      "purchasePrice": 65
     },
     {
       "id": 1288,
       "name": "COCA COLA 500ML BOTTLE",
-      "price": 105,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Coca-Cola",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1791551847717
+      "imageVersion": 1791551847717,
+      "purchasePrice": 84.16
     },
     {
       "id": 1289,
@@ -11869,55 +11942,60 @@
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1791551849120
+      "imageVersion": 1791551849120,
+      "purchasePrice": 125.83
     },
     {
       "id": 1290,
       "name": "COCA COLA 1.5 LITRE BOTTLE",
-      "price": 199,
+      "price": 189,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Coca-Cola",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1791551849346
+      "imageVersion": 1791551849346,
+      "purchasePrice": 161.66
     },
     {
       "id": 1291,
       "name": "COCA COLA 2.25L JUMBO BOTTLE",
-      "price": 249,
+      "price": 229,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Coca-Cola",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1791551849859
+      "imageVersion": 1791551849859,
+      "purchasePrice": 181.66
     },
     {
       "id": 1292,
       "name": "COCA COLA 250ML CAN",
-      "price": 109,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Coca-Cola",
       "hasImage": true,
       "gradient": null,
       "initial": "C",
-      "imageVersion": 1791586087613
+      "imageVersion": 1791586087613,
+      "purchasePrice": 83
     },
     {
       "id": 1293,
       "name": "FANTA 500ML BOTTLE",
-      "price": 105,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Fanta",
       "hasImage": true,
       "gradient": null,
       "initial": "F",
-      "imageVersion": 1791586251093
+      "imageVersion": 1791586251093,
+      "purchasePrice": 84
     },
     {
       "id": 1294,
@@ -11929,43 +12007,47 @@
       "hasImage": true,
       "gradient": null,
       "initial": "F",
-      "imageVersion": 1791551851336
+      "imageVersion": 1791551851336,
+      "purchasePrice": 125.83
     },
     {
       "id": 1295,
       "name": "FANTA 1.5 LITRE BOTTLE",
-      "price": 199,
+      "price": 189,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Fanta",
       "hasImage": true,
       "gradient": null,
       "initial": "F",
-      "imageVersion": 1791551851602
+      "imageVersion": 1791551851602,
+      "purchasePrice": 161.66
     },
     {
       "id": 1296,
       "name": "FANTA 2.25L JUMBO BOTTLE",
-      "price": 249,
+      "price": 229,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Fanta",
       "hasImage": true,
       "gradient": null,
       "initial": "F",
-      "imageVersion": 1791551852084
+      "imageVersion": 1791551852084,
+      "purchasePrice": 181.66
     },
     {
       "id": 1297,
       "name": "FANTA 250ML CAN",
-      "price": 109,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Fanta",
       "hasImage": true,
       "gradient": null,
       "initial": "F",
-      "imageVersion": 1791551852407
+      "imageVersion": 1791551852407,
+      "purchasePrice": 83.33
     },
     {
       "id": 1298,
@@ -11977,67 +12059,73 @@
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791581006781
+      "imageVersion": 1791581006781,
+      "purchasePrice": 65
     },
     {
       "id": 1299,
       "name": "PEPSI 500ML BOTTLE",
-      "price": 110,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pepsi",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791581006843
+      "imageVersion": 1791581006843,
+      "purchasePrice": 87.5
     },
     {
       "id": 1300,
       "name": "PEPSI 1 LITRE BOTTLE",
-      "price": 160,
+      "price": 149,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pepsi",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791581006905
+      "imageVersion": 1791581006905,
+      "purchasePrice": 133.33
     },
     {
       "id": 1301,
       "name": "PEPSI 1.5 LITRE BOTTLE",
-      "price": 199,
+      "price": 189,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pepsi",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791581006981
+      "imageVersion": 1791581006981,
+      "purchasePrice": 166.66
     },
     {
       "id": 1302,
       "name": "PEPSI 2.25L JUMBO BOTTLE",
-      "price": 259,
+      "price": 239,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pepsi",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791581007061
+      "imageVersion": 1791581007061,
+      "purchasePrice": 200
     },
     {
       "id": 1303,
       "name": "PEPSI 250ML CAN",
-      "price": 109,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pepsi",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791581007128
+      "imageVersion": 1791581007128,
+      "purchasePrice": 83.33
     },
     {
       "id": 1304,
@@ -12049,55 +12137,60 @@
       "hasImage": true,
       "gradient": null,
       "initial": "7",
-      "imageVersion": 1791557129115
+      "imageVersion": 1791557129115,
+      "purchasePrice": 65
     },
     {
       "id": 1305,
       "name": "7UP 500ML BOTTLE",
-      "price": 110,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "7Up",
       "hasImage": true,
       "gradient": null,
       "initial": "7",
-      "imageVersion": 1791591188306
+      "imageVersion": 1791591188306,
+      "purchasePrice": 87.5
     },
     {
       "id": 1306,
       "name": "7UP 1 LITRE BOTTLE",
-      "price": 160,
+      "price": 149,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "7Up",
       "hasImage": true,
       "gradient": null,
       "initial": "7",
-      "imageVersion": 1791834696539
+      "imageVersion": 1791834696539,
+      "purchasePrice": 133.33
     },
     {
       "id": 1307,
       "name": "7UP 1.5 LITRE BOTTLE",
-      "price": 199,
+      "price": 189,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "7Up",
       "hasImage": true,
       "gradient": null,
       "initial": "7",
-      "imageVersion": 1791557133733
+      "imageVersion": 1791557133733,
+      "purchasePrice": 166.66
     },
     {
       "id": 1308,
       "name": "7UP 2.25L JUMBO BOTTLE",
-      "price": 259,
+      "price": 239,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "7Up",
       "hasImage": true,
       "gradient": null,
       "initial": "7",
-      "imageVersion": 1791557133733
+      "imageVersion": 1791557133733,
+      "purchasePrice": 200
     },
     {
       "id": 1309,
@@ -12109,7 +12202,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "7",
-      "imageVersion": 1791836063558
+      "imageVersion": 1791836063558,
+      "purchasePrice": 83.33
     },
     {
       "id": 1310,
@@ -12121,103 +12215,99 @@
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1791557136753
+      "imageVersion": 1791557136753,
+      "purchasePrice": 65
     },
     {
       "id": 1311,
       "name": "MIRINDA 500ML BOTTLE",
-      "price": 110,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Mirinda",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1791557139046
+      "imageVersion": 1791557139046,
+      "purchasePrice": 87.5
     },
     {
       "id": 1312,
       "name": "MIRINDA 1 LITRE BOTTLE",
-      "price": 160,
+      "price": 149,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Mirinda",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1791557139046
+      "imageVersion": 1792357881384,
+      "purchasePrice": 133.33
     },
     {
       "id": 1313,
       "name": "MIRINDA 1.5 LITRE BOTTLE",
-      "price": 199,
+      "price": 189,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Mirinda",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1791557141733
+      "imageVersion": 1791557141733,
+      "purchasePrice": 166.66
     },
     {
       "id": 1314,
       "name": "MIRINDA 2.25L JUMBO BOTTLE",
-      "price": 259,
+      "price": 239,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Mirinda",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1791557144272
+      "imageVersion": 1791557144272,
+      "purchasePrice": 200
     },
     {
       "id": 1315,
       "name": "MIRINDA 250ML CAN",
-      "price": 109,
+      "price": 99,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Mirinda",
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1791557146949
+      "imageVersion": 1791557146949,
+      "purchasePrice": 83.33
     },
     {
       "id": 1322,
       "name": "STING BERRY 300ML BOTTLE",
-      "price": 75,
+      "price": 89,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Sting",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791557155209
+      "imageVersion": 1791557155209,
+      "purchasePrice": 68.33
     },
     {
       "id": 1323,
       "name": "STING BERRY 500ML BOTTLE",
-      "price": 110,
+      "price": 114,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Sting",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791557158394
-    },
-    {
-      "id": 1324,
-      "name": "STING BERRY 250ML CAN",
-      "price": 109,
-      "categoryId": "beverages",
-      "categoryName": "Beverages (Cold Drinks, Juices & Water)",
-      "filterName": "Sting",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "S",
-      "imageVersion": 1791581007563
+      "imageVersion": 1791557158394,
+      "purchasePrice": 95
     },
     {
       "id": 1325,
@@ -12230,79 +12320,86 @@
       "gradient": null,
       "initial": "F",
       "priority": 1,
-      "imageVersion": 1791830640151
+      "imageVersion": 1791830640151,
+      "purchasePrice": 65
     },
     {
       "id": 1326,
       "name": "PAKOLA CHOCOLATE JUICE 250ML",
-      "price": 110,
+      "price": 104,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pakola",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791837677369
+      "imageVersion": 1791837677369,
+      "purchasePrice": 93.33
     },
     {
       "id": 1327,
       "name": "PAKOLA BADAM JUICE 250ML",
-      "price": 110,
+      "price": 104,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pakola",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791837678507
+      "imageVersion": 1791837678507,
+      "purchasePrice": 93.33
     },
     {
       "id": 1328,
       "name": "PAKOLA STRAWBERRY JUICE 250ML",
-      "price": 110,
+      "price": 104,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pakola",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791837679209
+      "imageVersion": 1791837679209,
+      "purchasePrice": 93.33
     },
     {
       "id": 1329,
       "name": "PAKOLA DRINK 300ML BOTTLE",
-      "price": 70,
+      "price": 65,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pakola",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791837679868
+      "imageVersion": 1791837679868,
+      "purchasePrice": 50
     },
     {
       "id": 1330,
       "name": "PAKOLA DRINK 500ML BOTTLE",
-      "price": 100,
+      "price": 89,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pakola",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791837687963
+      "imageVersion": 1791837687963,
+      "purchasePrice": 79.16
     },
     {
       "id": 1331,
       "name": "PAKOLA DRINK 1.5 LITRE BOTTLE",
-      "price": 190,
+      "price": 189,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Pakola",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1791837688373
+      "imageVersion": 1791837688373,
+      "purchasePrice": 158.33
     },
     {
       "id": 1332,
@@ -12314,31 +12411,1195 @@
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791841761415
+      "priority": 1,
+      "imageVersion": 1791841761415,
+      "purchasePrice": 41.66
     },
     {
       "id": 1333,
       "name": "SLICE MANGO JUICE 355ML BOTTLE",
-      "price": 0,
+      "price": 79,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Slice",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791841761484
+      "priority": 2,
+      "imageVersion": 1791841761484,
+      "purchasePrice": 59.16
     },
     {
       "id": 1334,
       "name": "SLICE MANGO JUICE 1 LITRE BOTTLE",
-      "price": 185,
+      "price": 179,
       "categoryId": "beverages",
       "categoryName": "Beverages (Cold Drinks, Juices & Water)",
       "filterName": "Slice",
       "hasImage": true,
       "gradient": null,
       "initial": "S",
-      "imageVersion": 1791841761602
+      "priority": 3,
+      "imageVersion": 1791841761602,
+      "purchasePrice": 151.66
+    },
+    {
+      "id": 1335,
+      "name": "TIGER LOTION SASHAY RS,10",
+      "price": 9,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes",
+      "imageVersion": 1792418800147,
+      "purchasePrice": 7.83
+    },
+    {
+      "id": 1336,
+      "name": "TRIM CLASSIC BODY RAZER RS,50",
+      "price": 34,
+      "categoryId": "shaving",
+      "categoryName": "Shaving & Razers & Blades",
+      "imageVersion": 1792418988246,
+      "purchasePrice": 28.12
+    },
+    {
+      "id": 1337,
+      "name": "LAZEEZA KHEER MIX BOX RS,165",
+      "price": 159,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792419532962,
+      "purchasePrice": 150
+    },
+    {
+      "id": 1338,
+      "name": "RISEK SACHET 20MG  PATA RS,30",
+      "price": 24,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792574155490,
+      "purchasePrice": 21.5
+    },
+    {
+      "id": 1339,
+      "name": "TURK BODY RAZER",
+      "price": 34,
+      "categoryId": "shaving",
+      "categoryName": "Shaving & Razers & Blades",
+      "imageVersion": 1792574345765,
+      "purchasePrice": 28.12
+    },
+    {
+      "id": 1340,
+      "name": "RAFHAN CUSTURD POWDER MANGO 275 GM RS,220",
+      "price": 199,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792577387598,
+      "purchasePrice": 185
+    },
+    {
+      "id": 1341,
+      "name": "RAFHAN CUSTURD POWDER BANANA 275 GM RS,220",
+      "price": 199,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792577444280,
+      "purchasePrice": 185
+    },
+    {
+      "id": 1342,
+      "name": "RAFHAN CUSTURD POWDER VANILLA 275 GM RS,220",
+      "price": 199,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792577531873,
+      "purchasePrice": 185
+    },
+    {
+      "id": 1343,
+      "name": "RAFHAN CUSTURD POWDER STRAWBERRY 275 GM RS,220",
+      "price": 199,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792577583625,
+      "purchasePrice": 185
+    },
+    {
+      "id": 1344,
+      "name": "TANG SACHET MANGO RS,25",
+      "price": 24,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792578163638,
+      "purchasePrice": 21.875
+    },
+    {
+      "id": 1345,
+      "name": "TANG SACHET ORANGE RS,25",
+      "price": 24,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792578205083,
+      "purchasePrice": 21.875
+    },
+    {
+      "id": 1346,
+      "name": "TANG SACHET PINEAPPLE RS,25",
+      "price": 24,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792578248548,
+      "purchasePrice": 21.875
+    },
+    {
+      "id": 1347,
+      "name": "RIVON HAIR COLOR SACHET  (BLACK) RS,80",
+      "price": 74,
+      "categoryId": "haircolour",
+      "categoryName": "Hair Colors & Care & Oils",
+      "imageVersion": 1792578518189,
+      "purchasePrice": 65
+    },
+    {
+      "id": 1348,
+      "name": "RIVON HAIR COLOR SACHET  (DARK BROWN) RS,80",
+      "price": 74,
+      "categoryId": "haircolour",
+      "categoryName": "Hair Colors & Care & Oils",
+      "imageVersion": 1792578552942,
+      "purchasePrice": 65
+    },
+    {
+      "id": 1349,
+      "name": "MATCHES BOX RS,50",
+      "price": 39,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792578714707,
+      "purchasePrice": 32
+    },
+    {
+      "id": 1350,
+      "name": "COLOUR GODREJ SACHET (NATURAL BLACK) RS,80",
+      "price": 59,
+      "categoryId": "haircolour",
+      "categoryName": "Hair Colors & Care & Oils",
+      "imageVersion": 1792579101137,
+      "purchasePrice": 48.12
+    },
+    {
+      "id": 1351,
+      "name": "LEMON MAX DISHWASH BAR (SMALL) RS,25",
+      "price": 25,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792579426751,
+      "purchasePrice": 23
+    },
+    {
+      "id": 1352,
+      "name": "LEMON MAX DISHWASH BAR (MEDIUM) RS,35",
+      "price": 35,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792579481292,
+      "purchasePrice": 32
+    },
+    {
+      "id": 1353,
+      "name": "LEMON MAX DISHWASH BAR (LARGE) RS,100",
+      "price": 98,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792579559674,
+      "purchasePrice": 92.7
+    },
+    {
+      "id": 1354,
+      "name": "SURF EXCEL 500GM RS,310",
+      "price": 299,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792586159552,
+      "purchasePrice": 285
+    },
+    {
+      "id": 1355,
+      "name": "SURF ARIEL 500GM RS,300",
+      "price": 289,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792586275526,
+      "purchasePrice": 270.83
+    },
+    {
+      "id": 1356,
+      "name": "SURF BRITE 500GM RS,310",
+      "price": 299,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792586727041,
+      "purchasePrice": 283.33
+    },
+    {
+      "id": 1357,
+      "name": "SURF EXPRESS 500GM RS,260",
+      "price": 249,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792587969425,
+      "purchasePrice": 233.33
+    },
+    {
+      "id": 1358,
+      "name": "SURF EXCEL 1KG RS,620",
+      "price": 599,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792588406191,
+      "purchasePrice": 566.66
+    },
+    {
+      "id": 1359,
+      "name": "SURF ARIEL 1KG RS,580",
+      "price": 579,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792588516696,
+      "purchasePrice": 541.66
+    },
+    {
+      "id": 1360,
+      "name": "SURF BRITE 1KG RS,620",
+      "price": 599,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792589007186,
+      "purchasePrice": 566.66
+    },
+    {
+      "id": 1361,
+      "name": "SURF EXPRESS 1KG RS,520",
+      "price": 499,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792589566269,
+      "purchasePrice": 466.66
+    },
+    {
+      "id": 1362,
+      "name": "SURF BONUS 1KG RS,270",
+      "price": 270,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792589729974,
+      "purchasePrice": 240
+    },
+    {
+      "id": 1363,
+      "name": "SURF SUNLIGHT 730GM  RS,199",
+      "price": 194,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792589839905,
+      "purchasePrice": 187.55
+    },
+    {
+      "id": 1364,
+      "name": "SURF SUNLIGHT 375GM RS,99",
+      "price": 98,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792589927061,
+      "purchasePrice": 92
+    },
+    {
+      "id": 1365,
+      "name": "SURF BONUS 375GM RS,99",
+      "price": 98,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792590219688,
+      "purchasePrice": 92
+    },
+    {
+      "id": 1366,
+      "name": "SURF ARIEL 85GM RS,50",
+      "price": 49,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792590410466,
+      "purchasePrice": 44.44
+    },
+    {
+      "id": 1367,
+      "name": "SURF BRITE 95GM RS,50",
+      "price": 49,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792590832860,
+      "purchasePrice": 45.138
+    },
+    {
+      "id": 1368,
+      "name": "SURF EXCEL 90GM RS,50",
+      "price": 49,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792590919221,
+      "purchasePrice": 44.44
+    },
+    {
+      "id": 1369,
+      "name": "SURF BONUS 180GM RS,50",
+      "price": 49,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792591047957,
+      "purchasePrice": 45.238
+    },
+    {
+      "id": 1370,
+      "name": "SURF EXCEL (SMALL )RS,10",
+      "price": 10,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792591249829,
+      "purchasePrice": 9.5
+    },
+    {
+      "id": 1371,
+      "name": "SURF BONUS (SMALL) RS,10",
+      "price": 10,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792591305128,
+      "purchasePrice": 9.16
+    },
+    {
+      "id": 1372,
+      "name": "SURF BRITE (SMALL) RS,10",
+      "price": 10,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
+      "imageVersion": 1792591437181,
+      "purchasePrice": 9.5
+    },
+    {
+      "id": 1373,
+      "name": "SHAN ACHAR GOSHT MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792591779632,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1374,
+      "name": "SHAN SPECIAL BOMBAY BIRYANI MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792591840197,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1375,
+      "name": "SHAN CHICKEN TIKKA MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792591897229,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1376,
+      "name": "SHAN NIHARI MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792591951670,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1377,
+      "name": "SHAN CHICKEN MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592002852,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1378,
+      "name": "SHAN KARAHI MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592055916,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1379,
+      "name": "SHAN SINDHI BIRYANI MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592138332,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1380,
+      "name": "SHAN CHICKEN WHITE KARAHI MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592230705,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1381,
+      "name": "SHAN KORMA MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592276170,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1382,
+      "name": "SHAN KEEMA MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592318061,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1383,
+      "name": "SHAN PILAU BIRYANI MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592381509,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1384,
+      "name": "SHAN TANDOORI MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592420842,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1385,
+      "name": "SHAN CHAAT MASALA SACHET RS,30",
+      "price": 28,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592496645,
+      "purchasePrice": 26.66
+    },
+    {
+      "id": 1386,
+      "name": "SHAN PAYA MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592541171,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1387,
+      "name": "SHAN FRIED FISH MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592602029,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1388,
+      "name": "SHAN KOFTA MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592655710,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1389,
+      "name": "SHAN TIKKA SEEKH KABAB MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792592970470,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1390,
+      "name": "SHAN SHAMI KABAB MASALA SACHET RS,80",
+      "price": 74,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1792593040128,
+      "purchasePrice": 66.66
+    },
+    {
+      "id": 1391,
+      "name": "CELL POWER PLUS AAA RS,40",
+      "price": 24,
+      "categoryId": "lock",
+      "categoryName": "Locks & Cells & Lighters",
+      "imageVersion": 1792606209069,
+      "purchasePrice": 17.5
+    },
+    {
+      "id": 1392,
+      "name": "RK STAINLESS DOUBLE EDGE BLADE RS,10",
+      "price": 8,
+      "categoryId": "shaving",
+      "categoryName": "Shaving & Razers & Blades",
+      "imageVersion": 1792606689981,
+      "purchasePrice": 4.6
+    },
+    {
+      "id": 1393,
+      "name": "LASER EXTRA DUTY CELL AA",
+      "price": 29,
+      "categoryId": "lock",
+      "categoryName": "Locks & Cells & Lighters",
+      "imageVersion": 1792607027203,
+      "purchasePrice": 19.16
+    },
+    {
+      "id": 1394,
+      "name": "CELL SUPER MAXCELL AAA RS,40",
+      "price": 24,
+      "categoryId": "lock",
+      "categoryName": "Locks & Cells & Lighters",
+      "imageVersion": 1792607271182,
+      "purchasePrice": 15.83
+    },
+    {
+      "id": 1395,
+      "name": "DARCO-1 BLACK SAFETY RS,20",
+      "price": 10,
+      "categoryId": "shaving",
+      "categoryName": "Shaving & Razers & Blades",
+      "imageVersion": 1792607605387,
+      "purchasePrice": 5
+    },
+    {
+      "id": 1396,
+      "name": "123 MOSQUITO GLOBE RS,160",
+      "price": 139,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes",
+      "imageVersion": 1792757352017,
+      "purchasePrice": 124
+    },
+    {
+      "id": 1397,
+      "name": "TIP TOP GLUE SMALL RS,60",
+      "price": 35,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1792938748220,
+      "purchasePrice": 25.83
+    },
+    {
+      "id": 1398,
+      "name": "PENCIL NORMAL QUALITY RS,20",
+      "price": 13,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1792938881539,
+      "purchasePrice": 9.7
+    },
+    {
+      "id": 1399,
+      "name": "PAPER COPY (NORMAL QUALITY) RS,50",
+      "price": 34,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1792940052557,
+      "purchasePrice": 27.5
+    },
+    {
+      "id": 1400,
+      "name": "PAPER COPY MEDIUM SIZE (ENGLISH) RS,120",
+      "price": 84,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1792940140221,
+      "purchasePrice": 64
+    },
+    {
+      "id": 1401,
+      "name": "PAPER COPY MEDIUM SIZE (MATH) RS,120",
+      "price": 84,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1792940223956,
+      "purchasePrice": 50
+    },
+    {
+      "id": 1402,
+      "name": "PAPER COPY MEDIUM SIZE (URDU) RS,120",
+      "price": 84,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1792940251389,
+      "purchasePrice": 50
+    },
+    {
+      "id": 1403,
+      "name": "PAPER COPY MEDIUM SIZE (3IN1) RS,120",
+      "price": 84,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1792940270676,
+      "purchasePrice": 50
+    },
+    {
+      "id": 1404,
+      "name": "REGISTER NARROW LINE (400 PAGES) RS,400",
+      "price": 249,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1792940557170,
+      "purchasePrice": 150
+    },
+    {
+      "id": 1405,
+      "name": "DOLLAR INK PEN FP-5 RS,100",
+      "price": 69,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1792943213694,
+      "purchasePrice": 42
+    },
+    {
+      "id": 1406,
+      "name": "SOAP LUX PURPLE 98GM RS,130",
+      "price": 124,
+      "categoryId": "soaps",
+      "categoryName": "Local & Imported Soaps",
+      "imageVersion": 1793196266285,
+      "purchasePrice": 117.12
+    },
+    {
+      "id": 1407,
+      "name": "SOAP LUX PINK 98GM RS,130",
+      "price": 124,
+      "categoryId": "soaps",
+      "categoryName": "Local & Imported Soaps",
+      "imageVersion": 1793196310292,
+      "purchasePrice": 117.12
+    },
+    {
+      "id": 1408,
+      "name": "SOAP LUX WHITE 98GM RS,130",
+      "price": 124,
+      "categoryId": "soaps",
+      "categoryName": "Local & Imported Soaps",
+      "imageVersion": 1793196401456,
+      "purchasePrice": 117.12
+    },
+    {
+      "id": 1409,
+      "name": "FACE MASK BLUE RS,20",
+      "price": 6,
+      "categoryId": "general",
+      "categoryName": "General Items & Others",
+      "imageVersion": 1793197967784,
+      "purchasePrice": 2.6
+    },
+    {
+      "id": 1410,
+      "name": "SHAN SPECIAL BOMBAY BIRYANI MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793203932595,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1411,
+      "name": "SHAN CHICKEN TIKKA MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793203990352,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1412,
+      "name": "SHAN ACHAR GOSHT MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204038344,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1413,
+      "name": "SHAN NIHARI MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204152261,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1414,
+      "name": "SHAN CHICKEN MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204191039,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1415,
+      "name": "SHAN KARAHI MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204294981,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1416,
+      "name": "SHAN SINDHI BIRYANI MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204346780,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1417,
+      "name": "SHAN CHICKEN WHITE KARAHI MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204390715,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1418,
+      "name": "SHAN KORMA MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204430718,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1419,
+      "name": "SHAN KEEMA MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204478653,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1420,
+      "name": "SHAN PILAU BIRYANI MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204744978,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1421,
+      "name": "SHAN TANDOORI MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204781264,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1422,
+      "name": "SHAN CHAAT MASALA BOX RS,100",
+      "price": 92,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793204846130,
+      "purchasePrice": 85
+    },
+    {
+      "id": 1423,
+      "name": "SHAN PAYA MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793205113940,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1424,
+      "name": "SHAN FRIED FISH MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793205172332,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1425,
+      "name": "SHAN KOFTA MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793205249388,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1426,
+      "name": "SHAN TIKKA SEEKH KABAB MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793205291939,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1427,
+      "name": "SHAN SHAMI KABAB MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793205447397,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1428,
+      "name": "SHAN CHAPLI KABAB MASALA BOX RS,150",
+      "price": 139,
+      "categoryId": "masale",
+      "categoryName": "Masale (Khule & Packed)",
+      "imageVersion": 1793205511182,
+      "purchasePrice": 123
+    },
+    {
+      "id": 1429,
+      "name": "SCALE NORMAL QUALITY SMALL RS,20",
+      "price": 14,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1793210272798,
+      "purchasePrice": 8.33
+    },
+    {
+      "id": 1430,
+      "name": "SCALE NORMAL QUALITY LARGE RS,30",
+      "price": 20,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1793210361033,
+      "purchasePrice": 11.11
+    },
+    {
+      "id": 1431,
+      "name": "DEER RAINBOW COLOR PENCIL (HALF SIZE) 12 PIECE  RS,150",
+      "price": 89,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1793210709339,
+      "purchasePrice": 62.5
+    },
+    {
+      "id": 1432,
+      "name": "DEER RAINBOW COLOR PENCIL (FULL SIZE) 12 PIECE  RS,220",
+      "price": 149,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1793210790096,
+      "purchasePrice": 110
+    },
+    {
+      "id": 1433,
+      "name": "DUX STEPLER GOOD QUALITY 24/6 RS,550",
+      "price": 479,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1793211004774,
+      "purchasePrice": 370
+    },
+    {
+      "id": 1434,
+      "name": "DUX STEPLER PIN 24/6 BOX RS,120",
+      "price": 69,
+      "categoryId": "stationary",
+      "categoryName": "Stationary & Tapes",
+      "imageVersion": 1793211097393,
+      "purchasePrice": 50
+    },
+    {
+      "id": 1435,
+      "name": "TAPAL DANE DAR TEA BOX RS,30",
+      "price": 29,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793219113609,
+      "purchasePrice": 27
+    },
+    {
+      "id": 1436,
+      "name": "TAPAL DANE DAR TEA BOX RS,50",
+      "price": 49,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793219279260,
+      "purchasePrice": 45.83
+    },
+    {
+      "id": 1437,
+      "name": "TAPAL DANE DAR TEA BOX RS,100",
+      "price": 92.83,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793219403997,
+      "purchasePrice": 98
+    },
+    {
+      "id": 1438,
+      "name": "TAPAL DANE DAR TEA BOX 85GM RS,200",
+      "price": 196,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793219516204,
+      "purchasePrice": 184
+    },
+    {
+      "id": 1439,
+      "name": "TAPAL DANE DAR TEA BOX 170GM RS,400",
+      "price": 389,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793219685732,
+      "purchasePrice": 365
+    },
+    {
+      "id": 1440,
+      "name": "TAPAL DANE DAR TEA PACKET 350GM RS,750",
+      "price": 750,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793219866560,
+      "purchasePrice": 685
+    },
+    {
+      "id": 1441,
+      "name": "TAPAL DANE DAR TEA PACKET 900GM RS,1850",
+      "price": 1789,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793219994141,
+      "purchasePrice": 1670
+    },
+    {
+      "id": 1442,
+      "name": "TAPAL FAMILY MIXTURE TEA BOX RS,30",
+      "price": 29,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793220462853
+    },
+    {
+      "id": 1443,
+      "name": "TAPAL FAMILY MIXTURE TEA BOX RS,50",
+      "price": 49,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793220478741,
+      "purchasePrice": 46.33
+    },
+    {
+      "id": 1444,
+      "name": "TAPAL FAMILY MIXTURE TEA BOX RS,100",
+      "price": 98,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793220493915
+    },
+    {
+      "id": 1445,
+      "name": "TAPAL FAMILY MIXTURE TEA BOX RS,200",
+      "price": 196,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793220543908,
+      "purchasePrice": 184
+    },
+    {
+      "id": 1446,
+      "name": "TAPAL FAMILY MIXTURE TEA BOX RS,400",
+      "price": 389,
+      "categoryId": "milkliquidpowder",
+      "categoryName": "Milk & Tea Essentials",
+      "imageVersion": 1793220568656
+    },
+    {
+      "id": 1447,
+      "name": "ATTA MIX 1KG RS,175",
+      "price": 162,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793221143756,
+      "purchasePrice": 157
+    },
+    {
+      "id": 1448,
+      "name": "CHEENI 1KG RS,150",
+      "price": 134,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793221238240,
+      "purchasePrice": 129
+    },
+    {
+      "id": 1449,
+      "name": "PURE SEELA CHAWAL PREMIUM QUALITY RS,450",
+      "price": 380,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793221456079,
+      "purchasePrice": 325
+    },
+    {
+      "id": 1450,
+      "name": "CHAKII ATTA 1KG RS,195",
+      "price": 186,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793221539748,
+      "purchasePrice": 180
+    },
+    {
+      "id": 1451,
+      "name": "BASMATI CHAWAL (#1121) PREMIUM QUALITY RS,400",
+      "price": 359,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793221701824,
+      "purchasePrice": 300
+    },
+    {
+      "id": 1452,
+      "name": "SABUT BASMATI RICE GOOD QUALITY RS,300",
+      "price": 239,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793221918747,
+      "purchasePrice": 195
+    },
+    {
+      "id": 1453,
+      "name": "TOTA BASMATI RICE RS,250",
+      "price": 199,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793221996735,
+      "purchasePrice": 160
+    },
+    {
+      "id": 1454,
+      "name": "FINE ATTA 1KG RS,190",
+      "price": 180,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793222092774,
+      "purchasePrice": 174
+    },
+    {
+      "id": 1455,
+      "name": "MONG DAAL CHILKE WALI (1PAO) RS,90",
+      "price": 74,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793222264919,
+      "purchasePrice": 60
+    },
+    {
+      "id": 1456,
+      "name": "KALA CHAANA (1PAO) RS,90",
+      "price": 79,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793222391146,
+      "purchasePrice": 62.55
+    },
+    {
+      "id": 1457,
+      "name": "SABUT DANA (1PAO) RS,120",
+      "price": 105,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793222494280,
+      "purchasePrice": 95
+    },
+    {
+      "id": 1458,
+      "name": "SAFEED CHAANA (1PAO) RS,100",
+      "price": 82,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793222734331,
+      "purchasePrice": 62.5
+    },
+    {
+      "id": 1459,
+      "name": "MONG KI DAAL (1PAO) RS,90",
+      "price": 69,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793222827441,
+      "purchasePrice": 50
+    },
+    {
+      "id": 1460,
+      "name": "DAAL MASH (1PAO) RS,120",
+      "price": 109,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793222923093,
+      "purchasePrice": 92.5
+    },
+    {
+      "id": 1461,
+      "name": "CHANE KI DAAL (1PAO) RS,90",
+      "price": 79,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793223002446,
+      "purchasePrice": 63.75
+    },
+    {
+      "id": 1462,
+      "name": "KAALI MASAR DAAL (1PAO) RS,90",
+      "price": 69,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793223092648,
+      "purchasePrice": 50
+    },
+    {
+      "id": 1463,
+      "name": "LAAL MASOR KI DAAL (1PAO) RS,90",
+      "price": 69,
+      "categoryId": "attacheenidaalchawal",
+      "categoryName": "Atta & Chenee & Daal & Chawal",
+      "imageVersion": 1793223211128,
+      "purchasePrice": 50
     }
   ]
 }

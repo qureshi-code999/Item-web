@@ -201,30 +201,106 @@ function parseOrderCreatedAt(order) {
   return Date.now();
 }
 
+// ── BULLETPROOF CLOUD ORDER DISPATCH & RETRY QUEUE ──
+function getPendingCloudOrders() {
+  try {
+    const raw = localStorage.getItem('zs_pending_cloud_orders');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function savePendingCloudOrders(orders) {
+  try {
+    localStorage.setItem('zs_pending_cloud_orders', JSON.stringify(orders || []));
+  } catch (e) {}
+}
+function queuePendingCloudOrder(sbOrder) {
+  try {
+    const list = getPendingCloudOrders();
+    if (!list.some(o => String(o.id) === String(sbOrder.id))) {
+      list.push(sbOrder);
+      savePendingCloudOrders(list);
+    }
+  } catch (e) {}
+}
+function removePendingCloudOrder(orderId) {
+  try {
+    const list = getPendingCloudOrders();
+    const filtered = list.filter(o => String(o.id) !== String(orderId));
+    savePendingCloudOrders(filtered);
+  } catch (e) {}
+}
+let isFlushingOrderQueue = false;
+async function flushPendingCloudOrders() {
+  if (isFlushingOrderQueue) return;
+  if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+  const list = getPendingCloudOrders();
+  if (!list || list.length === 0) return;
+  isFlushingOrderQueue = true;
+  try {
+    for (const sbOrder of list) {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(sbOrder),
+          keepalive: true
+        });
+        if (res.status >= 200 && res.status < 300 || res.status === 409) {
+          removePendingCloudOrder(sbOrder.id);
+        }
+      } catch (err) {
+        break;
+      }
+    }
+  } catch (e) {} finally {
+    isFlushingOrderQueue = false;
+  }
+}
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', flushPendingCloudOrders);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) flushPendingCloudOrders();
+  });
+  setInterval(flushPendingCloudOrders, 25000);
+  setTimeout(flushPendingCloudOrders, 3000);
+}
+
 // Smart Order Dispatcher to Admin Backend & Cloud Sync
 function dispatchOrderToBackend(orderRecord) {
   if (!orderRecord) return;
   try {
-    const bodyStr = JSON.stringify(orderRecord);
+    const rawPhone = orderRecord.customer && orderRecord.customer.phone || orderRecord.customerPhone || '';
+    const digits = String(rawPhone).replace(/[^0-9]/g, '');
+    const safePhone = digits.length >= 7 ? digits : '03000000000';
+    const sbOrder = {
+      id: String(orderRecord.id),
+      customer_name: orderRecord.customer && orderRecord.customer.name || orderRecord.customerName || 'Customer',
+      customer_phone: safePhone,
+      customer_address: orderRecord.customer && orderRecord.customer.address || orderRecord.customerAddress || '',
+      delivery_type: orderRecord.deliveryType || orderRecord.deliveryMethod || 'standard',
+      payment_method: orderRecord.paymentMethod || 'cash',
+      subtotal: Number(orderRecord.subtotal || 0),
+      delivery_fee: Number(orderRecord.deliveryFee || 0),
+      total: Number(orderRecord.grandTotal !== undefined ? orderRecord.grandTotal : orderRecord.total || 0),
+      total_savings: Number(orderRecord.totalSavings || 0),
+      status: orderRecord.status || 'placed',
+      items: orderRecord.items || [],
+      raw_data: orderRecord,
+      created_at: orderRecord.createdAtIso || new Date().toISOString()
+    };
 
-    // 1. Direct Supabase Cloud Database Insert (Guarantees delivery from 4G/5G/WiFi globally!)
+    // 1. Immediately store in persistent localStorage queue (offline proof)
+    queuePendingCloudOrder(sbOrder);
+
+    // 2. Direct Supabase Cloud Database Insert (Guarantees delivery from 4G/5G/WiFi globally!)
     try {
-      const sbOrder = {
-        id: String(orderRecord.id),
-        customer_name: orderRecord.customer && orderRecord.customer.name || orderRecord.customerName || 'Customer',
-        customer_phone: orderRecord.customer && orderRecord.customer.phone || orderRecord.customerPhone || '',
-        customer_address: orderRecord.customer && orderRecord.customer.address || orderRecord.customerAddress || '',
-        delivery_type: orderRecord.deliveryType || orderRecord.deliveryMethod || 'standard',
-        payment_method: orderRecord.paymentMethod || 'cash',
-        subtotal: Number(orderRecord.subtotal || 0),
-        delivery_fee: Number(orderRecord.deliveryFee || 0),
-        total: Number(orderRecord.grandTotal !== undefined ? orderRecord.grandTotal : orderRecord.total || 0),
-        total_savings: Number(orderRecord.totalSavings || 0),
-        status: orderRecord.status || 'placed',
-        items: orderRecord.items || [],
-        raw_data: orderRecord,
-        created_at: orderRecord.createdAtIso || new Date().toISOString()
-      };
       fetch(`${SUPABASE_URL}/rest/v1/orders`, {
         method: 'POST',
         headers: {
@@ -235,18 +311,24 @@ function dispatchOrderToBackend(orderRecord) {
         },
         body: JSON.stringify(sbOrder),
         keepalive: true
+      }).then(res => {
+        if (res.status >= 200 && res.status < 300 || res.status === 409) {
+          removePendingCloudOrder(sbOrder.id);
+        }
       }).catch(() => {});
     } catch (e) {}
 
-    // 2. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
-    fetch('/api/customer-order', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: bodyStr,
-      keepalive: true
-    }).catch(() => {});
+    // 3. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
+    try {
+      fetch('/api/customer-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderRecord),
+        keepalive: true
+      }).catch(() => {});
+    } catch (e) {}
   } catch (e) {}
 }
 function saveInvoiceAsImage(order, language) {
@@ -359,9 +441,10 @@ function saveInvoiceAsImage(order, language) {
     ctx.fillText(nameText, 72, curY + 20);
     curY += 22;
     if (it.variant) {
-      ctx.fillStyle = '#b45309';
+      const isWeight = String(it.variant).includes('⚖️') || String(it.variant).toLowerCase().includes('wazan');
+      ctx.fillStyle = isWeight ? '#047857' : '#b45309';
       ctx.font = '700 10px system-ui, sans-serif';
-      ctx.fillText('🎨 Shade: ' + it.variant, 72, curY + 13);
+      ctx.fillText(isWeight ? it.variant : '🎨 Shade: ' + it.variant, 72, curY + 13);
       curY += 16;
     }
     if (it.extraPercent > 0) {
@@ -523,7 +606,8 @@ function generatePDFReceipt(order, language) {
   const itemsRows = (order.items || []).map((item, idx) => {
     const itemExtraSavings = Number(item.extraSavings || 0);
     const itemExtraPercent = Number(item.extraPercent || 0);
-    const variantText = item.variant ? `<div style="font-size: 11px; color: #b45309; font-weight: 700; margin-top: 2px;">🎨 Shade/Colour: ${escHtml(item.variant)}</div>` : '';
+    const isWeight = String(item.variant || '').includes('⚖️') || String(item.variant || '').toLowerCase().includes('wazan');
+    const variantText = item.variant ? `<div style="font-size: 11px; color: ${isWeight ? '#047857' : '#b45309'}; font-weight: 700; margin-top: 2px;">${isWeight ? escHtml(item.variant) : '🎨 Shade/Colour: ' + escHtml(item.variant)}</div>` : '';
     const discountBadge = itemExtraPercent > 0 ? `
           <div style="font-size: 11px; color: #15803d; font-weight: 700; margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 6px; border-radius: 4px;">
             🎁 Bulk Discount (${itemExtraPercent}% OFF): Saved Rs ${itemExtraSavings.toLocaleString()}
@@ -795,9 +879,10 @@ function generatePDFReceipt(order, language) {
                   curY += 22;
 
                   if (it.variant) {
-                    ctx.fillStyle = '#b45309';
+                    const isWeight = String(it.variant).includes('⚖️') || String(it.variant).toLowerCase().includes('wazan');
+                    ctx.fillStyle = isWeight ? '#047857' : '#b45309';
                     ctx.font = '700 10px system-ui, sans-serif';
-                    ctx.fillText('🎨 Shade: ' + it.variant, 72, curY + 13);
+                    ctx.fillText(isWeight ? it.variant : ('🎨 Shade: ' + it.variant), 72, curY + 13);
                     curY += 16;
                   }
 
@@ -1335,6 +1420,146 @@ function calculateBulkPricing(sellingPrice, qty) {
     tierLabel: tier.label
   };
 }
+
+// --- Loose Grocery & Weight Selection Helper Functions ---
+function isWeightSelectableProduct(product) {
+  if (!product) return false;
+  const catId = (product.categoryId || '').toLowerCase();
+  if (catId === 'attacheenidaalchawal') return true;
+  const nameUpper = (product.name || '').toUpperCase();
+  const keywords = ['ATTA', 'CHEENI', 'CHAWAL', 'RICE', 'DAAL', 'DAL', 'CHAANA', 'CHANA', 'MASAR', 'MASOOR', 'MAIDA', 'SUJI', 'BESAN', 'SABUT DANA'];
+  return keywords.some(k => nameUpper.includes(k));
+}
+function getWeightOptionsForProduct(product) {
+  if (!product || !product.price) return null;
+  if (!isWeightSelectableProduct(product)) return null;
+  const basePrice = Number(product.price) || 0;
+  if (basePrice <= 0) return null;
+  const nameUpper = (product.name || '').toUpperCase();
+
+  // Case 1: Atta / Maida (Flour options: 1kg, 2kg, 5kg, 10kg, 15kg, 20kg)
+  if (nameUpper.includes('ATTA') || nameUpper.includes('AATA') || nameUpper.includes('MAIDA')) {
+    const p1kg = basePrice;
+    return [{
+      id: '1kg',
+      label: '1 Kilo (1 KG)',
+      weightText: '1 KG',
+      multiplier: 1,
+      price: Math.round(p1kg * 1)
+    }, {
+      id: '2kg',
+      label: '2 Kilo (2 KG)',
+      weightText: '2 KG',
+      multiplier: 2,
+      price: Math.round(p1kg * 2)
+    }, {
+      id: '5kg',
+      label: '5 Kilo (5 KG Bag)',
+      weightText: '5 KG',
+      multiplier: 5,
+      price: Math.round(p1kg * 5),
+      isPopular: true
+    }, {
+      id: '10kg',
+      label: '10 Kilo (10 KG Bag)',
+      weightText: '10 KG',
+      multiplier: 10,
+      price: Math.round(p1kg * 10)
+    }, {
+      id: '15kg',
+      label: '15 Kilo (15 KG Bag)',
+      weightText: '15 KG',
+      multiplier: 15,
+      price: Math.round(p1kg * 15)
+    }, {
+      id: '20kg',
+      label: '20 Kilo (20 KG Bori)',
+      weightText: '20 KG',
+      multiplier: 20,
+      price: Math.round(p1kg * 20)
+    }];
+  }
+
+  // Case 2: Items where base price is for 1 Pao (Daalein, Chane, Sabut Dana)
+  const isBasePao = nameUpper.includes('1PAO') || nameUpper.includes('PAO');
+  if (isBasePao) {
+    const pPao = basePrice;
+    return [{
+      id: '1pao',
+      label: '1 Pao (250 Gram)',
+      weightText: '1 Pao (250g)',
+      multiplier: 1,
+      price: Math.round(pPao * 1),
+      isPopular: true
+    }, {
+      id: '1.5pao',
+      label: '1.5 Pao / Dhedh Pao (375g)',
+      weightText: '1.5 Pao (375g)',
+      multiplier: 1.5,
+      price: Math.round(pPao * 1.5)
+    }, {
+      id: 'adha_kg',
+      label: 'Adha Kilo / 2 Pao (500g)',
+      weightText: 'Adha Kilo (500g)',
+      multiplier: 2,
+      price: Math.round(pPao * 2)
+    }, {
+      id: '1kg',
+      label: '1 Kilo / 4 Pao (1000g)',
+      weightText: '1 KG (1000g)',
+      multiplier: 4,
+      price: Math.round(pPao * 4)
+    }, {
+      id: '2kg',
+      label: '2 Kilo (2000g)',
+      weightText: '2 KG (2000g)',
+      multiplier: 8,
+      price: Math.round(pPao * 8)
+    }];
+  }
+
+  // Case 3: Items where base price is for 1 KG (Cheeni, Chawal, Rice, etc.)
+  const p1kg = basePrice;
+  const pPao = p1kg / 4;
+  return [{
+    id: '1pao',
+    label: '1 Pao (250 Gram)',
+    weightText: '1 Pao (250g)',
+    multiplier: 0.25,
+    price: Math.round(pPao)
+  }, {
+    id: '1.5pao',
+    label: '1.5 Pao / Dhedh Pao (375g)',
+    weightText: '1.5 Pao (375g)',
+    multiplier: 0.375,
+    price: Math.round(pPao * 1.5)
+  }, {
+    id: 'adha_kg',
+    label: 'Adha Kilo (500 Gram)',
+    weightText: 'Adha Kilo (500g)',
+    multiplier: 0.5,
+    price: Math.round(p1kg * 0.5)
+  }, {
+    id: '1kg',
+    label: '1 Kilo (1 KG)',
+    weightText: '1 KG',
+    multiplier: 1,
+    price: Math.round(p1kg * 1),
+    isPopular: true
+  }, {
+    id: '2kg',
+    label: '2 Kilo (2 KG)',
+    weightText: '2 KG',
+    multiplier: 2,
+    price: Math.round(p1kg * 2)
+  }, {
+    id: '5kg',
+    label: '5 Kilo (5 KG Bag)',
+    weightText: '5 KG',
+    multiplier: 5,
+    price: Math.round(p1kg * 5)
+  }];
+}
 function getProductDisplayName(product, language) {
   if (!product) return "";
   if (language === "ur" && product.nameUrdu) {
@@ -1753,62 +1978,85 @@ function PerfumeIcon({
 }
 // --- Product Categories and Data ---
 var DEFAULT_CATEGORIES = [{
+  id: "attacheenidaalchawal",
+  name: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: "milkliquidpowder",
+  name: "Milk & Tea Essentials",
+  priority: 3
+}, {
+  id: "masale",
+  name: "Masale (Khule & Packed)",
+  priority: 2
+}, {
   id: "groceryandkaryana",
   name: "Grocery & Karyana",
   priority: 1
 }, {
-  id: "haircolour",
-  name: "Hair Colors & Care & Oils",
-  priority: 2
-}, {
-  id: "soaps",
-  name: "Local & Imported Soaps",
-  priority: 3
+  id: "beverages",
+  name: "Beverages (Cold Drinks, Juices & Water)",
+  priority: 4
 }, {
   id: "shampoo",
-  name: "Shampoo & Conditioners"
+  name: "Shampoo & Conditioners",
+  priority: 4
+}, {
+  id: "haircolour",
+  name: "Hair Colors & Care & Oils",
+  priority: 10
 }, {
   id: "creams",
-  name: "Creams & Lotions & Bleach"
+  name: "Creams & Lotions & Bleach",
+  priority: 8
+}, {
+  id: "shaving",
+  name: "Shaving & Razers & Blades",
+  priority: 9
 }, {
   id: "stationary",
-  name: "Stationary & Tapes"
+  name: "Stationary & Tapes",
+  priority: 17
 }, {
   id: "sports",
   name: "Sports & Toys"
-}, {
-  id: "shaving",
-  name: "Shaving & Razers & Blades"
 }, {
   id: "condemn",
   name: "Condoms"
 }, {
   id: "lock",
-  name: "Locks & Cells & Lighters"
+  name: "Locks & Cells & Lighters",
+  priority: 10
 }, {
   id: "general",
-  name: "General Items & Others"
+  name: "General Items & Others",
+  priority: 11
 }, {
   id: "babycare",
-  name: "Baby Care & Powders"
+  name: "Baby Care & Powders",
+  priority: 7
 }, {
   id: "mosquito",
-  name: "Anti- Mosquitoes"
+  name: "Anti- Mosquitoes",
+  priority: 13
 }, {
   id: "personalcare",
-  name: "Personal Care"
+  name: "Personal Care",
+  priority: 6
 }, {
   id: "fragnances",
-  name: "Fragnances & Roll on"
+  name: "Fragnances & Roll on",
+  priority: 15
 }, {
   id: "toothpasteandbrush",
-  name: "Dental Cares"
+  name: "Dental Cares",
+  priority: 16
 }, {
   id: "facewash",
-  name: "Face Wash & Body Washes"
+  name: "Face Wash & Body Washes",
+  priority: 5
 }, {
-  id: "beverages",
-  name: "Beverages (Cold Drinks, Juices & Water)"
+  id: "soaps",
+  name: "Local & Imported Soaps"
 }];
 function getGlobalCategories(productsList) {
   // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories
@@ -1827,13 +2075,18 @@ function getGlobalCategories(productsList) {
     }
   }
   // Override default category names with live names, preserving order and priority
+  var defaultPrioMap = {};
+  DEFAULT_CATEGORIES.forEach(function (dc) {
+    if (dc.priority) defaultPrioMap[dc.id] = dc.priority;
+  });
   var seenIds = {};
   var result = baseCategories.map(function (cat) {
     seenIds[cat.id] = true;
+    var prio = cat.priority !== undefined && cat.priority !== null && Number(cat.priority) > 0 ? Number(cat.priority) : defaultPrioMap[cat.id];
     return {
       id: cat.id,
       name: liveNameMap[cat.id] || cat.name,
-      priority: cat.priority
+      priority: prio
     };
   });
   // Append any brand-new categories from server not in defaults
@@ -1859,26 +2112,779 @@ function getGlobalCategories(productsList) {
 var CATEGORIES = DEFAULT_CATEGORIES;
 var SWATCH_GRADIENTS = ["from-amber-400 to-orange-500", "from-violet-500 to-purple-600", "from-emerald-400 to-teal-600", "from-rose-400 to-pink-600", "from-sky-400 to-blue-600", "from-fuchsia-400 to-purple-600", "from-teal-400 to-cyan-600", "from-indigo-400 to-violet-600"];
 var PRODUCTS = [{
-  id: 1,
-  name: "7 HERBAL OIL 100ML RS,250",
-  price: 220,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  priority: 2
+  id: 1463,
+  name: "LAAL MASOR KI DAAL (1PAO) RS,90",
+  price: 69,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
 }, {
-  id: 2,
-  name: "7 HERBAL OIL 200ML RP,400",
-  price: 369,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  priority: 3
+  id: 1462,
+  name: "KAALI MASAR DAAL (1PAO) RS,90",
+  price: 69,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
 }, {
-  id: 3,
-  name: "7 HERBAL OIL 50ML RS,170",
-  price: 155,
+  id: 1461,
+  name: "CHANE KI DAAL (1PAO) RS,90",
+  price: 79,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1460,
+  name: "DAAL MASH (1PAO) RS,120",
+  price: 109,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1459,
+  name: "MONG KI DAAL (1PAO) RS,90",
+  price: 69,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1458,
+  name: "SAFEED CHAANA (1PAO) RS,100",
+  price: 82,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1457,
+  name: "SABUT DANA (1PAO) RS,120",
+  price: 105,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1456,
+  name: "KALA CHAANA (1PAO) RS,90",
+  price: 79,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1455,
+  name: "MONG DAAL CHILKE WALI (1PAO) RS,90",
+  price: 74,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1454,
+  name: "FINE ATTA 1KG RS,190",
+  price: 180,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1453,
+  name: "TOTA BASMATI RICE RS,250",
+  price: 199,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1452,
+  name: "SABUT BASMATI RICE GOOD QUALITY RS,300",
+  price: 239,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1451,
+  name: "BASMATI CHAWAL (#1121) PREMIUM QUALITY RS,400",
+  price: 359,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1450,
+  name: "CHAKII ATTA 1KG RS,195",
+  price: 186,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1449,
+  name: "PURE SEELA CHAWAL PREMIUM QUALITY RS,450",
+  price: 380,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1448,
+  name: "CHEENI 1KG RS,150",
+  price: 134,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1447,
+  name: "ATTA MIX 1KG RS,175",
+  price: 162,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1446,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,400",
+  price: 389,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1445,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,200",
+  price: 196,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1444,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,100",
+  price: 98,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1443,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,50",
+  price: 49,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1442,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,30",
+  price: 29,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1441,
+  name: "TAPAL DANE DAR TEA PACKET 900GM RS,1850",
+  price: 1789,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1440,
+  name: "TAPAL DANE DAR TEA PACKET 350GM RS,750",
+  price: 750,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1439,
+  name: "TAPAL DANE DAR TEA BOX 170GM RS,400",
+  price: 389,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1438,
+  name: "TAPAL DANE DAR TEA BOX 85GM RS,200",
+  price: 196,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1437,
+  name: "TAPAL DANE DAR TEA BOX RS,100",
+  price: 92.83,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1436,
+  name: "TAPAL DANE DAR TEA BOX RS,50",
+  price: 49,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1435,
+  name: "TAPAL DANE DAR TEA BOX RS,30",
+  price: 29,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1434,
+  name: "DUX STEPLER PIN 24/6 BOX RS,120",
+  price: 69,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1433,
+  name: "DUX STEPLER GOOD QUALITY 24/6 RS,550",
+  price: 479,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1432,
+  name: "DEER RAINBOW COLOR PENCIL (FULL SIZE) 12 PIECE  RS,220",
+  price: 149,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1431,
+  name: "DEER RAINBOW COLOR PENCIL (HALF SIZE) 12 PIECE  RS,150",
+  price: 89,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1430,
+  name: "SCALE NORMAL QUALITY LARGE RS,30",
+  price: 20,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1429,
+  name: "SCALE NORMAL QUALITY SMALL RS,20",
+  price: 14,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1428,
+  name: "SHAN CHAPLI KABAB MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1427,
+  name: "SHAN SHAMI KABAB MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1426,
+  name: "SHAN TIKKA SEEKH KABAB MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1425,
+  name: "SHAN KOFTA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1424,
+  name: "SHAN FRIED FISH MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1423,
+  name: "SHAN PAYA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1422,
+  name: "SHAN CHAAT MASALA BOX RS,100",
+  price: 92,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1421,
+  name: "SHAN TANDOORI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1420,
+  name: "SHAN PILAU BIRYANI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1419,
+  name: "SHAN KEEMA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1418,
+  name: "SHAN KORMA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1417,
+  name: "SHAN CHICKEN WHITE KARAHI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1416,
+  name: "SHAN SINDHI BIRYANI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1415,
+  name: "SHAN KARAHI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1414,
+  name: "SHAN CHICKEN MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1413,
+  name: "SHAN NIHARI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1412,
+  name: "SHAN ACHAR GOSHT MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1411,
+  name: "SHAN CHICKEN TIKKA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1410,
+  name: "SHAN SPECIAL BOMBAY BIRYANI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1409,
+  name: "FACE MASK BLUE RS,20",
+  price: 6,
+  categoryId: "general",
+  categoryName: "General Items & Others"
+}, {
+  id: 1408,
+  name: "SOAP LUX WHITE 98GM RS,130",
+  price: 124,
+  categoryId: "soaps",
+  categoryName: "Local & Imported Soaps"
+}, {
+  id: 1407,
+  name: "SOAP LUX PINK 98GM RS,130",
+  price: 124,
+  categoryId: "soaps",
+  categoryName: "Local & Imported Soaps"
+}, {
+  id: 1406,
+  name: "SOAP LUX PURPLE 98GM RS,130",
+  price: 124,
+  categoryId: "soaps",
+  categoryName: "Local & Imported Soaps"
+}, {
+  id: 1405,
+  name: "DOLLAR INK PEN FP-5 RS,100",
+  price: 69,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1404,
+  name: "REGISTER NARROW LINE (400 PAGES) RS,400",
+  price: 249,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1403,
+  name: "PAPER COPY MEDIUM SIZE (3IN1) RS,120",
+  price: 84,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1402,
+  name: "PAPER COPY MEDIUM SIZE (URDU) RS,120",
+  price: 84,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1401,
+  name: "PAPER COPY MEDIUM SIZE (MATH) RS,120",
+  price: 84,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1400,
+  name: "PAPER COPY MEDIUM SIZE (ENGLISH) RS,120",
+  price: 84,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1399,
+  name: "PAPER COPY (NORMAL QUALITY) RS,50",
+  price: 34,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1398,
+  name: "PENCIL NORMAL QUALITY RS,20",
+  price: 13,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1397,
+  name: "TIP TOP GLUE SMALL RS,60",
+  price: 35,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1396,
+  name: "123 MOSQUITO GLOBE RS,160",
+  price: 139,
+  categoryId: "mosquito",
+  categoryName: "Anti- Mosquitoes"
+}, {
+  id: 1395,
+  name: "DARCO-1 BLACK SAFETY RS,20",
+  price: 10,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades"
+}, {
+  id: 1394,
+  name: "CELL SUPER MAXCELL AAA RS,40",
+  price: 24,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1393,
+  name: "LASER EXTRA DUTY CELL AA",
+  price: 29,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1392,
+  name: "RK STAINLESS DOUBLE EDGE BLADE RS,10",
+  price: 8,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades"
+}, {
+  id: 1391,
+  name: "CELL POWER PLUS AAA RS,40",
+  price: 24,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1390,
+  name: "SHAN SHAMI KABAB MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1389,
+  name: "SHAN TIKKA SEEKH KABAB MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1388,
+  name: "SHAN KOFTA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1387,
+  name: "SHAN FRIED FISH MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1386,
+  name: "SHAN PAYA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1385,
+  name: "SHAN CHAAT MASALA SACHET RS,30",
+  price: 28,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1384,
+  name: "SHAN TANDOORI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1383,
+  name: "SHAN PILAU BIRYANI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1382,
+  name: "SHAN KEEMA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1381,
+  name: "SHAN KORMA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1380,
+  name: "SHAN CHICKEN WHITE KARAHI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1379,
+  name: "SHAN SINDHI BIRYANI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1378,
+  name: "SHAN KARAHI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1377,
+  name: "SHAN CHICKEN MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1376,
+  name: "SHAN NIHARI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1375,
+  name: "SHAN CHICKEN TIKKA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1374,
+  name: "SHAN SPECIAL BOMBAY BIRYANI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1373,
+  name: "SHAN ACHAR GOSHT MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1372,
+  name: "SURF BRITE (SMALL) RS,10",
+  price: 10,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1371,
+  name: "SURF BONUS (SMALL) RS,10",
+  price: 10,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1370,
+  name: "SURF EXCEL (SMALL )RS,10",
+  price: 10,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1369,
+  name: "SURF BONUS 180GM RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1368,
+  name: "SURF EXCEL 90GM RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1367,
+  name: "SURF BRITE 95GM RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1366,
+  name: "SURF ARIEL 85GM RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1365,
+  name: "SURF BONUS 375GM RS,99",
+  price: 98,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1364,
+  name: "SURF SUNLIGHT 375GM RS,99",
+  price: 98,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1363,
+  name: "SURF SUNLIGHT 730GM  RS,199",
+  price: 194,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1362,
+  name: "SURF BONUS 1KG RS,270",
+  price: 270,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1361,
+  name: "SURF EXPRESS 1KG RS,520",
+  price: 499,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1360,
+  name: "SURF BRITE 1KG RS,620",
+  price: 599,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1359,
+  name: "SURF ARIEL 1KG RS,580",
+  price: 579,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1358,
+  name: "SURF EXCEL 1KG RS,620",
+  price: 599,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1357,
+  name: "SURF EXPRESS 500GM RS,260",
+  price: 249,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1356,
+  name: "SURF BRITE 500GM RS,310",
+  price: 299,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1355,
+  name: "SURF ARIEL 500GM RS,300",
+  price: 289,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1354,
+  name: "SURF EXCEL 500GM RS,310",
+  price: 299,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1353,
+  name: "LEMON MAX DISHWASH BAR (LARGE) RS,100",
+  price: 98,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1352,
+  name: "LEMON MAX DISHWASH BAR (MEDIUM) RS,35",
+  price: 35,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1351,
+  name: "LEMON MAX DISHWASH BAR (SMALL) RS,25",
+  price: 25,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1350,
+  name: "COLOUR GODREJ SACHET (NATURAL BLACK) RS,80",
+  price: 59,
   categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  priority: 1
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1349,
+  name: "MATCHES BOX RS,50",
+  price: 39,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1348,
+  name: "RIVON HAIR COLOR SACHET  (DARK BROWN) RS,80",
+  price: 74,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1347,
+  name: "RIVON HAIR COLOR SACHET  (BLACK) RS,80",
+  price: 74,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1346,
+  name: "TANG SACHET PINEAPPLE RS,25",
+  price: 24,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1345,
+  name: "TANG SACHET ORANGE RS,25",
+  price: 24,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1344,
+  name: "TANG SACHET MANGO RS,25",
+  price: 24,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1343,
+  name: "RAFHAN CUSTURD POWDER STRAWBERRY 275 GM RS,220",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1342,
+  name: "RAFHAN CUSTURD POWDER VANILLA 275 GM RS,220",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1341,
+  name: "RAFHAN CUSTURD POWDER BANANA 275 GM RS,220",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1340,
+  name: "RAFHAN CUSTURD POWDER MANGO 275 GM RS,220",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1339,
+  name: "TURK BODY RAZER",
+  price: 34,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades"
+}, {
+  id: 1338,
+  name: "RISEK SACHET 20MG  PATA RS,30",
+  price: 24,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1337,
+  name: "LAZEEZA KHEER MIX BOX RS,165",
+  price: 159,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1336,
+  name: "TRIM CLASSIC BODY RAZER RS,50",
+  price: 34,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades"
+}, {
+  id: 1335,
+  name: "TIGER LOTION SASHAY RS,10",
+  price: 9,
+  categoryId: "mosquito",
+  categoryName: "Anti- Mosquitoes"
 }, {
   id: 5,
   name: "AL RASHIEED OIL 100ML SASSO",
@@ -1930,13 +2936,6 @@ var PRODUCTS = [{
   price: 140,
   categoryId: "sports",
   categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 17,
-  name: "BAJAJ ALMOND OIL 100ML",
-  price: 950,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  priority: 4
 }, {
   id: 18,
   name: "BALL ADIDAS",
@@ -2005,31 +3004,31 @@ var PRODUCTS = [{
 }, {
   id: 32,
   name: "BALL PEN PIANO YELLOW BLUE CAP",
-  price: 15,
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 33,
-  name: "BALL PEN PICASSO BLUE",
-  price: 18,
+  name: "BALL PEN PICASSO GRIP BLUE",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 34,
-  name: "BALL PEN PICASSO RED",
-  price: 18,
+  name: "BALL PEN PICASSO GRIP RED",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 37,
-  name: "BALL POINT PEN SIGNATURE (BLACK)",
-  price: 18,
+  name: "BALL  PEN SIGNATURE (BLACK) RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 38,
-  name: "BALL POINT PEN SIGNATURE (BLUE)",
-  price: 18,
+  name: "BALL PEN SIGNATURE (BLUE) RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -2610,8 +3609,8 @@ var PRODUCTS = [{
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 158,
-  name: "CELL POWER PLUS AA",
-  price: 30,
+  name: "CELL POWER PLUS AA RS,40",
+  price: 34,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters",
   hasImage: true,
@@ -2619,26 +3618,26 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 159,
-  name: "CELL TOSHIBA AA (BLACK)",
-  price: 35,
+  name: "CELL TOSHIBA AA (BLACK) RS,50",
+  price: 39,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 161,
-  name: "CELL TOSHIBA AA (RED)",
-  price: 35,
+  name: "CELL TOSHIBA AA (RED) RS,40",
+  price: 34,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 162,
-  name: "CELL TOSHIBA AAA (BLACK)",
-  price: 35,
+  name: "CELL TOSHIBA AAA (BLACK) RS,50",
+  price: 39,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 163,
-  name: "CELL TOSHIBA AAA (RED)",
-  price: 35,
+  name: "CELL TOSHIBA AAA (RED) RS,40",
+  price: 34,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters",
   hasImage: true,
@@ -2646,8 +3645,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 165,
-  name: "CELL TOSHIBA SIZE (D)",
-  price: 140,
+  name: "CELL TOSHIBA SIZE (D) RS,220",
+  price: 179,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
@@ -2712,8 +3711,8 @@ var PRODUCTS = [{
   categoryName: "Anti- Mosquitoes"
 }, {
   id: 175,
-  name: "COFFEE SACHET (60 PCS)",
-  price: 35,
+  name: "COFFEE SACHET (60 PCS) RS,50",
+  price: 34,
   categoryId: "general",
   categoryName: "General Items & Others",
   hasImage: true,
@@ -2751,8 +3750,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 187,
-  name: "COLOUR GODREJ SACHET (DARK,BROWN)",
-  price: 70,
+  name: "COLOUR GODREJ SACHET (DARK,BROWN) RS,80",
+  price: 59,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2760,8 +3759,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 188,
-  name: "COLOUR GODREJ SACHET (NATURAL BROWN)",
-  price: 70,
+  name: "COLOUR GODREJ SACHET (NATURAL BROWN) RS,80",
+  price: 59,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2815,7 +3814,7 @@ var PRODUCTS = [{
 }, {
   id: 208,
   name: "COLOUR PRIMA HAIR (# 43 BROWN) RS,80",
-  price: 60,
+  price: 59,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2824,7 +3823,7 @@ var PRODUCTS = [{
 }, {
   id: 209,
   name: "COLOUR PRIMA HAIR (# 45 BLACK) RS,80",
-  price: 60,
+  price: 59,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -3505,8 +4504,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 326,
-  name: "CREAM PARLEY BLEACH SACHET BLACK RS,70",
-  price: 60,
+  name: "PARLEY BLEACH SACHET BLACK RS,70",
+  price: 59,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3733,47 +4732,35 @@ var PRODUCTS = [{
   initial: "D"
 }, {
   id: 362,
-  name: "DETTOL PANI 50ML (SMALL) RP,250",
-  price: 220,
+  name: "DETTOL PANI 50ML (SMALL) RS,250",
+  price: 229,
   categoryId: "general",
   categoryName: "General Items & Others",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "D"
 }, {
-  id: 363,
-  name: "DOLLAR GEL PEN (BLACK)",
-  price: 40,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 364,
-  name: "DOLLAR GEL PEN (BLUE)",
-  price: 40,
+  name: "DOLLAR GEL PEN (BLUE) RS,80",
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 365,
-  name: "DOLLAR GEL PEN (GREEN)",
-  price: 40,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 366,
-  name: "DOLLAR GEL PEN (RED)",
-  price: 40,
+  name: "DOLLAR GEL PEN (GREEN) RS,80",
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 367,
-  name: "DOLLAR PEN (CLIPPER) BLACK",
-  price: 18,
+  name: "DOLLAR PEN (CLIPPER) BLACK RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 368,
-  name: "DOLLAR PEN (CLIPPER) BLUE",
-  price: 18,
+  name: "DOLLAR PEN (CLIPPER) BLUE RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -3781,20 +4768,20 @@ var PRODUCTS = [{
   initial: "D"
 }, {
   id: 370,
-  name: "DOLLAR PEN (CLIPPER) RED",
-  price: 18,
+  name: "DOLLAR PEN (CLIPPER) RED RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 371,
-  name: "DOLLAR POINTER (BLACK)",
+  name: "DOLLAR POINTER (BLACK) RS,50",
   price: 30,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 372,
-  name: "DOLLAR POINTER (BLUE)",
-  price: 0,
+  name: "DOLLAR POINTER (BLUE) RS,50",
+  price: 30,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -3812,7 +4799,7 @@ var PRODUCTS = [{
 }, {
   id: 375,
   name: "DORCO RAZOR",
-  price: 190,
+  price: 179,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades",
   hasImage: true,
@@ -3832,8 +4819,8 @@ var PRODUCTS = [{
   categoryName: "Condoms"
 }, {
   id: 379,
-  name: "ELFY JIMSA BOTTLE 20GM",
-  price: 140,
+  name: "ELFY GMSA BOTTLE 20GM RS,150",
+  price: 124,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -3841,8 +4828,8 @@ var PRODUCTS = [{
   initial: "E"
 }, {
   id: 380,
-  name: "ELFY JIMSA BOX",
-  price: 25,
+  name: "ELFY GMSA PATA RS,30",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -4748,7 +5735,7 @@ var PRODUCTS = [{
 }, {
   id: 536,
   name: "HIGHLIGHTER",
-  price: 70,
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -4782,21 +5769,15 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[3],
   initial: "I"
 }, {
-  id: 541,
-  name: "INK PEN DOLLAR",
-  price: 70,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 542,
   name: "INK PEN PIANO CRYSTAL",
-  price: 70,
+  price: 64,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 543,
-  name: "INK REMOVER MARKER (ORO)",
-  price: 40,
+  name: "INK REMOVER MARKER (SANY)",
+  price: 29,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -4990,8 +5971,8 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 576,
-  name: "KING COIL BLAKI (LARGE)",
-  price: 110,
+  name: "KINGTOX COIL BLACK RS,120",
+  price: 99,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes",
   hasImage: true,
@@ -4999,8 +5980,8 @@ var PRODUCTS = [{
   initial: "K"
 }, {
   id: 577,
-  name: "KING COIL GREEN (LARGE)",
-  price: 110,
+  name: "KINGTOX COIL GREEN RS,120",
+  price: 99,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes"
 }, {
@@ -5122,8 +6103,8 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 600,
-  name: "LIGHTER (HEATER)",
-  price: 30,
+  name: "LIGHTER (HEATER) RS,40",
+  price: 29,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters",
   hasImage: true,
@@ -5169,8 +6150,8 @@ var PRODUCTS = [{
   id: 608,
   name: "LIP OIL",
   price: 40,
-  categoryId: "general",
-  categoryName: "General Items & Others",
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "L"
@@ -5581,8 +6562,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 668,
-  name: "MARKER 604 (BLACK)",
-  price: 20,
+  name: "MARKER MERCURY BLUE (CUT ) RS,40",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5590,8 +6571,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 669,
-  name: "MARKER 604 (BLUE)",
-  price: 20,
+  name: "MARKER MERCURY BLUE (GOL) RS,40",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5599,8 +6580,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 670,
-  name: "MARKER MERCURY (BLUE)",
-  price: 20,
+  name: "MARKER MERCURY BLUE (GOL) RS,40",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5608,8 +6589,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 671,
-  name: "MARKER MERCURY (BLACK)",
-  price: 20,
+  name: "MERCURY MARKER  BLACK (GOL) RS,40",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5617,8 +6598,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 672,
-  name: "MARKER BOARD INK",
-  price: 89,
+  name: "DOLLAR BOARD MARKER INK RS,100",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -5641,8 +6622,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 675,
-  name: "MARKER PERMANENT (BLACK) DEER",
-  price: 69,
+  name: "DEER PERMANENT MARKER BLACK RS,100",
+  price: 59,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5650,32 +6631,14 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 676,
-  name: "MARKER PERMANENT (BLUE) DEER",
-  price: 69,
+  name: "DEER PERMANENT MARKER BLUE RS,100",
+  price: 59,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
-  id: 677,
-  name: "MARKER SADA (BLACK)",
-  price: 15,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[7],
-  initial: "M"
-}, {
-  id: 678,
-  name: "MARKER SADA (BLUE)",
-  price: 15,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
-  initial: "M"
-}, {
   id: 679,
-  name: "MARKER SADA DOLLAR (BLUE)",
-  price: 21,
+  name: "BELO MARKER PACKET  MIX 10 PIECE RS,120",
+  price: 89,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -5706,14 +6669,14 @@ var PRODUCTS = [{
   id: 685,
   name: "METRO +7 AGAER BATTI (LARGE)",
   price: 120,
-  categoryId: "general",
-  categoryName: "General Items & Others"
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
 }, {
   id: 686,
   name: "METRO AGHER BATTI (SMALL)",
   price: 50,
-  categoryId: "general",
-  categoryName: "General Items & Others",
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "M"
@@ -6049,8 +7012,8 @@ var PRODUCTS = [{
   initial: "N"
 }, {
   id: 753,
-  name: "PAPER COPY (ALL TYPES)",
-  price: 0,
+  name: "PAPER COPY (GOOD QUALITY) RS,60",
+  price: 44,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -6430,26 +7393,20 @@ var PRODUCTS = [{
   categoryName: "Dental Cares"
 }, {
   id: 809,
-  name: "PEN (BLUE SIGNATURE) BLACK",
-  price: 17,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 810,
-  name: "PEN (BLUE SIGNATURE) BLUE",
-  price: 17,
+  name: "BALL PEN SIGNATURE (RED) RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 811,
   name: "PEN DOLLAR SP 10",
-  price: 70,
+  price: 74,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 812,
-  name: "PEN PIANO (BLACK) GRIPPER 0.8MM",
-  price: 20,
+  name: "PEN PIANO CLICK  (BLACK) RS,20",
+  price: 14,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -6457,8 +7414,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 813,
-  name: "PEN PIANO (BLUE) GRIPPER 0.8MM",
-  price: 20,
+  name: "PEN PIANO CLICK  (BLUE) RS,20",
+  price: 14,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -6466,21 +7423,12 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 814,
-  name: "PEN PIANO (RED) GRIPPER 0.8MM",
-  price: 20,
+  name: "PEN PIANO CLICK  (BLACK) RS,20",
+  price: 14,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
-  initial: "P"
-}, {
-  id: 815,
-  name: "PEN PIANO OLD YELLOW",
-  price: 17,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
   initial: "P"
 }, {
   id: 816,
@@ -6493,7 +7441,7 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 817,
-  name: "PENCIL MY DOLLAR",
+  name: "DOLLAR MY PENCIL",
   price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
@@ -6987,12 +7935,6 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[1],
   initial: "R"
 }, {
-  id: 904,
-  name: "REGISTER (ALL TYPES)",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 905,
   name: "RACKET (SET) (EXCELLENT QUALITY)",
   price: 2250,
@@ -7177,8 +8119,8 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 934,
-  name: "SCALE ORO LARGE",
-  price: 59,
+  name: "ORO SCALE  LARGE",
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -7186,7 +8128,7 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 935,
-  name: "SCALE ORO SMALL",
+  name: "ORO SCALE  SMALL",
   price: 35,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
@@ -7900,8 +8842,8 @@ var PRODUCTS = [{
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1062,
-  name: "SHARPENER ORO RS,10",
-  price: 9,
+  name: "APPLE SHARPENER  RS,10",
+  price: 8,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -7948,8 +8890,8 @@ var PRODUCTS = [{
   categoryName: "Baby Care & Powders"
 }, {
   id: 1075,
-  name: "SHIELD NIPPLE BOX",
-  price: 80,
+  name: "SHIELD NIPPLE (1 PEICE) RS,50",
+  price: 39,
   categoryId: "babycare",
   categoryName: "Baby Care & Powders",
   hasImage: true,
@@ -7960,37 +8902,22 @@ var PRODUCTS = [{
   name: "SOAP CAPRI (FAMILY PACK) 135G (YELLOW)",
   price: 130,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 27
 }, {
   id: 1081,
   name: "SOAP CAPRI (3 IN 1) YELLOW RS,390",
   price: 350,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
-}, {
-  id: 1083,
-  name: "SOAP DETTOL JUMBO COMPANY RS,150 (COOL)",
-  price: 139,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 28
 }, {
   id: 1084,
-  name: "SOAP DETTOL JUMBO COMPANY RS,150 (GREEN)",
-  price: 139,
+  name: "SOAP DETTOL JUMBO (GREEN) RS,160",
+  price: 149,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
-}, {
-  id: 1086,
-  name: "SOAP DETTOL MEDIUM COMPANY (COOL) RS,140",
-  price: 129,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
-}, {
-  id: 1087,
-  name: "SOAP DETTOL SMALL COMPANY (COOL)",
-  price: 129,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 6
 }, {
   id: 1088,
   name: "SOAP DOVE LARGE WHITE (IMP)",
@@ -8011,33 +8938,37 @@ var PRODUCTS = [{
 }, {
   id: 1090,
   name: "SOAP DOVE SMALL WHITE (IMP)",
-  price: 0,
+  price: 1,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
+  initial: "S",
+  priority: 3
 }, {
   id: 1091,
   name: "SOAP DOVE SMALL PINK (IMP)",
-  price: 0,
+  price: 1,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
-  initial: "S"
+  initial: "S",
+  priority: 4
 }, {
   id: 1092,
   name: "SOAP FAIZA (NEEM)",
   price: 110,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 32
 }, {
   id: 1093,
   name: "SOAP FAIZA (PP)",
   price: 110,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 33
 }, {
   id: 1094,
   name: "SOAP GOLDEN PEARL (BLUE)",
@@ -8046,7 +8977,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
-  initial: "S"
+  initial: "S",
+  priority: 9
 }, {
   id: 1095,
   name: "SOAP GOLDEN PEARL (PINK)",
@@ -8055,7 +8987,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
+  initial: "S",
+  priority: 10
 }, {
   id: 1096,
   name: "SOAP GOLDEN PEARL (YELLOW)",
@@ -8064,13 +8997,15 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
-  initial: "S"
+  initial: "S",
+  priority: 11
 }, {
   id: 1097,
   name: "SOAP IMPERIAL 175gm LARGE",
   price: 390,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 26
 }, {
   id: 1098,
   name: "SOAP IMPERIAL LEATHER SMALL",
@@ -8079,55 +9014,57 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
-}, {
-  id: 1099,
-  name: "SOAP LIFEBUOY (LARGE) GREEN RS,125",
-  price: 119,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  initial: "S",
+  priority: 25
 }, {
   id: 1100,
-  name: "SOAP LIFEBUOY (MEDIUM) (BLUE) RS,95",
-  price: 90,
+  name: "SOAP LIFEBUOY (SMALL) RED RS,75",
+  price: 69,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 14
 }, {
   id: 1101,
-  name: "SOAP LIFEBUOY (XL) BLUE RS,125",
-  price: 119,
+  name: "SOAP LIFEBUOY (MEDIUM) BLUE RS,110",
+  price: 104,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 13
 }, {
   id: 1102,
-  name: "SOAP LIFEBUOY (XL) GREEN RS,125",
-  price: 119,
+  name: "SOAP LIFEBUOY (MEDIUM) GREEN RS,110",
+  price: 104,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 12
 }, {
   id: 1103,
-  name: "SOAP PALMOLIVE (LARGE) RS,150 BLACK",
-  price: 139,
+  name: "SOAP PALMOLIVE GREEN (LARGE) RS,160",
+  price: 151,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 16
 }, {
   id: 1104,
-  name: "SOAP PALMOLIVE (LARGE) RS,150 ORANGE",
-  price: 139,
+  name: "SOAP PALMOLIVE ORANGE (LARGE) RS,160",
+  price: 151,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 17
 }, {
   id: 1105,
-  name: "SOAP PALMOLIVE (LARGE) RS,150 YELLOW",
-  price: 139,
+  name: "SOAP PALMOLIVE PINK (LARGE) RS,160",
+  price: 151,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 18
 }, {
   id: 1109,
   name: "SOAP PEARS (BLUE)",
   price: 399,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 19
 }, {
   id: 1110,
   name: "SOAP PEARS (GREEN)",
@@ -8136,13 +9073,15 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
-  initial: "S"
+  initial: "S",
+  priority: 20
 }, {
   id: 1111,
   name: "SOAP PEARS (ORANGE)",
   price: 399,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 21
 }, {
   id: 1112,
   name: "SOAP SKIN WHITE (BLUE) RS,150",
@@ -8151,7 +9090,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
-  initial: "S"
+  initial: "S",
+  priority: 22
 }, {
   id: 1113,
   name: "SOAP SKIN WHITE (GREEN) RS,150",
@@ -8160,7 +9100,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
-  initial: "S"
+  initial: "S",
+  priority: 23
 }, {
   id: 1114,
   name: "SOAP SKIN WHITE (PINK) RS,150",
@@ -8169,7 +9110,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
-  initial: "S"
+  initial: "S",
+  priority: 24
 }, {
   id: 1115,
   name: "SOAP TIBET (LARGE FAMILY SIZE) RS,109",
@@ -8178,7 +9120,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
+  initial: "S",
+  priority: 31
 }, {
   id: 1116,
   name: "SOAP TIBET (MEDIUM BATH SIZE) RS,89",
@@ -8187,7 +9130,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
-  initial: "S"
+  initial: "S",
+  priority: 30
 }, {
   id: 1117,
   name: "SOAP TIBET (SMALL STANDARD SIZE) RS,70",
@@ -8196,7 +9140,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
-  initial: "S"
+  initial: "S",
+  priority: 29
 }, {
   id: 1118,
   name: "SOFT TOUCH WONDER WAX LARGE GREEN",
@@ -8399,32 +9344,14 @@ var PRODUCTS = [{
   categoryId: "sports",
   categoryName: "Sports & Toys & Birthday"
 }, {
-  id: 1156,
-  name: "TAPE DOUBLE 2 INCH",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1157,
-  name: "TAPE DOUBLE SIDED (1 INCH)",
-  price: 65,
+  name: "DOUBLE SIDED TAPE  (1 INCH) RS,80",
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
   initial: "T"
-}, {
-  id: 1158,
-  name: "TAPE DOUBLE SIDED (1 INCH)",
-  price: 63,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 1159,
-  name: "TAPE DOUBLE SIDED (1 INCH) TRANSPARENT",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
 }, {
   id: 1160,
   name: "TAPE KAGHAZ (0.5 INCH) HALF INCH 12 PIECES",
@@ -8434,7 +9361,7 @@ var PRODUCTS = [{
 }, {
   id: 1161,
   name: "TAPE KAGHAZ 1 INCH",
-  price: 65,
+  price: 39,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -8449,48 +9376,30 @@ var PRODUCTS = [{
 }, {
   id: 1163,
   name: "TAPE OSAKA (BLACK)",
-  price: 45,
+  price: 48,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "T"
 }, {
-  id: 1164,
-  name: "TAPE OSAKA (BLACK) FULL LENGTH",
-  price: 59,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1165,
   name: "TAPE OSAKA (RED)",
-  price: 45,
+  price: 48,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "T"
 }, {
-  id: 1166,
-  name: "TAPE OSAKA (RED) FULL LENGTH",
-  price: 59,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1167,
   name: "TAPE OSAKA (WHITE)",
-  price: 45,
+  price: 48,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "T"
-}, {
-  id: 1168,
-  name: "TAPE OSAKA (WHITE) FULL LENGTH",
-  price: 59,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
 }, {
   id: 1169,
   name: "TAPE PACKING BROWN (2 INCH)",
@@ -8503,18 +9412,6 @@ var PRODUCTS = [{
 }, {
   id: 1170,
   name: "TAPE PACKING BROWN (2 INCH) 45 METER",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 1171,
-  name: "TAPE PACKING BROWN (2 INCH) 65 METER",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 1172,
-  name: "TAPE PACKING BROWN (2 INCH) SHORT LENGTH (SMALL)",
   price: 0,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
@@ -8534,12 +9431,6 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[6],
   initial: "T"
 }, {
-  id: 1175,
-  name: "TAPE TRANSPARENT (1 INCH) FULL LENGTH",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1176,
   name: "TAPE TRANSPARENT (2 INCH)",
   price: 95,
@@ -8549,15 +9440,9 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[0],
   initial: "T"
 }, {
-  id: 1177,
-  name: "TAPE TRANSPARENT (2 INCH) (MOTI)",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1178,
   name: "TAPE TRANSPARENT RS,10",
-  price: 85,
+  price: 7,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -9167,8 +10052,8 @@ var PRODUCTS = [{
   id: 1267,
   name: "NATIONAL SALT RS,60",
   price: 58,
-  categoryId: "general",
-  categoryName: "General Items & Others",
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "N"
@@ -9176,81 +10061,15 @@ var PRODUCTS = [{
   id: 1268,
   name: "LAHORI NAMAK RS,35",
   price: 29,
-  categoryId: "general",
-  categoryName: "General Items & Others",
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "L"
 }, {
-  id: 1269,
-  name: "LEMON MAX LONG BAR RS,100",
-  price: 95,
-  categoryId: "general",
-  categoryName: "General Items & Others",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[5],
-  initial: "L"
-}, {
-  id: 1270,
-  name: "LEMON MAX BAR SMALL RS,35",
-  price: 34,
-  categoryId: "general",
-  categoryName: "General Items & Others",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[6],
-  initial: "L"
-}, {
-  id: 1271,
-  name: "SURF EXCEL 500G RS,310",
-  price: 299,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  priority: 1,
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[7],
-  initial: "S"
-}, {
-  id: 1272,
-  name: "SURF ARIEL RS,310",
-  price: 299,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  priority: 2,
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
-  initial: "S"
-}, {
-  id: 1273,
-  name: "SURF BRITE RS,300",
-  price: 285,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  priority: 3,
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[1],
-  initial: "S"
-}, {
-  id: 1274,
-  name: "SURF SUNLIGHT RS,199",
-  price: 185,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[2],
-  initial: "S"
-}, {
-  id: 1275,
-  name: "SURF BONUS 1KG RS,230",
-  price: 210,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
-}, {
   id: 1276,
   name: "TIGER JUMBO COIL RS,120",
-  price: 105,
+  price: 99,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes",
   hasImage: true,
@@ -9259,7 +10078,7 @@ var PRODUCTS = [{
 }, {
   id: 1277,
   name: "BODY RAZER BIG PAKI RS,50",
-  price: 37,
+  price: 29,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades",
   hasImage: true,
@@ -9295,7 +10114,7 @@ var PRODUCTS = [{
 }, {
   id: 1281,
   name: "SPRITE 300ML BOTTLE",
-  price: 75,
+  price: 74,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9305,7 +10124,7 @@ var PRODUCTS = [{
 }, {
   id: 1282,
   name: "SPRITE 500ML BOTTLE",
-  price: 105,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9325,7 +10144,7 @@ var PRODUCTS = [{
 }, {
   id: 1284,
   name: "SPRITE 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9335,7 +10154,7 @@ var PRODUCTS = [{
 }, {
   id: 1285,
   name: "SPRITE 2.25L JUMBO BOTTLE",
-  price: 249,
+  price: 229,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9345,7 +10164,7 @@ var PRODUCTS = [{
 }, {
   id: 1286,
   name: "SPRITE 250ML CAN",
-  price: 109,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9355,7 +10174,7 @@ var PRODUCTS = [{
 }, {
   id: 1287,
   name: "COCA COLA 300ML BOTTLE",
-  price: 75,
+  price: 74,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9365,7 +10184,7 @@ var PRODUCTS = [{
 }, {
   id: 1288,
   name: "COCA COLA 500ML BOTTLE",
-  price: 105,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9385,7 +10204,7 @@ var PRODUCTS = [{
 }, {
   id: 1290,
   name: "COCA COLA 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9395,7 +10214,7 @@ var PRODUCTS = [{
 }, {
   id: 1291,
   name: "COCA COLA 2.25L JUMBO BOTTLE",
-  price: 249,
+  price: 229,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9405,7 +10224,7 @@ var PRODUCTS = [{
 }, {
   id: 1292,
   name: "COCA COLA 250ML CAN",
-  price: 109,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9426,7 +10245,7 @@ var PRODUCTS = [{
 }, {
   id: 1293,
   name: "FANTA 500ML BOTTLE",
-  price: 105,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Fanta",
@@ -9446,7 +10265,7 @@ var PRODUCTS = [{
 }, {
   id: 1295,
   name: "FANTA 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Fanta",
@@ -9456,7 +10275,7 @@ var PRODUCTS = [{
 }, {
   id: 1296,
   name: "FANTA 2.25L JUMBO BOTTLE",
-  price: 249,
+  price: 229,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Fanta",
@@ -9466,7 +10285,7 @@ var PRODUCTS = [{
 }, {
   id: 1297,
   name: "FANTA 250ML CAN",
-  price: 109,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Fanta",
@@ -9486,7 +10305,7 @@ var PRODUCTS = [{
 }, {
   id: 1299,
   name: "PEPSI 500ML BOTTLE",
-  price: 110,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9496,7 +10315,7 @@ var PRODUCTS = [{
 }, {
   id: 1300,
   name: "PEPSI 1 LITRE BOTTLE",
-  price: 160,
+  price: 149,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9506,7 +10325,7 @@ var PRODUCTS = [{
 }, {
   id: 1301,
   name: "PEPSI 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9516,7 +10335,7 @@ var PRODUCTS = [{
 }, {
   id: 1302,
   name: "PEPSI 2.25L JUMBO BOTTLE",
-  price: 259,
+  price: 239,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9526,7 +10345,7 @@ var PRODUCTS = [{
 }, {
   id: 1303,
   name: "PEPSI 250ML CAN",
-  price: 109,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9546,7 +10365,7 @@ var PRODUCTS = [{
 }, {
   id: 1305,
   name: "7UP 500ML BOTTLE",
-  price: 110,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -9556,7 +10375,7 @@ var PRODUCTS = [{
 }, {
   id: 1306,
   name: "7UP 1 LITRE BOTTLE",
-  price: 160,
+  price: 149,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -9566,7 +10385,7 @@ var PRODUCTS = [{
 }, {
   id: 1307,
   name: "7UP 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -9576,7 +10395,7 @@ var PRODUCTS = [{
 }, {
   id: 1308,
   name: "7UP 2.25L JUMBO BOTTLE",
-  price: 259,
+  price: 239,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -9606,7 +10425,7 @@ var PRODUCTS = [{
 }, {
   id: 1311,
   name: "MIRINDA 500ML BOTTLE",
-  price: 110,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9616,7 +10435,7 @@ var PRODUCTS = [{
 }, {
   id: 1312,
   name: "MIRINDA 1 LITRE BOTTLE",
-  price: 160,
+  price: 149,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9626,7 +10445,7 @@ var PRODUCTS = [{
 }, {
   id: 1313,
   name: "MIRINDA 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9636,7 +10455,7 @@ var PRODUCTS = [{
 }, {
   id: 1314,
   name: "MIRINDA 2.25L JUMBO BOTTLE",
-  price: 259,
+  price: 239,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9646,7 +10465,7 @@ var PRODUCTS = [{
 }, {
   id: 1315,
   name: "MIRINDA 250ML CAN",
-  price: 109,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9656,7 +10475,7 @@ var PRODUCTS = [{
 }, {
   id: 1322,
   name: "STING BERRY 300ML BOTTLE",
-  price: 75,
+  price: 89,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sting",
@@ -9666,7 +10485,7 @@ var PRODUCTS = [{
 }, {
   id: 1323,
   name: "STING BERRY 500ML BOTTLE",
-  price: 110,
+  price: 114,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sting",
@@ -9674,19 +10493,9 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[3],
   initial: "S"
 }, {
-  id: 1324,
-  name: "STING BERRY 250ML CAN",
-  price: 109,
-  categoryId: "beverages",
-  categoryName: "Beverages (Cold Drinks, Juices & Water)",
-  filterName: "Sting",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[4],
-  initial: "S"
-}, {
   id: 1326,
   name: "PAKOLA CHOCOLATE JUICE 250ML",
-  price: 110,
+  price: 104,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pakola",
@@ -9696,7 +10505,7 @@ var PRODUCTS = [{
 }, {
   id: 1327,
   name: "PAKOLA BADAM JUICE 250ML",
-  price: 110,
+  price: 104,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pakola",
@@ -9706,7 +10515,7 @@ var PRODUCTS = [{
 }, {
   id: 1328,
   name: "PAKOLA STRAWBERRY JUICE 250ML",
-  price: 110,
+  price: 104,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pakola",
@@ -9716,7 +10525,7 @@ var PRODUCTS = [{
 }, {
   id: 1329,
   name: "PAKOLA DRINK 300ML BOTTLE",
-  price: 70,
+  price: 65,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pakola",
@@ -9726,7 +10535,7 @@ var PRODUCTS = [{
 }, {
   id: 1330,
   name: "PAKOLA DRINK 500ML BOTTLE",
-  price: 100,
+  price: 89,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pakola",
@@ -9736,7 +10545,7 @@ var PRODUCTS = [{
 }, {
   id: 1331,
   name: "PAKOLA DRINK 1.5 LITRE BOTTLE",
-  price: 190,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pakola",
@@ -9752,27 +10561,30 @@ var PRODUCTS = [{
   filterName: "Slice",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
-  initial: "S"
+  initial: "S",
+  priority: 1
 }, {
   id: 1333,
   name: "SLICE MANGO JUICE 355ML BOTTLE",
-  price: 0,
+  price: 79,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Slice",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
-  initial: "S"
+  initial: "S",
+  priority: 2
 }, {
   id: 1334,
   name: "SLICE MANGO JUICE 1 LITRE BOTTLE",
-  price: 185,
+  price: 179,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Slice",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
-  initial: "S"
+  initial: "S",
+  priority: 3
 }];
 var PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
@@ -11800,13 +12612,29 @@ function ProductDetailModal({
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
   const [packMenuOpen, setPackMenuOpen] = React.useState(false);
+  const weightOptions = useMemo(() => product ? getWeightOptionsForProduct(product) : null, [product]);
+  const [selectedWeightId, setSelectedWeightId] = React.useState(null);
+  React.useEffect(() => {
+    if (weightOptions && weightOptions.length > 0) {
+      const def = weightOptions.find(o => o.isPopular) || weightOptions[0];
+      setSelectedWeightId(def.id);
+    } else {
+      setSelectedWeightId(null);
+    }
+    setModalQty(1);
+  }, [product, weightOptions]);
+  const activeWeight = useMemo(() => {
+    if (!weightOptions || weightOptions.length === 0) return null;
+    return weightOptions.find(o => o.id === selectedWeightId) || weightOptions[0];
+  }, [weightOptions, selectedWeightId]);
   const pricing = useMemo(() => product ? getProductPricing(product) : {
     sellingPrice: 0,
     retailPrice: 0,
     savings: 0,
     hasDiscount: false
   }, [product]);
-  const bulkPricing = useMemo(() => calculateBulkPricing(pricing.sellingPrice, modalQty), [pricing.sellingPrice, modalQty]);
+  const currentUnitPrice = activeWeight ? activeWeight.price : pricing.sellingPrice;
+  const bulkPricing = useMemo(() => calculateBulkPricing(currentUnitPrice, modalQty), [currentUnitPrice, modalQty]);
   // Find 4-6 Related Products from the same category (excluding current product and zero-priced items)
   const relatedProducts = useMemo(() => {
     if (!product || !products) return [];
@@ -11821,22 +12649,37 @@ function ProductDetailModal({
   }, [product, products]);
   if (!open || !product) return null;
   const imageSrc = getProductImgSrc(product);
+  const hasFile = Boolean(imageSrc);
   const handleDirectWhatsAppOrder = () => {
     if (!product || product.price === undefined || product.price === null || Number(product.price) <= 0 || bulkPricing.finalTotal <= 0) {
       alert(isUrdu ? 'اس پروڈکٹ کی قیمت فی الحال دستیاب نہیں ہے۔' : 'This product is currently unavailable.');
       return;
     }
     const pName = getProductDisplayName(product, language);
+    const weightLine = activeWeight ? `\n⚖️ *Weight / Wazan:* ${activeWeight.label}` : '';
+    const weightVariantStr = activeWeight ? `⚖️ Wazan: ${activeWeight.weightText}` : '';
     let discountInfo = '';
-    if (bulkPricing.extraPercent > 0) {
+    if (bulkPricing.extraPercent > 0 && !activeWeight) {
       discountInfo += `\n🎁 *Bulk Volume Discount (${bulkPricing.extraPercent}%):* -Rs ${bulkPricing.extraSavings.toLocaleString()}`;
     }
-    if (pricing.hasDiscount) {
+    if (pricing.hasDiscount && !activeWeight) {
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${(pricing.savings * modalQty + bulkPricing.extraSavings).toLocaleString()})`;
     }
-    const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
+    const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}${weightLine}\n🔢 *Quantity:* ${modalQty} ${activeWeight ? 'Pack(s)' : ''}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
     const _dwNow = new Date();
     const deliveryFee = typeof calculateDeliveryFee === 'function' ? calculateDeliveryFee(bulkPricing.finalTotal) : 0;
+    let directCustPhone = '';
+    let directCustName = 'Direct WhatsApp Customer';
+    let directCustAddress = '';
+    try {
+      const savedProfile = localStorage.getItem('zs_mart_customer_profile');
+      if (savedProfile) {
+        const p = JSON.parse(savedProfile);
+        if (p.phone) directCustPhone = p.phone;
+        if (p.name) directCustName = p.name;
+        if (p.address) directCustAddress = p.address;
+      }
+    } catch (e) {}
     const directOrderRecord = {
       id: generateUniqueOrderId('DW'),
       createdAt: _dwNow.getTime(),
@@ -11856,8 +12699,9 @@ function ProductDetailModal({
         minute: '2-digit'
       }),
       customer: {
-        name: 'Direct WhatsApp Customer',
-        phone: ''
+        name: directCustName,
+        phone: directCustPhone,
+        address: directCustAddress
       },
       deliveryMethod: 'home',
       deliveryFee: deliveryFee,
@@ -11867,7 +12711,8 @@ function ProductDetailModal({
       items: [{
         id: product.id,
         name: product.name,
-        price: product.price,
+        variant: weightVariantStr || null,
+        price: currentUnitPrice,
         qty: modalQty,
         total: bulkPricing.finalTotal,
         imageUrl: product.imageUrl || null,
@@ -11880,7 +12725,9 @@ function ProductDetailModal({
     } else if (typeof window !== 'undefined' && typeof window.__saveOrderHistory === 'function') {
       window.__saveOrderHistory(directOrderRecord);
     }
-    launchWhatsApp(getStoreSettings().whatsapp, msg);
+    setTimeout(() => {
+      launchWhatsApp(getStoreSettings().whatsapp, msg);
+    }, 100);
   };
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 shadow-2xl animate-fade-in",
@@ -11968,7 +12815,21 @@ function ProductDetailModal({
     className: "bg-gray-200 text-gray-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full"
   }, product.categoryName)), /*#__PURE__*/React.createElement("h3", {
     className: "text-base sm:text-lg font-black text-gray-900 leading-snug"
-  }, getProductDisplayName(product, language)), pricing.hasDiscount ? /*#__PURE__*/React.createElement("div", {
+  }, getProductDisplayName(product, language)), activeWeight ? /*#__PURE__*/React.createElement("div", {
+    className: "space-y-1.5 bg-gradient-to-r from-emerald-50 via-white to-teal-50 p-2.5 sm:p-3 rounded-2xl border border-emerald-300 shadow-2xs text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between flex-wrap gap-1"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-black uppercase tracking-wider text-emerald-800"
+  }, tr(language, 'Price for Selected Weight', 'Muntakhab Wazan Ka Rate', 'منتخب وزن کا ریٹ')), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl sm:text-3xl font-black text-emerald-950"
+  }, "Rs. ", activeWeight.price.toLocaleString()))), /*#__PURE__*/React.createElement("span", {
+    className: "inline-block bg-emerald-600 text-white text-xs font-black px-2.5 py-1 rounded-xl shadow-xs"
+  }, "\u2696\uFE0F ", activeWeight.weightText)), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10.5px] font-bold text-emerald-700"
+  }, tr(language, '100% Pure, Clean & Fresh Quality Guaranteed', '100% Khalis, Saaf Suthri Aala Quality', 'خالص اور معیاری کوالٹی'))) : pricing.hasDiscount ? /*#__PURE__*/React.createElement("div", {
     className: "space-y-1.5 bg-gradient-to-r from-emerald-50/70 via-white to-red-50/50 p-2.5 sm:p-3 rounded-2xl border border-emerald-200/80 shadow-2xs text-left"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between flex-wrap gap-1"
@@ -12002,8 +12863,41 @@ function ProductDetailModal({
     className: "text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"
   }, tr(language, 'Cheaper than Supermarts', 'Supermarket se Sasta', 'سپر مارکیٹ سے سستا'))))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2.5 pt-2 border-t border-gray-200/80 w-full"
+  }, weightOptions && weightOptions.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "bg-emerald-50/80 border border-emerald-300 rounded-2xl p-3 space-y-2 shadow-2xs"
   }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-base"
+  }, "\u2696\uFE0F"), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-black text-emerald-950 uppercase tracking-wide"
+  }, isUrdu ? 'کتنا چاہیے؟ وزن منتخب کریں:' : 'Kitna Chahiye? Wazan Select Karein:')), /*#__PURE__*/React.createElement("span", {
+    className: "text-[11px] font-black text-emerald-800 bg-white border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-2xs"
+  }, activeWeight ? activeWeight.weightText : '')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-3 gap-2"
+  }, weightOptions.map(opt => {
+    const isSelected = activeWeight && activeWeight.id === opt.id;
+    return /*#__PURE__*/React.createElement("button", {
+      key: opt.id,
+      type: "button",
+      onClick: () => {
+        triggerHaptic('light');
+        setSelectedWeightId(opt.id);
+      },
+      className: `flex flex-col items-start p-2.5 rounded-xl border text-left transition-all relative cursor-pointer active:scale-98 ${isSelected ? 'border-emerald-600 bg-white shadow-md ring-2 ring-emerald-500/30' : 'border-emerald-200 bg-white/70 hover:bg-white hover:border-emerald-400'}`
+    }, opt.isPopular && /*#__PURE__*/React.createElement("span", {
+      className: "absolute -top-2 right-2 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.2 rounded-md shadow-2xs uppercase"
+    }, "\u2B50 Popular"), /*#__PURE__*/React.createElement("span", {
+      className: `text-xs font-bold leading-tight ${isSelected ? 'text-emerald-950 font-black' : 'text-gray-800'}`
+    }, opt.weightText), /*#__PURE__*/React.createElement("span", {
+      className: `text-xs font-black mt-1 ${isSelected ? 'text-emerald-700' : 'text-emerald-800'}`
+    }, "Rs. ", opt.price.toLocaleString()));
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between gap-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-2xs shrink-0"
   }, /*#__PURE__*/React.createElement("button", {
@@ -12025,7 +12919,13 @@ function ProductDetailModal({
     onClick: () => setModalQty(q => q + 1),
     className: "w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors",
     title: "Plus 1"
-  }, "+")), /*#__PURE__*/React.createElement("div", {
+  }, "+")), activeWeight && /*#__PURE__*/React.createElement("span", {
+    className: "text-[11px] font-bold text-gray-600"
+  }, modalQty > 1 ? `x ${modalQty} Packs` : `1 Pack`)), activeWeight ? /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-black text-xs"
+  }, /*#__PURE__*/React.createElement("span", null, "Total:"), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm text-emerald-700 font-black"
+  }, "Rs. ", bulkPricing.finalTotal.toLocaleString())) : /*#__PURE__*/React.createElement("div", {
     className: "flex-1 min-w-0"
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
@@ -12046,7 +12946,7 @@ function ProductDetailModal({
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M19.5 8.25l-7.5 7.5-7.5-7.5"
-  }))))), /*#__PURE__*/React.createElement("div", {
+  }))))), !activeWeight && /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)',
       border: '1px solid #6ee7b7',
@@ -12130,11 +13030,16 @@ function ProductDetailModal({
     disabled: !product || !product.price || Number(product.price) <= 0,
     onClick: () => {
       if (!product || !product.price || Number(product.price) <= 0) return;
-      onAddToCart(product, null, modalQty);
+      const productToAdd = activeWeight ? {
+        ...product,
+        price: currentUnitPrice
+      } : product;
+      const variantToAdd = activeWeight ? `⚖️ Wazan: ${activeWeight.weightText}` : null;
+      onAddToCart(productToAdd, variantToAdd, modalQty);
       onClose();
     },
     className: "w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDED2"), /*#__PURE__*/React.createElement("span", null, !product || !product.price || Number(product.price) <= 0 ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں') : `${translate(langData, "addToCart")} (${modalQty})`)), /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDED2"), /*#__PURE__*/React.createElement("span", null, !product || !product.price || Number(product.price) <= 0 ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں') : activeWeight ? `${translate(langData, "addToCart")} (${activeWeight.weightText}${modalQty > 1 ? ` × ${modalQty}` : ''})` : `${translate(langData, "addToCart")} (${modalQty})`)), /*#__PURE__*/React.createElement("button", {
     disabled: !product || !product.price || Number(product.price) <= 0,
     onClick: handleDirectWhatsAppOrder,
     className: "w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
@@ -13010,8 +13915,8 @@ function ZSMart() {
     isManual = !!isManual;
     if (isFetchingProductsRef.current) return;
     const now = Date.now();
-    // Guard: Minimum 45 seconds between automatic background fetches
-    if (!isManual && now - lastProductsFetchTimeRef.current < 45000) return;
+    // Guard: Minimum 3 seconds between automatic background fetches (allows near-instant updates)
+    if (!isManual && now - lastProductsFetchTimeRef.current < 3000) return;
     isFetchingProductsRef.current = true;
     lastProductsFetchTimeRef.current = now;
     setIsSyncingProducts(true);
@@ -13111,45 +14016,111 @@ function ZSMart() {
         } catch (e) {}
       };
 
-      // Efficient Delta Sync for Background Polls (Saves 99% Supabase Egress & Mobile Bandwidth)
-      if (!isManual && lastProductSyncTimestampRef.current && productsList && productsList.length > 0) {
+      // ── INSTANT DUAL CLOUD SYNC: Deletions + Edits & Additions (~250-350ms) ──
+      if (productsList && productsList.length > 0) {
         try {
-          const deltaUrl = `${sbUrl}/rest/v1/products?select=*&updated_at=gt.${encodeURIComponent(lastProductSyncTimestampRef.current)}&order=updated_at.desc&limit=500`;
-          const deltaRes = await fetch(deltaUrl, {
+          const idUrl = `${sbUrl}/rest/v1/products?select=id&limit=5000`;
+          const updateUrl = `${sbUrl}/rest/v1/products?select=*&order=updated_at.desc.nullslast&limit=100`;
+          const prioUrl = `${sbUrl}/rest/v1/products?select=*&priority=not.is.null`;
+          const [idRes, updateRes, prioRes] = await Promise.all([fetch(idUrl, {
             cache: 'no-store',
             headers: {
               'apikey': sbKey,
               'Authorization': `Bearer ${sbKey}`
             }
-          });
-          if (deltaRes.ok) {
-            const deltaRows = await deltaRes.json();
-            // 30s safety buffer against device-to-cloud clock skew
-            lastProductSyncTimestampRef.current = new Date(Date.now() - 30000).toISOString();
-            if (Array.isArray(deltaRows) && deltaRows.length > 0) {
-              const map = new Map((productsList || []).map(p => [Number(p.id), p]));
-              deltaRows.forEach(p => {
-                map.set(Number(p.id), {
-                  id: Number(p.id),
-                  name: p.name,
-                  price: Number(p.price),
-                  categoryId: p.category_id || p.categoryId || 'general',
-                  categoryName: p.category_name || p.categoryName || 'General Items',
-                  priority: p.priority ? Number(p.priority) : undefined,
-                  filterName: p.filter_name || p.filterName || undefined,
-                  hasImage: !!p.has_image,
-                  imageUrl: p.image_url,
-                  imageVersion: p.image_version || p.imageVersion
-                });
-              });
-              const merged = Array.from(map.values()).sort((a, b) => a.id - b.id);
-              setProductsList(merged);
-              window.PRODUCTS = merged;
-              persistProductsToLocalCache(merged);
-              syncCartWithFreshProducts(merged);
+          }), fetch(updateUrl, {
+            cache: 'no-store',
+            headers: {
+              'apikey': sbKey,
+              'Authorization': `Bearer ${sbKey}`
             }
-            await syncCloudCategoriesAndSettings();
-            return;
+          }), fetch(prioUrl, {
+            cache: 'no-store',
+            headers: {
+              'apikey': sbKey,
+              'Authorization': `Bearer ${sbKey}`
+            }
+          }).catch(() => null)]);
+          if (idRes.ok && updateRes.ok) {
+            const idRows = await idRes.json();
+            const updateRows = await updateRes.json();
+            let prioRows = null;
+            if (prioRes && prioRes.ok) {
+              try {
+                prioRows = await prioRes.json();
+              } catch (e) {}
+            }
+            if (Array.isArray(idRows) && idRows.length > 0 && Array.isArray(updateRows)) {
+              const activeIdSet = new Set(idRows.map(r => Number(r.id)));
+              let listChanged = false;
+              const currentList = productsList || window.PRODUCTS || [];
+
+              // 1. Instant Deletion Detection: Prune any item whose ID no longer exists in Supabase
+              const pruned = currentList.filter(p => {
+                if (!activeIdSet.has(Number(p.id))) {
+                  listChanged = true;
+                  return false;
+                }
+                return true;
+              });
+
+              // 2. Count mismatch check: agar Supabase me zyada items hain local se,
+              //    to naye items hain jo top-100 updated_at me nahi aate.
+              //    Is case me full reload karo (freshProducts flow chalega).
+              if (activeIdSet.size > pruned.length) {
+                // Fall through to full Supabase fetch below
+                console.log('[ZS Sync] Count mismatch - Supabase:', activeIdSet.size, 'local:', pruned.length, '- triggering full reload');
+              } else {
+                // 3. Instant Edit & Addition Detection: Merge top 100 updated rows + all prioritized items
+                const prodMap = new Map(pruned.map(p => [Number(p.id), p]));
+                const combinedRows = Array.isArray(prioRows) && prioRows.length > 0 ? [...updateRows, ...prioRows] : updateRows;
+
+                // If prioRows was fetched, un-prioritize any local items that lost priority in cloud
+                if (Array.isArray(prioRows)) {
+                  const activePrioIds = new Set(prioRows.map(r => Number(r.id)));
+                  prodMap.forEach((p, pId) => {
+                    if (p && p.priority && !activePrioIds.has(pId)) {
+                      p.priority = undefined;
+                      listChanged = true;
+                    }
+                  });
+                }
+                combinedRows.forEach(row => {
+                  const rowId = Number(row.id);
+                  if (!activeIdSet.has(rowId)) return;
+                  const existing = prodMap.get(rowId);
+                  const updatedItem = {
+                    id: rowId,
+                    name: row.name,
+                    price: Number(row.price),
+                    categoryId: row.category_id || row.categoryId || 'general',
+                    categoryName: row.category_name || row.categoryName || 'General Items',
+                    priority: row.priority ? Number(row.priority) : undefined,
+                    filterName: row.filter_name || row.filterName || undefined,
+                    hasImage: !!row.has_image,
+                    imageUrl: row.image_url,
+                    imageVersion: row.image_version || row.imageVersion
+                  };
+                  if (!existing || existing.price !== updatedItem.price || existing.name !== updatedItem.name || existing.categoryId !== updatedItem.categoryId || existing.categoryName !== updatedItem.categoryName || existing.priority !== updatedItem.priority || existing.imageUrl !== updatedItem.imageUrl || existing.imageVersion !== updatedItem.imageVersion) {
+                    prodMap.set(rowId, updatedItem);
+                    listChanged = true;
+                  }
+                });
+                if (listChanged) {
+                  const merged = Array.from(prodMap.values()).sort((a, b) => a.id - b.id);
+                  setProductsList(merged);
+                  window.PRODUCTS = merged;
+                  persistProductsToLocalCache(merged);
+                  syncCartWithFreshProducts(merged);
+                }
+                await syncCloudCategoriesAndSettings();
+                if (isManual) {
+                  setSyncToast(tr(language, "✅ Store updated live!", "✅ Store live update ho gaya!", "✅ اسٹور لائیو اپ ڈیٹ ہوگیا!"));
+                  setTimeout(() => setSyncToast(null), 2500);
+                }
+                return;
+              } // end count-match branch
+            }
           }
         } catch (e) {}
       }
@@ -13344,10 +14315,10 @@ function ZSMart() {
       window.addEventListener('focus', onFocus);
     }
 
-    // Periodic background poll every 2 minutes (optimized low battery & egress footprint)
+    // Periodic background poll every 15 seconds (near-instant cloud sync for all edits & deletes)
     const intervalId = setInterval(() => {
       if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(false);
-    }, 120000);
+    }, 15000);
     return () => {
       if (typeof document !== 'undefined') {
         document.removeEventListener('visibilitychange', onVisibilityChange);
@@ -15447,7 +16418,7 @@ function ZSMart() {
   }))))))), /*#__PURE__*/React.createElement("main", {
     className: "max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area",
     style: {
-      paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
+      paddingBottom: '58px',
       paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined,
       position: 'relative'
     }
@@ -15457,7 +16428,7 @@ function ZSMart() {
       display: activeTab === 'account' ? 'block' : 'none'
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: `max-w-2xl mx-auto space-y-4 pb-8 ${activeTab === 'account' ? 'account-page-enter' : ''}`
+    className: `max-w-2xl mx-auto space-y-4 pb-2 ${activeTab === 'account' ? 'account-page-enter' : ''}`
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -16174,7 +17145,8 @@ function ZSMart() {
     products: products,
     onSelectCategory: setSelectedCategory,
     langData: langData,
-    language: language
+    language: language,
+    categoriesVersion: categoriesVersion
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 10,
@@ -17187,25 +18159,25 @@ function ZSMart() {
       bottom: 0,
       left: 0,
       right: 0,
-      background: 'rgba(255, 255, 255, 0.15)',
-      backdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
-      borderTop: '1px solid rgba(255, 255, 255, 0.45)',
-      boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,0.7)',
+      background: 'rgba(255, 255, 255, 0.98)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderTop: '1px solid #e2e8f0',
+      boxShadow: '0 -2px 12px rgba(0, 0, 0, 0.05)',
       zIndex: 45,
       transform: 'translateZ(0)',
       WebkitTransform: 'translateZ(0)',
-      willChange: 'transform',
-      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       display: 'flex',
-      alignItems: 'stretch',
-      minHeight: '58px',
-      height: 'calc(58px + env(safe-area-inset-bottom, 0px))',
+      alignItems: 'center',
+      height: '50px',
+      paddingTop: '2px',
+      paddingBottom: 'clamp(0px, env(safe-area-inset-bottom, 0px), 4px)',
       boxSizing: 'border-box'
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       triggerHaptic('light');
+      if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(true);
       setActiveTab('home');
       setSelectedCategory(null);
       setSearchTerm('');
@@ -17217,28 +18189,28 @@ function ZSMart() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 1,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '2px 1px',
       position: 'relative'
     }
   }, activeTab === 'home' && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      top: 0,
+      top: -2,
       left: '50%',
       transform: 'translateX(-50%)',
-      width: 22,
-      height: 3,
+      width: 20,
+      height: 2.5,
       borderRadius: '0 0 3px 3px',
       background: '#059669'
     }
   }), /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: activeTab === 'home' ? '#059669' : '#0f172a'
     },
     fill: activeTab === 'home' ? '#059669' : 'none',
@@ -17251,7 +18223,7 @@ function ZSMart() {
     d: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: activeTab === 'home' ? '#059669' : '#0f172a',
       letterSpacing: '0.01em'
@@ -17267,11 +18239,11 @@ function ZSMart() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 1,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '2px 1px',
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -17280,8 +18252,8 @@ function ZSMart() {
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: '#0f172a'
     },
     fill: "none",
@@ -17297,12 +18269,12 @@ function ZSMart() {
       position: 'absolute',
       top: -4,
       right: -7,
-      minWidth: 15,
-      height: 15,
-      borderRadius: 8,
+      minWidth: 14,
+      height: 14,
+      borderRadius: 7,
       background: '#10b981',
       color: '#fff',
-      fontSize: 9,
+      fontSize: 8.5,
       fontWeight: 900,
       display: 'flex',
       alignItems: 'center',
@@ -17311,7 +18283,7 @@ function ZSMart() {
     }
   }, orderHistory.length > 9 ? '9+' : orderHistory.length)), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: '#0f172a',
       letterSpacing: '0.01em'
@@ -17330,27 +18302,27 @@ function ZSMart() {
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '2px 2px',
+      padding: '0px 2px',
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 44,
-      height: 44,
+      width: 40,
+      height: 40,
       borderRadius: '50%',
       background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-      boxShadow: '0 6px 18px rgba(16,185,129,0.5), 0 0 0 3.5px rgba(255,255,255,0.9)',
+      boxShadow: '0 4px 14px rgba(16,185,129,0.45), 0 0 0 3px rgba(255,255,255,0.95)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       position: 'relative',
-      transform: 'translateY(-8px)',
+      transform: 'translateY(-6px)',
       transition: 'all 0.2s'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: '#ffffff'
     },
     fill: "none",
@@ -17366,12 +18338,12 @@ function ZSMart() {
       position: 'absolute',
       top: -3,
       right: -3,
-      minWidth: 17,
-      height: 17,
-      borderRadius: 9,
+      minWidth: 16,
+      height: 16,
+      borderRadius: 8,
       background: '#ef4444',
       color: '#fff',
-      fontSize: 9,
+      fontSize: 8.5,
       fontWeight: 900,
       display: 'flex',
       alignItems: 'center',
@@ -17380,10 +18352,10 @@ function ZSMart() {
     }
   }, cartCount > 9 ? '9+' : cartCount)), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: '#0f172a',
-      marginTop: '-6px',
+      marginTop: '-5px',
       letterSpacing: '0.01em'
     }
   }, tr(language, 'Cart', 'Cart', 'کارٹ'))), /*#__PURE__*/React.createElement("button", {
@@ -17397,17 +18369,17 @@ function ZSMart() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 1,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '2px 1px',
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: '#0f172a'
     },
     fill: "none",
@@ -17424,7 +18396,7 @@ function ZSMart() {
     d: "M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: '#0f172a',
       letterSpacing: '0.01em'
@@ -17440,28 +18412,28 @@ function ZSMart() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 1,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '2px 1px',
       position: 'relative'
     }
   }, activeTab === 'account' && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      top: 0,
+      top: -2,
       left: '50%',
       transform: 'translateX(-50%)',
-      width: 22,
-      height: 3,
+      width: 20,
+      height: 2.5,
       borderRadius: '0 0 3px 3px',
       background: '#059669'
     }
   }), /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: activeTab === 'account' ? '#059669' : '#0f172a'
     },
     fill: activeTab === 'account' ? '#059669' : 'none',
@@ -17474,7 +18446,7 @@ function ZSMart() {
     d: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: activeTab === 'account' ? '#059669' : '#0f172a',
       letterSpacing: '0.01em'
@@ -18530,10 +19502,11 @@ const CategoryHome = React.memo(function CategoryHome({
   products,
   onSelectCategory,
   langData,
-  language
+  language,
+  categoriesVersion
 }) {
   const isUrdu = language === 'ur';
-  const categoriesList = useMemo(() => getGlobalCategories(products), [products]);
+  const categoriesList = useMemo(() => getGlobalCategories(products), [products, categoriesVersion]);
   const isNativeApp = checkIsNativeApp();
 
   // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
@@ -18850,6 +19823,7 @@ const ProductCard = React.memo(function ProductCard({
 }) {
   const isUrdu = language === 'ur';
   const pricing = useMemo(() => getProductPricing(product), [product]);
+  const isWeightItem = useMemo(() => isWeightSelectableProduct(product), [product]);
   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || product.hasImage || !!product.imageUrl;
   const imageSrc = product.imageUrl ? `${product.imageUrl}?v=${product.imageVersion || Date.now()}` : hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || 'webp'}`) : null;
   return /*#__PURE__*/React.createElement("div", {
@@ -18931,7 +19905,11 @@ const ProductCard = React.memo(function ProductCard({
     }
   }, Number(product.price) > 0 ? translate(langData, 'priceLabel', {
     amount: product.price.toLocaleString()
-  }) : tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں')), /*#__PURE__*/React.createElement("button", {
+  }) : tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں')), isWeightItem && /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 mb-0.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "inline-flex items-center gap-1 text-[9.5px] sm:text-[10.5px] font-black text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-md"
+  }, /*#__PURE__*/React.createElement("span", null, "\u2696\uFE0F"), /*#__PURE__*/React.createElement("span", null, product.name && (product.name.toUpperCase().includes('ATTA') || product.name.toUpperCase().includes('MAIDA')) ? '1 KG, 5 KG, 10 KG, 20 KG' : '1 Pao, Adha Kilo, 1 KG'))), /*#__PURE__*/React.createElement("button", {
     disabled: !product.price || Number(product.price) <= 0,
     onClick: e => {
       e.stopPropagation();
@@ -18939,29 +19917,29 @@ const ProductCard = React.memo(function ProductCard({
     },
     className: "product-add-btn mt-2.5 sm:mt-3 w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2",
     style: {
-      background: !product.price || Number(product.price) <= 0 ? '#9ca3af' : '#111111',
-      border: '1px solid ' + (!product.price || Number(product.price) <= 0 ? '#9ca3af' : '#111111'),
+      background: !product.price || Number(product.price) <= 0 ? '#9ca3af' : isWeightItem ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' : '#111111',
+      border: '1px solid ' + (!product.price || Number(product.price) <= 0 ? '#9ca3af' : isWeightItem ? '#059669' : '#111111'),
       color: '#ffffff',
-      boxShadow: !product.price || Number(product.price) <= 0 ? 'none' : '0 6px 14px rgba(0,0,0,0.16)',
+      boxShadow: !product.price || Number(product.price) <= 0 ? 'none' : isWeightItem ? '0 6px 14px rgba(5,150,105,0.25)' : '0 6px 14px rgba(0,0,0,0.16)',
       cursor: !product.price || Number(product.price) <= 0 ? 'not-allowed' : 'pointer',
       opacity: !product.price || Number(product.price) <= 0 ? 0.6 : 1,
       transform: 'translateY(0)'
     },
     onMouseEnter: e => {
-      if (product.price && Number(product.price) > 0) {
+      if (product.price && Number(product.price) > 0 && !isWeightItem) {
         e.currentTarget.style.background = '#1f2937';
         e.currentTarget.style.borderColor = '#1f2937';
         e.currentTarget.style.transform = 'translateY(-1px)';
       }
     },
     onMouseLeave: e => {
-      if (product.price && Number(product.price) > 0) {
+      if (product.price && Number(product.price) > 0 && !isWeightItem) {
         e.currentTarget.style.background = '#111111';
         e.currentTarget.style.borderColor = '#111111';
         e.currentTarget.style.transform = 'translateY(0)';
       }
     }
-  }, /*#__PURE__*/React.createElement("span", null, !product.price || Number(product.price) <= 0 ? '⏳' : '🛒'), /*#__PURE__*/React.createElement("span", null, !product.price || Number(product.price) <= 0 ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں') : tr(language, 'Click to Buy', 'Click to Buy', 'خریدیں')))));
+  }, /*#__PURE__*/React.createElement("span", null, !product.price || Number(product.price) <= 0 ? '⏳' : isWeightItem ? '⚖️' : '🛒'), /*#__PURE__*/React.createElement("span", null, !product.price || Number(product.price) <= 0 ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں') : isWeightItem ? tr(language, 'Select Weight & Buy', 'Wazan Chuniye', 'وزن منتخب کریں') : tr(language, 'Click to Buy', 'Click to Buy', 'خریدیں')))));
 });
 
 // -----------------------------------------------------------------------------
@@ -19291,21 +20269,23 @@ function CartDrawer({
       title: "Click to view product details"
     }, getProductDisplayName(product, language)), variant && /*#__PURE__*/React.createElement("div", {
       style: {
-        marginTop: 1,
+        marginTop: 2,
         marginBottom: 3
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 10.5,
+        fontSize: 11,
         fontWeight: 800,
-        color: '#92400e',
-        background: '#fef3c7',
-        border: '1px solid #fde68a',
+        color: variant.startsWith('⚖️') ? '#065f46' : '#92400e',
+        background: variant.startsWith('⚖️') ? '#ecfdf5' : '#fef3c7',
+        border: variant.startsWith('⚖️') ? '1px solid #a7f3d0' : '1px solid #fde68a',
         borderRadius: 6,
-        padding: '2px 7px',
-        display: 'inline-block'
+        padding: '2px 8px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4
       }
-    }, "\uD83C\uDFA8 Shade: ", variant)), /*#__PURE__*/React.createElement("div", {
+    }, variant.startsWith('⚖️') ? variant : `🎨 Shade: ${variant}`)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -20584,7 +21564,24 @@ function OrderHistoryModal({
           color: '#64748b',
           marginTop: 2
         }
-      }, "Qty ", item.qty, " \xD7 Rs ", Number(item.price || 0).toLocaleString()), item.extraPercent > 0 && /*#__PURE__*/React.createElement("div", {
+      }, "Qty ", item.qty, " \xD7 Rs ", Number(item.price || 0).toLocaleString()), item.variant && /*#__PURE__*/React.createElement("div", {
+        style: {
+          marginTop: 3
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 10,
+          fontWeight: 800,
+          color: String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#047857' : '#92400e',
+          background: String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#ecfdf5' : '#fef3c7',
+          border: `1px solid ${String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#a7f3d0' : '#fde68a'}`,
+          padding: '1.5px 6px',
+          borderRadius: 4,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 3
+        }
+      }, String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? item.variant : `🎨 Shade: ${item.variant}`)), item.extraPercent > 0 && /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 10,
           color: '#16a34a',
@@ -21354,9 +22351,9 @@ function CheckoutModal({
       variant
     }) => {
       const bulk = calculateBulkPricing(product.price, qty);
-      const shadeText = variant ? `\n   🎨 Shade / Colour: ${variant}` : '';
+      const variantText = variant ? `\n   ${variant.startsWith('⚖️') ? variant : `🎨 Shade / Colour: ${variant}`}` : '';
       const bulkText = bulk.extraPercent > 0 ? `\n   🎁 Extra Bulk Discount (${bulk.extraPercent}% OFF): -Rs ${bulk.extraSavings.toLocaleString()} (Effective: Rs ${Math.round(bulk.finalTotal / qty)}/pc)` : '';
-      return `• ${product.name}${shadeText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
+      return `• ${product.name}${variantText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
     }).join('\n\n');
     const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : `Rs ${getDeliveryFee()} Delivery Fee`})`;
     const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
@@ -21426,9 +22423,11 @@ function CheckoutModal({
     };
     // Dispatch order to server & cloud relay BEFORE opening WhatsApp
     dispatchOrderToBackend(orderRecord);
-    try {
-      launchWhatsApp(getStoreSettings().whatsapp, msg);
-    } catch (err) {}
+    setTimeout(() => {
+      try {
+        launchWhatsApp(getStoreSettings().whatsapp, msg);
+      } catch (err) {}
+    }, 100);
     if (typeof saveOrderHistory === 'function') {
       saveOrderHistory(orderRecord);
     }
@@ -21671,14 +22670,15 @@ function CheckoutModal({
     style: {
       fontSize: 10,
       fontWeight: 800,
-      color: '#92400e',
-      background: '#fef3c7',
+      color: String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#047857' : '#92400e',
+      background: String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#ecfdf5' : '#fef3c7',
+      border: `1px solid ${String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#a7f3d0' : '#fde68a'}`,
       padding: '1px 5px',
       borderRadius: 4,
       display: 'inline-block',
       marginTop: 1
     }
-  }, "Shade: ", item.variant), item.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
+  }, String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? item.variant : `Shade: ${item.variant}`), item.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 9.5,
       fontWeight: 800,
@@ -22018,14 +23018,14 @@ function CheckoutModal({
       style: {
         fontSize: 9.5,
         fontWeight: 800,
-        color: '#92400e',
-        background: '#fef3c7',
-        border: '1px solid #fde68a',
+        color: String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan') ? '#047857' : '#92400e',
+        background: String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan') ? '#ecfdf5' : '#fef3c7',
+        border: `1px solid ${String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan') ? '#a7f3d0' : '#fde68a'}`,
         borderRadius: 4,
-        padding: '0.5px 4px',
+        padding: '0.5px 5px',
         display: 'inline-block'
       }
-    }, "Shade: ", variant), bulk.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
+    }, String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan') ? variant : `Shade: ${variant}`), bulk.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 9,
         fontWeight: 800,

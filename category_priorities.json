@@ -1,5 +1,19 @@
 {
   "groceryandkaryana": 1,
-  "haircolour": 2,
-  "soaps": 3
+  "shampoo": 4,
+  "haircolour": 10,
+  "creams": 8,
+  "shaving": 9,
+  "lock": 10,
+  "general": 11,
+  "babycare": 7,
+  "mosquito": 13,
+  "personalcare": 6,
+  "fragnances": 15,
+  "toothpasteandbrush": 16,
+  "facewash": 5,
+  "masale": 2,
+  "milkliquidpowder": 3,
+  "beverages": 4,
+  "stationary": 17
 }

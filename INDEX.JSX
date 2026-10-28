@@ -197,30 +197,113 @@ function getTranslationValue(dictionary, key) {
       return Date.now();
     }
 
+    // ── BULLETPROOF CLOUD ORDER DISPATCH & RETRY QUEUE ──
+    function getPendingCloudOrders() {
+      try {
+        const raw = localStorage.getItem('zs_pending_cloud_orders');
+        return raw ? JSON.parse(raw) : [];
+      } catch(e) {
+        return [];
+      }
+    }
+
+    function savePendingCloudOrders(orders) {
+      try {
+        localStorage.setItem('zs_pending_cloud_orders', JSON.stringify(orders || []));
+      } catch(e) {}
+    }
+
+    function queuePendingCloudOrder(sbOrder) {
+      try {
+        const list = getPendingCloudOrders();
+        if (!list.some(o => String(o.id) === String(sbOrder.id))) {
+          list.push(sbOrder);
+          savePendingCloudOrders(list);
+        }
+      } catch(e) {}
+    }
+
+    function removePendingCloudOrder(orderId) {
+      try {
+        const list = getPendingCloudOrders();
+        const filtered = list.filter(o => String(o.id) !== String(orderId));
+        savePendingCloudOrders(filtered);
+      } catch(e) {}
+    }
+
+    let isFlushingOrderQueue = false;
+    async function flushPendingCloudOrders() {
+      if (isFlushingOrderQueue) return;
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+      const list = getPendingCloudOrders();
+      if (!list || list.length === 0) return;
+      isFlushingOrderQueue = true;
+      try {
+        for (const sbOrder of list) {
+          try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+              method: 'POST',
+              headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+              },
+              body: JSON.stringify(sbOrder),
+              keepalive: true
+            });
+            if ((res.status >= 200 && res.status < 300) || res.status === 409) {
+              removePendingCloudOrder(sbOrder.id);
+            }
+          } catch(err) {
+            break;
+          }
+        }
+      } catch(e) {}
+      finally {
+        isFlushingOrderQueue = false;
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', flushPendingCloudOrders);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) flushPendingCloudOrders();
+      });
+      setInterval(flushPendingCloudOrders, 25000);
+      setTimeout(flushPendingCloudOrders, 3000);
+    }
+
     // Smart Order Dispatcher to Admin Backend & Cloud Sync
     function dispatchOrderToBackend(orderRecord) {
       if (!orderRecord) return;
       try {
-        const bodyStr = JSON.stringify(orderRecord);
+        const rawPhone = (orderRecord.customer && orderRecord.customer.phone) || orderRecord.customerPhone || '';
+        const digits = String(rawPhone).replace(/[^0-9]/g, '');
+        const safePhone = digits.length >= 7 ? digits : '03000000000';
 
-        // 1. Direct Supabase Cloud Database Insert (Guarantees delivery from 4G/5G/WiFi globally!)
+        const sbOrder = {
+          id: String(orderRecord.id),
+          customer_name: (orderRecord.customer && orderRecord.customer.name) || orderRecord.customerName || 'Customer',
+          customer_phone: safePhone,
+          customer_address: (orderRecord.customer && orderRecord.customer.address) || orderRecord.customerAddress || '',
+          delivery_type: orderRecord.deliveryType || orderRecord.deliveryMethod || 'standard',
+          payment_method: orderRecord.paymentMethod || 'cash',
+          subtotal: Number(orderRecord.subtotal || 0),
+          delivery_fee: Number(orderRecord.deliveryFee || 0),
+          total: Number(orderRecord.grandTotal !== undefined ? orderRecord.grandTotal : (orderRecord.total || 0)),
+          total_savings: Number(orderRecord.totalSavings || 0),
+          status: orderRecord.status || 'placed',
+          items: orderRecord.items || [],
+          raw_data: orderRecord,
+          created_at: orderRecord.createdAtIso || new Date().toISOString()
+        };
+
+        // 1. Immediately store in persistent localStorage queue (offline proof)
+        queuePendingCloudOrder(sbOrder);
+
+        // 2. Direct Supabase Cloud Database Insert (Guarantees delivery from 4G/5G/WiFi globally!)
         try {
-          const sbOrder = {
-            id: String(orderRecord.id),
-            customer_name: (orderRecord.customer && orderRecord.customer.name) || orderRecord.customerName || 'Customer',
-            customer_phone: (orderRecord.customer && orderRecord.customer.phone) || orderRecord.customerPhone || '',
-            customer_address: (orderRecord.customer && orderRecord.customer.address) || orderRecord.customerAddress || '',
-            delivery_type: orderRecord.deliveryType || orderRecord.deliveryMethod || 'standard',
-            payment_method: orderRecord.paymentMethod || 'cash',
-            subtotal: Number(orderRecord.subtotal || 0),
-            delivery_fee: Number(orderRecord.deliveryFee || 0),
-            total: Number(orderRecord.grandTotal !== undefined ? orderRecord.grandTotal : (orderRecord.total || 0)),
-            total_savings: Number(orderRecord.totalSavings || 0),
-            status: orderRecord.status || 'placed',
-            items: orderRecord.items || [],
-            raw_data: orderRecord,
-            created_at: orderRecord.createdAtIso || new Date().toISOString()
-          };
           fetch(`${SUPABASE_URL}/rest/v1/orders`, {
             method: 'POST',
             headers: {
@@ -231,16 +314,22 @@ function getTranslationValue(dictionary, key) {
             },
             body: JSON.stringify(sbOrder),
             keepalive: true
+          }).then(res => {
+            if ((res.status >= 200 && res.status < 300) || res.status === 409) {
+              removePendingCloudOrder(sbOrder.id);
+            }
           }).catch(() => {});
         } catch(e) {}
 
-        // 2. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
-        fetch('/api/customer-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: bodyStr,
-          keepalive: true
-        }).catch(() => {});
+        // 3. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
+        try {
+          fetch('/api/customer-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderRecord),
+            keepalive: true
+          }).catch(() => {});
+        } catch(e) {}
       } catch(e) {}
     }
 
@@ -372,9 +461,10 @@ function getTranslationValue(dictionary, key) {
         curY += 22;
 
         if (it.variant) {
-          ctx.fillStyle = '#b45309';
+          const isWeight = String(it.variant).includes('⚖️') || String(it.variant).toLowerCase().includes('wazan');
+          ctx.fillStyle = isWeight ? '#047857' : '#b45309';
           ctx.font = '700 10px system-ui, sans-serif';
-          ctx.fillText('🎨 Shade: ' + it.variant, 72, curY + 13);
+          ctx.fillText(isWeight ? it.variant : ('🎨 Shade: ' + it.variant), 72, curY + 13);
           curY += 16;
         }
 
@@ -548,7 +638,8 @@ function getTranslationValue(dictionary, key) {
       const itemsRows = (order.items || []).map((item, idx) => {
         const itemExtraSavings = Number(item.extraSavings || 0);
         const itemExtraPercent = Number(item.extraPercent || 0);
-        const variantText = item.variant ? `<div style="font-size: 11px; color: #b45309; font-weight: 700; margin-top: 2px;">🎨 Shade/Colour: ${escHtml(item.variant)}</div>` : '';
+        const isWeight = String(item.variant || '').includes('⚖️') || String(item.variant || '').toLowerCase().includes('wazan');
+        const variantText = item.variant ? `<div style="font-size: 11px; color: ${isWeight ? '#047857' : '#b45309'}; font-weight: 700; margin-top: 2px;">${isWeight ? escHtml(item.variant) : ('🎨 Shade/Colour: ' + escHtml(item.variant))}</div>` : '';
         const discountBadge = itemExtraPercent > 0 ? `
           <div style="font-size: 11px; color: #15803d; font-weight: 700; margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 6px; border-radius: 4px;">
             🎁 Bulk Discount (${itemExtraPercent}% OFF): Saved Rs ${itemExtraSavings.toLocaleString()}
@@ -823,9 +914,10 @@ function getTranslationValue(dictionary, key) {
                   curY += 22;
 
                   if (it.variant) {
-                    ctx.fillStyle = '#b45309';
+                    const isWeight = String(it.variant).includes('⚖️') || String(it.variant).toLowerCase().includes('wazan');
+                    ctx.fillStyle = isWeight ? '#047857' : '#b45309';
                     ctx.font = '700 10px system-ui, sans-serif';
-                    ctx.fillText('🎨 Shade: ' + it.variant, 72, curY + 13);
+                    ctx.fillText(isWeight ? it.variant : ('🎨 Shade: ' + it.variant), 72, curY + 13);
                     curY += 16;
                   }
 
@@ -1316,6 +1408,65 @@ function getTranslationValue(dictionary, key) {
         tierLabel: tier.label
       };
     }
+
+    // --- Loose Grocery & Weight Selection Helper Functions ---
+    function isWeightSelectableProduct(product) {
+      if (!product) return false;
+      const catId = (product.categoryId || '').toLowerCase();
+      if (catId === 'attacheenidaalchawal') return true;
+      const nameUpper = (product.name || '').toUpperCase();
+      const keywords = ['ATTA', 'CHEENI', 'CHAWAL', 'RICE', 'DAAL', 'DAL', 'CHAANA', 'CHANA', 'MASAR', 'MASOOR', 'MAIDA', 'SUJI', 'BESAN', 'SABUT DANA'];
+      return keywords.some(k => nameUpper.includes(k));
+    }
+
+    function getWeightOptionsForProduct(product) {
+      if (!product || !product.price) return null;
+      if (!isWeightSelectableProduct(product)) return null;
+
+      const basePrice = Number(product.price) || 0;
+      if (basePrice <= 0) return null;
+
+      const nameUpper = (product.name || '').toUpperCase();
+
+      // Case 1: Atta / Maida (Flour options: 1kg, 2kg, 5kg, 10kg, 15kg, 20kg)
+      if (nameUpper.includes('ATTA') || nameUpper.includes('AATA') || nameUpper.includes('MAIDA')) {
+        const p1kg = basePrice;
+        return [
+          { id: '1kg',  label: '1 Kilo (1 KG)',       weightText: '1 KG',  multiplier: 1,  price: Math.round(p1kg * 1) },
+          { id: '2kg',  label: '2 Kilo (2 KG)',       weightText: '2 KG',  multiplier: 2,  price: Math.round(p1kg * 2) },
+          { id: '5kg',  label: '5 Kilo (5 KG Bag)',   weightText: '5 KG',  multiplier: 5,  price: Math.round(p1kg * 5), isPopular: true },
+          { id: '10kg', label: '10 Kilo (10 KG Bag)', weightText: '10 KG', multiplier: 10, price: Math.round(p1kg * 10) },
+          { id: '15kg', label: '15 Kilo (15 KG Bag)', weightText: '15 KG', multiplier: 15, price: Math.round(p1kg * 15) },
+          { id: '20kg', label: '20 Kilo (20 KG Bori)',weightText: '20 KG', multiplier: 20, price: Math.round(p1kg * 20) },
+        ];
+      }
+
+      // Case 2: Items where base price is for 1 Pao (Daalein, Chane, Sabut Dana)
+      const isBasePao = nameUpper.includes('1PAO') || nameUpper.includes('PAO');
+      if (isBasePao) {
+        const pPao = basePrice;
+        return [
+          { id: '1pao',    label: '1 Pao (250 Gram)',            weightText: '1 Pao (250g)',       multiplier: 1,   price: Math.round(pPao * 1), isPopular: true },
+          { id: '1.5pao',  label: '1.5 Pao / Dhedh Pao (375g)',  weightText: '1.5 Pao (375g)',     multiplier: 1.5, price: Math.round(pPao * 1.5) },
+          { id: 'adha_kg', label: 'Adha Kilo / 2 Pao (500g)',    weightText: 'Adha Kilo (500g)',   multiplier: 2,   price: Math.round(pPao * 2) },
+          { id: '1kg',     label: '1 Kilo / 4 Pao (1000g)',      weightText: '1 KG (1000g)',       multiplier: 4,   price: Math.round(pPao * 4) },
+          { id: '2kg',     label: '2 Kilo (2000g)',              weightText: '2 KG (2000g)',       multiplier: 8,   price: Math.round(pPao * 8) },
+        ];
+      }
+
+      // Case 3: Items where base price is for 1 KG (Cheeni, Chawal, Rice, etc.)
+      const p1kg = basePrice;
+      const pPao = p1kg / 4;
+      return [
+        { id: '1pao',    label: '1 Pao (250 Gram)',            weightText: '1 Pao (250g)',       multiplier: 0.25,  price: Math.round(pPao) },
+        { id: '1.5pao',  label: '1.5 Pao / Dhedh Pao (375g)',  weightText: '1.5 Pao (375g)',     multiplier: 0.375, price: Math.round(pPao * 1.5) },
+        { id: 'adha_kg', label: 'Adha Kilo (500 Gram)',        weightText: 'Adha Kilo (500g)',   multiplier: 0.5,   price: Math.round(p1kg * 0.5) },
+        { id: '1kg',     label: '1 Kilo (1 KG)',               weightText: '1 KG',               multiplier: 1,     price: Math.round(p1kg * 1), isPopular: true },
+        { id: '2kg',     label: '2 Kilo (2 KG)',               weightText: '2 KG',               multiplier: 2,     price: Math.round(p1kg * 2) },
+        { id: '5kg',     label: '5 Kilo (5 KG Bag)',           weightText: '5 KG',               multiplier: 5,     price: Math.round(p1kg * 5) },
+      ];
+    }
+
     function getProductDisplayName(product, language) {
       if (!product) return "";
       if (language === "ur" && product.nameUrdu) {
@@ -1478,24 +1629,27 @@ function getTranslationValue(dictionary, key) {
     }
     // --- Product Categories and Data ---
     var DEFAULT_CATEGORIES = [
-      { id: "groceryandkaryana", name: "Grocery & Karyana", priority: 1 },
-      { id: "haircolour",   name: "Hair Colors & Care & Oils", priority: 2 },
-      { id: "soaps",        name: "Local & Imported Soaps", priority: 3 },
-      { id: "shampoo",      name: "Shampoo & Conditioners" },
-      { id: "creams",       name: "Creams & Lotions & Bleach" },
-      { id: "stationary",   name: "Stationary & Tapes" },
-      { id: "sports",       name: "Sports & Toys" },
-      { id: "shaving",      name: "Shaving & Razers & Blades" },
-      { id: "condemn",      name: "Condoms" },
-      { id: "lock",         name: "Locks & Cells & Lighters" },
-      { id: "general",      name: "General Items & Others" },
-      { id: "babycare",     name: "Baby Care & Powders" },
-      { id: "mosquito",     name: "Anti- Mosquitoes" },
-      { id: "personalcare", name: "Personal Care" },
-      { id: "fragnances",   name: "Fragnances & Roll on" },
-      { id: "toothpasteandbrush", name: "Dental Cares" },
-      { id: "facewash",     name: "Face Wash & Body Washes" },
-      { id: "beverages",    name: "Beverages (Cold Drinks, Juices & Water)" }
+    { id: "attacheenidaalchawal", name: "Atta & Chenee & Daal & Chawal" },
+    { id: "milkliquidpowder", name: "Milk & Tea Essentials", priority: 3 },
+    { id: "masale", name: "Masale (Khule & Packed)", priority: 2 },
+      { id: "groceryandkaryana",  name: "Grocery & Karyana", priority: 1 },
+      { id: "beverages",          name: "Beverages (Cold Drinks, Juices & Water)", priority: 4 },
+      { id: "shampoo",            name: "Shampoo & Conditioners", priority: 4 },
+      { id: "haircolour",         name: "Hair Colors & Care & Oils", priority: 10 },
+      { id: "creams",             name: "Creams & Lotions & Bleach", priority: 8 },
+      { id: "shaving",            name: "Shaving & Razers & Blades", priority: 9 },
+      { id: "stationary",         name: "Stationary & Tapes", priority: 17 },
+      { id: "sports",             name: "Sports & Toys" },
+      { id: "condemn",            name: "Condoms" },
+      { id: "lock",               name: "Locks & Cells & Lighters", priority: 10 },
+      { id: "general",            name: "General Items & Others", priority: 11 },
+      { id: "babycare",           name: "Baby Care & Powders", priority: 7 },
+      { id: "mosquito",           name: "Anti- Mosquitoes", priority: 13 },
+      { id: "personalcare",       name: "Personal Care", priority: 6 },
+      { id: "fragnances",         name: "Fragnances & Roll on", priority: 15 },
+      { id: "toothpasteandbrush", name: "Dental Cares", priority: 16 },
+      { id: "facewash",           name: "Face Wash & Body Washes", priority: 5 },
+      { id: "soaps",              name: "Local & Imported Soaps" }
     ];
     function getGlobalCategories(productsList) {
       // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories
@@ -1516,10 +1670,17 @@ function getTranslationValue(dictionary, key) {
         }
       }
       // Override default category names with live names, preserving order and priority
+      var defaultPrioMap = {};
+      DEFAULT_CATEGORIES.forEach(function(dc) {
+        if (dc.priority) defaultPrioMap[dc.id] = dc.priority;
+      });
       var seenIds = {};
       var result = baseCategories.map(function(cat) {
         seenIds[cat.id] = true;
-        return { id: cat.id, name: liveNameMap[cat.id] || cat.name, priority: cat.priority };
+        var prio = (cat.priority !== undefined && cat.priority !== null && Number(cat.priority) > 0)
+          ? Number(cat.priority)
+          : defaultPrioMap[cat.id];
+        return { id: cat.id, name: liveNameMap[cat.id] || cat.name, priority: prio };
       });
       // Append any brand-new categories from server not in defaults
       Object.keys(liveNameMap).forEach(function(catId) {
@@ -1551,9 +1712,135 @@ function getTranslationValue(dictionary, key) {
       "from-indigo-400 to-violet-600",
     ];
     var PRODUCTS = [
-      { id: 1, name: "7 HERBAL OIL 100ML RS,250", price: 220, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" , priority: 2 },
-      { id: 2, name: "7 HERBAL OIL 200ML RP,400", price: 369, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 3 },
-      { id: 3, name: "7 HERBAL OIL 50ML RS,170", price: 155, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 1 },
+      { id: 1463, name: "LAAL MASOR KI DAAL (1PAO) RS,90", price: 69, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1462, name: "KAALI MASAR DAAL (1PAO) RS,90", price: 69, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1461, name: "CHANE KI DAAL (1PAO) RS,90", price: 79, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1460, name: "DAAL MASH (1PAO) RS,120", price: 109, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1459, name: "MONG KI DAAL (1PAO) RS,90", price: 69, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1458, name: "SAFEED CHAANA (1PAO) RS,100", price: 82, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1457, name: "SABUT DANA (1PAO) RS,120", price: 105, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1456, name: "KALA CHAANA (1PAO) RS,90", price: 79, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1455, name: "MONG DAAL CHILKE WALI (1PAO) RS,90", price: 74, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1454, name: "FINE ATTA 1KG RS,190", price: 180, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1453, name: "TOTA BASMATI RICE RS,250", price: 199, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1452, name: "SABUT BASMATI RICE GOOD QUALITY RS,300", price: 239, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1451, name: "BASMATI CHAWAL (#1121) PREMIUM QUALITY RS,400", price: 359, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1450, name: "CHAKII ATTA 1KG RS,195", price: 186, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1449, name: "PURE SEELA CHAWAL PREMIUM QUALITY RS,450", price: 380, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1448, name: "CHEENI 1KG RS,150", price: 134, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1447, name: "ATTA MIX 1KG RS,175", price: 162, categoryId: "attacheenidaalchawal", categoryName: "Atta & Chenee & Daal & Chawal" },
+      { id: 1446, name: "TAPAL FAMILY MIXTURE TEA BOX RS,400", price: 389, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1445, name: "TAPAL FAMILY MIXTURE TEA BOX RS,200", price: 196, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1444, name: "TAPAL FAMILY MIXTURE TEA BOX RS,100", price: 98, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1443, name: "TAPAL FAMILY MIXTURE TEA BOX RS,50", price: 49, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1442, name: "TAPAL FAMILY MIXTURE TEA BOX RS,30", price: 29, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1441, name: "TAPAL DANE DAR TEA PACKET 900GM RS,1850", price: 1789, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1440, name: "TAPAL DANE DAR TEA PACKET 350GM RS,750", price: 750, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1439, name: "TAPAL DANE DAR TEA BOX 170GM RS,400", price: 389, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1438, name: "TAPAL DANE DAR TEA BOX 85GM RS,200", price: 196, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1437, name: "TAPAL DANE DAR TEA BOX RS,100", price: 92.83, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1436, name: "TAPAL DANE DAR TEA BOX RS,50", price: 49, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1435, name: "TAPAL DANE DAR TEA BOX RS,30", price: 29, categoryId: "milkliquidpowder", categoryName: "Milk & Tea Essentials" },
+      { id: 1434, name: "DUX STEPLER PIN 24/6 BOX RS,120", price: 69, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1433, name: "DUX STEPLER GOOD QUALITY 24/6 RS,550", price: 479, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1432, name: "DEER RAINBOW COLOR PENCIL (FULL SIZE) 12 PIECE  RS,220", price: 149, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1431, name: "DEER RAINBOW COLOR PENCIL (HALF SIZE) 12 PIECE  RS,150", price: 89, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1430, name: "SCALE NORMAL QUALITY LARGE RS,30", price: 20, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1429, name: "SCALE NORMAL QUALITY SMALL RS,20", price: 14, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1428, name: "SHAN CHAPLI KABAB MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1427, name: "SHAN SHAMI KABAB MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1426, name: "SHAN TIKKA SEEKH KABAB MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1425, name: "SHAN KOFTA MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1424, name: "SHAN FRIED FISH MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1423, name: "SHAN PAYA MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1422, name: "SHAN CHAAT MASALA BOX RS,100", price: 92, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1421, name: "SHAN TANDOORI MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1420, name: "SHAN PILAU BIRYANI MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1419, name: "SHAN KEEMA MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1418, name: "SHAN KORMA MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1417, name: "SHAN CHICKEN WHITE KARAHI MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1416, name: "SHAN SINDHI BIRYANI MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1415, name: "SHAN KARAHI MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1414, name: "SHAN CHICKEN MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1413, name: "SHAN NIHARI MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1412, name: "SHAN ACHAR GOSHT MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1411, name: "SHAN CHICKEN TIKKA MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1410, name: "SHAN SPECIAL BOMBAY BIRYANI MASALA BOX RS,150", price: 139, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1409, name: "FACE MASK BLUE RS,20", price: 6, categoryId: "general", categoryName: "General Items & Others" },
+      { id: 1408, name: "SOAP LUX WHITE 98GM RS,130", price: 124, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1407, name: "SOAP LUX PINK 98GM RS,130", price: 124, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1406, name: "SOAP LUX PURPLE 98GM RS,130", price: 124, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1405, name: "DOLLAR INK PEN FP-5 RS,100", price: 69, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1404, name: "REGISTER NARROW LINE (400 PAGES) RS,400", price: 249, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1403, name: "PAPER COPY MEDIUM SIZE (3IN1) RS,120", price: 84, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1402, name: "PAPER COPY MEDIUM SIZE (URDU) RS,120", price: 84, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1401, name: "PAPER COPY MEDIUM SIZE (MATH) RS,120", price: 84, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1400, name: "PAPER COPY MEDIUM SIZE (ENGLISH) RS,120", price: 84, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1399, name: "PAPER COPY (NORMAL QUALITY) RS,50", price: 34, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1398, name: "PENCIL NORMAL QUALITY RS,20", price: 13, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1397, name: "TIP TOP GLUE SMALL RS,60", price: 35, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1396, name: "123 MOSQUITO GLOBE RS,160", price: 139, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
+      { id: 1395, name: "DARCO-1 BLACK SAFETY RS,20", price: 10, categoryId: "shaving", categoryName: "Shaving & Razers & Blades" },
+      { id: 1394, name: "CELL SUPER MAXCELL AAA RS,40", price: 24, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 1393, name: "LASER EXTRA DUTY CELL AA", price: 29, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 1392, name: "RK STAINLESS DOUBLE EDGE BLADE RS,10", price: 8, categoryId: "shaving", categoryName: "Shaving & Razers & Blades" },
+      { id: 1391, name: "CELL POWER PLUS AAA RS,40", price: 24, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 1390, name: "SHAN SHAMI KABAB MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1389, name: "SHAN TIKKA SEEKH KABAB MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1388, name: "SHAN KOFTA MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1387, name: "SHAN FRIED FISH MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1386, name: "SHAN PAYA MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1385, name: "SHAN CHAAT MASALA SACHET RS,30", price: 28, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1384, name: "SHAN TANDOORI MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1383, name: "SHAN PILAU BIRYANI MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1382, name: "SHAN KEEMA MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1381, name: "SHAN KORMA MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1380, name: "SHAN CHICKEN WHITE KARAHI MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1379, name: "SHAN SINDHI BIRYANI MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1378, name: "SHAN KARAHI MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1377, name: "SHAN CHICKEN MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1376, name: "SHAN NIHARI MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1375, name: "SHAN CHICKEN TIKKA MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1374, name: "SHAN SPECIAL BOMBAY BIRYANI MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1373, name: "SHAN ACHAR GOSHT MASALA SACHET RS,80", price: 74, categoryId: "masale", categoryName: "Masale (Khule & Packed)" },
+      { id: 1372, name: "SURF BRITE (SMALL) RS,10", price: 10, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1371, name: "SURF BONUS (SMALL) RS,10", price: 10, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1370, name: "SURF EXCEL (SMALL )RS,10", price: 10, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1369, name: "SURF BONUS 180GM RS,50", price: 49, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1368, name: "SURF EXCEL 90GM RS,50", price: 49, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1367, name: "SURF BRITE 95GM RS,50", price: 49, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1366, name: "SURF ARIEL 85GM RS,50", price: 49, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1365, name: "SURF BONUS 375GM RS,99", price: 98, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1364, name: "SURF SUNLIGHT 375GM RS,99", price: 98, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1363, name: "SURF SUNLIGHT 730GM  RS,199", price: 194, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1362, name: "SURF BONUS 1KG RS,270", price: 270, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1361, name: "SURF EXPRESS 1KG RS,520", price: 499, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1360, name: "SURF BRITE 1KG RS,620", price: 599, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1359, name: "SURF ARIEL 1KG RS,580", price: 579, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1358, name: "SURF EXCEL 1KG RS,620", price: 599, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1357, name: "SURF EXPRESS 500GM RS,260", price: 249, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1356, name: "SURF BRITE 500GM RS,310", price: 299, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1355, name: "SURF ARIEL 500GM RS,300", price: 289, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1354, name: "SURF EXCEL 500GM RS,310", price: 299, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1353, name: "LEMON MAX DISHWASH BAR (LARGE) RS,100", price: 98, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1352, name: "LEMON MAX DISHWASH BAR (MEDIUM) RS,35", price: 35, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1351, name: "LEMON MAX DISHWASH BAR (SMALL) RS,25", price: 25, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1350, name: "COLOUR GODREJ SACHET (NATURAL BLACK) RS,80", price: 59, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
+      { id: 1349, name: "MATCHES BOX RS,50", price: 39, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1348, name: "RIVON HAIR COLOR SACHET  (DARK BROWN) RS,80", price: 74, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
+      { id: 1347, name: "RIVON HAIR COLOR SACHET  (BLACK) RS,80", price: 74, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
+      { id: 1346, name: "TANG SACHET PINEAPPLE RS,25", price: 24, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1345, name: "TANG SACHET ORANGE RS,25", price: 24, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1344, name: "TANG SACHET MANGO RS,25", price: 24, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1343, name: "RAFHAN CUSTURD POWDER STRAWBERRY 275 GM RS,220", price: 199, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1342, name: "RAFHAN CUSTURD POWDER VANILLA 275 GM RS,220", price: 199, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1341, name: "RAFHAN CUSTURD POWDER BANANA 275 GM RS,220", price: 199, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1340, name: "RAFHAN CUSTURD POWDER MANGO 275 GM RS,220", price: 199, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1339, name: "TURK BODY RAZER", price: 34, categoryId: "shaving", categoryName: "Shaving & Razers & Blades" },
+      { id: 1338, name: "RISEK SACHET 20MG  PATA RS,30", price: 24, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1337, name: "LAZEEZA KHEER MIX BOX RS,165", price: 159, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 1336, name: "TRIM CLASSIC BODY RAZER RS,50", price: 34, categoryId: "shaving", categoryName: "Shaving & Razers & Blades" },
+      { id: 1335, name: "TIGER LOTION SASHAY RS,10", price: 9, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 5, name: "AL RASHIEED OIL 100ML SASSO", price: 480, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 6, name: "ALOE VERA GEL TUBE (LARGE)", price: 140, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "A" },
       { id: 7, name: "ALOE VERA GEL TUBE 160ml (MEDIUM) 160ML", price: 99, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "A" },
@@ -1561,7 +1848,6 @@ function getTranslationValue(dictionary, key) {
       { id: 14, name: "SNOW FALL SPRAY (LARGE)", price: 180, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 15, name: "SNOW FALL SPRAY SMALL", price: 120, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 16, name: "SNOW FALL SPRAY SMALL (KIWI)", price: 140, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
-      { id: 17, name: "BAJAJ ALMOND OIL 100ML", price: 950, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", priority: 4 },
       { id: 18, name: "BALL ADIDAS", price: 100, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 21, name: "BALL CA GOOD QUALITY (NON ORIGINAL)", price: 120, categoryId: "sports", categoryName: "Sports & Toys & Birthday" , filterName: "CA" },
       { id: 22, name: "BALL CA GOOD QUALITY (ORIGINAL)", price: 250, categoryId: "sports", categoryName: "Sports & Toys & Birthday" , filterName: "CA" },
@@ -1572,11 +1858,11 @@ function getTranslationValue(dictionary, key) {
       { id: 29, name: "BALL PEN PEN (SKY) BLACK", price: 15, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 30, name: "BALL PEN PEN (SKY) BLUE", price: 15, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 31, name: "BALL PEN PEN (SKY) RED", price: 15, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 32, name: "BALL PEN PIANO YELLOW BLUE CAP", price: 15, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 33, name: "BALL PEN PICASSO BLUE", price: 18, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 34, name: "BALL PEN PICASSO RED", price: 18, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 37, name: "BALL POINT PEN SIGNATURE (BLACK)", price: 18, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 38, name: "BALL POINT PEN SIGNATURE (BLUE)", price: 18, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 32, name: "BALL PEN PIANO YELLOW BLUE CAP", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 33, name: "BALL PEN PICASSO GRIP BLUE", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 34, name: "BALL PEN PICASSO GRIP RED", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 37, name: "BALL  PEN SIGNATURE (BLACK) RS,30", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 38, name: "BALL PEN SIGNATURE (BLUE) RS,30", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 51, name: "BIO AMLA HAIR OIL 100ML RS,280", price: 190, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
       { id: 52, name: "BIO AMLA HAIR OIL 200ML FARVAL ORIGINAL RS,475", price: 380, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 53, name: "BIO AMLA HAIR OIL 50ML FARVAL ORIGINAL RS,160", price: 140, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
@@ -1660,12 +1946,12 @@ function getTranslationValue(dictionary, key) {
       { id: 155, name: "CELL CAMELION LONGER LASTING AA", price: 50, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 156, name: "CELL DOUBLE CHARGER AA", price: 30, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 157, name: "CELL DOUBLE CHARGER AAA", price: 30, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
-      { id: 158, name: "CELL POWER PLUS AA", price: 30, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
-      { id: 159, name: "CELL TOSHIBA AA (BLACK)", price: 35, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
-      { id: 161, name: "CELL TOSHIBA AA (RED)", price: 35, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
-      { id: 162, name: "CELL TOSHIBA AAA (BLACK)", price: 35, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
-      { id: 163, name: "CELL TOSHIBA AAA (RED)", price: 35, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "C" },
-      { id: 165, name: "CELL TOSHIBA SIZE (D)", price: 140, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 158, name: "CELL POWER PLUS AA RS,40", price: 34, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
+      { id: 159, name: "CELL TOSHIBA AA (BLACK) RS,50", price: 39, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 161, name: "CELL TOSHIBA AA (RED) RS,40", price: 34, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 162, name: "CELL TOSHIBA AAA (BLACK) RS,50", price: 39, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 163, name: "CELL TOSHIBA AAA (RED) RS,40", price: 34, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "C" },
+      { id: 165, name: "CELL TOSHIBA SIZE (D) RS,220", price: 179, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 167, name: "CHEERY POLISH (BLACK) LARGE RS,650", price: 590, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
       { id: 168, name: "CHEERY POLISH (BLACK) SMALL RS,325", price: 300, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "C" },
       { id: 169, name: "CHEERY POLISH (BROWN) LARGE RS,650", price: 590, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
@@ -1674,21 +1960,21 @@ function getTranslationValue(dictionary, key) {
       { id: 172, name: "COBRA INSIST KILLER SPRAY 400ml", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 173, name: "COBRA INSIST KILLER SPRAY 500ml", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 174, name: "COBRA INSIST KILLER SPRAY 600ml", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
-      { id: 175, name: "COFFEE SACHET (60 PCS)", price: 35, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
+      { id: 175, name: "COFFEE SACHET (60 PCS) RS,50", price: 34, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
       { id: 177, name: "COLOUR BLACK ROSE # 43", price: 190, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 178, name: "COLOUR BLACK ROSE 45 # RS,220", price: 190, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "C" },
       { id: 183, name: "COLOUR GARNIER (ALL COLOURS) RS,1099", price: 899, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 184, name: "COLOUR GARNIER SACHET (NATURAL BLACK) RS,199", price: 185, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
-      { id: 187, name: "COLOUR GODREJ SACHET (DARK,BROWN)", price: 70, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "C" },
-      { id: 188, name: "COLOUR GODREJ SACHET (NATURAL BROWN)", price: 70, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "C" },
+      { id: 187, name: "COLOUR GODREJ SACHET (DARK,BROWN) RS,80", price: 59, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "C" },
+      { id: 188, name: "COLOUR GODREJ SACHET (NATURAL BROWN) RS,80", price: 59, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "C" },
       { id: 189, name: "COLOUR HELLO HAIR (# 03 DARK BROWN)", price: 250, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
       { id: 190, name: "COLOUR JUST FOR MEN (DARK BROWN ) HAIR", price: 1849, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 191, name: "COLOUR JUST FOR MEN (BLACK) BEARD", price: 1849, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 192, name: "COLOUR KALA KOLA HAIR # 02 LARGE (M,BROWN)", price: 190, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 206, name: "COLOUR OLIVIA (ALL COLOURS) RS,300", price: 260, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
       { id: 207, name: "COLOUR POLY (# 43) RS,320", price: 290, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "C" },
-      { id: 208, name: "COLOUR PRIMA HAIR (# 43 BROWN) RS,80", price: 60, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "C" },
-      { id: 209, name: "COLOUR PRIMA HAIR (# 45 BLACK) RS,80", price: 60, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "C" },
+      { id: 208, name: "COLOUR PRIMA HAIR (# 43 BROWN) RS,80", price: 59, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "C" },
+      { id: 209, name: "COLOUR PRIMA HAIR (# 45 BLACK) RS,80", price: 59, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "C" },
       { id: 219, name: "COLOUR REVLON REGULAR (ALL COLOURS) (LARGE)", price: 790, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
       { id: 221, name: "COLOUR SAMSOLE (# 43 DARK BROWN) SMALL RS,160", price: 145, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
       { id: 222, name: "COLOUR SAMSOLE (# 45) BLACK SMALL RS,160", price: 145, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "C" },
@@ -1779,7 +2065,7 @@ function getTranslationValue(dictionary, key) {
       { id: 323, name: "CREAM OLIVIA BLEACH HERBAL RS,70", price: 65, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 324, name: "CREAM OLIVIA BLEACH RS,80", price: 70, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 325, name: "CREAM PARLEY BEAUTY BLACK RS 400", price: 330, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
-      { id: 326, name: "CREAM PARLEY BLEACH SACHET BLACK RS,70", price: 60, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "C" },
+      { id: 326, name: "PARLEY BLEACH SACHET BLACK RS,70", price: 59, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "C" },
       { id: 327, name: "CREAM PARLEY URGENT FACIAL SACHET", price: 60, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 329, name: "CREAM PONDS BB (MEDIUM) 18g", price: 840, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
       { id: 330, name: "CREAM PONDS BB (SMALL) 9g", price: 490, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "C" },
@@ -1811,23 +2097,21 @@ function getTranslationValue(dictionary, key) {
       { id: 358, name: "DABUR RED PASTE (LARGE)", price: 430, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 359, name: "DABUR RED PASTE (SMALL)", price: 235, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "D" },
       { id: 360, name: "DENTONIC POWDER BOX (MEDIUM)", price: 75, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "D" },
-      { id: 362, name: "DETTOL PANI 50ML (SMALL) RP,250", price: 220, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "D" },
-      { id: 363, name: "DOLLAR GEL PEN (BLACK)", price: 40, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 364, name: "DOLLAR GEL PEN (BLUE)", price: 40, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 365, name: "DOLLAR GEL PEN (GREEN)", price: 40, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 366, name: "DOLLAR GEL PEN (RED)", price: 40, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 367, name: "DOLLAR PEN (CLIPPER) BLACK", price: 18, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 368, name: "DOLLAR PEN (CLIPPER) BLUE", price: 18, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "D" },
-      { id: 370, name: "DOLLAR PEN (CLIPPER) RED", price: 18, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 371, name: "DOLLAR POINTER (BLACK)", price: 30, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 372, name: "DOLLAR POINTER (BLUE)", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 362, name: "DETTOL PANI 50ML (SMALL) RS,250", price: 229, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "D" },
+      { id: 364, name: "DOLLAR GEL PEN (BLUE) RS,80", price: 49, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 365, name: "DOLLAR GEL PEN (GREEN) RS,80", price: 49, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 367, name: "DOLLAR PEN (CLIPPER) BLACK RS,30", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 368, name: "DOLLAR PEN (CLIPPER) BLUE RS,30", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "D" },
+      { id: 370, name: "DOLLAR PEN (CLIPPER) RED RS,30", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 371, name: "DOLLAR POINTER (BLACK) RS,50", price: 30, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 372, name: "DOLLAR POINTER (BLUE) RS,50", price: 30, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 373, name: "DOOZ SPRAY 14000", price: 1150, categoryId: "condemn", categoryName: "Condoms" },
       { id: 374, name: "DUREX TESTER SMALL", price: 50, categoryId: "condemn", categoryName: "Condoms" },
-      { id: 375, name: "DORCO RAZOR", price: 190, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "D" },
+      { id: 375, name: "DORCO RAZOR", price: 179, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "D" },
       { id: 377, name: "DUREX LUBE LARGE", price: 1050, categoryId: "condemn", categoryName: "Condoms" },
       { id: 378, name: "DUREX LUBE SMALL", price: 890, categoryId: "condemn", categoryName: "Condoms" },
-      { id: 379, name: "ELFY JIMSA BOTTLE 20GM", price: 140, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "E" },
-      { id: 380, name: "ELFY JIMSA BOX", price: 25, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "E" },
+      { id: 379, name: "ELFY GMSA BOTTLE 20GM RS,150", price: 124, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "E" },
+      { id: 380, name: "ELFY GMSA PATA RS,30", price: 24, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "E" },
       { id: 381, name: "EMAMI 7 OILS IN ONE 100ML", price: 430, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 382, name: "EMAMI 7 OILS IN ONE 200ML", price: 730, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 383, name: "EMERGENCY LIGHT (LARGE)", price: 1200, categoryId: "general", categoryName: "General Items & Others" },
@@ -1956,14 +2240,13 @@ function getTranslationValue(dictionary, key) {
       { id: 530, name: "GOLDEN PEARL URGENT FACIAL (FRUIT)", price: 50, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 534, name: "HAPPY BIRTHDAY SPELLING", price: 220, categoryId: "sports", categoryName: "Sports & Toys & Birthday", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "H" },
       { id: 535, name: "HASHMI SORMA RS,200", price: 190, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "H" },
-      { id: 536, name: "HIGHLIGHTER", price: 70, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 536, name: "HIGHLIGHTER", price: 49, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 537, name: "HUDA BEAUTY BLACK MASK SACHET", price: 50, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 538, name: "HUSSAIN MANJAN BOX (MEDIUM) RS,80", price: 75, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "H" },
       { id: 539, name: "INK BOTTLE DOLLAR (SMALL) BLACK", price: 60, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 540, name: "INK BOTTLE DOLLAR (SMALL) BLUE", price: 50, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "I" },
-      { id: 541, name: "INK PEN DOLLAR", price: 70, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 542, name: "INK PEN PIANO CRYSTAL", price: 70, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 543, name: "INK REMOVER MARKER (ORO)", price: 40, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "I" },
+      { id: 542, name: "INK PEN PIANO CRYSTAL", price: 64, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 543, name: "INK REMOVER MARKER (SANY)", price: 29, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "I" },
       { id: 544, name: "INK REMOVER WHITENER", price: 70, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "I" },
       { id: 545, name: "J BABY BATH 200ML TOP TO TOE", price: 549, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 548, name: "J BABY LINER", price: 50, categoryId: "babycare", categoryName: "Baby Care & Powders" },
@@ -1991,8 +2274,8 @@ function getTranslationValue(dictionary, key) {
       { id: 571, name: "KEHKSHAN MAHNDI (BLACK) RS,80", price: 70, categoryId: "general", categoryName: "General Items & Others" },
       { id: 572, name: "KEUNE COLOUR (ALL COLOURS)", price: 0, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 573, name: "KEUNE POWDER (ALL COLOURS)", price: 0, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
-      { id: 576, name: "KING COIL BLAKI (LARGE)", price: 110, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "K" },
-      { id: 577, name: "KING COIL GREEN (LARGE)", price: 110, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
+      { id: 576, name: "KINGTOX COIL BLACK RS,120", price: 99, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "K" },
+      { id: 577, name: "KINGTOX COIL GREEN RS,120", price: 99, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 578, name: "KING MAAT", price: 7, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 579, name: "KING MACHINE SET", price: 560, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 580, name: "KING MOSPEL", price: 130, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "K" },
@@ -2008,14 +2291,14 @@ function getTranslationValue(dictionary, key) {
       { id: 595, name: "LASTIK CHORDA LADIES ROLL (SMALL)", price: 80, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
       { id: 596, name: "LASTIK CHORDA WHITE (LARGE)", price: 25, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "L" },
       { id: 599, name: "LIGHTER (ARCO GARARRI)", price: 40, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "L" },
-      { id: 600, name: "LIGHTER (HEATER)", price: 30, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
+      { id: 600, name: "LIGHTER (HEATER) RS,40", price: 29, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
       { id: 601, name: "LIGHTER (SADA TIK)", price: 25, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 603, name: "LIGHTER CHOLAH (PUZZO)", price: 199, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 604, name: "LIGHTER CHOLAH (REFILL)", price: 199, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 605, name: "LIGHTER CHOLAH FULL STEEL GUN", price: 0, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 606, name: "LIGHTER CIGARETTE GAS REFILL (RED)", price: 199, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 607, name: "LIGHTER ELECTRIC ARC (USB TYPE C)", price: 400, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
-      { id: 608, name: "LIP OIL", price: 40, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
+      { id: 608, name: "LIP OIL", price: 40, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
       { id: 609, name: "LOCK BLACK 20mm", price: 70, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 610, name: "LOCK BLACK 25mm", price: 80, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 611, name: "LOCK BLACK 32mm", price: 140, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
@@ -2075,24 +2358,22 @@ function getTranslationValue(dictionary, key) {
       { id: 665, name: "LUX BODY WASH SOFT TOUCH (PINK) (IMP)", price: 430, categoryId: "facewash", categoryName: "Face Wash & Body Washes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "L" },
       { id: 666, name: "LUX BODY WASH SOFT TOUCH (PURPLE) (IMP)", price: 430, categoryId: "facewash", categoryName: "Face Wash & Body Washes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "L" },
       { id: 667, name: "MAGIC DEPOXI BOX (SMALL)", price: 71, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "M" },
-      { id: 668, name: "MARKER 604 (BLACK)", price: 20, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
-      { id: 669, name: "MARKER 604 (BLUE)", price: 20, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
-      { id: 670, name: "MARKER MERCURY (BLUE)", price: 20, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "M" },
-      { id: 671, name: "MARKER MERCURY (BLACK)", price: 20, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "M" },
-      { id: 672, name: "MARKER BOARD INK", price: 89, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 668, name: "MARKER MERCURY BLUE (CUT ) RS,40", price: 24, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
+      { id: 669, name: "MARKER MERCURY BLUE (GOL) RS,40", price: 24, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
+      { id: 670, name: "MARKER MERCURY BLUE (GOL) RS,40", price: 24, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "M" },
+      { id: 671, name: "MERCURY MARKER  BLACK (GOL) RS,40", price: 24, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "M" },
+      { id: 672, name: "DOLLAR BOARD MARKER INK RS,100", price: 69, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 673, name: "MARKER BLACK BOARD (BLACK)", price: 69, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "M" },
       { id: 674, name: "MARKER BLACK BOARD (BLUE)", price: 69, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
-      { id: 675, name: "MARKER PERMANENT (BLACK) DEER", price: 69, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
-      { id: 676, name: "MARKER PERMANENT (BLUE) DEER", price: 69, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 677, name: "MARKER SADA (BLACK)", price: 15, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "M" },
-      { id: 678, name: "MARKER SADA (BLUE)", price: 15, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "M" },
-      { id: 679, name: "MARKER SADA DOLLAR (BLUE)", price: 21, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 675, name: "DEER PERMANENT MARKER BLACK RS,100", price: 59, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
+      { id: 676, name: "DEER PERMANENT MARKER BLUE RS,100", price: 59, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 679, name: "BELO MARKER PACKET  MIX 10 PIECE RS,120", price: 89, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 681, name: "MEHNDI ARAQ", price: 30, categoryId: "general", categoryName: "General Items & Others" },
       { id: 682, name: "MEHNDI CONE", price: 40, categoryId: "general", categoryName: "General Items & Others" },
       { id: 683, name: "MEHNDI CONE SINGHAR", price: 50, categoryId: "general", categoryName: "General Items & Others" },
       { id: 684, name: "CAT FOOD (FLUFFY)", price: 830, categoryId: "general", categoryName: "General Items & Others" },
-      { id: 685, name: "METRO +7 AGAER BATTI (LARGE)", price: 120, categoryId: "general", categoryName: "General Items & Others" },
-      { id: 686, name: "METRO AGHER BATTI (SMALL)", price: 50, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "M" },
+      { id: 685, name: "METRO +7 AGAER BATTI (LARGE)", price: 120, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
+      { id: 686, name: "METRO AGHER BATTI (SMALL)", price: 50, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "M" },
       { id: 687, name: "MIRROR DOUBLE SIDED (LARGE)", price: 240, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "M" },
       { id: 688, name: "MIRROR DOUBLE SIDED (MEDIUM)", price: 189, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
       { id: 689, name: "MIRROR DOUBLE SIDED (SMALL)", price: 129, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
@@ -2143,7 +2424,7 @@ function getTranslationValue(dictionary, key) {
       { id: 736, name: "NITRO HAIR WAX (MIX)", price:420, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 737, name: "NOVA GOLD HAIR SPRAY (LARGE)", price: 595, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 738, name: "NOVA GOLD HAIR SPRAY (SMALL) (COPY)", price: 375, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "N" },
-      { id: 753, name: "PAPER COPY (ALL TYPES)", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 753, name: "PAPER COPY (GOOD QUALITY) RS,60", price: 44, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 754, name: "PARACHUTE COCONUT OIL (LARGE) ORIGINAL", price: 989, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 755, name: "PARACHUTE COCONUT OIL (LARGE) HEMANI", price: 889, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 756, name: "PARACHUTE COCONUT OIL (MEDIUM) HEMANI", price: 489, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
@@ -2198,15 +2479,13 @@ function getTranslationValue(dictionary, key) {
       { id: 806, name: "PASTE SENSODYNE 70g (RAPID ACTION) RS,420", price: 399, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
       { id: 807, name: "PASTE SPARKLE RS,105", price: 99, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 808, name: "PASTE SPARKLE RS,180", price: 170, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
-      { id: 809, name: "PEN (BLUE SIGNATURE) BLACK", price: 17, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 810, name: "PEN (BLUE SIGNATURE) BLUE", price: 17, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 811, name: "PEN DOLLAR SP 10", price: 70, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 812, name: "PEN PIANO (BLACK) GRIPPER 0.8MM", price: 20, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
-      { id: 813, name: "PEN PIANO (BLUE) GRIPPER 0.8MM", price: 20, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
-      { id: 814, name: "PEN PIANO (RED) GRIPPER 0.8MM", price: 20, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
-      { id: 815, name: "PEN PIANO OLD YELLOW", price: 17, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
+      { id: 809, name: "BALL PEN SIGNATURE (RED) RS,30", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 811, name: "PEN DOLLAR SP 10", price: 74, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 812, name: "PEN PIANO CLICK  (BLACK) RS,20", price: 14, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
+      { id: 813, name: "PEN PIANO CLICK  (BLUE) RS,20", price: 14, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
+      { id: 814, name: "PEN PIANO CLICK  (BLACK) RS,20", price: 14, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
       { id: 816, name: "PENCIL GOLDFISH", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "P" },
-      { id: 817, name: "PENCIL MY DOLLAR", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
+      { id: 817, name: "DOLLAR MY PENCIL", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
       { id: 818, name: "PENCIL ORO", price: 19, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
       { id: 819, name: "PERFUME ALISHA (GOLD)", price: 1590, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
       { id: 820, name: "PERFUME ALISHA (NAVY)", price: 1590, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
@@ -2270,7 +2549,6 @@ function getTranslationValue(dictionary, key) {
       { id: 882, name: "RAZOR FEMINA PINK", price: 40, categoryId: "shaving", categoryName: "Shaving & Razers & Blades" },
       { id: 883, name: "RAZOR TREET HYGIENE", price: 45, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "R" },
       { id: 884, name: "RAZOR TRIM", price: 59, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "R" },
-      { id: 904, name: "REGISTER (ALL TYPES)", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 905, name: "RACKET (SET) (EXCELLENT QUALITY)", price: 2250, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 906, name: "RACKET (SET) (NORMAL QUALITY)", price: 999, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 907, name: "RACKET (SET) (MEDIUM QUALITY)", price: 1450, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
@@ -2297,8 +2575,8 @@ function getTranslationValue(dictionary, key) {
       { id: 931, name: "SAFETY PIN (MEDIUM)", price: 20, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 932, name: "SAMAD BOND BOX (SMALL)", price: 130, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
       { id: 933, name: "SAVOLI OIL 100ml", price: 590, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
-      { id: 934, name: "SCALE ORO LARGE", price: 59, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
-      { id: 935, name: "SCALE ORO SMALL", price: 35, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "S" },
+      { id: 934, name: "ORO SCALE  LARGE", price: 49, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
+      { id: 935, name: "ORO SCALE  SMALL", price: 35, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "S" },
       { id: 936, name: "SCISSOR STEEL LARGE", price: 439, categoryId: "general", categoryName: "General Items & Others" },
       { id: 937, name: "SCISSOR STEEL MEDIUM", price: 329, categoryId: "general", categoryName: "General Items & Others" },
       { id: 938, name: "SCISSOR STEEL MINI", price: 129, categoryId: "general", categoryName: "General Items & Others" },
@@ -2398,47 +2676,43 @@ function getTranslationValue(dictionary, key) {
       { id: 1059, name: "SHAMPOO VATIKA DUBAI MEDIUM (OLIVE) RS,435", price: 399, categoryId: "shampoo", categoryName: "Shampoo & Conditioners" },
       { id: 1060, name: "SHAMPOO VATIKA DUBAI MEDIUM (CACTUS) RS,435", price: 399, categoryId: "shampoo", categoryName: "Shampoo & Conditioners" },
       { id: 1061, name: "SHAMPOO VATIKA DUBAI MEDIUM (BLACK) RS,435", price: 399, categoryId: "shampoo", categoryName: "Shampoo & Conditioners" },
-      { id: 1062, name: "SHARPENER ORO RS,10", price: 9, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
+      { id: 1062, name: "APPLE SHARPENER  RS,10", price: 8, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
       { id: 1063, name: "SHUTTLECOCK (PAR WALI) GOOD QUALITY", price: 0, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 1064, name: "SHUTTLECOCK (PAR WALI) EXCELLENT QUALITY", price: 0, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 1065, name: "SHUTTLECOCK (PLASTIC) EXCELLENT QUALITY", price: 0, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 1066, name: "SHUTTLECOCK (PLASTIC) GOOD QUALITY", price: 85, categoryId: "sports", categoryName: "Sports & Toys & Birthday", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "S" },
       { id: 1067, name: "SHIELD CHOOSNI (3 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1068, name: "SHIELD CHOOSNI (6 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders" },
-      { id: 1075, name: "SHIELD NIPPLE BOX", price: 80, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
-      { id: 1076, name: "SOAP CAPRI (FAMILY PACK) 135G (YELLOW)", price: 130, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1081, name: "SOAP CAPRI (3 IN 1) YELLOW RS,390", price: 350, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1083, name: "SOAP DETTOL JUMBO COMPANY RS,150 (COOL)", price: 139, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1084, name: "SOAP DETTOL JUMBO COMPANY RS,150 (GREEN)", price: 139, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1086, name: "SOAP DETTOL MEDIUM COMPANY (COOL) RS,140", price: 129 ,categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1087, name: "SOAP DETTOL SMALL COMPANY (COOL)", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
+      { id: 1075, name: "SHIELD NIPPLE (1 PEICE) RS,50", price: 39, categoryId: "babycare", categoryName: "Baby Care & Powders", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
+      { id: 1076, name: "SOAP CAPRI (FAMILY PACK) 135G (YELLOW)", price: 130, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 27 },
+      { id: 1081, name: "SOAP CAPRI (3 IN 1) YELLOW RS,390", price: 350, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 28 },
+      { id: 1084, name: "SOAP DETTOL JUMBO (GREEN) RS,160", price: 149, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 6 },
       { id: 1088, name: "SOAP DOVE LARGE WHITE (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 1 },
       { id: 1089, name: "SOAP DOVE LARGE PINK (IMP)", price: 449, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S", priority: 2 },
-      { id: 1090, name: "SOAP DOVE SMALL WHITE (IMP)", price: 0, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1091, name: "SOAP DOVE SMALL PINK (IMP)", price: 0, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
-      { id: 1092, name: "SOAP FAIZA (NEEM)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1093, name: "SOAP FAIZA (PP)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1094, name: "SOAP GOLDEN PEARL (BLUE)", price: 125, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
-      { id: 1095, name: "SOAP GOLDEN PEARL (PINK)", price: 125, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1096, name: "SOAP GOLDEN PEARL (YELLOW)", price: 125, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
-      { id: 1097, name: "SOAP IMPERIAL 175gm LARGE", price: 390, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1098, name: "SOAP IMPERIAL LEATHER SMALL", price: 239, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1099, name: "SOAP LIFEBUOY (LARGE) GREEN RS,125", price: 119, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1100, name: "SOAP LIFEBUOY (MEDIUM) (BLUE) RS,95", price: 90 ,categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1101, name: "SOAP LIFEBUOY (XL) BLUE RS,125", price: 119, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1102, name: "SOAP LIFEBUOY (XL) GREEN RS,125", price: 119, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1103, name: "SOAP PALMOLIVE (LARGE) RS,150 BLACK", price: 139 ,categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1104, name: "SOAP PALMOLIVE (LARGE) RS,150 ORANGE", price: 139, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1105, name: "SOAP PALMOLIVE (LARGE) RS,150 YELLOW", price: 139, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1109, name: "SOAP PEARS (BLUE)", price: 399, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1110, name: "SOAP PEARS (GREEN)", price: 399, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
-      { id: 1111, name: "SOAP PEARS (ORANGE)", price: 399, categoryId: "soaps", categoryName: "Local & Imported Soaps" },
-      { id: 1112, name: "SOAP SKIN WHITE (BLUE) RS,150", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "S" },
-      { id: 1113, name: "SOAP SKIN WHITE (GREEN) RS,150", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
-      { id: 1114, name: "SOAP SKIN WHITE (PINK) RS,150", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
-      { id: 1115, name: "SOAP TIBET (LARGE FAMILY SIZE) RS,109", price: 104, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1116, name: "SOAP TIBET (MEDIUM BATH SIZE) RS,89", price: 85, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "S" },
-      { id: 1117, name: "SOAP TIBET (SMALL STANDARD SIZE) RS,70", price: 66, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
+      { id: 1090, name: "SOAP DOVE SMALL WHITE (IMP)", price: 1, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S", priority: 3 },
+      { id: 1091, name: "SOAP DOVE SMALL PINK (IMP)", price: 1, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S", priority: 4 },
+      { id: 1092, name: "SOAP FAIZA (NEEM)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 32 },
+      { id: 1093, name: "SOAP FAIZA (PP)", price: 110, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 33 },
+      { id: 1094, name: "SOAP GOLDEN PEARL (BLUE)", price: 125, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S", priority: 9 },
+      { id: 1095, name: "SOAP GOLDEN PEARL (PINK)", price: 125, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S", priority: 10 },
+      { id: 1096, name: "SOAP GOLDEN PEARL (YELLOW)", price: 125, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S", priority: 11 },
+      { id: 1097, name: "SOAP IMPERIAL 175gm LARGE", price: 390, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 26 },
+      { id: 1098, name: "SOAP IMPERIAL LEATHER SMALL", price: 239, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S", priority: 25 },
+      { id: 1100, name: "SOAP LIFEBUOY (SMALL) RED RS,75", price: 69 ,categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 14 },
+      { id: 1101, name: "SOAP LIFEBUOY (MEDIUM) BLUE RS,110", price: 104, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 13 },
+      { id: 1102, name: "SOAP LIFEBUOY (MEDIUM) GREEN RS,110", price: 104, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 12 },
+      { id: 1103, name: "SOAP PALMOLIVE GREEN (LARGE) RS,160", price: 151 ,categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 16 },
+      { id: 1104, name: "SOAP PALMOLIVE ORANGE (LARGE) RS,160", price: 151, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 17 },
+      { id: 1105, name: "SOAP PALMOLIVE PINK (LARGE) RS,160", price: 151, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 18 },
+      { id: 1109, name: "SOAP PEARS (BLUE)", price: 399, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 19 },
+      { id: 1110, name: "SOAP PEARS (GREEN)", price: 399, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S", priority: 20 },
+      { id: 1111, name: "SOAP PEARS (ORANGE)", price: 399, categoryId: "soaps", categoryName: "Local & Imported Soaps", priority: 21 },
+      { id: 1112, name: "SOAP SKIN WHITE (BLUE) RS,150", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "S", priority: 22 },
+      { id: 1113, name: "SOAP SKIN WHITE (GREEN) RS,150", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S", priority: 23 },
+      { id: 1114, name: "SOAP SKIN WHITE (PINK) RS,150", price: 129, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S", priority: 24 },
+      { id: 1115, name: "SOAP TIBET (LARGE FAMILY SIZE) RS,109", price: 104, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S", priority: 31 },
+      { id: 1116, name: "SOAP TIBET (MEDIUM BATH SIZE) RS,89", price: 85, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "S", priority: 30 },
+      { id: 1117, name: "SOAP TIBET (SMALL STANDARD SIZE) RS,70", price: 66, categoryId: "soaps", categoryName: "Local & Imported Soaps", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S", priority: 29 },
       { id: 1118, name: "SOFT TOUCH WONDER WAX LARGE GREEN", price: 249, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "S" },
       { id: 1119, name: "SOFT TOUCH WONDER WAX LARGE LEMON", price: 249, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1120, name: "SOFT TOUCH WONDER WAX SMALL GREEN", price: 209, categoryId: "personalcare", categoryName: "Personal Care" },
@@ -2470,29 +2744,19 @@ function getTranslationValue(dictionary, key) {
       { id: 1153, name: "TOY TORCH LIGHT (SMALL) (#H 299)", price: 0, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 1154, name: "TOY WATER GUN", price: 0, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
       { id: 1155, name: "TOY YOYO DORI LIGHT WALA (GOOD QUALITY)", price: 0, categoryId: "sports", categoryName: "Sports & Toys & Birthday" },
-      { id: 1156, name: "TAPE DOUBLE 2 INCH", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 1157, name: "TAPE DOUBLE SIDED (1 INCH)", price: 65, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "T" },
-      { id: 1158, name: "TAPE DOUBLE SIDED (1 INCH)", price: 63, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 1159, name: "TAPE DOUBLE SIDED (1 INCH) TRANSPARENT", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1157, name: "DOUBLE SIDED TAPE  (1 INCH) RS,80", price: 49, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "T" },
       { id: 1160, name: "TAPE KAGHAZ (0.5 INCH) HALF INCH 12 PIECES", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 1161, name: "TAPE KAGHAZ 1 INCH", price: 65, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "T" },
+      { id: 1161, name: "TAPE KAGHAZ 1 INCH", price: 39, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "T" },
       { id: 1162, name: "TAPE KAGHAZ 2 INCH", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 1163, name: "TAPE OSAKA (BLACK)", price: 45, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "T" },
-      { id: 1164, name: "TAPE OSAKA (BLACK) FULL LENGTH", price: 59, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 1165, name: "TAPE OSAKA (RED)", price: 45, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "T" },
-      { id: 1166, name: "TAPE OSAKA (RED) FULL LENGTH", price:59, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 1167, name: "TAPE OSAKA (WHITE)", price: 45, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "T" },
-      { id: 1168, name: "TAPE OSAKA (WHITE) FULL LENGTH", price: 59, categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1163, name: "TAPE OSAKA (BLACK)", price: 48, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "T" },
+      { id: 1165, name: "TAPE OSAKA (RED)", price: 48, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "T" },
+      { id: 1167, name: "TAPE OSAKA (WHITE)", price: 48, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "T" },
       { id: 1169, name: "TAPE PACKING BROWN (2 INCH)", price: 95, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "T" },
       { id: 1170, name: "TAPE PACKING BROWN (2 INCH) 45 METER", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 1171, name: "TAPE PACKING BROWN (2 INCH) 65 METER", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 1172, name: "TAPE PACKING BROWN (2 INCH) SHORT LENGTH (SMALL)", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 1173, name: "TAPE TRANSPARENT (0.5 INCH) EX QUALITY", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 1174, name: "TAPE TRANSPARENT (1 INCH)", price: 55, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "T" },
-      { id: 1175, name: "TAPE TRANSPARENT (1 INCH) FULL LENGTH", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 1176, name: "TAPE TRANSPARENT (2 INCH)", price: 95, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "T" },
-      { id: 1177, name: "TAPE TRANSPARENT (2 INCH) (MOTI)", price: 0, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 1178, name: "TAPE TRANSPARENT RS,10", price: 85, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "T" },
+      { id: 1178, name: "TAPE TRANSPARENT RS,10", price: 7, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "T" },
       { id: 1179, name: "TASH REGAL", price:180,categoryId: "sports", categoryName: "Sports & Toys & Birthday", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "T" },
       { id: 1180, name: "TIGER INSECT SPRAY 300ML (SMALL)", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 1181, name: "TIGER INSECT SPRAY 400ML (MEDIUM)", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
@@ -2580,78 +2844,65 @@ function getTranslationValue(dictionary, key) {
       { id: 1264, name: "WIPES SOFT-CREAM (BLUE)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1265, name: "WIPES SOFT-CREAM (WHITE)", price: 129, categoryId: "babycare", categoryName: "Baby Care & Powders" },
       { id: 1266, name: "ZERO MOSQUITO SACHET BOX RS,10", price: 8, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "Z" },
-      { id: 1267, name: "NATIONAL SALT RS,60", price: 58, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "N" },
-      { id: 1268, name: "LAHORI NAMAK RS,35", price: 29, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "L" },
-      { id: 1269, name: "LEMON MAX LONG BAR RS,100", price: 95, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "L" },
-      { id: 1270, name: "LEMON MAX BAR SMALL RS,35", price: 34, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "L" },
+      { id: 1267, name: "NATIONAL SALT RS,60", price: 58, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "N" },
+      { id: 1268, name: "LAHORI NAMAK RS,35", price: 29, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "L" },
     
-      { id: 1271, name: "SURF EXCEL 500G RS,310", price: 299, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", priority: 1, hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "S" },
+      { id: 1276, name: "TIGER JUMBO COIL RS,120", price: 99, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "T" },
     
-      { id: 1272, name: "SURF ARIEL RS,310", price: 299, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", priority: 2, hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
-    
-      { id: 1273, name: "SURF BRITE RS,300", price: 285, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", priority: 3, hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
-    
-      { id: 1274, name: "SURF SUNLIGHT RS,199", price: 185, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
-    
-      { id: 1275, name: "SURF BONUS 1KG RS,230", price: 210, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-    
-      { id: 1276, name: "TIGER JUMBO COIL RS,120", price: 105, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "T" },
-    
-      { id: 1277, name: "BODY RAZER BIG PAKI RS,50", price: 37, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
+      { id: 1277, name: "BODY RAZER BIG PAKI RS,50", price: 29, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
     
       { id: 1278, name: "LEMON MAX DISHWASH LIQUID 275ML RS,170", price: 159, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "L" },
     
       { id: 1279, name: "TIGER MOSTIK LOTION 100ML RS,180", price: 151, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "T" },
     
       { id: 1280, name: "TIGER INSECT KILLER POWDER RS,100", price: 75, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "T" },
-      { id: 1281, name: "SPRITE 300ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
-      { id: 1282, name: "SPRITE 500ML BOTTLE", price: 105, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
+      { id: 1281, name: "SPRITE 300ML BOTTLE", price: 74, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
+      { id: 1282, name: "SPRITE 500ML BOTTLE", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
       { id: 1283, name: "SPRITE 1 LITRE BOTTLE", price: 149, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1284, name: "SPRITE 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
-      { id: 1285, name: "SPRITE 2.25L JUMBO BOTTLE", price: 249, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "S" },
-      { id: 1286, name: "SPRITE 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "S" },
-      { id: 1287, name: "COCA COLA 300ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "C" },
-      { id: 1288, name: "COCA COLA 500ML BOTTLE", price: 105, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "C" },
+      { id: 1284, name: "SPRITE 1.5 LITRE BOTTLE", price: 189, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
+      { id: 1285, name: "SPRITE 2.25L JUMBO BOTTLE", price: 229, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "S" },
+      { id: 1286, name: "SPRITE 250ML CAN", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sprite", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "S" },
+      { id: 1287, name: "COCA COLA 300ML BOTTLE", price: 74, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "C" },
+      { id: 1288, name: "COCA COLA 500ML BOTTLE", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "C" },
       { id: 1289, name: "COCA COLA 1 LITRE BOTTLE", price: 149, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "C" },
-      { id: 1290, name: "COCA COLA 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "C" },
-      { id: 1291, name: "COCA COLA 2.25L JUMBO BOTTLE", price: 249, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
-      { id: 1292, name: "COCA COLA 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "C" },
+      { id: 1290, name: "COCA COLA 1.5 LITRE BOTTLE", price: 189, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "C" },
+      { id: 1291, name: "COCA COLA 2.25L JUMBO BOTTLE", price: 229, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
+      { id: 1292, name: "COCA COLA 250ML CAN", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Coca-Cola", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "C" },
       { id: 1325, name: "FANTA 300ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "F", priority: 1 },
-      { id: 1293, name: "FANTA 500ML BOTTLE", price: 105, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "F" },
+      { id: 1293, name: "FANTA 500ML BOTTLE", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "F" },
       { id: 1294, name: "FANTA 1 LITRE BOTTLE", price: 149, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "F" },
-      { id: 1295, name: "FANTA 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "F" },
-      { id: 1296, name: "FANTA 2.25L JUMBO BOTTLE", price: 249, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
-      { id: 1297, name: "FANTA 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "F" },
+      { id: 1295, name: "FANTA 1.5 LITRE BOTTLE", price: 189, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "F" },
+      { id: 1296, name: "FANTA 2.25L JUMBO BOTTLE", price: 229, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
+      { id: 1297, name: "FANTA 250ML CAN", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Fanta", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "F" },
       { id: 1298, name: "PEPSI 345ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "P" },
-      { id: 1299, name: "PEPSI 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
-      { id: 1300, name: "PEPSI 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
-      { id: 1301, name: "PEPSI 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
-      { id: 1302, name: "PEPSI 2.25L JUMBO BOTTLE", price: 259, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
-      { id: 1303, name: "PEPSI 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
+      { id: 1299, name: "PEPSI 500ML BOTTLE", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
+      { id: 1300, name: "PEPSI 1 LITRE BOTTLE", price: 149, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
+      { id: 1301, name: "PEPSI 1.5 LITRE BOTTLE", price: 189, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
+      { id: 1302, name: "PEPSI 2.25L JUMBO BOTTLE", price: 239, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
+      { id: 1303, name: "PEPSI 250ML CAN", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pepsi", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
       { id: 1304, name: "7UP 345ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "7" },
-      { id: 1305, name: "7UP 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "7" },
-      { id: 1306, name: "7UP 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "7" },
-      { id: 1307, name: "7UP 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "7" },
-      { id: 1308, name: "7UP 2.25L JUMBO BOTTLE", price: 259, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "7" },
+      { id: 1305, name: "7UP 500ML BOTTLE", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "7" },
+      { id: 1306, name: "7UP 1 LITRE BOTTLE", price: 149, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "7" },
+      { id: 1307, name: "7UP 1.5 LITRE BOTTLE", price: 189, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "7" },
+      { id: 1308, name: "7UP 2.25L JUMBO BOTTLE", price: 239, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "7" },
       { id: 1309, name: "7UP 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "7Up", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "7" },
       { id: 1310, name: "MIRINDA 345ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "M" },
-      { id: 1311, name: "MIRINDA 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "M" },
-      { id: 1312, name: "MIRINDA 1 LITRE BOTTLE", price: 160, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "M" },
-      { id: 1313, name: "MIRINDA 1.5 LITRE BOTTLE", price: 199, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "M" },
-      { id: 1314, name: "MIRINDA 2.25L JUMBO BOTTLE", price: 259, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
-      { id: 1315, name: "MIRINDA 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
-      { id: 1322, name: "STING BERRY 300ML BOTTLE", price: 75, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
-      { id: 1323, name: "STING BERRY 500ML BOTTLE", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
-      { id: 1324, name: "STING BERRY 250ML CAN", price: 109, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "S" },
-      { id: 1326, name: "PAKOLA CHOCOLATE JUICE 250ML", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
-      { id: 1327, name: "PAKOLA BADAM JUICE 250ML", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "P" },
-      { id: 1328, name: "PAKOLA STRAWBERRY JUICE 250ML", price: 110, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "P" },
-      { id: 1329, name: "PAKOLA DRINK 300ML BOTTLE", price: 70, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
-      { id: 1330, name: "PAKOLA DRINK 500ML BOTTLE", price: 100, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
-      { id: 1331, name: "PAKOLA DRINK 1.5 LITRE BOTTLE", price: 190, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
-      { id: 1332, name: "SLICE MANGO JUICE 200ML TETRA PACK", price: 49, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Slice", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S" },
-      { id: 1333, name: "SLICE MANGO JUICE 355ML BOTTLE", price: 0, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Slice", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S" },
-      { id: 1334, name: "SLICE MANGO JUICE 1 LITRE BOTTLE", price: 185, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Slice", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
+      { id: 1311, name: "MIRINDA 500ML BOTTLE", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "M" },
+      { id: 1312, name: "MIRINDA 1 LITRE BOTTLE", price: 149, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "M" },
+      { id: 1313, name: "MIRINDA 1.5 LITRE BOTTLE", price: 189, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "M" },
+      { id: 1314, name: "MIRINDA 2.25L JUMBO BOTTLE", price: 239, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
+      { id: 1315, name: "MIRINDA 250ML CAN", price: 99, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Mirinda", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
+      { id: 1322, name: "STING BERRY 300ML BOTTLE", price: 89, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
+      { id: 1323, name: "STING BERRY 500ML BOTTLE", price: 114, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Sting", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "S" },
+      { id: 1326, name: "PAKOLA CHOCOLATE JUICE 250ML", price: 104, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
+      { id: 1327, name: "PAKOLA BADAM JUICE 250ML", price: 104, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "P" },
+      { id: 1328, name: "PAKOLA STRAWBERRY JUICE 250ML", price: 104, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "P" },
+      { id: 1329, name: "PAKOLA DRINK 300ML BOTTLE", price: 65, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
+      { id: 1330, name: "PAKOLA DRINK 500ML BOTTLE", price: 89, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
+      { id: 1331, name: "PAKOLA DRINK 1.5 LITRE BOTTLE", price: 189, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Pakola", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
+      { id: 1332, name: "SLICE MANGO JUICE 200ML TETRA PACK", price: 49, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Slice", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "S", priority: 1 },
+      { id: 1333, name: "SLICE MANGO JUICE 355ML BOTTLE", price: 79, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Slice", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S", priority: 2 },
+      { id: 1334, name: "SLICE MANGO JUICE 1 LITRE BOTTLE", price: 179, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Slice", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S", priority: 3 },
     ];
     var PAGE_SIZE = 10;
     const RECENT_LIMIT = 15;
@@ -4732,8 +4983,27 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
   const [packMenuOpen, setPackMenuOpen] = React.useState(false);
+  const weightOptions = useMemo(() => (product ? getWeightOptionsForProduct(product) : null), [product]);
+  const [selectedWeightId, setSelectedWeightId] = React.useState(null);
+
+  React.useEffect(() => {
+    if (weightOptions && weightOptions.length > 0) {
+      const def = weightOptions.find(o => o.isPopular) || weightOptions[0];
+      setSelectedWeightId(def.id);
+    } else {
+      setSelectedWeightId(null);
+    }
+    setModalQty(1);
+  }, [product, weightOptions]);
+
+  const activeWeight = useMemo(() => {
+    if (!weightOptions || weightOptions.length === 0) return null;
+    return weightOptions.find(o => o.id === selectedWeightId) || weightOptions[0];
+  }, [weightOptions, selectedWeightId]);
+
   const pricing = useMemo(() => (product ? getProductPricing(product) : { sellingPrice: 0, retailPrice: 0, savings: 0, hasDiscount: false }), [product]);
-  const bulkPricing = useMemo(() => calculateBulkPricing(pricing.sellingPrice, modalQty), [pricing.sellingPrice, modalQty]);
+  const currentUnitPrice = activeWeight ? activeWeight.price : pricing.sellingPrice;
+  const bulkPricing = useMemo(() => calculateBulkPricing(currentUnitPrice, modalQty), [currentUnitPrice, modalQty]);
   // Find 4-6 Related Products from the same category (excluding current product and zero-priced items)
   const relatedProducts = useMemo(() => {
     if (!product || !products) return [];
@@ -4749,22 +5019,37 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
 
   if (!open || !product) return null;
   const imageSrc = getProductImgSrc(product);
+  const hasFile = Boolean(imageSrc);
   const handleDirectWhatsAppOrder = () => {
     if (!product || product.price === undefined || product.price === null || Number(product.price) <= 0 || bulkPricing.finalTotal <= 0) {
       alert(isUrdu ? 'اس پروڈکٹ کی قیمت فی الحال دستیاب نہیں ہے۔' : 'This product is currently unavailable.');
       return;
     }
     const pName = getProductDisplayName(product, language);
+    const weightLine = activeWeight ? `\n⚖️ *Weight / Wazan:* ${activeWeight.label}` : '';
+    const weightVariantStr = activeWeight ? `⚖️ Wazan: ${activeWeight.weightText}` : '';
     let discountInfo = '';
-    if (bulkPricing.extraPercent > 0) {
+    if (bulkPricing.extraPercent > 0 && !activeWeight) {
       discountInfo += `\n🎁 *Bulk Volume Discount (${bulkPricing.extraPercent}%):* -Rs ${bulkPricing.extraSavings.toLocaleString()}`;
     }
-    if (pricing.hasDiscount) {
+    if (pricing.hasDiscount && !activeWeight) {
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${((pricing.savings * modalQty) + bulkPricing.extraSavings).toLocaleString()})`;
     }
-    const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
+    const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}${weightLine}\n🔢 *Quantity:* ${modalQty} ${activeWeight ? 'Pack(s)' : ''}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
     const _dwNow = new Date();
     const deliveryFee = typeof calculateDeliveryFee === 'function' ? calculateDeliveryFee(bulkPricing.finalTotal) : 0;
+    let directCustPhone = '';
+    let directCustName = 'Direct WhatsApp Customer';
+    let directCustAddress = '';
+    try {
+      const savedProfile = localStorage.getItem('zs_mart_customer_profile');
+      if (savedProfile) {
+        const p = JSON.parse(savedProfile);
+        if (p.phone) directCustPhone = p.phone;
+        if (p.name) directCustName = p.name;
+        if (p.address) directCustAddress = p.address;
+      }
+    } catch(e) {}
     const directOrderRecord = {
       id: generateUniqueOrderId('DW'),
       createdAt: _dwNow.getTime(),
@@ -4773,7 +5058,7 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
       time: _dwNow.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
       status: 'placed',
       dateText: _dwNow.toLocaleDateString('en-PK', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }),
-      customer: { name: 'Direct WhatsApp Customer', phone: '' },
+      customer: { name: directCustName, phone: directCustPhone, address: directCustAddress },
       deliveryMethod: 'home',
       deliveryFee: deliveryFee,
       channel: 'whatsapp_direct',
@@ -4783,7 +5068,8 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
         {
           id: product.id,
           name: product.name,
-          price: product.price,
+          variant: weightVariantStr || null,
+          price: currentUnitPrice,
           qty: modalQty,
           total: bulkPricing.finalTotal,
           imageUrl: product.imageUrl || null,
@@ -4797,7 +5083,9 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
     } else if (typeof window !== 'undefined' && typeof window.__saveOrderHistory === 'function') {
       window.__saveOrderHistory(directOrderRecord);
     }
-    launchWhatsApp(getStoreSettings().whatsapp, msg);
+    setTimeout(() => {
+      launchWhatsApp(getStoreSettings().whatsapp, msg);
+    }, 100);
   };
   return (
     <div 
@@ -4914,7 +5202,28 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                   {getProductDisplayName(product, language)}
                 </h3>
                 {/* Wholesale Selling Price Card (side by side with image) */}
-                {pricing.hasDiscount ? (
+                {activeWeight ? (
+                  <div className="space-y-1.5 bg-gradient-to-r from-emerald-50 via-white to-teal-50 p-2.5 sm:p-3 rounded-2xl border border-emerald-300 shadow-2xs text-left">
+                    <div className="flex items-center justify-between flex-wrap gap-1">
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-wider text-emerald-800">
+                          {tr(language, 'Price for Selected Weight', 'Muntakhab Wazan Ka Rate', 'منتخب وزن کا ریٹ')}
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl sm:text-3xl font-black text-emerald-950">
+                            Rs. {activeWeight.price.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="inline-block bg-emerald-600 text-white text-xs font-black px-2.5 py-1 rounded-xl shadow-xs">
+                        ⚖️ {activeWeight.weightText}
+                      </span>
+                    </div>
+                    <div className="text-[10.5px] font-bold text-emerald-700">
+                      {tr(language, '100% Pure, Clean & Fresh Quality Guaranteed', '100% Khalis, Saaf Suthri Aala Quality', 'خالص اور معیاری کوالٹی')}
+                    </div>
+                  </div>
+                ) : pricing.hasDiscount ? (
                   <div className="space-y-1.5 bg-gradient-to-r from-emerald-50/70 via-white to-red-50/50 p-2.5 sm:p-3 rounded-2xl border border-emerald-200/80 shadow-2xs text-left">
                     <div className="flex items-center justify-between flex-wrap gap-1">
                       <div>
@@ -4960,95 +5269,162 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
 
             {/* Below Top Row: Full-width Quantity Controls, Bulk Chips, Live Total & Savings */}
             <div className="space-y-2.5 pt-2 border-t border-gray-200/80 w-full">
-                {/* Stepper on Left, Wholesale Dropdown on Right */}
+                
+                {/* ⚖️ Weight / Portion Selection Box (Atta, Cheeni, Daal, Chawal) */}
+                {weightOptions && weightOptions.length > 0 && (
+                  <div className="bg-emerald-50/80 border border-emerald-300 rounded-2xl p-3 space-y-2 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-base">⚖️</span>
+                        <span className="text-xs font-black text-emerald-950 uppercase tracking-wide">
+                          {isUrdu ? 'کتنا چاہیے؟ وزن منتخب کریں:' : 'Kitna Chahiye? Wazan Select Karein:'}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-black text-emerald-800 bg-white border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-2xs">
+                        {activeWeight ? activeWeight.weightText : ''}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {weightOptions.map(opt => {
+                        const isSelected = activeWeight && activeWeight.id === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => {
+                              triggerHaptic('light');
+                              setSelectedWeightId(opt.id);
+                            }}
+                            className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition-all relative cursor-pointer active:scale-98 ${
+                              isSelected
+                                ? 'border-emerald-600 bg-white shadow-md ring-2 ring-emerald-500/30'
+                                : 'border-emerald-200 bg-white/70 hover:bg-white hover:border-emerald-400'
+                            }`}
+                          >
+                            {opt.isPopular && (
+                              <span className="absolute -top-2 right-2 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.2 rounded-md shadow-2xs uppercase">
+                                ⭐ Popular
+                              </span>
+                            )}
+                            <span className={`text-xs font-bold leading-tight ${isSelected ? 'text-emerald-950 font-black' : 'text-gray-800'}`}>
+                              {opt.weightText}
+                            </span>
+                            <span className={`text-xs font-black mt-1 ${isSelected ? 'text-emerald-700' : 'text-emerald-800'}`}>
+                              Rs. {opt.price.toLocaleString()}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Stepper on Left, Wholesale Dropdown or Weight Live Total on Right */}
                 <div className="flex items-center justify-between gap-2.5">
-                  <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-2xs shrink-0">
-                    <button 
-                      type="button"
-                      onClick={() => setModalQty(q => Math.max(1, q - 1))}
-                      className="w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors"
-                      title="Minus 1"
-                    >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      min="1"
-                      value={modalQty}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        setModalQty(isNaN(val) || val < 1 ? 1 : val);
-                      }}
-                      className="w-12 text-center font-black text-sm text-black border-none focus:outline-hidden py-0.5"
-                    />
-                    <button 
-                      type="button"
-                      onClick={() => setModalQty(q => q + 1)}
-                      className="w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors"
-                      title="Plus 1"
-                    >
-                      +
-                    </button>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-2xs shrink-0">
+                      <button 
+                        type="button"
+                        onClick={() => setModalQty(q => Math.max(1, q - 1))}
+                        className="w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors"
+                        title="Minus 1"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min="1"
+                        value={modalQty}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setModalQty(isNaN(val) || val < 1 ? 1 : val);
+                        }}
+                        className="w-12 text-center font-black text-sm text-black border-none focus:outline-hidden py-0.5"
+                      />
+                      <button 
+                        type="button"
+                        onClick={() => setModalQty(q => q + 1)}
+                        className="w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors"
+                        title="Plus 1"
+                      >
+                        +
+                      </button>
+                    </div>
+                    {activeWeight && (
+                      <span className="text-[11px] font-bold text-gray-600">
+                        {modalQty > 1 ? `x ${modalQty} Packs` : `1 Pack`}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic('light');
-                        setPackMenuOpen(true);
-                      }}
-                      className="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-950 font-extrabold text-xs rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs transition-all active:scale-98 truncate"
-                    >
-                      <span className="truncate flex items-center gap-1.5">
-                        <span>📦</span>
-                        <span>
-                          {[6, 12, 24, 36, 48, 60].includes(modalQty) 
-                            ? `${modalQty} Pcs (+${getBulkDiscountTier(modalQty).percent}% OFF)`
-                            : tr(language, 'Wholesale Packs', 'Wholesale Pack Chunain', 'ہول سیل پیک')}
+                  {activeWeight ? (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-black text-xs">
+                      <span>Total:</span>
+                      <span className="text-sm text-emerald-700 font-black">Rs. {bulkPricing.finalTotal.toLocaleString()}</span>
+                    </div>
+                  ) : (
+                    <div className="flex-1 min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic('light');
+                          setPackMenuOpen(true);
+                        }}
+                        className="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-950 font-extrabold text-xs rounded-xl px-2.5 py-1.5 flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs transition-all active:scale-98 truncate"
+                      >
+                        <span className="truncate flex items-center gap-1.5">
+                          <span>📦</span>
+                          <span>
+                            {[6, 12, 24, 36, 48, 60].includes(modalQty) 
+                              ? `${modalQty} Pcs (+${getBulkDiscountTier(modalQty).percent}% OFF)`
+                              : tr(language, 'Wholesale Packs', 'Wholesale Pack Chunain', 'ہول سیل پیک')}
+                          </span>
                         </span>
-                      </span>
-                      <svg className="w-3.5 h-3.5 text-emerald-700 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                      </svg>
-                    </button>
-                  </div>
+                        <svg className="w-3.5 h-3.5 text-emerald-700 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Bulk Discount Tier Info Strip */}
-                <div style={{ background: 'linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)', border: '1px solid #6ee7b7', borderRadius: 12, padding: '7px 10px' }}>
-                  <span style={{ fontSize: 9, fontWeight: 900, color: '#065f46', textTransform: 'uppercase', letterSpacing: '0.12em', display: 'block', marginBottom: 5 }}>🎁 Bulk Extra Discount</span>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 3 }}>
-                    {[
-                      { qty: 6,  pct: 0.6 },
-                      { qty: 12, pct: 1.2 },
-                      { qty: 24, pct: 1.8 },
-                      { qty: 36, pct: 2.2 },
-                      { qty: 48, pct: 2.8 },
-                      { qty: 60, pct: 3.2 },
-                    ].map(({ qty: q, pct }) => {
-                      const isCurrent = getBulkDiscountTier(modalQty).percent === pct && modalQty >= q;
-                      return (
-                        <button
-                          key={q}
-                          type="button"
-                          onClick={() => setModalQty(q)}
-                          style={{
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            padding: '3px 2px', borderRadius: 8,
-                            border: isCurrent ? '2px solid #059669' : '1px solid #a7f3d0',
-                            background: isCurrent ? '#059669' : '#ffffff',
-                            cursor: 'pointer', transition: 'all 0.15s',
-                            boxShadow: isCurrent ? '0 2px 6px rgba(5,150,105,0.3)' : 'none'
-                          }}
-                        >
-                          <span style={{ fontSize: 11, fontWeight: 900, color: isCurrent ? '#ffffff' : '#111827', lineHeight: 1.2 }}>{q}</span>
-                          <span style={{ fontSize: 8.5, fontWeight: 800, color: isCurrent ? '#bbf7d0' : '#059669', lineHeight: 1.3 }}>+{pct}%</span>
-                        </button>
-                      );
-                    })}
+                {!activeWeight && (
+                  <div style={{ background: 'linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)', border: '1px solid #6ee7b7', borderRadius: 12, padding: '7px 10px' }}>
+                    <span style={{ fontSize: 9, fontWeight: 900, color: '#065f46', textTransform: 'uppercase', letterSpacing: '0.12em', display: 'block', marginBottom: 5 }}>🎁 Bulk Extra Discount</span>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 3 }}>
+                      {[
+                        { qty: 6,  pct: 0.6 },
+                        { qty: 12, pct: 1.2 },
+                        { qty: 24, pct: 1.8 },
+                        { qty: 36, pct: 2.2 },
+                        { qty: 48, pct: 2.8 },
+                        { qty: 60, pct: 3.2 },
+                      ].map(({ qty: q, pct }) => {
+                        const isCurrent = getBulkDiscountTier(modalQty).percent === pct && modalQty >= q;
+                        return (
+                          <button
+                            key={q}
+                            type="button"
+                            onClick={() => setModalQty(q)}
+                            style={{
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                              padding: '3px 2px', borderRadius: 8,
+                              border: isCurrent ? '2px solid #059669' : '1px solid #a7f3d0',
+                              background: isCurrent ? '#059669' : '#ffffff',
+                              cursor: 'pointer', transition: 'all 0.15s',
+                              boxShadow: isCurrent ? '0 2px 6px rgba(5,150,105,0.3)' : 'none'
+                            }}
+                          >
+                            <span style={{ fontSize: 11, fontWeight: 900, color: isCurrent ? '#ffffff' : '#111827', lineHeight: 1.2 }}>{q}</span>
+                            <span style={{ fontSize: 8.5, fontWeight: 800, color: isCurrent ? '#bbf7d0' : '#059669', lineHeight: 1.3 }}>+{pct}%</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
@@ -5056,13 +5432,20 @@ function ProductDetailModal({ product, open, onClose, onAddToCart, products, lan
                     disabled={!product || !product.price || Number(product.price) <= 0}
                     onClick={() => { 
                       if (!product || !product.price || Number(product.price) <= 0) return;
-                      onAddToCart(product, null, modalQty); 
+                      const productToAdd = activeWeight ? { ...product, price: currentUnitPrice } : product;
+                      const variantToAdd = activeWeight ? `⚖️ Wazan: ${activeWeight.weightText}` : null;
+                      onAddToCart(productToAdd, variantToAdd, modalQty); 
                       onClose(); 
                     }}
                     className="w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>🛒</span>
-                    <span>{(!product || !product.price || Number(product.price) <= 0) ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں') : `${translate(langData, "addToCart")} (${modalQty})`}</span>
+                    <span>{(!product || !product.price || Number(product.price) <= 0) 
+                      ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں') 
+                      : activeWeight
+                      ? `${translate(langData, "addToCart")} (${activeWeight.weightText}${modalQty > 1 ? ` × ${modalQty}` : ''})`
+                      : `${translate(langData, "addToCart")} (${modalQty})`}
+                    </span>
                   </button>
                   
                   <button
@@ -5867,8 +6250,8 @@ export default function ZSMart() {
         isManual = !!isManual;
         if (isFetchingProductsRef.current) return;
         const now = Date.now();
-        // Guard: Minimum 45 seconds between automatic background fetches
-        if (!isManual && now - lastProductsFetchTimeRef.current < 45000) return;
+        // Guard: Minimum 3 seconds between automatic background fetches (allows near-instant updates)
+        if (!isManual && now - lastProductsFetchTimeRef.current < 3000) return;
 
         isFetchingProductsRef.current = true;
         lastProductsFetchTimeRef.current = now;
@@ -5964,42 +6347,111 @@ export default function ZSMart() {
             } catch(e) {}
           };
 
-          // Efficient Delta Sync for Background Polls (Saves 99% Supabase Egress & Mobile Bandwidth)
-          if (!isManual && lastProductSyncTimestampRef.current && productsList && productsList.length > 0) {
+          // ── INSTANT DUAL CLOUD SYNC: Deletions + Edits & Additions (~250-350ms) ──
+          if (productsList && productsList.length > 0) {
             try {
-              const deltaUrl = `${sbUrl}/rest/v1/products?select=*&updated_at=gt.${encodeURIComponent(lastProductSyncTimestampRef.current)}&order=updated_at.desc&limit=500`;
-              const deltaRes = await fetch(deltaUrl, {
-                cache: 'no-store',
-                headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` }
-              });
-              if (deltaRes.ok) {
-                const deltaRows = await deltaRes.json();
-                // 30s safety buffer against device-to-cloud clock skew
-                lastProductSyncTimestampRef.current = new Date(Date.now() - 30000).toISOString();
-                if (Array.isArray(deltaRows) && deltaRows.length > 0) {
-                  const map = new Map((productsList || []).map(p => [Number(p.id), p]));
-                  deltaRows.forEach(p => {
-                    map.set(Number(p.id), {
-                      id: Number(p.id),
-                      name: p.name,
-                      price: Number(p.price),
-                      categoryId: p.category_id || p.categoryId || 'general',
-                      categoryName: p.category_name || p.categoryName || 'General Items',
-                      priority: p.priority ? Number(p.priority) : undefined,
-                      filterName: p.filter_name || p.filterName || undefined,
-                      hasImage: !!p.has_image,
-                      imageUrl: p.image_url,
-                      imageVersion: p.image_version || p.imageVersion
-                    });
-                  });
-                  const merged = Array.from(map.values()).sort((a,b) => a.id - b.id);
-                  setProductsList(merged);
-                  window.PRODUCTS = merged;
-                  persistProductsToLocalCache(merged);
-                  syncCartWithFreshProducts(merged);
+              const idUrl = `${sbUrl}/rest/v1/products?select=id&limit=5000`;
+              const updateUrl = `${sbUrl}/rest/v1/products?select=*&order=updated_at.desc.nullslast&limit=100`;
+              const prioUrl = `${sbUrl}/rest/v1/products?select=*&priority=not.is.null`;
+
+              const [idRes, updateRes, prioRes] = await Promise.all([
+                fetch(idUrl, { cache: 'no-store', headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` } }),
+                fetch(updateUrl, { cache: 'no-store', headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` } }),
+                fetch(prioUrl, { cache: 'no-store', headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` } }).catch(() => null)
+              ]);
+
+              if (idRes.ok && updateRes.ok) {
+                const idRows = await idRes.json();
+                const updateRows = await updateRes.json();
+                let prioRows = null;
+                if (prioRes && prioRes.ok) {
+                  try { prioRows = await prioRes.json(); } catch(e) {}
                 }
-                await syncCloudCategoriesAndSettings();
-                return;
+
+                if (Array.isArray(idRows) && idRows.length > 0 && Array.isArray(updateRows)) {
+                  const activeIdSet = new Set(idRows.map(r => Number(r.id)));
+                  let listChanged = false;
+                  const currentList = productsList || window.PRODUCTS || [];
+
+                  // 1. Instant Deletion Detection: Prune any item whose ID no longer exists in Supabase
+                  const pruned = currentList.filter(p => {
+                    if (!activeIdSet.has(Number(p.id))) {
+                      listChanged = true;
+                      return false;
+                    }
+                    return true;
+                  });
+
+                  // 2. Count mismatch check: agar Supabase me zyada items hain local se,
+                  //    to naye items hain jo top-100 updated_at me nahi aate.
+                  //    Is case me full reload karo (freshProducts flow chalega).
+                  if (activeIdSet.size > pruned.length) {
+                    // Fall through to full Supabase fetch below
+                    console.log('[ZS Sync] Count mismatch - Supabase:', activeIdSet.size, 'local:', pruned.length, '- triggering full reload');
+                  } else {
+                  // 3. Instant Edit & Addition Detection: Merge top 100 updated rows + all prioritized items
+                  const prodMap = new Map(pruned.map(p => [Number(p.id), p]));
+                  const combinedRows = Array.isArray(prioRows) && prioRows.length > 0
+                    ? [...updateRows, ...prioRows]
+                    : updateRows;
+
+                  // If prioRows was fetched, un-prioritize any local items that lost priority in cloud
+                  if (Array.isArray(prioRows)) {
+                    const activePrioIds = new Set(prioRows.map(r => Number(r.id)));
+                    prodMap.forEach((p, pId) => {
+                      if (p && p.priority && !activePrioIds.has(pId)) {
+                        p.priority = undefined;
+                        listChanged = true;
+                      }
+                    });
+                  }
+
+                  combinedRows.forEach(row => {
+                    const rowId = Number(row.id);
+                    if (!activeIdSet.has(rowId)) return;
+                    const existing = prodMap.get(rowId);
+                    const updatedItem = {
+                      id: rowId,
+                      name: row.name,
+                      price: Number(row.price),
+                      categoryId: row.category_id || row.categoryId || 'general',
+                      categoryName: row.category_name || row.categoryName || 'General Items',
+                      priority: row.priority ? Number(row.priority) : undefined,
+                      filterName: row.filter_name || row.filterName || undefined,
+                      hasImage: !!row.has_image,
+                      imageUrl: row.image_url,
+                      imageVersion: row.image_version || row.imageVersion
+                    };
+                    if (!existing ||
+                        existing.price !== updatedItem.price ||
+                        existing.name !== updatedItem.name ||
+                        existing.categoryId !== updatedItem.categoryId ||
+                        existing.categoryName !== updatedItem.categoryName ||
+                        existing.priority !== updatedItem.priority ||
+                        existing.imageUrl !== updatedItem.imageUrl ||
+                        existing.imageVersion !== updatedItem.imageVersion) {
+                      prodMap.set(rowId, updatedItem);
+                      listChanged = true;
+                    }
+                  });
+
+                  if (listChanged) {
+                    const merged = Array.from(prodMap.values()).sort((a,b) => a.id - b.id);
+                    setProductsList(merged);
+                    window.PRODUCTS = merged;
+                    persistProductsToLocalCache(merged);
+                    syncCartWithFreshProducts(merged);
+                  }
+
+                  await syncCloudCategoriesAndSettings();
+
+                  if (isManual) {
+                    setSyncToast(tr(language, "✅ Store updated live!", "✅ Store live update ho gaya!", "✅ اسٹور لائیو اپ ڈیٹ ہوگیا!"));
+                    setTimeout(() => setSyncToast(null), 2500);
+                  }
+                  return;
+                  } // end count-match branch
+                }
               }
             } catch(e) {}
           }
@@ -6189,10 +6641,10 @@ export default function ZSMart() {
           window.addEventListener('focus', onFocus);
         }
 
-        // Periodic background poll every 2 minutes (optimized low battery & egress footprint)
+        // Periodic background poll every 15 seconds (near-instant cloud sync for all edits & deletes)
         const intervalId = setInterval(() => {
           if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(false);
-        }, 120000);
+        }, 15000);
 
         return () => {
           if (typeof document !== 'undefined') {
@@ -7648,7 +8100,7 @@ export default function ZSMart() {
               </header>
             </>
           )}
-          <main className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area" style={{ paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))', paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined, position: 'relative' }}>
+          <main className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area" style={{ paddingBottom: '58px', paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined, position: 'relative' }}>
             {/* ── ACCOUNT TAB (always mounted, CSS hidden when not active) ── */}
             <div
               key="account-panel"
@@ -7657,7 +8109,7 @@ export default function ZSMart() {
               }}
             >
             {/* ══════════ FULL-PAGE GLOSSY WHITE & BLACK "ME / ACCOUNT" VIEW ══════════ */}
-            <div className={`max-w-2xl mx-auto space-y-4 pb-8 ${activeTab === 'account' ? 'account-page-enter' : ''}`}>
+            <div className={`max-w-2xl mx-auto space-y-4 pb-2 ${activeTab === 'account' ? 'account-page-enter' : ''}`}>
                 
                 {/* 1. TOP BAR WITH BACK BUTTON */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
@@ -7934,6 +8386,7 @@ export default function ZSMart() {
                 onSelectCategory={setSelectedCategory}
                 langData={langData}
                 language={language}
+                categoriesVersion={categoriesVersion}
               />
             ) : (
               <>
@@ -8780,102 +9233,111 @@ export default function ZSMart() {
                 </div>
               )}
 
-              {/* ══════════ GLOSSY TRANSPARENT FROSTED GLASS 5-TAB BOTTOM NAV ══════════ */}
+              {/* ══════════ COMPACT 5-TAB BOTTOM NAV (NO WASTED GAP) ══════════ */}
               <nav className="sm:hidden" style={{
                 position: 'fixed', bottom: 0, left: 0, right: 0,
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
-                WebkitBackdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
-                borderTop: '1px solid rgba(255, 255, 255, 0.45)',
-                boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,0.7)',
+                background: 'rgba(255, 255, 255, 0.98)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderTop: '1px solid #e2e8f0',
+                boxShadow: '0 -2px 12px rgba(0, 0, 0, 0.05)',
                 zIndex: 45,
                 transform: 'translateZ(0)',
                 WebkitTransform: 'translateZ(0)',
-                willChange: 'transform',
-                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-                display: 'flex', alignItems: 'stretch', minHeight: '58px', height: 'calc(58px + env(safe-area-inset-bottom, 0px))', boxSizing: 'border-box',
+                display: 'flex', alignItems: 'center',
+                height: '50px',
+                paddingTop: '2px',
+                paddingBottom: 'clamp(0px, env(safe-area-inset-bottom, 0px), 4px)',
+                boxSizing: 'border-box',
               }}>
                 {/* 1. HOME TAB */}
                 <button
-                  onClick={() => { triggerHaptic('light'); setActiveTab('home'); setSelectedCategory(null); setSearchTerm(''); setActiveCategory('all'); }}
-                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
+                  onClick={() => {
+                    triggerHaptic('light');
+                    if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(true);
+                    setActiveTab('home');
+                    setSelectedCategory(null);
+                    setSearchTerm('');
+                    setActiveCategory('all');
+                  }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 1px', position: 'relative' }}
                 >
-                  {activeTab === 'home' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 22, height: 3, borderRadius: '0 0 3px 3px', background: '#059669' }} />}
-                  <svg style={{ width: 20, height: 20, color: activeTab === 'home' ? '#059669' : '#0f172a' }} fill={activeTab === 'home' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                  {activeTab === 'home' && <span style={{ position: 'absolute', top: -2, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2.5, borderRadius: '0 0 3px 3px', background: '#059669' }} />}
+                  <svg style={{ width: 19, height: 19, color: activeTab === 'home' ? '#059669' : '#0f172a' }} fill={activeTab === 'home' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                   </svg>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: activeTab === 'home' ? '#059669' : '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Home', 'Home', 'ہوم')}</span>
+                  <span style={{ fontSize: '9.5px', fontWeight: 800, color: activeTab === 'home' ? '#059669' : '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Home', 'Home', 'ہوم')}</span>
                 </button>
 
                 {/* 2. ORDERS TAB */}
                 <button
                   onClick={() => { triggerHaptic('light'); setOrderHistoryOpen(true); }}
-                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 1px', position: 'relative' }}
                 >
                   <div style={{ position: 'relative' }}>
-                    <svg style={{ width: 20, height: 20, color: '#0f172a' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <svg style={{ width: 19, height: 19, color: '#0f172a' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     {orderHistory.length > 0 && (
-                      <span style={{ position: 'absolute', top: -4, right: -7, minWidth: 15, height: 15, borderRadius: 8, background: '#10b981', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #ffffff' }}>
+                      <span style={{ position: 'absolute', top: -4, right: -7, minWidth: 14, height: 14, borderRadius: 7, background: '#10b981', color: '#fff', fontSize: 8.5, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #ffffff' }}>
                         {orderHistory.length > 9 ? '9+' : orderHistory.length}
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Orders', 'Orders', 'آرڈرز')}</span>
+                  <span style={{ fontSize: '9.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Orders', 'Orders', 'آرڈرز')}</span>
                 </button>
 
                 {/* 3. CART TAB (HIGHLIGHTED ELEVATED BUTTON + "CART" NAME) */}
                 <button
                   onClick={() => { triggerHaptic('medium'); setCartOpen(true); }}
-                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 2px', position: 'relative' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: '0px 2px', position: 'relative' }}
                 >
                   <div
                     style={{
-                      width: 44, height: 44,
+                      width: 40, height: 40,
                       borderRadius: '50%',
                       background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-                      boxShadow: '0 6px 18px rgba(16,185,129,0.5), 0 0 0 3.5px rgba(255,255,255,0.9)',
+                      boxShadow: '0 4px 14px rgba(16,185,129,0.45), 0 0 0 3px rgba(255,255,255,0.95)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       position: 'relative',
-                      transform: 'translateY(-8px)',
+                      transform: 'translateY(-6px)',
                       transition: 'all 0.2s',
                     }}
                   >
-                    <svg style={{ width: 20, height: 20, color: '#ffffff' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <svg style={{ width: 19, height: 19, color: '#ffffff' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                     </svg>
                     {cartCount > 0 && (
-                      <span style={{ position: 'absolute', top: -3, right: -3, minWidth: 17, height: 17, borderRadius: 9, background: '#ef4444', color: '#fff', fontSize: 9, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff' }}>
+                      <span style={{ position: 'absolute', top: -3, right: -3, minWidth: 16, height: 16, borderRadius: 8, background: '#ef4444', color: '#fff', fontSize: 8.5, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #ffffff' }}>
                         {cartCount > 9 ? '9+' : cartCount}
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#0f172a', marginTop: '-6px', letterSpacing: '0.01em' }}>{tr(language, 'Cart', 'Cart', 'کارٹ')}</span>
+                  <span style={{ fontSize: '9.5px', fontWeight: 800, color: '#0f172a', marginTop: '-5px', letterSpacing: '0.01em' }}>{tr(language, 'Cart', 'Cart', 'کارٹ')}</span>
                 </button>
 
                 {/* 4. PARCHI TAB */}
                 <button
                   onClick={() => { triggerHaptic('medium'); setParchiModalOpen(true); }}
-                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 1px', position: 'relative' }}
                 >
-                  <svg style={{ width: 20, height: 20, color: '#0f172a' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                  <svg style={{ width: 19, height: 19, color: '#0f172a' }} fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
                   </svg>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.01em' }}>Parchi</span>
+                  <span style={{ fontSize: '9.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.01em' }}>Parchi</span>
                 </button>
 
                 {/* 5. ACCOUNT / ME TAB */}
                 <button
                   onClick={() => { triggerHaptic('light'); setActiveTab('account'); }}
-                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', position: 'relative' }}
+                  style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 1px', position: 'relative' }}
                 >
-                  {activeTab === 'account' && <span style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 22, height: 3, borderRadius: '0 0 3px 3px', background: '#059669' }} />}
-                  <svg style={{ width: 20, height: 20, color: activeTab === 'account' ? '#059669' : '#0f172a' }} fill={activeTab === 'account' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                  {activeTab === 'account' && <span style={{ position: 'absolute', top: -2, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2.5, borderRadius: '0 0 3px 3px', background: '#059669' }} />}
+                  <svg style={{ width: 19, height: 19, color: activeTab === 'account' ? '#059669' : '#0f172a' }} fill={activeTab === 'account' ? '#059669' : 'none'} stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   </svg>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: activeTab === 'account' ? '#059669' : '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Me', 'Mein', 'میں')}</span>
+                  <span style={{ fontSize: '9.5px', fontWeight: 800, color: activeTab === 'account' ? '#059669' : '#0f172a', letterSpacing: '0.01em' }}>{tr(language, 'Me', 'Mein', 'میں')}</span>
                 </button>
               </nav>
 
@@ -9131,9 +9593,9 @@ export default function ZSMart() {
       facewash:     { image: '', gradient: 'linear-gradient(135deg,#14b8a6,#0284c7)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>) },
     };
     // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
-    const CategoryHome = React.memo(function CategoryHome({ products, onSelectCategory, langData, language }) {
+    const CategoryHome = React.memo(function CategoryHome({ products, onSelectCategory, langData, language, categoriesVersion }) {
       const isUrdu = language === 'ur';
-      const categoriesList = useMemo(() => getGlobalCategories(products), [products]);
+      const categoriesList = useMemo(() => getGlobalCategories(products), [products, categoriesVersion]);
       const isNativeApp = checkIsNativeApp();
 
       // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
@@ -9328,6 +9790,7 @@ export default function ZSMart() {
     const ProductCard = React.memo(function ProductCard({ product, onAddToCart, langData, language, onSelectProduct, isWishlisted, onToggleWishlist }) {
       const isUrdu = language === 'ur';
       const pricing = useMemo(() => getProductPricing(product), [product]);
+      const isWeightItem = useMemo(() => isWeightSelectableProduct(product), [product]);
       const hasFile = (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id]) || product.hasImage || !!product.imageUrl;
       const imageSrc = product.imageUrl 
         ? `${product.imageUrl}?v=${product.imageVersion || Date.now()}` 
@@ -9427,7 +9890,22 @@ export default function ZSMart() {
                   : tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں')}
               </p>
             )}
-            {/* Click to Buy button — opens product detail page */}
+
+            {/* Weight options indicator */}
+            {isWeightItem && (
+              <div className="mt-1 mb-0.5">
+                <span className="inline-flex items-center gap-1 text-[9.5px] sm:text-[10.5px] font-black text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-md">
+                  <span>⚖️</span>
+                  <span>
+                    {product.name && (product.name.toUpperCase().includes('ATTA') || product.name.toUpperCase().includes('MAIDA'))
+                      ? '1 KG, 5 KG, 10 KG, 20 KG'
+                      : '1 Pao, Adha Kilo, 1 KG'}
+                  </span>
+                </span>
+              </div>
+            )}
+
+            {/* Click to Buy / Select Weight button */}
             <button
               disabled={!product.price || Number(product.price) <= 0}
               onClick={(e) => { 
@@ -9436,32 +9914,46 @@ export default function ZSMart() {
               }}
               className="product-add-btn mt-2.5 sm:mt-3 w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2"
               style={{
-                background: (!product.price || Number(product.price) <= 0) ? '#9ca3af' : '#111111',
-                border: '1px solid ' + ((!product.price || Number(product.price) <= 0) ? '#9ca3af' : '#111111'),
+                background: (!product.price || Number(product.price) <= 0) 
+                  ? '#9ca3af' 
+                  : isWeightItem 
+                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' 
+                  : '#111111',
+                border: '1px solid ' + ((!product.price || Number(product.price) <= 0) 
+                  ? '#9ca3af' 
+                  : isWeightItem 
+                  ? '#059669' 
+                  : '#111111'),
                 color: '#ffffff',
-                boxShadow: (!product.price || Number(product.price) <= 0) ? 'none' : '0 6px 14px rgba(0,0,0,0.16)',
+                boxShadow: (!product.price || Number(product.price) <= 0) 
+                  ? 'none' 
+                  : isWeightItem 
+                  ? '0 6px 14px rgba(5,150,105,0.25)' 
+                  : '0 6px 14px rgba(0,0,0,0.16)',
                 cursor: (!product.price || Number(product.price) <= 0) ? 'not-allowed' : 'pointer',
                 opacity: (!product.price || Number(product.price) <= 0) ? 0.6 : 1,
                 transform: 'translateY(0)'
               }}
               onMouseEnter={e => { 
-                if (product.price && Number(product.price) > 0) {
+                if (product.price && Number(product.price) > 0 && !isWeightItem) {
                   e.currentTarget.style.background='#1f2937'; 
                   e.currentTarget.style.borderColor='#1f2937'; 
                   e.currentTarget.style.transform='translateY(-1px)'; 
                 }
               }}
               onMouseLeave={e => { 
-                if (product.price && Number(product.price) > 0) {
+                if (product.price && Number(product.price) > 0 && !isWeightItem) {
                   e.currentTarget.style.background='#111111'; 
                   e.currentTarget.style.borderColor='#111111'; 
                   e.currentTarget.style.transform='translateY(0)'; 
                 }
               }}
             >
-              <span>{(!product.price || Number(product.price) <= 0) ? '⏳' : '🛒'}</span>
+              <span>{(!product.price || Number(product.price) <= 0) ? '⏳' : isWeightItem ? '⚖️' : '🛒'}</span>
               <span>{(!product.price || Number(product.price) <= 0)
                 ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں')
+                : isWeightItem
+                ? tr(language, 'Select Weight & Buy', 'Wazan Chuniye', 'وزن منتخب کریں')
                 : tr(language, 'Click to Buy', 'Click to Buy', 'خریدیں')}</span>
             </button>
           </div>
@@ -9613,9 +10105,20 @@ export default function ZSMart() {
                             {getProductDisplayName(product, language)}
                           </p>
                           {variant && (
-                            <div style={{ marginTop: 1, marginBottom: 3 }}>
-                              <span style={{ fontSize: 10.5, fontWeight: 800, color: '#92400e', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 6, padding: '2px 7px', display: 'inline-block' }}>
-                                🎨 Shade: {variant}
+                            <div style={{ marginTop: 2, marginBottom: 3 }}>
+                              <span style={{
+                                fontSize: 11,
+                                fontWeight: 800,
+                                color: variant.startsWith('⚖️') ? '#065f46' : '#92400e',
+                                background: variant.startsWith('⚖️') ? '#ecfdf5' : '#fef3c7',
+                                border: variant.startsWith('⚖️') ? '1px solid #a7f3d0' : '1px solid #fde68a',
+                                borderRadius: 6,
+                                padding: '2px 8px',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4
+                              }}>
+                                {variant.startsWith('⚖️') ? variant : `🎨 Shade: ${variant}`}
                               </span>
                             </div>
                           )}
@@ -10235,6 +10738,24 @@ export default function ZSMart() {
                         <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
                           Qty {item.qty} × Rs {Number(item.price || 0).toLocaleString()}
                         </div>
+                        {item.variant && (
+                          <div style={{ marginTop: 3 }}>
+                            <span style={{
+                              fontSize: 10,
+                              fontWeight: 800,
+                              color: (String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan')) ? '#047857' : '#92400e',
+                              background: (String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan')) ? '#ecfdf5' : '#fef3c7',
+                              border: `1px solid ${(String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan')) ? '#a7f3d0' : '#fde68a'}`,
+                              padding: '1.5px 6px',
+                              borderRadius: 4,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 3
+                            }}>
+                              {(String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan')) ? item.variant : `🎨 Shade: ${item.variant}`}
+                            </span>
+                          </div>
+                        )}
                         {item.extraPercent > 0 && (
                           <div style={{ fontSize: 10, color: '#16a34a', fontWeight: 800, marginTop: 2 }}>
                             🎁 -{item.extraPercent}% Bulk OFF
@@ -10613,9 +11134,9 @@ export default function ZSMart() {
         }, 0);
         const itemLines = cart.map(({ product, qty, variant }) => {
           const bulk = calculateBulkPricing(product.price, qty);
-          const shadeText = variant ? `\n   🎨 Shade / Colour: ${variant}` : '';
+          const variantText = variant ? `\n   ${variant.startsWith('⚖️') ? variant : `🎨 Shade / Colour: ${variant}`}` : '';
           const bulkText = bulk.extraPercent > 0 ? `\n   🎁 Extra Bulk Discount (${bulk.extraPercent}% OFF): -Rs ${bulk.extraSavings.toLocaleString()} (Effective: Rs ${Math.round(bulk.finalTotal / qty)}/pc)` : '';
-          return `• ${product.name}${shadeText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
+          return `• ${product.name}${variantText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
         }).join('\n\n');
         const deliveryText = deliveryMethod === 'pickup'
           ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour'
@@ -10688,9 +11209,11 @@ export default function ZSMart() {
         };
         // Dispatch order to server & cloud relay BEFORE opening WhatsApp
         dispatchOrderToBackend(orderRecord);
-        try {
-          launchWhatsApp(getStoreSettings().whatsapp, msg);
-        } catch (err) {}
+        setTimeout(() => {
+          try {
+            launchWhatsApp(getStoreSettings().whatsapp, msg);
+          } catch (err) {}
+        }, 100);
         if (typeof saveOrderHistory === 'function') {
           saveOrderHistory(orderRecord);
         }
@@ -10764,8 +11287,18 @@ export default function ZSMart() {
                           <span style={{ fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{toTitleCase(item.name)}</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                             {item.variant && (
-                              <span style={{ fontSize: 10, fontWeight: 800, color: '#92400e', background: '#fef3c7', padding: '1px 5px', borderRadius: 4, display: 'inline-block', marginTop: 1 }}>
-                                Shade: {item.variant}
+                              <span style={{
+                                fontSize: 10,
+                                fontWeight: 800,
+                                color: (String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan')) ? '#047857' : '#92400e',
+                                background: (String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan')) ? '#ecfdf5' : '#fef3c7',
+                                border: `1px solid ${(String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan')) ? '#a7f3d0' : '#fde68a'}`,
+                                padding: '1px 5px',
+                                borderRadius: 4,
+                                display: 'inline-block',
+                                marginTop: 1
+                              }}>
+                                {(String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan')) ? item.variant : `Shade: ${item.variant}`}
                               </span>
                             )}
                             {item.extraPercent > 0 && (
@@ -10878,8 +11411,17 @@ export default function ZSMart() {
                                 <p style={{ fontSize: 12, color: '#1a1a2e', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{toTitleCase(product.name)}</p>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                                   {variant && (
-                                    <span style={{ fontSize: 9.5, fontWeight: 800, color: '#92400e', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 4, padding: '0.5px 4px', display: 'inline-block' }}>
-                                      Shade: {variant}
+                                    <span style={{
+                                      fontSize: 9.5,
+                                      fontWeight: 800,
+                                      color: (String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan')) ? '#047857' : '#92400e',
+                                      background: (String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan')) ? '#ecfdf5' : '#fef3c7',
+                                      border: `1px solid ${(String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan')) ? '#a7f3d0' : '#fde68a'}`,
+                                      borderRadius: 4,
+                                      padding: '0.5px 5px',
+                                      display: 'inline-block'
+                                    }}>
+                                      {(String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan')) ? variant : `Shade: ${variant}`}
                                     </span>
                                   )}
                                   {bulk.extraPercent > 0 && (

@@ -3585,15 +3585,19 @@ function PrivacyPolicyModal({ isOpen, onClose, language }) {
   const isUrdu = language === 'ur';
 
   const openFullPolicyPage = () => {
+    // Use raw GitHub URL — works on Android APK, web, and all devices permanently
+    const POLICY_URL = 'https://raw.githubusercontent.com/qureshi-code999/Item-web/main/privacy-policy.html';
     try {
       if (checkIsNativeApp()) {
-        window.open('https://qureshi-code999.github.io/Item-web/privacy-policy.html', '_blank');
+        window.open(POLICY_URL, '_blank');
         return;
       }
+      // On web: try local file first, fallback to GitHub raw
       const base = window.location.href.replace(/\/[^\/]*$/, '/');
-      window.open(base + 'privacy-policy.html', '_blank');
+      const localUrl = base + 'privacy-policy.html';
+      window.open(localUrl, '_blank');
     } catch(e) {
-      window.open('https://qureshi-code999.github.io/Item-web/privacy-policy.html', '_blank');
+      window.open(POLICY_URL, '_blank');
     }
   };
 

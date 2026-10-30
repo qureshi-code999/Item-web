@@ -1424,11 +1424,9 @@ function calculateBulkPricing(sellingPrice, qty) {
 // --- Loose Grocery & Weight Selection Helper Functions ---
 function isWeightSelectableProduct(product) {
   if (!product) return false;
+  // SIRF attacheenidaalchawal category — koi keyword check nahi
   const catId = (product.categoryId || '').toLowerCase();
-  if (catId === 'attacheenidaalchawal') return true;
-  const nameUpper = (product.name || '').toUpperCase();
-  const keywords = ['ATTA', 'CHEENI', 'CHAWAL', 'RICE', 'DAAL', 'DAL', 'CHAANA', 'CHANA', 'MASAR', 'MASOOR', 'MAIDA', 'SUJI', 'BESAN', 'SABUT DANA'];
-  return keywords.some(k => nameUpper.includes(k));
+  return catId === 'attacheenidaalchawal';
 }
 function getWeightOptionsForProduct(product) {
   if (!product || !product.price) return null;
@@ -2032,7 +2030,7 @@ var DEFAULT_CATEGORIES = [{
   priority: 11
 }, {
   id: "babycare",
-  name: "Baby Care & Powders",
+  name: "Baby Care & Powders & Pampers",
   priority: 7
 }, {
   id: "mosquito",
@@ -2112,6 +2110,312 @@ function getGlobalCategories(productsList) {
 var CATEGORIES = DEFAULT_CATEGORIES;
 var SWATCH_GRADIENTS = ["from-amber-400 to-orange-500", "from-violet-500 to-purple-600", "from-emerald-400 to-teal-600", "from-rose-400 to-pink-600", "from-sky-400 to-blue-600", "from-fuchsia-400 to-purple-600", "from-teal-400 to-cyan-600", "from-indigo-400 to-violet-600"];
 var PRODUCTS = [{
+  id: 1514,
+  name: "NATIONAL MIX ACHAR BOX 370GM RS,330",
+  price: 294,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1513,
+  name: "BAKE PARLOR SAWAIYA (VERMICELLI) 100GM  RS,60",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1512,
+  name: "YOUNG'S CHICKEN SPREAD 1 LITRE  RS,1300",
+  price: 1249,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1511,
+  name: "YOUNG'S CHICKEN SPREAD 500ML RS,720",
+  price: 699,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1510,
+  name: "YOUNG'S CHICKEN SPREAD 200ML RS,320",
+  price: 289,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1509,
+  name: "YOUNG'S MAYONNAISE POUCH 1LITRE RS,730",
+  price: 669,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1508,
+  name: "YOUNG'S MAYONNAISE POUCH 500ML RS,400",
+  price: 359,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1507,
+  name: "YOUNG'S MAYONNAISE POUCH 200ML RS,180",
+  price: 164,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1506,
+  name: "NATIONAL CHILLI GARLIC KETCHUP 800GM RS,450",
+  price: 389,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1505,
+  name: "NATIONAL TOMATO KETCHUP 800GM RS,450",
+  price: 389,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1504,
+  name: "NATIONAL CHILLI GARLIC KETCHUP 400GM RS,230",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1503,
+  name: "NATIONAL TOMATO KETCHUP 400GM RS,230",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1502,
+  name: "NATIONAL CHILLI GARLIC KETCHUP 200GM RS,150",
+  price: 119,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1501,
+  name: "NATIONAL TOMATO KETCHUP 200GM RS,150",
+  price: 119,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1500,
+  name: "BAISAN GOOD QUALITY RS,90",
+  price: 84,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1499,
+  name: "KNOOR MAGGI (SPICY BEEF) RS,175",
+  price: 165,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1498,
+  name: "KNOOR MAGGI HOT SPICY (BLAZZIN) RS,175",
+  price: 165,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1497,
+  name: "SHOOP MAGGI (CHICKEN) FAMILY PACK RS,270",
+  price: 249,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1496,
+  name: "SHOOP MAGGI (CHATT PATTA) FAMILY PACK RS,270",
+  price: 249,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1495,
+  name: "SHOOP MAGGI (CHICKEN) RS,45",
+  price: 42,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1494,
+  name: "SHOOP MAGGI (CHATT PATTA) RS,45",
+  price: 42,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1493,
+  name: "KNOOR MAGGI (CHICKEN) FAMILY PACK RS,200",
+  price: 181,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1492,
+  name: "KNOOR MAGGI (CHATT PATTA) FAMILY PACK RS,200",
+  price: 181,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1491,
+  name: "KNOOR MAGGI (CHICKEN) RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1490,
+  name: "KNOOR MAGGI (CHATT PATTA) RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1489,
+  name: "KNOOR MAGGI (CHICKEN) RS,35",
+  price: 33,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1488,
+  name: "KNOOR MAGGI (CHATT PATTA) RS,35",
+  price: 33,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1487,
+  name: "OLPER MILK 1000ML RS,380",
+  price: 369,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1486,
+  name: "NESTLE MILK PACK 1000ML RS,380",
+  price: 369,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1485,
+  name: "CUP SHUP MILK 250ML 27 PIECE CARTON RS,1500",
+  price: 1479,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1484,
+  name: "TARANG MILK 220ML 27PIECE CARTON RS,1550",
+  price: 1479,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1483,
+  name: "OLPER MILK 250ML 27 PIECE CARTON RS,2550",
+  price: 2499,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1482,
+  name: "NESTLE MILK PACK 250ML 27 PIECE CARTON RS,2550",
+  price: 2499,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1481,
+  name: "CUP SHUP MILK 250ML RS,60",
+  price: 59,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1480,
+  name: "TARANG MILK 250ML RS,60",
+  price: 58,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1479,
+  name: "OLPER MILK 250ML RS,100",
+  price: 98,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1478,
+  name: "NESTLE MILK PACK 250ML RS,100",
+  price: 98,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1477,
+  name: "TAPAL FAMILY MIXTURE TEA BOX 900GM  RS,1850",
+  price: 1819,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1476,
+  name: "TAPAL FAMILY MIXTURE TEA BOX 430GM  RS,900",
+  price: 889,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1475,
+  name: "BONA PAPA PAMPER (XXL) PACKET RS,1400",
+  price: 1389,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1474,
+  name: "BONA PAPA PAMPER (XXL) 1PC RS,35",
+  price: 30,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1473,
+  name: "BONA PAPA PAMPER (XL) PACKET RS,1300",
+  price: 1289,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1472,
+  name: "BONA PAPA PAMPER (XL) 1PC RS,35",
+  price: 28,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1471,
+  name: "BONA PAPA PAMPER LARGE PACKET RS,1200",
+  price: 1189,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1470,
+  name: "BONA PAPA PAMPER LARGE 1PC RS,30",
+  price: 26,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1469,
+  name: "BONA PAPA PAMPER MEDIUM PACKET  RS,1150",
+  price: 1099,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1468,
+  name: "BONA PAPA PAMPER MEDIUM 1PC RS,27",
+  price: 23,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1467,
+  name: "BONA PAPA PAMPER SMALL PACKET RS,950",
+  price: 939,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1466,
+  name: "BONA PAPA PAMPER SMALL 1PC RS,23",
+  price: 19,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1465,
+  name: "BONA PAPA PAMPER (NEW BORN) PACKET RS,950",
+  price: 910,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1464,
+  name: "BONA PAPA PAMPER (NEW BORN) 1PC RS,20",
+  price: 19,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
   id: 1463,
   name: "LAAL MASOR KI DAAL (1PAO) RS,90",
   price: 69,
@@ -2246,13 +2550,13 @@ var PRODUCTS = [{
 }, {
   id: 1441,
   name: "TAPAL DANE DAR TEA PACKET 900GM RS,1850",
-  price: 1789,
+  price: 1820,
   categoryId: "milkliquidpowder",
   categoryName: "Milk & Tea Essentials"
 }, {
   id: 1440,
   name: "TAPAL DANE DAR TEA PACKET 350GM RS,750",
-  price: 750,
+  price: 734,
   categoryId: "milkliquidpowder",
   categoryName: "Milk & Tea Essentials"
 }, {
@@ -4877,7 +5181,7 @@ var PRODUCTS = [{
 }, {
   id: 387,
   name: "ERASER ORO",
-  price: 10,
+  price: 8,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -5539,67 +5843,67 @@ var PRODUCTS = [{
   name: "FEEDER (LARGE NIPPLE) LARGE",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 503,
   name: "FEEDER (LARGE NIPPLE) MEDIUM",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 504,
   name: "FEEDER GLASS LARGE",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 505,
   name: "FEEDER GLASS MEDIUM",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 506,
   name: "FEEDER GLASS SMALL",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 507,
   name: "FEEDER MINI TREE (LARGE)",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 508,
   name: "FEEDER MINI TREE (MEDIUM)",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 509,
   name: "FEEDER MINI TREE (SMALL)",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 510,
   name: "FEEDER PP (IMP) HANDLE LARGE",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 511,
   name: "FEEDER PP (IMP) HANDLE MEDIUM",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 512,
   name: "FEEDER PURE LOVE COLOR (LARGE)",
   price: 280,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "F"
@@ -5756,13 +6060,13 @@ var PRODUCTS = [{
 }, {
   id: 539,
   name: "INK BOTTLE DOLLAR (SMALL) BLACK",
-  price: 60,
+  price: 44,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 540,
   name: "INK BOTTLE DOLLAR (SMALL) BLUE",
-  price: 50,
+  price: 44,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5786,7 +6090,7 @@ var PRODUCTS = [{
 }, {
   id: 544,
   name: "INK REMOVER WHITENER",
-  price: 70,
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5797,31 +6101,31 @@ var PRODUCTS = [{
   name: "J BABY BATH 200ML TOP TO TOE",
   price: 549,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 548,
   name: "J BABY LINER",
   price: 50,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 549,
   name: "J BABY LOTION 100ml (IMP)",
   price: 490,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 550,
   name: "J BABY LOTION 200ml (IMP)",
   price: 690,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 551,
   name: "J BABY OIL 125ml (IMP)",
   price: 650,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "J"
@@ -5830,13 +6134,13 @@ var PRODUCTS = [{
   name: "J BABY OIL 200ml (IMP)",
   price: 840,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 553,
   name: "J BABY OIL 50ml (IMP)",
   price: 320,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "J"
@@ -5845,19 +6149,19 @@ var PRODUCTS = [{
   name: "J BABY PERFUME COLOGNE",
   price: 690,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 555,
   name: "J BABY PETROLEUM GEL (PINK) SMALL",
   price: 490,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 556,
   name: "J BABY PETROLEUM GEL (BLUE) SMALL",
   price: 490,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "J"
@@ -5866,19 +6170,19 @@ var PRODUCTS = [{
   name: "J BABY POWDER 100g (MIX)",
   price: 590,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 558,
   name: "J BABY POWDER 200g (MIX)",
   price: 590,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 559,
   name: "J BABY SHAMPOO 100ml (COMPANY)",
   price: 320,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "J"
@@ -5887,7 +6191,7 @@ var PRODUCTS = [{
   name: "J BABY SHAMPOO 200ml (COMPANY)",
   price: 590,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
   initial: "J"
@@ -5896,25 +6200,25 @@ var PRODUCTS = [{
   name: "J BABY SHAMPOO 300ml (COMPANY)",
   price: 750,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 562,
   name: "J BABY SHAMPOO 750ml (COMPANY) (PUMP)",
   price: 1780,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 563,
   name: "J BABY SOAP 100g GREEN",
   price: 240,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 564,
   name: "J BABY SOAP 100g PINK",
   price: 240,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "J"
@@ -5923,7 +6227,7 @@ var PRODUCTS = [{
   name: "J BABY SOAP 100g WHITE",
   price: 240,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "J"
@@ -5932,13 +6236,13 @@ var PRODUCTS = [{
   name: "J BABY TOP-TO-TOE 100ML",
   price: 350,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 567,
   name: "J BABY WIPES (LARGE 84 PIECES) GOOD QUALITY",
   price: 240,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 569,
   name: "KALA KOLA HAIR TONIC (LARGE) RS,500",
@@ -6151,7 +6455,7 @@ var PRODUCTS = [{
   name: "LIP OIL",
   price: 40,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "L"
@@ -6259,25 +6563,25 @@ var PRODUCTS = [{
   name: "LOTION MOTHER CARE 115ML RS,450",
   price: 450,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 624,
   name: "LOTION MOTHER CARE 60ML RS,150",
   price: 150,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 625,
   name: "LOTION NEXTON 125ML RP,499",
   price: 499,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 626,
   name: "LOTION NEXTON 65ML RP,299",
   price: 299,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 627,
   name: "LOTION NIVEA 100ML SMALL (MIX)",
@@ -6554,7 +6858,7 @@ var PRODUCTS = [{
 }, {
   id: 667,
   name: "MAGIC DEPOXI BOX (SMALL)",
-  price: 71,
+  price: 64,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -6775,13 +7079,13 @@ var PRODUCTS = [{
   name: "MOTHER CARE OIL 125ML RP,480",
   price: 480,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 701,
   name: "MOTHER CARE OIL 65ML",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 702,
   name: "MOUTH WASH COLGATE 250ML (IMP) MIX",
@@ -6886,109 +7190,109 @@ var PRODUCTS = [{
   name: "NEXTON BABY COLOGNE BLUE",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 719,
   name: "NEXTON BABY KIT MEDIUM",
   price: 1800,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 720,
   name: "NEXTON BABY KIT SMALL",
   price: 999,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 721,
   name: "NEXTON BABY LOTION 125ML RP,525",
   price: 525,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 722,
   name: "NEXTON BABY LOTION 250ML",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 723,
   name: "NEXTON BABY LOTION 65ML RP,315",
   price: 299,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 724,
   name: "NEXTON BABY POWDER 100g RP,275 (MIX)",
   price: 249,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 725,
   name: "NEXTON BABY POWDER 200g RP,430 (MIX)",
   price: 399,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 726,
   name: "NEXTON BABY SHAMPOO 125ML RP,399",
   price: 399,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 727,
   name: "NEXTON BABY SHAMPOO 250ML RP,699",
   price: 699,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 728,
   name: "NEXTON BABY SHAMPOO 500ML RP,999",
   price: 999,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 729,
   name: "NEXTON BABY SHAMPOO 65ML RP,260",
   price: 260,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 730,
   name: "NEXTON BABY SHAMPOO PUMP",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 731,
   name: "NEXTON BABY SOAP RP,225",
   price: 225,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 732,
   name: "NEXTON OIL 125ML RP,470",
   price: 470,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 733,
   name: "NEXTON WIPES",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 734,
   name: "NIPLE PP SMALL",
   price: 29,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 735,
   name: "NIPPLE PP LARGE",
   price: 49,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 736,
   name: "NITRO HAIR WAX (MIX)",
@@ -7451,7 +7755,7 @@ var PRODUCTS = [{
 }, {
   id: 818,
   name: "PENCIL ORO",
-  price: 19,
+  price: 25,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -7729,19 +8033,19 @@ var PRODUCTS = [{
   name: "POWDER BERG (LARGE) RS,380",
   price: 349,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 855,
   name: "POWDER BERG (SMALL) RS,220",
   price: 180,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 856,
   name: "POWDER BLACK BEAUTY (LARGE) RS,450",
   price: 410,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "P"
@@ -7750,7 +8054,7 @@ var PRODUCTS = [{
   name: "POWDER BLACK BEAUTY (SMALL) RP,220",
   price: 195,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "P"
@@ -7759,13 +8063,13 @@ var PRODUCTS = [{
   name: "POWDER BLACK CAT (LARGE) RS,480",
   price: 430,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 859,
   name: "POWDER BLACK CAT (SMALL) RS,250",
   price: 210,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "P"
@@ -7774,7 +8078,7 @@ var PRODUCTS = [{
   name: "POWDER COOL COOL RS,210",
   price: 170,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 862,
   name: "POWDER DENTONIC BOX 100GM (MEDIUM) RS,75",
@@ -7792,7 +8096,7 @@ var PRODUCTS = [{
   name: "POWDER EDEN ROCK (LARGE) RS,310",
   price: 260,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "P"
@@ -7801,7 +8105,7 @@ var PRODUCTS = [{
   name: "POWDER EDEN ROCK (SMALL) RS,210",
   price: 180,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "P"
@@ -7810,7 +8114,7 @@ var PRODUCTS = [{
   name: "POWDER ENCHANTEUR 125g (PURPLE)",
   price: 479,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "P"
@@ -7819,7 +8123,7 @@ var PRODUCTS = [{
   name: "POWDER ENCHANTEUR 125g (PINK)",
   price: 479,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "P"
@@ -7828,7 +8132,7 @@ var PRODUCTS = [{
   name: "POWDER ENCHANTEUR 125g (ROSE)",
   price: 479,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "P"
@@ -7837,7 +8141,7 @@ var PRODUCTS = [{
   name: "POWDER ENCHANTEUR 125g (YELLOW)",
   price: 479,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "P"
@@ -7846,37 +8150,37 @@ var PRODUCTS = [{
   name: "POWDER ENGLISH PRICKLY HEAT LARGE",
   price: 390,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 871,
   name: "POWDER ENGLISH PRICKLY HEAT SMALL",
   price: 239,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 872,
   name: "POWDER MEDORA (LARGE) (JOY) RS,480",
   price: 440,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 873,
   name: "POWDER MEDORA (SMALL) (JOY) RS,230",
   price: 210,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 874,
   name: "POWDER MEDORA (SMALL) (MIX) RS,230",
   price: 210,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 875,
   name: "POWDER MOTHER CARE GO-RASH 150g SMALL RS,400",
   price: 360,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "P"
@@ -7885,7 +8189,7 @@ var PRODUCTS = [{
   name: "POWDER MOTHER CARE GO-RASH 250g LARGE RS,550",
   price: 499,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "P"
@@ -7894,13 +8198,13 @@ var PRODUCTS = [{
   name: "POWDER TIBET (LARGE) RS,580",
   price: 540,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 878,
   name: "POWDER TIBET (SMALL) RS,190",
   price: 179,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "P"
@@ -8881,19 +9185,19 @@ var PRODUCTS = [{
   name: "SHIELD CHOOSNI (3 MONTH)",
   price: 90,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1068,
   name: "SHIELD CHOOSNI (6 MONTH)",
   price: 90,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1075,
   name: "SHIELD NIPPLE (1 PEICE) RS,50",
   price: 39,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
   initial: "S"
@@ -9345,22 +9649,16 @@ var PRODUCTS = [{
   categoryName: "Sports & Toys & Birthday"
 }, {
   id: 1157,
-  name: "DOUBLE SIDED TAPE  (1 INCH) RS,80",
-  price: 49,
+  name: "DOUBLE SIDED TAPE  (1 INCH) RS,70",
+  price: 54,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
   initial: "T"
 }, {
-  id: 1160,
-  name: "TAPE KAGHAZ (0.5 INCH) HALF INCH 12 PIECES",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1161,
-  name: "TAPE KAGHAZ 1 INCH",
+  name: "TAPE KAGHAZ  1 INCH RS,70",
   price: 39,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
@@ -9369,13 +9667,13 @@ var PRODUCTS = [{
   initial: "T"
 }, {
   id: 1162,
-  name: "TAPE KAGHAZ 2 INCH",
-  price: 0,
+  name: "TAPE KAGHAZ  2 INCH RS,120",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 1163,
-  name: "TAPE OSAKA (BLACK)",
+  name: "TAPE OSAKA (BLACK) RS,60",
   price: 48,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
@@ -9384,7 +9682,7 @@ var PRODUCTS = [{
   initial: "T"
 }, {
   id: 1165,
-  name: "TAPE OSAKA (RED)",
+  name: "TAPE OSAKA (RED) RS,60",
   price: 48,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
@@ -9393,7 +9691,7 @@ var PRODUCTS = [{
   initial: "T"
 }, {
   id: 1167,
-  name: "TAPE OSAKA (WHITE)",
+  name: "TAPE OSAKA (WHITE) RS,60",
   price: 48,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
@@ -9402,29 +9700,23 @@ var PRODUCTS = [{
   initial: "T"
 }, {
   id: 1169,
-  name: "TAPE PACKING BROWN (2 INCH)",
-  price: 95,
+  name: "TAPE PACKING BROWN (2 INCH) RS,100",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "T"
 }, {
-  id: 1170,
-  name: "TAPE PACKING BROWN (2 INCH) 45 METER",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1173,
-  name: "TAPE TRANSPARENT (0.5 INCH) EX QUALITY",
-  price: 0,
+  name: "TAPE TRANSPARENT CLEAR (2 INCH) RS,100",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 1174,
-  name: "TAPE TRANSPARENT (1 INCH)",
-  price: 55,
+  name: "TAPE TRANSPARENT (1 INCH) RS,70",
+  price: 39,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -9432,8 +9724,8 @@ var PRODUCTS = [{
   initial: "T"
 }, {
   id: 1176,
-  name: "TAPE TRANSPARENT (2 INCH)",
-  price: 95,
+  name: "TAPE TRANSPARENT (2 INCH) RS,100",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -9999,46 +10291,46 @@ var PRODUCTS = [{
   name: "WIPES CHINA BABY",
   price: 99,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1260,
   name: "WIPES JEEP CAMERA",
   price: 169,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1261,
   name: "WIPES NEXTON",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1262,
   name: "WIPES PAMPER (NON ORIGINAL)",
   price: 249,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "W"
 }, {
   id: 1263,
-  name: "WIPES SOFT CREME (MIX)",
-  price: 129,
+  name: "SENSITIVE WIPES ORIGINAL RS,150",
+  price: 124,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1264,
   name: "WIPES SOFT-CREAM (BLUE)",
   price: 129,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1265,
   name: "WIPES SOFT-CREAM (WHITE)",
   price: 129,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1266,
   name: "ZERO MOSQUITO SACHET BOX RS,10",

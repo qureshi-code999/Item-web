@@ -1,4 +1,4 @@
-// =============================================================
+﻿// =============================================================
 //  ✅ MASTER SOURCE FILE — ZS Mart WEBSITE
 //  Filename : INDEX.JSX
 //  Purpose  : Ye ORIGINAL source file hai. Sirf isi file ko edit karo.
@@ -15,7 +15,7 @@ var DEFAULT_STORE_SETTINGS = {
   freeDeliveryThreshold: 1999,
   minOrderAmount: 0,
   deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
-  whatsapp: "923368945775",
+  whatsapp: "923391965200",
   announcement: ""
 };
 
@@ -83,7 +83,7 @@ function getTranslationValue(dictionary, key) {
     }
     // Universal Smart WhatsApp URL Builder
     function buildWhatsAppUrl(phoneNumber, message) {
-      const activePhone = phoneNumber || (getStoreSettings().whatsapp || '923368945775');
+      const activePhone = phoneNumber || (getStoreSettings().whatsapp || '923391965200');
       const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
       const encodedText = encodeURIComponent(message || '');
       // Official WhatsApp Meta universal deep-link (prioritizes regular WhatsApp across all platforms)
@@ -102,7 +102,7 @@ function getTranslationValue(dictionary, key) {
 
     // Smart WhatsApp App Launcher: Opens Regular WhatsApp First!
     function launchWhatsApp(phoneNumber, message) {
-      const activePhone = phoneNumber || (getStoreSettings().whatsapp || '923368945775');
+      const activePhone = phoneNumber || (getStoreSettings().whatsapp || '923391965200');
       const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
       const encodedText = encodeURIComponent(message || '');
       const isCapacitor = checkIsNativeApp();
@@ -371,7 +371,7 @@ function getTranslationValue(dictionary, key) {
 
       ctx.fillStyle = '#475569';
       ctx.font = '600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-      ctx.fillText('📞 0336-8945775', 36, 88);
+      ctx.fillText('📞 ' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), 36, 88);
 
       ctx.fillStyle = '#0f172a';
       ctx.beginPath();
@@ -706,7 +706,7 @@ function getTranslationValue(dictionary, key) {
               <div>
                 <h1 class="brand-title">ZS Mart</h1>
                 <div class="brand-sub">Wholesale & Retail Store • Karachi</div>
-                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 0336-8945775</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 ${(getStoreSettings().whatsapp || '923391965200').replace(/^92/,'0')}</div>
               </div>
               <div style="text-align: right;">
                 <span class="inv-badge">OFFICIAL INVOICE</span>
@@ -824,7 +824,7 @@ function getTranslationValue(dictionary, key) {
 
                 ctx.fillStyle = '#475569';
                 ctx.font = '600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-                ctx.fillText('📞 0336-8945775', 36, 88);
+                ctx.fillText('📞 ' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), 36, 88);
 
                 ctx.fillStyle = '#0f172a';
                 ctx.beginPath();
@@ -1710,6 +1710,7 @@ function getTranslationValue(dictionary, key) {
       "from-indigo-400 to-violet-600",
     ];
     var PRODUCTS = [
+      { id: 1515, name: "NATIONAL MIX ACHAR 320GM RS,320", price: 299, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
       { id: 1514, name: "NATIONAL MIX ACHAR BOX 370GM RS,330", price: 294, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
       { id: 1513, name: "BAKE PARLOR SAWAIYA (VERMICELLI) 100GM  RS,60", price: 49, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
       { id: 1512, name: "YOUNG'S CHICKEN SPREAD 1 LITRE  RS,1300", price: 1249, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
@@ -3395,10 +3396,10 @@ function AboutUsModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3">
           <a
-            href={buildWhatsAppUrl(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}
+            href={buildWhatsAppUrl(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923391965200', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'))}
             onClick={(e) => {
               e.preventDefault();
-              launchWhatsApp(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'));
+              launchWhatsApp(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923391965200', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'));
             }}
             className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none cursor-pointer"
           >
@@ -3534,7 +3535,7 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
                 <span className="w-5 h-5 rounded-full bg-blue-600 text-white font-black flex items-center justify-center text-[10px] shrink-0 mt-0.5">1</span>
                 <div>
                   <span className="font-bold text-gray-900">{tr(language, 'Send Photo/Video on WhatsApp:', 'Kharab Cheez ki Photo Bhejein:', 'واپسی یا تبدیلی کی تصویر بھیجیں:')}</span>
-                  <p className="text-[11px] text-gray-600 mt-0.5">{tr(language, 'Take a quick photo or video of the damaged item & WhatsApp to 03368945775.', 'Kharab ya leak cheez ki tasveer hamare WhatsApp (03368945775) par bhejein.', 'خراب یا لیک شدہ چیز کی تصویر ہمارے واپس ایپ (03368945775) پر بھیجیں')}</p>
+                  <p className="text-[11px] text-gray-600 mt-0.5">{tr(language, 'Take a quick photo or video of the damaged item & WhatsApp to ' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + '.', 'Kharab ya leak cheez ki tasveer hamare WhatsApp (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ') par bhejein.', 'خراب یا لیک شدہ چیز کی تصویر ہمارے واٹس ایپ (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ') پر بھیجیں')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-2.5 bg-white/80 p-2.5 rounded-xl border border-blue-100">
@@ -3558,10 +3559,10 @@ function ReturnPolicyModal({ isOpen, onClose, language }) {
         {/* Action Buttons */}
         <div className="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shrink-0">
           <a
-            href={buildWhatsAppUrl(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}
+            href={buildWhatsAppUrl(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923391965200', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'))}
             onClick={(e) => {
               e.preventDefault();
-              launchWhatsApp(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923368945775', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'));
+              launchWhatsApp(getStoreSettings().whatsapp || (window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber) || '923391965200', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'));
             }}
             className="flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none cursor-pointer"
           >
@@ -3715,7 +3716,7 @@ function PrivacyPolicyModal({ isOpen, onClose, language }) {
               <span>ZS Mart Wholesale & Retail • Karachi, Pakistan</span>
             </div>
             <p className="text-gray-600">
-              R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi. Helpline: 0336-8945775
+              R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi. Helpline: {(getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0')}
             </p>
           </div>
         </div>
@@ -6191,7 +6192,7 @@ export default function ZSMart() {
           deliveryFee: 99,
           freeDeliveryThreshold: 1999,
           deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
-          whatsapp: "923368945775",
+          whatsapp: "923391965200",
           announcement: ""
         };
       });
@@ -6202,7 +6203,7 @@ export default function ZSMart() {
           deliveryFee: Number(raw.delivery_fee ?? raw.deliveryFee ?? 99),
           freeDeliveryThreshold: Number(raw.free_delivery_threshold ?? raw.freeDeliveryThreshold ?? 1999),
           deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
-          whatsapp: String(raw.whatsapp || '923368945775'),
+          whatsapp: String(raw.whatsapp || '923391965200'),
           announcement: String(raw.announcement ?? '')
         };
         if (!isNaN(s.deliveryFee) && s.deliveryFee >= 0 && !isNaN(s.freeDeliveryThreshold) && s.freeDeliveryThreshold > 0) {
@@ -8270,7 +8271,7 @@ export default function ZSMart() {
                       <div>
                         <div style={{ fontSize: '13.5px', fontWeight: 900 }}>WhatsApp Helpline &amp; Orders</div>
                         <div style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.9)', marginTop: '2px' }}>
-                          {(getStoreSettings().whatsapp || '0336-8945775')} • {tr(language, 'Direct Chat with Store', 'Store se Direct Rabta', 'دکان سے براہ راست رابطہ')}
+                          {(getStoreSettings().whatsapp || '923391965200')} • {tr(language, 'Direct Chat with Store', 'Store se Direct Rabta', 'دکان سے براہ راست رابطہ')}
                         </div>
                       </div>
                     </div>
@@ -8281,7 +8282,7 @@ export default function ZSMart() {
 
                   {/* Phone Call */}
                   <a
-                    href="tel:03368945775"
+                    href={`tel:${(getStoreSettings().whatsapp || "923391965200").replace(/^92/, "0")}`}
                     style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '18px', padding: '14px 16px', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', cursor: 'pointer', textDecoration: 'none', boxShadow: '0 4px 14px rgba(0,0,0,0.2)' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -8291,7 +8292,7 @@ export default function ZSMart() {
                       <div>
                         <div style={{ fontSize: '13.5px', fontWeight: 900 }}>{tr(language, 'Call Official Helpline', 'Helpline par Call Karen', 'ہیلپ لائن پر کال کریں')}</div>
                         <div style={{ fontSize: '10.5px', color: '#38bdf8', fontWeight: 800, marginTop: '2px' }}>
-                          0336-8945775 (10:00 AM – 10:00 PM, 7 Days)
+                          {(getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0')} (10:00 AM – 10:00 PM, 7 Days)
                         </div>
                       </div>
                     </div>
@@ -8401,7 +8402,7 @@ export default function ZSMart() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#2563eb', fontWeight: 700 }}>
                       <span>📞</span>
-                      <span>Official Helpline: 0336-8945775</span>
+                      <span>Official Helpline: {(getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0')}</span>
                     </div>
                   </div>
                 </div>
@@ -9158,7 +9159,7 @@ export default function ZSMart() {
                         </button>
                         {/* Direct Call */}
                         <a
-                          href="tel:03368945775"
+                          href={`tel:${(getStoreSettings().whatsapp || "923391965200").replace(/^92/, "0")}`}
                           className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs text-decoration-none"
                         >
                           <div className="flex items-center gap-3">
@@ -9166,7 +9167,7 @@ export default function ZSMart() {
                               <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106a1.15 1.15 0 00-1.01.258l-1.589 1.589a13.385 13.385 0 01-6.697-6.697l1.589-1.589a1.15 1.15 0 00.258-1.01L7.544 3.102A1.125 1.125 0 006.453 2.25H5.08A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
                             </div>
                             <div>
-                              <p className="text-xs font-bold text-gray-900">{tr(language, 'Direct Phone Call (0336-8945775)', 'Direct Call Karein (0336-8945775)', '\u0628\u0631\u0627\u06c1\u0650 \u0631\u0627\u0633\u062a \u0641\u0648\u0646 \u06a9\u0627\u0644 (0336-8945775)')}</p>
+                              <p className="text-xs font-bold text-gray-900">{tr(language, 'Direct Phone Call (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ')', 'Direct Call Karein (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ')', 'براہِ راست فون کال (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ')')}</p>
                               <p className="text-[11px] text-gray-500">{tr(language, 'Tap to call us directly', 'Fori call kar ke maloomat ya order dein', '\u0641\u0648\u0631\u06cc \u06a9\u0627\u0644 \u06a9\u0631 \u06a9\u06d2 \u0645\u0639\u0644\u0648\u0645\u0627\u0622 \u06cc\u0627 \u0622\u0631\u0688\u0631 \u062f\u06cc\u06ba')}</p>
                             </div>
                           </div>

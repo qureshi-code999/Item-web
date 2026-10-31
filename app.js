@@ -25,7 +25,7 @@ var DEFAULT_STORE_SETTINGS = {
   freeDeliveryThreshold: 1999,
   minOrderAmount: 0,
   deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
-  whatsapp: "923368945775",
+  whatsapp: "923391965200",
   announcement: ""
 };
 var SUPABASE_URL = "https://tmssjdczywukramcpcxc.supabase.co";
@@ -91,7 +91,7 @@ function triggerHaptic(type = 'light') {
 }
 // Universal Smart WhatsApp URL Builder
 function buildWhatsAppUrl(phoneNumber, message) {
-  const activePhone = phoneNumber || getStoreSettings().whatsapp || '923368945775';
+  const activePhone = phoneNumber || getStoreSettings().whatsapp || '923391965200';
   const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
   const encodedText = encodeURIComponent(message || '');
   // Official WhatsApp Meta universal deep-link (prioritizes regular WhatsApp across all platforms)
@@ -106,7 +106,7 @@ function checkIsNativeApp() {
 
 // Smart WhatsApp App Launcher: Opens Regular WhatsApp First!
 function launchWhatsApp(phoneNumber, message) {
-  const activePhone = phoneNumber || getStoreSettings().whatsapp || '923368945775';
+  const activePhone = phoneNumber || getStoreSettings().whatsapp || '923391965200';
   const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
   const encodedText = encodeURIComponent(message || '');
   const isCapacitor = checkIsNativeApp();
@@ -363,7 +363,7 @@ function saveInvoiceAsImage(order, language) {
   ctx.fillText('WHOLESALE & RETAIL STORE • KARACHI', 36, 70);
   ctx.fillStyle = '#475569';
   ctx.font = '600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-  ctx.fillText('📞 0336-8945775', 36, 88);
+  ctx.fillText('📞 ' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), 36, 88);
   ctx.fillStyle = '#0f172a';
   ctx.beginPath();
   if (ctx.roundRect) ctx.roundRect(width - 165, 34, 130, 24, 6);else ctx.rect(width - 165, 34, 130, 24);
@@ -671,7 +671,7 @@ function generatePDFReceipt(order, language) {
               <div>
                 <h1 class="brand-title">ZS Mart</h1>
                 <div class="brand-sub">Wholesale & Retail Store • Karachi</div>
-                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 0336-8945775</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 ${(getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0')}</div>
               </div>
               <div style="text-align: right;">
                 <span class="inv-badge">OFFICIAL INVOICE</span>
@@ -789,7 +789,7 @@ function generatePDFReceipt(order, language) {
 
                 ctx.fillStyle = '#475569';
                 ctx.font = '600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-                ctx.fillText('📞 0336-8945775', 36, 88);
+                ctx.fillText('📞 ' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), 36, 88);
 
                 ctx.fillStyle = '#0f172a';
                 ctx.beginPath();
@@ -2110,6 +2110,12 @@ function getGlobalCategories(productsList) {
 var CATEGORIES = DEFAULT_CATEGORIES;
 var SWATCH_GRADIENTS = ["from-amber-400 to-orange-500", "from-violet-500 to-purple-600", "from-emerald-400 to-teal-600", "from-rose-400 to-pink-600", "from-sky-400 to-blue-600", "from-fuchsia-400 to-purple-600", "from-teal-400 to-cyan-600", "from-indigo-400 to-violet-600"];
 var PRODUCTS = [{
+  id: 1515,
+  name: "NATIONAL MIX ACHAR 320GM RS,320",
+  price: 299,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
   id: 1514,
   name: "NATIONAL MIX ACHAR BOX 370GM RS,330",
   price: 294,
@@ -11361,10 +11367,10 @@ function AboutUsModal({
   })))), /*#__PURE__*/React.createElement("div", {
     className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3"
   }, /*#__PURE__*/React.createElement("a", {
-    href: buildWhatsAppUrl(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔')),
+    href: buildWhatsAppUrl(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923391965200', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔')),
     onClick: e => {
       e.preventDefault();
-      launchWhatsApp(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'));
+      launchWhatsApp(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923391965200', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'));
     },
     className: "flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none cursor-pointer"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC"), /*#__PURE__*/React.createElement("span", null, tr(modalLang, 'Chat on WhatsApp', 'WhatsApp par Rabta Karein', 'واٹس ایپ پر رابطہ کریں'))), /*#__PURE__*/React.createElement("button", {
@@ -11541,7 +11547,7 @@ function ReturnPolicyModal({
     className: "font-bold text-gray-900"
   }, tr(language, 'Send Photo/Video on WhatsApp:', 'Kharab Cheez ki Photo Bhejein:', 'واپسی یا تبدیلی کی تصویر بھیجیں:')), /*#__PURE__*/React.createElement("p", {
     className: "text-[11px] text-gray-600 mt-0.5"
-  }, tr(language, 'Take a quick photo or video of the damaged item & WhatsApp to 03368945775.', 'Kharab ya leak cheez ki tasveer hamare WhatsApp (03368945775) par bhejein.', 'خراب یا لیک شدہ چیز کی تصویر ہمارے واپس ایپ (03368945775) پر بھیجیں')))), /*#__PURE__*/React.createElement("div", {
+  }, tr(language, 'Take a quick photo or video of the damaged item & WhatsApp to ' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + '.', 'Kharab ya leak cheez ki tasveer hamare WhatsApp (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ') par bhejein.', 'خراب یا لیک شدہ چیز کی تصویر ہمارے واٹس ایپ (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ') پر بھیجیں')))), /*#__PURE__*/React.createElement("div", {
     className: "flex items-start gap-2.5 bg-white/80 p-2.5 rounded-xl border border-blue-100"
   }, /*#__PURE__*/React.createElement("span", {
     className: "w-5 h-5 rounded-full bg-blue-600 text-white font-black flex items-center justify-center text-[10px] shrink-0 mt-0.5"
@@ -11560,10 +11566,10 @@ function ReturnPolicyModal({
   }, tr(language, 'Our rider will replace the item at your doorstep or send your money refund.', 'Rider nayi cheez de kar purani le jayega ya paise refund honge.', 'رائڈر نئی چیز دے کر پرانی لے جائے گا یا پیسے ری فنڈ ہوں گے'))))))), /*#__PURE__*/React.createElement("div", {
     className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shrink-0"
   }, /*#__PURE__*/React.createElement("a", {
-    href: buildWhatsAppUrl(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔')),
+    href: buildWhatsAppUrl(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923391965200', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔')),
     onClick: e => {
       e.preventDefault();
-      launchWhatsApp(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'));
+      launchWhatsApp(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923391965200', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'));
     },
     className: "flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none cursor-pointer"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'WhatsApp Claim', 'WhatsApp par Claim Karein', 'واٹس ایپ پر کلیم کریں'))), /*#__PURE__*/React.createElement("button", {
@@ -11655,7 +11661,7 @@ function PrivacyPolicyModal({
     className: "font-bold flex items-center gap-1.5"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, "ZS Mart Wholesale & Retail \u2022 Karachi, Pakistan")), /*#__PURE__*/React.createElement("p", {
     className: "text-gray-600"
-  }, "R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi. Helpline: 0336-8945775"))), /*#__PURE__*/React.createElement("div", {
+  }, "R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi. Helpline: ", (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0')))), /*#__PURE__*/React.createElement("div", {
     className: "p-3 sm:p-4 bg-gray-50 border-t border-gray-100 flex items-center gap-2.5 shrink-0"
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
@@ -14097,7 +14103,7 @@ function ZSMart() {
       deliveryFee: 99,
       freeDeliveryThreshold: 1999,
       deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
-      whatsapp: "923368945775",
+      whatsapp: "923391965200",
       announcement: ""
     };
   });
@@ -14107,7 +14113,7 @@ function ZSMart() {
       deliveryFee: Number(raw.delivery_fee ?? raw.deliveryFee ?? 99),
       freeDeliveryThreshold: Number(raw.free_delivery_threshold ?? raw.freeDeliveryThreshold ?? 1999),
       deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
-      whatsapp: String(raw.whatsapp || '923368945775'),
+      whatsapp: String(raw.whatsapp || '923391965200'),
       announcement: String(raw.announcement ?? '')
     };
     if (!isNaN(s.deliveryFee) && s.deliveryFee >= 0 && !isNaN(s.freeDeliveryThreshold) && s.freeDeliveryThreshold > 0) {
@@ -17079,7 +17085,7 @@ function ZSMart() {
       color: 'rgba(255,255,255,0.9)',
       marginTop: '2px'
     }
-  }, getStoreSettings().whatsapp || '0336-8945775', " \u2022 ", tr(language, 'Direct Chat with Store', 'Store se Direct Rabta', 'دکان سے براہ راست رابطہ')))), /*#__PURE__*/React.createElement("span", {
+  }, getStoreSettings().whatsapp || '923391965200', " \u2022 ", tr(language, 'Direct Chat with Store', 'Store se Direct Rabta', 'دکان سے براہ راست رابطہ')))), /*#__PURE__*/React.createElement("span", {
     style: {
       background: '#ffffff',
       color: '#128C7E',
@@ -17090,7 +17096,7 @@ function ZSMart() {
       whiteSpace: 'nowrap'
     }
   }, tr(language, 'Chat', 'Chat', 'چیٹ'))), /*#__PURE__*/React.createElement("a", {
-    href: "tel:03368945775",
+    href: `tel:${(getStoreSettings().whatsapp || "923391965200").replace(/^92/, "0")}`,
     style: {
       background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
       borderRadius: '18px',
@@ -17134,7 +17140,7 @@ function ZSMart() {
       fontWeight: 800,
       marginTop: '2px'
     }
-  }, "0336-8945775 (10:00 AM \u2013 10:00 PM, 7 Days)"))), /*#__PURE__*/React.createElement("span", {
+  }, (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), " (10:00 AM \u2013 10:00 PM, 7 Days)"))), /*#__PURE__*/React.createElement("span", {
     style: {
       background: '#38bdf8',
       color: '#0f172a',
@@ -17395,7 +17401,7 @@ function ZSMart() {
       color: '#2563eb',
       fontWeight: 700
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("span", null, "Official Helpline: 0336-8945775")))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("span", null, "Official Helpline: ", (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'))))), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       padding: '6px 0 16px'
@@ -18307,7 +18313,7 @@ function ZSMart() {
   }, tr(language, 'User data protection & safety', 'Aapka data 100% mehfooz hai', 'صارف کے ڈیٹا کا مکمل تحفظ')))), /*#__PURE__*/React.createElement("span", {
     className: "text-gray-400 text-xs"
   }, "\u203A")), /*#__PURE__*/React.createElement("a", {
-    href: "tel:03368945775",
+    href: `tel:${(getStoreSettings().whatsapp || "923391965200").replace(/^92/, "0")}`,
     className: "w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs text-decoration-none"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-3"
@@ -18325,7 +18331,7 @@ function ZSMart() {
     d: "M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106a1.15 1.15 0 00-1.01.258l-1.589 1.589a13.385 13.385 0 01-6.697-6.697l1.589-1.589a1.15 1.15 0 00.258-1.01L7.544 3.102A1.125 1.125 0 006.453 2.25H5.08A2.25 2.25 0 002.25 4.5v2.25z"
   }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
     className: "text-xs font-bold text-gray-900"
-  }, tr(language, 'Direct Phone Call (0336-8945775)', 'Direct Call Karein (0336-8945775)', '\u0628\u0631\u0627\u06c1\u0650 \u0631\u0627\u0633\u062a \u0641\u0648\u0646 \u06a9\u0627\u0644 (0336-8945775)')), /*#__PURE__*/React.createElement("p", {
+  }, tr(language, 'Direct Phone Call (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ')', 'Direct Call Karein (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ')', 'براہِ راست فون کال (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ')')), /*#__PURE__*/React.createElement("p", {
     className: "text-[11px] text-gray-500"
   }, tr(language, 'Tap to call us directly', 'Fori call kar ke maloomat ya order dein', '\u0641\u0648\u0631\u06cc \u06a9\u0627\u0644 \u06a9\u0631 \u06a9\u06d2 \u0645\u0639\u0644\u0648\u0645\u0627\u0622 \u06cc\u0627 \u0622\u0631\u0688\u0631 \u062f\u06cc\u06ba')))), /*#__PURE__*/React.createElement("span", {
     className: "text-gray-400 text-xs"

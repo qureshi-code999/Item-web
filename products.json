@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-10-30T10:49:23.878Z",
-  "total": 1235,
+  "updatedAt": "2026-10-30T13:19:15.190Z",
+  "total": 1236,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -1004,6 +1004,7 @@
     "1260": "webp",
     "1261": "webp",
     "1262": "webp",
+    "1263": "webp",
     "1264": "webp",
     "1265": "webp",
     "1266": "webp",
@@ -1203,7 +1204,58 @@
     "1460": "webp",
     "1461": "webp",
     "1462": "webp",
-    "1463": "webp"
+    "1463": "webp",
+    "1464": "webp",
+    "1465": "webp",
+    "1466": "webp",
+    "1467": "webp",
+    "1468": "webp",
+    "1469": "webp",
+    "1470": "webp",
+    "1471": "webp",
+    "1472": "webp",
+    "1473": "webp",
+    "1474": "webp",
+    "1475": "webp",
+    "1476": "webp",
+    "1477": "webp",
+    "1478": "webp",
+    "1479": "webp",
+    "1480": "webp",
+    "1481": "webp",
+    "1482": "webp",
+    "1483": "webp",
+    "1484": "webp",
+    "1485": "webp",
+    "1486": "webp",
+    "1487": "webp",
+    "1488": "webp",
+    "1489": "webp",
+    "1490": "webp",
+    "1491": "webp",
+    "1492": "webp",
+    "1493": "webp",
+    "1494": "webp",
+    "1495": "webp",
+    "1496": "webp",
+    "1497": "webp",
+    "1498": "webp",
+    "1499": "webp",
+    "1500": "webp",
+    "1501": "webp",
+    "1502": "webp",
+    "1503": "webp",
+    "1504": "webp",
+    "1505": "webp",
+    "1506": "webp",
+    "1507": "webp",
+    "1508": "webp",
+    "1509": "webp",
+    "1510": "webp",
+    "1511": "webp",
+    "1512": "webp",
+    "1513": "webp",
+    "1514": "webp"
   },
   "itemImageVersions": {
     "5": 1788525502717,
@@ -2098,7 +2150,7 @@
     "1165": 1788525469446,
     "1167": 1788525469615,
     "1169": 1788525469747,
-    "1173": 1788525469807,
+    "1173": 1793296264425,
     "1174": 1788525469848,
     "1176": 1788525469864,
     "1178": 1788525469925,
@@ -2170,6 +2222,7 @@
     "1260": 1788525477097,
     "1261": 1788525477221,
     "1262": 1788525477319,
+    "1263": 1793294332089,
     "1264": 1788525477350,
     "1265": 1788525477371,
     "1266": 1788525477412,
@@ -2355,7 +2408,58 @@
     "1460": 1793222923093,
     "1461": 1793223002446,
     "1462": 1793223092648,
-    "1463": 1793223211128
+    "1463": 1793223211128,
+    "1464": 1793294796659,
+    "1465": 1793294894309,
+    "1466": 1793294984524,
+    "1467": 1793295025360,
+    "1468": 1793295125173,
+    "1469": 1793295170333,
+    "1470": 1793295603039,
+    "1471": 1793295614141,
+    "1472": 1793295413645,
+    "1473": 1793295524725,
+    "1474": 1793295666591,
+    "1475": 1793295738069,
+    "1476": 1793296635399,
+    "1477": 1793296716280,
+    "1478": 1793296976389,
+    "1479": 1793297090103,
+    "1480": 1793297195536,
+    "1481": 1793297294365,
+    "1482": 1793297430061,
+    "1483": 1793297528059,
+    "1484": 1793297664289,
+    "1485": 1793297856451,
+    "1486": 1793299431233,
+    "1487": 1793299480910,
+    "1488": 1793299604308,
+    "1489": 1793299733337,
+    "1490": 1793299783636,
+    "1491": 1793299820218,
+    "1492": 1793299907244,
+    "1493": 1793300054861,
+    "1494": 1793300251110,
+    "1495": 1793300291205,
+    "1496": 1793300589928,
+    "1497": 1793300737099,
+    "1498": 1793300860130,
+    "1499": 1793300914996,
+    "1500": 1793300987257,
+    "1501": 1793354819346,
+    "1502": 1793354890037,
+    "1503": 1793355091779,
+    "1504": 1793356739594,
+    "1505": 1793355288550,
+    "1506": 1793355335826,
+    "1507": 1793355532270,
+    "1508": 1793355651884,
+    "1509": 1793355982176,
+    "1510": 1793356180437,
+    "1511": 1793356271943,
+    "1512": 1793356346301,
+    "1513": 1793357149869,
+    "1514": 1793357363367
   },
   "variants": {
     "183": {
@@ -10948,9 +11052,8 @@
       "price": 69,
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
-      "imageVersion": 1793296264814,
-      "purchasePrice": 45,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1173.webp"
+      "imageVersion": 1793296264425,
+      "purchasePrice": 45
     },
     {
       "id": 1174,
@@ -11719,9 +11822,8 @@
       "price": 124,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 95,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1263.webp",
-      "imageVersion": 1793294332602
+      "imageVersion": 1793294332089,
+      "purchasePrice": 95
     },
     {
       "id": 1264,
@@ -13611,10 +13713,8 @@
       "price": 19,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 17.4,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1464.webp",
-      "imageVersion": 1793294797018
+      "imageVersion": 1793294796659,
+      "purchasePrice": 17.4
     },
     {
       "id": 1465,
@@ -13622,10 +13722,8 @@
       "price": 910,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 870,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1465.webp",
-      "imageVersion": 1793294895240
+      "imageVersion": 1793294894309,
+      "purchasePrice": 870
     },
     {
       "id": 1466,
@@ -13633,10 +13731,8 @@
       "price": 19,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 17.6,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1466.webp",
-      "imageVersion": 1793294984905
+      "imageVersion": 1793294984524,
+      "purchasePrice": 17.6
     },
     {
       "id": 1467,
@@ -13644,10 +13740,8 @@
       "price": 939,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 880,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1467.webp",
-      "imageVersion": 1793295025695
+      "imageVersion": 1793295025360,
+      "purchasePrice": 880
     },
     {
       "id": 1468,
@@ -13655,10 +13749,8 @@
       "price": 23,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 20.6,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1468.webp",
-      "imageVersion": 1793295125564
+      "imageVersion": 1793295125173,
+      "purchasePrice": 20.6
     },
     {
       "id": 1469,
@@ -13666,10 +13758,8 @@
       "price": 1099,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 1030,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1469.webp",
-      "imageVersion": 1793295170639
+      "imageVersion": 1793295170333,
+      "purchasePrice": 1030
     },
     {
       "id": 1470,
@@ -13677,10 +13767,8 @@
       "price": 26,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 22.6,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1470.webp",
-      "imageVersion": 1793295603528
+      "imageVersion": 1793295603039,
+      "purchasePrice": 22.6
     },
     {
       "id": 1471,
@@ -13688,10 +13776,8 @@
       "price": 1189,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 1130,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1471.webp",
-      "imageVersion": 1793295614455
+      "imageVersion": 1793295614141,
+      "purchasePrice": 1130
     },
     {
       "id": 1472,
@@ -13699,10 +13785,8 @@
       "price": 28,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 24.6,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1472.webp",
-      "imageVersion": 1793295413936
+      "imageVersion": 1793295413645,
+      "purchasePrice": 24.6
     },
     {
       "id": 1473,
@@ -13710,10 +13794,8 @@
       "price": 1289,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 1230,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1473.webp",
-      "imageVersion": 1793295525100
+      "imageVersion": 1793295524725,
+      "purchasePrice": 1230
     },
     {
       "id": 1474,
@@ -13721,10 +13803,8 @@
       "price": 30,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 26.8,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1474.webp",
-      "imageVersion": 1793295666916
+      "imageVersion": 1793295666591,
+      "purchasePrice": 26.8
     },
     {
       "id": 1475,
@@ -13732,10 +13812,8 @@
       "price": 1389,
       "categoryId": "babycare",
       "categoryName": "Baby Care & Powders & Pampers",
-      "purchasePrice": 1330,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1475.webp",
-      "imageVersion": 1793295738417
+      "imageVersion": 1793295738069,
+      "purchasePrice": 1330
     },
     {
       "id": 1476,
@@ -13743,10 +13821,8 @@
       "price": 889,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 830,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1476.webp",
-      "imageVersion": 1793296635810
+      "imageVersion": 1793296635399,
+      "purchasePrice": 830
     },
     {
       "id": 1477,
@@ -13754,10 +13830,8 @@
       "price": 1819,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 1700,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1477.webp",
-      "imageVersion": 1793296716579
+      "imageVersion": 1793296716280,
+      "purchasePrice": 1700
     },
     {
       "id": 1478,
@@ -13765,10 +13839,8 @@
       "price": 98,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 90.74,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1478.webp",
-      "imageVersion": 1793296976718
+      "imageVersion": 1793296976389,
+      "purchasePrice": 90.74
     },
     {
       "id": 1479,
@@ -13776,10 +13848,8 @@
       "price": 98,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 90.74,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1479.webp",
-      "imageVersion": 1793297090827
+      "imageVersion": 1793297090103,
+      "purchasePrice": 90.74
     },
     {
       "id": 1480,
@@ -13787,10 +13857,8 @@
       "price": 58,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 53.33,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1480.webp",
-      "imageVersion": 1793297195904
+      "imageVersion": 1793297195536,
+      "purchasePrice": 53.33
     },
     {
       "id": 1481,
@@ -13798,10 +13866,8 @@
       "price": 59,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 52.22,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1481.webp",
-      "imageVersion": 1793297294790
+      "imageVersion": 1793297294365,
+      "purchasePrice": 52.22
     },
     {
       "id": 1482,
@@ -13809,10 +13875,8 @@
       "price": 2499,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 2450,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1482.webp",
-      "imageVersion": 1793297430361
+      "imageVersion": 1793297430061,
+      "purchasePrice": 2450
     },
     {
       "id": 1483,
@@ -13820,10 +13884,8 @@
       "price": 2499,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 2450,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1483.webp",
-      "imageVersion": 1793297528640
+      "imageVersion": 1793297528059,
+      "purchasePrice": 2450
     },
     {
       "id": 1484,
@@ -13831,10 +13893,8 @@
       "price": 1479,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 1440,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1484.webp",
-      "imageVersion": 1793297664586
+      "imageVersion": 1793297664289,
+      "purchasePrice": 1440
     },
     {
       "id": 1485,
@@ -13842,10 +13902,8 @@
       "price": 1479,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 1410,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1485.webp",
-      "imageVersion": 1793297857133
+      "imageVersion": 1793297856451,
+      "purchasePrice": 1410
     },
     {
       "id": 1486,
@@ -13853,10 +13911,8 @@
       "price": 369,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 350,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1486.webp",
-      "imageVersion": 1793299431716
+      "imageVersion": 1793299431233,
+      "purchasePrice": 350
     },
     {
       "id": 1487,
@@ -13864,10 +13920,8 @@
       "price": 369,
       "categoryId": "milkliquidpowder",
       "categoryName": "Milk & Tea Essentials",
-      "purchasePrice": 350,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1487.webp",
-      "imageVersion": 1793299481255
+      "imageVersion": 1793299480910,
+      "purchasePrice": 350
     },
     {
       "id": 1488,
@@ -13875,10 +13929,8 @@
       "price": 33,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 31.25,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1488.webp",
-      "imageVersion": 1793299604644
+      "imageVersion": 1793299604308,
+      "purchasePrice": 31.25
     },
     {
       "id": 1489,
@@ -13886,10 +13938,8 @@
       "price": 33,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 31.25,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1489.webp",
-      "imageVersion": 1793299733793
+      "imageVersion": 1793299733337,
+      "purchasePrice": 31.25
     },
     {
       "id": 1490,
@@ -13897,10 +13947,8 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 45.55,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1490.webp",
-      "imageVersion": 1793299783982
+      "imageVersion": 1793299783636,
+      "purchasePrice": 45.55
     },
     {
       "id": 1491,
@@ -13908,10 +13956,8 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 45.55,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1491.webp",
-      "imageVersion": 1793299820522
+      "imageVersion": 1793299820218,
+      "purchasePrice": 45.55
     },
     {
       "id": 1492,
@@ -13919,10 +13965,8 @@
       "price": 181,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 171.11,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1492.webp",
-      "imageVersion": 1793299907650
+      "imageVersion": 1793299907244,
+      "purchasePrice": 171.11
     },
     {
       "id": 1493,
@@ -13930,10 +13974,8 @@
       "price": 181,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 171.11,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1493.webp",
-      "imageVersion": 1793300055169
+      "imageVersion": 1793300054861,
+      "purchasePrice": 171.11
     },
     {
       "id": 1494,
@@ -13941,10 +13983,8 @@
       "price": 42,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 35.83,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1494.webp",
-      "imageVersion": 1793300251400
+      "imageVersion": 1793300251110,
+      "purchasePrice": 35.83
     },
     {
       "id": 1495,
@@ -13952,10 +13992,8 @@
       "price": 42,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 35.83,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1495.webp",
-      "imageVersion": 1793300291525
+      "imageVersion": 1793300291205,
+      "purchasePrice": 35.83
     },
     {
       "id": 1496,
@@ -13963,10 +14001,8 @@
       "price": 249,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 215,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1496.webp",
-      "imageVersion": 1793300590259
+      "imageVersion": 1793300589928,
+      "purchasePrice": 215
     },
     {
       "id": 1497,
@@ -13974,10 +14010,8 @@
       "price": 249,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 215,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1497.webp",
-      "imageVersion": 1793300737672
+      "imageVersion": 1793300737099,
+      "purchasePrice": 215
     },
     {
       "id": 1498,
@@ -13985,10 +14019,8 @@
       "price": 165,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 145,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1498.webp",
-      "imageVersion": 1793300860738
+      "imageVersion": 1793300860130,
+      "purchasePrice": 145
     },
     {
       "id": 1499,
@@ -13996,10 +14028,8 @@
       "price": 165,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 145,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1499.webp",
-      "imageVersion": 1793300915270
+      "imageVersion": 1793300914996,
+      "purchasePrice": 145
     },
     {
       "id": 1500,
@@ -14007,10 +14037,8 @@
       "price": 84,
       "categoryId": "attacheenidaalchawal",
       "categoryName": "Atta & Chenee & Daal & Chawal",
-      "purchasePrice": 65,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1500.webp",
-      "imageVersion": 1793300987560
+      "imageVersion": 1793300987257,
+      "purchasePrice": 65
     },
     {
       "id": 1501,
@@ -14018,10 +14046,8 @@
       "price": 119,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 95.83,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1501.webp",
-      "imageVersion": 1793354819767
+      "imageVersion": 1793354819346,
+      "purchasePrice": 95.83
     },
     {
       "id": 1502,
@@ -14029,10 +14055,8 @@
       "price": 119,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 95.83,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1502.webp",
-      "imageVersion": 1793354890308
+      "imageVersion": 1793354890037,
+      "purchasePrice": 95.83
     },
     {
       "id": 1503,
@@ -14040,10 +14064,8 @@
       "price": 199,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 175,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1503.webp",
-      "imageVersion": 1793355092119
+      "imageVersion": 1793355091779,
+      "purchasePrice": 175
     },
     {
       "id": 1504,
@@ -14051,10 +14073,8 @@
       "price": 199,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 175,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1504.webp",
-      "imageVersion": 1793356739922
+      "imageVersion": 1793356739594,
+      "purchasePrice": 175
     },
     {
       "id": 1505,
@@ -14062,10 +14082,8 @@
       "price": 389,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 325,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1505.webp",
-      "imageVersion": 1793355289104
+      "imageVersion": 1793355288550,
+      "purchasePrice": 325
     },
     {
       "id": 1506,
@@ -14073,10 +14091,8 @@
       "price": 389,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 325,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1506.webp",
-      "imageVersion": 1793355336154
+      "imageVersion": 1793355335826,
+      "purchasePrice": 325
     },
     {
       "id": 1507,
@@ -14084,10 +14100,8 @@
       "price": 164,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 150,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1507.webp",
-      "imageVersion": 1793355532754
+      "imageVersion": 1793355532270,
+      "purchasePrice": 150
     },
     {
       "id": 1508,
@@ -14095,10 +14109,8 @@
       "price": 359,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 320,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1508.webp",
-      "imageVersion": 1793355652153
+      "imageVersion": 1793355651884,
+      "purchasePrice": 320
     },
     {
       "id": 1509,
@@ -14106,10 +14118,8 @@
       "price": 669,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 580,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1509.webp",
-      "imageVersion": 1793355982514
+      "imageVersion": 1793355982176,
+      "purchasePrice": 580
     },
     {
       "id": 1510,
@@ -14117,10 +14127,8 @@
       "price": 289,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 270,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1510.webp",
-      "imageVersion": 1793356180774
+      "imageVersion": 1793356180437,
+      "purchasePrice": 270
     },
     {
       "id": 1511,
@@ -14128,10 +14136,8 @@
       "price": 699,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 650,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1511.webp",
-      "imageVersion": 1793356272264
+      "imageVersion": 1793356271943,
+      "purchasePrice": 650
     },
     {
       "id": 1512,
@@ -14139,10 +14145,8 @@
       "price": 1249,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 1150,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1512.webp",
-      "imageVersion": 1793356346630
+      "imageVersion": 1793356346301,
+      "purchasePrice": 1150
     },
     {
       "id": 1513,
@@ -14150,10 +14154,8 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
-      "purchasePrice": 40,
-      "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1513.webp",
-      "imageVersion": 1793357150280
+      "imageVersion": 1793357149869,
+      "purchasePrice": 40
     },
     {
       "id": 1514,
@@ -14161,10 +14163,19 @@
       "price": 294,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "imageVersion": 1793357363367,
+      "purchasePrice": 260
+    },
+    {
+      "id": 1515,
+      "name": "NATIONAL MIX ACHAR 320GM RS,320",
+      "price": 299,
+      "categoryId": "groceryandkaryana",
+      "categoryName": "Grocery & Karyana",
       "purchasePrice": 260,
       "hasImage": true,
-      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1514.webp",
-      "imageVersion": 1793357363643
+      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1515.webp",
+      "imageVersion": 1793366354936
     }
   ]
 }

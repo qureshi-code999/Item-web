@@ -4,8 +4,79 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { exec, execSync } = require('child_process');
 const url = require('url');
+const dns = require('dns');
+
+// ── HIGH-AVAILABILITY RESILIENT DNS RESOLVER & SUPABASE IP CACHE ──
+const resilientResolver = new dns.promises.Resolver();
+resilientResolver.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+const dnsCache = new Map();
+
+function resilientLookup(hostname, options, callback) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+  const cached = dnsCache.get(hostname);
+  const now = Date.now();
+  if (cached && (now - cached.time < 900000)) {
+    if (options && options.all) {
+      return callback(null, cached.ips.map(ip => ({ address: ip, family: 4 })));
+    }
+    return callback(null, cached.ips[0], 4);
+  }
+
+  const resolveWithFallback = () => {
+    resilientResolver.resolve4(hostname)
+      .then(addresses => {
+        if (addresses && addresses.length > 0) {
+          dnsCache.set(hostname, { ips: addresses, time: Date.now() });
+          if (options && options.all) {
+            callback(null, addresses.map(ip => ({ address: ip, family: 4 })));
+          } else {
+            callback(null, addresses[0], 4);
+          }
+        } else {
+          callback(new Error('DNS resolution returned empty'));
+        }
+      })
+      .catch(err => {
+        if (hostname === 'tmssjdczywukramcpcxc.supabase.co') {
+          const cloudflareIps = ['172.64.149.246', '104.18.38.10'];
+          dnsCache.set(hostname, { ips: cloudflareIps, time: Date.now() });
+          if (options && options.all) {
+            callback(null, cloudflareIps.map(ip => ({ address: ip, family: 4 })));
+          } else {
+            callback(null, cloudflareIps[0], 4);
+          }
+        } else {
+          callback(err);
+        }
+      });
+  };
+
+  let osDone = false;
+  const timeoutId = setTimeout(() => {
+    if (!osDone) {
+      osDone = true;
+      resolveWithFallback();
+    }
+  }, 1200);
+
+  dns.lookup(hostname, options, (err, address, family) => {
+    if (osDone) return;
+    osDone = true;
+    clearTimeout(timeoutId);
+    if (!err && address) {
+      const ips = Array.isArray(address) ? address.map(a => a.address || a) : [address];
+      dnsCache.set(hostname, { ips, time: Date.now() });
+      return callback(null, address, family);
+    }
+    resolveWithFallback();
+  });
+}
 
 const PORT = 8888;
 const ROOT = __dirname;
@@ -42,6 +113,7 @@ function supabaseApiRequest(endpoint, method, body = null) {
         port: 443,
         path: fullUrl.pathname + fullUrl.search,
         method: method,
+        lookup: resilientLookup,
         headers: {
           'apikey': keyToUse,
           'Authorization': 'Bearer ' + keyToUse,
@@ -86,6 +158,7 @@ function supabaseUploadStorageImage(fileName, imgBuffer, mimeType = 'image/webp'
         port: 443,
         path: fullUrl.pathname,
         method: 'POST',
+        lookup: resilientLookup,
         headers: {
           'apikey': keyToUse,
           'Authorization': 'Bearer ' + keyToUse,
@@ -113,11 +186,55 @@ function supabaseUploadStorageImage(fileName, imgBuffer, mimeType = 'image/webp'
   });
 }
 
+function supabaseDeleteStorageImage(fileName) {
+  const cfg = getSupabaseConfig();
+  if (!cfg || !cfg.supabaseUrl) return Promise.resolve(false);
+  const keyToUse = (cfg.serviceRoleKey && cfg.serviceRoleKey.trim()) || cfg.supabaseKey;
+  if (!keyToUse) return Promise.resolve(false);
+  return new Promise((resolve) => {
+    try {
+      const payload = JSON.stringify({ prefixes: Array.isArray(fileName) ? fileName : [fileName] });
+      const targetPath = `/storage/v1/object/product-images`;
+      const fullUrl = new URL(targetPath, cfg.supabaseUrl);
+      const req = https.request({
+        hostname: fullUrl.hostname,
+        port: 443,
+        path: fullUrl.pathname,
+        method: 'DELETE',
+        lookup: resilientLookup,
+        headers: {
+          'apikey': keyToUse,
+          'Authorization': 'Bearer ' + keyToUse,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload)
+        }
+      }, (res) => {
+        resolve(res.statusCode >= 200 && res.statusCode < 300);
+      });
+      req.on('error', () => resolve(false));
+      req.write(payload);
+      req.end();
+    } catch(e) {
+      resolve(false);
+    }
+  });
+}
+
+function getPktDateString(d = new Date()) {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(d);
+  } catch(e) {
+    const offset = 5 * 60; // PKT is UTC+5
+    const local = new Date(d.getTime() + (offset + d.getTimezoneOffset()) * 60000);
+    return local.toISOString().slice(0, 10);
+  }
+}
+
 // Master Security Configuration & Authentication Helpers
 function getAdminConfig() {
   const defaults = {
     adminPassword: 'zs786',
-    sessionToken: 'zs_session_master_2026_sahil_traders'
+    sessionToken: 'zs_session_master_2026_zs_mart'
   };
   if (fs.existsSync(CONFIG_FILE)) {
     try {
@@ -149,10 +266,66 @@ try {
   try { sharp = require('sharp'); } catch (e2) {}
 }
 
+// ── SAFE ATOMIC FILE WRITERS & READERS ──
+// Prevents file corruption, zero-byte truncations, and race conditions
+function safeAtomicWriteJson(filePath, data) {
+  try {
+    const jsonStr = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+    const tempPath = `${filePath}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}.tmp`;
+    fs.writeFileSync(tempPath, jsonStr, 'utf8');
+
+    // Integrity check: verify written file parses valid JSON
+    JSON.parse(fs.readFileSync(tempPath, 'utf8'));
+
+    // Create backup of current file
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.copyFileSync(filePath, `${filePath}.bak`);
+      } catch (_) {}
+    }
+
+    // Atomic rename
+    fs.renameSync(tempPath, filePath);
+    return true;
+  } catch (err) {
+    console.error(`[SafeAtomicWrite Error] Failed writing ${filePath}:`, err.message);
+    try {
+      fs.writeFileSync(filePath, typeof data === 'string' ? data : JSON.stringify(data, null, 2), 'utf8');
+      return true;
+    } catch (e2) {
+      console.error(`[SafeAtomicWrite Fallback Error] ${filePath}:`, e2.message);
+      return false;
+    }
+  }
+}
+
+function safeReadJson(filePath, fallback = {}) {
+  if (fs.existsSync(filePath)) {
+    try {
+      const content = fs.readFileSync(filePath, 'utf8');
+      if (content && content.trim()) return JSON.parse(content);
+    } catch (e) {
+      console.warn(`[SafeReadJson] File ${filePath} damaged or incomplete, attempting backup restore...`);
+      const bak = `${filePath}.bak`;
+      if (fs.existsSync(bak)) {
+        try {
+          const bakContent = fs.readFileSync(bak, 'utf8');
+          if (bakContent && bakContent.trim()) return JSON.parse(bakContent);
+        } catch (e2) {}
+      }
+    }
+  }
+  return fallback;
+}
+
 function getCorsOrigin(req) {
+  if (!req || !req.headers) return 'http://127.0.0.1:8888';
   const origin = req.headers['origin'];
   if (!origin) return 'http://127.0.0.1:8888';
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) {
+    return origin;
+  }
+  if (/^https:\/\/(www\.)?zsmart\.pk$/i.test(origin)) {
     return origin;
   }
   return 'null';
@@ -160,12 +333,14 @@ function getCorsOrigin(req) {
 
 function sendJson(res, statusCode, data, req = null) {
   const body = JSON.stringify(data);
-  const allowOrigin = req ? getCorsOrigin(req) : '*';
+  const currentReq = req || res._req;
+  const allowOrigin = getCorsOrigin(currentReq);
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Token',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Vary': 'Origin'
   });
   res.end(body);
 }
@@ -203,12 +378,63 @@ function getMimeType(file) {
 }
 
 
-// ── LIVE CLOUD SYNC HELPER (Pushes instantly to GitHub & Vercel) ──
-function liveCloudSync(message, onComplete) {
+// ── LIVE CLOUD SYNC & BUILD QUEUE (Prevents concurrent git and compile lock collisions) ──
+let isSyncingGit = false;
+let pendingGitSyncMsg = null;
+let isCompilingBackground = false;
+let compilePendingAfter = false;
+
+function queueExportAndCompile(callback) {
+  if (isCompilingBackground) {
+    compilePendingAfter = true;
+    if (typeof callback === 'function') callback();
+    return;
+  }
+  isCompilingBackground = true;
   try {
-    const safeMsg = (message || 'Live update from Admin Panel').replace(/"/g, "'");
-    const gitCmd = `git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js languages admin_dashboard.html admin_server.js && git commit -m "${safeMsg}" && git push origin main`;
+    delete require.cache[require.resolve('./export_products.js')];
+    require('./export_products.js');
+    exec('node compile_jsx.js', { cwd: ROOT }, (err) => {
+      isCompilingBackground = false;
+      if (typeof callback === 'function') {
+        try { callback(); } catch(e) {}
+      }
+      if (compilePendingAfter) {
+        compilePendingAfter = false;
+        setTimeout(() => queueExportAndCompile(), 500);
+      }
+    });
+  } catch(e) {
+    isCompilingBackground = false;
+    if (typeof callback === 'function') {
+      try { callback(); } catch(err) {}
+    }
+  }
+}
+
+let debouncedGitTimer = null;
+function scheduleDebouncedGitSync(message, delayMs = 12000) {
+  if (debouncedGitTimer) clearTimeout(debouncedGitTimer);
+  debouncedGitTimer = setTimeout(() => {
+    liveCloudSync(message);
+  }, delayMs);
+}
+
+function liveCloudSync(message, onComplete) {
+  if (isSyncingGit) {
+    pendingGitSyncMsg = message || 'Live update from Admin Panel';
+    if (typeof onComplete === 'function') {
+      try { onComplete(); } catch(e) {}
+    }
+    return;
+  }
+  isSyncingGit = true;
+  try {
+    const safeMsg = (message || 'Live update from Admin Panel').replace(/"/g, '\\"');
+    const filesToSync = ['products.json', 'settings.json', 'purchase_rates.json', 'category_priorities.json', 'INDEX.JSX', 'index.html', 'app.js', 'style.css', 'sw.js', 'languages'].filter(f => fs.existsSync(path.join(ROOT, f))).join(' ');
+    const gitCmd = `git add ${filesToSync} && git commit -m "${safeMsg}" && git push origin main`;
     exec(gitCmd, { cwd: ROOT }, (err, stdout, stderr) => {
+      isSyncingGit = false;
       if (err) {
         if (err.message && err.message.includes('nothing to commit')) {
           console.log('ℹ️ Git status: Everything already up to date on GitHub.');
@@ -222,8 +448,14 @@ function liveCloudSync(message, onComplete) {
       if (typeof onComplete === 'function') {
         try { onComplete(); } catch(e) {}
       }
+      if (pendingGitSyncMsg) {
+        const nextMsg = pendingGitSyncMsg;
+        pendingGitSyncMsg = null;
+        setTimeout(() => liveCloudSync(nextMsg), 1500);
+      }
     });
   } catch(e) {
+    isSyncingGit = false;
     console.warn('Sync error:', e.message);
   }
 }
@@ -283,10 +515,12 @@ function getProductsCatalogMap() {
   return map;
 }
 
-function calculateOrderProfit(order, rates, productsMap) {
+function calculateOrderProfit(order, rates, productsMap, options = {}) {
   const activeRates = rates || getSavedPurchaseRates();
   const catalog = productsMap || getProductsCatalogMap();
   const items = Array.isArray(order.items) ? order.items : [];
+  const preserveExisting = !!options.preserveExistingItemRates;
+  const forceThisOrder = options.forceOrderId && String(options.forceOrderId) === String(order.id);
 
   let totalSale = 0;
   let totalCost = 0;
@@ -298,19 +532,27 @@ function calculateOrderProfit(order, rates, productsMap) {
     const pObj = catalog[pId] || {};
     const sellPrice = Number(it.sellPrice !== undefined ? it.sellPrice : (it.price !== undefined ? it.price : (pObj.price || 0)));
     const qty = Number(it.qty || 1);
-    const lineTotal = Number(it.lineTotal !== undefined ? it.lineTotal : (it.total !== undefined ? it.total : (sellPrice * qty)));
+    const rawLineTotal = it.lineTotal !== undefined ? Number(it.lineTotal) : (it.total !== undefined ? Number(it.total) : 0);
+    const lineTotal = rawLineTotal > 0 ? rawLineTotal : (sellPrice * qty);
 
     let purchasePrice = null;
     let hasPurchaseRate = false;
 
-    if (it.purchasePrice !== undefined && it.purchasePrice !== null && Number(it.purchasePrice) > 0) {
+    const isForcedItem = forceThisOrder && options.forceItemId && String(options.forceItemId) === pId;
+    const isClearedItem = options.clearItemId && String(options.clearItemId) === pId;
+
+    // 1. If admin explicitly edited this order in POS or we are preserving existing historical rates:
+    if (!isClearedItem && !isForcedItem && (options.trustItemPurchasePrice || preserveExisting) && it.purchasePrice !== undefined && Number(it.purchasePrice) > 0) {
       purchasePrice = Number(it.purchasePrice);
       hasPurchaseRate = true;
-    } else if (activeRates[pId] !== undefined && Number(activeRates[pId]) > 0) {
+    } else if (!isClearedItem && activeRates[pId] !== undefined && Number(activeRates[pId]) > 0) {
       purchasePrice = Number(activeRates[pId]);
       hasPurchaseRate = true;
-    } else if (pObj.purchasePrice !== undefined && Number(pObj.purchasePrice) > 0) {
+    } else if (!isClearedItem && pObj.purchasePrice !== undefined && Number(pObj.purchasePrice) > 0) {
       purchasePrice = Number(pObj.purchasePrice);
+      hasPurchaseRate = true;
+    } else if (!isClearedItem && (order.source === 'admin_manual' || order.source === 'pos') && it.purchasePrice !== undefined && Number(it.purchasePrice) > 0) {
+      purchasePrice = Number(it.purchasePrice);
       hasPurchaseRate = true;
     }
 
@@ -333,7 +575,7 @@ function calculateOrderProfit(order, rates, productsMap) {
     totalCost += lineCost;
     totalProfit += lineProfit;
 
-    return {
+    const itemOut = {
       id: it.id,
       name: it.name || pObj.name || `Item #${it.id}`,
       qty: qty,
@@ -346,6 +588,10 @@ function calculateOrderProfit(order, rates, productsMap) {
       marginPct: marginPct,
       variant: it.variant || null
     };
+    if (it.extraPercent !== undefined) itemOut.extraPercent = it.extraPercent;
+    if (it.extraSavings !== undefined) itemOut.extraSavings = it.extraSavings;
+    if (it.isCustom || String(it.id || '').startsWith('custom_')) itemOut.isCustom = true;
+    return itemOut;
   });
 
   const deliveryFee = Number(order.deliveryFee) || 0;
@@ -368,9 +614,7 @@ function calculateOrderProfit(order, rates, productsMap) {
         orderTime = `${idStr.slice(9,11)}:${idStr.slice(11,13)}`;
       }
     } else {
-      const now = new Date();
-      const pad = (n) => String(n).padStart(2, '0');
-      orderDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+      orderDate = getPktDateString();
     }
   }
   if (!orderTime) {
@@ -385,7 +629,7 @@ function calculateOrderProfit(order, rates, productsMap) {
     customerPhone: customerPhone,
     customerAddress: customerAddress,
     source: source,
-    channel: source,
+    channel: order.channel || source,
     date: orderDate,
     time: orderTime,
     items: processedItems,
@@ -398,6 +642,81 @@ function calculateOrderProfit(order, rates, productsMap) {
     missingCostCount: missingCostCount,
     allCostsSet: missingCostCount === 0
   };
+}
+
+function syncOrderStatusesToSupabase(ordersList) {
+  try {
+    const statusMap = {};
+    const list = Array.isArray(ordersList) ? ordersList.slice(0, 500) : [];
+    list.forEach(o => {
+      if (o && o.id) {
+        statusMap[String(o.id)] = String(o.status || 'placed').toLowerCase();
+      }
+    });
+    return supabaseApiRequest('/rest/v1/store_settings?on_conflict=id', 'POST', {
+      id: 'order_statuses',
+      store_name: 'ZS Mart Order Status Map',
+      announcement: JSON.stringify(statusMap),
+      updated_at: new Date().toISOString()
+    }).catch(() => {});
+  } catch (e) {
+    return Promise.resolve(null);
+  }
+}
+
+function syncPurchaseRatesFromSupabase() {
+  const cfg = getSupabaseConfig();
+  if (!cfg || !cfg.supabaseUrl) return Promise.resolve(0);
+  const keyToUse = (cfg.serviceRoleKey && cfg.serviceRoleKey.trim()) || cfg.supabaseKey;
+  if (!keyToUse) return Promise.resolve(0);
+  return new Promise((resolve) => {
+    try {
+      const fullUrl = new URL('/rest/v1/purchase_rates?select=product_id,purchase_price&limit=5000', cfg.supabaseUrl);
+      const req = https.request({
+        hostname: fullUrl.hostname,
+        port: 443,
+        path: fullUrl.pathname + fullUrl.search,
+        method: 'GET',
+        lookup: resilientLookup,
+        headers: {
+          'apikey': keyToUse,
+          'Authorization': `Bearer ${keyToUse}`
+        }
+      }, (res) => {
+        let raw = '';
+        res.on('data', c => raw += c);
+        res.on('end', () => {
+          if (res.statusCode < 200 || res.statusCode >= 300 || !raw) return resolve(0);
+          try {
+            const rows = JSON.parse(raw);
+            if (!Array.isArray(rows) || rows.length === 0) return resolve(0);
+            const ratesObj = safeReadJson(RATES_FILE, { rates: {} });
+            if (!ratesObj.rates) ratesObj.rates = {};
+            let added = 0;
+            rows.forEach(r => {
+              const pid = String(r.product_id || '');
+              const price = Number(r.purchase_price !== undefined ? r.purchase_price : r.purchase_rate);
+              if (pid && !isNaN(price) && price > 0 && ratesObj.rates[pid] !== price) {
+                ratesObj.rates[pid] = price;
+                added++;
+              }
+            });
+            if (added > 0) {
+              ratesObj.updatedAt = new Date().toISOString();
+              safeAtomicWriteJson(RATES_FILE, ratesObj);
+            }
+            resolve(added);
+          } catch (e) {
+            resolve(0);
+          }
+        });
+      });
+      req.on('error', () => resolve(0));
+      req.end();
+    } catch (e) {
+      resolve(0);
+    }
+  });
 }
 
 function getPurchaseRatesCoverage() {
@@ -456,6 +775,7 @@ async function fetchProductsFromSupabase() {
           port: 443,
           path: fullUrl.pathname + fullUrl.search,
           method: 'GET',
+          lookup: resilientLookup,
           headers: {
             'apikey': keyToUse,
             'Authorization': `Bearer ${keyToUse}`
@@ -485,95 +805,200 @@ async function fetchProductsFromSupabase() {
   });
 }
 
+let isSyncingOrders = false;
+
 function syncSupabaseOrders() {
   const cfg = getSupabaseConfig();
   if (!cfg || !cfg.supabaseUrl) return Promise.resolve(0);
   const keyToUse = cfg.serviceRoleKey || cfg.supabaseKey;
   if (!keyToUse) return Promise.resolve(0);
+  if (isSyncingOrders) return Promise.resolve(0);
+  isSyncingOrders = true;
+
+  return new Promise(async (resolve) => {
+    try {
+      let dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
+      if (!Array.isArray(dsr.orders)) dsr.orders = [];
+      const existingIds = new Set(dsr.orders.map(o => String(o.id)));
+
+      const rates = getSavedPurchaseRates();
+      const catalog = getProductsCatalogMap();
+      let addedCount = 0;
+      let offset = 0;
+      const pageSize = 200;
+      let hasMore = true;
+
+      // Auto-paginate through incoming orders (never capped at 100)
+      while (hasMore) {
+        const fullUrl = new URL(`/rest/v1/orders?select=*&order=created_at.desc&limit=${pageSize}&offset=${offset}`, cfg.supabaseUrl);
+        const rows = await new Promise((resChunk) => {
+          const req = https.request({
+            hostname: fullUrl.hostname,
+            port: 443,
+            path: fullUrl.pathname + fullUrl.search,
+            method: 'GET',
+            lookup: resilientLookup,
+            headers: {
+              'apikey': keyToUse,
+              'Authorization': `Bearer ${keyToUse}`
+            }
+          }, (res) => {
+            let raw = '';
+            res.on('data', chunk => raw += chunk);
+            res.on('end', () => {
+              if (res.statusCode < 200 || res.statusCode >= 300 || !raw) return resChunk([]);
+              try {
+                const parsed = JSON.parse(raw);
+                resChunk(Array.isArray(parsed) ? parsed : []);
+              } catch(e) {
+                resChunk([]);
+              }
+            });
+          });
+          req.on('error', () => resChunk([]));
+          req.end();
+        });
+
+        if (rows.length === 0) break;
+
+        let consecutiveExisting = 0;
+        for (const row of rows) {
+          if (!row || !row.id) continue;
+          const sId = String(row.id);
+          if (existingIds.has(sId)) {
+            consecutiveExisting++;
+            // If we encounter 15 consecutive already-synced orders, local DSR has caught up
+            if (consecutiveExisting >= 15) {
+              hasMore = false;
+              break;
+            }
+            continue;
+          }
+
+          consecutiveExisting = 0;
+          existingIds.add(sId);
+
+          const raw = (row.raw_data && typeof row.raw_data === 'object' && Object.keys(row.raw_data).length > 0) ? row.raw_data : null;
+          const orderData = raw ? { ...raw, id: sId } : {
+            id: sId,
+            date: row.created_at,
+            customerName: row.customer_name || 'Customer',
+            customerPhone: row.customer_phone || '',
+            customerAddress: row.customer_address || '',
+            customer: {
+              name: row.customer_name || 'Customer',
+              phone: row.customer_phone || '',
+              address: row.customer_address || ''
+            },
+            deliveryType: row.delivery_type || 'standard',
+            deliveryMethod: row.delivery_type || 'standard',
+            paymentMethod: row.payment_method || 'cash',
+            items: Array.isArray(row.items) ? row.items : [],
+            subtotal: Number(row.subtotal || 0),
+            deliveryFee: Number(row.delivery_fee || 0),
+            total: Number(row.total || 0),
+            grandTotal: Number(row.total || 0),
+            totalSavings: Number(row.total_savings || 0),
+            status: row.status || 'placed',
+            source: 'whatsapp_app',
+            channel: 'whatsapp'
+          };
+          orderData.id = sId;
+          const processed = calculateOrderProfit(orderData, rates, catalog);
+          dsr.orders.unshift(processed);
+          addedCount++;
+        }
+
+        if (rows.length < pageSize || !hasMore) break;
+        offset += pageSize;
+        if (offset >= 5000) break; // Maximum safe window per sync cycle
+      }
+
+      if (addedCount > 0) {
+        safeAtomicWriteJson(DSR_FILE, dsr);
+        syncOrderStatusesToSupabase(dsr.orders);
+        console.log(`[Supabase Cloud Sync] Received and saved ${addedCount} new orders from Supabase Database!`);
+      }
+      isSyncingOrders = false;
+      resolve(addedCount);
+    } catch(e) {
+      isSyncingOrders = false;
+      resolve(0);
+    }
+  });
+}
+
+function syncPurchasingSectionsFromSupabase() {
+  const cfg = getSupabaseConfig();
+  if (!cfg || !cfg.supabaseUrl) return Promise.resolve(false);
+  const keyToUse = (cfg.serviceRoleKey && cfg.serviceRoleKey.trim()) || cfg.supabaseKey;
+  if (!keyToUse) return Promise.resolve(false);
+
   return new Promise((resolve) => {
     try {
-      const fullUrl = new URL('/rest/v1/orders?select=*&order=created_at.desc&limit=100', cfg.supabaseUrl);
+      const fullUrl = new URL('/rest/v1/purchasing_sections?id=eq.main&select=*', cfg.supabaseUrl);
       const req = https.request({
         hostname: fullUrl.hostname,
         port: 443,
         path: fullUrl.pathname + fullUrl.search,
         method: 'GET',
+        lookup: resilientLookup,
         headers: {
           'apikey': keyToUse,
-          'Authorization': `Bearer ${keyToUse}`,
-          'x-admin-token': 'zs_session_master_2026_sahil_traders'
+          'Authorization': 'Bearer ' + keyToUse
         }
       }, (res) => {
         let raw = '';
         res.on('data', chunk => raw += chunk);
         res.on('end', () => {
-          if (res.statusCode < 200 || res.statusCode >= 300 || !raw) return resolve(0);
-          let rows = [];
-          try { rows = JSON.parse(raw); } catch(e) { return resolve(0); }
-          if (!Array.isArray(rows) || rows.length === 0) return resolve(0);
+          if (res.statusCode < 200 || res.statusCode >= 300 || !raw) return resolve(false);
+          try {
+            const rows = JSON.parse(raw);
+            if (!Array.isArray(rows) || rows.length === 0) return resolve(false);
+            const row = rows[0];
+            let current = safeReadJson(SECTIONS_FILE, { sections: [], itemSections: {} });
+            if (!current.sections) current.sections = [];
+            if (!current.itemSections) current.itemSections = {};
 
-          let dsr = { orders: [], expenses: [] };
-          if (fs.existsSync(DSR_FILE)) {
-            try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
-          }
-          if (!Array.isArray(dsr.orders)) dsr.orders = [];
-
-          const rates = getSavedPurchaseRates();
-          const catalog = getProductsCatalogMap();
-          let addedCount = 0;
-
-          rows.forEach(row => {
-            const exists = dsr.orders.some(o => String(o.id) === String(row.id));
-            if (!exists && row && row.id) {
-              const raw = (row.raw_data && typeof row.raw_data === 'object' && Object.keys(row.raw_data).length > 0) ? row.raw_data : null;
-              const orderData = raw ? { ...raw, id: String(row.id) } : {
-                id: String(row.id),
-                date: row.created_at,
-                customerName: row.customer_name || 'Customer',
-                customerPhone: row.customer_phone || '',
-                customerAddress: row.customer_address || '',
-                customer: {
-                  name: row.customer_name || 'Customer',
-                  phone: row.customer_phone || '',
-                  address: row.customer_address || ''
-                },
-                deliveryType: row.delivery_type || 'standard',
-                deliveryMethod: row.delivery_type || 'standard',
-                paymentMethod: row.payment_method || 'cash',
-                items: Array.isArray(row.items) ? row.items : [],
-                subtotal: Number(row.subtotal || 0),
-                deliveryFee: Number(row.delivery_fee || 0),
-                total: Number(row.total || 0),
-                grandTotal: Number(row.total || 0),
-                totalSavings: Number(row.total_savings || 0),
-                status: row.status || 'pending',
-                source: 'whatsapp_app',
-                channel: 'whatsapp'
-              };
-              orderData.id = String(row.id);
-              const processed = calculateOrderProfit(orderData, rates, catalog);
-              dsr.orders.unshift(processed);
-              addedCount++;
+            let changed = false;
+            if (Array.isArray(row.sections) && row.sections.length > 0) {
+              const mergedSec = Array.from(new Set([...current.sections, ...row.sections]));
+              if (mergedSec.length !== current.sections.length) {
+                current.sections = mergedSec;
+                changed = true;
+              }
             }
-          });
-
-          if (addedCount > 0) {
-            fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
-            console.log(`[Supabase Cloud Sync] Received and saved ${addedCount} new orders from Supabase Database!`);
+            if (row.item_sections && typeof row.item_sections === 'object') {
+              for (const [k, v] of Object.entries(row.item_sections)) {
+                if (v && (!current.itemSections[k] || current.itemSections[k] === 'General Market')) {
+                  current.itemSections[k] = v;
+                  changed = true;
+                }
+              }
+            }
+            if (changed) {
+              current.updatedAt = new Date().toISOString();
+              safeAtomicWriteJson(SECTIONS_FILE, current);
+              console.log(`[Supabase Sections Sync] Synced ${Object.keys(current.itemSections).length} item section mappings from cloud!`);
+            }
+            resolve(true);
+          } catch(e) {
+            resolve(false);
           }
-          resolve(addedCount);
         });
       });
-      req.on('error', () => resolve(0));
+      req.on('error', () => resolve(false));
       req.end();
     } catch(e) {
-      resolve(0);
+      resolve(false);
     }
   });
 }
 
 function syncCloudOrders() {
   try {
+    syncPurchaseRatesFromSupabase().catch(() => {});
+    syncPurchasingSectionsFromSupabase().catch(() => {});
     // Sync from Supabase Cloud Database (Guaranteed 100% secure orders without public leak)
     return syncSupabaseOrders().catch(() => 0);
   } catch(e) {
@@ -582,12 +1007,16 @@ function syncCloudOrders() {
 }
 
 const server = http.createServer(async (req, res) => {
+  res._req = req;
+  const allowOrigin = getCorsOrigin(req);
+
   // CORS Preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowOrigin,
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Token',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Vary': 'Origin'
     });
     res.end();
     return;
@@ -623,10 +1052,15 @@ const server = http.createServer(async (req, res) => {
         const remaining = Math.ceil((lockoutUntil - now) / 1000);
         return sendJson(res, 429, { ok: false, error: `Too many failed attempts. Locked for ${remaining} seconds.` });
       }
+      if (lockoutUntil > 0 && now >= lockoutUntil) {
+        failedLoginAttempts = 0;
+        lockoutUntil = 0;
+      }
       const body = await parseBody(req);
       const config = getAdminConfig();
       if (body.password && String(body.password).trim() === String(config.adminPassword).trim()) {
         failedLoginAttempts = 0;
+        lockoutUntil = 0;
         return sendJson(res, 200, { ok: true, token: config.sessionToken });
       }
       failedLoginAttempts++;
@@ -657,7 +1091,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { ok: false, error: 'New password must be at least 4 characters.' });
       }
       config.adminPassword = String(body.newPassword).trim();
-      config.sessionToken = 'zs_session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      config.sessionToken = 'zs_session_' + crypto.randomBytes(24).toString('hex');
       config.updatedAt = new Date().toISOString();
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
       return sendJson(res, 200, { ok: true, message: 'Master Password updated successfully!', token: config.sessionToken });
@@ -670,10 +1104,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { ok: false, error: 'Invalid order data' });
       }
 
-      let dsr = { orders: [], expenses: [] };
-      if (fs.existsSync(DSR_FILE)) {
-        try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
-      }
+      let dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
       if (!Array.isArray(dsr.orders)) dsr.orders = [];
 
       const rates = getSavedPurchaseRates();
@@ -681,8 +1112,26 @@ const server = http.createServer(async (req, res) => {
 
       const orderId = body.id || ('ORD-' + Date.now());
       const now = new Date();
-      const orderDate = body.date || now.toISOString().slice(0, 10);
+      const orderDate = body.date || getPktDateString(now);
       const orderTime = body.time || now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+      // Strip client-injected purchase prices or arbitrary metadata and enforce catalog price when available
+      const sanitizedItems = body.items.map(it => {
+        const pObj = catalog[String(it.id || '')] || {};
+        const unitPrice = Number(pObj.price !== undefined && Number(pObj.price) > 0 ? pObj.price : (it.price !== undefined ? it.price : (it.sellPrice !== undefined ? it.sellPrice : 0)));
+        const qty = Math.max(1, Number(it.qty || 1));
+        const clientTotal = Number(it.total !== undefined ? it.total : (it.lineTotal !== undefined ? it.lineTotal : 0));
+        return {
+          id: it.id,
+          name: it.name || pObj.name || 'Product',
+          price: unitPrice,
+          sellPrice: unitPrice,
+          qty: qty,
+          total: unitPrice > 0 ? (qty * unitPrice) : clientTotal,
+          lineTotal: unitPrice > 0 ? (qty * unitPrice) : clientTotal,
+          variant: it.variant || null
+        };
+      });
 
       const rawOrder = {
         id: orderId,
@@ -697,25 +1146,69 @@ const server = http.createServer(async (req, res) => {
         location: body.customer?.location || body.location || null,
         notes: body.notes || '',
         photoUrl: body.photoUrl || null,
-        items: body.items,
+        items: sanitizedItems,
         deliveryFee: Number(body.deliveryFee) || 0,
-        status: 'pending'
+        status: 'placed'
       };
 
       const calculated = calculateOrderProfit(rawOrder, rates, catalog);
 
-      // Check if already exists to prevent duplicate insertion
+      // Prevent unauthenticated overwrite of an existing order ID
       const existingIdx = dsr.orders.findIndex(o => String(o.id) === String(orderId));
-      if (existingIdx >= 0) {
-        dsr.orders[existingIdx] = calculated;
-      } else {
+      if (existingIdx < 0) {
         dsr.orders.unshift(calculated);
+        safeAtomicWriteJson(DSR_FILE, dsr);
+        syncOrderStatusesToSupabase(dsr.orders);
+        console.log(`[Order Received] Order #${orderId} saved with live profit: Rs. ${calculated.totalProfit} (${calculated.profitMarginPct}%)`);
       }
 
-      fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
-      console.log(`[Order Received] Order #${orderId} saved with live profit: Rs. ${calculated.totalProfit} (${calculated.profitMarginPct}%)`);
+      // Return public customer-safe receipt without wholesale cost or profit fields
+      const publicOrder = {
+        id: calculated.id,
+        date: calculated.date,
+        time: calculated.time,
+        status: calculated.status || 'placed',
+        customerName: calculated.customerName,
+        customerPhone: calculated.customerPhone,
+        customerAddress: calculated.customerAddress,
+        deliveryMethod: calculated.deliveryMethod,
+        paymentMethod: calculated.paymentMethod,
+        totalSale: calculated.totalSale,
+        deliveryFee: calculated.deliveryFee,
+        grandTotal: calculated.grandTotal,
+        items: (calculated.items || []).map(i => ({
+          id: i.id,
+          name: i.name,
+          qty: i.qty,
+          sellPrice: i.sellPrice,
+          lineTotal: i.lineTotal,
+          variant: i.variant
+        }))
+      };
 
-      return sendJson(res, 200, { ok: true, order: calculated });
+      return sendJson(res, 200, { ok: true, order: publicOrder });
+    }
+
+    // 0.1 PUBLIC: Customer Order Status Lookup (Zero Auth Required, ID-based)
+    if (pathname === '/api/order-status' && req.method === 'GET') {
+      const orderId = parsedUrl.query.id;
+      if (!orderId) {
+        return sendJson(res, 400, { ok: false, error: 'Missing order id parameter' });
+      }
+      const dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
+      const order = (dsr.orders || []).find(o => String(o.id) === String(orderId));
+      if (order) {
+        return sendJson(res, 200, {
+          ok: true,
+          found: true,
+          id: order.id,
+          status: order.status || 'placed',
+          deliveryMethod: order.deliveryMethod,
+          date: order.date,
+          updatedAt: order.updatedAt || order.date
+        });
+      }
+      return sendJson(res, 404, { ok: false, error: 'Order not found' });
     }
 
     // Master Security Gate: Block ANY /api/ endpoint if not authenticated
@@ -725,8 +1218,9 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-// Helper to sync single image to www and android assets immediately
+// Helper to sync single brand/logo image to www and android assets (skip numeric product images which live on Supabase CDN)
 function syncImageToTargets(fileName) {
+  if (/^\d+\.(webp|png|jpg|jpeg)$/i.test(fileName)) return;
   const src = path.join(IMAGES_DIR, fileName);
   if (!fs.existsSync(src)) return;
   const targets = [
@@ -748,7 +1242,7 @@ function syncImageToTargets(fileName) {
       const dsr = fs.existsSync(DSR_FILE) ? JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')) : { orders: [], expenses: [] };
       const imagesCount = fs.existsSync(IMAGES_DIR) ? fs.readdirSync(IMAGES_DIR).filter(f => /^\d+\.(webp|png|jpg|jpeg)$/i.test(f)).length : 0;
       
-      const today = new Date().toISOString().slice(0, 10);
+      const today = getPktDateString();
       const todayOrders = (dsr.orders || []).filter(o => o.date === today);
       const todaySales = todayOrders.reduce((sum, o) => sum + (Number(o.totalSale) || 0), 0);
       const todayProfit = todayOrders.reduce((sum, o) => sum + (Number(o.totalProfit) || 0), 0);
@@ -768,33 +1262,70 @@ function syncImageToTargets(fileName) {
       });
     }
 
-    // 3. API: Products GET (Live Supabase Cloud with offline local cache fallback)
+    // 3. API: Products GET (Fast local cache with guaranteed purchase rates attached)
     if (pathname === '/api/products' && req.method === 'GET') {
+      const forceCloud = parsedUrl.query && (parsedUrl.query.refresh === 'cloud' || parsedUrl.query.cloud === 'true');
+      if (!forceCloud && fs.existsSync(PRODUCTS_JSON)) {
+        try {
+          const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+          const rates = getSavedPurchaseRates();
+          if (Array.isArray(pj.products)) {
+            pj.products.forEach(p => {
+              if (rates[String(p.id)] !== undefined && Number(rates[String(p.id)]) > 0) {
+                p.purchasePrice = Number(rates[String(p.id)]);
+              }
+            });
+          }
+          return sendJson(res, 200, pj);
+        } catch(e) {
+          return sendFile(res, PRODUCTS_JSON, 'application/json; charset=utf-8');
+        }
+      }
       try {
         const sbProducts = await fetchProductsFromSupabase();
         if (Array.isArray(sbProducts) && sbProducts.length > 0) {
           let localCategories = [];
           let localSettings = {};
+          let localImageMap = {};
+          let localItemImageVersions = {};
+          let localVariants = {};
           if (fs.existsSync(PRODUCTS_JSON)) {
             try {
               const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
               localCategories = pj.categories || [];
               localSettings = pj.settings || {};
+              localImageMap = pj.imageMap || {};
+              localItemImageVersions = pj.itemImageVersions || {};
+              localVariants = pj.variants || {};
             } catch(e) {}
           }
-          const formattedProducts = sbProducts.map(p => ({
-            id: Number(p.id),
-            name: p.name,
-            price: Number(p.price),
-            categoryId: p.category_id || p.categoryId || 'general',
-            categoryName: p.category_name || p.categoryName || 'General Items',
-            priority: p.priority ? Number(p.priority) : undefined,
-            filterName: p.filter_name || p.filterName || undefined,
-            hasImage: !!p.has_image,
-            imageUrl: p.image_url,
-            imageVersion: p.image_version || p.imageVersion,
-            purchasePrice: p.purchase_price !== null && p.purchase_price !== undefined ? Number(p.purchase_price) : undefined
-          }));
+          const savedRates = getSavedPurchaseRates();
+          const formattedProducts = sbProducts.map(p => {
+            const pId = Number(p.id);
+            const hasImg = !!p.has_image || !!p.image_url;
+            if (hasImg && !localImageMap[pId]) {
+              localImageMap[pId] = 'webp';
+            }
+            if (p.image_version || p.imageVersion) {
+              localItemImageVersions[pId] = Number(p.image_version || p.imageVersion);
+            }
+            const purCost = savedRates[String(pId)] !== undefined 
+              ? Number(savedRates[String(pId)]) 
+              : (p.purchase_price !== null && p.purchase_price !== undefined ? Number(p.purchase_price) : undefined);
+            return {
+              id: pId,
+              name: p.name,
+              price: Number(p.price),
+              categoryId: p.category_id || p.categoryId || 'general',
+              categoryName: p.category_name || p.categoryName || 'General Items',
+              priority: p.priority ? Number(p.priority) : undefined,
+              filterName: p.filter_name || p.filterName || undefined,
+              hasImage: hasImg,
+              imageUrl: p.image_url,
+              imageVersion: p.image_version || p.imageVersion,
+              purchasePrice: purCost
+            };
+          });
 
           const responseData = {
             version: 2,
@@ -802,17 +1333,34 @@ function syncImageToTargets(fileName) {
             total: formattedProducts.length,
             settings: localSettings,
             categories: localCategories,
+            imageMap: localImageMap,
+            itemImageVersions: localItemImageVersions,
+            variants: localVariants,
             products: formattedProducts
           };
 
-          // Update local products.json cache quietly
-          fs.writeFileSync(PRODUCTS_JSON, JSON.stringify(responseData, null, 2), 'utf8');
+          if (!fs.existsSync(PRODUCTS_JSON)) {
+            safeAtomicWriteJson(PRODUCTS_JSON, responseData);
+          }
           return sendJson(res, 200, responseData);
         }
       } catch(e) {}
 
       if (fs.existsSync(PRODUCTS_JSON)) {
-        return sendFile(res, PRODUCTS_JSON, 'application/json; charset=utf-8');
+        try {
+          const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+          const rates = getSavedPurchaseRates();
+          if (Array.isArray(pj.products)) {
+            pj.products.forEach(p => {
+              if (rates[String(p.id)] !== undefined && Number(rates[String(p.id)]) > 0) {
+                p.purchasePrice = Number(rates[String(p.id)]);
+              }
+            });
+          }
+          return sendJson(res, 200, pj);
+        } catch(e) {
+          return sendFile(res, PRODUCTS_JSON, 'application/json; charset=utf-8');
+        }
       }
       return sendJson(res, 200, { products: [] });
     }
@@ -820,8 +1368,8 @@ function syncImageToTargets(fileName) {
     // 4. API: Products POST (Add New Item)
     if (pathname === '/api/products' && req.method === 'POST') {
       const body = await parseBody(req);
-      if (!body.name || body.price === undefined) {
-        return sendJson(res, 400, { ok: false, error: 'Product name and price are required' });
+      if (!body.name || body.price === undefined || isNaN(body.price) || Number(body.price) <= 0) {
+        return sendJson(res, 400, { ok: false, error: 'Product name and valid price (> 0) are required' });
       }
 
       // Read current products to calculate next ID
@@ -838,6 +1386,9 @@ function syncImageToTargets(fileName) {
       };
       if (body.priority) newProduct.priority = Number(body.priority);
       if (body.filterName) newProduct.filterName = String(body.filterName).trim();
+      if (body.purchasePrice !== undefined && body.purchasePrice !== null && !isNaN(Number(body.purchasePrice)) && Number(body.purchasePrice) > 0) {
+        newProduct.purchasePrice = Number(body.purchasePrice);
+      }
 
       // Handle image upload if provided (Always save as optimized WebP)
       let ext = 'webp';
@@ -845,11 +1396,13 @@ function syncImageToTargets(fileName) {
       if (body.imageBase64) {
         const base64Data = body.imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, '');
         const imgBuffer = Buffer.from(base64Data, 'base64');
+        let uploadBuffer = imgBuffer;
         if (sharp) {
-          await sharp(imgBuffer)
+          uploadBuffer = await sharp(imgBuffer)
             .resize(500, 500, { fit: 'inside', withoutEnlargement: true })
             .webp({ quality: 82 })
-            .toFile(path.join(IMAGES_DIR, `${newId}.webp`));
+            .toBuffer();
+          fs.writeFileSync(path.join(IMAGES_DIR, `${newId}.webp`), uploadBuffer);
           ext = 'webp';
         } else {
           fs.writeFileSync(path.join(IMAGES_DIR, `${newId}.webp`), imgBuffer);
@@ -858,7 +1411,7 @@ function syncImageToTargets(fileName) {
         syncImageToTargets(`${newId}.${ext}`);
 
         try {
-          publicImgUrl = await supabaseUploadStorageImage(`${newId}.webp`, imgBuffer, 'image/webp');
+          publicImgUrl = await supabaseUploadStorageImage(`${newId}.webp`, uploadBuffer, 'image/webp');
           if (publicImgUrl) {
             newProduct.hasImage = true;
             newProduct.imageUrl = publicImgUrl;
@@ -878,10 +1431,15 @@ function syncImageToTargets(fileName) {
         priority: newProduct.priority || null,
         filter_name: newProduct.filterName || null,
         has_image: !!body.imageBase64,
-        image_url: publicImgUrl || (sbCfg ? `${sbCfg.supabaseUrl}/storage/v1/object/public/product-images/${newId}.webp` : null),
+        image_url: body.imageBase64 ? (publicImgUrl || (sbCfg ? `${sbCfg.supabaseUrl}/storage/v1/object/public/product-images/${newId}.webp` : null)) : null,
         image_version: Date.now()
       };
-      supabaseApiRequest('/rest/v1/products', 'POST', [sbNewProd]).catch(e => console.warn('Supabase insert warning:', e));
+      let sbAddRes = null;
+      try {
+        sbAddRes = await supabaseApiRequest('/rest/v1/products', 'POST', [sbNewProd]);
+      } catch (e) {
+        console.warn('Supabase insert warning:', e);
+      }
 
       // Append to INDEX.JSX
       let jsxContent = fs.readFileSync(JSX_FILE, 'utf8');
@@ -895,31 +1453,53 @@ function syncImageToTargets(fileName) {
         fs.writeFileSync(JSX_FILE, jsxContent, 'utf8');
       }
 
-      // Save purchase rate if provided
-      if (body.purchasePrice !== undefined) {
-        let rates = { rates: {} };
-        if (fs.existsSync(RATES_FILE)) {
-          try { rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
-        }
+      // Save purchase rate if provided and sync to Supabase purchase_rates table
+      if (body.purchasePrice !== undefined && body.purchasePrice !== null && !isNaN(Number(body.purchasePrice)) && Number(body.purchasePrice) > 0) {
+        let rates = safeReadJson(RATES_FILE, { rates: {} });
         if (!rates.rates) rates.rates = {};
         rates.rates[String(newId)] = Number(body.purchasePrice);
         rates.updatedAt = new Date().toISOString();
-        fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+        safeAtomicWriteJson(RATES_FILE, rates);
+
+        supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', {
+          product_id: newId,
+          purchase_price: Number(body.purchasePrice),
+          updated_at: new Date().toISOString()
+        }).catch(() => {});
       }
 
-      // Send instant response to Admin Panel (50ms response time!)
-      sendJson(res, 200, { ok: true, product: newProduct });
-
-      // Run local backup & compile in the background without blocking the UI
-      setImmediate(() => {
+      // Update local products.json in-place instantly
+      if (fs.existsSync(PRODUCTS_JSON)) {
         try {
-          delete require.cache[require.resolve('./export_products.js')];
-          require('./export_products.js');
-          exec('node compile_jsx.js', { cwd: ROOT }, () => {
-            liveCloudSync('Admin added new product #' + newId + ' (' + newProduct.name + ')');
-          });
+          const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+          if (Array.isArray(pj.products)) {
+            pj.products.push(newProduct);
+            if (!Array.isArray(pj.categories)) pj.categories = [];
+            if (newProduct.categoryId && !pj.categories.some(c => c.id === newProduct.categoryId)) {
+              pj.categories.push({
+                id: newProduct.categoryId,
+                name: newProduct.categoryName || newProduct.categoryId
+              });
+              supabaseApiRequest('/rest/v1/categories?on_conflict=id', 'POST', [{
+                id: newProduct.categoryId,
+                name: newProduct.categoryName || newProduct.categoryId,
+                updated_at: new Date().toISOString()
+              }]).catch(() => {});
+            }
+            pj.total = pj.products.length;
+            pj.updatedAt = new Date().toISOString();
+            safeAtomicWriteJson(PRODUCTS_JSON, pj);
+            try { fs.copyFileSync(PRODUCTS_JSON, path.join(__dirname, 'www', 'products.json')); } catch(e) {}
+            try { fs.copyFileSync(PRODUCTS_JSON, path.join(__dirname, 'complete', 'products.json')); } catch(e) {}
+            try { fs.copyFileSync(PRODUCTS_JSON, 'C:\\Users\\ALICOM4\\Desktop\\new apk complete\\products.json'); } catch(e) {}
+            try { fs.copyFileSync(PRODUCTS_JSON, path.join(__dirname, 'android', 'app', 'src', 'main', 'assets', 'public', 'products.json')); } catch(e) {}
+          }
         } catch(e) {}
-      });
+      }
+
+      // Send response to Admin Panel immediately! (< 100ms)
+      sendJson(res, 200, { ok: true, product: newProduct, cloudSync: sbAddRes ? sbAddRes.ok : false });
+      scheduleDebouncedGitSync('Admin added new product #' + newId + ' (' + newProduct.name + ')');
       return;
     }
 
@@ -933,7 +1513,12 @@ function syncImageToTargets(fileName) {
       const sbCfg = getSupabaseConfig();
       const sbUpdate = { updated_at: new Date().toISOString() };
       if (body.name) sbUpdate.name = String(body.name).trim().toUpperCase();
-      if (body.price !== undefined) sbUpdate.price = Number(body.price);
+      if (body.price !== undefined) {
+        if (isNaN(body.price) || Number(body.price) <= 0) {
+          return sendJson(res, 400, { ok: false, error: 'Product price must be greater than 0' });
+        }
+        sbUpdate.price = Number(body.price);
+      }
       if (body.categoryId) sbUpdate.category_id = String(body.categoryId).trim();
       if (body.categoryName) sbUpdate.category_name = String(body.categoryName).trim();
       if (body.priority !== undefined) sbUpdate.priority = Number(body.priority) > 0 ? Number(body.priority) : null;
@@ -947,7 +1532,8 @@ function syncImageToTargets(fileName) {
         let updatedItemStr = currentItemStr;
 
         if (body.name) {
-          updatedItemStr = updatedItemStr.replace(/name:\s*"[^"]*"/, `name: "${body.name.trim().replace(/"/g, '\\"')}"`);
+          const upperName = body.name.trim().toUpperCase().replace(/"/g, '\\"');
+          updatedItemStr = updatedItemStr.replace(/name:\s*"[^"]*"/, `name: "${upperName}"`);
         }
         if (body.price !== undefined) {
           updatedItemStr = updatedItemStr.replace(/price:\s*[\d.]+/, `price: ${Number(body.price)}`);
@@ -971,27 +1557,39 @@ function syncImageToTargets(fileName) {
           }
         }
 
-        jsxContent = jsxContent.replace(currentItemStr, updatedItemStr);
+        jsxContent = jsxContent.replace(currentItemStr, () => updatedItemStr);
         fs.writeFileSync(JSX_FILE, jsxContent, 'utf8');
       }
 
       // Update purchase rate locally and sync to Supabase purchase_rates table
       if (body.purchasePrice !== undefined) {
-        let rates = { rates: {} };
-        if (fs.existsSync(RATES_FILE)) {
-          try { rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
-        }
+        let rates = safeReadJson(RATES_FILE, { rates: {} });
         if (!rates.rates) rates.rates = {};
-        rates.rates[String(id)] = Number(body.purchasePrice);
-        rates.updatedAt = new Date().toISOString();
-        fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+        if (body.purchasePrice === null || body.purchasePrice === '' || Number(body.purchasePrice) === 0) {
+          delete rates.rates[String(id)];
+          rates.updatedAt = new Date().toISOString();
+          safeAtomicWriteJson(RATES_FILE, rates);
 
-        // Sync to secure private purchase_rates table
-        supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', {
-          product_id: id,
-          purchase_price: Number(body.purchasePrice),
-          updated_at: new Date().toISOString()
-        }).catch(() => {});
+          supabaseApiRequest(`/rest/v1/purchase_rates?product_id=eq.${id}`, 'DELETE').catch(() => {});
+        } else if (!isNaN(Number(body.purchasePrice)) && Number(body.purchasePrice) > 0) {
+          rates.rates[String(id)] = Number(body.purchasePrice);
+          rates.updatedAt = new Date().toISOString();
+          safeAtomicWriteJson(RATES_FILE, rates);
+
+          // Sync to secure private purchase_rates table (support both column names)
+          supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', {
+            product_id: id,
+            purchase_price: Number(body.purchasePrice),
+            purchase_rate: Number(body.purchasePrice),
+            updated_at: new Date().toISOString()
+          }).catch(() => {
+            supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', {
+              product_id: id,
+              purchase_price: Number(body.purchasePrice),
+              updated_at: new Date().toISOString()
+            }).catch(() => {});
+          });
+        }
       }
 
       // Handle image update if sent (Always save as optimized WebP)
@@ -999,11 +1597,13 @@ function syncImageToTargets(fileName) {
         const base64Data = body.imageBase64.replace(/^data:image\/[a-zA-Z0-9+.-]+;base64,/, '');
         const imgBuffer = Buffer.from(base64Data, 'base64');
         let imgExt = 'webp';
+        let uploadBuffer = imgBuffer;
         if (sharp) {
-          await sharp(imgBuffer)
+          uploadBuffer = await sharp(imgBuffer)
             .resize(500, 500, { fit: 'inside', withoutEnlargement: true })
             .webp({ quality: 82 })
-            .toFile(path.join(IMAGES_DIR, `${id}.webp`));
+            .toBuffer();
+          fs.writeFileSync(path.join(IMAGES_DIR, `${id}.webp`), uploadBuffer);
           imgExt = 'webp';
         } else {
           fs.writeFileSync(path.join(IMAGES_DIR, `${id}.webp`), imgBuffer);
@@ -1018,7 +1618,7 @@ function syncImageToTargets(fileName) {
 
         // Upload to Supabase Storage immediately
         try {
-          const publicImgUrl = await supabaseUploadStorageImage(`${id}.${imgExt}`, imgBuffer, 'image/webp');
+          const publicImgUrl = await supabaseUploadStorageImage(`${id}.${imgExt}`, uploadBuffer, 'image/webp');
           sbUpdate.has_image = true;
           sbUpdate.image_url = publicImgUrl || (sbCfg ? `${sbCfg.supabaseUrl}/storage/v1/object/public/product-images/${id}.${imgExt}` : null);
           sbUpdate.image_version = Date.now();
@@ -1026,28 +1626,75 @@ function syncImageToTargets(fileName) {
       }
 
       // Push update to Supabase Cloud Database (Instantly reflects on all phones!)
-      supabaseApiRequest(`/rest/v1/products?id=eq.${id}`, 'PATCH', sbUpdate).catch(e => console.warn('Supabase patch warning:', e));
-
-      // Respond immediately to Admin Panel (50ms response time!)
-      sendJson(res, 200, { ok: true, id });
-
-      // Run background local backup & compile without blocking the UI
-      setImmediate(() => {
+      let sbRes = null;
+      try {
+        sbRes = await supabaseApiRequest(`/rest/v1/products?id=eq.${id}`, 'PATCH', sbUpdate);
+      } catch (e) {
+        // Fallback: If schema lacks optional columns, retry with core product columns
         try {
-          delete require.cache[require.resolve('./export_products.js')];
-          require('./export_products.js');
-          exec('node compile_jsx.js', { cwd: ROOT }, () => {
-            liveCloudSync('Admin updated product #' + id, () => {
-              try {
-                const purgeReq = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${id}.webp`, () => {});
-                purgeReq.on('error', () => {});
-                const purgeJson = https.get(`https://purge.jsdelivr.net/gh/qureshi-code999/Item-web@main/products.json`, () => {});
-                purgeJson.on('error', () => {});
-              } catch(e) {}
-            });
-          });
+          const coreUpdate = {
+            name: sbUpdate.name,
+            price: sbUpdate.price,
+            category_id: sbUpdate.category_id,
+            category_name: sbUpdate.category_name,
+            has_image: sbUpdate.has_image,
+            image_url: sbUpdate.image_url,
+            image_version: sbUpdate.image_version,
+            updated_at: sbUpdate.updated_at
+          };
+          Object.keys(coreUpdate).forEach(k => coreUpdate[k] === undefined && delete coreUpdate[k]);
+          sbRes = await supabaseApiRequest(`/rest/v1/products?id=eq.${id}`, 'PATCH', coreUpdate);
+        } catch (e2) {
+          console.warn('Supabase patch warning:', e2);
+        }
+      }
+
+      // Fast in-place update of local products.json (Takes ~2ms)
+      if (fs.existsSync(PRODUCTS_JSON)) {
+        try {
+          const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+          if (Array.isArray(pj.products)) {
+            const pIdx = pj.products.findIndex(p => p.id === id);
+            if (pIdx !== -1) {
+              const currentP = pj.products[pIdx];
+              if (body.name) currentP.name = body.name.trim().toUpperCase();
+              if (body.price !== undefined) currentP.price = Number(body.price);
+              if (body.categoryId) currentP.categoryId = body.categoryId.trim();
+              if (body.categoryName) currentP.categoryName = body.categoryName.trim();
+              if (body.priority !== undefined) currentP.priority = Number(body.priority) > 0 ? Number(body.priority) : undefined;
+              if (body.purchasePrice !== undefined) {
+                if (body.purchasePrice === null || body.purchasePrice === '' || Number(body.purchasePrice) === 0) {
+                  delete currentP.purchasePrice;
+                } else if (!isNaN(Number(body.purchasePrice)) && Number(body.purchasePrice) > 0) {
+                  currentP.purchasePrice = Number(body.purchasePrice);
+                }
+              }
+              if (sbUpdate.image_url) currentP.imageUrl = sbUpdate.image_url;
+              if (sbUpdate.image_version) currentP.imageVersion = sbUpdate.image_version;
+              pj.updatedAt = new Date().toISOString();
+              safeAtomicWriteJson(PRODUCTS_JSON, pj);
+              const extraTargets = [
+                path.join(__dirname, 'www', 'products.json'),
+                path.join(__dirname, 'complete', 'products.json'),
+                path.join(__dirname, 'android', 'app', 'src', 'main', 'assets', 'public', 'products.json'),
+                'C:\\Users\\ALICOM4\\Desktop\\new apk complete\\products.json'
+              ];
+              extraTargets.forEach(tgt => {
+                try {
+                  const dir = path.dirname(tgt);
+                  if (fs.existsSync(dir)) fs.copyFileSync(PRODUCTS_JSON, tgt);
+                } catch(e) {}
+              });
+            }
+          }
         } catch(e) {}
-      });
+      }
+
+      // Respond immediately to Admin Panel! (< 100ms total response time!)
+      sendJson(res, 200, { ok: true, id, cloudSync: sbRes ? sbRes.ok : false });
+
+      // Debounced background sync without blocking UI
+      scheduleDebouncedGitSync('Admin updated product #' + id);
       return;
     }
 
@@ -1057,7 +1704,12 @@ function syncImageToTargets(fileName) {
       if (!id) return sendJson(res, 400, { ok: false, error: 'Invalid product ID' });
 
       // Delete from Supabase Cloud Database immediately
-      supabaseApiRequest(`/rest/v1/products?id=eq.${id}`, 'DELETE').catch(e => console.warn('Supabase delete warning:', e));
+      let sbDelRes = null;
+      try {
+        sbDelRes = await supabaseApiRequest(`/rest/v1/products?id=eq.${id}`, 'DELETE');
+      } catch (e) {
+        console.warn('Supabase delete warning:', e);
+      }
 
       let jsxContent = fs.readFileSync(JSX_FILE, 'utf8');
       const itemRegex = new RegExp(`\\s*\\{\\s*id:\\s*${id}\\s*,[^\\}]*\\},?`, 'm');
@@ -1066,31 +1718,145 @@ function syncImageToTargets(fileName) {
         fs.writeFileSync(JSX_FILE, jsxContent, 'utf8');
       }
 
+      // Delete images locally across all targets and from Supabase storage
+      ['webp', 'png', 'jpg', 'jpeg'].forEach(ext => {
+        const targets = [
+          path.join(IMAGES_DIR, `${id}.${ext}`),
+          path.join(ROOT, 'www', 'images', `${id}.${ext}`),
+          path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'images', `${id}.${ext}`)
+        ];
+        targets.forEach(t => {
+          if (fs.existsSync(t)) {
+            try { fs.unlinkSync(t); } catch(e) {}
+          }
+        });
+      });
+      supabaseDeleteStorageImage([`${id}.webp`, `${id}.png`]).catch(() => {});
+      supabaseApiRequest(`/rest/v1/purchase_rates?product_id=eq.${id}`, 'DELETE').catch(() => {});
+
       // Also remove from purchase rates
       if (fs.existsSync(RATES_FILE)) {
         try {
-          const rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8'));
+          const rates = safeReadJson(RATES_FILE, { rates: {} });
           if (rates.rates && rates.rates[String(id)]) {
             delete rates.rates[String(id)];
-            fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+            rates.updatedAt = new Date().toISOString();
+            safeAtomicWriteJson(RATES_FILE, rates);
           }
         } catch(e) {}
       }
 
-      // Respond immediately to Admin Panel (50ms response time!)
-      sendJson(res, 200, { ok: true, deletedId: id });
-
-      // Run background local backup & compile without blocking the UI
-      setImmediate(() => {
+      // Update local products.json in-place instantly
+      if (fs.existsSync(PRODUCTS_JSON)) {
         try {
-          delete require.cache[require.resolve('./export_products.js')];
-          require('./export_products.js');
-          exec('node compile_jsx.js', { cwd: ROOT }, () => {
-            liveCloudSync('Admin deleted product #' + id);
-          });
+          const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+          if (Array.isArray(pj.products)) {
+            pj.products = pj.products.filter(p => p.id !== id);
+            pj.total = pj.products.length;
+            pj.updatedAt = new Date().toISOString();
+            safeAtomicWriteJson(PRODUCTS_JSON, pj);
+            try { fs.copyFileSync(PRODUCTS_JSON, path.join(__dirname, 'www', 'products.json')); } catch(e) {}
+            try { fs.copyFileSync(PRODUCTS_JSON, path.join(__dirname, 'complete', 'products.json')); } catch(e) {}
+          }
         } catch(e) {}
-      });
+      }
+
+      // Respond immediately to Admin Panel (< 50ms response time!)
+      sendJson(res, 200, { ok: true, deletedId: id });
+      scheduleDebouncedGitSync('Admin deleted product #' + id);
       return;
+    }
+
+    // 5b. API: Category Create POST
+    if (pathname === '/api/categories' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const catName = String(body.name || '').trim();
+      if (!catName) {
+        return sendJson(res, 400, { ok: false, error: 'Category name is required' });
+      }
+
+      let catId = String(body.id || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!catId) {
+        catId = catName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      }
+      if (!catId) catId = 'cat_' + Date.now();
+
+      const prioNum = body.priority !== undefined && body.priority !== null && !isNaN(Number(body.priority)) && Number(body.priority) > 0 ? Number(body.priority) : null;
+
+      let pj = safeReadJson(PRODUCTS_JSON, { products: [], categories: [] });
+      if (!Array.isArray(pj.categories)) pj.categories = [];
+      const existing = pj.categories.find(c => c.id === catId || c.name.toLowerCase() === catName.toLowerCase());
+      if (existing) {
+        return sendJson(res, 200, { ok: true, category: existing, categories: pj.categories, message: 'Category already exists' });
+      }
+
+      const newCategory = {
+        id: catId,
+        name: catName
+      };
+      if (prioNum) newCategory.priority = prioNum;
+
+      pj.categories.push(newCategory);
+      pj.updatedAt = new Date().toISOString();
+      safeAtomicWriteJson(PRODUCTS_JSON, pj);
+
+      // Sync to category_priorities.json
+      if (prioNum) {
+        let priorities = safeReadJson(CAT_PRIORITIES_FILE, {});
+        priorities[catId] = prioNum;
+        safeAtomicWriteJson(CAT_PRIORITIES_FILE, priorities);
+      }
+
+      // ⚡ Cloud Backup to Supabase categories table
+      try {
+        await supabaseApiRequest('/rest/v1/categories?on_conflict=id', 'POST', [{
+          id: catId,
+          name: catName,
+          priority: prioNum || null,
+          updated_at: new Date().toISOString()
+        }]);
+        console.log(`[Supabase Category Create] Inserted category ${catId} (${catName}) into Supabase`);
+      } catch (e) {
+        console.warn('Supabase category create warning:', e.message);
+      }
+
+      // Update INDEX.JSX DEFAULT_CATEGORIES directly
+      try {
+        let jsx = fs.readFileSync(JSX_FILE, 'utf8');
+        const catMatch = jsx.match(/(?:const|var)\s+DEFAULT_CATEGORIES\s*=\s*\[/);
+        if (catMatch) {
+          const insertIdx = catMatch.index + catMatch[0].length;
+          const prioStr = prioNum ? `, priority: ${prioNum}` : '';
+          const newLine = `\n    { id: "${catId}", name: "${catName.replace(/"/g, '\\"')}"${prioStr} },`;
+          jsx = jsx.slice(0, insertIdx) + newLine + jsx.slice(insertIdx);
+          fs.writeFileSync(JSX_FILE, jsx, 'utf8');
+        }
+      } catch(e) {
+        console.warn('JSX category create notice:', e.message);
+      }
+
+      // Mirror products.json to all targets
+      try {
+        const mirrorDirs = [
+          path.join(ROOT, 'www'),
+          path.join(ROOT, 'complete'),
+          'C:\\Users\\ALICOM4\\Desktop\\new apk complete',
+          path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public')
+        ];
+        mirrorDirs.forEach(dir => {
+          try {
+            if (fs.existsSync(dir)) fs.copyFileSync(PRODUCTS_JSON, path.join(dir, 'products.json'));
+          } catch(e) {}
+        });
+      } catch(e) {}
+
+      // Compile JSX to app.js
+      try {
+        delete require.cache[require.resolve('./compile_jsx.js')];
+        require('./compile_jsx.js');
+      } catch(e) {}
+
+      return sendJson(res, 200, { ok: true, category: newCategory, categories: pj.categories });
     }
 
     // 5c. API: Category Priority PUT
@@ -1114,7 +1880,17 @@ function syncImageToTargets(fileName) {
 
       fs.writeFileSync(CAT_PRIORITIES_FILE, JSON.stringify(priorities, null, 2), 'utf8');
 
-      // Update INDEX.JSX DEFAULT_CATEGORIES directly
+      // 1. ⚡ Real-time Supabase Cloud Database Sync (Immediate live update for all phones & web!)
+      try {
+        await supabaseApiRequest(`/rest/v1/categories?id=eq.${encodeURIComponent(catId)}`, 'PATCH', {
+          priority: prioNum > 0 ? prioNum : null
+        });
+        console.log(`[Supabase Category Priority Sync] Set ${catId} -> priority: ${prioNum > 0 ? prioNum : 'null'}`);
+      } catch (e) {
+        console.warn('Supabase category priority update notice:', e.message);
+      }
+
+      // 2. Update INDEX.JSX DEFAULT_CATEGORIES directly
       try {
         let jsx = fs.readFileSync(JSX_FILE, 'utf8');
         const catRegex = new RegExp(`(\\{\\s*id:\\s*"${catId}"[^\n\\}]*)(\\s*\\})`, 'm');
@@ -1136,8 +1912,31 @@ function syncImageToTargets(fileName) {
         console.warn('JSX category priority update notice:', e.message);
       }
 
-      delete require.cache[require.resolve('./export_products.js')];
-      require('./export_products.js');
+      // 3. Re-export products.json across all folders
+      try {
+        delete require.cache[require.resolve('./export_products.js')];
+        require('./export_products.js');
+        try {
+          fs.copyFileSync(PRODUCTS_JSON, 'C:\\Users\\ALICOM4\\Desktop\\new apk complete\\products.json');
+        } catch(e) {}
+      } catch(e) {
+        console.warn('Export products notice:', e.message);
+      }
+
+      // 4. Compile JSX and copy app.js to www and android public
+      try {
+        delete require.cache[require.resolve('./compile_jsx.js')];
+        require('./compile_jsx.js');
+        const srcApp = path.join(ROOT, 'app.js');
+        if (fs.existsSync(srcApp)) {
+          const tWww = path.join(ROOT, 'www', 'app.js');
+          const tAndroid = path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'app.js');
+          fs.copyFileSync(srcApp, tWww);
+          fs.copyFileSync(srcApp, tAndroid);
+        }
+      } catch(e) {
+        console.warn('Compile JSX on category priority notice:', e.message);
+      }
 
       let updatedCategories = [];
       try {
@@ -1146,6 +1945,242 @@ function syncImageToTargets(fileName) {
       } catch(e) {}
 
       return sendJson(res, 200, { ok: true, catId, priority: prioNum, categories: updatedCategories });
+    }
+
+    // 5d. API: RENAME Category (Permanent rename in products.json, Supabase, INDEX.JSX, app.js, sw.js)
+    if (pathname.startsWith('/api/categories/') && pathname.endsWith('/rename') && (req.method === 'PUT' || req.method === 'POST')) {
+      const parts = pathname.split('/');
+      const catId = decodeURIComponent(parts[3] || '');
+      const body = await parseBody(req);
+      const newName = (body.name || '').trim();
+
+      if (!catId) return sendJson(res, 400, { ok: false, error: 'Category ID is required' });
+      if (!newName) return sendJson(res, 400, { ok: false, error: 'New Category Name is required' });
+
+      // ── 1. Load products.json ──────────────────────────────────
+      let pj = { categories: [], products: [] };
+      try { pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8')); } catch(e) {}
+      if (!Array.isArray(pj.categories)) pj.categories = [];
+      if (!Array.isArray(pj.products)) pj.products = [];
+
+      const catObj = pj.categories.find(c => c.id === catId);
+      if (!catObj) return sendJson(res, 404, { ok: false, error: 'Category not found: ' + catId });
+
+      const oldName = catObj.name;
+      catObj.name = newName;
+
+      // Update categoryName in all matching products
+      let affectedProductsCount = 0;
+      pj.products.forEach(p => {
+        if (p.categoryId === catId) {
+          p.categoryName = newName;
+          affectedProductsCount++;
+        }
+      });
+
+      // Save products.json
+      fs.writeFileSync(PRODUCTS_JSON, JSON.stringify(pj, null, 2), 'utf8');
+
+      // ── 2. Update category_priorities.json ─────────────────────
+      try {
+        if (fs.existsSync(CAT_PRIORITIES_FILE)) {
+          let cp = {};
+          try { cp = JSON.parse(fs.readFileSync(CAT_PRIORITIES_FILE, 'utf8')); } catch(e) {}
+          if (Array.isArray(cp)) {
+            const item = cp.find(x => x.id === catId);
+            if (item) item.name = newName;
+          } else if (cp[catId] && typeof cp[catId] === 'object') {
+            cp[catId].name = newName;
+          }
+          fs.writeFileSync(CAT_PRIORITIES_FILE, JSON.stringify(cp, null, 2), 'utf8');
+        }
+      } catch(e) { console.warn('category_priorities rename notice:', e.message); }
+
+      // ── 3. Supabase Cloud Database Realtime Sync ───────────────
+      try {
+        await supabaseApiRequest(`/rest/v1/categories?id=eq.${encodeURIComponent(catId)}`, 'PATCH', {
+          name: newName,
+          updated_at: new Date().toISOString()
+        });
+        console.log(`[Supabase] Category ${catId} renamed to: "${newName}"`);
+      } catch(e) { console.warn('Supabase category rename notice:', e.message); }
+
+      try {
+        if (affectedProductsCount > 0) {
+          await supabaseApiRequest(`/rest/v1/products?category_id=eq.${encodeURIComponent(catId)}`, 'PATCH', {
+            category_name: newName
+          });
+          console.log(`[Supabase] Updated ${affectedProductsCount} products category_name -> "${newName}"`);
+        }
+      } catch(e) { console.warn('Supabase product category_name notice:', e.message); }
+
+      // ── 4. Update INDEX.JSX ────────────────────────────────────
+      try {
+        let jsx = fs.readFileSync(JSX_FILE, 'utf8');
+        const catDefRegex = new RegExp(`(\\{\\s*id:\\s*"${catId}"[^\n\\}]*name:\\s*")[^"]*(")`);
+        if (catDefRegex.test(jsx)) {
+          jsx = jsx.replace(catDefRegex, `$1${newName}$2`);
+        }
+        if (oldName) {
+          const escapedOld = oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          jsx = jsx.replace(new RegExp(`categoryName:\\s*"${escapedOld}"`, 'g'), `categoryName: "${newName}"`);
+        }
+        fs.writeFileSync(JSX_FILE, jsx, 'utf8');
+        console.log(`[JSX] Renamed category ${catId} to "${newName}" in INDEX.JSX`);
+      } catch(e) { console.warn('JSX rename notice:', e.message); }
+
+      // ── 5. Mirror products.json across all folders ─────────────
+      const mirrorTargets = [
+        path.join(ROOT, 'www', 'products.json'),
+        path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'products.json'),
+        path.join(ROOT, 'complete', 'products.json'),
+        'C:\\Users\\ALICOM4\\Desktop\\new apk complete\\products.json'
+      ];
+      const freshPj = fs.readFileSync(PRODUCTS_JSON, 'utf8');
+      mirrorTargets.forEach(t => { try { fs.writeFileSync(t, freshPj, 'utf8'); } catch(e) {} });
+
+      // ── 6. Recompile JSX -> app.js ─────────────────────────────
+      try {
+        delete require.cache[require.resolve('./compile_jsx.js')];
+        require('./compile_jsx.js');
+        const srcApp = path.join(ROOT, 'app.js');
+        if (fs.existsSync(srcApp)) {
+          const appContent = fs.readFileSync(srcApp);
+          fs.writeFileSync(path.join(ROOT, 'www', 'app.js'), appContent);
+          fs.writeFileSync(path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'app.js'), appContent);
+        }
+      } catch(e) { console.warn('Compile JSX on category rename notice:', e.message); }
+
+      // ── 7. Bump Service Worker Cache Version ───────────────────
+      try {
+        const swPath = path.join(ROOT, 'sw.js');
+        if (fs.existsSync(swPath)) {
+          let sw = fs.readFileSync(swPath, 'utf8');
+          const newVer = 'v' + Date.now();
+          sw = sw.replace(/const CACHE_VERSION = '[^']+';/, `const CACHE_VERSION = '${newVer}';`);
+          fs.writeFileSync(swPath, sw, 'utf8');
+          const swMirrors = [
+            path.join(ROOT, 'www', 'sw.js'),
+            path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'sw.js'),
+            path.join(ROOT, 'complete', 'sw.js'),
+            'C:\\Users\\ALICOM4\\Desktop\\new apk complete\\sw.js'
+          ];
+          swMirrors.forEach(m => { try { fs.writeFileSync(m, sw, 'utf8'); } catch(e) {} });
+        }
+      } catch(e) { console.warn('Service worker bump notice:', e.message); }
+
+      return sendJson(res, 200, {
+        ok: true,
+        catId,
+        oldName,
+        newName,
+        affectedProductsCount,
+        categories: pj.categories
+      });
+    }
+
+    // 6b. API: DELETE Category (Permanent remove from products.json, Supabase, INDEX.JSX)
+    if (pathname.startsWith('/api/categories/') && !pathname.endsWith('/priority') && req.method === 'DELETE') {
+      const parts = pathname.split('/');
+      const catId = decodeURIComponent(parts[3] || '');
+      if (!catId) return sendJson(res, 400, { ok: false, error: 'Category ID required' });
+
+      // ── 1. Load products.json ──────────────────────────────────
+      let pj = { categories: [], products: [] };
+      try { pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8')); } catch(e) {}
+      if (!Array.isArray(pj.categories)) pj.categories = [];
+      if (!Array.isArray(pj.products)) pj.products = [];
+
+      const catExists = pj.categories.find(c => c.id === catId);
+      if (!catExists) return sendJson(res, 404, { ok: false, error: 'Category not found: ' + catId });
+
+      // Count how many products are in this category
+      const affectedProducts = pj.products.filter(p => p.categoryId === catId);
+
+      // ── 2. Remove category from categories array ───────────────
+      pj.categories = pj.categories.filter(c => c.id !== catId);
+
+      // ── 3. Move affected products to 'general' category ────────
+      pj.products.forEach(p => {
+        if (p.categoryId === catId) {
+          p.categoryId = 'general';
+          p.categoryName = 'General Items & Others';
+        }
+      });
+
+      // ── 4. Save products.json ──────────────────────────────────
+      fs.writeFileSync(PRODUCTS_JSON, JSON.stringify(pj, null, 2), 'utf8');
+
+      // ── 5. Remove from category_priorities.json ────────────────
+      try {
+        if (fs.existsSync(CAT_PRIORITIES_FILE)) {
+          let cp = {};
+          try { cp = JSON.parse(fs.readFileSync(CAT_PRIORITIES_FILE, 'utf8')); } catch(e) {}
+          delete cp[catId];
+          fs.writeFileSync(CAT_PRIORITIES_FILE, JSON.stringify(cp, null, 2), 'utf8');
+        }
+      } catch(e) { console.warn('cat_priorities delete notice:', e.message); }
+
+      // ── 6. Remove from Supabase categories table ───────────────
+      try {
+        await supabaseApiRequest(`/rest/v1/categories?id=eq.${encodeURIComponent(catId)}`, 'DELETE', null);
+        console.log(`[Supabase] Category deleted: ${catId}`);
+      } catch(e) { console.warn('Supabase category delete notice:', e.message); }
+
+      // ── 7. Update Supabase products table (move to general) ────
+      if (affectedProducts.length > 0) {
+        try {
+          await supabaseApiRequest(
+            `/rest/v1/products?category_id=eq.${encodeURIComponent(catId)}`,
+            'PATCH',
+            { category_id: 'general', category_name: 'General Items & Others' }
+          );
+          console.log(`[Supabase] Moved ${affectedProducts.length} products from ${catId} to general`);
+        } catch(e) { console.warn('Supabase products reassign notice:', e.message); }
+      }
+
+      // ── 8. Remove from INDEX.JSX DEFAULT_CATEGORIES ───────────
+      try {
+        let jsx = fs.readFileSync(JSX_FILE, 'utf8');
+        // Remove the category line from DEFAULT_CATEGORIES array
+        const catLineRegex = new RegExp(`\\s*\\{\\s*id:\\s*"${catId}"[^}]*\\}\\s*,?`, 'g');
+        jsx = jsx.replace(catLineRegex, '');
+        // Also update all products with this categoryId in JSX
+        jsx = jsx.replace(new RegExp(`categoryId: "${catId}"`, 'g'), 'categoryId: "general"');
+        jsx = jsx.replace(new RegExp(`categoryName: "${catExists.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'g'), 'categoryName: "General Items & Others"');
+        fs.writeFileSync(JSX_FILE, jsx, 'utf8');
+        console.log(`[JSX] Removed category ${catId} from INDEX.JSX`);
+      } catch(e) { console.warn('JSX category remove notice:', e.message); }
+
+      // ── 9. Mirror products.json to all folders ─────────────────
+      const mirrorTargets = [
+        path.join(ROOT, 'www', 'products.json'),
+        path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'products.json'),
+        path.join(ROOT, 'complete', 'products.json'),
+        'C:\\Users\\ALICOM4\\Desktop\\new apk complete\\products.json'
+      ];
+      const freshPj = fs.readFileSync(PRODUCTS_JSON, 'utf8');
+      mirrorTargets.forEach(t => { try { fs.writeFileSync(t, freshPj, 'utf8'); } catch(e) {} });
+
+      // ── 10. Recompile JSX → app.js ────────────────────────────
+      try {
+        delete require.cache[require.resolve('./compile_jsx.js')];
+        require('./compile_jsx.js');
+        const srcApp = path.join(ROOT, 'app.js');
+        if (fs.existsSync(srcApp)) {
+          const appContent = fs.readFileSync(srcApp);
+          fs.writeFileSync(path.join(ROOT, 'www', 'app.js'), appContent);
+          fs.writeFileSync(path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'app.js'), appContent);
+        }
+      } catch(e) { console.warn('Compile JSX on category delete notice:', e.message); }
+
+      return sendJson(res, 200, {
+        ok: true,
+        deletedCategoryId: catId,
+        deletedCategoryName: catExists.name,
+        affectedProductsCount: affectedProducts.length,
+        categories: pj.categories
+      });
     }
 
     // 6. API: DSR Sales GET (With live profit recalculation and catalog coverage)
@@ -1160,14 +2195,14 @@ function syncImageToTargets(fileName) {
       const rates = getSavedPurchaseRates();
       const catalog = getProductsCatalogMap();
 
-      // Optimized live recalculation: instantly refresh recent orders and any order lacking profit data
+      // Optimized live recalculation: preserve locked-in historical item rates while backfilling missing rates
       const limitRecalc = Math.min(dsr.orders.length, 500);
       for (let i = 0; i < limitRecalc; i++) {
-        dsr.orders[i] = calculateOrderProfit(dsr.orders[i], rates, catalog);
+        dsr.orders[i] = calculateOrderProfit(dsr.orders[i], rates, catalog, { preserveExistingItemRates: true });
       }
       for (let i = limitRecalc; i < dsr.orders.length; i++) {
         if (dsr.orders[i].totalProfit === undefined) {
-          dsr.orders[i] = calculateOrderProfit(dsr.orders[i], rates, catalog);
+          dsr.orders[i] = calculateOrderProfit(dsr.orders[i], rates, catalog, { preserveExistingItemRates: true });
         }
       }
 
@@ -1182,117 +2217,224 @@ function syncImageToTargets(fileName) {
 
     // 6b. API: Manual Cloud Orders Sync Trigger
     if (pathname === '/api/dsr/sync-cloud' && req.method === 'GET') {
-      syncCloudOrders();
-      return sendJson(res, 200, { ok: true, message: 'Cloud sync triggered' });
+      const added = await syncCloudOrders();
+      return sendJson(res, 200, { ok: true, added, message: 'Cloud sync completed' });
     }
 
-    // 7. API: DSR Order POST (Manual / Counter / WhatsApp import)
+    // 7. API: DSR Order POST (Manual / Counter / WhatsApp import / POS Edit)
     if (pathname === '/api/dsr/order' && req.method === 'POST') {
       const body = await parseBody(req);
-      let dsr = { orders: [], expenses: [] };
-      if (fs.existsSync(DSR_FILE)) {
-        try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
-      }
+      let dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
       if (!Array.isArray(dsr.orders)) dsr.orders = [];
 
-      let ratesObj = { rates: {} };
-      if (fs.existsSync(RATES_FILE)) {
-        try { ratesObj = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
-      }
+      let ratesObj = safeReadJson(RATES_FILE, { rates: {} });
       if (!ratesObj.rates) ratesObj.rates = {};
 
-      // If user provided purchase rates inside items or in updatedRates, save them permanently!
+      // Only explicit admin-provided updatedRates object can alter permanent store rates
       let ratesChanged = false;
-      if (Array.isArray(body.items)) {
-        body.items.forEach(it => {
-          if (it.id && it.purchasePrice !== undefined && Number(it.purchasePrice) > 0) {
-            ratesObj.rates[String(it.id)] = Number(it.purchasePrice);
+      const changedRateRows = [];
+      if (body.updatedRates && typeof body.updatedRates === 'object') {
+        Object.keys(body.updatedRates).forEach(k => {
+          const val = Number(body.updatedRates[k]);
+          if (!isNaN(val) && val > 0 && !isNaN(Number(k)) && Number(k) > 0) {
+            ratesObj.rates[String(k)] = val;
             ratesChanged = true;
+            changedRateRows.push({
+              product_id: Number(k),
+              purchase_price: val,
+              updated_at: new Date().toISOString()
+            });
           }
         });
       }
-      if (body.updatedRates && typeof body.updatedRates === 'object') {
-        Object.assign(ratesObj.rates, body.updatedRates);
-        ratesChanged = true;
-      }
       if (ratesChanged) {
         ratesObj.updatedAt = new Date().toISOString();
-        fs.writeFileSync(RATES_FILE, JSON.stringify(ratesObj, null, 2), 'utf8');
+        safeAtomicWriteJson(RATES_FILE, ratesObj);
+        if (changedRateRows.length > 0) {
+          supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', changedRateRows).catch(() => {});
+        }
       }
 
       const catalog = getProductsCatalogMap();
       const orderId = body.id || ('ORD-' + Date.now());
+      const existingIdx = dsr.orders.findIndex(o => String(o.id) === String(orderId));
+      const existingOrder = existingIdx >= 0 ? dsr.orders[existingIdx] : null;
+
       const now = new Date();
-      const orderDate = body.date || now.toISOString().slice(0, 10);
-      const orderTime = body.time || now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+      const orderDate = body.date || (existingOrder ? existingOrder.date : null) || getPktDateString();
+      const orderTime = body.time || (existingOrder ? existingOrder.time : null) || now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
 
       const rawOrder = {
+        ...(existingOrder || {}),
         id: orderId,
         date: orderDate,
         time: orderTime,
-        channel: body.channel || 'shop',
-        paymentMethod: body.paymentMethod || 'cash',
-        customerName: body.customerName || body.customer?.name || 'Walk-in Customer',
-        customerPhone: body.customerPhone || body.customer?.phone || '',
-        customerAddress: body.customerAddress || body.customer?.address || '',
-        deliveryMethod: body.deliveryMethod || 'pickup',
-        location: body.location || body.customer?.location || null,
-        notes: body.notes || '',
-        photoUrl: body.photoUrl || null,
-        items: body.items || [],
-        deliveryFee: Number(body.deliveryFee) || 0,
-        status: body.status || 'completed'
+        channel: body.channel || (existingOrder && existingOrder.channel) || 'shop',
+        paymentMethod: body.paymentMethod || (existingOrder && existingOrder.paymentMethod) || 'cash',
+        customerName: body.customerName || body.customer?.name || (existingOrder && existingOrder.customerName) || 'Walk-in Customer',
+        customerPhone: body.customerPhone !== undefined ? body.customerPhone : (body.customer?.phone !== undefined ? body.customer.phone : ((existingOrder && existingOrder.customerPhone) || '')),
+        customerAddress: body.customerAddress !== undefined ? body.customerAddress : (body.customer?.address !== undefined ? body.customer.address : ((existingOrder && existingOrder.customerAddress) || '')),
+        deliveryMethod: body.deliveryMethod || (existingOrder && existingOrder.deliveryMethod) || 'pickup',
+        location: body.location !== undefined ? body.location : (body.customer?.location !== undefined ? body.customer.location : ((existingOrder && existingOrder.location) || null)),
+        notes: body.notes !== undefined ? body.notes : ((existingOrder && existingOrder.notes) || ''),
+        photoUrl: body.photoUrl !== undefined ? body.photoUrl : ((existingOrder && existingOrder.photoUrl) || null),
+        items: body.items || (existingOrder && existingOrder.items) || [],
+        deliveryFee: body.deliveryFee !== undefined ? Number(body.deliveryFee) : Number((existingOrder && existingOrder.deliveryFee) || 0),
+        status: body.status || (existingOrder && existingOrder.status) || 'completed',
+        source: body.source || (existingOrder && existingOrder.source) || (body.channel === 'whatsapp' ? 'whatsapp' : 'pos')
       };
 
-      const processed = calculateOrderProfit(rawOrder, ratesObj.rates, catalog);
+      const processed = calculateOrderProfit(rawOrder, ratesObj.rates, catalog, { trustItemPurchasePrice: true });
+      processed.subtotal = Number(processed.totalSale || 0);
+      processed.total = Number(processed.grandTotal || processed.totalSale || 0);
+      processed.profit = Number(processed.totalProfit || 0);
 
-      const existingIdx = dsr.orders.findIndex(o => String(o.id) === String(orderId));
       if (existingIdx >= 0) {
         dsr.orders[existingIdx] = processed;
       } else {
         dsr.orders.unshift(processed);
       }
 
-      fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+      safeAtomicWriteJson(DSR_FILE, dsr);
 
-      // Sync order to Supabase Cloud Database orders table
-      supabaseApiRequest('/rest/v1/orders', 'POST', {
+      // Sync order to Supabase Cloud Database orders table (upsert on conflict)
+      supabaseApiRequest('/rest/v1/orders?on_conflict=id', 'POST', {
         id: String(processed.id),
         customer_name: (processed.customer && processed.customer.name) || processed.customerName || 'Customer',
         customer_phone: (processed.customer && processed.customer.phone) || processed.customerPhone || '',
         customer_address: (processed.customer && processed.customer.address) || processed.customerAddress || '',
         delivery_type: processed.deliveryType || processed.deliveryMethod || 'standard',
         payment_method: processed.paymentMethod || 'cash',
-        subtotal: Number(processed.subtotal || 0),
+        subtotal: Number(processed.totalSale || processed.subtotal || 0),
         delivery_fee: Number(processed.deliveryFee || 0),
-        total: Number(processed.total || 0),
+        total: Number(processed.grandTotal || processed.total || processed.totalSale || 0),
         total_savings: Number(processed.totalSavings || 0),
-        profit: Number(processed.profit || 0),
-        status: processed.status || 'pending',
+        profit: Number(processed.totalProfit || processed.profit || 0),
+        status: processed.status || 'placed',
         items: processed.items || [],
         raw_data: processed,
-        created_at: processed.date ? new Date(processed.date).toISOString() : new Date().toISOString()
+        created_at: processed.date ? new Date(processed.date).toISOString() : new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }).catch(() => {});
 
+      syncOrderStatusesToSupabase(dsr.orders);
+
       return sendJson(res, 200, { ok: true, order: processed });
+    }
+
+    // 7a. API: DSR Order Status Update PUT (Syncs live to Customer App tracker via Supabase)
+    if (pathname.startsWith('/api/dsr/order/') && pathname.endsWith('/status') && (req.method === 'PUT' || req.method === 'POST')) {
+      const orderId = decodeURIComponent(pathname.replace('/api/dsr/order/', '').replace('/status', '').trim());
+      const body = await parseBody(req);
+      const newStatus = String(body.status || '').trim().toLowerCase();
+      if (!orderId || !newStatus) {
+        return sendJson(res, 400, { ok: false, error: 'Missing order ID or status' });
+      }
+
+      let dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
+      if (!Array.isArray(dsr.orders)) dsr.orders = [];
+      const ordIdx = dsr.orders.findIndex(o => String(o.id) === String(orderId));
+      if (ordIdx < 0) {
+        return sendJson(res, 404, { ok: false, error: 'Order not found' });
+      }
+
+      dsr.orders[ordIdx].status = newStatus;
+      dsr.orders[ordIdx].updatedAt = new Date().toISOString();
+      safeAtomicWriteJson(DSR_FILE, dsr);
+
+      // Update order status in Supabase public.orders and public.store_settings (id=order_statuses)
+      supabaseApiRequest(`/rest/v1/orders?id=eq.${encodeURIComponent(orderId)}`, 'PATCH', {
+        status: newStatus,
+        raw_data: dsr.orders[ordIdx],
+        updated_at: new Date().toISOString()
+      }).catch(() => {});
+      syncOrderStatusesToSupabase(dsr.orders);
+
+      return sendJson(res, 200, { ok: true, id: orderId, status: newStatus });
+    }
+
+    // 7a-2. API: Order Status GET (Customer App status query fallback)
+    if (pathname === '/api/order-status' && req.method === 'GET') {
+      const ordId = (reqUrl.searchParams.get('id') || '').trim();
+      if (!ordId) return sendJson(res, 400, { ok: false, error: 'Missing order id parameter' });
+      let dsr = safeReadJson(DSR_FILE, { orders: [] });
+      const found = (dsr.orders || []).find(o => String(o.id) === String(ordId));
+      if (found) {
+        return sendJson(res, 200, { ok: true, found: true, id: ordId, status: found.status || 'placed' });
+      }
+      return sendJson(res, 404, { ok: false, error: 'Order not found' });
     }
 
     // 7b. API: Single Product Purchase Rate Update (With instant order profit recalculation)
     if (pathname.startsWith('/api/products/') && pathname.endsWith('/purchase-rate') && req.method === 'POST') {
       const parts = pathname.split('/');
       const itemId = parts[3];
+      if (!itemId || itemId.startsWith('CUST-') || isNaN(Number(itemId))) {
+        return sendJson(res, 400, { ok: false, error: 'Custom or non-numeric items cannot have catalog purchase rates' });
+      }
       const body = await parseBody(req);
+      const isClearing = body.purchasePrice === null || body.purchasePrice === '' || body.clear === true;
       const newRate = Number(body.purchasePrice !== undefined ? body.purchasePrice : (body.rate !== undefined ? body.rate : body.price));
 
-      if (itemId && !isNaN(newRate) && newRate >= 0) {
-        let ratesObj = { rates: {} };
-        if (fs.existsSync(RATES_FILE)) {
-          try { ratesObj = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
+      let ratesObj = safeReadJson(RATES_FILE, { rates: {} });
+      if (!ratesObj.rates) ratesObj.rates = {};
+
+      if (isClearing || (!isNaN(newRate) && newRate <= 0)) {
+        delete ratesObj.rates[String(itemId)];
+        ratesObj.updatedAt = new Date().toISOString();
+        safeAtomicWriteJson(RATES_FILE, ratesObj);
+
+        supabaseApiRequest(`/rest/v1/purchase_rates?product_id=eq.${itemId}`, 'DELETE').catch(() => {});
+
+        if (fs.existsSync(DSR_FILE)) {
+          try {
+            const dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
+            if (Array.isArray(dsr.orders)) {
+              const catalog = getProductsCatalogMap();
+              dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, ratesObj.rates, catalog, { preserveExistingItemRates: true, clearItemId: itemId }));
+              safeAtomicWriteJson(DSR_FILE, dsr);
+            }
+          } catch(e) {}
         }
-        if (!ratesObj.rates) ratesObj.rates = {};
+        if (fs.existsSync(PRODUCTS_JSON)) {
+          try {
+            const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+            if (Array.isArray(pj.products)) {
+              const prod = pj.products.find(p => String(p.id) === String(itemId));
+              if (prod) {
+                delete prod.purchasePrice;
+                pj.updatedAt = new Date().toISOString();
+                safeAtomicWriteJson(PRODUCTS_JSON, pj);
+                try { fs.copyFileSync(PRODUCTS_JSON, path.join(__dirname, 'www', 'products.json')); } catch(e) {}
+                try { fs.copyFileSync(PRODUCTS_JSON, path.join(__dirname, 'complete', 'products.json')); } catch(e) {}
+              }
+            }
+          } catch(e) {}
+        }
+        return sendJson(res, 200, { ok: true, id: itemId, cleared: true });
+      }
+
+      if (!isNaN(newRate) && newRate > 0) {
         ratesObj.rates[String(itemId)] = newRate;
         ratesObj.updatedAt = new Date().toISOString();
-        fs.writeFileSync(RATES_FILE, JSON.stringify(ratesObj, null, 2), 'utf8');
+        safeAtomicWriteJson(RATES_FILE, ratesObj);
+
+        // Also update products.json in-place
+        if (fs.existsSync(PRODUCTS_JSON)) {
+          try {
+            const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+            if (Array.isArray(pj.products)) {
+              const prod = pj.products.find(p => String(p.id) === String(itemId));
+              if (prod) {
+                prod.purchasePrice = newRate;
+                pj.updatedAt = new Date().toISOString();
+                safeAtomicWriteJson(PRODUCTS_JSON, pj);
+                try { fs.copyFileSync(PRODUCTS_JSON, path.join(__dirname, 'www', 'products.json')); } catch(e) {}
+                try { fs.copyFileSync(PRODUCTS_JSON, path.join(__dirname, 'complete', 'products.json')); } catch(e) {}
+              }
+            }
+          } catch(e) {}
+        }
 
         // Sync purchase price directly to Supabase purchase_rates table!
         supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', {
@@ -1301,14 +2443,18 @@ function syncImageToTargets(fileName) {
           updated_at: new Date().toISOString()
         }).catch(() => {});
 
-        // Recalculate orders in dsr_data.json
+        // Recalculate orders in dsr_data.json (preserve locked historical rates, backfill missing, or force update if edited in Order Details Modal)
         if (fs.existsSync(DSR_FILE)) {
           try {
-            const dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8'));
+            const dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
             if (Array.isArray(dsr.orders)) {
               const catalog = getProductsCatalogMap();
-              dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, ratesObj.rates, catalog));
-              fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+              dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, ratesObj.rates, catalog, {
+                preserveExistingItemRates: true,
+                forceOrderId: body.forceOrderId,
+                forceItemId: body.forceItemId || itemId
+              }));
+              safeAtomicWriteJson(DSR_FILE, dsr);
             }
           } catch(e) {}
         }
@@ -1321,39 +2467,42 @@ function syncImageToTargets(fileName) {
     // 8. API: DSR Expense POST
     if (pathname === '/api/dsr/expense' && req.method === 'POST') {
       const body = await parseBody(req);
-      let dsr = { orders: [], expenses: [] };
-      if (fs.existsSync(DSR_FILE)) {
-        try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
-      }
+      let dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
       if (!Array.isArray(dsr.expenses)) dsr.expenses = [];
 
       const expense = {
         id: 'EXP-' + Date.now(),
-        date: body.date || new Date().toISOString().slice(0, 10),
+        date: body.date || getPktDateString(),
         title: body.title || 'General Expense',
         amount: Number(body.amount) || 0,
         category: body.category || 'misc'
       };
 
       dsr.expenses.unshift(expense);
-      fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+      safeAtomicWriteJson(DSR_FILE, dsr);
+
+      // Cloud Backup to Supabase expenses table!
+      supabaseApiRequest('/rest/v1/expenses?on_conflict=id', 'POST', {
+        id: expense.id,
+        date: expense.date,
+        title: expense.title,
+        amount: expense.amount,
+        category: expense.category,
+        updated_at: new Date().toISOString()
+      }).catch(() => {});
+
       return sendJson(res, 200, { ok: true, expense });
     }
 
     // 9. API: Purchase Rates GET & POST
     if (pathname === '/api/purchase-rates' && req.method === 'GET') {
-      if (fs.existsSync(RATES_FILE)) {
-        return sendFile(res, RATES_FILE, 'application/json; charset=utf-8');
-      }
-      return sendJson(res, 200, { rates: {} });
+      const allRates = getSavedPurchaseRates();
+      return sendJson(res, 200, { ok: true, rates: allRates, updatedAt: new Date().toISOString() });
     }
 
     if (pathname === '/api/purchase-rates' && req.method === 'POST') {
       const body = await parseBody(req);
-      let rates = { rates: {} };
-      if (fs.existsSync(RATES_FILE)) {
-        try { rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
-      }
+      let rates = safeReadJson(RATES_FILE, { rates: {} });
       if (!rates.rates) rates.rates = {};
       
       if (body.id !== undefined && body.rate !== undefined && Number(body.rate) >= 0) {
@@ -1365,7 +2514,7 @@ function syncImageToTargets(fileName) {
         }
       }
       rates.updatedAt = new Date().toISOString();
-      fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+      safeAtomicWriteJson(RATES_FILE, rates);
 
       // Sync updated rates to Supabase purchase_rates table!
       if (body.id !== undefined && body.rate !== undefined) {
@@ -1385,14 +2534,46 @@ function syncImageToTargets(fileName) {
         }
       }
 
-      // Recalculate orders in dsr_data.json
+      // Also sync into products.json
+      if (fs.existsSync(PRODUCTS_JSON)) {
+        try {
+          const pj = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf8'));
+          if (Array.isArray(pj.products)) {
+            let changed = false;
+            pj.products.forEach(p => {
+              if (rates.rates[String(p.id)] !== undefined) {
+                p.purchasePrice = Number(rates.rates[String(p.id)]);
+                changed = true;
+              }
+            });
+            if (changed) {
+              pj.updatedAt = new Date().toISOString();
+              safeAtomicWriteJson(PRODUCTS_JSON, pj);
+              const extraTargets = [
+                path.join(__dirname, 'www', 'products.json'),
+                path.join(__dirname, 'complete', 'products.json'),
+                path.join(__dirname, 'android', 'app', 'src', 'main', 'assets', 'public', 'products.json'),
+                'C:\\Users\\ALICOM4\\Desktop\\new apk complete\\products.json'
+              ];
+              extraTargets.forEach(tgt => {
+                try {
+                  const dir = path.dirname(tgt);
+                  if (fs.existsSync(dir)) fs.copyFileSync(PRODUCTS_JSON, tgt);
+                } catch(e) {}
+              });
+            }
+          }
+        } catch(e) {}
+      }
+
+      // Recalculate orders in dsr_data.json (preserve locked historical rates, backfill missing)
       if (fs.existsSync(DSR_FILE)) {
         try {
-          const dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8'));
+          const dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
           if (Array.isArray(dsr.orders)) {
             const catalog = getProductsCatalogMap();
-            dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, rates.rates, catalog));
-            fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+            dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, rates.rates, catalog, { preserveExistingItemRates: true }));
+            safeAtomicWriteJson(DSR_FILE, dsr);
           }
         } catch(e) {}
       }
@@ -1403,16 +2584,14 @@ function syncImageToTargets(fileName) {
     // 9b. API: DSR Order DELETE
     if (pathname.startsWith('/api/dsr/order/') && req.method === 'DELETE') {
       const orderId = pathname.replace('/api/dsr/order/', '').trim();
-      let dsr = { orders: [], expenses: [] };
-      if (fs.existsSync(DSR_FILE)) {
-        try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
-      }
+      let dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
       const initialCount = (dsr.orders || []).length;
       dsr.orders = (dsr.orders || []).filter(o => String(o.id) !== String(orderId));
       if (dsr.orders.length < initialCount) {
-        fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
-        // Also delete from Supabase orders table
+        safeAtomicWriteJson(DSR_FILE, dsr);
+        // Also delete from Supabase orders table and update order statuses map
         supabaseApiRequest(`/rest/v1/orders?id=eq.${encodeURIComponent(orderId)}`, 'DELETE').catch(() => {});
+        syncOrderStatusesToSupabase(dsr.orders);
         return sendJson(res, 200, { ok: true, message: 'Order deleted successfully' });
       }
       return sendJson(res, 404, { error: 'Order not found' });
@@ -1421,14 +2600,15 @@ function syncImageToTargets(fileName) {
     // 9c. API: DSR Expense DELETE
     if (pathname.startsWith('/api/dsr/expense/') && req.method === 'DELETE') {
       const expId = pathname.replace('/api/dsr/expense/', '').trim();
-      let dsr = { orders: [], expenses: [] };
-      if (fs.existsSync(DSR_FILE)) {
-        try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}
-      }
+      let dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
       const initialCount = (dsr.expenses || []).length;
       dsr.expenses = (dsr.expenses || []).filter(e => String(e.id) !== String(expId));
       if (dsr.expenses.length < initialCount) {
-        fs.writeFileSync(DSR_FILE, JSON.stringify(dsr, null, 2), 'utf8');
+        safeAtomicWriteJson(DSR_FILE, dsr);
+
+        // Delete from Supabase expenses table
+        supabaseApiRequest(`/rest/v1/expenses?id=eq.${expId}`, 'DELETE').catch(() => {});
+
         return sendJson(res, 200, { ok: true, message: 'Expense deleted successfully' });
       }
       return sendJson(res, 404, { error: 'Expense not found' });
@@ -1513,6 +2693,28 @@ function syncImageToTargets(fileName) {
 
       current.updatedAt = new Date().toISOString();
       fs.writeFileSync(SECTIONS_FILE, JSON.stringify(current, null, 2), 'utf8');
+
+      // Cloud Backup to Supabase purchasing_sections table!
+      supabaseApiRequest('/rest/v1/purchasing_sections?on_conflict=id', 'POST', {
+        id: 'main',
+        sections: current.sections || [],
+        item_sections: current.itemSections || {},
+        updated_at: current.updatedAt
+      }).catch(() => {});
+
+      // Mirror purchasing_sections.json across all backup directories
+      const secMirrorDirs = [
+        path.join(ROOT, 'complete'),
+        'C:\\Users\\ALICOM4\\Desktop\\new apk complete'
+      ];
+      secMirrorDirs.forEach(d => {
+        try {
+          if (fs.existsSync(d)) {
+            fs.writeFileSync(path.join(d, 'purchasing_sections.json'), JSON.stringify(current, null, 2), 'utf8');
+          }
+        } catch(e) {}
+      });
+
       return sendJson(res, 200, { ok: true, ...current });
     }
 
@@ -1536,7 +2738,7 @@ function syncImageToTargets(fileName) {
       }
       const sheet = {
         id: 'PS-' + Date.now(),
-        date: body.date || new Date().toISOString().slice(0, 10),
+        date: body.date || getPktDateString(),
         title: body.title || 'Market Purchasing Sheet',
         marketName: body.marketName || 'Wholesale Market',
         items: Array.isArray(body.items) ? body.items : [],
@@ -1552,31 +2754,64 @@ function syncImageToTargets(fileName) {
 
       // Also persist purchase rates permanently if included
       if (body.updatedRates && typeof body.updatedRates === 'object') {
-        let rates = { rates: {} };
-        if (fs.existsSync(RATES_FILE)) {
-          try { rates = JSON.parse(fs.readFileSync(RATES_FILE, 'utf8')); } catch(e) {}
-        }
+        let rates = safeReadJson(RATES_FILE, { rates: {} });
         if (!rates.rates) rates.rates = {};
+        const rateRows = [];
         for (const [k, v] of Object.entries(body.updatedRates)) {
-          if (v !== undefined && Number(v) >= 0) rates.rates[String(k)] = Number(v);
+          if (v !== undefined && Number(v) > 0 && !isNaN(Number(k)) && Number(k) > 0) {
+            rates.rates[String(k)] = Number(v);
+            rateRows.push({
+              product_id: Number(k),
+              purchase_price: Number(v),
+              updated_at: new Date().toISOString()
+            });
+          }
         }
         rates.updatedAt = new Date().toISOString();
-        fs.writeFileSync(RATES_FILE, JSON.stringify(rates, null, 2), 'utf8');
+        safeAtomicWriteJson(RATES_FILE, rates);
+
+        // Sync to Supabase purchase_rates table!
+        if (rateRows.length > 0) {
+          supabaseApiRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', rateRows).catch(() => {});
+        }
+
+        // Recalculate DSR orders profit with new rates (preserve historical rates, backfill missing)!
+        if (fs.existsSync(DSR_FILE)) {
+          try {
+            const dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
+            if (Array.isArray(dsr.orders)) {
+              const catalog = getProductsCatalogMap();
+              dsr.orders = dsr.orders.map(o => calculateOrderProfit(o, rates.rates, catalog, { preserveExistingItemRates: true }));
+              safeAtomicWriteJson(DSR_FILE, dsr);
+            }
+          } catch(e) {}
+        }
       }
 
       // Also persist item sections permanently if included
       if (body.updatedItemSections && typeof body.updatedItemSections === 'object') {
-        let secData = { sections: [], itemSections: {} };
-        if (fs.existsSync(SECTIONS_FILE)) {
-          try { secData = JSON.parse(fs.readFileSync(SECTIONS_FILE, 'utf8')); } catch(e) {}
-        }
+        let secData = safeReadJson(SECTIONS_FILE, { sections: [], itemSections: {} });
         if (!secData.itemSections) secData.itemSections = {};
         for (const [k, v] of Object.entries(body.updatedItemSections)) {
           if (v) secData.itemSections[String(k)] = String(v).trim();
         }
         secData.updatedAt = new Date().toISOString();
-        fs.writeFileSync(SECTIONS_FILE, JSON.stringify(secData, null, 2), 'utf8');
+        safeAtomicWriteJson(SECTIONS_FILE, secData);
       }
+
+      // Cloud Backup to Supabase purchasing_sheets table!
+      supabaseApiRequest('/rest/v1/purchasing_sheets?on_conflict=id', 'POST', {
+        id: sheet.id,
+        date: sheet.date,
+        title: sheet.title,
+        market_name: sheet.marketName,
+        items: sheet.items,
+        sections: sheet.sections,
+        total_items: sheet.totalItems,
+        total_qty: sheet.totalQty,
+        total_amount: sheet.totalAmount,
+        created_at: sheet.createdAt
+      }).catch(() => {});
 
       return sendJson(res, 200, { ok: true, sheet });
     }
@@ -1592,6 +2827,10 @@ function syncImageToTargets(fileName) {
       data.sheets = (data.sheets || []).filter(s => String(s.id) !== String(sheetId));
       if (data.sheets.length < initialCount) {
         fs.writeFileSync(PURCHASING_SHEETS_FILE, JSON.stringify(data, null, 2), 'utf8');
+
+        // Delete from Supabase purchasing_sheets table
+        supabaseApiRequest(`/rest/v1/purchasing_sheets?id=eq.${sheetId}`, 'DELETE').catch(() => {});
+
         return sendJson(res, 200, { ok: true, message: 'Purchasing sheet deleted' });
       }
       return sendJson(res, 404, { error: 'Purchasing sheet not found' });
@@ -1599,7 +2838,7 @@ function syncImageToTargets(fileName) {
 
     // 9b. API: Settings GET
     if (pathname === '/api/settings' && req.method === 'GET') {
-      const defaults = { deliveryFee: 150, freeDeliveryThreshold: 2000, deliveryTiming: 'Delivery Timing: 10:00 AM – 10:00 PM', whatsapp: '923368945775', storeName: 'ZS Mart', announcement: '' };
+      const defaults = { deliveryFee: 99, freeDeliveryThreshold: 1999, deliveryTiming: 'Delivery Timing: 10:00 AM – 10:00 PM', whatsapp: '923368945775', storeName: 'ZS Mart', announcement: '' };
       if (fs.existsSync(SETTINGS_FILE)) {
         try {
           const stored = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
@@ -1612,7 +2851,7 @@ function syncImageToTargets(fileName) {
     // 9c. API: Settings POST (Save)
     if (pathname === '/api/settings' && req.method === 'POST') {
       const body = await parseBody(req);
-      let current = { deliveryFee: 150, freeDeliveryThreshold: 2000, deliveryTiming: 'Delivery Timing: 10:00 AM – 10:00 PM', whatsapp: '923368945775', storeName: 'ZS Mart', announcement: '' };
+      let current = { deliveryFee: 99, freeDeliveryThreshold: 1999, deliveryTiming: 'Delivery Timing: 10:00 AM – 10:00 PM', whatsapp: '923368945775', storeName: 'ZS Mart', announcement: '' };
       if (fs.existsSync(SETTINGS_FILE)) {
         try { current = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8')); } catch(e) {}
       }
@@ -1661,7 +2900,7 @@ function syncImageToTargets(fileName) {
         let commitInfo = '';
 
         try {
-          execSync('git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js languages admin_dashboard.html admin_server.js', { encoding: 'utf8', cwd: ROOT });
+          execSync('git add products.json settings.json category_priorities.json images INDEX.JSX index.html app.js style.css sw.js languages', { encoding: 'utf8', cwd: ROOT });
           
           let diffStat = '';
           try {
@@ -1747,7 +2986,7 @@ function syncImageToTargets(fileName) {
     // 11. API: Build Android APK
     if (pathname === '/api/build-apk' && req.method === 'POST') {
       console.log('APK build requested...');
-      exec('cmd.exe /c BUILD_ANDROID_APK.bat', { cwd: ROOT });
+      exec('cmd.exe /c BUILD_ANDROID_APK.bat', { cwd: ROOT, env: { ...process.env, NONINTERACTIVE: '1', CI: '1' } });
       return sendJson(res, 200, { ok: true, message: 'Android APK build started in background. Check Desktop in ~2 minutes!' });
     }
 
@@ -1761,17 +3000,29 @@ function syncImageToTargets(fileName) {
       return res.end('403 Forbidden');
     }
 
-    // Security check: Block direct access to secrets, keystores, and server configs
-    const blockedExtensions = ['.secret', '.keystore', '.jks', '.env', '.bat', '.ps1', '.sql'];
+    // Security check: Block direct access to secrets, keystores, backups, server scripts, and confidential data
+    const blockedExtensions = [
+      '.secret', '.keystore', '.jks', '.env', '.bat', '.ps1', '.sql',
+      '.bak', '.tmp', '.swp', '.backup', '.old', '.log', '.properties', '.sh', '.key'
+    ];
     const blockedFiles = [
       'admin_config.json', 'supabase_config.json', 'package.json', 'package-lock.json',
-      'dsr_data.json', 'purchase_rates.json', 'purchasing_sections.json', 'purchasing_sheets.json'
+      'dsr_data.json', 'purchase_rates.json', 'purchasing_sections.json', 'purchasing_sheets.json',
+      'admin_server.js', 'compile_jsx.js', 'test_app.js', 'keystore.properties'
     ];
     const baseName = path.basename(resolvedPath).toLowerCase();
     const ext = path.extname(resolvedPath).toLowerCase();
-    if (blockedExtensions.includes(ext) || blockedFiles.includes(baseName)) {
-      res.writeHead(403, { 'Content-Type': 'text/plain' });
-      return res.end('403 Forbidden: Protected File');
+    const isBlocked = blockedExtensions.includes(ext) ||
+                      blockedFiles.includes(baseName) ||
+                      baseName.includes('.bak') ||
+                      baseName.includes('.tmp') ||
+                      baseName.includes('.backup') ||
+                      baseName.startsWith('.') ||
+                      baseName.endsWith('.bak');
+
+    if (isBlocked) {
+      res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+      return res.end('403 Forbidden: Access Denied to Protected File');
     }
 
     if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isFile()) {
@@ -1788,15 +3039,29 @@ function syncImageToTargets(fileName) {
   }
 });
 
+let portRetryAttempts = 0;
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.log(`Port ${PORT} was occupied. Freeing port and starting clean server...`);
-    try {
-      execSync(`for /f "tokens=5" %a in ('netstat -aon ^| findstr ":${PORT}" ^| findstr "LISTENING"') do taskkill /f /pid %a`, { stdio: 'ignore' });
-    } catch(e) {}
-    setTimeout(() => {
-      server.listen(PORT, '127.0.0.1');
-    }, 1200);
+    portRetryAttempts++;
+    if (portRetryAttempts === 1) {
+      console.log(`Port ${PORT} was occupied. Freeing port and starting clean server...`);
+      try {
+        execSync(`powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort ${PORT} -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"`, { stdio: 'ignore' });
+      } catch(e) {}
+      setTimeout(() => {
+        server.listen(PORT, '127.0.0.1');
+      }, 1200);
+    } else {
+      console.log('================================================================');
+      console.log(`  Admin Server is ALREADY running on http://127.0.0.1:${PORT}/`);
+      console.log(`  Opening Dashboard in your browser...`);
+      console.log('================================================================');
+      try {
+        const openPath = process.env.OPEN_PATH || '/';
+        exec(`start http://localhost:${PORT}${openPath}`);
+      } catch(e) {}
+      setTimeout(() => process.exit(0), 1000);
+    }
   } else {
     console.error('Server error:', err.message);
   }
@@ -1814,9 +3079,9 @@ server.listen(PORT, '127.0.0.1', () => {
     exec(`start http://localhost:${PORT}${openPath}`);
   } catch(e) {}
 
-  // Start Background Cloud Order Sync (Polls for incoming WhatsApp orders every 20s)
-  setTimeout(syncCloudOrders, 2500);
-  setInterval(syncCloudOrders, 20000);
+  // Start Background Cloud Order Sync (Polls for incoming WhatsApp orders every 10s)
+  setTimeout(syncCloudOrders, 1500);
+  setInterval(syncCloudOrders, 10000);
 });
 
 process.on('uncaughtException', (err) => {

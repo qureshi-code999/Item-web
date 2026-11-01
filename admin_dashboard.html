@@ -1120,8 +1120,13 @@
               <input type="number" step="any" id="add-purchase-price" placeholder="e.g. 520 (For DSR Profit)">
             </div>
             <div class="form-group">
-              <label>Category</label>
-              <select id="add-category" required></select>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="margin-bottom: 0;">Category</label>
+                <a href="javascript:void(0)" onclick="openAddCategoryModal('add-category')" style="font-size: 11px; font-weight: 700; color: #d97706; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Create a new category in Supabase & App">
+                  ➕ New Category
+                </a>
+              </div>
+              <select id="add-category" required onchange="handleCategorySelectChange(this, 'add-category')"></select>
             </div>
             <div class="form-group">
               <label>Priority Ranking (Optional)</label>
@@ -1380,6 +1385,15 @@
             <span style="font-size: 12px; color: var(--emerald); font-weight: 700;">⚡ Purchase rates auto-saved permanently per product</span>
           </div>
 
+          <div id="dsr-editing-banner" style="display: none; background: #fef2f2; border: 1.5px solid #f87171; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; align-items: center; justify-content: space-between;">
+            <div style="font-weight: 700; color: #b91c1c; font-size: 13px;">
+              ✏️ Currently Editing Order: <span id="dsr-editing-order-badge" style="font-family: monospace; background: #fee2e2; padding: 2px 6px; border-radius: 4px;"></span>
+            </div>
+            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 10px; color: #b91c1c; border-color: #fca5a5; background: white;" onclick="cancelEditingOrder()">
+              Cancel Editing &amp; New Sale
+            </button>
+          </div>
+
           <form id="dsr-form" onsubmit="handleDsrOrder(event)">
             <div class="form-grid">
               <div class="form-group">
@@ -1388,11 +1402,11 @@
               </div>
               <div class="form-group">
                 <label>Customer Name</label>
-                <input type="text" id="dsr-customer" placeholder="e.g. Uzair Bhai / Counter / Walk-in">
+                <input type="text" id="dsr-customer" placeholder="e.g. Uzair Bhai / Counter / Walk-in" onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('dsr-phone').focus();}">
               </div>
               <div class="form-group">
                 <label>Customer WhatsApp / Phone (Optional)</label>
-                <input type="tel" id="dsr-phone" placeholder="e.g. 03368945775">
+                <input type="tel" id="dsr-phone" placeholder="e.g. 03368945775" onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('dsr-smart-search').focus();}">
               </div>
               <div class="form-group">
                 <label>Payment Method</label>
@@ -1422,15 +1436,15 @@
 
                   <div>
                     <label style="font-size: 10px;">Quantity</label>
-                    <input type="number" id="dsr-item-qty" value="1" min="1" placeholder="Qty" oninput="updateLivePreview()" style="width: 100%;">
+                    <input type="number" id="dsr-item-qty" value="1" min="1" placeholder="Qty" oninput="updateLivePreview()" onkeydown="handleDsrQtyKeydown(event)" style="width: 100%;">
                   </div>
                   <div>
                     <label style="font-size: 10px;">Sell Rate (Rs)</label>
-                    <input type="number" step="any" id="dsr-item-rate" placeholder="Sell Price" oninput="updateLivePreview()" style="width: 100%;">
+                    <input type="number" step="any" id="dsr-item-rate" placeholder="Sell Price" oninput="updateLivePreview()" onkeydown="handleDsrRateKeydown(event)" style="width: 100%;">
                   </div>
                   <div>
                     <label style="font-size: 10px;">Pur Rate (Cost)</label>
-                    <input type="number" step="any" id="dsr-item-cost" placeholder="Pur Rate" oninput="updateLivePreview()" style="width: 100%;">
+                    <input type="number" step="any" id="dsr-item-cost" placeholder="Pur Rate" oninput="updateLivePreview()" onkeydown="handleDsrCostKeydown(event)" style="width: 100%;">
                   </div>
                   <div>
                     <button type="button" class="btn btn-emerald" onclick="addDsrRow()" style="height: 40px; white-space: nowrap; font-weight: 700;">+ Add Item</button>
@@ -1506,10 +1520,13 @@
                 </div>
               </div>
               <div style="text-align: right; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                <button type="button" id="dsr-btn-cancel-edit" class="btn btn-outline" style="display: none; font-weight: 700; padding: 10px 14px; font-size: 13px; color: #dc2626; border-color: #fca5a5; background: #fef2f2;" onclick="cancelEditingOrder()">
+                  ✕ Cancel Edit
+                </button>
                 <button type="button" id="dsr-btn-last-bill" class="btn btn-outline" style="display: none; font-weight: 700; padding: 10px 14px; font-size: 13px; color: #0284c7; border-color: #0284c7; background: #f0f9ff;" onclick="openLastCustomerBill()">
                   🧾 View Last Bill
                 </button>
-                <button type="submit" class="btn btn-gold" style="font-weight: 800; padding: 10px 20px; font-size: 13px;">
+                <button type="submit" id="dsr-btn-submit" class="btn btn-gold" style="font-weight: 800; padding: 10px 20px; font-size: 13px;">
                   💾 Save &amp; Generate Bill
                 </button>
               </div>
@@ -1901,6 +1918,42 @@
           </div>
         </div>
 
+        <!-- 📊 Live Vendor / Market Section Assignment Status Overview -->
+        <div id="purchasing-vendor-stats-card" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #a7f3d0; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(16,185,129,0.08);">
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 22px;">🏪</span>
+              <div>
+                <div style="font-size: 11px; font-weight: 800; color: #065f46; text-transform: uppercase; letter-spacing: 0.5px;">Vendor Assignment Status</div>
+                <div style="font-size: 11.5px; color: #047857;" id="purchasing-vendor-stats-text">
+                  Catalog items kis vendor / section se khareedni hain:
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <span style="background: #ffffff; border: 1.5px solid #86efac; color: #166534; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px;">
+                ✅ Assigned: <span id="count-vendor-assigned" style="font-size: 13px; color: #15803d;">0</span>
+              </span>
+              <span style="background: #ffffff; border: 1.5px solid #fde047; color: #854d0e; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px;">
+                ⚠️ Unassigned: <span id="count-vendor-unassigned" style="font-size: 13px; color: #b45309;">0</span>
+              </span>
+              <span style="background: #ffffff; border: 1px solid #cbd5e1; color: #475569; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 700;">
+                📦 Total Catalog: <span id="count-vendor-total">0 items</span>
+              </span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" class="btn btn-emerald" onclick="openBulkItemSectionsModal(true)" style="padding: 7px 14px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(5,150,105,0.25);">
+              ⚡ View &amp; Assign Unassigned Items
+            </button>
+            <button type="button" class="btn btn-light" onclick="openBulkItemSectionsModal(false)" style="padding: 7px 12px; font-size: 12px; font-weight: 700; border: 1px solid #cbd5e1;">
+              ⚡ All Items
+            </button>
+          </div>
+        </div>
+
         <!-- Meta fields (Date, Market Name, Notes) -->
         <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid var(--card-border);">
           <div style="flex: 1; min-width: 160px;">
@@ -1940,11 +1993,16 @@
 
             <!-- Market Section Selector / Creator -->
             <div>
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; gap: 4px;">
                 <label style="font-size: 10px; margin-bottom: 0;">Market Section (Auto-Grouped)</label>
-                <button type="button" onclick="openSectionsManagerModal()" style="font-size: 10.5px; color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 1px 6px; font-weight: 700; cursor: pointer;" title="Rename or Delete Market Sections">
-                  ⚙️ Edit / Manage
-                </button>
+                <div style="display: flex; gap: 4px;">
+                  <button type="button" onclick="openBulkItemSectionsModal()" style="font-size: 10.5px; color: #166534; background: #dcfce7; border: 1px solid #86efac; border-radius: 4px; padding: 2px 7px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;" title="Bulk Assign All Catalog Items to Vendors / Sections">
+                    ⚡ Bulk Assign
+                  </button>
+                  <button type="button" onclick="openSectionsManagerModal()" style="font-size: 10.5px; color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; padding: 2px 6px; font-weight: 700; cursor: pointer;" title="Rename or Delete Market Sections">
+                    ⚙️ Edit / Manage
+                  </button>
+                </div>
               </div>
               <div style="display: flex; gap: 4px;">
                 <input list="purchasing-sections-datalist" id="purchasing-item-section" 
@@ -2162,8 +2220,13 @@
               <input type="text" id="edit-p-name" required placeholder="Product Title">
             </div>
             <div class="form-group">
-              <label>Category</label>
-              <select id="edit-p-cat" required></select>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label style="margin-bottom: 0;">Category</label>
+                <a href="javascript:void(0)" onclick="openAddCategoryModal('edit-p-cat')" style="font-size: 11px; font-weight: 700; color: #d97706; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;" title="Create a new category in Supabase & App">
+                  ➕ New Category
+                </a>
+              </div>
+              <select id="edit-p-cat" required onchange="handleCategorySelectChange(this, 'edit-p-cat')"></select>
             </div>
             <div class="form-group">
               <label>Selling Price (Rs.)</label>
@@ -2200,6 +2263,11 @@
         <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
           Yahan se aap kisi bhi wholesale market section ka <b>Name Change / Rename</b> kar sakte hain ya <b>Delete</b> kar sakte hain. Rename karne par items automatic update ho jayengi.
         </p>
+
+        <!-- Bulk Assign Items Button -->
+        <button type="button" class="btn btn-emerald" onclick="closeSectionsManagerModal(); openBulkItemSectionsModal();" style="width: 100%; margin-bottom: 14px; font-weight: 800; padding: 9px 14px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 6px rgba(16,185,129,0.25);">
+          ⚡ Bulk Assign Items to Sections / Vendors
+        </button>
 
         <!-- Add New Section Input Row -->
         <div style="display: flex; gap: 8px; margin-bottom: 14px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid var(--card-border);">
@@ -2267,6 +2335,176 @@
         <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="btn btn-light" onclick="closeEditPurchasingItemModal()">Cancel</button>
           <button type="button" class="btn btn-emerald" onclick="saveEditPurchasingItem()">💾 Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL: CREATE NEW CATEGORY (Supabase Cloud + App Synced) ── -->
+  <div class="modal-backdrop" id="add-category-modal">
+    <div class="modal-card" style="max-width: 450px;">
+      <div class="modal-header">
+        <span class="modal-title">📁 Create New Category</span>
+        <button class="btn btn-light" style="padding: 3px 9px;" onclick="closeAddCategoryModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+          Nayi category banayein. Ye category foran <b>Supabase Cloud Database</b> aur <b>Customer App</b> dono me live permanently save ho jayegi.
+        </p>
+        <form id="add-category-form" onsubmit="handleCreateNewCategory(event)">
+          <div class="form-group full" style="margin-bottom: 12px;">
+            <label style="font-weight: 700; font-size: 11px;">Category Name (Display Title)</label>
+            <input type="text" id="new-cat-name" required placeholder="e.g. Bakery &amp; Biscuits / Dry Fruits" style="width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 600; border-radius: 6px; border: 1px solid #cbd5e1;">
+          </div>
+          <div class="form-group full" style="margin-bottom: 12px;">
+            <label style="font-weight: 700; font-size: 11px;">Category ID / Slug (Optional)</label>
+            <input type="text" id="new-cat-id" placeholder="Auto-generated (e.g. bakeryandbiscuits)" style="width: 100%; padding: 8px 10px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
+            <span style="font-size: 10px; color: #64748b; margin-top: 3px; display: block;">Khali chorenge to name se automatic generate ho jayega.</span>
+          </div>
+          <div class="form-group full" style="margin-bottom: 16px;">
+            <label style="font-weight: 700; font-size: 11px;">Priority Ranking (Optional, 1 = Show at Top)</label>
+            <input type="number" id="new-cat-prio" min="1" max="99" placeholder="e.g. 18" style="width: 100%; padding: 8px 10px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" class="btn btn-light" onclick="closeAddCategoryModal()">Cancel</button>
+            <button type="submit" class="btn btn-emerald" id="save-cat-btn" style="font-weight: 700;">➕ Create &amp; Save Category</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL: RENAME CATEGORY (Supabase Cloud + App Synced) ── -->
+  <div class="modal-backdrop" id="rename-category-modal">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <span class="modal-title">✏️ Rename Category</span>
+        <button class="btn btn-light" style="padding: 3px 9px;" onclick="closeRenameCategoryModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+          Category ka naya naam darj karein. Ye naam <b>Supabase Cloud</b>, <b>Customer App</b>, aur tamam items me live update ho jayega.
+        </p>
+        <form id="rename-category-form" onsubmit="handleRenameCategorySubmit(event)">
+          <input type="hidden" id="rename-cat-id" value="">
+          <div class="form-group full" style="margin-bottom: 12px;">
+            <label style="font-weight: 700; font-size: 11px;">Current Name</label>
+            <input type="text" id="rename-cat-current" disabled style="width: 100%; padding: 8px 10px; font-size: 12px; background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 6px;">
+          </div>
+          <div class="form-group full" style="margin-bottom: 16px;">
+            <label style="font-weight: 700; font-size: 11px;">New Category Name (Display Title)</label>
+            <input type="text" id="rename-cat-new-name" required placeholder="e.g. Masale (Khule &amp; Packed)" style="width: 100%; padding: 8px 10px; font-size: 13px; font-weight: 700; border-radius: 6px; border: 1.5px solid #059669;">
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" class="btn btn-light" onclick="closeRenameCategoryModal()">Cancel</button>
+            <button type="submit" class="btn btn-emerald" id="rename-cat-submit-btn" style="font-weight: 700;">💾 Save &amp; Sync Everywhere</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL: BULK ASSIGN ITEMS TO VENDORS / SECTIONS (Supabase Cloud Synced) ── -->
+  <div class="modal-backdrop" id="bulk-item-sections-modal">
+    <div class="modal-card" style="max-width: 1050px; width: 96vw; max-height: 92vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="flex-shrink: 0;">
+        <div>
+          <span class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+            ⚡ Bulk Assign Items to Market Vendors / Sections
+            <span id="bis-header-badge" style="font-size: 11px; background: #dcfce7; color: #166534; font-weight: 800; padding: 2px 8px; border-radius: 12px; border: 1px solid #bbf7d0;">Cloud Synced</span>
+          </span>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 3px 0 0 0;">
+            Apne tamam catalog items ko vendors / market sections (e.g. Ahsan Bhai, Taimoor Bhai, General Market) me tezi se bulk assign karein. Ye data Supabase cloud me permanently save hota hai.
+          </p>
+        </div>
+        <button class="btn btn-light" style="padding: 3px 9px;" onclick="closeBulkItemSectionsModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 12px;">
+        
+        <!-- Filter Bar -->
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; background: #f8fafc; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border); align-items: center;">
+          <div style="flex: 1; min-width: 180px;">
+            <label style="font-size: 10px; font-weight: 700; color: #475569; display: block; margin-bottom: 2px;">FILTER BY CATEGORY:</label>
+            <select id="bis-filter-cat" onchange="filterAndRenderBisTable(true)" style="width: 100%; padding: 6px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1px solid #cbd5e1;"></select>
+          </div>
+          <div style="flex: 1; min-width: 180px;">
+            <label style="font-size: 10px; font-weight: 700; color: #475569; display: block; margin-bottom: 2px;">FILTER BY CURRENT VENDOR:</label>
+            <select id="bis-filter-sec" onchange="filterAndRenderBisTable(true)" style="width: 100%; padding: 6px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1px solid #cbd5e1;"></select>
+          </div>
+          <div style="flex: 1.5; min-width: 200px;">
+            <label style="font-size: 10px; font-weight: 700; color: #475569; display: block; margin-bottom: 2px;">SEARCH ITEMS:</label>
+            <input type="text" id="bis-search" placeholder="🔍 Search item name or ID..." oninput="filterAndRenderBisTable(true)" style="width: 100%; padding: 6px 10px; font-size: 12px; border-radius: 6px; border: 1px solid #cbd5e1;">
+          </div>
+        </div>
+
+        <!-- Bulk Action Strip -->
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center; background: #f0fdf4; border: 1.5px solid #bbf7d0; padding: 10px 14px; border-radius: 10px;">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #166534; cursor: pointer; margin-bottom: 0;">
+              <input type="checkbox" id="bis-select-all-filtered" onchange="toggleBisSelectAll(this.checked)" style="width: 16px; height: 16px; accent-color: #059669; cursor: pointer;">
+              <span>Select All (<span id="bis-filtered-count">0</span> Items Filtered)</span>
+            </label>
+            <span style="color: #94a3b8;">|</span>
+            <span style="font-size: 12px; font-weight: 800; color: #065f46;">
+              Selected: <span id="bis-selected-count">0</span>
+            </span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 11px; font-weight: 700; color: #166534;">Assign Selected To:</span>
+            <select id="bis-target-sec" style="padding: 6px 10px; font-size: 12px; font-weight: 700; border-radius: 6px; border: 1.5px solid #059669; background: #ffffff; min-width: 170px;"></select>
+            <button type="button" class="btn btn-emerald" onclick="applyBulkSectionToSelected()" style="padding: 6px 14px; font-size: 12px; font-weight: 800; box-shadow: 0 2px 4px rgba(5,150,105,0.2);">
+              ⚡ Apply to Selected
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress / Overview Stats Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: #64748b; padding: 0 4px;">
+          <div id="bis-stats-overview" style="font-weight: 700;"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span>Items per page:</span>
+            <select id="bis-page-size" onchange="changeBisPageSize(this.value)" style="padding: 2px 6px; font-size: 11px; border-radius: 4px; border: 1px solid #cbd5e1;">
+              <option value="50">50</option>
+              <option value="100" selected>100</option>
+              <option value="250">250</option>
+              <option value="9999">Show All</option>
+            </select>
+            <div id="bis-pagination-controls" style="display: inline-flex; align-items: center; gap: 4px;"></div>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <div style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: #ffffff; max-height: 420px; overflow-y: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+            <thead style="background: #f8fafc; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e2e8f0;">
+              <tr>
+                <th style="padding: 8px 10px; width: 36px; text-align: center;">
+                  <input type="checkbox" id="bis-th-checkbox" onchange="toggleBisSelectAll(this.checked)" style="accent-color: #059669; cursor: pointer;">
+                </th>
+                <th style="padding: 8px 10px; width: 55px; color: #475569;">ID</th>
+                <th style="padding: 8px 10px; color: #475569;">Item Name</th>
+                <th style="padding: 8px 10px; width: 180px; color: #475569;">Category</th>
+                <th style="padding: 8px 10px; width: 240px; color: #475569;">Assigned Vendor / Market Section</th>
+              </tr>
+            </thead>
+            <tbody id="bis-table-body">
+              <!-- Injected by renderBisTable() -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Footer Bar -->
+      <div style="padding: 12px 18px; background: #f8fafc; border-top: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; border-radius: 0 0 16px 16px;">
+        <div id="bis-save-status" style="font-size: 12px; font-weight: 700; color: #059669; display: flex; align-items: center; gap: 6px;"></div>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn btn-light" onclick="closeBulkItemSectionsModal()">Done / Close</button>
+          <button type="button" class="btn btn-emerald" id="bis-save-btn" onclick="saveBulkItemSections()" style="padding: 8px 20px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 8px rgba(5,150,105,0.25);">
+            💾 Save All to Supabase &amp; Local
+          </button>
         </div>
       </div>
     </div>
@@ -2378,6 +2616,18 @@
               <span class="badge-cost-complete">✅ All Rates Set</span>
             </div>
           </div>
+          <div>
+            <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #64748b;">Order Status (Live App)</div>
+            <div style="margin-top: 4px;">
+              <select id="modal-order-status-select" onchange="if(currentModalOrder) updateDsrOrderStatus(currentModalOrder.id, this.value)" style="padding: 4px 8px; border-radius: 7px; border: 1.5px solid #cbd5e1; font-size: 12px; font-weight: 800; background: #fff; color: #0f172a; cursor: pointer;">
+                <option value="placed">📝 Placed</option>
+                <option value="confirmed">✅ Confirmed</option>
+                <option value="dispatched">🛵 Out for Delivery</option>
+                <option value="delivered">🎉 Delivered</option>
+                <option value="cancelled">❌ Cancelled</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <!-- Optional Delivery Address / Parchi Notes Box -->
@@ -2393,6 +2643,17 @@
           </div>
           <div style="text-align: center;">
             <img id="modal-order-parchi-img" src="" alt="Parchi Slip" style="max-height: 280px; max-width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; object-fit: contain; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" />
+          </div>
+        </div>
+
+        <!-- Customer Voice Order Recording Card -->
+        <div id="modal-order-voice-box" style="display: none; background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <b style="color: #1e40af; font-size: 13px;">🎙️ Customer Voice Note (Recorded Audio):</b>
+            <a id="modal-order-voice-link" href="#" target="_blank" class="btn btn-primary" style="padding: 4px 10px; font-size: 11px;">⬇️ Open Audio File</a>
+          </div>
+          <div style="text-align: center; margin-top: 6px;">
+            <audio id="modal-order-voice-player" controls style="width: 100%; max-width: 500px; border-radius: 8px; outline: none;"></audio>
           </div>
         </div>
 
@@ -2522,7 +2783,7 @@
         <div style="text-align: left;">
           <label style="display: block; font-size: 12px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px;">Master Admin Password</label>
           <div style="position: relative;">
-            <input type="password" id="master-password-input" placeholder="Enter password (e.g. zs786)" autocomplete="current-password" required
+            <input type="password" id="master-password-input" placeholder="Enter Master Admin Password" autocomplete="current-password" required
                    style="width: 100%; padding: 12px 44px 12px 14px; background: #0f172a; border: 1.5px solid #334155; border-radius: 12px; color: #fff; font-size: 15px; outline: none; transition: all 0.2s; box-sizing: border-box;"
                    onfocus="this.style.borderColor='#f59e0b'; this.style.boxShadow='0 0 0 3px rgba(245, 158, 11, 0.2)';"
                    onblur="this.style.borderColor='#334155'; this.style.boxShadow='none';">
@@ -2550,19 +2811,21 @@
 
   <script>
     // ── MASTER SECURITY AUTHENTICATION CONTROLLER ──
-    let authToken = sessionStorage.getItem('zs_admin_token') || localStorage.getItem('zs_admin_token') || 'zs_session_master_2026_sahil_traders';
+    let authToken = sessionStorage.getItem('zs_admin_token') || localStorage.getItem('zs_admin_token') || '';
 
     // Global Fetch Interceptor to attach Auth Token
     const originalFetch = window.fetch;
     window.fetch = function(url, options = {}) {
       options.headers = options.headers || {};
-      const token = authToken || 'zs_session_master_2026_sahil_traders';
-      if (options.headers instanceof Headers) {
-        options.headers.set('X-Admin-Token', token);
-        options.headers.set('Authorization', 'Bearer ' + token);
-      } else {
-        options.headers['X-Admin-Token'] = token;
-        options.headers['Authorization'] = 'Bearer ' + token;
+      const token = authToken || '';
+      if (token) {
+        if (options.headers instanceof Headers) {
+          options.headers.set('X-Admin-Token', token);
+          options.headers.set('Authorization', 'Bearer ' + token);
+        } else {
+          options.headers['X-Admin-Token'] = token;
+          options.headers['Authorization'] = 'Bearer ' + token;
+        }
       }
       return originalFetch(url, options);
     };
@@ -2597,7 +2860,7 @@
       authToken = '';
       sessionStorage.removeItem('zs_admin_token');
       localStorage.removeItem('zs_admin_token');
-      showLockScreen();
+      showLockScreen('Session locked. Enter Master Admin Password to unlock.');
     }
 
     function togglePasswordVisibility() {
@@ -2615,8 +2878,8 @@
         showLockScreen('Please enter your Master Admin Password.');
         return;
       }
-      const btn = document.getElementById('btn-unlock-panel');
-      if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
+      const btn = document.getElementById('master-unlock-btn');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Verifying...'; }
 
       try {
         const res = await originalFetch('/api/auth/login', {
@@ -2628,6 +2891,11 @@
         if (data.ok && data.token) {
           authToken = data.token;
           sessionStorage.setItem('zs_admin_token', data.token);
+          if (document.getElementById('master-remember-checkbox')?.checked) {
+            localStorage.setItem('zs_admin_token', data.token);
+          } else {
+            localStorage.removeItem('zs_admin_token');
+          }
           hideLockScreen();
           await init();
           await loadSettings();
@@ -2637,7 +2905,7 @@
       } catch (err) {
         showLockScreen('Connection error: ' + err.message);
       } finally {
-        if (btn) { btn.disabled = false; btn.textContent = 'Unlock Command Center'; }
+        if (btn) { btn.disabled = false; btn.textContent = '🔓 Unlock Master Admin'; }
       }
     }
 
@@ -2656,6 +2924,10 @@
           }
         } catch(e) {}
       }
+      // If no token or invalid, enforce lock screen
+      authToken = '';
+      sessionStorage.removeItem('zs_admin_token');
+      localStorage.removeItem('zs_admin_token');
       showLockScreen();
     }
 
@@ -2728,7 +3000,7 @@
     }
 
     async function init() {
-      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayStr = formatLocalDate(new Date());
       const dsrDate = document.getElementById('dsr-date');
       if (dsrDate) dsrDate.value = todayStr;
       const expDate = document.getElementById('exp-date');
@@ -2766,7 +3038,22 @@
       try {
         const res = await fetch('/api/purchase-rates');
         const data = await res.json();
-        purchaseRates = data.rates || {};
+        const incoming = (data && data.rates) ? data.rates : (data || {});
+        Object.entries(incoming).forEach(([k, v]) => {
+          const numV = Number(v);
+          if (!isNaN(numV) && numV > 0) {
+            purchaseRates[k] = numV;
+            purchaseRates[Number(k)] = numV;
+          }
+        });
+        if (Array.isArray(allProducts)) {
+          allProducts.forEach(p => {
+            const r = purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : purchaseRates[String(p.id)];
+            if (r !== undefined && r !== null && Number(r) > 0) {
+              p.purchasePrice = Number(r);
+            }
+          });
+        }
       } catch(e) {}
     }
 
@@ -2791,6 +3078,7 @@
           savedPurchasingSheets = sheetData.sheets;
           renderSavedPurchasingSheets();
         }
+        updatePurchasingVendorStats();
       } catch(e) {
         console.warn('Purchasing data load notice:', e);
       }
@@ -2814,6 +3102,16 @@
         allProducts = data.products || [];
         allCategories = data.categories || [];
         allProducts.forEach(p => {
+          if (p.purchasePrice !== undefined && p.purchasePrice !== null && !isNaN(Number(p.purchasePrice)) && Number(p.purchasePrice) > 0) {
+            const r = Number(p.purchasePrice);
+            purchaseRates[p.id] = r;
+            purchaseRates[String(p.id)] = r;
+          } else {
+            const r = purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : purchaseRates[String(p.id)];
+            if (r !== undefined && r !== null && Number(r) > 0) {
+              p.purchasePrice = Number(r);
+            }
+          }
           if (p.categoryId && !allCategories.some(c => c.id === p.categoryId)) {
             allCategories.push({
               id: p.categoryId,
@@ -2825,6 +3123,7 @@
         renderProductsTable(allProducts);
         renderDsrItemSelect();
         renderCategoryOrderList();
+        updatePurchasingVendorStats();
       } catch(e) {}
     }
 
@@ -2855,6 +3154,23 @@
         opt2.textContent = c.name;
         filterSelect.appendChild(opt2);
       });
+
+      // Special option to create new category
+      const addCustomOpt = document.createElement('option');
+      addCustomOpt.value = '__NEW_CAT__';
+      addCustomOpt.textContent = '➕ Create New Category...';
+      addCustomOpt.style.color = '#d97706';
+      addCustomOpt.style.fontWeight = 'bold';
+      addSelect.appendChild(addCustomOpt);
+
+      if (editSelect) {
+        const editCustomOpt = document.createElement('option');
+        editCustomOpt.value = '__NEW_CAT__';
+        editCustomOpt.textContent = '➕ Create New Category...';
+        editCustomOpt.style.color = '#d97706';
+        editCustomOpt.style.fontWeight = 'bold';
+        editSelect.appendChild(editCustomOpt);
+      }
     }
 
     let productPage = 1;
@@ -2883,7 +3199,16 @@
 
       pageSlice.forEach(p => {
         const tr = document.createElement('tr');
-        const costRate = purchaseRates[p.id] || '';
+        const costRate = (purchaseRates[p.id] !== undefined && purchaseRates[p.id] !== null && purchaseRates[p.id] !== '')
+          ? purchaseRates[p.id]
+          : ((purchaseRates[String(p.id)] !== undefined && purchaseRates[String(p.id)] !== null && purchaseRates[String(p.id)] !== '')
+            ? purchaseRates[String(p.id)]
+            : (p.purchasePrice || ''));
+        if (costRate !== '') {
+          purchaseRates[p.id] = Number(costRate);
+          purchaseRates[String(p.id)] = Number(costRate);
+          p.purchasePrice = Number(costRate);
+        }
         tr.innerHTML = `
           <td style="font-weight: 800; color: #d97706;">${p.id}</td>
           <td>
@@ -2959,7 +3284,12 @@
 
       const currentName = nameEl ? nameEl.value.trim() : p.name;
       const currentPrice = priceEl ? Number(priceEl.value) : p.price;
-      const currentCost = costEl ? costEl.value : (purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : '');
+      const existingCost = (purchaseRates[p.id] !== undefined && purchaseRates[p.id] !== null && purchaseRates[p.id] !== '')
+        ? purchaseRates[p.id]
+        : ((purchaseRates[String(p.id)] !== undefined && purchaseRates[String(p.id)] !== null && purchaseRates[String(p.id)] !== '')
+          ? purchaseRates[String(p.id)]
+          : (p.purchasePrice || ''));
+      const currentCost = (costEl && costEl.value.trim() !== '') ? costEl.value.trim() : existingCost;
       const currentCat = catEl ? catEl.value : (p.categoryId || (allCategories[0] ? allCategories[0].id : ''));
       const currentPrio = prioEl ? prioEl.value : (p.priority || '');
 
@@ -3012,13 +3342,36 @@
       e.preventDefault();
       const id = Number(document.getElementById('edit-p-id').value);
       const catSelect = document.getElementById('edit-p-cat');
+      if (catSelect.value === '__NEW_CAT__') {
+        alert('Please create or select a valid category first!');
+        openAddCategoryModal('edit-p-cat');
+        return;
+      }
       const catName = catSelect.options[catSelect.selectedIndex].textContent;
       const prioVal = document.getElementById('edit-p-prio').value;
+
+      const costInputVal = document.getElementById('edit-p-cost').value.trim();
+      const existingRate = (purchaseRates[id] !== undefined && purchaseRates[id] !== null && purchaseRates[id] !== '')
+        ? purchaseRates[id]
+        : ((purchaseRates[String(id)] !== undefined && purchaseRates[String(id)] !== null && purchaseRates[String(id)] !== '')
+          ? purchaseRates[String(id)]
+          : ((allProducts.find(item => item.id === id) || {}).purchasePrice));
+      let resolvedPurPrice = undefined;
+      if (costInputVal !== '') {
+        const num = Number(costInputVal);
+        if (!isNaN(num) && num > 0) {
+          resolvedPurPrice = num;
+        } else if (num === 0) {
+          resolvedPurPrice = null;
+        }
+      } else if (existingRate !== undefined && existingRate !== null && Number(existingRate) > 0) {
+        resolvedPurPrice = Number(existingRate);
+      }
 
       const payload = {
         name: document.getElementById('edit-p-name').value.trim(),
         price: Number(document.getElementById('edit-p-price').value),
-        purchasePrice: document.getElementById('edit-p-cost').value ? Number(document.getElementById('edit-p-cost').value) : undefined,
+        purchasePrice: resolvedPurPrice !== undefined ? resolvedPurPrice : null,
         categoryId: catSelect.value,
         categoryName: catName,
         priority: prioVal !== '' ? Number(prioVal) : 0
@@ -3040,8 +3393,16 @@
         });
         const data = await res.json();
         if (data.ok) {
+          if (resolvedPurPrice && resolvedPurPrice > 0) {
+            purchaseRates[id] = resolvedPurPrice;
+            purchaseRates[String(id)] = resolvedPurPrice;
+          } else if (resolvedPurPrice === null) {
+            delete purchaseRates[id];
+            delete purchaseRates[String(id)];
+          }
           alert('✅ Product #' + id + ' updated successfully with picture!');
           closeEditProductModal();
+          await loadPurchaseRates();
           await loadProducts();
           await loadStats();
         } else {
@@ -3113,6 +3474,11 @@
     async function handleAddProduct(e) {
       e.preventDefault();
       const catSelect = document.getElementById('add-category');
+      if (catSelect.value === '__NEW_CAT__') {
+        alert('Please create or select a valid category first!');
+        openAddCategoryModal('add-category');
+        return;
+      }
       const selectedOption = catSelect.options[catSelect.selectedIndex];
       const payload = {
         name: document.getElementById('add-name').value,
@@ -3132,12 +3498,19 @@
         });
         const data = await res.json();
         if (data.ok) {
-          alert('✅ Product added successfully! ID: ' + data.product.id);
+          const newId = data.product ? data.product.id : null;
+          const purPrice = payload.purchasePrice;
+          if (newId && purPrice !== undefined && !isNaN(Number(purPrice)) && Number(purPrice) > 0) {
+            purchaseRates[newId] = Number(purPrice);
+            purchaseRates[String(newId)] = Number(purPrice);
+          }
+          alert('✅ Product added successfully! ID: ' + (newId || ''));
           document.getElementById('add-product-form').reset();
           document.getElementById('upload-preview-img').style.display = 'none';
           document.getElementById('upload-preview-text').textContent = '📸 Drop image here or click to browse (Auto-converted to WebP)';
           document.getElementById('upload-status-badge').style.display = 'none';
           currentBase64 = null;
+          await loadPurchaseRates();
           await loadProducts();
           await loadStats();
         } else {
@@ -3171,10 +3544,36 @@
       const catSelect = document.getElementById('p-cat-' + id);
       const catName = catSelect ? catSelect.options[catSelect.selectedIndex].textContent : '';
       const prioVal = document.getElementById('p-prio-' + id) ? document.getElementById('p-prio-' + id).value : '';
+      const costInputEl = document.getElementById('p-cost-' + id);
+      const existingRate = (purchaseRates[id] !== undefined && purchaseRates[id] !== null && purchaseRates[id] !== '')
+        ? purchaseRates[id]
+        : ((purchaseRates[String(id)] !== undefined && purchaseRates[String(id)] !== null && purchaseRates[String(id)] !== '')
+          ? purchaseRates[String(id)]
+          : ((allProducts.find(item => item.id === id) || {}).purchasePrice));
+
+      let resolvedPurPrice = undefined;
+      if (costInputEl) {
+        const valStr = costInputEl.value.trim();
+        if (valStr !== '') {
+          const num = Number(valStr);
+          if (!isNaN(num) && num > 0) {
+            resolvedPurPrice = num;
+          } else if (num === 0) {
+            resolvedPurPrice = null;
+          }
+        } else if (existingRate !== undefined && existingRate !== null && Number(existingRate) > 0) {
+          // Input was blank in DOM, preserve existing rate!
+          resolvedPurPrice = Number(existingRate);
+          costInputEl.value = resolvedPurPrice;
+        }
+      } else if (existingRate !== undefined && existingRate !== null && Number(existingRate) > 0) {
+        resolvedPurPrice = Number(existingRate);
+      }
+
       const payload = {
         name: document.getElementById('p-name-' + id) ? document.getElementById('p-name-' + id).value : '',
         price: Number(document.getElementById('p-price-' + id) ? document.getElementById('p-price-' + id).value : 0),
-        purchasePrice: (document.getElementById('p-cost-' + id) && document.getElementById('p-cost-' + id).value) ? Number(document.getElementById('p-cost-' + id).value) : undefined,
+        purchasePrice: resolvedPurPrice !== undefined ? resolvedPurPrice : null,
         categoryId: catSelect ? catSelect.value : 'general',
         categoryName: catName,
         priority: prioVal !== '' ? Number(prioVal) : 0
@@ -3202,8 +3601,14 @@
             prod.categoryName = payload.categoryName;
             prod.priority = payload.priority > 0 ? payload.priority : undefined;
           }
-          if (payload.purchasePrice !== undefined) {
-            purchaseRates[id] = payload.purchasePrice;
+          if (payload.purchasePrice !== undefined && payload.purchasePrice !== null && Number(payload.purchasePrice) > 0) {
+            purchaseRates[id] = Number(payload.purchasePrice);
+            purchaseRates[String(id)] = Number(payload.purchasePrice);
+            if (prod) prod.purchasePrice = Number(payload.purchasePrice);
+          } else if (payload.purchasePrice === null || payload.purchasePrice === 0) {
+            delete purchaseRates[id];
+            delete purchaseRates[String(id)];
+            if (prod) delete prod.purchasePrice;
           }
           if (saveBtn) {
             saveBtn.disabled = false;
@@ -3269,9 +3674,17 @@
               ${c.priority ? `<span style="background: #d97706; color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 10px;">#${c.priority}</span>` : `<span style="color: #94a3b8; font-size: 12px; font-weight: 600;">${idx + 1}.</span>`}
               <span style="font-weight: 700; font-size: 13px; color: ${isSelected ? '#92400e' : '#1e293b'};">${c.name}</span>
             </div>
-            <button type="button" class="btn btn-light" style="padding: 2px 8px; font-size: 11px; height: 26px; border: 1px solid #cbd5e1; font-weight: 700; color: #d97706;" onclick="selectCategoryForOrdering('${c.id}')">
-              Items →
-            </button>
+            <div style="display: flex; gap: 5px; align-items: center;">
+              <button type="button" class="btn btn-light" style="padding: 2px 8px; font-size: 11px; height: 26px; border: 1px solid #cbd5e1; font-weight: 700; color: #d97706;" onclick="selectCategoryForOrdering('${c.id}')">
+                Items →
+              </button>
+              <button type="button" class="btn" style="padding: 2px 8px; font-size: 11px; height: 26px; background: #f0fdf4; border: 1px solid #86efac; color: #166534; font-weight: 700; border-radius: 6px;" onclick="event.stopPropagation(); promptRenameCategory('${c.id}', '${c.name.replace(/'/g, "\\'")}')">
+                ✏️ Rename
+              </button>
+              <button type="button" class="btn" style="padding: 2px 8px; font-size: 11px; height: 26px; background: #fee2e2; border: 1px solid #fca5a5; color: #dc2626; font-weight: 700; border-radius: 6px;" onclick="event.stopPropagation(); confirmDeleteCategory('${c.id}', '${c.name.replace(/'/g, "\\'")}')">
+                🗑️ Delete
+              </button>
+            </div>
           </div>
           <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed ${isSelected ? '#fde68a' : '#f1f5f9'}; padding-top: 5px;">
             <span style="font-size: 11px; color: #64748b; font-weight: 600;">Category Priority:</span>
@@ -3393,7 +3806,7 @@
       });
 
       if (sectionId === 'expenses') {
-        const todayStr = new Date().toISOString().slice(0, 10);
+        const todayStr = formatLocalDate(new Date());
         const calcDateEl = document.getElementById('exp-calc-date');
         const expDateEl = document.getElementById('exp-date');
         if (calcDateEl && !calcDateEl.value) calcDateEl.value = todayStr;
@@ -3593,18 +4006,33 @@
       resultsDiv.innerHTML = '';
       dsrSearchActiveIdx = -1;
 
+      const trimmedQ = (query || '').trim();
+
       if (!items || items.length === 0) {
-        resultsDiv.innerHTML = `
-          <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 12px;">
-            🔍 No product found matching <b>"${query}"</b>.<br>
-            <span style="font-size: 11px; color: #64748b;">Try typing another keyword or ID.</span>
-          </div>`;
+        if (trimmedQ) {
+          resultsDiv.innerHTML = `
+            <div style="padding: 12px; text-align: center;">
+              <div style="color: #64748b; font-size: 11.5px; margin-bottom: 8px;">No catalog product matching <b>"${escapeHtml(trimmedQ)}"</b></div>
+              <div class="dsr-search-item" style="background: #f0fdf4; border: 1.5px dashed #22c55e; border-radius: 8px; padding: 10px 12px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px;" onmousedown="event.preventDefault(); selectCustomDsrProduct('${escapeHtml(trimmedQ).replace(/'/g, "\\'")}')">
+                <span style="font-size: 18px;">➕</span>
+                <div>
+                  <div style="font-weight: 800; color: #166534; font-size: 12.5px;">Add "${escapeHtml(trimmedQ)}" as Custom Item</div>
+                  <div style="font-size: 11px; color: #15803d;">Press Enter or click to enter Sell &amp; Purchase rate for this bill</div>
+                </div>
+              </div>
+            </div>`;
+        } else {
+          resultsDiv.innerHTML = `
+            <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 12px;">
+              🔍 Type product name or ID to search catalog or add custom item.
+            </div>`;
+        }
         return;
       }
 
       const countNotice = document.createElement('div');
       countNotice.style.cssText = 'padding: 6px 10px; font-size: 11px; font-weight: 700; color: #d97706; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;';
-      countNotice.innerHTML = `<span>Top ${items.length} Matches:</span><span style="color: #64748b; font-weight: normal;">Click or use Arrow keys to select</span>`;
+      countNotice.innerHTML = `<span>Top ${items.length} Matches:</span><span style="color: #64748b; font-weight: normal;">Click or use Arrow keys</span>`;
       resultsDiv.appendChild(countNotice);
 
       items.forEach((p, idx) => {
@@ -3612,7 +4040,7 @@
         itemDiv.className = 'dsr-search-item';
         itemDiv.setAttribute('data-idx', idx);
 
-        const savedRate = purchaseRates[p.id];
+        const savedRate = purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : (purchaseRates[String(p.id)] !== undefined ? purchaseRates[String(p.id)] : (p.purchasePrice || 0));
         const hasRate = savedRate !== undefined && Number(savedRate) > 0;
         const purHtml = hasRate 
           ? `<span class="dsr-search-item-cost">💾 Cost: Rs. ${Number(savedRate).toLocaleString()}</span>` 
@@ -3642,6 +4070,27 @@
 
         resultsDiv.appendChild(itemDiv);
       });
+
+      // Always offer custom item option when typing a custom name
+      if (trimmedQ) {
+        const customDiv = document.createElement('div');
+        customDiv.className = 'dsr-search-item';
+        customDiv.style.cssText = 'background: #f8fafc; border-top: 1.5px dashed #cbd5e1; padding: 9px 12px; cursor: pointer;';
+        customDiv.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 15px;">➕</span>
+            <div>
+              <div style="font-weight: 700; color: #0284c7; font-size: 12px;">Add "<b>${escapeHtml(trimmedQ)}</b>" as Custom Item</div>
+              <div style="font-size: 10.5px; color: #64748b;">Not in catalog • Fast manual sell &amp; pur rate for this bill</div>
+            </div>
+          </div>
+        `;
+        customDiv.onmousedown = (e) => {
+          e.preventDefault();
+          selectCustomDsrProduct(trimmedQ);
+        };
+        resultsDiv.appendChild(customDiv);
+      }
     }
 
     function highlightDsrSearchItem(idx) {
@@ -3660,6 +4109,8 @@
     function handleDsrSearchKeydown(e) {
       const resultsDiv = document.getElementById('dsr-search-results');
       const isVisible = resultsDiv && resultsDiv.style.display !== 'none';
+      const searchInput = document.getElementById('dsr-smart-search');
+      const trimmedQuery = (searchInput ? searchInput.value : '').trim();
 
       if (e.key === 'ArrowDown') {
         if (!isVisible) {
@@ -3676,11 +4127,12 @@
         highlightDsrSearchItem(prevIdx);
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        if (isVisible && dsrSearchResultsList.length > 0) {
-          const target = (dsrSearchActiveIdx >= 0 && dsrSearchActiveIdx < dsrSearchResultsList.length)
-            ? dsrSearchResultsList[dsrSearchActiveIdx]
-            : dsrSearchResultsList[0];
-          selectDsrProduct(target.id);
+        if (isVisible && dsrSearchResultsList.length > 0 && dsrSearchActiveIdx >= 0 && dsrSearchActiveIdx < dsrSearchResultsList.length) {
+          selectDsrProduct(dsrSearchResultsList[dsrSearchActiveIdx].id);
+        } else if (isVisible && dsrSearchResultsList.length > 0 && dsrSearchActiveIdx === -1 && scoreDsrProduct(dsrSearchResultsList[0], trimmedQuery) >= 50) {
+          selectDsrProduct(dsrSearchResultsList[0].id);
+        } else if (trimmedQuery) {
+          selectCustomDsrProduct(trimmedQuery);
         }
       } else if (e.key === 'Escape') {
         if (resultsDiv) resultsDiv.style.display = 'none';
@@ -3713,8 +4165,9 @@
       const qtyInput = document.getElementById('dsr-item-qty');
 
       rateInput.value = p.price;
-      if (purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) > 0) {
-        costInput.value = purchaseRates[p.id];
+      const dsrRate = purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : (purchaseRates[String(p.id)] !== undefined ? purchaseRates[String(p.id)] : (p.purchasePrice || ''));
+      if (dsrRate !== '' && Number(dsrRate) > 0) {
+        costInput.value = dsrRate;
       } else {
         costInput.value = '';
       }
@@ -3723,6 +4176,99 @@
       updateLivePreview();
       qtyInput.focus();
       qtyInput.select();
+    }
+
+    function selectCustomDsrProduct(name) {
+      const customName = String(name || '').trim();
+      if (!customName) return;
+
+      selectedDsrProduct = {
+        id: 'custom_' + Date.now(),
+        name: customName,
+        price: 0,
+        purchasePrice: 0,
+        isCustom: true
+      };
+      document.getElementById('dsr-selected-id').value = selectedDsrProduct.id;
+      document.getElementById('dsr-smart-search').value = customName;
+
+      const clearBtn = document.getElementById('dsr-search-clear');
+      if (clearBtn) clearBtn.style.display = 'flex';
+
+      const resultsDiv = document.getElementById('dsr-search-results');
+      if (resultsDiv) resultsDiv.style.display = 'none';
+
+      const tagDiv = document.getElementById('dsr-selected-tag');
+      if (tagDiv) {
+        tagDiv.style.display = 'flex';
+        document.getElementById('dsr-selected-name').textContent = customName;
+        const badge = document.getElementById('dsr-selected-id-badge');
+        badge.textContent = 'Custom Item (Not in Catalog)';
+        badge.style.background = '#e0f2fe';
+        badge.style.color = '#0369a1';
+      }
+
+      const rateInput = document.getElementById('dsr-item-rate');
+      const costInput = document.getElementById('dsr-item-cost');
+      const qtyInput = document.getElementById('dsr-item-qty');
+
+      const m = customName.match(/(?:RS|RP|Rs|Rp)[\.,:\s]*(\d+)/i);
+      if (m && m[1]) {
+        rateInput.value = m[1];
+      } else {
+        rateInput.value = '';
+      }
+      costInput.value = '';
+      qtyInput.value = '1';
+
+      updateLivePreview();
+      qtyInput.focus();
+      qtyInput.select();
+    }
+
+    function handleDsrQtyKeydown(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const rateInput = document.getElementById('dsr-item-rate');
+        const rateVal = Number(rateInput ? rateInput.value : 0);
+        if (!rateVal || rateVal <= 0) {
+          if (rateInput) {
+            rateInput.focus();
+            rateInput.select();
+          }
+        } else {
+          addDsrRow();
+        }
+      }
+    }
+
+    function handleDsrRateKeydown(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const rateInput = document.getElementById('dsr-item-rate');
+        const rateVal = Number(rateInput ? rateInput.value : 0);
+        if (!rateVal || rateVal <= 0) {
+          alert('Please enter Sell Rate (Price).');
+          return;
+        }
+        const costInput = document.getElementById('dsr-item-cost');
+        const costVal = costInput ? costInput.value : '';
+        if (costVal === '' || costVal === null || Number(costVal) === 0) {
+          if (costInput) {
+            costInput.focus();
+            costInput.select();
+          }
+        } else {
+          addDsrRow();
+        }
+      }
+    }
+
+    function handleDsrCostKeydown(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addDsrRow();
+      }
     }
 
     function clearDsrSearch() {
@@ -3802,33 +4348,69 @@
       pctEl.className = marginPct >= 0 ? 'badge-profit-pos' : 'badge-profit-neg';
       pctEl.textContent = (marginPct >= 0 ? '+' : '') + marginPct.toFixed(1) + '% (Markup: ' + markupPct.toFixed(1) + '%)';
 
-      const hasSavedRate = purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) > 0;
-      document.getElementById('preview-rate-source').textContent = hasSavedRate 
-        ? '💾 Auto-saved Purchase Rate (Rs. ' + purchaseRates[p.id] + ')' 
-        : (purRate > 0 ? '⚡ New Purchase Rate (Will be saved permanently)' : 'ℹ️ Pur Rate not set (Optional)');
+      const isCustom = Boolean(p.isCustom || String(p.id).startsWith('custom_') || !p.id);
+      if (isCustom) {
+        document.getElementById('preview-rate-source').textContent = 'ℹ️ Custom / Ad-hoc Item (Purchase rate will NOT be saved permanently)';
+      } else {
+        const hasSavedRate = purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) > 0;
+        document.getElementById('preview-rate-source').textContent = hasSavedRate 
+          ? '💾 Auto-saved Purchase Rate (Rs. ' + purchaseRates[p.id] + ')' 
+          : (purRate > 0 ? '⚡ New Purchase Rate (Will be saved permanently)' : 'ℹ️ Pur Rate not set (Optional)');
+      }
 
       previewBar.style.display = 'flex';
     }
 
     async function saveSinglePurchaseRate(id, rate) {
       if (!id || rate === undefined || rate === null) return;
-      purchaseRates[id] = Number(rate);
+      if (String(id).startsWith('custom_') || isNaN(Number(id))) return;
+      const numRate = Number(rate);
+      purchaseRates[id] = numRate;
+      purchaseRates[String(id)] = numRate;
+      const prod = allProducts.find(p => String(p.id) === String(id));
+      if (prod) prod.purchasePrice = numRate;
       try {
         await fetch('/api/purchase-rates', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: Number(id), rate: Number(rate) })
+          body: JSON.stringify({ id: Number(id), rate: numRate })
         });
       } catch(e) {}
     }
 
     function addDsrRow() {
-      const p = selectedDsrProduct;
-      if (!p) return alert('Please search and select a product first!');
+      let p = selectedDsrProduct;
+      const searchInput = document.getElementById('dsr-smart-search');
+      const typedName = (searchInput ? searchInput.value : '').trim();
 
+      if (!p) {
+        if (typedName) {
+          p = {
+            id: 'custom_' + Date.now(),
+            name: typedName,
+            price: Number(document.getElementById('dsr-item-rate').value) || 0,
+            purchasePrice: Number(document.getElementById('dsr-item-cost').value) || 0,
+            isCustom: true
+          };
+          selectedDsrProduct = p;
+        } else {
+          alert('Please search and select a product, or type an item name first!');
+          if (searchInput) searchInput.focus();
+          return;
+        }
+      }
+
+      const isCustom = Boolean(p.isCustom || String(p.id).startsWith('custom_') || !p.id);
       const qty = Math.max(1, Number(document.getElementById('dsr-item-qty').value) || 1);
-      const sellPrice = Number(document.getElementById('dsr-item-rate').value) || p.price;
+      const sellPrice = Number(document.getElementById('dsr-item-rate').value) || Number(p.price) || 0;
       const purchasePrice = Number(document.getElementById('dsr-item-cost').value) || 0;
+
+      if (sellPrice <= 0) {
+        alert('Please enter a valid Sell Rate (Price) greater than 0.');
+        const rateInput = document.getElementById('dsr-item-rate');
+        if (rateInput) { rateInput.focus(); rateInput.select(); }
+        return;
+      }
 
       // Extract retail price from name regex or product retailPrice
       const match = (p.name || '').match(/(?:RS|RP|Rs|Rp)[\.,:\s]*(\d+)/i);
@@ -3842,12 +4424,12 @@
       const lineProfit = purchasePrice > 0 ? (lineTotal - lineCost) : 0;
       const marginPct = (purchasePrice > 0 && lineTotal > 0) ? ((lineProfit / lineTotal) * 100) : 0;
 
-      // Only save purchase rate if user explicitly typed a non-zero rate
-      if (purchasePrice > 0) {
+      // Only save purchase rate if product is from catalog, NEVER for custom items!
+      if (purchasePrice > 0 && !isCustom && p.id && !isNaN(Number(p.id)) && Number(p.id) > 0) {
         saveSinglePurchaseRate(p.id, purchasePrice);
       }
 
-      const existingIdx = currentDsrItems.findIndex(i => String(i.id) === String(p.id));
+      const existingIdx = currentDsrItems.findIndex(i => String(i.id) === String(p.id) && !isCustom);
       if (existingIdx >= 0) {
         currentDsrItems[existingIdx].qty += qty;
         currentDsrItems[existingIdx].sellPrice = sellPrice;
@@ -3870,12 +4452,17 @@
           lineTotal,
           lineCost,
           lineProfit,
-          marginPct
+          marginPct,
+          isCustom
         });
       }
 
       clearDsrSearch();
       renderDsrItemsTable();
+
+      if (searchInput) {
+        searchInput.focus();
+      }
     }
 
     function updateDsrItem(idx, field, value) {
@@ -3887,7 +4474,10 @@
       if (field === 'sellPrice') item.sellPrice = numVal;
       if (field === 'purchasePrice') {
         item.purchasePrice = numVal;
-        saveSinglePurchaseRate(item.id, numVal);
+        const isCustom = Boolean(item.isCustom || String(item.id).startsWith('custom_') || !item.id || isNaN(Number(item.id)));
+        if (!isCustom) {
+          saveSinglePurchaseRate(item.id, numVal);
+        }
       }
 
       item.lineTotal = item.qty * item.sellPrice;
@@ -3931,7 +4521,10 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="color: var(--text-muted);">${idx + 1}</td>
-          <td style="font-weight: 700;">${item.name}</td>
+          <td style="font-weight: 700;">
+            ${escapeHtml(item.name)}
+            ${item.isCustom ? '<span style="font-size: 10px; background: #e0f2fe; color: #0369a1; padding: 1px 6px; border-radius: 4px; margin-left: 6px; font-weight: normal;">Custom Item</span>' : ''}
+          </td>
           <td style="text-align: right;">
             <input type="number" class="dsr-table-input" min="1" value="${item.qty}" style="width: 55px;" onchange="updateDsrItem(${idx}, 'qty', this.value)">
           </td>
@@ -3980,6 +4573,8 @@
     }
 
     let lastSavedOrder = null;
+    let editingDsrOrderId = null;
+    let editingDsrOrderOriginal = null;
 
     async function handleDsrOrder(e) {
       e.preventDefault();
@@ -3991,7 +4586,8 @@
 
       const updatedRates = {};
       currentDsrItems.forEach(it => {
-        if (it.id && Number(it.purchasePrice) > 0) {
+        const isCustomItem = Boolean(it.isCustom || String(it.id).startsWith('custom_') || !it.id || isNaN(Number(it.id)));
+        if (!isCustomItem && it.id && Number(it.purchasePrice) > 0) {
           updatedRates[it.id] = Number(it.purchasePrice);
           purchaseRates[it.id] = Number(it.purchasePrice);
         }
@@ -4001,16 +4597,28 @@
       const customerPhone = (document.getElementById('dsr-phone') ? document.getElementById('dsr-phone').value.trim() : '');
 
       const payload = {
-        date: document.getElementById('dsr-date').value || new Date().toISOString().slice(0, 10),
+        date: document.getElementById('dsr-date').value || formatLocalDate(new Date()),
         customerName: customerName,
         customerPhone: customerPhone,
         paymentMethod: document.getElementById('dsr-payment').value,
+        source: (editingDsrOrderOriginal && editingDsrOrderOriginal.source) ? editingDsrOrderOriginal.source : 'pos',
+        channel: (editingDsrOrderOriginal && editingDsrOrderOriginal.channel) ? editingDsrOrderOriginal.channel : undefined,
         items: JSON.parse(JSON.stringify(currentDsrItems)),
         totalSale,
         totalCost,
         totalProfit,
         updatedRates
       };
+      if (editingDsrOrderId) {
+        payload.id = editingDsrOrderId;
+        if (editingDsrOrderOriginal) {
+          ['customerAddress', 'deliveryAddress', 'deliveryMethod', 'deliveryFee', 'location', 'notes', 'photoUrl', 'parchiPhoto', 'status', 'time'].forEach(k => {
+            if (editingDsrOrderOriginal[k] !== undefined && payload[k] === undefined) {
+              payload[k] = editingDsrOrderOriginal[k];
+            }
+          });
+        }
+      }
 
       try {
         const res = await fetch('/api/dsr/order', {
@@ -4022,18 +4630,13 @@
         if (data.ok) {
           const savedOrder = data.order || payload;
           lastSavedOrder = savedOrder;
+          cancelEditingOrder();
 
           const lastBtn = document.getElementById('dsr-btn-last-bill');
           if (lastBtn) {
             lastBtn.style.display = 'inline-flex';
             lastBtn.textContent = `🧾 Last Bill (${savedOrder.id || 'Current'})`;
           }
-
-          currentDsrItems = [];
-          renderDsrItemsTable();
-          if (document.getElementById('dsr-customer')) document.getElementById('dsr-customer').value = '';
-          if (document.getElementById('dsr-phone')) document.getElementById('dsr-phone').value = '';
-          clearDsrSearch();
 
           await loadDsr();
           await loadStats();
@@ -4051,7 +4654,7 @@
 
     async function handleDsrExpense(e) {
       e.preventDefault();
-      const expDateVal = document.getElementById('exp-date').value || new Date().toISOString().slice(0, 10);
+      const expDateVal = document.getElementById('exp-date').value || formatLocalDate(new Date());
       const payload = {
         date: expDateVal,
         title: document.getElementById('exp-title').value.trim(),
@@ -4198,10 +4801,15 @@
       }
     }
 
-    // Auto-poll cloud relay every 15 seconds so incoming customer orders arrive in real-time
+    // Global pagination limits for DSR tables to prevent DOM lag on 10,000+ orders
+    window.dsrSingleLineLimit = window.dsrSingleLineLimit || 50;
+    window.dsrHistoryLimit = window.dsrHistoryLimit || 50;
+
+    // Auto-poll cloud relay every 12 seconds when tab is active (consolidated single timer)
     setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       syncOrdersNow().catch(() => {});
-    }, 15000);
+    }, 12000);
 
     function formatLocalDate(d) {
       const pad = (n) => String(n).padStart(2, '0');
@@ -4311,7 +4919,7 @@
         if (sourceFilter !== 'all') {
           const oSrc = String(o.source || o.channel || 'pos').toLowerCase();
           if (sourceFilter === 'whatsapp' && !oSrc.includes('wa') && !oSrc.includes('whats')) return false;
-          if (sourceFilter === 'pos' && oSrc !== 'pos' && oSrc !== 'store') return false;
+          if (sourceFilter === 'pos' && oSrc !== 'pos' && oSrc !== 'store' && oSrc !== 'admin_manual' && oSrc !== 'counter' && oSrc !== 'shop') return false;
           if (sourceFilter === 'parchi' && !oSrc.includes('parchi')) return false;
         }
 
@@ -4338,7 +4946,9 @@
             </tr>
           `;
         } else {
-          singleLineFiltered.forEach(o => {
+          const limit = window.dsrSingleLineLimit || 50;
+          const itemsToRender = singleLineFiltered.slice(0, limit);
+          itemsToRender.forEach(o => {
             const oSrc = String(o.source || o.channel || '').toLowerCase();
             const isWa = oSrc.includes('wa') || oSrc.includes('whats');
             const isParchi = oSrc.includes('parchi');
@@ -4359,10 +4969,12 @@
               ? `<span class="badge-cost-missing">⚠️ ${missingCount} Item${missingCount > 1 ? 's' : ''} Missing Cost</span>`
               : `<span class="badge-cost-complete">✅ All Rates Set</span>`;
 
+            const oStatus = String(o.status || 'placed').toLowerCase();
             const oSale = Number(o.totalSale) || 0;
             const oProfit = Number(o.totalProfit) || 0;
             const oMargin = Number(o.profitMarginPct) || (oSale > 0 ? ((oProfit / oSale) * 100) : 0);
             const isPosProfit = oProfit >= 0;
+            const safeId = escapeHtml(String(o.id || '')).replace(/'/g, "\\'");
 
             const tr = document.createElement('tr');
             tr.className = 'order-row-single';
@@ -4392,17 +5004,46 @@
                   ${isPosProfit ? '+' : ''}${oMargin.toFixed(1)}% Margin
                 </div>
               </td>
-              <td style="text-align: center;">
-                ${costStatusBadge}
+              <td style="text-align: center;" onclick="event.stopPropagation()">
+                <div>${costStatusBadge}</div>
+                <div style="margin-top: 4px;">
+                  <select onchange="updateDsrOrderStatus('${safeId}', this.value)" style="padding: 2px 6px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 10.5px; font-weight: 700; background: #f8fafc; color: #0f172a; cursor: pointer;" title="Update Live Customer Order Status">
+                    <option value="placed" ${oStatus === 'placed' ? 'selected' : ''}>📝 Placed</option>
+                    <option value="confirmed" ${oStatus === 'confirmed' ? 'selected' : ''}>✅ Confirmed</option>
+                    <option value="dispatched" ${oStatus === 'dispatched' ? 'selected' : ''}>🛵 Dispatched</option>
+                    <option value="delivered" ${oStatus === 'delivered' ? 'selected' : ''}>🎉 Delivered</option>
+                    <option value="cancelled" ${oStatus === 'cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                  </select>
+                </div>
               </td>
               <td style="text-align: center; white-space: nowrap;" onclick="event.stopPropagation()">
-                <button type="button" class="btn btn-outline" style="padding: 3px 8px; font-size: 11px; font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff; margin-right: 4px;" onclick="openOrderDetailsModal('${o.id}')" title="View Order Breakdown & Edit Cost">👁️ View</button>
-                <button type="button" class="btn btn-gold" style="padding: 3px 7px; font-size: 11px; font-weight: 700; margin-right: 4px;" onclick="openCustomerBill('${o.id}')" title="Customer Invoice">🧾 Bill</button>
-                <button type="button" class="btn btn-danger" style="padding: 3px 6px; font-size: 11px;" onclick="deleteDsrOrder('${o.id}')" title="Delete Order">🗑️</button>
+                <button type="button" class="btn btn-outline" style="padding: 3px 8px; font-size: 11px; font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff; margin-right: 4px;" onclick="openOrderDetailsModal('${safeId}')" title="View Order Breakdown & Edit Cost">👁️ View</button>
+                <button type="button" class="btn btn-gold" style="padding: 3px 7px; font-size: 11px; font-weight: 700; margin-right: 4px;" onclick="openCustomerBill('${safeId}')" title="Customer Invoice">🧾 Bill</button>
+                <button type="button" class="btn btn-danger" style="padding: 3px 6px; font-size: 11px;" onclick="deleteDsrOrder('${safeId}')" title="Delete Order">🗑️</button>
               </td>
             `;
             singleLineTbody.appendChild(tr);
           });
+
+          if (singleLineFiltered.length > limit) {
+            const moreTr = document.createElement('tr');
+            moreTr.innerHTML = `
+              <td colspan="7" style="text-align: center; padding: 16px; background: #f8fafc; border-top: 2px solid #e2e8f0;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                  <span style="font-size: 12.5px; color: #64748b; font-weight: 700;">
+                    Showing 1 to ${itemsToRender.length} of ${singleLineFiltered.length} orders
+                  </span>
+                  <button type="button" class="btn btn-outline" style="padding: 5px 14px; font-size: 12px; font-weight: 700; background: #ffffff;" onclick="window.dsrSingleLineLimit = (window.dsrSingleLineLimit || 50) + 50; filterAndRenderDsr();">
+                    ⬇️ Load More (+50)
+                  </button>
+                  <button type="button" class="btn btn-outline" style="padding: 5px 12px; font-size: 12px; font-weight: 600; background: #ffffff;" onclick="window.dsrSingleLineLimit = ${singleLineFiltered.length}; filterAndRenderDsr();">
+                    Show All (${singleLineFiltered.length})
+                  </button>
+                </div>
+              </td>
+            `;
+            singleLineTbody.appendChild(moreTr);
+          }
         }
       }
 
@@ -4501,7 +5142,9 @@
         if (filteredOrders.length === 0) {
           histTbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 24px;">No orders recorded for this period (${label}).</td></tr>`;
         } else {
-          filteredOrders.forEach(o => {
+          const histLimit = window.dsrHistoryLimit || 50;
+          const histToRender = filteredOrders.slice(0, histLimit);
+          histToRender.forEach(o => {
             const isOnline = o.paymentMethod === 'online';
             const payBadge = isOnline 
               ? `<span style="background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700;">Online</span>`
@@ -4513,7 +5156,8 @@
             const oMargin = oSale > 0 ? ((oProfit / oSale) * 100) : 0;
             const isPos = oProfit >= 0;
 
-            const itemsSummary = (o.items || []).map(i => `${i.name} (x${i.qty})`).join(', ');
+            const itemsSummary = (o.items || []).map(i => `${escapeHtml(i.name)} (x${i.qty})`).join(', ');
+            const safeOrdId = escapeHtml(String(o.id || '')).replace(/'/g, "\\'");
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -4533,12 +5177,32 @@
                 <span class="${isPos ? 'badge-profit-pos' : 'badge-profit-neg'}">${isPos ? '+' : ''}${oMargin.toFixed(1)}%</span>
               </td>
               <td style="text-align: center; white-space: nowrap;">
-                <button type="button" class="btn btn-outline" style="padding: 3px 8px; font-size: 11px; margin-right: 4px; font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff;" title="View & Print Customer Bill" onclick="openCustomerBill('${o.id}')">🧾 Bill</button>
-                <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 11px;" title="Delete Order" onclick="deleteDsrOrder('${o.id}')">🗑️</button>
+                <button type="button" class="btn btn-outline" style="padding: 3px 8px; font-size: 11px; margin-right: 4px; font-weight: 700; color: #0284c7; border-color: #0284c7; background: #f0f9ff;" title="View & Print Customer Bill" onclick="openCustomerBill('${safeOrdId}')">🧾 Bill</button>
+                <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 11px;" title="Delete Order" onclick="deleteDsrOrder('${safeOrdId}')">🗑️</button>
               </td>
             `;
             histTbody.appendChild(tr);
           });
+
+          if (filteredOrders.length > histLimit) {
+            const moreTr = document.createElement('tr');
+            moreTr.innerHTML = `
+              <td colspan="10" style="text-align: center; padding: 16px; background: #f8fafc; border-top: 2px solid #e2e8f0;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                  <span style="font-size: 12.5px; color: #64748b; font-weight: 700;">
+                    Showing 1 to ${histToRender.length} of ${filteredOrders.length} orders
+                  </span>
+                  <button type="button" class="btn btn-outline" style="padding: 5px 14px; font-size: 12px; font-weight: 700; background: #ffffff;" onclick="window.dsrHistoryLimit = (window.dsrHistoryLimit || 50) + 50; filterAndRenderDsr();">
+                    ⬇️ Load More (+50)
+                  </button>
+                  <button type="button" class="btn btn-outline" style="padding: 5px 12px; font-size: 12px; font-weight: 600; background: #ffffff;" onclick="window.dsrHistoryLimit = ${filteredOrders.length}; filterAndRenderDsr();">
+                    Show All (${filteredOrders.length})
+                  </button>
+                </div>
+              </td>
+            `;
+            histTbody.appendChild(moreTr);
+          }
         }
       }
 
@@ -4617,8 +5281,8 @@
         }
 
         // Update Subnav Badge
-        const todayStr = new Date().toISOString().slice(0, 10);
-        const todayOrders = currentOrders.filter(o => o.date === todayStr);
+        const todayStr = formatLocalDate(new Date());
+        const todayOrders = currentOrders.filter(o => getOrderDate(o) === todayStr);
         if (document.getElementById('dsr-orders-badge')) {
           document.getElementById('dsr-orders-badge').textContent = todayOrders.length;
         }
@@ -4627,6 +5291,31 @@
         updateExpensesSectionCalculations();
       } catch(e) {
         console.error('Failed to load DSR:', e);
+      }
+    }
+
+    async function updateDsrOrderStatus(orderId, newStatus) {
+      if (!orderId || !newStatus) return;
+      try {
+        const res = await fetch(`/api/dsr/order/${encodeURIComponent(orderId)}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          const ord = (dsrAllData.orders || []).find(o => String(o.id) === String(orderId));
+          if (ord) ord.status = newStatus;
+          if (currentModalOrder && String(currentModalOrder.id) === String(orderId)) {
+            currentModalOrder.status = newStatus;
+          }
+          filterAndRenderDsr();
+          showDashboardToast(`✅ Order #${orderId} status updated to "${newStatus.toUpperCase()}" & synced to App!`);
+        } else {
+          alert('❌ Failed to update order status: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        alert('❌ Network error updating order status: ' + e.message);
       }
     }
 
@@ -4644,8 +5333,9 @@
       document.getElementById('modal-order-phone').textContent = order.customerPhone ? `📱 ${order.customerPhone}` : 'No phone provided';
       document.getElementById('modal-order-datetime').textContent = `${order.date} ${order.time || ''}`;
       
-      const isWa = (order.source === 'whatsapp');
-      const isParchi = (order.source === 'parchi');
+      const src = String(order.source || order.channel || '').toLowerCase();
+      const isWa = src.includes('whatsapp') || src.includes('wa');
+      const isParchi = src.includes('parchi');
       document.getElementById('modal-order-channel').innerHTML = isWa
         ? `<span class="badge-channel-wa">💬 WhatsApp Order</span>`
         : (isParchi 
@@ -4654,13 +5344,18 @@
 
       document.getElementById('modal-order-payment').textContent = (order.paymentMethod === 'online' ? '🟢 Online (Paid)' : '💵 Cash on Delivery');
       document.getElementById('modal-order-delivery').textContent = `Delivery: ${order.deliveryFee ? 'Rs. ' + order.deliveryFee : 'Free'}`;
+      const statusSel = document.getElementById('modal-order-status-select');
+      if (statusSel) {
+        statusSel.value = String(order.status || 'placed').toLowerCase();
+      }
 
       // Notes & Delivery Address
       const notesBox = document.getElementById('modal-order-notes-box');
       const notesText = document.getElementById('modal-order-notes-text');
-      if (order.deliveryAddress || order.notes) {
+      const addr = order.deliveryAddress || order.customerAddress || (order.customer && order.customer.address) || order.address || (order.raw_data && (order.raw_data.customerAddress || order.raw_data.deliveryAddress || (order.raw_data.customer && order.raw_data.customer.address))) || '';
+      if (addr || order.notes) {
         notesBox.style.display = 'block';
-        notesText.textContent = [order.deliveryAddress, order.notes].filter(Boolean).join(' • ');
+        notesText.textContent = [addr ? `📍 Address: ${addr}` : '', order.notes ? `📝 Note: ${order.notes}` : ''].filter(Boolean).join(' • ');
       } else {
         notesBox.style.display = 'none';
       }
@@ -4677,6 +5372,22 @@
           parchiLink.href = parchiUrl;
         } else {
           parchiBox.style.display = 'none';
+        }
+      }
+
+      // Voice Order Audio Preview
+      const voiceUrl = order.audioUrl || order.voiceUrl || (order.raw_data && (order.raw_data.audioUrl || order.raw_data.voiceUrl));
+      const voiceBox = document.getElementById('modal-order-voice-box');
+      const voicePlayer = document.getElementById('modal-order-voice-player');
+      const voiceLink = document.getElementById('modal-order-voice-link');
+      if (voiceBox && voicePlayer && voiceLink) {
+        if (voiceUrl) {
+          voiceBox.style.display = 'block';
+          voicePlayer.src = voiceUrl;
+          voiceLink.href = voiceUrl;
+        } else {
+          voiceBox.style.display = 'none';
+          voicePlayer.removeAttribute('src');
         }
       }
 
@@ -4774,7 +5485,7 @@
         const res = await fetch(`/api/products/${productId}/purchase-rate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rate: numRate })
+          body: JSON.stringify({ rate: numRate, forceOrderId: orderId, forceItemId: productId })
         });
         const data = await res.json();
         if (data.ok) {
@@ -4789,11 +5500,34 @@
       }
     }
 
+    function cancelEditingOrder() {
+      editingDsrOrderId = null;
+      editingDsrOrderOriginal = null;
+      currentDsrItems = [];
+      renderDsrItemsTable();
+      if (document.getElementById('dsr-customer')) document.getElementById('dsr-customer').value = '';
+      if (document.getElementById('dsr-phone')) document.getElementById('dsr-phone').value = '';
+      if (document.getElementById('dsr-date')) document.getElementById('dsr-date').value = formatLocalDate(new Date());
+      if (document.getElementById('dsr-payment')) document.getElementById('dsr-payment').value = 'cash';
+      clearDsrSearch();
+      const cancelBtn = document.getElementById('dsr-btn-cancel-edit');
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      const editBanner = document.getElementById('dsr-editing-banner');
+      if (editBanner) editBanner.style.display = 'none';
+      const submitBtn = document.getElementById('dsr-btn-submit');
+      if (submitBtn) submitBtn.innerHTML = '💾 Save &amp; Generate Bill';
+    }
+
     function loadOrderIntoPosCurrent() {
       if (!currentModalOrder) return;
+      editingDsrOrderId = currentModalOrder.id;
+      editingDsrOrderOriginal = JSON.parse(JSON.stringify(currentModalOrder));
       currentDsrItems = (currentModalOrder.items || []).map(it => ({
         id: it.id,
         name: it.name,
+        variant: it.variant,
+        extraPercent: it.extraPercent,
+        extraSavings: it.extraSavings,
         qty: Number(it.qty) || 1,
         sellPrice: Number(it.sellPrice) || 0,
         purchasePrice: Number(it.purchasePrice) || 0,
@@ -4809,6 +5543,23 @@
       if (document.getElementById('dsr-phone')) {
         document.getElementById('dsr-phone').value = currentModalOrder.customerPhone || '';
       }
+      if (document.getElementById('dsr-date') && currentModalOrder.date) {
+        document.getElementById('dsr-date').value = currentModalOrder.date;
+      }
+      if (document.getElementById('dsr-payment') && currentModalOrder.paymentMethod) {
+        document.getElementById('dsr-payment').value = currentModalOrder.paymentMethod;
+      }
+
+      const cancelBtn = document.getElementById('dsr-btn-cancel-edit');
+      if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+      const editBanner = document.getElementById('dsr-editing-banner');
+      if (editBanner) {
+        editBanner.style.display = 'flex';
+        const badge = document.getElementById('dsr-editing-order-badge');
+        if (badge) badge.textContent = editingDsrOrderId || '';
+      }
+      const submitBtn = document.getElementById('dsr-btn-submit');
+      if (submitBtn) submitBtn.innerHTML = '💾 Update Order &amp; Generate Bill';
 
       renderDsrItemsTable();
       closeOrderDetailsModal();
@@ -4860,10 +5611,19 @@
           </div>
           <div class="divider"></div>
           ${itemsHtml}
-          <div class="divider"></div>
-          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px;">
-            <span>TOTAL BILL:</span>
+          ${(Number(order.deliveryFee) > 0) ? `
+          <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;">
+            <span>Subtotal:</span>
             <span>Rs. ${(Number(order.totalSale) || 0).toLocaleString()}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;">
+            <span>Delivery Fee:</span>
+            <span>Rs. ${(Number(order.deliveryFee) || 0).toLocaleString()}</span>
+          </div>
+          ` : ''}
+          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px;">
+            <span>TOTAL PAYABLE:</span>
+            <span>Rs. ${(Number(order.grandTotal || (Number(order.totalSale || 0) + Number(order.deliveryFee || 0))) || 0).toLocaleString()}</span>
           </div>
           <div class="divider"></div>
           <div class="center" style="font-size:10.5px; margin-top:10px;">
@@ -4964,6 +5724,9 @@
         const data = await res.json();
         if (data.ok) {
           purchaseRates[productId] = numRate;
+          purchaseRates[String(productId)] = numRate;
+          const prod = allProducts.find(p => String(p.id) === String(productId));
+          if (prod) prod.purchasePrice = numRate;
           await loadDsr();
           renderMissingRatesModalTable();
         } else {
@@ -4989,14 +5752,18 @@
       if (count === 0) return alert('Please enter at least one purchase rate in the input fields first.');
 
       try {
-        for (const [pId, pRate] of Object.entries(updates)) {
-          purchaseRates[pId] = pRate;
-          await fetch(`/api/products/${pId}/purchase-rate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ rate: pRate })
-          }).catch(() => {});
-        }
+        Object.entries(updates).forEach(([k, v]) => {
+          const numV = Number(v);
+          purchaseRates[k] = numV;
+          purchaseRates[Number(k)] = numV;
+          const prod = allProducts.find(p => String(p.id) === String(k));
+          if (prod) prod.purchasePrice = numV;
+        });
+        await fetch('/api/purchase-rates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rates: updates })
+        });
 
         await loadDsr();
         renderMissingRatesModalTable();
@@ -5176,7 +5943,7 @@
       const totalProfit = totalSale - totalCost;
 
       const payload = {
-        date: new Date().toISOString().slice(0, 10),
+        date: formatLocalDate(new Date()),
         customerName: custName,
         customerPhone: custPhone,
         paymentMethod: paymentMethod,
@@ -5212,14 +5979,9 @@
       }
     }
 
-    // Auto-poll cloud relay & orders every 18 seconds
-    setInterval(() => {
-      loadDsr(true);
-    }, 18000);
-
         // ── Same-Day Expenses & Net Profit Engine ──
     function setExpensesDateToday() {
-      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayStr = formatLocalDate(new Date());
       const calcDate = document.getElementById('exp-calc-date');
       const expDate = document.getElementById('exp-date');
       if (calcDate) calcDate.value = todayStr;
@@ -5247,7 +6009,7 @@
         return;
       }
 
-      const targetDate = document.getElementById('exp-calc-date')?.value || new Date().toISOString().slice(0, 10);
+      const targetDate = document.getElementById('exp-calc-date')?.value || formatLocalDate(new Date());
       const dayOrders = (dsrAllData.orders || []).filter(o => o.date === targetDate);
       const dayExpenses = (dsrAllData.expenses || []).filter(e => e.date === targetDate);
 
@@ -5268,7 +6030,7 @@
       const calcDateEl = document.getElementById('exp-calc-date');
       if (!calcDateEl) return;
 
-      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayStr = formatLocalDate(new Date());
       if (!calcDateEl.value) calcDateEl.value = todayStr;
       const targetDate = calcDateEl.value;
 
@@ -5486,7 +6248,9 @@
         `;
       });
 
-      const grandSale = Number(order.totalSale) || items.reduce((s, i) => s + i.lineTotal, 0);
+      const subtotalSale = Number(order.totalSale) || items.reduce((s, i) => s + i.lineTotal, 0);
+      const deliveryFee = Number(order.deliveryFee) || 0;
+      const grandTotalPayable = Number(order.grandTotal) || (subtotalSale + deliveryFee);
       const isOnline = order.paymentMethod === 'online';
 
       paper.innerHTML = `
@@ -5550,9 +6314,15 @@
             <b style="color: #0f172a;">${items.length} items (${totalUnits} units)</b>
           </div>
           <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569; margin-bottom: 4px;">
-            <span>Gross Retail Total:</span>
-            <span>Rs. ${totalRetail.toLocaleString()}</span>
+            <span>Subtotal:</span>
+            <span>Rs. ${subtotalSale.toLocaleString()}</span>
           </div>
+          ${deliveryFee > 0 ? `
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569; margin-bottom: 4px;">
+            <span>Delivery Fee:</span>
+            <span>Rs. ${deliveryFee.toLocaleString()}</span>
+          </div>
+          ` : ''}
           ${totalDiscount > 0 ? `
           <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #059669; font-weight: 800; margin: 6px 0; background: #ecfdf5; padding: 6px 10px; border-radius: 6px; border: 1px dashed #6ee7b7;">
             <span>🎁 Aap Ki Bachat (Total Discount):</span>
@@ -5561,7 +6331,7 @@
           ` : ''}
           <div style="display: flex; justify-content: space-between; align-items: center; font-size: 17px; font-weight: 900; color: #0f172a; border-top: 2px dashed #94a3b8; border-bottom: 2px dashed #94a3b8; padding: 10px 0; margin-top: 8px;">
             <span>GRAND TOTAL PAYABLE:</span>
-            <span style="color: #0284c7; font-size: 20px;">Rs. ${grandSale.toLocaleString()}</span>
+            <span style="color: #0284c7; font-size: 20px;">Rs. ${grandTotalPayable.toLocaleString()}</span>
           </div>
         </div>
 
@@ -5656,12 +6426,12 @@
         </head>
         <body>
           ${printContent}
-          <' + 'script>
+          <script>
             window.onload = function() {
               window.print();
               setTimeout(function() { window.close(); }, 600);
             };
-          <' + '/script>
+          <\/script>
         </body>
         </html>
       `);
@@ -5681,7 +6451,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice ${orderId} - ZS Mart</title>
-  <' + 'style>
+  <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: #f1f5f9;
@@ -5710,7 +6480,7 @@
       .invoice-box { box-shadow: none; padding: 10px; max-width: 100%; }
       .btn-bar { display: none; }
     }
-  <' + '/style>
+  </style>
 </head>
 <body>
   <div style="width: 100%; max-width: 520px;">
@@ -5773,7 +6543,14 @@
       if (totalDiscount > 0) {
         msg += `*🎁 Aap Ki Bachat (Discount):* Rs. ${totalDiscount.toLocaleString()}\n`;
       }
-      msg += `*💰 GRAND TOTAL: Rs. ${(Number(o.totalSale) || 0).toLocaleString()}*\n`;
+      const subtotalSale = Number(o.totalSale) || items.reduce((s, i) => s + i.lineTotal, 0);
+      const deliveryFee = Number(o.deliveryFee) || 0;
+      const grandTotalPayable = Number(o.grandTotal) || (subtotalSale + deliveryFee);
+      if (deliveryFee > 0) {
+        msg += `*Subtotal:* Rs. ${subtotalSale.toLocaleString()}\n`;
+        msg += `*Delivery Fee:* Rs. ${deliveryFee.toLocaleString()}\n`;
+      }
+      msg += `*💰 GRAND TOTAL: Rs. ${grandTotalPayable.toLocaleString()}*\n`;
       msg += `--------------------------------\n`;
       msg += `✨ *Thank you for shopping with ZS Mart!* ✨\n`;
       msg += `Phir zaroor tashreef layen! 🙏`;
@@ -5946,7 +6723,7 @@
       if (!items || items.length === 0) {
         resultsDiv.innerHTML = `
           <div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 12px;">
-            No existing catalog match for "<b>${query}</b>".<br>
+            No existing catalog match for "<b>${escapeHtml(query)}</b>".<br>
             <span style="font-size: 11px; color: #059669; font-weight: bold;">You can still add this as a custom market item!</span>
           </div>`;
         return;
@@ -5962,7 +6739,7 @@
         itemDiv.className = 'dsr-search-item';
         itemDiv.setAttribute('data-idx', idx);
 
-        const savedRate = purchaseRates[p.id];
+        const savedRate = purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : (purchaseRates[String(p.id)] !== undefined ? purchaseRates[String(p.id)] : (p.purchasePrice || 0));
         const savedSection = itemSectionsMap[p.id] || '';
         const hasRate = savedRate !== undefined && Number(savedRate) > 0;
         const purHtml = hasRate 
@@ -6050,8 +6827,9 @@
 
       // Auto-fill Rate
       const rateInput = document.getElementById('purchasing-item-rate');
-      if (purchaseRates[p.id] !== undefined && Number(purchaseRates[p.id]) > 0) {
-        rateInput.value = purchaseRates[p.id];
+      const pRate = purchaseRates[p.id] !== undefined ? purchaseRates[p.id] : (purchaseRates[String(p.id)] !== undefined ? purchaseRates[String(p.id)] : (p.purchasePrice || ''));
+      if (pRate !== '' && Number(pRate) > 0) {
+        rateInput.value = pRate;
       } else {
         rateInput.value = '';
       }
@@ -6066,7 +6844,7 @@
 
       const hint = document.getElementById('purchasing-status-hint');
       if (hint) {
-        hint.textContent = (purchaseRates[p.id] ? `✓ Pur Rate Rs. ${purchaseRates[p.id]} auto-filled` : '⚡ Enter Pur Rate') + 
+        hint.textContent = (pRate ? `✓ Pur Rate Rs. ${pRate} auto-filled` : '⚡ Enter Pur Rate') + 
           (itemSectionsMap[p.id] ? ` • Section: ${itemSectionsMap[p.id]}` : '');
       }
 
@@ -6364,7 +7142,7 @@
       const grandAmount = currentPurchasingItems.reduce((s, i) => s + i.amount, 0);
 
       const payload = {
-        date: document.getElementById('purchasing-date').value || new Date().toISOString().slice(0, 10),
+        date: document.getElementById('purchasing-date').value || formatLocalDate(new Date()),
         marketName: document.getElementById('purchasing-market-name').value.trim() || 'Wholesale Market',
         title: document.getElementById('purchasing-notes').value.trim() || 'Market Purchasing Sheet',
         items: currentPurchasingItems,
@@ -6431,7 +7209,7 @@
       if (!sheet) return;
       if (currentPurchasingItems.length > 0 && !confirm('Replace current working sheet with this saved sheet?')) return;
       currentPurchasingItems = JSON.parse(JSON.stringify(sheet.items || []));
-      document.getElementById('purchasing-date').value = sheet.date || new Date().toISOString().slice(0, 10);
+      document.getElementById('purchasing-date').value = sheet.date || formatLocalDate(new Date());
       document.getElementById('purchasing-market-name').value = sheet.marketName || '';
       document.getElementById('purchasing-notes').value = sheet.title || '';
       renderPurchasingSheetTable();
@@ -6463,7 +7241,7 @@
       if (currentPurchasingItems.length === 0) return alert('Please add items to the sheet before printing!');
 
       const groupedData = getOrganizedPurchasingData();
-      const printDateStr = document.getElementById('purchasing-date').value || new Date().toISOString().slice(0, 10);
+      const printDateStr = document.getElementById('purchasing-date').value || formatLocalDate(new Date());
       const marketName = document.getElementById('purchasing-market-name').value.trim() || 'Wholesale Market';
       const sheetTitle = document.getElementById('purchasing-notes').value.trim() || 'PURCHASING ORDER SHEET';
       const grandQty = currentPurchasingItems.reduce((s, i) => s + i.qty, 0);
@@ -7059,6 +7837,7 @@
           renderPurchasingSectionsDatalist();
           renderSectionsManagerList();
           renderPurchasingSheetTable();
+          updatePurchasingVendorStats();
           alert('✅ Section renamed to "' + trimmedNew + '" successfully!');
         } else {
           alert('❌ Rename failed: ' + (data.error || 'Unknown error'));
@@ -7090,6 +7869,7 @@
           renderPurchasingSectionsDatalist();
           renderSectionsManagerList();
           renderPurchasingSheetTable();
+          updatePurchasingVendorStats();
           alert('🗑️ Section "' + secName + '" deleted successfully!');
         } else {
           alert('❌ Delete failed: ' + (data.error || 'Unknown error'));
@@ -7189,9 +7969,13 @@
       const saveRate = document.getElementById('edit-purchasing-save-rate-chk').checked;
       const saveSection = document.getElementById('edit-purchasing-save-section-chk').checked;
 
-      if (itemId) {
+      const isCustom = !itemId || String(itemId).startsWith('CUST-') || isNaN(Number(itemId));
+      if (itemId && !isCustom) {
         if (saveRate) {
           purchaseRates[String(itemId)] = newRate;
+          purchaseRates[Number(itemId)] = newRate;
+          const prod = allProducts.find(p => String(p.id) === String(itemId));
+          if (prod) prod.purchasePrice = newRate;
           fetch('/api/products/' + itemId + '/purchase-rate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -7210,6 +7994,648 @@
 
       closeEditPurchasingItemModal();
       renderPurchasingSheetTable();
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       📁 CATEGORY CREATION & LIVE SUPABASE SYNC
+       ══════════════════════════════════════════════════════════════ */
+    let targetCategoryDropdown = 'add-category';
+
+    function openAddCategoryModal(targetId = 'add-category') {
+      targetCategoryDropdown = targetId;
+      const modal = document.getElementById('add-category-modal');
+      if (modal) {
+        const form = document.getElementById('add-category-form');
+        if (form) form.reset();
+        modal.classList.add('show');
+        setTimeout(() => {
+          const inp = document.getElementById('new-cat-name');
+          if (inp) inp.focus();
+        }, 150);
+      }
+    }
+
+    function closeAddCategoryModal() {
+      const modal = document.getElementById('add-category-modal');
+      if (modal) modal.classList.remove('show');
+    }
+
+    function handleCategorySelectChange(selectEl, targetId) {
+      if (!selectEl) return;
+      if (selectEl.value === '__NEW_CAT__') {
+        openAddCategoryModal(targetId);
+        if (allCategories && allCategories.length > 0) {
+          selectEl.value = allCategories[0].id;
+        }
+      }
+    }
+
+    /* ── DELETE CATEGORY ──────────────────────────────────────── */
+    async function confirmDeleteCategory(catId, catName) {
+      // Count products in this category
+      const inCat = (allProducts || []).filter(p => p.categoryId === catId).length;
+      const warningMsg = inCat > 0
+        ? `\n\n⚠️ WARNING: Is category mein ${inCat} products hain. Delete karne ke baad ye sab "General Items & Others" mein move ho jayenge.`
+        : '';
+
+      const confirmed = confirm(
+        `🗑️ Category DELETE Confirmation\n\n` +
+        `Category: "${catName}"\n` +
+        `ID: ${catId}` +
+        warningMsg +
+        `\n\nKya aap PERMANENTLY delete karna chahte hain?\n` +
+        `(Supabase Cloud se bhi hata diya jayega)`
+      );
+      if (!confirmed) return;
+
+      // Double confirm if there are products
+      if (inCat > 0) {
+        const confirmed2 = confirm(
+          `⚠️ Final Confirmation\n\n` +
+          `${inCat} products ko "General Items & Others" mein move kiya jayega.\n\n` +
+          `Pakka delete karein?`
+        );
+        if (!confirmed2) return;
+      }
+
+      await deleteCategory(catId, catName);
+    }
+
+    async function deleteCategory(catId, catName) {
+      const allDelBtns = document.querySelectorAll(`button[onclick*="'${catId}'"]`);
+      allDelBtns.forEach(b => { b.disabled = true; b.textContent = '⏳...'; });
+
+      try {
+        const res = await fetch('/api/categories/' + encodeURIComponent(catId), {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+          // Remove from local allCategories array
+          allCategories = allCategories.filter(c => c.id !== catId);
+
+          // Update allProducts local cache too
+          if (allProducts && allProducts.length > 0) {
+            allProducts.forEach(p => {
+              if (p.categoryId === catId) {
+                p.categoryId = 'general';
+                p.categoryName = 'General Items & Others';
+              }
+            });
+          }
+
+          renderCategoryDropdowns();
+          renderCategoryOrderList();
+          if (typeof renderProducts === 'function') renderProducts();
+
+          const movedMsg = data.affectedProductsCount > 0
+            ? `\n${data.affectedProductsCount} products "General Items & Others" mein move ho gaye.`
+            : '';
+          alert(`✅ Category "${catName}" permanently delete ho gayi!\nSupabase Cloud se bhi hata di gayi.${movedMsg}`);
+        } else {
+          alert('❌ Delete failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch(err) {
+        alert('❌ Network error: ' + err.message);
+      }
+    }
+
+    /* ── RENAME CATEGORY ──────────────────────────────────────── */
+    function promptRenameCategory(catId, currentName) {
+      const idInp = document.getElementById('rename-cat-id');
+      const curInp = document.getElementById('rename-cat-current');
+      const newInp = document.getElementById('rename-cat-new-name');
+      if (idInp) idInp.value = catId;
+      if (curInp) curInp.value = currentName || catId;
+      if (newInp) newInp.value = currentName || '';
+      const modal = document.getElementById('rename-category-modal');
+      if (modal) modal.classList.add('show');
+      setTimeout(() => { if (newInp) { newInp.focus(); newInp.select(); } }, 120);
+    }
+
+    function closeRenameCategoryModal() {
+      const modal = document.getElementById('rename-category-modal');
+      if (modal) modal.classList.remove('show');
+    }
+
+    async function handleRenameCategorySubmit(event) {
+      event.preventDefault();
+      const catId = document.getElementById('rename-cat-id').value;
+      const newNameInp = document.getElementById('rename-cat-new-name');
+      const newName = (newNameInp ? newNameInp.value : '').trim();
+
+      if (!catId) return alert('Category ID is missing!');
+      if (!newName) return alert('Category Name cannot be empty!');
+
+      const btn = document.getElementById('rename-cat-submit-btn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⏳ Renaming in Cloud & App...';
+      }
+
+      try {
+        const res = await fetch('/api/categories/' + encodeURIComponent(catId) + '/rename', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+          const cat = allCategories.find(c => c.id === catId);
+          if (cat) cat.name = newName;
+
+          if (allProducts && allProducts.length > 0) {
+            allProducts.forEach(p => {
+              if (p.categoryId === catId) {
+                p.categoryName = newName;
+              }
+            });
+          }
+
+          if (data.categories && Array.isArray(data.categories)) {
+            allCategories = data.categories;
+          }
+
+          renderCategoryDropdowns();
+          renderCategoryOrderList();
+          if (typeof renderProducts === 'function') renderProducts();
+          closeRenameCategoryModal();
+
+          const countMsg = data.affectedProductsCount > 0
+            ? `\n${data.affectedProductsCount} items ka categoryName bhi live update ho gaya!`
+            : '';
+          alert(`✅ Category successfully renamed to "${newName}"!\n\nSupabase Cloud, Customer App, aur Catalog me permanently update ho gayi.${countMsg}`);
+        } else {
+          alert('❌ Rename failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch(err) {
+        alert('❌ Network error: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '💾 Save & Sync Everywhere';
+        }
+      }
+    }
+
+    async function handleCreateNewCategory(event) {
+      event.preventDefault();
+      const saveBtn = document.getElementById('save-cat-btn');
+      const nameInp = document.getElementById('new-cat-name');
+      const idInp = document.getElementById('new-cat-id');
+      const prioInp = document.getElementById('new-cat-prio');
+
+      const nameVal = nameInp.value.trim();
+      if (!nameVal) return alert('Category Name is required!');
+
+      let idVal = idInp.value.trim();
+      const prioVal = prioInp.value ? Number(prioInp.value) : undefined;
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Saving to Supabase...';
+      }
+
+      try {
+        const res = await fetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: nameVal,
+            id: idVal || undefined,
+            priority: prioVal
+          })
+        });
+
+        const data = await res.json();
+        if (data.ok && data.category) {
+          const newCat = data.category;
+          if (!allCategories.some(c => c.id === newCat.id)) {
+            allCategories.push(newCat);
+          } else {
+            const idx = allCategories.findIndex(c => c.id === newCat.id);
+            allCategories[idx] = newCat;
+          }
+
+          renderCategoryDropdowns();
+          if (typeof renderCategoryOrderList === 'function') {
+            renderCategoryOrderList();
+          }
+
+          const targetSelect = document.getElementById(targetCategoryDropdown);
+          if (targetSelect) {
+            targetSelect.value = newCat.id;
+          }
+
+          closeAddCategoryModal();
+          alert(`✅ New Category "${newCat.name}" successfully created and synced live to Supabase & App!`);
+        } else {
+          alert('❌ Failed to create category: ' + (data.error || 'Unknown error'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = '➕ Create & Save Category';
+        }
+      }
+    }
+
+
+    /* ══════════════════════════════════════════════════════════════
+       ⚡ VENDOR ASSIGNMENT STATS & BULK ASSIGN (Supabase Synced)
+       ══════════════════════════════════════════════════════════════ */
+    function updatePurchasingVendorStats() {
+      const assignedEl = document.getElementById('count-vendor-assigned');
+      const unassignedEl = document.getElementById('count-vendor-unassigned');
+      const totalEl = document.getElementById('count-vendor-total');
+      if (!totalEl) return;
+
+      const total = (allProducts && allProducts.length) || 0;
+      let assigned = 0;
+      (allProducts || []).forEach(p => {
+        const sec = (itemSectionsMap && itemSectionsMap[String(p.id)]) || (itemSectionsMap && itemSectionsMap[p.id]);
+        if (sec && sec !== 'General Market' && sec.trim() !== '') {
+          assigned++;
+        }
+      });
+      const unassigned = Math.max(0, total - assigned);
+      const pct = total > 0 ? Math.round((assigned / total) * 100) : 0;
+      const unassignedPct = total > 0 ? (100 - pct) : 0;
+
+      if (assignedEl) assignedEl.textContent = `${assigned} (${pct}%)`;
+      if (unassignedEl) unassignedEl.textContent = `${unassigned} (${unassignedPct}%)`;
+      if (totalEl) totalEl.textContent = `${total} items`;
+    }
+
+    let pendingBulkSections = {};
+    let bisSelectedProductIds = new Set();
+    let bisCurrentFilteredProducts = [];
+    let bisCurrentPage = 1;
+    let bisPageSize = 100;
+
+    function openBulkItemSectionsModal(onlyUnassigned = false) {
+      pendingBulkSections = { ...itemSectionsMap };
+      bisSelectedProductIds.clear();
+      bisCurrentPage = 1;
+
+      // Populate Category Filter
+      const catSelect = document.getElementById('bis-filter-cat');
+      if (catSelect) {
+        catSelect.innerHTML = `<option value="">All Categories (${allProducts.length} items)</option>`;
+        const catCountMap = {};
+        allProducts.forEach(p => {
+          const cId = p.categoryId || 'general';
+          catCountMap[cId] = (catCountMap[cId] || 0) + 1;
+        });
+        allCategories.forEach(c => {
+          const count = catCountMap[c.id] || 0;
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = `${c.name} (${count})`;
+          catSelect.appendChild(opt);
+        });
+      }
+
+      // Populate Section Filters & Target Selector
+      populateBisSectionDropdowns();
+
+      const secFilter = document.getElementById('bis-filter-sec');
+      if (secFilter && onlyUnassigned) {
+        secFilter.value = '__UNASSIGNED__';
+      } else if (secFilter) {
+        secFilter.value = '';
+      }
+
+      const searchInp = document.getElementById('bis-search');
+      if (searchInp) searchInp.value = '';
+
+      filterAndRenderBisTable(true);
+
+      const modal = document.getElementById('bulk-item-sections-modal');
+      if (modal) modal.classList.add('show');
+    }
+
+    function closeBulkItemSectionsModal() {
+      const modal = document.getElementById('bulk-item-sections-modal');
+      if (modal) modal.classList.remove('show');
+    }
+
+    function populateBisSectionDropdowns() {
+      const secFilter = document.getElementById('bis-filter-sec');
+      const targetSec = document.getElementById('bis-target-sec');
+
+      const secCountMap = {};
+      allProducts.forEach(p => {
+        const sec = pendingBulkSections[String(p.id)] || 'General Market';
+        secCountMap[sec] = (secCountMap[sec] || 0) + 1;
+      });
+
+      if (secFilter) {
+        secFilter.innerHTML = `
+          <option value="">All Vendors / Sections</option>
+          <option value="__UNASSIGNED__">⚠️ Unassigned (General Market) (${secCountMap['General Market'] || 0})</option>
+        `;
+        purchasingSections.filter(s => s !== 'General Market').forEach(s => {
+          const count = secCountMap[s] || 0;
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = `${s} (${count})`;
+          secFilter.appendChild(opt);
+        });
+      }
+
+      if (targetSec) {
+        targetSec.innerHTML = '';
+        purchasingSections.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = s;
+          targetSec.appendChild(opt);
+        });
+        const addOpt = document.createElement('option');
+        addOpt.value = '__ADD_NEW__';
+        addOpt.textContent = '➕ Add New Vendor / Section...';
+        addOpt.style.color = '#166534';
+        addOpt.style.fontWeight = 'bold';
+        targetSec.appendChild(addOpt);
+
+        targetSec.onchange = function() {
+          if (this.value === '__ADD_NEW__') {
+            const newSec = prompt('Enter new Market Vendor / Section name (e.g. AHSAN BHAI, BOLTON MARKET):');
+            if (newSec && newSec.trim()) {
+              const trimmed = newSec.trim().toUpperCase();
+              if (!purchasingSections.includes(trimmed)) {
+                purchasingSections.push(trimmed);
+                populateBisSectionDropdowns();
+              }
+              targetSec.value = trimmed;
+            } else {
+              targetSec.value = purchasingSections[0] || 'General Market';
+            }
+          }
+        };
+      }
+    }
+
+    function filterAndRenderBisTable(resetPage = false) {
+      if (resetPage) bisCurrentPage = 1;
+
+      const catFilter = (document.getElementById('bis-filter-cat')?.value || '').trim();
+      const secFilter = (document.getElementById('bis-filter-sec')?.value || '').trim();
+      const query = (document.getElementById('bis-search')?.value || '').toLowerCase().trim();
+
+      bisCurrentFilteredProducts = allProducts.filter(p => {
+        if (catFilter && p.categoryId !== catFilter) return false;
+
+        const currentSec = pendingBulkSections[String(p.id)] || 'General Market';
+        if (secFilter) {
+          if (secFilter === '__UNASSIGNED__') {
+            if (currentSec !== 'General Market' && currentSec !== '') return false;
+          } else {
+            if (currentSec !== secFilter) return false;
+          }
+        }
+
+        if (query) {
+          const name = String(p.name || '').toLowerCase();
+          const idStr = String(p.id || '');
+          if (!name.includes(query) && !idStr.includes(query)) return false;
+        }
+
+        return true;
+      });
+
+      renderBisTable();
+    }
+
+    function renderBisTable() {
+      const tbody = document.getElementById('bis-table-body');
+      if (!tbody) return;
+
+      const totalFiltered = bisCurrentFilteredProducts.length;
+      document.getElementById('bis-filtered-count').textContent = totalFiltered;
+
+      let assignedCount = 0;
+      allProducts.forEach(p => {
+        const s = pendingBulkSections[String(p.id)];
+        if (s && s !== 'General Market' && s.trim() !== '') assignedCount++;
+      });
+      const unassignedCount = allProducts.length - assignedCount;
+
+      const statsEl = document.getElementById('bis-stats-overview');
+      if (statsEl) {
+        statsEl.innerHTML = `
+          Total Assigned: <span style="color: #166534; font-weight: 800;">${assignedCount} items</span> &bull; 
+          Unassigned: <span style="color: #b45309; font-weight: 800;">${unassignedCount} items</span> &bull; 
+          Catalog Total: <b>${allProducts.length}</b>
+        `;
+      }
+
+      const pageSize = bisPageSize >= 9999 ? totalFiltered : bisPageSize;
+      const totalPages = Math.ceil(totalFiltered / pageSize) || 1;
+      if (bisCurrentPage > totalPages) bisCurrentPage = totalPages;
+      if (bisCurrentPage < 1) bisCurrentPage = 1;
+
+      const startIdx = (bisCurrentPage - 1) * pageSize;
+      const endIdx = startIdx + pageSize;
+      const pageSlice = bisCurrentFilteredProducts.slice(startIdx, endIdx);
+
+      const pagControls = document.getElementById('bis-pagination-controls');
+      if (pagControls) {
+        pagControls.innerHTML = `
+          <button type="button" class="btn btn-light" style="padding: 2px 8px; font-size: 11px;" ${bisCurrentPage <= 1 ? 'disabled' : ''} onclick="changeBisPage(${bisCurrentPage - 1})">◀ Prev</button>
+          <span style="font-size: 11px; font-weight: 700; color: #475569;">Page ${bisCurrentPage} of ${totalPages}</span>
+          <button type="button" class="btn btn-light" style="padding: 2px 8px; font-size: 11px;" ${bisCurrentPage >= totalPages ? 'disabled' : ''} onclick="changeBisPage(${bisCurrentPage + 1})">Next ▶</button>
+        `;
+      }
+
+      const allSliceSelected = pageSlice.length > 0 && pageSlice.every(p => bisSelectedProductIds.has(String(p.id)));
+      const selectAllChk = document.getElementById('bis-select-all-filtered');
+      const thChk = document.getElementById('bis-th-checkbox');
+      if (selectAllChk) selectAllChk.checked = allSliceSelected;
+      if (thChk) thChk.checked = allSliceSelected;
+
+      document.getElementById('bis-selected-count').textContent = bisSelectedProductIds.size;
+
+      if (pageSlice.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 30px; color: #94a3b8; font-size: 13px;">
+              Koi item match nahi hui. Filter ya Search check karein.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      let html = '';
+      pageSlice.forEach((p, idx) => {
+        const pId = String(p.id);
+        const isChecked = bisSelectedProductIds.has(pId);
+        const currentSec = pendingBulkSections[pId] || 'General Market';
+        const isAssigned = (currentSec !== 'General Market' && currentSec !== '');
+        const cat = allCategories.find(c => c.id === p.categoryId);
+        const catName = cat ? cat.name : (p.categoryName || 'General');
+
+        html += `
+          <tr style="border-bottom: 1px solid #f1f5f9; background: ${isChecked ? '#f0fdf4' : (idx % 2 === 0 ? '#ffffff' : '#fafafa')}; transition: background 0.15s ease;" id="bis-row-${pId}">
+            <td style="padding: 6px 10px; text-align: center;">
+              <input type="checkbox" style="accent-color: #059669; cursor: pointer; width: 15px; height: 15px;" ${isChecked ? 'checked' : ''} onchange="handleBisRowCheck('${pId}', this.checked)">
+            </td>
+            <td style="padding: 6px 10px; font-weight: 700; color: #64748b; font-size: 11.5px;">${p.id}</td>
+            <td style="padding: 6px 10px;">
+              <div style="font-weight: 700; color: #0f172a; font-size: 12.5px;">${p.name}</div>
+              <div style="font-size: 10.5px; color: #64748b;">Rs. ${Number(p.price || 0).toLocaleString()}</div>
+            </td>
+            <td style="padding: 6px 10px;">
+              <span style="font-size: 10.5px; padding: 2px 8px; border-radius: 12px; background: #f1f5f9; color: #475569; font-weight: 600; white-space: nowrap;">
+                ${catName}
+              </span>
+            </td>
+            <td style="padding: 6px 10px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <select style="width: 100%; padding: 5px 8px; font-size: 12px; font-weight: 700; border-radius: 6px; border: 1.5px solid ${isAssigned ? '#10b981' : '#cbd5e1'}; background: ${isAssigned ? '#f0fdf4' : '#ffffff'}; color: ${isAssigned ? '#065f46' : '#475569'};" onchange="handleBisRowSectionChange('${pId}', this.value)">
+                  <option value="General Market" ${currentSec === 'General Market' ? 'selected' : ''}>General Market (Unassigned)</option>
+                  ${purchasingSections.filter(s => s !== 'General Market').map(s => `
+                    <option value="${s}" ${s === currentSec ? 'selected' : ''}>${s}</option>
+                  `).join('')}
+                </select>
+                ${isAssigned ? '<span style="color: #10b981; font-size: 14px;" title="Assigned">✓</span>' : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    function toggleBisSelectAll(checked) {
+      bisCurrentFilteredProducts.forEach(p => {
+        const pId = String(p.id);
+        if (checked) {
+          bisSelectedProductIds.add(pId);
+        } else {
+          bisSelectedProductIds.delete(pId);
+        }
+      });
+      renderBisTable();
+    }
+
+    function handleBisRowCheck(productId, checked) {
+      if (checked) {
+        bisSelectedProductIds.add(String(productId));
+      } else {
+        bisSelectedProductIds.delete(String(productId));
+      }
+      document.getElementById('bis-selected-count').textContent = bisSelectedProductIds.size;
+      const row = document.getElementById('bis-row-' + productId);
+      if (row) {
+        row.style.background = checked ? '#f0fdf4' : '#ffffff';
+      }
+    }
+
+    function handleBisRowSectionChange(productId, newSection) {
+      pendingBulkSections[String(productId)] = String(newSection).trim();
+      renderBisTable();
+      showBisTempStatus(`Item #${productId} set to "${newSection}"`);
+    }
+
+    function applyBulkSectionToSelected() {
+      if (bisSelectedProductIds.size === 0) {
+        return alert('Pehle items select karein (checkbox check karein)!');
+      }
+
+      const targetSelect = document.getElementById('bis-target-sec');
+      const targetSec = targetSelect ? targetSelect.value.trim() : '';
+      if (!targetSec || targetSec === '__ADD_NEW__') {
+        return alert('Valid vendor / market section select karein!');
+      }
+
+      const count = bisSelectedProductIds.size;
+      bisSelectedProductIds.forEach(pId => {
+        pendingBulkSections[String(pId)] = targetSec;
+      });
+
+      bisSelectedProductIds.clear();
+
+      populateBisSectionDropdowns();
+      renderBisTable();
+      showBisTempStatus(`⚡ ${count} items successfully assigned to "${targetSec}"! Click 'Save All' to sync.`);
+    }
+
+    function changeBisPageSize(val) {
+      bisPageSize = Number(val);
+      bisCurrentPage = 1;
+      renderBisTable();
+    }
+
+    function changeBisPage(newPage) {
+      bisCurrentPage = newPage;
+      renderBisTable();
+    }
+
+    function showBisTempStatus(msg) {
+      const el = document.getElementById('bis-save-status');
+      if (el) {
+        el.textContent = msg;
+        el.style.color = '#059669';
+      }
+    }
+
+    async function saveBulkItemSections() {
+      const saveBtn = document.getElementById('bis-save-btn');
+      const statusEl = document.getElementById('bis-save-status');
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Saving to Supabase Cloud...';
+      }
+      if (statusEl) {
+        statusEl.textContent = 'Uploading all mappings to Supabase Cloud & Local...';
+        statusEl.style.color = '#0284c7';
+      }
+
+      try {
+        const res = await fetch('/api/purchasing/sections', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemSections: pendingBulkSections })
+        });
+
+        const data = await res.json();
+        if (data.ok) {
+          itemSectionsMap = { ...pendingBulkSections };
+          purchasingSections = data.sections || purchasingSections;
+
+          renderPurchasingSectionsDatalist();
+          renderSectionsManagerList();
+          renderPurchasingSheetTable();
+          updatePurchasingVendorStats();
+
+          const totalAssigned = Object.keys(itemSectionsMap).filter(k => itemSectionsMap[k] && itemSectionsMap[k] !== 'General Market').length;
+
+          if (statusEl) {
+            statusEl.textContent = `✅ Successfully saved ${totalAssigned} item assignments permanently to Supabase!`;
+            statusEl.style.color = '#059669';
+          }
+          alert(`✅ SUCCESS!\n\nTamam items ke vendor / market section mappings kamyabi se:\n1. Supabase Cloud Database\n2. Local purchasing_sections.json\n3. Backup mirrors\n\nme PERMANENTLY save ho chuke hain! (${totalAssigned} items assigned)`);
+          closeBulkItemSectionsModal();
+        } else {
+          alert('❌ Save failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = '💾 Save All to Supabase & Local';
+        }
+      }
     }
 
   </script>

@@ -24,7 +24,7 @@ var DEFAULT_STORE_SETTINGS = {
   deliveryFee: 99,
   freeDeliveryThreshold: 1999,
   minOrderAmount: 0,
-  deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
+  deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)",
   whatsapp: "923391965200",
   announcement: ""
 };
@@ -11943,9 +11943,9 @@ function AboutUsModal({
     className: "text-2xl mb-1"
   }, "\uD83D\uDE9A"), /*#__PURE__*/React.createElement("div", {
     className: "font-black text-gray-900 text-sm"
-  }, tr(modalLang, 'Fast Delivery', 'Fast Delivery', 'فاسٹ ڈیلیوری')), /*#__PURE__*/React.createElement("div", {
+  }, tr(modalLang, '59-Min Delivery', '59 Minute Delivery', '59 منٹ ڈیلیوری')), /*#__PURE__*/React.createElement("div", {
     className: "text-[11px] text-gray-600 font-medium mt-0.5"
-  }, tr(modalLang, 'All Over Karachi', 'Poore Karachi Mein', 'پورے کراچی میں')))), /*#__PURE__*/React.createElement("div", {
+  }, tr(modalLang, '59 Mins Express to your door', '59 Minutes mein delivery', '59 منٹ میں ایکسپریس ڈیلیوری')))), /*#__PURE__*/React.createElement("div", {
     className: "bg-purple-50/70 border border-purple-200/80 rounded-2xl p-4 text-purple-950 space-y-2"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-2 font-bold text-sm text-purple-900"
@@ -11957,7 +11957,7 @@ function AboutUsModal({
     className: "font-bold text-gray-900"
   }, tr(modalLang, 'Daily (7 Days a Week):', 'Rozana (7 Din Khula, Koi Chutti Nahi):', 'روزانہ (7 دن کھلا، کوئی چھٹی نہیں):')), /*#__PURE__*/React.createElement("div", {
     className: "text-purple-700 font-extrabold text-sm mt-0.5"
-  }, tr(modalLang, '10:00 AM – 10:00 PM', 'Subha 10:00 se Raat 10:00 tak', 'صبح 10:00 بجے سے رات 10:00 بجے تک'))), /*#__PURE__*/React.createElement("span", {
+  }, tr(modalLang, '11:00 AM – 10:00 PM', 'Subha 11:00 se Raat 10:00 tak', 'صبح 11:00 بجے سے رات 10:00 بجے تک'))), /*#__PURE__*/React.createElement("span", {
     className: "bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase"
   }, tr(modalLang, 'Open', 'Khula Hai', 'کھلا ہے')))), /*#__PURE__*/React.createElement("div", {
     className: "bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 text-emerald-950 text-xs space-y-2"
@@ -14733,7 +14733,7 @@ function ZSMart() {
     return {
       deliveryFee: 99,
       freeDeliveryThreshold: 1999,
-      deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
+      deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)",
       whatsapp: "923391965200",
       announcement: ""
     };
@@ -14743,7 +14743,7 @@ function ZSMart() {
     const s = {
       deliveryFee: Number(raw.delivery_fee ?? raw.deliveryFee ?? 99),
       freeDeliveryThreshold: Number(raw.free_delivery_threshold ?? raw.freeDeliveryThreshold ?? 1999),
-      deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
+      deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)'),
       whatsapp: String(raw.whatsapp || '923391965200'),
       announcement: String(raw.announcement ?? '')
     };
@@ -16227,7 +16227,7 @@ function ZSMart() {
       alignItems: 'center',
       gap: 6
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 10:00 AM – 10:00 PM', 'Delivery Timing: 10:00 AM – 10:00 PM', 'ڈیلیوری کے اوقات: صبح 10:00 تا رات 10:00'))))), Boolean(getStoreSettings().announcement) && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)', 'Delivery Timing: 11:00 AM – 10:00 PM (59 Min Delivery)', 'ڈیلیوری کے اوقات: صبح 11:00 تا رات 10:00 (59 منٹ میں ڈیلیوری)'))))), Boolean(getStoreSettings().announcement) && /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)',
       color: '#09131e',
@@ -17783,7 +17783,7 @@ function ZSMart() {
       fontWeight: 800,
       marginTop: '2px'
     }
-  }, (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), " (10:00 AM \u2013 10:00 PM, 7 Days)"))), /*#__PURE__*/React.createElement("span", {
+  }, (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), " (11:00 AM \u2013 10:00 PM, 7 Days)"))), /*#__PURE__*/React.createElement("span", {
     style: {
       background: '#38bdf8',
       color: '#0f172a',
@@ -18036,7 +18036,7 @@ function ZSMart() {
       color: '#059669',
       fontWeight: 700
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, "10:00 AM \u2013 10:00 PM (7 Days a Week, No Holiday)")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, "11:00 AM \u2013 10:00 PM (7 Days a Week, No Holiday) \u2022 59 Mins Express")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -18610,7 +18610,7 @@ function ZSMart() {
     className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-amber-600"
-  }, "\u23F0"), /*#__PURE__*/React.createElement("span", null, getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 10:00 AM – 10:00 PM (7 Days a Week, No Holiday)', 'Delivery Timing: Subah 10:00 AM se Raat 10:00 PM tak (7 Din Khula, Koi Chutti Nahi)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 10:00 بجے تک (7 دن کھلا، کوئی چھٹی نہیں)'))), /*#__PURE__*/React.createElement("div", {
+  }, "\u23F0"), /*#__PURE__*/React.createElement("span", null, getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)', 'Delivery Timing: Subah 11:00 AM se Raat 10:00 PM tak (59 Min Delivery)', 'ڈیلیوری ٹائمنگ: صبح 11:00 بجے سے رات 10:00 بجے تک (59 منٹ میں ڈیلیوری)'))), /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap items-center justify-center gap-2 mb-3 px-3"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setAboutOpen(true),
@@ -19055,7 +19055,7 @@ function ZSMart() {
     className: "text-center text-[10px] text-gray-500 space-y-0.5"
   }, /*#__PURE__*/React.createElement("p", {
     className: "font-semibold text-gray-700"
-  }, tr(language, 'Open 7 Days a Week (No Holiday)', '7 Din Khula (Koi Chutti Nahi)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 10:00 \u0628\u062c\u06d2 (7 \u062f\u0646 \u06a9\u06be\u0644\u0627\u060c \u06a9\u0648\u0626\u06cc \u0686DA\u0679\u06cc \u0646\u06c1\u06cc\u06ba)')), /*#__PURE__*/React.createElement("p", null, tr(language, 'Sahil Saleem & Muhammad Zubair Moin', 'Sahil Saleem & Muhammad Zubair Moin', '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646')), /*#__PURE__*/React.createElement("div", {
+  }, tr(language, 'Open 7 Days a Week (No Holiday)', '7 Din Khula (Koi Chutti Nahi)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 11:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 10:00 \u0628\u062c\u06d2 (7 \u062f\u0646 \u06a9\u06be\u0644\u0627\u060c \u06a9\u0648\u0626\u06cc \u0686DA\u0679\u06cc \u0646\u06c1\u06cc\u06ba)')), /*#__PURE__*/React.createElement("p", null, tr(language, 'Sahil Saleem & Muhammad Zubair Moin', 'Sahil Saleem & Muhammad Zubair Moin', '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646')), /*#__PURE__*/React.createElement("div", {
     className: "pt-2"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
@@ -22242,7 +22242,7 @@ function OrderHistoryModal({
           fontWeight: 800,
           color: '#0f172a'
         }
-      }, order.deliveryMethod === 'pickup' ? tr(language, '20 – 45 mins', '20 se 45 min', '20 تا 45 منٹ') : tr(language, '30 – 60 mins', '30 se 60 min', '30 تا 60 منٹ'))), /*#__PURE__*/React.createElement("div", {
+      }, order.deliveryMethod === 'pickup' ? tr(language, '20 – 45 mins', '20 se 45 min', '20 تا 45 منٹ') : tr(language, 'Within 59 Minutes (Express)', '59 Minutes ke andar Delivery', '59 منٹ کے اندر ڈلیوری'))), /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 11,
           color: isStep4 ? '#059669' : '#475569',
@@ -23300,7 +23300,7 @@ function CheckoutModal({
       const bulkText = bulk.extraPercent > 0 ? `\n   🎁 Extra Bulk Discount (${bulk.extraPercent}% OFF): -Rs ${bulk.extraSavings.toLocaleString()} (Effective: Rs ${Math.round(bulk.finalTotal / qty)}/pc)` : '';
       return `• ${product.name}${variantText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
     }).join('\n\n');
-    const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : `Rs ${getDeliveryFee()} Delivery Fee`})`;
+    const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : `Rs ${getDeliveryFee()} Delivery Fee`})\n  ⏱️ Delivery Time: Within 59 Minutes (Express Delivery)`;
     const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
     const locLine = deliveryMethod === 'home' && location ? `\n• 📍 Live GPS Map Pin: ${location.mapUrl}` : '';
     const msg = ['🛒 *NEW ORDER – ZS Mart*', '-----------------------------------------', '', '*📦 ORDER DETAILS:*', itemLines, '', '-----------------------------------------', `*Subtotal:* Rs ${cartTotal.toLocaleString()}${bulkSavingsSummary}`, `*Delivery:* ${deliveryText}`, `*💰 TOTAL BILL: Rs ${grandTotal.toLocaleString()}*`, '-----------------------------------------', '', '*👤 CUSTOMER INFO:*', `• Name: ${name.trim()}`, `• Phone: ${phone.trim()}`, deliveryMethod === 'home' ? `• Delivery Address: ${address.trim()}${locLine}` : `• Store Location: ZS Mart Shop (Muhammad Zubair Moin & Sahil Saleem)\n  ⏱️ Note: Order will be ready for pickup in 20 mins to 1 hour`, '', '-----------------------------------------', `📅 Date: ${new Date().toLocaleDateString('en-PK', {

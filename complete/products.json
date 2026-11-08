@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-08T13:42:10.408Z",
+  "updatedAt": "2026-11-08T13:56:44.276Z",
   "total": 1347,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
     "minOrderAmount": 0,
-    "deliveryTiming": "Delivery Timing: 10:00 AM – 10:00 PM",
+    "deliveryTiming": "Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)",
     "whatsapp": "923391965200",
     "storeName": "ZS Mart",
     "announcement": ""

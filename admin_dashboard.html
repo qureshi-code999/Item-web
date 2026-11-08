@@ -2129,7 +2129,7 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Delivery Timing (Header Text)</label>
-            <input type="text" id="setting-timing" value="Delivery Timing: 10:00 AM – 10:00 PM">
+            <input type="text" id="setting-timing" value="Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)">
           </div>
           <div class="form-group">
             <label>WhatsApp Helpline</label>
@@ -7715,7 +7715,7 @@
         const res = await fetch('/api/settings');
         const data = await res.json();
         if (data.ok !== false) {
-          document.getElementById('setting-timing').value = data.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM';
+          document.getElementById('setting-timing').value = data.deliveryTiming || 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)';
           document.getElementById('setting-whatsapp').value = data.whatsapp || '+92 336 8945775';
           document.getElementById('setting-freedelivery').value = data.freeDeliveryThreshold || 2000;
           document.getElementById('setting-deliveryfee').value = data.deliveryFee || 150;

@@ -2874,7 +2874,7 @@ function syncImageToTargets(fileName) {
 
     // 9b. API: Settings GET
     if (pathname === '/api/settings' && req.method === 'GET') {
-      const defaults = { deliveryFee: 99, freeDeliveryThreshold: 1999, deliveryTiming: 'Delivery Timing: 10:00 AM – 10:00 PM', whatsapp: '923368945775', storeName: 'ZS Mart', announcement: '' };
+      const defaults = { deliveryFee: 99, freeDeliveryThreshold: 1999, deliveryTiming: 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)', whatsapp: '923368945775', storeName: 'ZS Mart', announcement: '' };
       if (fs.existsSync(SETTINGS_FILE)) {
         try {
           const stored = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
@@ -2887,7 +2887,7 @@ function syncImageToTargets(fileName) {
     // 9c. API: Settings POST (Save)
     if (pathname === '/api/settings' && req.method === 'POST') {
       const body = await parseBody(req);
-      let current = { deliveryFee: 99, freeDeliveryThreshold: 1999, deliveryTiming: 'Delivery Timing: 10:00 AM – 10:00 PM', whatsapp: '923368945775', storeName: 'ZS Mart', announcement: '' };
+      let current = { deliveryFee: 99, freeDeliveryThreshold: 1999, deliveryTiming: 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)', whatsapp: '923368945775', storeName: 'ZS Mart', announcement: '' };
       if (fs.existsSync(SETTINGS_FILE)) {
         try { current = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8')); } catch(e) {}
       }

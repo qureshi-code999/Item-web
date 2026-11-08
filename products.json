@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-08T20:22:32.045Z",
+  "updatedAt": "2026-11-08T20:32:42.453Z",
   "total": 1348,
   "settings": {
     "deliveryFee": 99,
@@ -7787,7 +7787,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1788525516465,
-      "purchasePrice": 98.33
+      "purchasePrice": 98.33,
+      "priority": 48
     },
     {
       "id": 686,
@@ -7798,7 +7799,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1788525516508
+      "imageVersion": 1788525516508,
+      "priority": 49
     },
     {
       "id": 687,
@@ -11800,7 +11802,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "N",
-      "imageVersion": 1788525477453
+      "imageVersion": 1788525477453,
+      "priority": 1
     },
     {
       "id": 1268,
@@ -11811,7 +11814,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "L",
-      "imageVersion": 1788525477495
+      "imageVersion": 1788525477495,
+      "priority": 2
     },
     {
       "id": 1276,
@@ -11846,7 +11850,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "L",
-      "imageVersion": 1790065131291
+      "imageVersion": 1790065131291,
+      "priority": 50
     },
     {
       "id": 1279,
@@ -12510,7 +12515,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792419532962,
-      "purchasePrice": 150
+      "purchasePrice": 150,
+      "priority": 52
     },
     {
       "id": 1338,
@@ -12537,7 +12543,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792577387598,
-      "purchasePrice": 185
+      "purchasePrice": 185,
+      "priority": 3
     },
     {
       "id": 1341,
@@ -12546,7 +12553,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792577444280,
-      "purchasePrice": 185
+      "purchasePrice": 185,
+      "priority": 4
     },
     {
       "id": 1342,
@@ -12555,7 +12563,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792577531873,
-      "purchasePrice": 185
+      "purchasePrice": 185,
+      "priority": 5
     },
     {
       "id": 1343,
@@ -12564,7 +12573,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792577583625,
-      "purchasePrice": 185
+      "purchasePrice": 185,
+      "priority": 6
     },
     {
       "id": 1344,
@@ -12573,7 +12583,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792578163638,
-      "purchasePrice": 21.875
+      "purchasePrice": 21.875,
+      "priority": 7
     },
     {
       "id": 1345,
@@ -12582,7 +12593,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792578205083,
-      "purchasePrice": 21.875
+      "purchasePrice": 21.875,
+      "priority": 8
     },
     {
       "id": 1346,
@@ -12591,7 +12603,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792578248548,
-      "purchasePrice": 21.875
+      "purchasePrice": 21.875,
+      "priority": 9
     },
     {
       "id": 1347,
@@ -12618,7 +12631,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792578714707,
-      "purchasePrice": 32
+      "purchasePrice": 32,
+      "priority": 51
     },
     {
       "id": 1350,
@@ -12636,7 +12650,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792579426751,
-      "purchasePrice": 23
+      "purchasePrice": 23,
+      "priority": 14
     },
     {
       "id": 1352,
@@ -12645,7 +12660,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792579481292,
-      "purchasePrice": 32
+      "purchasePrice": 32,
+      "priority": 15
     },
     {
       "id": 1353,
@@ -12654,7 +12670,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792579559674,
-      "purchasePrice": 92.7
+      "purchasePrice": 92.7,
+      "priority": 16
     },
     {
       "id": 1354,
@@ -12663,7 +12680,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792586159552,
-      "purchasePrice": 285
+      "purchasePrice": 285,
+      "priority": 17
     },
     {
       "id": 1355,
@@ -12672,7 +12690,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792586275526,
-      "purchasePrice": 270.83
+      "purchasePrice": 270.83,
+      "priority": 18
     },
     {
       "id": 1356,
@@ -12681,7 +12700,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792586727041,
-      "purchasePrice": 283.33
+      "purchasePrice": 283.33,
+      "priority": 19
     },
     {
       "id": 1357,
@@ -12690,7 +12710,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792587969425,
-      "purchasePrice": 233.33
+      "purchasePrice": 233.33,
+      "priority": 20
     },
     {
       "id": 1358,
@@ -12699,7 +12720,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792588406191,
-      "purchasePrice": 566.66
+      "purchasePrice": 566.66,
+      "priority": 21
     },
     {
       "id": 1359,
@@ -12708,7 +12730,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792588516696,
-      "purchasePrice": 541.66
+      "purchasePrice": 541.66,
+      "priority": 22
     },
     {
       "id": 1360,
@@ -12717,7 +12740,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792589007186,
-      "purchasePrice": 566.66
+      "purchasePrice": 566.66,
+      "priority": 23
     },
     {
       "id": 1361,
@@ -12726,7 +12750,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792589566269,
-      "purchasePrice": 466.66
+      "purchasePrice": 466.66,
+      "priority": 24
     },
     {
       "id": 1362,
@@ -12735,7 +12760,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792589729974,
-      "purchasePrice": 240
+      "purchasePrice": 240,
+      "priority": 25
     },
     {
       "id": 1363,
@@ -12744,7 +12770,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792589839905,
-      "purchasePrice": 187.55
+      "purchasePrice": 187.55,
+      "priority": 26
     },
     {
       "id": 1364,
@@ -12753,7 +12780,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792589927061,
-      "purchasePrice": 92
+      "purchasePrice": 92,
+      "priority": 27
     },
     {
       "id": 1365,
@@ -12762,7 +12790,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792590219688,
-      "purchasePrice": 92
+      "purchasePrice": 92,
+      "priority": 28
     },
     {
       "id": 1366,
@@ -12771,7 +12800,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792590410466,
-      "purchasePrice": 44.44
+      "purchasePrice": 44.44,
+      "priority": 29
     },
     {
       "id": 1367,
@@ -12780,7 +12810,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792590832860,
-      "purchasePrice": 45.138
+      "purchasePrice": 45.138,
+      "priority": 30
     },
     {
       "id": 1368,
@@ -12789,7 +12820,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792590919221,
-      "purchasePrice": 44.44
+      "purchasePrice": 44.44,
+      "priority": 31
     },
     {
       "id": 1369,
@@ -12798,7 +12830,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792591047957,
-      "purchasePrice": 45.238
+      "purchasePrice": 45.238,
+      "priority": 32
     },
     {
       "id": 1370,
@@ -12807,7 +12840,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792591249829,
-      "purchasePrice": 9.5
+      "purchasePrice": 9.5,
+      "priority": 33
     },
     {
       "id": 1371,
@@ -12816,7 +12850,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792591305128,
-      "purchasePrice": 9.16
+      "purchasePrice": 9.16,
+      "priority": 34
     },
     {
       "id": 1372,
@@ -12825,7 +12860,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1792591437181,
-      "purchasePrice": 9.5
+      "purchasePrice": 9.5,
+      "priority": 35
     },
     {
       "id": 1373,
@@ -13860,7 +13896,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793299604308,
-      "purchasePrice": 31.25
+      "purchasePrice": 31.25,
+      "priority": 36
     },
     {
       "id": 1489,
@@ -13869,7 +13906,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793299733337,
-      "purchasePrice": 31.25
+      "purchasePrice": 31.25,
+      "priority": 37
     },
     {
       "id": 1490,
@@ -13878,7 +13916,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793299783636,
-      "purchasePrice": 45.55
+      "purchasePrice": 45.55,
+      "priority": 38
     },
     {
       "id": 1491,
@@ -13887,7 +13926,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793299820218,
-      "purchasePrice": 45.55
+      "purchasePrice": 45.55,
+      "priority": 39
     },
     {
       "id": 1492,
@@ -13896,7 +13936,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793299907244,
-      "purchasePrice": 171.11
+      "purchasePrice": 171.11,
+      "priority": 40
     },
     {
       "id": 1493,
@@ -13905,7 +13946,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793300054861,
-      "purchasePrice": 171.11
+      "purchasePrice": 171.11,
+      "priority": 41
     },
     {
       "id": 1494,
@@ -13914,7 +13956,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793300251110,
-      "purchasePrice": 35.83
+      "purchasePrice": 35.83,
+      "priority": 42
     },
     {
       "id": 1495,
@@ -13923,7 +13966,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793300291205,
-      "purchasePrice": 35.83
+      "purchasePrice": 35.83,
+      "priority": 43
     },
     {
       "id": 1496,
@@ -13932,7 +13976,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793300589928,
-      "purchasePrice": 215
+      "purchasePrice": 215,
+      "priority": 44
     },
     {
       "id": 1497,
@@ -13941,7 +13986,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793300737099,
-      "purchasePrice": 215
+      "purchasePrice": 215,
+      "priority": 45
     },
     {
       "id": 1498,
@@ -13950,7 +13996,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793300860130,
-      "purchasePrice": 145
+      "purchasePrice": 145,
+      "priority": 46
     },
     {
       "id": 1499,
@@ -13959,7 +14006,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793300914996,
-      "purchasePrice": 145
+      "purchasePrice": 145,
+      "priority": 47
     },
     {
       "id": 1500,
@@ -14085,7 +14133,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793357149869,
-      "purchasePrice": 40
+      "purchasePrice": 40,
+      "priority": 53
     },
     {
       "id": 1514,
@@ -14094,7 +14143,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793357363367,
-      "purchasePrice": 260
+      "purchasePrice": 260,
+      "priority": 54
     },
     {
       "id": 1515,
@@ -14103,7 +14153,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793366354415,
-      "purchasePrice": 260
+      "purchasePrice": 260,
+      "priority": 55
     },
     {
       "id": 1516,
@@ -14112,7 +14163,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793525126646,
-      "purchasePrice": 200
+      "purchasePrice": 200,
+      "priority": 56
     },
     {
       "id": 1517,
@@ -14121,7 +14173,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793525165387,
-      "purchasePrice": 200
+      "purchasePrice": 200,
+      "priority": 57
     },
     {
       "id": 1518,
@@ -14130,7 +14183,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793525188095,
-      "purchasePrice": 200
+      "purchasePrice": 200,
+      "priority": 58
     },
     {
       "id": 1519,
@@ -14139,7 +14193,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793525242991,
-      "purchasePrice": 300
+      "purchasePrice": 300,
+      "priority": 59
     },
     {
       "id": 1520,
@@ -14148,7 +14203,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793525278080,
-      "purchasePrice": 301
+      "purchasePrice": 301,
+      "priority": 60
     },
     {
       "id": 1521,
@@ -14157,7 +14213,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793525308907,
-      "purchasePrice": 300
+      "purchasePrice": 300,
+      "priority": 61
     },
     {
       "id": 1522,
@@ -14256,7 +14313,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793528296742,
-      "purchasePrice": 16.67
+      "purchasePrice": 16.67,
+      "priority": 62
     },
     {
       "id": 1533,
@@ -14265,7 +14323,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793528368750,
-      "purchasePrice": 16.67
+      "purchasePrice": 16.67,
+      "priority": 63
     },
     {
       "id": 1534,
@@ -14373,7 +14432,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793529912792,
-      "purchasePrice": 90
+      "purchasePrice": 90,
+      "priority": 10
     },
     {
       "id": 1546,
@@ -14382,7 +14442,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793529938914,
-      "purchasePrice": 90
+      "purchasePrice": 90,
+      "priority": 11
     },
     {
       "id": 1547,
@@ -14391,7 +14452,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793529984880,
-      "purchasePrice": 90
+      "purchasePrice": 90,
+      "priority": 12
     },
     {
       "id": 1548,
@@ -14400,7 +14462,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793530037955,
-      "purchasePrice": 90
+      "purchasePrice": 90,
+      "priority": 13
     },
     {
       "id": 1549,
@@ -14418,7 +14481,8 @@
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
       "imageVersion": 1793530286536,
-      "purchasePrice": 142.5
+      "purchasePrice": 142.5,
+      "priority": 64
     },
     {
       "id": 1551,
@@ -14595,8 +14659,8 @@
       "id": 1570,
       "name": "TINKE WALI JHADO RS,160",
       "price": 139,
-      "categoryId": "groceryandkaryana",
-      "categoryName": "Grocery & Karyana",
+      "categoryId": "general",
+      "categoryName": "General Items & Others",
       "imageVersion": 1793572257264,
       "purchasePrice": 100
     },
@@ -15693,8 +15757,8 @@
       "id": 1692,
       "name": "123 RAT KILLER BOOK RS,100",
       "price": 84,
-      "categoryId": "groceryandkaryana",
-      "categoryName": "Grocery & Karyana",
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes",
       "imageVersion": 1793904238878,
       "purchasePrice": 57.5
     },
@@ -15702,8 +15766,8 @@
       "id": 1693,
       "name": "PASBAN RAT KILLER BOOK RS,100",
       "price": 69,
-      "categoryId": "groceryandkaryana",
-      "categoryName": "Grocery & Karyana",
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes",
       "imageVersion": 1793904311865,
       "purchasePrice": 57.5
     },

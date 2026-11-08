@@ -2307,14 +2307,14 @@ var PRODUCTS = [{
   id: 1693,
   name: "PASBAN RAT KILLER BOOK RS,100",
   price: 69,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryId: "mosquito",
+  categoryName: "Anti- Mosquitoes"
 }, {
   id: 1692,
   name: "123 RAT KILLER BOOK RS,100",
   price: 84,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryId: "mosquito",
+  categoryName: "Anti- Mosquitoes"
 }, {
   id: 1691,
   name: "SHAMPOO TRESEMME BOTANIQUE 360ML (GREEN) RS,930",
@@ -3045,8 +3045,8 @@ var PRODUCTS = [{
   id: 1570,
   name: "TINKE WALI JHADO RS,160",
   price: 139,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryId: "general",
+  categoryName: "General Items & Others"
 }, {
   id: 1569,
   name: "HUB SALT (PINK SALT) PACKET RS,100",
@@ -3166,7 +3166,8 @@ var PRODUCTS = [{
   name: "BAKE PARLOR TIKKA MACARONI 2IN1  BOX 250GM RS,170",
   price: 159,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 64
 }, {
   id: 1549,
   name: "BAKE PARLOR SPAGHETTI BOX 450GM RS,260",
@@ -3178,25 +3179,29 @@ var PRODUCTS = [{
   name: "TANG LEMON PEPPER DRINK POUCH 125GM RS,100",
   price: 95,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 13
 }, {
   id: 1547,
   name: "TANG PINE APPLE DRINK POUCH 125GM RS,100",
   price: 95,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 12
 }, {
   id: 1546,
   name: "TANG MANGO DRINK POUCH 125GM RS,100",
   price: 95,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 11
 }, {
   id: 1545,
   name: "TANG ORANGE DRINK POUCH 125GM RS,100",
   price: 95,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 10
 }, {
   id: 1544,
   name: "YOUNG'S CHICKEN SPREAD SACHET SMALL RS,60",
@@ -3268,13 +3273,15 @@ var PRODUCTS = [{
   name: "SHANGRILA MIX ACHAR SACHET RS,20",
   price: 19,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 63
 }, {
   id: 1532,
   name: "NATIONAL MIX ACHAR SACHET RS,20",
   price: 19,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 62
 }, {
   id: 1531,
   name: "CORE TIOLET CLEANER & DRAIN OPENER RS,140",
@@ -3340,55 +3347,64 @@ var PRODUCTS = [{
   name: "NATIONAL MIX FRUIT JAM 410GM RS,350",
   price: 330,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 61
 }, {
   id: 1520,
   name: "NATIONAL APPLE JAM 410GM RS,350",
   price: 330,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 60
 }, {
   id: 1519,
   name: "NATIONAL MANGO JAM 410GM RS,350",
   price: 330,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 59
 }, {
   id: 1518,
   name: "NATIONAL MIX FRUIT  JAM 200GM RS,250",
   price: 230,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 58
 }, {
   id: 1517,
   name: "NATIONAL APPLE JAM 200GM RS,250",
   price: 230,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 57
 }, {
   id: 1516,
   name: "NATIONAL MANGO JAM 200GM RS,250",
   price: 230,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 56
 }, {
   id: 1515,
   name: "NATIONAL MIX ACHAR 320GM RS,320",
   price: 299,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 55
 }, {
   id: 1514,
   name: "NATIONAL MIX ACHAR BOX 370GM RS,330",
   price: 294,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 54
 }, {
   id: 1513,
   name: "BAKE PARLOR SAWAIYA (VERMICELLI) 100GM  RS,60",
   price: 49,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 53
 }, {
   id: 1512,
   name: "YOUNG'S CHICKEN SPREAD 1 LITRE  RS,1300",
@@ -3472,73 +3488,85 @@ var PRODUCTS = [{
   name: "KNOOR MAGGI (SPICY BEEF) RS,175",
   price: 165,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 47
 }, {
   id: 1498,
   name: "KNOOR MAGGI HOT SPICY (BLAZZIN) RS,175",
   price: 165,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 46
 }, {
   id: 1497,
   name: "SHOOP MAGGI (CHICKEN) FAMILY PACK RS,270",
   price: 249,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 45
 }, {
   id: 1496,
   name: "SHOOP MAGGI (CHATT PATTA) FAMILY PACK RS,270",
   price: 249,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 44
 }, {
   id: 1495,
   name: "SHOOP MAGGI (CHICKEN) RS,45",
   price: 42,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 43
 }, {
   id: 1494,
   name: "SHOOP MAGGI (CHATT PATTA) RS,45",
   price: 42,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 42
 }, {
   id: 1493,
   name: "KNOOR MAGGI (CHICKEN) FAMILY PACK RS,200",
   price: 181,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 41
 }, {
   id: 1492,
   name: "KNOOR MAGGI (CHATT PATTA) FAMILY PACK RS,200",
   price: 181,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 40
 }, {
   id: 1491,
   name: "KNOOR MAGGI (CHICKEN) RS,50",
   price: 49,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 39
 }, {
   id: 1490,
   name: "KNOOR MAGGI (CHATT PATTA) RS,50",
   price: 49,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 38
 }, {
   id: 1489,
   name: "KNOOR MAGGI (CHICKEN) RS,35",
   price: 33,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 37
 }, {
   id: 1488,
   name: "KNOOR MAGGI (CHATT PATTA) RS,35",
   price: 33,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 36
 }, {
   id: 1487,
   name: "OLPER MILK 1000ML RS,380",
@@ -4228,133 +4256,155 @@ var PRODUCTS = [{
   name: "SURF BRITE (SMALL) RS,10",
   price: 10,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 35
 }, {
   id: 1371,
   name: "SURF BONUS (SMALL) RS,10",
   price: 10,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 34
 }, {
   id: 1370,
   name: "SURF EXCEL (SMALL )RS,10",
   price: 10,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 33
 }, {
   id: 1369,
   name: "SURF BONUS 180GM RS,50",
   price: 49,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 32
 }, {
   id: 1368,
   name: "SURF EXCEL 90GM RS,50",
   price: 49,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 31
 }, {
   id: 1367,
   name: "SURF BRITE 95GM RS,50",
   price: 49,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 30
 }, {
   id: 1366,
   name: "SURF ARIEL 85GM RS,50",
   price: 49,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 29
 }, {
   id: 1365,
   name: "SURF BONUS 375GM RS,99",
   price: 98,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 28
 }, {
   id: 1364,
   name: "SURF SUNLIGHT 375GM RS,99",
   price: 98,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 27
 }, {
   id: 1363,
   name: "SURF SUNLIGHT 730GM  RS,199",
   price: 194,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 26
 }, {
   id: 1362,
   name: "SURF BONUS 1KG RS,270",
   price: 270,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 25
 }, {
   id: 1361,
   name: "SURF EXPRESS 1KG RS,520",
   price: 499,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 24
 }, {
   id: 1360,
   name: "SURF BRITE 1KG RS,620",
   price: 599,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 23
 }, {
   id: 1359,
   name: "SURF ARIEL 1KG RS,580",
   price: 579,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 22
 }, {
   id: 1358,
   name: "SURF EXCEL 1KG RS,620",
   price: 599,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 21
 }, {
   id: 1357,
   name: "SURF EXPRESS 500GM RS,260",
   price: 249,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 20
 }, {
   id: 1356,
   name: "SURF BRITE 500GM RS,310",
   price: 299,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 19
 }, {
   id: 1355,
   name: "SURF ARIEL 500GM RS,300",
   price: 289,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 18
 }, {
   id: 1354,
   name: "SURF EXCEL 500GM RS,310",
   price: 299,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 17
 }, {
   id: 1353,
   name: "LEMON MAX DISHWASH BAR (LARGE) RS,100",
   price: 98,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 16
 }, {
   id: 1352,
   name: "LEMON MAX DISHWASH BAR (MEDIUM) RS,35",
   price: 35,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 15
 }, {
   id: 1351,
   name: "LEMON MAX DISHWASH BAR (SMALL) RS,25",
   price: 25,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 14
 }, {
   id: 1350,
   name: "COLOUR GODREJ SACHET (NATURAL BLACK) RS,80",
@@ -4366,7 +4416,8 @@ var PRODUCTS = [{
   name: "MATCHES BOX RS,50",
   price: 39,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 51
 }, {
   id: 1348,
   name: "RIVON HAIR COLOR SACHET  (DARK BROWN) RS,80",
@@ -4384,43 +4435,50 @@ var PRODUCTS = [{
   name: "TANG SACHET PINEAPPLE RS,25",
   price: 24,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 9
 }, {
   id: 1345,
   name: "TANG SACHET ORANGE RS,25",
   price: 24,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 8
 }, {
   id: 1344,
   name: "TANG SACHET MANGO RS,25",
   price: 24,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 7
 }, {
   id: 1343,
   name: "RAFHAN CUSTURD POWDER STRAWBERRY 275 GM RS,220",
   price: 199,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 6
 }, {
   id: 1342,
   name: "RAFHAN CUSTURD POWDER VANILLA 275 GM RS,220",
   price: 199,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 5
 }, {
   id: 1341,
   name: "RAFHAN CUSTURD POWDER BANANA 275 GM RS,220",
   price: 199,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 4
 }, {
   id: 1340,
   name: "RAFHAN CUSTURD POWDER MANGO 275 GM RS,220",
   price: 199,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 3
 }, {
   id: 1339,
   name: "TURK BODY RAZER",
@@ -4438,7 +4496,8 @@ var PRODUCTS = [{
   name: "LAZEEZA KHEER MIX BOX RS,165",
   price: 159,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 52
 }, {
   id: 1336,
   name: "TRIM CLASSIC BODY RAZER RS,50",
@@ -8008,7 +8067,8 @@ var PRODUCTS = [{
   name: "METRO +7 AGAER BATTI (LARGE)",
   price: 114,
   categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana"
+  categoryName: "Grocery & Karyana",
+  priority: 48
 }, {
   id: 686,
   name: "METRO AGHER BATTI (SMALL)",
@@ -8017,7 +8077,8 @@ var PRODUCTS = [{
   categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
-  initial: "M"
+  initial: "M",
+  priority: 49
 }, {
   id: 687,
   name: "MIRROR DOUBLE SIDED (LARGE)",
@@ -10985,7 +11046,8 @@ var PRODUCTS = [{
   categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
-  initial: "N"
+  initial: "N",
+  priority: 1
 }, {
   id: 1268,
   name: "LAHORI NAMAK RS,35",
@@ -10994,7 +11056,8 @@ var PRODUCTS = [{
   categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
-  initial: "L"
+  initial: "L",
+  priority: 2
 }, {
   id: 1276,
   name: "TIGER JUMBO COIL RS,120",
@@ -11021,7 +11084,8 @@ var PRODUCTS = [{
   categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
-  initial: "L"
+  initial: "L",
+  priority: 50
 }, {
   id: 1279,
   name: "TIGER MOSTIK LOTION 100ML RS,180",
@@ -11921,7 +11985,7 @@ function AboutUsModal({
     className: "w-10 h-10 rounded-lg bg-yellow-400 text-gray-950 font-black text-lg flex items-center justify-center shrink-0 shadow-sm"
   }, "\uD83D\uDC68\u200D\uD83D\uDCBB"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "text-[10px] font-extrabold uppercase text-yellow-300 tracking-wider"
-  }, tr(modalLang, 'Website Creator & Partner', 'Website Creator aur Partner', 'ویب سائٹ میکر اور پارٹنر')), /*#__PURE__*/React.createElement("div", {
+  }, tr(modalLang, 'Application Creator & Partner', 'Application Creator & Partner', 'ایپلیکیشن کری ایٹر اور پارٹنر')), /*#__PURE__*/React.createElement("div", {
     className: "font-black text-sm text-white"
   }, "Muhammad Sahil Saleem"), /*#__PURE__*/React.createElement("div", {
     className: "text-[11px] text-gray-300 font-medium"

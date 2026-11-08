@@ -1394,7 +1394,7 @@
             </button>
           </div>
 
-          <form id="dsr-form" onsubmit="handleDsrOrder(event)">
+          <form id="dsr-form" onsubmit="event.preventDefault(); return false;">
             <div class="form-grid">
               <div class="form-group">
                 <label>Order Date</label>
@@ -1526,7 +1526,7 @@
                 <button type="button" id="dsr-btn-last-bill" class="btn btn-outline" style="display: none; font-weight: 700; padding: 10px 14px; font-size: 13px; color: #0284c7; border-color: #0284c7; background: #f0f9ff;" onclick="openLastCustomerBill()">
                   🧾 View Last Bill
                 </button>
-                <button type="submit" id="dsr-btn-submit" class="btn btn-gold" style="font-weight: 800; padding: 10px 20px; font-size: 13px;">
+                <button type="button" id="dsr-btn-submit" onclick="handleDsrOrder(event)" class="btn btn-gold" style="font-weight: 800; padding: 10px 20px; font-size: 13px;">
                   💾 Save &amp; Generate Bill
                 </button>
               </div>
@@ -2129,7 +2129,7 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Delivery Timing (Header Text)</label>
-            <input type="text" id="setting-timing" value="Delivery Timing: 10:00 AM – 10:00 PM">
+            <input type="text" id="setting-timing" value="Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)">
           </div>
           <div class="form-group">
             <label>WhatsApp Helpline</label>
@@ -3973,6 +3973,15 @@
       const clearBtn = document.getElementById('dsr-search-clear');
       if (clearBtn) clearBtn.style.display = val.length > 0 ? 'flex' : 'none';
 
+      // Reset previous selection if user is actively typing something new
+      if (selectedDsrProduct && (!val || !val.includes(selectedDsrProduct.name))) {
+        selectedDsrProduct = null;
+        const hiddenId = document.getElementById('dsr-selected-id');
+        if (hiddenId) hiddenId.value = '';
+        const tagDiv = document.getElementById('dsr-selected-tag');
+        if (tagDiv) tagDiv.style.display = 'none';
+      }
+
       const resultsDiv = document.getElementById('dsr-search-results');
       if (!resultsDiv) return;
 
@@ -4577,7 +4586,7 @@
     let editingDsrOrderOriginal = null;
 
     async function handleDsrOrder(e) {
-      e.preventDefault();
+      if (e && typeof e.preventDefault === 'function') e.preventDefault();
       if (currentDsrItems.length === 0) return alert('Please add at least one item to this order first!');
 
       const totalSale = currentDsrItems.reduce((s, i) => s + i.lineTotal, 0);
@@ -7715,7 +7724,7 @@
         const res = await fetch('/api/settings');
         const data = await res.json();
         if (data.ok !== false) {
-          document.getElementById('setting-timing').value = data.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM';
+          document.getElementById('setting-timing').value = data.deliveryTiming || 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)';
           document.getElementById('setting-whatsapp').value = data.whatsapp || '+92 336 8945775';
           document.getElementById('setting-freedelivery').value = data.freeDeliveryThreshold || 2000;
           document.getElementById('setting-deliveryfee').value = data.deliveryFee || 150;

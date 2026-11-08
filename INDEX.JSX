@@ -2889,6 +2889,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1063, name: "SHUTTLECOCK (PAR WALI) GOOD QUALITY RS,150", price: 109, categoryId: "sports", categoryName: "Sports & Toys" },
       { id: 1064, name: "SHUTTLECOCK AIR KING (PAR WALI) EXCELLENT QUALITY RS,200", price: 179, categoryId: "sports", categoryName: "Sports & Toys" },
       { id: 1065, name: "SHUTTLECOCK (PLASTIC) EXCELLENT QUALITY RS,150", price: 89, categoryId: "sports", categoryName: "Sports & Toys" },
+      { id: 1066, name: "SHUTTLECOCK (PLASTIC) GOOD QUALITY", price: 85, categoryId: "sports", categoryName: "Sports & Toys" },
       { id: 1067, name: "SHIELD CHOOSNI (3 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 1068, name: "SHIELD CHOOSNI (6 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 1075, name: "SHIELD NIPPLE (1 PEICE) RS,50", price: 39, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },

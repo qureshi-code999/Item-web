@@ -11612,33 +11612,38 @@ const ROMAN_URDU_ALIASES = {
   'creem': 'cream',
   'kareem': 'cream',
   'lotian': 'lotion',
-  'pampers': 'baby babycare diaper pamper',
-  'pamper': 'baby diaper pamper',
-  'paste': 'toothpaste dental tooth',
+  'pampers': 'diaper pamper',
+  'pamper': 'diaper pamper',
+  'paste': 'toothpaste dental',
   'tootpaste': 'toothpaste',
   'dant': 'dental toothpaste',
-  'blade': 'shaving razor razer blade',
-  'razor': 'shaving',
-  'razer': 'shaving',
-  'chawal': 'rice grocery',
-  'daal': 'pulse grocery',
-  'chini': 'sugar grocery',
-  'patti': 'tea grocery tapal danedar',
-  'chai': 'tea grocery tapal',
+  'blade': 'razor razer blade',
+  'razor': 'shaving razor',
+  'razer': 'shaving razor',
+  'chawal': 'rice chawal',
+  'rice': 'chawal rice',
+  'daal': 'pulse dal daal',
+  'dal': 'daal pulse dal',
+  'chini': 'cheeni sugar chini',
+  'cheeni': 'cheeni sugar chini',
+  'sugar': 'cheeni sugar',
+  'patti': 'tea tapal danedar chai patti',
+  'chai': 'tea tapal danedar chai',
+  'tea': 'tea tapal chai patti',
   'doodh': 'milk',
   'khushbu': 'fragrance perfume spray rollon',
   'ittar': 'perfume fragrance',
-  'batti': 'mosquito coil agarbatti',
+  'batti': 'agarbatti agar batti',
   'machar': 'mosquito insect killer coil king tiger',
   'tala': 'lock padlock',
   'sel': 'cell battery',
   'bateri': 'battery cell',
-  'kachra': 'garbage duster brush general',
+  'kachra': 'garbage duster brush',
   'surfexcel': 'surf excel',
   'colgat': 'colgate',
   'detol': 'dettol',
   'daldaghee': 'dalda ghee',
-  'dalda': 'dalda oil ghee',
+  'dalda': 'dalda ghee',
   'lifeboy': 'lifebuoy',
   'fairlovely': 'fair lovely',
   'harpicpower': 'harpic',
@@ -11647,14 +11652,14 @@ const ROMAN_URDU_ALIASES = {
   'safegaurd': 'safeguard',
   'sensodine': 'sensodyne',
   'vasline': 'vaseline',
-  'pepsi': 'cold drink beverage',
-  'coke': 'coca cola cold drink beverage',
-  'cocacola': 'coca cola cold drink beverage',
-  'sprite': 'cold drink beverage',
-  'fanta': 'cold drink beverage',
-  'colddrink': 'cold drink beverage soda',
-  'botal': 'cold drink bottle beverage',
-  'thanda': 'cold drink beverage'
+  'pepsi': 'pepsi',
+  'coke': 'coca cola',
+  'cocacola': 'coca cola',
+  'sprite': 'sprite',
+  'fanta': 'fanta',
+  'colddrink': 'drink beverage soda',
+  'botal': 'bottle',
+  'thanda': 'drink cold'
 };
 function levenshteinFast(s1, s2) {
   if (s1 === s2) return 0;
@@ -11680,66 +11685,89 @@ function matchProductTokens(product, query) {
   let cleanQuery = query.trim().toLowerCase();
   if (!cleanQuery) return 0;
 
+  // Direct ID match: '#1448' or '1448'
+  const queryWithoutHash = cleanQuery.startsWith('#') ? cleanQuery.slice(1) : cleanQuery;
+  if (String(product.id) === queryWithoutHash) {
+    return 500;
+  }
+
   // Handle spacing typos like '7herbal' -> '7 herbal'
   cleanQuery = cleanQuery.replace(/(\d+)([a-zA-Z]+)/g, '$1 $2').replace(/([a-zA-Z]+)(\d+)/g, '$1 $2');
   const rawTokens = cleanQuery.split(/\s+/).filter(Boolean);
   if (rawTokens.length === 0) return 0;
   const name = (product.name || "").toLowerCase();
-  const nameUrdu = (product.nameUrdu || "").toLowerCase();
+  const nameClean = name.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
+  const nameWords = nameClean.split(/\s+/).filter(Boolean);
   const catName = (product.categoryName || "").toLowerCase();
-  const catId = (product.categoryId || "").toLowerCase();
-  const brand = (getProductFilterName(product) || "").toLowerCase();
-
-  // Full concatenated searchable text
-  const fullText = `${name} ${nameUrdu} ${catName} ${catId} ${brand}`;
-  const cleanText = fullText.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
-  const words = cleanText.split(/\s+/).filter(w => w.length >= 3);
-
-  // Character-squash matching (e.g. 'surfexcel' matches 'SURF EXCEL 500G')
+  const catWords = catName.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ").split(/\s+/).filter(Boolean);
   const squashQuery = cleanQuery.replace(/[^a-z0-9]/g, '');
   const squashName = name.replace(/[^a-z0-9]/g, '');
-  const squashCat = catName.replace(/[^a-z0-9]/g, '');
-  const isSquashMatch = squashQuery.length >= 4 && (squashName.includes(squashQuery) || squashCat.includes(squashQuery));
+  const isSquashNameMatch = squashQuery.length >= 4 && squashName.includes(squashQuery);
+  let nameMatchedTokens = 0;
+  let catMatchedTokens = 0;
+  for (let i = 0; i < rawTokens.length; i++) {
+    const t = rawTokens[i];
+    let tokenMatchedInName = false;
 
-  // Match check: Every original token must match directly, via synonym, or via fuzzy typo tolerance
-  const allOriginalsMatch = rawTokens.every(t => {
-    if (cleanText.includes(t) || fullText.includes(t)) return true;
-    // Check if synonym matches
-    const syns = (ROMAN_URDU_ALIASES[t] || '').split(' ').filter(Boolean);
-    if (syns.some(s => cleanText.includes(s) || fullText.includes(s))) return true;
-    // If squashed full query matches
-    if (isSquashMatch) return true;
-    // Fuzzy Levenshtein match for typos (e.g. 'colgat' -> 'colgate', 'detol' -> 'dettol')
-    if (t.length >= 4) {
-      const maxDist = t.length >= 6 ? 2 : 1;
-      if (words.some(w => Math.abs(w.length - t.length) <= 1 && levenshteinFast(w, t) <= maxDist)) return true;
+    // 1. Direct word or prefix match in product name words
+    if (nameWords.some(w => w === t || w.startsWith(t))) {
+      tokenMatchedInName = true;
+    } else if (nameClean.includes(t)) {
+      tokenMatchedInName = true;
+    } else {
+      // 2. Synonym / Alias match in name words
+      const syns = (ROMAN_URDU_ALIASES[t] || '').split(' ').filter(Boolean);
+      if (syns.some(s => nameWords.some(w => w === s || w.startsWith(s)) || nameClean.includes(s))) {
+        tokenMatchedInName = true;
+      } else if (isSquashNameMatch) {
+        tokenMatchedInName = true;
+      } else if (t.length >= 5) {
+        // 3. Typo fuzzy match in name words (only for 5+ letter words)
+        const maxDist = t.length >= 7 ? 2 : 1;
+        if (nameWords.some(w => Math.abs(w.length - t.length) <= 1 && levenshteinFast(w, t) <= maxDist)) {
+          tokenMatchedInName = true;
+        }
+      }
     }
-    return false;
-  });
-  if (!allOriginalsMatch && !isSquashMatch) return 0;
-
-  // Calculate relevance score
-  let score = 10;
-  if (name === cleanQuery) {
-    score += 100; // Exact full match
-  } else if (name.startsWith(cleanQuery)) {
-    score += 80; // Starts with full query
-  } else if (name.includes(cleanQuery)) {
-    score += 60; // Contains full query consecutively
-  } else if (isSquashMatch) {
-    score += 75; // Spacing squash match
-  } else {
-    score += 40; // All tokens present
+    if (tokenMatchedInName) {
+      nameMatchedTokens++;
+    } else {
+      // Check if matches distinct category word (exact or prefix, NOT substring inside words)
+      const syns = (ROMAN_URDU_ALIASES[t] || '').split(' ').filter(Boolean);
+      if (catWords.some(cw => cw === t || cw.startsWith(t) || syns.some(s => cw === s || cw.startsWith(s)))) {
+        catMatchedTokens++;
+      }
+    }
+  }
+  const totalTokens = rawTokens.length;
+  if (nameMatchedTokens + catMatchedTokens < totalTokens) {
+    return 0;
+  }
+  let score = 0;
+  if (nameClean === cleanQuery) {
+    score += 260; // Exact full match
+  } else if (nameClean.startsWith(cleanQuery)) {
+    score += 210; // Name starts with full query
+  } else if (nameWords.some(w => w === cleanQuery)) {
+    score += 190; // Distinct word match in name
+  } else if (nameClean.includes(cleanQuery)) {
+    score += 160; // Substring in name
+  } else if (isSquashNameMatch) {
+    score += 150; // Squashed query match
   }
 
-  // Bonus if matched inside product name specifically
-  const cleanNameOnly = name.replace(/[^a-z0-9\u0600-\u06FF\s]/gi, " ");
-  const inName = rawTokens.every(t => {
-    if (name.includes(t) || cleanNameOnly.includes(t)) return true;
-    const syns = (ROMAN_URDU_ALIASES[t] || '').split(' ').filter(Boolean);
-    return syns.some(s => name.includes(s) || cleanNameOnly.includes(s));
-  });
-  if (inName) score += 20;
+  // Coverage score in product name
+  score += nameMatchedTokens / totalTokens * 100;
+
+  // First token matches first word of product name
+  if (nameWords.length > 0 && (nameWords[0] === rawTokens[0] || nameWords[0].startsWith(rawTokens[0]))) {
+    score += 40;
+  }
+
+  // If matched ONLY via category and name had 0 tokens
+  if (nameMatchedTokens === 0 && catMatchedTokens > 0) {
+    score = 15;
+  }
   return score;
 }
 function AboutUsModal({
@@ -14680,7 +14708,7 @@ function ZSMart() {
   function selectProductWithHash(product) {
     setSelectedProduct(product);
   }
-  const isSearching = searchTerm.trim() !== "" || debouncedSearchTerm.trim() !== "";
+  const isSearching = searchTerm.trim() !== "";
   const backStateRef = useRef({});
   const allowRealBackRef = useRef(false);
   const restoreBackGuardRef = useRef(() => {});
@@ -15968,7 +15996,7 @@ function ZSMart() {
 
   const baseFiltered = useMemo(() => {
     const validProducts = (products || []).filter(p => p && p.price !== undefined && p.price !== null && Number(p.price) > 0);
-    const term = debouncedSearchTerm.trim();
+    const term = (searchTerm || "").trim();
     if (term === "") {
       if (selectedCategory) return validProducts.filter(p => p.categoryId === selectedCategory);
       return validProducts;
@@ -15986,7 +16014,7 @@ function ZSMart() {
     }
     scored.sort((a, b) => b.score - a.score);
     return scored.map(item => item.product);
-  }, [products, selectedCategory, debouncedSearchTerm]);
+  }, [products, selectedCategory, searchTerm]);
   const brandFilters = useMemo(() => {
     if (!selectedCategory || isSearching) return [];
     return getBrandFilters(baseFiltered);
@@ -15997,6 +16025,21 @@ function ZSMart() {
   }, [baseFiltered, selectedCategory, isSearching, selectedBrand]);
   const sortedProducts = useMemo(() => {
     const list = [...filtered];
+    if (isSearching) {
+      if (sortBy === "price_asc") {
+        return list.sort((a, b) => {
+          if (a.price === 0) return 1;
+          if (b.price === 0) return -1;
+          return a.price - b.price;
+        });
+      } else if (sortBy === "price_desc") {
+        return list.sort((a, b) => b.price - a.price);
+      } else if (sortBy === "name_asc") {
+        return list.sort((a, b) => a.name.localeCompare(b.name));
+      }
+      // Default & popularity when searching: KEEP EXACT SEARCH RELEVANCE SCORE ORDER (Top Matches First!)
+      return list;
+    }
     if (sortBy === "price_asc") {
       return list.sort((a, b) => {
         if (a.price === 0) return 1;
@@ -16006,9 +16049,6 @@ function ZSMart() {
     } else if (sortBy === "price_desc") {
       return list.sort((a, b) => b.price - a.price);
     } else if (sortBy === "popularity") {
-      if (isSearching) {
-        return list;
-      }
       return list.sort((a, b) => {
         const aHasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[a.id] || a.hasImage ? 1 : 0;
         const bHasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[b.id] || b.hasImage ? 1 : 0;
@@ -16047,7 +16087,7 @@ function ZSMart() {
     });
   }, [searchTerm, selectedCategory, activeCategory, selectedBrand, showSplash, sortedProducts]);
   const suggestions = useMemo(() => {
-    const term = debouncedSearchTerm.trim();
+    const term = (searchTerm || "").trim();
     if (term === "") return (recentSearches || []).filter(p => p && Number(p.price) > 0);
     const scored = [];
     for (let i = 0; i < products.length; i++) {
@@ -16063,7 +16103,7 @@ function ZSMart() {
     }
     scored.sort((a, b) => b.score - a.score);
     return scored.slice(0, 6).map(item => item.product);
-  }, [products, debouncedSearchTerm, recentSearches]);
+  }, [products, searchTerm, recentSearches]);
   function recordSearch(product) {
     if (!product) return;
     setRecentSearches(prev => {

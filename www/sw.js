@@ -1,5 +1,5 @@
 // ZS Mart Service Worker - High-Performance Intelligent Caching
-const CACHE_VERSION = 'v1794144185768';
+const CACHE_VERSION = 'v1794145330456';
 const CACHE_NAME = 'zs-mart-' + CACHE_VERSION;
 
 const CORE_ASSETS = [

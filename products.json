@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-08T16:07:00.539Z",
+  "updatedAt": "2026-11-08T16:40:52.288Z",
   "total": 1347,
   "settings": {
     "deliveryFee": 99,
@@ -7745,7 +7745,7 @@
     },
     {
       "id": 681,
-      "name": "MEHNDI ARAQ",
+      "name": "MEHANDI ARAQ",
       "price": 30,
       "categoryId": "general",
       "categoryName": "General Items & Others",
@@ -7753,8 +7753,8 @@
     },
     {
       "id": 682,
-      "name": "MEHNDI CONE RS,100",
-      "price": 59,
+      "name": "MEHANDI CONE RS,100",
+      "price": 79,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "imageVersion": 1788525516211,
@@ -7762,7 +7762,7 @@
     },
     {
       "id": 683,
-      "name": "MEHNDI CONE SINGHAR",
+      "name": "MEHANDI CONE SINGHAR",
       "price": 50,
       "categoryId": "general",
       "categoryName": "General Items & Others",

@@ -2605,9 +2605,9 @@ function getTranslationValue(dictionary, key) {
       { id: 675, name: "DEER PERMANENT MARKER BLACK RS,100", price: 59, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
       { id: 676, name: "DEER PERMANENT MARKER BLUE RS,100", price: 59, categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 679, name: "BELO COLOR MARKER PACKET  MIX 10 PIECE RS,120", price: 89, categoryId: "stationary", categoryName: "Stationary & Tapes" },
-      { id: 681, name: "MEHNDI ARAQ", price: 30, categoryId: "general", categoryName: "General Items & Others" },
-      { id: 682, name: "MEHNDI CONE RS,100", price: 59, categoryId: "general", categoryName: "General Items & Others" },
-      { id: 683, name: "MEHNDI CONE SINGHAR", price: 50, categoryId: "general", categoryName: "General Items & Others" },
+      { id: 681, name: "MEHANDI ARAQ", price: 30, categoryId: "general", categoryName: "General Items & Others" },
+      { id: 682, name: "MEHANDI CONE RS,100", price: 79, categoryId: "general", categoryName: "General Items & Others" },
+      { id: 683, name: "MEHANDI CONE SINGHAR", price: 50, categoryId: "general", categoryName: "General Items & Others" },
       { id: 684, name: "CAT FOOD (FLUFFY)", price: 830, categoryId: "general", categoryName: "General Items & Others" },
       { id: 685, name: "METRO +7 AGAER BATTI (LARGE)", price: 114, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana" },
       { id: 686, name: "METRO AGHER BATTI (SMALL)", price: 50, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "M" },
@@ -3985,7 +3985,7 @@ function OfferBannerModal({ isOpen, onClose, adData, language }) {
             boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)'
           }}
         >
-          🛒 Shop Now &amp; Continue
+          {adData.buttonText || '🛒 Shop Now & Continue'}
         </button>
       </div>
     </div>

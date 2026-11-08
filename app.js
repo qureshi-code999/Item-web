@@ -7977,19 +7977,19 @@ var PRODUCTS = [{
   categoryName: "Stationary & Tapes"
 }, {
   id: 681,
-  name: "MEHNDI ARAQ",
+  name: "MEHANDI ARAQ",
   price: 30,
   categoryId: "general",
   categoryName: "General Items & Others"
 }, {
   id: 682,
-  name: "MEHNDI CONE RS,100",
-  price: 59,
+  name: "MEHANDI CONE RS,100",
+  price: 79,
   categoryId: "general",
   categoryName: "General Items & Others"
 }, {
   id: 683,
-  name: "MEHNDI CONE SINGHAR",
+  name: "MEHANDI CONE SINGHAR",
   price: 50,
   categoryId: "general",
   categoryName: "General Items & Others"
@@ -12384,7 +12384,7 @@ function OfferBannerModal({
       background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%)',
       boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)'
     }
-  }, "\uD83D\uDED2 Shop Now & Continue")));
+  }, adData.buttonText || '🛒 Shop Now & Continue')));
 }
 function WelcomeDisclaimerModal({
   isOpen,

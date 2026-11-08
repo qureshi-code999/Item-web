@@ -2930,6 +2930,7 @@ function syncImageToTargets(fileName) {
         active: false,
         title: "🔥 AAJ KI SPECIAL OFFER 🔥",
         text: "",
+        buttonText: "🛒 Shop Now & Continue",
         imageUrl: "",
         durationHours: 12,
         expiresAt: 0,
@@ -2953,6 +2954,7 @@ function syncImageToTargets(fileName) {
         active: false,
         title: "🔥 AAJ KI SPECIAL OFFER 🔥",
         text: "",
+        buttonText: "🛒 Shop Now & Continue",
         imageUrl: "",
         durationHours: 12,
         expiresAt: 0,
@@ -2966,6 +2968,7 @@ function syncImageToTargets(fileName) {
       const active = body.active !== undefined ? Boolean(body.active) : true;
       const title = (body.title || currentAd.title || '🔥 AAJ KI SPECIAL OFFER 🔥').trim();
       const text = (body.text || '').trim();
+      const buttonText = (body.buttonText || currentAd.buttonText || '🛒 Shop Now & Continue').trim();
       const durationHours = body.durationHours !== undefined ? Number(body.durationHours) : 12;
 
       let imageUrl = body.imageUrl || currentAd.imageUrl || '';
@@ -3030,6 +3033,7 @@ function syncImageToTargets(fileName) {
         active,
         title,
         text,
+        buttonText,
         imageUrl,
         durationHours,
         expiresAt,

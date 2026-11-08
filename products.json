@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-08T18:15:52.616Z",
-  "total": 1348,
+  "updatedAt": "2026-11-08T19:52:42.586Z",
+  "total": 1347,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -10520,14 +10520,6 @@
       "categoryId": "sports",
       "categoryName": "Sports & Toys",
       "imageVersion": 1788525463933,
-      "purchasePrice": 50
-    },
-    {
-      "id": 1066,
-      "name": "SHUTTLECOCK (PLASTIC) GOOD QUALITY",
-      "price": 85,
-      "categoryId": "sports",
-      "categoryName": "Sports & Toys",
       "purchasePrice": 50
     },
     {

@@ -1993,11 +1993,12 @@ function PerfumeIcon({
 // --- Product Categories and Data ---
 var DEFAULT_CATEGORIES = [{
   id: "attacheenidaalchawal",
-  name: "Atta & Chenee & Daal & Chawal"
+  name: "Atta & Chenee & Daal & Chawal",
+  priority: 3
 }, {
   id: "milkliquidpowder",
   name: "Milk & Tea Essentials",
-  priority: 3
+  priority: 21
 }, {
   id: "masale",
   name: "Masale (Khule & Packed)",
@@ -2009,7 +2010,7 @@ var DEFAULT_CATEGORIES = [{
 }, {
   id: "beverages",
   name: "Beverages (Cold Drinks, Juices & Water)",
-  priority: 4
+  priority: 11
 }, {
   id: "shampoo",
   name: "Shampoo & Conditioners",
@@ -2025,25 +2026,27 @@ var DEFAULT_CATEGORIES = [{
 }, {
   id: "shaving",
   name: "Shaving & Razers & Blades",
-  priority: 9
+  priority: 16
 }, {
   id: "stationary",
   name: "Stationary & Tapes",
-  priority: 17
+  priority: 12
 }, {
   id: "sports",
-  name: "Sports & Toys"
+  name: "Sports & Toys",
+  priority: 17
 }, {
   id: "condemn",
-  name: "Condoms"
+  name: "Condoms",
+  priority: 18
 }, {
   id: "lock",
   name: "Locks & Cells & Lighters",
-  priority: 10
+  priority: 19
 }, {
   id: "general",
   name: "General Items & Others",
-  priority: 11
+  priority: 20
 }, {
   id: "babycare",
   name: "Baby Care & Powders & Pampers",
@@ -2059,18 +2062,19 @@ var DEFAULT_CATEGORIES = [{
 }, {
   id: "fragnances",
   name: "Fragnances & Roll on",
-  priority: 15
+  priority: 9
 }, {
   id: "toothpasteandbrush",
   name: "Dental Cares",
-  priority: 16
+  priority: 15
 }, {
   id: "facewash",
   name: "Face Wash & Body Wash & Hand Wash",
   priority: 5
 }, {
   id: "soaps",
-  name: "Local & Imported Soaps"
+  name: "Local & Imported Soaps",
+  priority: 14
 }];
 function getGlobalCategories(productsList) {
   // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories
@@ -10023,7 +10027,9 @@ var PRODUCTS = [{
   name: "SHUTTLECOCK (PLASTIC) GOOD QUALITY",
   price: 85,
   categoryId: "sports",
-  categoryName: "Sports & Toys"
+  categoryName: "Sports & Toys",
+  hasImage: true,
+  purchasePrice: 50
 }, {
   id: 1067,
   name: "SHIELD CHOOSNI (3 MONTH)",
@@ -15053,11 +15059,15 @@ function ZSMart() {
                 if (pa !== pb) return pa - pb;
                 return 0;
               });
-              window.CATEGORIES = mappedCats;
-              try {
-                localStorage.setItem("zs_groceries_categories_cache", JSON.stringify(mappedCats));
-              } catch (e) {}
-              setCategoriesVersion(v => v + 1);
+              const currentCache = localStorage.getItem("zs_groceries_categories_cache");
+              const newCatsJson = JSON.stringify(mappedCats);
+              if (currentCache !== newCatsJson) {
+                window.CATEGORIES = mappedCats;
+                try {
+                  localStorage.setItem("zs_groceries_categories_cache", newCatsJson);
+                } catch (e) {}
+                setCategoriesVersion(v => v + 1);
+              }
             }
           }
           if (setRes && setRes.ok) {
@@ -20576,7 +20586,241 @@ const CATEGORY_META = {
     }))
   }
 };
-// ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
+// ————— CATEGORY HOME & INDEPENDENT CATEGORY CARDS ——————————————————————————————————————
+// ━━━ INDEPENDENT MEMOIZED CATEGORY CARD ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Each category card manages its own marquee reel independently.
+// When a category with 10 items reaches the end, it loops smoothly on its own
+// without resetting or affecting any other category card.
+const CategoryCard = React.memo(function CategoryCard({
+  cat,
+  catProducts,
+  onSelectCategory,
+  langData,
+  language
+}) {
+  const meta = CATEGORY_META[cat.id] || {
+    gradient: 'linear-gradient(135deg,#000000,#9b7a00)',
+    icon: null
+  };
+  const count = catProducts ? catProducts.length : 0;
+
+  // 🔄 Include ALL items with images (no artificial .slice cap!)
+  const {
+    doubleItems,
+    animSpeed,
+    hasImages
+  } = React.useMemo(() => {
+    if (!catProducts || catProducts.length === 0) {
+      return {
+        doubleItems: [],
+        animSpeed: '0s',
+        hasImages: false
+      };
+    }
+    const sorted = [...catProducts].sort((a, b) => {
+      const pa = a.priority && a.priority > 0 ? a.priority : 999999;
+      const pb = b.priority && b.priority > 0 ? b.priority : 999999;
+      if (pa !== pb) return pa - pb;
+      return a.id - b.id;
+    });
+    const imageProducts = sorted.filter(p => window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage || p.imageUrl);
+    if (imageProducts.length === 0) {
+      return {
+        doubleItems: [],
+        animSpeed: '0s',
+        hasImages: false
+      };
+    }
+
+    // Ensure at least 4 items so the reel seamlessly fills the card width
+    let baseItems = imageProducts;
+    while (baseItems.length < 4) {
+      baseItems = [...baseItems, ...imageProducts];
+    }
+
+    // Double for seamless 50% infinite CSS slide
+    const double = [...baseItems, ...baseItems];
+    // ~3.2s per item maintains constant physical speed across all categories
+    const speed = baseItems.length * 3.2 + 's';
+    return {
+      doubleItems: double,
+      animSpeed: speed,
+      hasImages: true
+    };
+  }, [catProducts]);
+  return /*#__PURE__*/React.createElement("div", {
+    onClick: () => {
+      triggerHaptic('light');
+      onSelectCategory(cat.id);
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant'
+      });
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    },
+    className: "cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200",
+    style: {
+      background: '#ffffff',
+      border: '1.5px solid #e2e8f0',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    onMouseEnter: e => {
+      e.currentTarget.style.borderColor = '#10b981';
+      e.currentTarget.style.transform = 'translateY(-2px)';
+      e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.12)';
+    },
+    onMouseLeave: e => {
+      e.currentTarget.style.borderColor = '#e2e8f0';
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.03)';
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cat-img-reel-area",
+    style: {
+      height: 88,
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+      overflow: 'hidden',
+      background: '#fafbfc'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cat-count-badge",
+    style: {
+      position: 'absolute',
+      top: 5,
+      right: 5,
+      zIndex: 20,
+      padding: '2px 6px',
+      borderRadius: 6,
+      fontSize: 8,
+      fontWeight: 800,
+      background: 'rgba(15, 23, 42, 0.90)',
+      color: '#ffffff',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+    }
+  }, count, " ", translate(langData, "itemsLabel")), hasImages ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'relative',
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      overflow: 'hidden'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      left: 0,
+      width: 16,
+      zIndex: 10,
+      pointerEvents: 'none',
+      background: 'linear-gradient(to right, #fafbfc, transparent)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      right: 0,
+      width: 16,
+      zIndex: 10,
+      pointerEvents: 'none',
+      background: 'linear-gradient(to left, #fafbfc, transparent)'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "cat-marquee-track",
+    style: {
+      animation: `catSlideTrack ${animSpeed} linear infinite`
+    }
+  }, doubleItems.map((item, idx) => {
+    const itemImgSrc = getProductImgSrc(item);
+    return /*#__PURE__*/React.createElement("div", {
+      key: idx,
+      className: "cat-img-box"
+    }, itemImgSrc && /*#__PURE__*/React.createElement("img", {
+      src: itemImgSrc,
+      alt: "",
+      loading: "lazy",
+      onError: e => {
+        e.target.style.display = 'none';
+      }
+    }));
+  }))) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      opacity: 0.95,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 38,
+      height: 38,
+      borderRadius: 12,
+      background: meta.gradient,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 6px 18px rgba(0,0,0,0.4)'
+    }
+  }, meta.icon || '🛍️'))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '6px 6px 8px',
+      background: '#ffffff',
+      borderTop: '1px solid #f1f5f9',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 2,
+      flex: 1,
+      justifyContent: 'space-between'
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
+    className: "cat-card-title",
+    style: {
+      fontSize: '11px',
+      fontWeight: 800,
+      fontFamily: "'Poppins', sans-serif",
+      color: '#0f172a',
+      lineHeight: 1.2,
+      margin: 0,
+      textAlign: 'center',
+      whiteSpace: 'normal',
+      wordBreak: 'break-word'
+    }
+  }, cat.name || langData.categories?.[cat.id] || cat.id)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 3,
+      paddingTop: 3,
+      borderTop: '1px dashed #f1f5f9'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '10px',
+      fontWeight: 800,
+      color: '#10b981',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 2
+    }
+  }, /*#__PURE__*/React.createElement("span", null, tr(language, 'Explore', 'Dekhein', 'دیکھیں')), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '10px'
+    }
+  }, "\u2794")))));
+});
 const CategoryHome = React.memo(function CategoryHome({
   products,
   onSelectCategory,
@@ -20585,44 +20829,19 @@ const CategoryHome = React.memo(function CategoryHome({
   categoriesVersion
 }) {
   const isUrdu = language === 'ur';
-  const categoriesList = useMemo(() => getGlobalCategories(products), [products, categoriesVersion]);
+  const categoriesList = React.useMemo(() => getGlobalCategories(products), [products, categoriesVersion]);
   const isNativeApp = checkIsNativeApp();
 
-  // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
-  const categoryData = useMemo(() => {
-    const productMap = {};
+  // ⚡ Pre-compute category products map in O(N) instead of O(N*Categories)
+  const productMap = React.useMemo(() => {
+    const map = {};
     for (let i = 0; i < products.length; i++) {
       const p = products[i];
-      if (!productMap[p.categoryId]) productMap[p.categoryId] = [];
-      productMap[p.categoryId].push(p);
+      if (!map[p.categoryId]) map[p.categoryId] = [];
+      map[p.categoryId].push(p);
     }
-    return categoriesList.map(cat => {
-      const catProducts = productMap[cat.id] || [];
-      const count = catProducts.length;
-      const meta = CATEGORY_META[cat.id] || {
-        gradient: 'linear-gradient(135deg,#000000,#9b7a00)',
-        icon: null
-      };
-      // 🔄 Prioritize top items in custom sequence so they rotate in marquee
-      const sortedCatProducts = [...catProducts].sort((a, b) => {
-        const pa = a.priority && a.priority > 0 ? a.priority : 999999;
-        const pb = b.priority && b.priority > 0 ? b.priority : 999999;
-        if (pa !== pb) return pa - pb;
-        return a.id - b.id;
-      });
-      const imageProducts = sortedCatProducts.filter(p => window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage || p.imageUrl).slice(0, 6);
-      const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
-      const animSpeed = imageProducts.length * 3.5 + 's';
-      return {
-        cat,
-        count,
-        meta,
-        imageProducts,
-        doubleItems,
-        animSpeed
-      };
-    });
-  }, [products, categoriesList]);
+    return map;
+  }, [products]);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 12,
@@ -20659,188 +20878,14 @@ const CategoryHome = React.memo(function CategoryHome({
       gridTemplateColumns: 'repeat(3, 1fr)',
       gap: 8
     } : undefined
-  }, categoryData.map(({
-    cat,
-    count,
-    meta,
-    imageProducts,
-    doubleItems,
-    animSpeed
-  }) => {
-    return /*#__PURE__*/React.createElement("div", {
-      key: cat.id,
-      onClick: () => {
-        triggerHaptic('light');
-        onSelectCategory(cat.id);
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: 'instant'
-        });
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-      },
-      className: "cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200",
-      style: {
-        background: '#ffffff',
-        border: '1.5px solid #e2e8f0',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-        display: 'flex',
-        flexDirection: 'column'
-      },
-      onMouseEnter: e => {
-        e.currentTarget.style.borderColor = '#10b981';
-        e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.12)';
-      },
-      onMouseLeave: e => {
-        e.currentTarget.style.borderColor = '#e2e8f0';
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.03)';
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "cat-img-reel-area",
-      style: {
-        height: 88,
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-        background: '#fafbfc'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "cat-count-badge",
-      style: {
-        position: 'absolute',
-        top: 5,
-        right: 5,
-        zIndex: 20,
-        padding: '2px 6px',
-        borderRadius: 6,
-        fontSize: 8,
-        fontWeight: 800,
-        background: 'rgba(15, 23, 42, 0.90)',
-        color: '#ffffff',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-      }
-    }, count, " ", translate(langData, "itemsLabel")), imageProducts.length > 0 ? /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        overflow: 'hidden'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        width: 16,
-        zIndex: 10,
-        pointerEvents: 'none',
-        background: 'linear-gradient(to right, #fafbfc, transparent)'
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      style: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        right: 0,
-        width: 16,
-        zIndex: 10,
-        pointerEvents: 'none',
-        background: 'linear-gradient(to left, #fafbfc, transparent)'
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      className: "cat-marquee-track",
-      style: {
-        animation: `catSlideTrack ${animSpeed} linear infinite`
-      }
-    }, doubleItems.map((item, idx) => {
-      const itemImgSrc = getProductImgSrc(item);
-      return /*#__PURE__*/React.createElement("div", {
-        key: idx,
-        className: "cat-img-box"
-      }, itemImgSrc && /*#__PURE__*/React.createElement("img", {
-        src: itemImgSrc,
-        alt: "",
-        loading: "lazy",
-        onError: e => {
-          e.target.style.display = 'none';
-        }
-      }));
-    }))) : /*#__PURE__*/React.createElement("div", {
-      style: {
-        opacity: 0.95,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 6
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: 38,
-        height: 38,
-        borderRadius: 12,
-        background: meta.gradient,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 6px 18px rgba(0,0,0,0.4)'
-      }
-    }, meta.icon || '🛍️'))), /*#__PURE__*/React.createElement("div", {
-      style: {
-        padding: '6px 6px 8px',
-        background: '#ffffff',
-        borderTop: '1px solid #f1f5f9',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        flex: 1,
-        justifyContent: 'space-between'
-      }
-    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", {
-      className: "cat-card-title",
-      style: {
-        fontSize: '11px',
-        fontWeight: 800,
-        fontFamily: "'Poppins', sans-serif",
-        color: '#0f172a',
-        lineHeight: 1.2,
-        margin: 0,
-        textAlign: 'center',
-        whiteSpace: 'normal',
-        wordBreak: 'break-word'
-      }
-    }, cat.name || langData.categories?.[cat.id] || cat.id)), /*#__PURE__*/React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 3,
-        paddingTop: 3,
-        borderTop: '1px dashed #f1f5f9'
-      }
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: '10px',
-        fontWeight: 800,
-        color: '#10b981',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2
-      }
-    }, /*#__PURE__*/React.createElement("span", null, tr(language, 'Explore', 'Dekhein', 'دیکھیں')), /*#__PURE__*/React.createElement("span", {
-      style: {
-        fontSize: '10px'
-      }
-    }, "\u2794")))));
-  })));
+  }, categoriesList.map(cat => /*#__PURE__*/React.createElement(CategoryCard, {
+    key: cat.id,
+    cat: cat,
+    catProducts: productMap[cat.id],
+    onSelectCategory: onSelectCategory,
+    langData: langData,
+    language: language
+  }))));
 });
 function CategoryDropdown({
   activeCategory,

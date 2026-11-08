@@ -1643,27 +1643,27 @@ function getTranslationValue(dictionary, key) {
     }
     // --- Product Categories and Data ---
     var DEFAULT_CATEGORIES = [
-    { id: "attacheenidaalchawal", name: "Atta & Chenee & Daal & Chawal" },
-    { id: "milkliquidpowder", name: "Milk & Tea Essentials", priority: 3 },
+    { id: "attacheenidaalchawal", name: "Atta & Chenee & Daal & Chawal", priority: 3 },
+    { id: "milkliquidpowder", name: "Milk & Tea Essentials", priority: 21 },
     { id: "masale", name: "Masale (Khule & Packed)", priority: 2 },
       { id: "groceryandkaryana",  name: "Grocery & Karyana", priority: 1 },
-      { id: "beverages",          name: "Beverages (Cold Drinks, Juices & Water)", priority: 4 },
+      { id: "beverages",          name: "Beverages (Cold Drinks, Juices & Water)", priority: 11 },
       { id: "shampoo",            name: "Shampoo & Conditioners", priority: 4 },
       { id: "haircolour",         name: "Hair Colors & Care & Oils", priority: 10 },
       { id: "creams",             name: "Creams & Lotions & Bleach", priority: 8 },
-      { id: "shaving",            name: "Shaving & Razers & Blades", priority: 9 },
-      { id: "stationary",         name: "Stationary & Tapes", priority: 17 },
-      { id: "sports",             name: "Sports & Toys" },
-      { id: "condemn",            name: "Condoms" },
-      { id: "lock",               name: "Locks & Cells & Lighters", priority: 10 },
-      { id: "general",            name: "General Items & Others", priority: 11 },
+      { id: "shaving",            name: "Shaving & Razers & Blades", priority: 16 },
+      { id: "stationary",         name: "Stationary & Tapes", priority: 12 },
+      { id: "sports",             name: "Sports & Toys", priority: 17 },
+      { id: "condemn",            name: "Condoms", priority: 18 },
+      { id: "lock",               name: "Locks & Cells & Lighters", priority: 19 },
+      { id: "general",            name: "General Items & Others", priority: 20 },
       { id: "babycare",           name: "Baby Care & Powders & Pampers", priority: 7 },
       { id: "mosquito",           name: "Anti- Mosquitoes", priority: 13 },
       { id: "personalcare",       name: "Personal Care", priority: 6 },
-      { id: "fragnances",         name: "Fragnances & Roll on", priority: 15 },
-      { id: "toothpasteandbrush", name: "Dental Cares", priority: 16 },
+      { id: "fragnances",         name: "Fragnances & Roll on", priority: 9 },
+      { id: "toothpasteandbrush", name: "Dental Cares", priority: 15 },
       { id: "facewash",           name: "Face Wash & Body Wash & Hand Wash", priority: 5 },
-      { id: "soaps",              name: "Local & Imported Soaps" }
+      { id: "soaps",              name: "Local & Imported Soaps", priority: 14 }
     ];
     function getGlobalCategories(productsList) {
       // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories
@@ -2889,6 +2889,7 @@ function getTranslationValue(dictionary, key) {
       { id: 1063, name: "SHUTTLECOCK (PAR WALI) GOOD QUALITY RS,150", price: 109, categoryId: "sports", categoryName: "Sports & Toys" },
       { id: 1064, name: "SHUTTLECOCK AIR KING (PAR WALI) EXCELLENT QUALITY RS,200", price: 179, categoryId: "sports", categoryName: "Sports & Toys" },
       { id: 1065, name: "SHUTTLECOCK (PLASTIC) EXCELLENT QUALITY RS,150", price: 89, categoryId: "sports", categoryName: "Sports & Toys" },
+      { id: 1066, name: "SHUTTLECOCK (PLASTIC) GOOD QUALITY", price: 85, categoryId: "sports", categoryName: "Sports & Toys", hasImage: true, purchasePrice: 50 },
       { id: 1067, name: "SHIELD CHOOSNI (3 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 1068, name: "SHIELD CHOOSNI (6 MONTH)", price: 90, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 1075, name: "SHIELD NIPPLE (1 PEICE) RS,50", price: 39, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S" },
@@ -6663,9 +6664,13 @@ export default function ZSMart() {
                     if (pa !== pb) return pa - pb;
                     return 0;
                   });
-                  window.CATEGORIES = mappedCats;
-                  try { localStorage.setItem("zs_groceries_categories_cache", JSON.stringify(mappedCats)); } catch(e) {}
-                  setCategoriesVersion(v => v + 1);
+                  const currentCache = localStorage.getItem("zs_groceries_categories_cache");
+                  const newCatsJson = JSON.stringify(mappedCats);
+                  if (currentCache !== newCatsJson) {
+                    window.CATEGORIES = mappedCats;
+                    try { localStorage.setItem("zs_groceries_categories_cache", newCatsJson); } catch(e) {}
+                    setCategoriesVersion(v => v + 1);
+                  }
                 }
               }
               if (setRes && setRes.ok) {
@@ -9968,37 +9973,168 @@ export default function ZSMart() {
       toothpasteandbrush: { image: '', gradient: 'linear-gradient(135deg,#06b6d4,#3b82f6)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>) },
       facewash:     { image: '', gradient: 'linear-gradient(135deg,#14b8a6,#0284c7)', icon: (<svg style={{width:40,height:40,color:'white'}} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>) },
     };
-    // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
+    // ————— CATEGORY HOME & INDEPENDENT CATEGORY CARDS ——————————————————————————————————————
+    // ━━━ INDEPENDENT MEMOIZED CATEGORY CARD ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Each category card manages its own marquee reel independently.
+    // When a category with 10 items reaches the end, it loops smoothly on its own
+    // without resetting or affecting any other category card.
+    const CategoryCard = React.memo(function CategoryCard({
+      cat,
+      catProducts,
+      onSelectCategory,
+      langData,
+      language
+    }) {
+      const meta = CATEGORY_META[cat.id] || { gradient: 'linear-gradient(135deg,#000000,#9b7a00)', icon: null };
+      const count = catProducts ? catProducts.length : 0;
+
+      // 🔄 Include ALL items with images (no artificial .slice cap!)
+      const { doubleItems, animSpeed, hasImages } = React.useMemo(() => {
+        if (!catProducts || catProducts.length === 0) {
+          return { doubleItems: [], animSpeed: '0s', hasImages: false };
+        }
+        const sorted = [...catProducts].sort((a, b) => {
+          const pa = (a.priority && a.priority > 0) ? a.priority : 999999;
+          const pb = (b.priority && b.priority > 0) ? b.priority : 999999;
+          if (pa !== pb) return pa - pb;
+          return a.id - b.id;
+        });
+
+        const imageProducts = sorted.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage || p.imageUrl);
+        if (imageProducts.length === 0) {
+          return { doubleItems: [], animSpeed: '0s', hasImages: false };
+        }
+
+        // Ensure at least 4 items so the reel seamlessly fills the card width
+        let baseItems = imageProducts;
+        while (baseItems.length < 4) {
+          baseItems = [...baseItems, ...imageProducts];
+        }
+
+        // Double for seamless 50% infinite CSS slide
+        const double = [...baseItems, ...baseItems];
+        // ~3.2s per item maintains constant physical speed across all categories
+        const speed = (baseItems.length * 3.2) + 's';
+        return { doubleItems: double, animSpeed: speed, hasImages: true };
+      }, [catProducts]);
+
+      return (
+        <div
+          onClick={() => {
+            triggerHaptic('light');
+            onSelectCategory(cat.id);
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+          }}
+          className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200"
+          style={{
+            background: '#ffffff',
+            border: '1.5px solid #e2e8f0',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = '#10b981';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.12)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = '#e2e8f0';
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.03)';
+          }}
+        >
+          {/* Top Image Reel Area */}
+          <div className="cat-img-reel-area" style={{ height: 88, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#fafbfc' }}>
+
+            {/* Top Right Item Count Badge */}
+            <div className="cat-count-badge" style={{ position: 'absolute', top: 5, right: 5, zIndex: 20, padding: '2px 6px', borderRadius: 6, fontSize: 8, fontWeight: 800, background: 'rgba(15, 23, 42, 0.90)', color: '#ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+              {count} {translate(langData, "itemsLabel")}
+            </div>
+
+            {hasImages ? (
+              <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
+                {/* Side Fade Shading for Glassy Framing */}
+                <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 16, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, #fafbfc, transparent)' }} />
+                <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 16, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, #fafbfc, transparent)' }} />
+
+                {/* Infinite Sliding Track — Independent animation per category card */}
+                <div className="cat-marquee-track" style={{ animation: `catSlideTrack ${animSpeed} linear infinite` }}>
+                  {doubleItems.map((item, idx) => {
+                    const itemImgSrc = getProductImgSrc(item);
+                    return (
+                      <div key={idx} className="cat-img-box">
+                        {itemImgSrc && (
+                          <img
+                            src={itemImgSrc}
+                            alt=""
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div style={{ opacity: 0.95, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 38, height: 38, borderRadius: 12, background: meta.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 18px rgba(0,0,0,0.4)' }}>
+                  {meta.icon || '🛍️'}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Clean Info Footer */}
+          <div style={{ padding: '6px 6px 8px', background: '#ffffff', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: 2, flex: 1, justifyContent: 'space-between' }}>
+            <div>
+              <h3 className="cat-card-title" style={{
+                fontSize: '11px',
+                fontWeight: 800,
+                fontFamily: "'Poppins', sans-serif",
+                color: '#0f172a',
+                lineHeight: 1.2,
+                margin: 0,
+                textAlign: 'center',
+                whiteSpace: 'normal',
+                wordBreak: 'break-word'
+              }}>
+                {cat.name || langData.categories?.[cat.id] || cat.id}
+              </h3>
+            </div>
+            
+            {/* Interactive Action Line — Clean Explore Arrow Only */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 3, paddingTop: 3, borderTop: '1px dashed #f1f5f9' }}>
+              <span style={{ fontSize: '10px', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: 2 }}>
+                <span>{tr(language, 'Explore', 'Dekhein', 'دیکھیں')}</span>
+                <span style={{ fontSize: '10px' }}>➔</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    });
+
     const CategoryHome = React.memo(function CategoryHome({ products, onSelectCategory, langData, language, categoriesVersion }) {
       const isUrdu = language === 'ur';
-      const categoriesList = useMemo(() => getGlobalCategories(products), [products, categoriesVersion]);
+      const categoriesList = React.useMemo(() => getGlobalCategories(products), [products, categoriesVersion]);
       const isNativeApp = checkIsNativeApp();
 
-      // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
-      const categoryData = useMemo(() => {
-        const productMap = {};
+      // ⚡ Pre-compute category products map in O(N) instead of O(N*Categories)
+      const productMap = React.useMemo(() => {
+        const map = {};
         for (let i = 0; i < products.length; i++) {
           const p = products[i];
-          if (!productMap[p.categoryId]) productMap[p.categoryId] = [];
-          productMap[p.categoryId].push(p);
+          if (!map[p.categoryId]) map[p.categoryId] = [];
+          map[p.categoryId].push(p);
         }
-        return categoriesList.map(cat => {
-          const catProducts = productMap[cat.id] || [];
-          const count = catProducts.length;
-          const meta = CATEGORY_META[cat.id] || { gradient: 'linear-gradient(135deg,#000000,#9b7a00)', icon: null };
-          // 🔄 Prioritize top items in custom sequence so they rotate in marquee
-          const sortedCatProducts = [...catProducts].sort((a, b) => {
-            const pa = (a.priority && a.priority > 0) ? a.priority : 999999;
-            const pb = (b.priority && b.priority > 0) ? b.priority : 999999;
-            if (pa !== pb) return pa - pb;
-            return a.id - b.id;
-          });
-          const imageProducts = sortedCatProducts.filter(p => (window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id]) || p.hasImage || p.imageUrl).slice(0, 6);
-          const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
-          const animSpeed = (imageProducts.length * 3.5) + 's';
-          return { cat, count, meta, imageProducts, doubleItems, animSpeed };
-        });
-      }, [products, categoriesList]);
+        return map;
+      }, [products]);
 
       return (
         <div>
@@ -10012,114 +10148,22 @@ export default function ZSMart() {
             </span>
           </div>
           <div className={`categories-grid ${!isNativeApp ? 'categories-web-5col' : ''}`} style={isNativeApp ? { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 } : undefined}>
-            {categoryData.map(({ cat, count, meta, imageProducts, doubleItems, animSpeed }) => {
-              return (
-                <div
-                  key={cat.id}
-                  onClick={() => {
-                    triggerHaptic('light');
-                    onSelectCategory(cat.id);
-                    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-                    document.body.scrollTop = 0;
-                    document.documentElement.scrollTop = 0;
-                  }}
-                  className="cat-card-container group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200"
-                  style={{
-                    background: '#ffffff',
-                    border: '1.5px solid #e2e8f0',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = '#10b981';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(16,185,129,0.12)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = '#e2e8f0';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.03)';
-                  }}
-                >
-                  {/* Top Image Reel Area */}
-                  <div className="cat-img-reel-area" style={{ height: 88, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', background: '#fafbfc' }}>
-
-                    {/* Top Right Item Count Badge */}
-                    <div className="cat-count-badge" style={{ position: 'absolute', top: 5, right: 5, zIndex: 20, padding: '2px 6px', borderRadius: 6, fontSize: 8, fontWeight: 800, background: 'rgba(15, 23, 42, 0.90)', color: '#ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
-                      {count} {translate(langData, "itemsLabel")}
-                    </div>
-
-                    {imageProducts.length > 0 ? (
-                      <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-                        {/* Side Fade Shading for Glassy Framing */}
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 16, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to right, #fafbfc, transparent)' }} />
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 16, zIndex: 10, pointerEvents: 'none', background: 'linear-gradient(to left, #fafbfc, transparent)' }} />
-
-                        {/* Infinite Sliding Track */}
-                        <div className="cat-marquee-track" style={{ animation: `catSlideTrack ${animSpeed} linear infinite` }}>
-                          {doubleItems.map((item, idx) => {
-                            const itemImgSrc = getProductImgSrc(item);
-                            return (
-                              <div key={idx} className="cat-img-box">
-                                {itemImgSrc && (
-                                  <img
-                                    src={itemImgSrc}
-                                    alt=""
-                                    loading="lazy"
-                                    onError={(e) => {
-                                      e.target.style.display = 'none';
-                                    }}
-                                  />
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ opacity: 0.95, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 38, height: 38, borderRadius: 12, background: meta.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 18px rgba(0,0,0,0.4)' }}>
-                          {meta.icon || '🛍️'}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Clean Info Footer */}
-                  <div style={{ padding: '6px 6px 8px', background: '#ffffff', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: 2, flex: 1, justifyContent: 'space-between' }}>
-                    <div>
-                      <h3 className="cat-card-title" style={{
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        fontFamily: "'Poppins', sans-serif",
-                        color: '#0f172a',
-                        lineHeight: 1.2,
-                        margin: 0,
-                        textAlign: 'center',
-                        whiteSpace: 'normal',
-                        wordBreak: 'break-word'
-                      }}>
-                        {cat.name || langData.categories?.[cat.id] || cat.id}
-                      </h3>
-                    </div>
-                    
-                    {/* Interactive Action Line — Clean Explore Arrow Only */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 3, paddingTop: 3, borderTop: '1px dashed #f1f5f9' }}>
-                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <span>{tr(language, 'Explore', 'Dekhein', 'دیکھیں')}</span>
-                        <span style={{ fontSize: '10px' }}>➔</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {categoriesList.map(cat => (
+              <CategoryCard
+                key={cat.id}
+                cat={cat}
+                catProducts={productMap[cat.id]}
+                onSelectCategory={onSelectCategory}
+                langData={langData}
+                language={language}
+              />
+            ))}
           </div>
         </div>
       );
     });
-    function CategoryDropdown({ activeCategory, setActiveCategory, setCatMenuOpen, fullWidth, langData, language }) {
+
+        function CategoryDropdown({ activeCategory, setActiveCategory, setCatMenuOpen, fullWidth, langData, language }) {
       const categoriesList = getGlobalCategories();
       return (
         <div

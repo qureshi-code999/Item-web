@@ -229,7 +229,6 @@ input[type="search"]::-ms-reveal {
 
 .cat-marquee-track {
   display: flex;
-  gap: 8px;
   width: max-content;
   will-change: transform;
   transform: translate3d(0, 0, 0);
@@ -240,6 +239,7 @@ input[type="search"]::-ms-reveal {
 .cat-img-box {
   width: 68px;
   height: 68px;
+  margin-right: 8px;
   border-radius: 12px;
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-08T18:15:52.616Z",
+  "updatedAt": "2026-11-08T20:20:34.465Z",
   "total": 1348,
   "settings": {
     "deliveryFee": 99,
@@ -2898,14 +2898,9 @@
       "priority": 2
     },
     {
-      "id": "milkliquidpowder",
-      "name": "Milk & Tea Essentials",
+      "id": "attacheenidaalchawal",
+      "name": "Atta & Chenee & Daal & Chawal",
       "priority": 3
-    },
-    {
-      "id": "beverages",
-      "name": "Beverages (Cold Drinks, Juices & Water)",
-      "priority": 4
     },
     {
       "id": "shampoo",
@@ -2933,8 +2928,8 @@
       "priority": 8
     },
     {
-      "id": "shaving",
-      "name": "Shaving & Razers & Blades",
+      "id": "fragnances",
+      "name": "Fragnances & Roll on",
       "priority": 9
     },
     {
@@ -2943,14 +2938,14 @@
       "priority": 10
     },
     {
-      "id": "lock",
-      "name": "Locks & Cells & Lighters",
-      "priority": 10
+      "id": "beverages",
+      "name": "Beverages (Cold Drinks, Juices & Water)",
+      "priority": 11
     },
     {
-      "id": "general",
-      "name": "General Items & Others",
-      "priority": 11
+      "id": "stationary",
+      "name": "Stationary & Tapes",
+      "priority": 12
     },
     {
       "id": "mosquito",
@@ -2958,35 +2953,44 @@
       "priority": 13
     },
     {
-      "id": "fragnances",
-      "name": "Fragnances & Roll on",
-      "priority": 15
+      "id": "soaps",
+      "name": "Local & Imported Soaps",
+      "priority": 14
     },
     {
       "id": "toothpasteandbrush",
       "name": "Dental Cares",
+      "priority": 15
+    },
+    {
+      "id": "shaving",
+      "name": "Shaving & Razers & Blades",
       "priority": 16
     },
     {
-      "id": "stationary",
-      "name": "Stationary & Tapes",
+      "id": "sports",
+      "name": "Sports & Toys",
       "priority": 17
     },
     {
-      "id": "attacheenidaalchawal",
-      "name": "Atta & Chenee & Daal & Chawal"
-    },
-    {
-      "id": "sports",
-      "name": "Sports & Toys"
-    },
-    {
       "id": "condemn",
-      "name": "Condoms"
+      "name": "Condoms",
+      "priority": 18
     },
     {
-      "id": "soaps",
-      "name": "Local & Imported Soaps"
+      "id": "lock",
+      "name": "Locks & Cells & Lighters",
+      "priority": 19
+    },
+    {
+      "id": "general",
+      "name": "General Items & Others",
+      "priority": 20
+    },
+    {
+      "id": "milkliquidpowder",
+      "name": "Milk & Tea Essentials",
+      "priority": 21
     }
   ],
   "products": [
@@ -10528,6 +10532,7 @@
       "price": 85,
       "categoryId": "sports",
       "categoryName": "Sports & Toys",
+      "hasImage": true,
       "purchasePrice": 50
     },
     {

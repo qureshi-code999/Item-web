@@ -2923,6 +2923,205 @@ function syncImageToTargets(fileName) {
       return sendJson(res, 200, { ok: true, settings: newSettings });
     }
 
+    // 9d. API: Advertisement GET
+    if (pathname === '/api/advertisement' && req.method === 'GET') {
+      const adFile = path.join(ROOT, 'advertisement.json');
+      const defaultAd = {
+        active: false,
+        title: "🔥 AAJ KI SPECIAL OFFER 🔥",
+        text: "",
+        imageUrl: "",
+        durationHours: 12,
+        expiresAt: 0,
+        createdAt: null,
+        updatedAt: null
+      };
+      if (fs.existsSync(adFile)) {
+        try {
+          const stored = JSON.parse(fs.readFileSync(adFile, 'utf8'));
+          return sendJson(res, 200, { ok: true, advertisement: { ...defaultAd, ...stored } });
+        } catch(e) {}
+      }
+      return sendJson(res, 200, { ok: true, advertisement: defaultAd });
+    }
+
+    // 9e. API: Advertisement POST (Publish / Update)
+    if (pathname === '/api/advertisement' && req.method === 'POST') {
+      const body = await parseBody(req);
+      const adFile = path.join(ROOT, 'advertisement.json');
+      let currentAd = {
+        active: false,
+        title: "🔥 AAJ KI SPECIAL OFFER 🔥",
+        text: "",
+        imageUrl: "",
+        durationHours: 12,
+        expiresAt: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: Date.now()
+      };
+      if (fs.existsSync(adFile)) {
+        try { currentAd = { ...currentAd, ...JSON.parse(fs.readFileSync(adFile, 'utf8')) }; } catch(e) {}
+      }
+
+      const active = body.active !== undefined ? Boolean(body.active) : true;
+      const title = (body.title || currentAd.title || '🔥 AAJ KI SPECIAL OFFER 🔥').trim();
+      const text = (body.text || '').trim();
+      const durationHours = body.durationHours !== undefined ? Number(body.durationHours) : 12;
+
+      let imageUrl = body.imageUrl || currentAd.imageUrl || '';
+
+      // If a new image was uploaded as Base64
+      if (body.imageBase64) {
+        try {
+          const base64Data = body.imageBase64.replace(/^data:image\/\w+;base64,/, '');
+          const imgBuffer = Buffer.from(base64Data, 'base64');
+          
+          // Save to images/offer_banner.webp locally
+          const localImgPath = path.join(ROOT, 'images', 'offer_banner.webp');
+          fs.writeFileSync(localImgPath, imgBuffer);
+
+          // Mirror to other web/app directories
+          const mirrorDirs = [
+            path.join(ROOT, 'complete', 'images', 'offer_banner.webp'),
+            path.join(ROOT, 'www', 'images', 'offer_banner.webp'),
+            path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'images', 'offer_banner.webp')
+          ];
+          mirrorDirs.forEach(dest => {
+            try {
+              const dir = path.dirname(dest);
+              if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+              fs.writeFileSync(dest, imgBuffer);
+            } catch(e) {}
+          });
+
+          // Upload to Supabase Storage
+          try {
+            const publicUrl = await supabaseUploadStorageImage('offer_banner.webp', imgBuffer, 'image/webp');
+            if (publicUrl) {
+              imageUrl = publicUrl + '?v=' + Date.now();
+            } else {
+              const cfg = getSupabaseConfig();
+              if (cfg && cfg.supabaseUrl) {
+                imageUrl = `${cfg.supabaseUrl}/storage/v1/object/public/product-images/offer_banner.webp?v=${Date.now()}`;
+              } else {
+                imageUrl = 'images/offer_banner.webp?v=' + Date.now();
+              }
+            }
+          } catch(e) {
+            imageUrl = 'images/offer_banner.webp?v=' + Date.now();
+          }
+        } catch(err) {
+          console.error('Failed to process offer banner image:', err);
+        }
+      }
+
+      // Calculate expiry timestamp
+      let expiresAt = 0;
+      if (active) {
+        if (durationHours > 0) {
+          expiresAt = Date.now() + (durationHours * 60 * 60 * 1000);
+        } else {
+          // 0 means permanent until manually disabled
+          expiresAt = 0;
+        }
+      }
+
+      const updatedAd = {
+        active,
+        title,
+        text,
+        imageUrl,
+        durationHours,
+        expiresAt,
+        createdAt: currentAd.createdAt || new Date().toISOString(),
+        updatedAt: Date.now()
+      };
+
+      // Save locally
+      fs.writeFileSync(adFile, JSON.stringify(updatedAd, null, 2), 'utf8');
+
+      // Mirror advertisement.json
+      const mirrorJson = [
+        path.join(ROOT, 'complete', 'advertisement.json'),
+        path.join(ROOT, 'www', 'advertisement.json'),
+        path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'advertisement.json')
+      ];
+      mirrorJson.forEach(dest => {
+        try {
+          const dir = path.dirname(dest);
+          if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+          fs.writeFileSync(dest, JSON.stringify(updatedAd, null, 2), 'utf8');
+        } catch(e) {}
+      });
+
+      // Sync into settings.json and Supabase store_settings.announcement
+      try {
+        let curSettings = {};
+        if (fs.existsSync(SETTINGS_FILE)) {
+          curSettings = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
+        }
+        curSettings.announcement = active ? JSON.stringify(updatedAd) : '';
+        fs.writeFileSync(SETTINGS_FILE, JSON.stringify(curSettings, null, 2), 'utf8');
+        
+        try { fs.copyFileSync(SETTINGS_FILE, path.join(ROOT, 'complete', 'settings.json')); } catch(e) {}
+        try { fs.copyFileSync(SETTINGS_FILE, path.join(ROOT, 'www', 'settings.json')); } catch(e) {}
+        try { fs.copyFileSync(SETTINGS_FILE, path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'settings.json')); } catch(e) {}
+
+        supabaseApiRequest('/rest/v1/store_settings?id=eq.main', 'PATCH', {
+          announcement: curSettings.announcement,
+          updated_at: new Date().toISOString()
+        }).catch(err => console.warn('Supabase offer sync notice:', err));
+      } catch(err) {
+        console.error('Error syncing advertisement to settings:', err);
+      }
+
+      console.log('Advertisement published / updated:', updatedAd);
+      return sendJson(res, 200, { ok: true, advertisement: updatedAd });
+    }
+
+    // 9f. API: Advertisement REMOVE
+    if (pathname === '/api/advertisement/remove' && req.method === 'POST') {
+      const adFile = path.join(ROOT, 'advertisement.json');
+      let currentAd = {};
+      if (fs.existsSync(adFile)) {
+        try { currentAd = JSON.parse(fs.readFileSync(adFile, 'utf8')); } catch(e) {}
+      }
+      currentAd.active = false;
+      currentAd.expiresAt = 0;
+      currentAd.updatedAt = Date.now();
+      fs.writeFileSync(adFile, JSON.stringify(currentAd, null, 2), 'utf8');
+
+      // Mirror
+      [
+        path.join(ROOT, 'complete', 'advertisement.json'),
+        path.join(ROOT, 'www', 'advertisement.json'),
+        path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'advertisement.json')
+      ].forEach(dest => {
+        try { fs.writeFileSync(dest, JSON.stringify(currentAd, null, 2), 'utf8'); } catch(e) {}
+      });
+
+      // Clear in settings.json & Supabase
+      try {
+        let curSettings = {};
+        if (fs.existsSync(SETTINGS_FILE)) {
+          curSettings = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
+        }
+        curSettings.announcement = '';
+        fs.writeFileSync(SETTINGS_FILE, JSON.stringify(curSettings, null, 2), 'utf8');
+        try { fs.copyFileSync(SETTINGS_FILE, path.join(ROOT, 'complete', 'settings.json')); } catch(e) {}
+        try { fs.copyFileSync(SETTINGS_FILE, path.join(ROOT, 'www', 'settings.json')); } catch(e) {}
+        try { fs.copyFileSync(SETTINGS_FILE, path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'settings.json')); } catch(e) {}
+
+        supabaseApiRequest('/rest/v1/store_settings?id=eq.main', 'PATCH', {
+          announcement: '',
+          updated_at: new Date().toISOString()
+        }).catch(() => {});
+      } catch(e) {}
+
+      console.log('Advertisement taken down / removed');
+      return sendJson(res, 200, { ok: true, message: 'Advertisement removed successfully' });
+    }
+
     // 10. API: 1-Click LIVE PUBLISH (With 100% Surety Verification & Blockage Detection)
     if (pathname === '/api/publish' && req.method === 'POST') {
       console.log('Publish triggered! Compiling JSX, exporting products & verifying cloud sync...');

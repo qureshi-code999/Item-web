@@ -1061,6 +1061,7 @@
         <option value="ordering">🔢 Category &amp; Top 20 Order</option>
         <option value="dsr">💰 Daily Sales &amp; Profit (DSR)</option>
         <option value="purchasing">🛒 Purchasing &amp; Market Sheet</option>
+        <option value="advertisement">📢 Advertisement &amp; Daily Offers</option>
         <option value="settings">⚙️ App &amp; Store Settings</option>
       </select>
     </div>
@@ -2187,6 +2188,167 @@
             <div id="sec-pwd-msg" style="font-size: 13px; font-weight: 700;"></div>
           </div>
         </div>
+      </div>
+    </div>
+
+  
+    <!-- ══════════════════════════════════════════════════════════════════
+         TAB 6: ADVERTISEMENT & DAILY OFFERS POPUP BANNER
+         ══════════════════════════════════════════════════════════════════ -->
+    <div id="tab-advertisement" class="tab-panel">
+      <div class="panel-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h2 class="panel-title" style="display: flex; align-items: center; gap: 10px;">
+            <span>📢 Advertisement &amp; Daily Offers</span>
+            <span id="ad-status-pill" style="font-size: 11px; padding: 3px 10px; border-radius: 999px; background: #f1f5f9; color: #64748b; font-weight: 700; border: 1px solid #cbd5e1;">Inactive / No Banner</span>
+          </h2>
+          <p class="panel-desc">
+            Upload AI-generated offer banners (e.g. <i>"Aaj Ki Offer: Egg 20 ka hai"</i>) with custom text. Banners display as an eye-catching glossy popup with blurred backdrop when customers open the app, and automatically expire after 12 hours.
+          </p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button type="button" class="btn btn-outline" onclick="loadAdvertisement(true)" style="font-size: 12px; padding: 7px 12px; border-color: #cbd5e1; background: white;">
+            🔄 Refresh Status
+          </button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(340px, 1.2fr) minmax(320px, 0.8fr); gap: 24px; align-items: start; margin-top: 18px;">
+        
+        <!-- Left Column: Advertisement Configuration Form -->
+        <div class="panel-card" style="padding: 24px;">
+          <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+            <span>⚙️ Offer Banner Setup</span>
+          </h3>
+
+          <form id="ad-banner-form" onsubmit="handlePublishAd(event)">
+            <!-- Active Toggle -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px;">
+              <div>
+                <div style="font-weight: 700; font-size: 13px; color: #0f172a;">Enable Offer Popup in Customer App</div>
+                <div style="font-size: 11px; color: #64748b;">Turn ON to display popup immediately to all customers</div>
+              </div>
+              <label class="switch" style="position: relative; display: inline-block; width: 48px; height: 26px;">
+                <input type="checkbox" id="ad-active-toggle" checked onchange="updateAdPreview()">
+                <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 26px;"></span>
+              </label>
+            </div>
+
+            <!-- Title / Highlight Header -->
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label style="font-weight: 700; font-size: 12px; color: #334155;">Offer Headline / Top Highlight Header</label>
+              <input type="text" id="ad-title" class="form-input" placeholder="e.g. 🔥 AAJ KI SPECIAL OFFER 🔥" value="🔥 AAJ KI SPECIAL OFFER 🔥" oninput="updateAdPreview()" style="width: 100%; padding: 10px 12px; font-weight: 700; border-radius: 8px; border: 1px solid #cbd5e1;">
+              <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Appears in big bold letters at the top of the popup ad.</div>
+            </div>
+
+            <!-- Description / Offer Details -->
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label style="font-weight: 700; font-size: 12px; color: #334155;">Offer Details &amp; Text</label>
+              <textarea id="ad-text" class="form-input" rows="3" placeholder="e.g. Taaza Anday Rs. 20 mein! Limited time stock available. Order karein jaldi se pehle stock khatam ho jaye." oninput="updateAdPreview()" style="width: 100%; padding: 10px 12px; font-size: 13px; border-radius: 8px; border: 1px solid #cbd5e1; resize: vertical;"></textarea>
+              <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Offer details or product discount message.</div>
+            </div>
+
+            <!-- Banner Image Upload -->
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label style="font-weight: 700; font-size: 12px; color: #334155;">Promotional Banner Image (AI Generated or Photo)</label>
+              <div style="border: 2px dashed #94a3b8; border-radius: 12px; padding: 20px; text-align: center; background: #f8fafc; cursor: pointer;" onclick="document.getElementById('ad-file-input').click()">
+                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                <div style="font-size: 13px; font-weight: 700; color: #0284c7;">Click to Upload Offer Banner Picture</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Supports PNG, JPG, WebP (AI banners, flyer designs, photos)</div>
+                <input type="file" id="ad-file-input" accept="image/*" style="display: none;" onchange="handleAdImageUpload(event)">
+              </div>
+              <div id="ad-image-status" style="font-size: 11px; font-weight: 700; color: #059669; margin-top: 6px;"></div>
+            </div>
+
+            <!-- Duration / Auto Expiry -->
+            <div class="form-group" style="margin-bottom: 24px;">
+              <label style="font-weight: 700; font-size: 12px; color: #334155;">Offer Duration (Auto-Expiry)</label>
+              <select id="ad-duration" class="form-select" onchange="updateAdPreview()" style="width: 100%; padding: 10px 12px; font-size: 13px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600;">
+                <option value="12" selected>⏱️ 12 Hours (Default / Recommended)</option>
+                <option value="6">⏱️ 6 Hours (Flash Sale)</option>
+                <option value="24">⏱️ 24 Hours (1 Full Day)</option>
+                <option value="48">⏱️ 48 Hours (2 Days)</option>
+                <option value="0">♾️ Permanent (Until manually turned off)</option>
+              </select>
+              <div id="ad-expiry-preview" style="font-size: 11.5px; font-weight: 700; color: #d97706; margin-top: 6px;">
+                Will auto-expire 12 hours after publishing.
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+              <button type="submit" id="ad-publish-btn" class="btn btn-gold" style="font-weight: 800; padding: 11px 22px; font-size: 13.5px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);">
+                🚀 Publish Offer Banner Live
+              </button>
+              <button type="button" id="ad-remove-btn" class="btn btn-outline" onclick="removeAdvertisement()" style="font-weight: 700; padding: 11px 18px; font-size: 13px; color: #dc2626; border-color: #fca5a5; background: #fff;">
+                🗑️ Remove Banner Now
+              </button>
+            </div>
+            <div id="ad-save-status" style="margin-top: 12px; font-size: 12.5px; font-weight: 700;"></div>
+          </form>
+        </div>
+
+        <!-- Right Column: Live App Mockup / Popup Preview -->
+        <div class="panel-card" style="padding: 24px; background: #0f172a; color: white; border-radius: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <span style="font-size: 13px; font-weight: 800; color: #f8fafc; letter-spacing: 0.5px; text-transform: uppercase;">📱 Live Customer App Preview</span>
+            <span style="font-size: 10px; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 6px; color: #94a3b8;">Blur + Glass Effect</span>
+          </div>
+
+          <!-- Phone Screen Container -->
+          <div style="position: relative; width: 100%; max-width: 340px; margin: 0 auto; height: 560px; background: #1e293b; border-radius: 32px; border: 8px solid #334155; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); display: flex; flex-direction: column;">
+            
+            <!-- Simulated App Background (Blurred when ad is active) -->
+            <div style="position: absolute; inset: 0; background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%); padding: 16px; overflow: hidden; filter: blur(6px); opacity: 0.6; pointer-events: none;">
+              <div style="height: 36px; background: #0284c7; border-radius: 8px; margin-bottom: 12px;"></div>
+              <div style="height: 120px; background: #cbd5e1; border-radius: 12px; margin-bottom: 12px;"></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="height: 90px; background: #ffffff; border-radius: 8px;"></div>
+                <div style="height: 90px; background: #ffffff; border-radius: 8px;"></div>
+                <div style="height: 90px; background: #ffffff; border-radius: 8px;"></div>
+                <div style="height: 90px; background: #ffffff; border-radius: 8px;"></div>
+              </div>
+            </div>
+
+            <!-- Backdrop Blur Overlay -->
+            <div style="position: absolute; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 14px;">
+              
+              <!-- Glossy Popup Card -->
+              <div style="position: relative; width: 100%; background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)); backdrop-filter: blur(12px); border: 1.5px solid rgba(255,255,255,0.8); border-radius: 20px; padding: 16px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+                
+                <!-- Close ✕ Button -->
+                <div style="position: absolute; top: -10px; right: -10px; width: 32px; height: 32px; border-radius: 50%; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid white; cursor: pointer;">✕</div>
+
+                <!-- Highlight Header -->
+                <div id="prev-ad-title" style="font-size: 14px; font-weight: 900; color: #b45309; text-transform: uppercase; margin-bottom: 10px; line-height: 1.2; letter-spacing: 0.5px;">
+                  🔥 AAJ KI SPECIAL OFFER 🔥
+                </div>
+
+                <!-- Banner Image Box -->
+                <div style="width: 100%; height: 170px; background: #f1f5f9; border-radius: 12px; overflow: hidden; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">
+                  <img id="prev-ad-img" src="images/offer_banner.webp" onerror="this.onerror=null; this.src='icon-192.png';" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+
+                <!-- Text Description -->
+                <div id="prev-ad-text" style="font-size: 12px; color: #334155; font-weight: 600; line-height: 1.4; margin-bottom: 12px; min-height: 32px;">
+                  Anday sirf Rs. 20 mein! Limited time offer.
+                </div>
+
+                <!-- CTA Button -->
+                <button type="button" style="width: 100%; padding: 9px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 800; font-size: 12px; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 3px 8px rgba(217,119,6,0.3);">
+                  🛒 Shop Now / Order
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div style="margin-top: 14px; font-size: 11px; color: #94a3b8; text-align: center;">
+            Customers can close this popup anytime with the <b>✕</b> button to continue shopping.
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -7764,6 +7926,251 @@
         }
       } catch(err) {
         alert('❌ Error: ' + err.message);
+      }
+    }
+
+    
+    /* ── ADVERTISEMENT & DAILY OFFERS MODULE ── */
+    let currentAdData = null;
+    let pendingAdBase64 = null;
+
+    async function loadAdvertisement(isManual = false) {
+      try {
+        const res = await fetch('/api/advertisement');
+        const data = await res.json();
+        if (data.ok && data.advertisement) {
+          currentAdData = data.advertisement;
+          renderAdvertisementUI(currentAdData);
+          if (isManual) {
+            alert('✅ Advertisement status refreshed from server!');
+          }
+        }
+      } catch(err) {
+        console.warn('Failed to load advertisement:', err);
+      }
+    }
+
+    function renderAdvertisementUI(ad) {
+      if (!ad) return;
+      const toggle = document.getElementById('ad-active-toggle');
+      if (toggle) toggle.checked = Boolean(ad.active);
+
+      const titleInput = document.getElementById('ad-title');
+      if (titleInput && ad.title) titleInput.value = ad.title;
+
+      const textInput = document.getElementById('ad-text');
+      if (textInput) textInput.value = ad.text || '';
+
+      const durSelect = document.getElementById('ad-duration');
+      if (durSelect && ad.durationHours !== undefined) {
+        durSelect.value = String(ad.durationHours);
+      }
+
+      // Status Pill
+      const pill = document.getElementById('ad-status-pill');
+      if (pill) {
+        const isLive = ad.active && (!ad.expiresAt || Date.now() < ad.expiresAt);
+        if (isLive) {
+          const remainingMs = ad.expiresAt ? Math.max(0, ad.expiresAt - Date.now()) : 0;
+          const remainingHrs = Math.floor(remainingMs / (1000 * 60 * 60));
+          const remainingMins = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+          const expiryStr = ad.expiresAt ? (' (' + remainingHrs + 'h ' + remainingMins + 'm left)') : ' (Permanent)';
+          pill.style.background = '#dcfce7';
+          pill.style.color = '#15803d';
+          pill.style.borderColor = '#86efac';
+          pill.textContent = '🟢 LIVE in Customer App' + expiryStr;
+        } else if (ad.active && ad.expiresAt && Date.now() >= ad.expiresAt) {
+          pill.style.background = '#fef2f2';
+          pill.style.color = '#dc2626';
+          pill.style.borderColor = '#fca5a5';
+          pill.textContent = '⏱️ Expired (Auto-Ended)';
+        } else {
+          pill.style.background = '#f1f5f9';
+          pill.style.color = '#64748b';
+          pill.style.borderColor = '#cbd5e1';
+          pill.textContent = '⚪ Inactive / No Banner';
+        }
+      }
+
+      updateAdPreview(ad.imageUrl);
+    }
+
+    function updateAdPreview(overrideImgUrl) {
+      const activeEl = document.getElementById('ad-active-toggle');
+      const active = activeEl ? activeEl.checked : false;
+      const titleEl = document.getElementById('ad-title');
+      const title = titleEl ? (titleEl.value.trim() || '🔥 AAJ KI SPECIAL OFFER 🔥') : '🔥 AAJ KI SPECIAL OFFER 🔥';
+      const textEl = document.getElementById('ad-text');
+      const text = textEl ? (textEl.value.trim() || 'Anday sirf Rs. 20 mein! Limited time offer.') : '';
+      const durEl = document.getElementById('ad-duration');
+      const duration = durEl ? Number(durEl.value) : 12;
+
+      const prevTitle = document.getElementById('prev-ad-title');
+      if (prevTitle) prevTitle.textContent = title;
+
+      const prevText = document.getElementById('prev-ad-text');
+      if (prevText) prevText.textContent = text;
+
+      const prevImg = document.getElementById('prev-ad-img');
+      if (prevImg) {
+        if (pendingAdBase64) {
+          prevImg.src = pendingAdBase64;
+        } else if (overrideImgUrl) {
+          prevImg.src = overrideImgUrl;
+        } else if (currentAdData && currentAdData.imageUrl) {
+          prevImg.src = currentAdData.imageUrl;
+        }
+      }
+
+      const expiryPreview = document.getElementById('ad-expiry-preview');
+      if (expiryPreview) {
+        if (duration === 0) {
+          expiryPreview.textContent = '♾️ Will remain live permanently until you manually turn it off.';
+          expiryPreview.style.color = '#0284c7';
+        } else {
+          const expDate = new Date(Date.now() + (duration * 60 * 60 * 1000));
+          const timeStr = expDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          expiryPreview.textContent = '⏱️ Will auto-expire in ' + duration + ' hours (approx. ' + timeStr + ').';
+          expiryPreview.style.color = '#d97706';
+        }
+      }
+    }
+
+    function handleAdImageUpload(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('ad-image-status');
+      if (statusEl) {
+        statusEl.textContent = '⏳ Processing image (Auto-converting to high-res WebP)...';
+        statusEl.style.color = '#0284c7';
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1200;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          pendingAdBase64 = canvas.toDataURL('image/webp', 0.88);
+          
+          const prevImg = document.getElementById('prev-ad-img');
+          if (prevImg) prevImg.src = pendingAdBase64;
+
+          if (statusEl) {
+            statusEl.textContent = '✅ Ready: "' + file.name + '" converted to WebP (' + width + 'x' + height + 'px)';
+            statusEl.style.color = '#059669';
+          }
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handlePublishAd(e) {
+      e.preventDefault();
+      const publishBtn = document.getElementById('ad-publish-btn');
+      const statusDiv = document.getElementById('ad-save-status');
+      
+      const active = document.getElementById('ad-active-toggle').checked;
+      const title = document.getElementById('ad-title').value.trim();
+      const text = document.getElementById('ad-text').value.trim();
+      const durationHours = Number(document.getElementById('ad-duration').value);
+
+      if (!title) {
+        alert('Please enter an Offer Headline / Title.');
+        return;
+      }
+
+      publishBtn.disabled = true;
+      publishBtn.textContent = '⏳ Uploading & Syncing Live...';
+      if (statusDiv) {
+        statusDiv.textContent = 'Syncing banner to cloud & customer app...';
+        statusDiv.style.color = '#0284c7';
+      }
+
+      try {
+        const payload = {
+          active,
+          title,
+          text,
+          durationHours
+        };
+
+        if (pendingAdBase64) {
+          payload.imageBase64 = pendingAdBase64;
+        }
+
+        const res = await fetch('/api/advertisement', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.ok) {
+          currentAdData = data.advertisement;
+          pendingAdBase64 = null;
+          renderAdvertisementUI(currentAdData);
+          if (statusDiv) {
+            statusDiv.textContent = '🚀 Offer Banner is now LIVE in Customer App (' + (durationHours === 0 ? 'Permanent' : durationHours + ' Hours') + ')!';
+            statusDiv.style.color = '#059669';
+          }
+          alert('🎉 Offer Banner successfully PUBLISHED LIVE!\n\nHeadline: ' + currentAdData.title + '\nDuration: ' + (durationHours === 0 ? 'Permanent' : durationHours + ' Hours') + '\n\nCustomer app open karte hi glossy popup dikhai dega!');
+        } else {
+          alert('❌ Failed to publish banner: ' + (data.error || 'Server error'));
+        }
+      } catch(err) {
+        alert('❌ Network error: ' + err.message);
+      } finally {
+        publishBtn.disabled = false;
+        publishBtn.textContent = '🚀 Publish Offer Banner Live';
+      }
+    }
+
+    async function removeAdvertisement() {
+      if (!confirm('Are you sure you want to remove / take down this offer banner now? Customers will no longer see the popup.')) {
+        return;
+      }
+
+      const removeBtn = document.getElementById('ad-remove-btn');
+      const statusDiv = document.getElementById('ad-save-status');
+      removeBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/advertisement/remove', { method: 'POST' });
+        const data = await res.json();
+        if (data.ok) {
+          pendingAdBase64 = null;
+          await loadAdvertisement();
+          if (statusDiv) {
+            statusDiv.textContent = '🗑️ Offer Banner taken down successfully.';
+            statusDiv.style.color = '#dc2626';
+          }
+          alert('✅ Offer Banner removed! Popup has been taken down from Customer App.');
+        } else {
+          alert('❌ Failed to remove: ' + (data.error || 'Unknown error'));
+        }
+      } catch(err) {
+        alert('❌ Error: ' + err.message);
+      } finally {
+        removeBtn.disabled = false;
       }
     }
 

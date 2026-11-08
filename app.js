@@ -12304,6 +12304,72 @@ function PrivacyPolicyModal({
     className: "py-2.5 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
   }, tr(language, 'Close', 'Band Karein', 'بند کریں')))));
 }
+function OfferBannerModal({
+  isOpen,
+  onClose,
+  adData,
+  language
+}) {
+  if (!isOpen || !adData || !adData.imageUrl) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-[999999] flex items-center justify-center p-4 select-none animate-fade-in",
+    style: {
+      background: 'rgba(15, 23, 42, 0.78)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)'
+    },
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative w-full max-w-sm rounded-[28px] overflow-hidden shadow-2xl p-5 text-center transition-transform animate-modal-spring",
+    style: {
+      background: 'linear-gradient(155deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.90) 100%)',
+      border: '1.5px solid rgba(255, 255, 255, 0.85)',
+      boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.3) inset'
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onClose,
+    "aria-label": "Close offer banner",
+    className: "absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-base shadow-xl cursor-pointer transition-transform active:scale-95 hover:scale-105",
+    style: {
+      background: 'rgba(15, 23, 42, 0.88)',
+      border: '2px solid rgba(255, 255, 255, 0.75)',
+      zIndex: 30,
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.35)'
+    }
+  }, "\u2715"), /*#__PURE__*/React.createElement("div", {
+    className: "pt-2 pb-1 px-4"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "text-base sm:text-lg font-black tracking-wider uppercase inline-block",
+    style: {
+      background: 'linear-gradient(135deg, #d97706 0%, #dc2626 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      letterSpacing: '0.5px'
+    }
+  }, adData.title || '🔥 AAJ KI SPECIAL OFFER 🔥')), /*#__PURE__*/React.createElement("div", {
+    className: "my-2.5 rounded-2xl overflow-hidden shadow-lg border border-slate-200/80 bg-slate-100 flex items-center justify-center"
+  }, /*#__PURE__*/React.createElement("img", {
+    src: adData.imageUrl,
+    alt: "Today's Special Offer",
+    className: "w-full max-h-[300px] object-cover",
+    onError: e => {
+      e.currentTarget.onerror = null;
+      e.currentTarget.src = 'icon-192.png';
+    }
+  })), adData.text ? /*#__PURE__*/React.createElement("p", {
+    className: "text-slate-700 font-semibold text-xs sm:text-sm leading-relaxed mb-3.5 px-2"
+  }, adData.text) : null, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onClose,
+    className: "w-full py-2.5 px-4 rounded-xl font-extrabold text-xs sm:text-sm text-slate-900 shadow-md cursor-pointer transition-transform active:scale-98",
+    style: {
+      background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%)',
+      boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)'
+    }
+  }, "\uD83D\uDED2 Shop Now & Continue")));
+}
 function WelcomeDisclaimerModal({
   isOpen,
   onClose,
@@ -14620,6 +14686,8 @@ function ZSMart() {
   const [privacyPolicyOpen, setPrivacyPolicyOpen] = useState(false);
   const [language, setLanguage] = useState("en");
   const [welcomeOpen, setWelcomeOpen] = useState(false);
+  const [offerAdOpen, setOfferAdOpen] = useState(false);
+  const [activeOfferAd, setActiveOfferAd] = useState(null);
   const [showSplash, setShowSplash] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -14811,6 +14879,36 @@ function ZSMart() {
       }
     })();
   }, []);
+
+  // ══════════ ADVERTISEMENT / DAILY OFFER BANNER POPUP ENGINE ══════════
+  useEffect(() => {
+    if (!appSettings || !appSettings.announcement) return;
+    try {
+      const ann = String(appSettings.announcement).trim();
+      if (ann && ann.startsWith('{')) {
+        const parsed = JSON.parse(ann);
+        const isLive = Boolean(parsed && parsed.active && parsed.imageUrl && (!parsed.expiresAt || Date.now() < parsed.expiresAt));
+        if (isLive) {
+          setActiveOfferAd(parsed);
+          const dismissedKey = 'zs_ad_closed_' + (parsed.updatedAt || parsed.expiresAt);
+          let wasDismissed = false;
+          try {
+            wasDismissed = sessionStorage.getItem(dismissedKey) === '1';
+          } catch (e) {}
+          if (!wasDismissed) {
+            const timer = setTimeout(() => {
+              setOfferAdOpen(true);
+            }, showSplash ? 2800 : 400);
+            return () => clearTimeout(timer);
+          }
+        } else {
+          setOfferAdOpen(false);
+        }
+      } else {
+        setOfferAdOpen(false);
+      }
+    } catch (e) {}
+  }, [appSettings, showSplash]);
 
   // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync via Supabase) ══════════
   const isFetchingProductsRef = useRef(false);
@@ -18724,6 +18822,17 @@ function ZSMart() {
   }), aboutOpen && /*#__PURE__*/React.createElement(AboutUsModal, {
     isOpen: true,
     onClose: () => setAboutOpen(false),
+    language: language
+  }), !showSplash && offerAdOpen && activeOfferAd && /*#__PURE__*/React.createElement(OfferBannerModal, {
+    isOpen: true,
+    adData: activeOfferAd,
+    onClose: () => {
+      setOfferAdOpen(false);
+      try {
+        const dismissedKey = 'zs_ad_closed_' + (activeOfferAd.updatedAt || activeOfferAd.expiresAt);
+        sessionStorage.setItem(dismissedKey, '1');
+      } catch (e) {}
+    },
     language: language
   }), !showSplash && welcomeOpen && /*#__PURE__*/React.createElement(WelcomeDisclaimerModal, {
     isOpen: true,

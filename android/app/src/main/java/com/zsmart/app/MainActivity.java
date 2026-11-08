@@ -47,6 +47,15 @@ public class MainActivity extends BridgeActivity {
             }
         }
 
+        // Keep Status Bar icons crisp WHITE on dark navy app background
+        WindowInsetsControllerCompat initInsetsController = WindowCompat.getInsetsController(window, window.getDecorView());
+        if (initInsetsController != null) {
+            initInsetsController.setAppearanceLightStatusBars(false); // false = WHITE icons (time, battery, wifi)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                initInsetsController.setAppearanceLightNavigationBars(false);
+            }
+        }
+
         // Apply native Status Bar & Navigation Bar insets padding to the root view so WebView, Cart, and Menu NEVER overlap
         // Fix for Android 15 (API 35) Edge-to-Edge: system navigation bar (3-button or gesture pill) no longer overlaps bottom tabs or checkout
         View rootView = findViewById(android.R.id.content);
@@ -95,12 +104,13 @@ public class MainActivity extends BridgeActivity {
                     runOnUiThread(() -> {
                         WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, window.getDecorView());
                         if (insetsController != null) {
-                            insetsController.setAppearanceLightStatusBars(light);
+                            // false = WHITE icons (battery, clock, wifi) so they are always 100% visible on dark status bar
+                            insetsController.setAppearanceLightStatusBars(false);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                insetsController.setAppearanceLightNavigationBars(light);
+                                insetsController.setAppearanceLightNavigationBars(false);
                             }
                         }
-                        int targetColor = light ? Color.WHITE : Color.parseColor("#030712");
+                        int targetColor = Color.parseColor("#030712");
                         window.setStatusBarColor(targetColor);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             window.setNavigationBarColor(targetColor);

@@ -14,7 +14,7 @@ var DEFAULT_STORE_SETTINGS = {
   deliveryFee: 99,
   freeDeliveryThreshold: 1999,
   minOrderAmount: 0,
-  deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)",
+  deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM",
   whatsapp: "923391965200",
   announcement: ""
 };
@@ -156,6 +156,22 @@ function getTranslationValue(dictionary, key) {
       const timePart = `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
       const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
       return prefix ? `${prefix}-${datePart}-${timePart}-${randomSuffix}` : `${datePart}-${timePart}-${randomSuffix}`;
+    }
+
+    // 🏷️ Human-Friendly Compact Order ID (e.g. "P-7759", "ORD-7759", or "DW-7759")
+    function formatDisplayOrderId(orderId) {
+      if (!orderId) return '';
+      const s = String(orderId).trim();
+      const parts = s.split('-');
+      if (parts.length >= 3) {
+        const prefix = parts[0];
+        const suffix = parts[parts.length - 1];
+        return `${prefix}-${suffix}`;
+      }
+      if (s.length > 12) {
+        return s.slice(0, 4) + '...' + s.slice(-4);
+      }
+      return s;
     }
 
     // 🕒 Bulletproof Timestamp Extractor for Order Tracking (Supports numeric epoch, ISO, date+time, & prefixed IDs)
@@ -6425,7 +6441,7 @@ export default function ZSMart() {
         return {
           deliveryFee: 99,
           freeDeliveryThreshold: 1999,
-          deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)",
+          deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM",
           whatsapp: "923391965200",
           announcement: ""
         };
@@ -6436,7 +6452,7 @@ export default function ZSMart() {
         const s = {
           deliveryFee: Number(raw.delivery_fee ?? raw.deliveryFee ?? 99),
           freeDeliveryThreshold: Number(raw.free_delivery_threshold ?? raw.freeDeliveryThreshold ?? 1999),
-          deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)'),
+          deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 11:00 AM – 10:00 PM'),
           whatsapp: String(raw.whatsapp || '923391965200'),
           announcement: String(raw.announcement ?? '')
         };
@@ -7579,7 +7595,7 @@ export default function ZSMart() {
         const removeTimer = setTimeout(() => {
           setShowSplash(false);
           if (window.AndroidBridge && typeof window.AndroidBridge.setStatusBarLight === 'function') {
-            try { window.AndroidBridge.setStatusBarLight(true); } catch(e) {}
+            try { window.AndroidBridge.setStatusBarLight(false); } catch(e) {}
           }
         }, 2600);
         return () => {
@@ -7890,18 +7906,14 @@ export default function ZSMart() {
                 <div className="max-w-7xl mx-auto flex items-center justify-center text-center">
                   <span style={{ color: '#f59e0b', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                     <span>⏰</span>
-                    <span>{getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)', 'Delivery Timing: 11:00 AM – 10:00 PM (59 Min Delivery)', 'ڈیلیوری کے اوقات: صبح 11:00 تا رات 10:00 (59 منٹ میں ڈیلیوری)')}</span>
+                    <span>{(() => {
+                      const t = getStoreSettings().deliveryTiming || '';
+                      const cleanTiming = t.replace(/\s*\([^)]*\)/g, '').trim();
+                      return cleanTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM', 'Delivery Timing: 11:00 AM – 10:00 PM', 'ڈیلیوری کے اوقات: صبح 11:00 تا رات 10:00');
+                    })()}</span>
                   </span>
                 </div>
               </div>
-
-              {/* ━━━ STORE ANNOUNCEMENT STRIP (If set by Admin) ━━━ */}
-              {Boolean(getStoreSettings().announcement) && (
-                <div style={{ background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)', color: '#09131e', fontSize: '11.5px', fontWeight: 800, padding: '5px 12px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', borderBottom: '1px solid rgba(0,0,0,0.15)', letterSpacing: '0.01em' }}>
-                  <span>📢</span>
-                  <span>{getStoreSettings().announcement}</span>
-                </div>
-              )}
 
               {/* ━━━ PREMIUM MAIN HEADER (Unified 1-Row Header with Animated Expandable Search) ━━━ */}
               <header className="sticky top-0 z-30 shadow-md" style={{ background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)', borderBottom: '1px solid rgba(16,185,129,0.22)', boxShadow: '0 4px 24px rgba(0,0,0,0.35)' }}>
@@ -9091,7 +9103,11 @@ export default function ZSMart() {
               <footer className="border-t mt-10 py-8 text-center" style={{ borderColor: 'rgba(0,0,0,0.12)' }}>
                 <div className="mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs">
                   <span className="text-amber-600">⏰</span>
-                  <span>{getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)', 'Delivery Timing: Subah 11:00 AM se Raat 10:00 PM tak (59 Min Delivery)', 'ڈیلیوری ٹائمنگ: صبح 11:00 بجے سے رات 10:00 بجے تک (59 منٹ میں ڈیلیوری)')}</span>
+                  <span>{(() => {
+                    const t = getStoreSettings().deliveryTiming || '';
+                    const cleanTiming = t.replace(/\s*\([^)]*\)/g, '').trim();
+                    return cleanTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM', 'Delivery Timing: Subah 11:00 AM se Raat 10:00 PM tak', 'ڈیلیوری ٹائمنگ: صبح 11:00 بجے سے رات 10:00 بجے تک');
+                  })()}</span>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2 mb-3 px-3">
                   <button
@@ -9283,19 +9299,38 @@ export default function ZSMart() {
                 />
               )}
               {/* Mobile Navigation Drawer (3-Line Menu) */}
-              {mobileMenuOpen && (
+              <div
+                className="fixed inset-0 z-50 flex justify-end sm:hidden"
+                style={{
+                  pointerEvents: mobileMenuOpen ? 'auto' : 'none',
+                  zIndex: 9999
+                }}
+              >
+                {/* Backdrop Click to Close */}
                 <div
-                  className="fixed inset-0 z-50 flex justify-end sm:hidden animate-fade-in"
-                  style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.65)',
+                    backdropFilter: 'blur(5px)',
+                    WebkitBackdropFilter: 'blur(5px)',
+                    opacity: mobileMenuOpen ? 1 : 0,
+                    transition: 'opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1)'
+                  }}
+                  onClick={() => setMobileMenuOpen(false)}
+                />
+                {/* Drawer Panel */}
+                <div
+                  className="relative w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col justify-between p-5 overflow-y-auto"
+                  style={{
+                    zIndex: 60,
+                    borderLeft: '1px solid rgba(0,0,0,0.1)',
+                    transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
+                    transition: 'transform 0.32s cubic-bezier(0.16, 1, 0.3, 1)',
+                    willChange: 'transform'
+                  }}
+                  onClick={e => e.stopPropagation()}
                 >
-                  {/* Backdrop Click to Close */}
-                  <div className="absolute inset-0" onClick={() => setMobileMenuOpen(false)}></div>
-                  {/* Drawer Panel */}
-                  <div
-                    className="relative w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col justify-between p-5 overflow-y-auto animate-scale-in"
-                    style={{ zIndex: 60, borderLeft: '1px solid rgba(0,0,0,0.1)' }}
-                    onClick={e => e.stopPropagation()}
-                  >
                     <div>
                       {/* Drawer Header */}
                       <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-5">
@@ -9535,7 +9570,6 @@ export default function ZSMart() {
                     </div>
                   </div>
                 </div>
-              )}
 
               {/* Exit Confirmation Modal */}
               {exitModalOpen && (
@@ -10839,7 +10873,7 @@ export default function ZSMart() {
         return (
           <div style={{ position: 'fixed', inset: 0, zIndex: 80, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflowY: 'auto' }} className="animate-fade-in">
             {/* Detail Top Bar */}
-            <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '0 16px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexShrink: 0, position: 'sticky', top: 0, zIndex: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexShrink: 0, position: 'sticky', top: 0, zIndex: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                 <button
                   type="button"
@@ -10850,27 +10884,67 @@ export default function ZSMart() {
                   <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
                 </button>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 900, fontSize: 15, color: '#0f172a', letterSpacing: '0.02em' }}>Order #{order.id}</div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>{order.dateText} · {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</div>
+                  <div style={{ fontWeight: 900, fontSize: 15, color: '#0f172a', lineHeight: 1.2 }}>{tr(language, 'Order Details', 'Order ki Tafseelat', 'آرڈر کی تفصیلات')}</div>
+                  <div style={{ fontSize: 11, color: '#2563eb', fontWeight: 800 }}>#{formatDisplayOrderId(order.id)}</div>
                 </div>
               </div>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                 <a
-                  href={buildWhatsAppUrl(getStoreSettings().whatsapp, "Hello ZS Mart, I have a question regarding Order #" + order.id)}
+                  href={buildWhatsAppUrl(getStoreSettings().whatsapp, "Assalam U Alaikum ZS Mart, I have a question regarding Order #" + order.id)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ height: 34, padding: '0 10px', borderRadius: 10, background: '#25d366', display: 'flex', alignItems: 'center', gap: 5, color: '#ffffff', fontSize: 11.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 2px 6px rgba(37,211,102,0.3)' }}
+                  style={{ height: 34, padding: '0 11px', borderRadius: 10, background: '#25d366', display: 'flex', alignItems: 'center', gap: 5, color: '#ffffff', fontSize: 11.5, fontWeight: 800, textDecoration: 'none', boxShadow: '0 2px 6px rgba(37,211,102,0.3)' }}
                 >
                   <svg style={{ width: 14, height: 14 }} viewBox="0 0 24 24" fill="#ffffff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                   <span>WhatsApp</span>
                 </a>
-                <div style={{ fontSize: 16, fontWeight: 900, color: '#059669' }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
               </div>
             </div>
 
             {/* Detail Body */}
-            <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 640, width: '100%', margin: '0 auto' }}>
+            <div style={{ flex: 1, padding: 14, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 640, width: '100%', margin: '0 auto' }}>
+              
+              {/* Clean Order Overview Card */}
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '14px 16px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '4px 10px' }}>
+                    <span style={{ fontSize: 11, fontWeight: 900, color: '#1d4ed8', textTransform: 'uppercase' }}>Order</span>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#1e40af' }}>#{formatDisplayOrderId(order.id)}</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Total Bill</div>
+                    <div style={{ fontSize: 17, fontWeight: 900, color: '#059669', lineHeight: 1.1 }}>Rs {Number(order.grandTotal || 0).toLocaleString()}</div>
+                  </div>
+                </div>
+
+                {/* Full Database Ref with One-Click Copy */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: 10, padding: '6px 10px', fontSize: 11, gap: 8 }}>
+                  <div style={{ color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span style={{ fontWeight: 700, color: '#475569' }}>Ref ID:</span>
+                    <span style={{ fontFamily: 'monospace', color: '#0f172a', fontWeight: 600 }}>{order.id}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        navigator.clipboard.writeText(order.id);
+                        alert(tr(language, 'Order Ref # copied to clipboard!', 'Order Ref # copy ho gaya!', 'آرڈر ریفرنس کاپی ہو گیا!'));
+                      } catch(e) {}
+                    }}
+                    style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: 6, padding: '3px 8px', fontSize: 10, fontWeight: 800, color: '#2563eb', cursor: 'pointer', flexShrink: 0 }}
+                  >
+                    📋 Copy
+                  </button>
+                </div>
+
+                {/* Date & Item Count */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11.5, color: '#64748b', paddingTop: 2 }}>
+                  <span>📅 {order.dateText || `${order.date} ${order.time}`}</span>
+                  <span>•</span>
+                  <span>📦 {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</span>
+                </div>
+              </div>
               
               {/* Visual 4-Step Order Status Tracker (Real Status Driven) */}
               {(() => {
@@ -11039,12 +11113,16 @@ export default function ZSMart() {
                 </div>
                 
                 {order.items && order.items.map((item, i) => {
-                  const imgSrc = getProductImgSrc(item) || (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
+                  const isParchi = item.isParchi || String(item.id || '').includes('parchi') || String(item.name || '').includes('Parchi');
+                  const isVoice = item.isVoice || String(item.id || '').includes('voice') || String(item.name || '').includes('Voice');
+                  const imgSrc = item.photoUrl || getProductImgSrc(item) || (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
                   return (
                     <div
                       key={i}
                       onClick={() => {
-                        if (onSelectProduct) {
+                        if (isParchi && (item.photoUrl || order.photoUrl)) {
+                          window.open(item.photoUrl || order.photoUrl, '_blank');
+                        } else if (!isParchi && !isVoice && onSelectProduct) {
                           onSelectProduct(item);
                         }
                       }}
@@ -11054,22 +11132,32 @@ export default function ZSMart() {
                         gap: 12,
                         padding: '12px 16px',
                         borderBottom: i < order.items.length - 1 ? '1px solid #f8fafc' : 'none',
-                        cursor: 'pointer',
+                        cursor: (!isParchi && !isVoice) || item.photoUrl ? 'pointer' : 'default',
                         transition: 'background 0.15s ease'
                       }}
                       className="hover:bg-blue-50/50 active:bg-blue-50"
-                      title="Click to view product details"
+                      title={isParchi ? 'Parchi Slip Order' : 'Click to view product details'}
                     >
                       {/* Item Thumbnail */}
                       <div style={{ width: 44, height: 44, borderRadius: 10, background: '#ffffff', border: '1px solid #e2e8f0', padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative' }}>
                         {imgSrc ? (
                           <img src={imgSrc} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 8 }} />
+                        ) : isParchi ? (
+                          <div style={{ width: '100%', height: '100%', borderRadius: 8, background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                            📸
+                          </div>
+                        ) : isVoice ? (
+                          <div style={{ width: '100%', height: '100%', borderRadius: 8, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                            🎙️
+                          </div>
                         ) : (
                           <div style={{ width: '100%', height: '100%', borderRadius: 8, background: 'linear-gradient(135deg, #e0f2fe, #bae6fd)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#0284c7' }}>
-                            {item.initial || (item.name && item.name[0]) || 'S'}
+                            {(item.name && item.name.replace(/[^a-zA-Z0-9]/g, '')[0]) || 'S'}
                           </div>
                         )}
-                        <span style={{ position: 'absolute', bottom: -2, right: -2, background: '#2563eb', color: '#ffffff', borderRadius: 4, padding: '1px 3px', fontSize: '8px', fontWeight: 800 }}>🔍</span>
+                        {!isParchi && !isVoice && (
+                          <span style={{ position: 'absolute', bottom: -2, right: -2, background: '#2563eb', color: '#ffffff', borderRadius: 4, padding: '1px 3px', fontSize: '8px', fontWeight: 800 }}>🔍</span>
+                        )}
                       </div>
 
                       {/* Item Details */}
@@ -11256,6 +11344,13 @@ export default function ZSMart() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 640, margin: '0 auto' }}>
                 {orders.map((order, idx) => {
                   const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
+                  const displayId = formatDisplayOrderId(order.id);
+                  const normStatus = String(order.status || 'placed').toLowerCase();
+                  const isCanc = ['cancelled', 'rejected'].includes(normStatus);
+                  const isDeliv = ['delivered', 'completed'].includes(normStatus);
+                  const isOnWay = ['dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery'].includes(normStatus);
+                  const isConf = ['confirmed', 'accepted', 'processing', 'packed'].includes(normStatus);
+
                   return (
                     <div
                       key={order.id}
@@ -11266,71 +11361,91 @@ export default function ZSMart() {
                         borderRadius: 16,
                         padding: '14px 16px',
                         cursor: 'pointer',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                        transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 10
                       }}
-                      className="hover:shadow-md hover:border-blue-300 active:scale-[0.99]"
+                      className="hover:shadow-md hover:border-blue-300 active:scale-[0.99] transition-all"
                     >
-                      {/* Top Row: #, ID, Delivery Badge, Price */}
+                      {/* Top Row: #, Short ID, Price */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ width: 28, height: 28, borderRadius: 8, background: '#f1f5f9', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900 }}>
+                          <span style={{ width: 26, height: 26, borderRadius: 8, background: '#f1f5f9', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900 }}>
                             #{orders.length - idx}
                           </span>
-                          <span style={{ fontSize: 13.5, fontWeight: 900, color: '#0f172a' }}>Order #{order.id}</span>
-                          <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#ecfdf5', color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669', border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0' }}>
-                            {order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Delivery'}
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#0f172a' }}>
+                            Order #{displayId}
                           </span>
-                          {(() => {
-                            const nSt = String(order.status || 'placed').toLowerCase();
-                            const isDeliv = ['delivered', 'completed'].includes(nSt);
-                            const isOnWay = ['dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery'].includes(nSt);
-                            const isConf = ['confirmed', 'accepted', 'processing', 'packed'].includes(nSt);
-                            const isCanc = ['cancelled', 'rejected'].includes(nSt);
-                            if (isCanc) return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }}>● Cancelled</span>;
-                            if (isDeliv) return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0' }}>● Delivered</span>;
-                            if (isOnWay) return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>● On Way</span>;
-                            if (isConf) return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#f0fdf4', color: '#0d9488', border: '1px solid #bbf7d0' }}>● Confirmed</span>;
-                            return <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }}>● Placed</span>;
-                          })()}
                         </div>
-                        <div style={{ fontSize: 15, fontWeight: 900, color: '#059669' }}>
+                        <div style={{ fontSize: 15, fontWeight: 900, color: '#059669', whiteSpace: 'nowrap' }}>
                           Rs {Number(order.grandTotal || 0).toLocaleString()}
                         </div>
                       </div>
 
-                      {/* Date & Total Items */}
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span>📅 {order.dateText}</span>
+                      {/* Badges Row: Method & Status */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <span style={{ padding: '3px 9px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#ecfdf5', color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669', border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0' }}>
+                          {order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Home Delivery'}
+                        </span>
+                        {isCanc ? (
+                          <span style={{ padding: '3px 9px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca' }}>● Cancelled</span>
+                        ) : isDeliv ? (
+                          <span style={{ padding: '3px 9px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0' }}>● Delivered</span>
+                        ) : isOnWay ? (
+                          <span style={{ padding: '3px 9px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>● On The Way</span>
+                        ) : isConf ? (
+                          <span style={{ padding: '3px 9px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, background: '#f0fdf4', color: '#0d9488', border: '1px solid #bbf7d0' }}>● Confirmed</span>
+                        ) : (
+                          <span style={{ padding: '3px 9px', borderRadius: 8, fontSize: 10.5, fontWeight: 800, background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1' }}>● Placed</span>
+                        )}
+                      </div>
+
+                      {/* Date & Items */}
+                      <div style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>📅 {order.dateText || `${order.date} ${order.time}`}</span>
                         <span>•</span>
                         <span>📦 {totalItemsCount} {totalItemsCount === 1 ? 'item' : 'items'}</span>
                       </div>
 
-                      {/* Small Thumbnail Icons of items (Clicking open order detail) */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, overflowX: 'auto', paddingBottom: 2 }}>
-                        {order.items && order.items.slice(0, 5).map((it, itemIdx) => {
-                          const imgSrc = getProductImgSrc(it) || (it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null);
-                          return (
-                            <div
-                              key={itemIdx}
-                              style={{ width: 32, height: 32, borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0', padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-                              title={it.name}
-                            >
-                              {imgSrc ? (
-                                <img src={imgSrc} alt={it.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 6 }} />
-                              ) : (
-                                <span style={{ fontSize: 10, fontWeight: 800, color: '#64748b' }}>{it.initial || it.name?.[0] || 'S'}</span>
-                              )}
+                      {/* Thumbnails & View Details Footer */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6, borderTop: '1px solid #f8fafc' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto' }}>
+                          {order.items && order.items.slice(0, 4).map((it, itemIdx) => {
+                            const isParchi = it.isParchi || String(it.id || '').includes('parchi') || String(it.name || '').includes('Parchi');
+                            const isVoice = it.isVoice || String(it.id || '').includes('voice') || String(it.name || '').includes('Voice');
+                            const imgSrc = it.photoUrl || getProductImgSrc(it) || (it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null);
+
+                            return (
+                              <div
+                                key={itemIdx}
+                                style={{ width: 34, height: 34, borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0', padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                                title={it.name}
+                              >
+                                {imgSrc ? (
+                                  <img src={imgSrc} alt={it.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 6 }} />
+                                ) : isParchi ? (
+                                  <span style={{ fontSize: 16 }}>📸</span>
+                                ) : isVoice ? (
+                                  <span style={{ fontSize: 16 }}>🎙️</span>
+                                ) : (
+                                  <span style={{ fontSize: 11, fontWeight: 900, color: '#2563eb' }}>
+                                    {(it.name && it.name.replace(/[^a-zA-Z0-9]/g, '')[0]) || 'S'}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                          {order.items && order.items.length > 4 && (
+                            <div style={{ width: 34, height: 34, borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#64748b', flexShrink: 0 }}>
+                              +{order.items.length - 4}
                             </div>
-                          );
-                        })}
-                        {order.items && order.items.length > 5 && (
-                          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#64748b', flexShrink: 0 }}>
-                            +{order.items.length - 5}
-                          </div>
-                        )}
-                        <span style={{ fontSize: 11, color: '#2563eb', fontWeight: 700, marginLeft: 'auto', flexShrink: 0 }}>
-                          View Details →
+                          )}
+                        </div>
+
+                        <span style={{ fontSize: 11.5, color: '#2563eb', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          <span>View Details</span>
+                          <span>→</span>
                         </span>
                       </div>
                     </div>
@@ -11599,9 +11714,16 @@ export default function ZSMart() {
                   <p style={{ fontSize: 12, color: '#166534', fontWeight: 700, margin: '4px 0 0' }}>
                     {tr(language, 'Your order receipt is saved below and sent to WhatsApp.', 'Apka order hamare system mein save ho chuka hai aur WhatsApp par bhej diya gaya hai.', '\u0622\u067e \u06a9\u0627 \u0622\u0631\u0688\u0631 \u06c1\u0645\u0627\u0631\u06d2 \u0633\u0633\u067c\u0645 \u0645\u06cc\u06ba \u0645\u062d\u0641\u0648\u0638 \u06c1\u0648 \u0686\u06a9\u0627 \u06c1\u06d2')}
                   </p>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ffffff', border: '1px solid #86efac', borderRadius: 10, padding: '4px 12px', marginTop: 10, fontSize: 12, fontWeight: 900, color: '#166534' }}>
-                    <span>{tr(language, 'Order Ref #:', 'Order Ref #:', 'آرڈر ریفرنس نمبر:')}</span>
-                    <span style={{ color: '#111827' }}>#{placedOrder.id}</span>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ffffff', border: '1px solid #86efac', borderRadius: 10, padding: '4px 12px', marginTop: 10, fontSize: 13, fontWeight: 900, color: '#166534' }}>
+                    <span>{tr(language, 'Order #:', 'Order #:', 'آرڈر نمبر:')}</span>
+                    <span style={{ color: '#111827' }}>#{formatDisplayOrderId(placedOrder.id)}</span>
+                  </div>
+                  <div style={{ fontSize: 10, color: '#475569', marginTop: 4, fontFamily: 'monospace' }}>
+                    <span>Ref: {placedOrder.id}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, background: '#ecfdf5', border: '1.5px solid #86efac', borderRadius: 12, padding: '8px 14px', marginTop: 10, fontSize: 12.5, fontWeight: 900, color: '#15803d', boxShadow: '0 2px 8px rgba(22,163,74,0.12)' }}>
+                    <span style={{ fontSize: 16 }}>⚡</span>
+                    <span>{placedOrder.deliveryMethod === 'pickup' ? tr(language, 'Ready for Store Pickup in 20 Mins!', '20 Mins mein Dukan se Pickup ke liye Tayyar!', '20 منٹ میں دکان سے پک اپ کے لیے تیار!') : tr(language, 'Order will be delivered within 59 Minutes!', 'Aapka Order 59 Minutes ke andar deliver ho jayega!', 'آپ کا آرڈر 59 منٹ کے اندر ڈیلیور ہو جائے گا!')}</span>
                   </div>
                 </div>
                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 18, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>

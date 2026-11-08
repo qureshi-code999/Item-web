@@ -24,7 +24,7 @@ var DEFAULT_STORE_SETTINGS = {
   deliveryFee: 99,
   freeDeliveryThreshold: 1999,
   minOrderAmount: 0,
-  deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)",
+  deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM",
   whatsapp: "923391965200",
   announcement: ""
 };
@@ -160,6 +160,22 @@ function generateUniqueOrderId(prefix = '') {
   const timePart = `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
   const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
   return prefix ? `${prefix}-${datePart}-${timePart}-${randomSuffix}` : `${datePart}-${timePart}-${randomSuffix}`;
+}
+
+// 🏷️ Human-Friendly Compact Order ID (e.g. "P-7759", "ORD-7759", or "DW-7759")
+function formatDisplayOrderId(orderId) {
+  if (!orderId) return '';
+  const s = String(orderId).trim();
+  const parts = s.split('-');
+  if (parts.length >= 3) {
+    const prefix = parts[0];
+    const suffix = parts[parts.length - 1];
+    return `${prefix}-${suffix}`;
+  }
+  if (s.length > 12) {
+    return s.slice(0, 4) + '...' + s.slice(-4);
+  }
+  return s;
 }
 
 // 🕒 Bulletproof Timestamp Extractor for Order Tracking (Supports numeric epoch, ISO, date+time, & prefixed IDs)
@@ -14801,7 +14817,7 @@ function ZSMart() {
     return {
       deliveryFee: 99,
       freeDeliveryThreshold: 1999,
-      deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)",
+      deliveryTiming: "Delivery Timing: 11:00 AM – 10:00 PM",
       whatsapp: "923391965200",
       announcement: ""
     };
@@ -14811,7 +14827,7 @@ function ZSMart() {
     const s = {
       deliveryFee: Number(raw.delivery_fee ?? raw.deliveryFee ?? 99),
       freeDeliveryThreshold: Number(raw.free_delivery_threshold ?? raw.freeDeliveryThreshold ?? 1999),
-      deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)'),
+      deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 11:00 AM – 10:00 PM'),
       whatsapp: String(raw.whatsapp || '923391965200'),
       announcement: String(raw.announcement ?? '')
     };
@@ -16000,7 +16016,7 @@ function ZSMart() {
       setShowSplash(false);
       if (window.AndroidBridge && typeof window.AndroidBridge.setStatusBarLight === 'function') {
         try {
-          window.AndroidBridge.setStatusBarLight(true);
+          window.AndroidBridge.setStatusBarLight(false);
         } catch (e) {}
       }
     }, 2600);
@@ -16325,22 +16341,11 @@ function ZSMart() {
       alignItems: 'center',
       gap: 6
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)', 'Delivery Timing: 11:00 AM – 10:00 PM (59 Min Delivery)', 'ڈیلیوری کے اوقات: صبح 11:00 تا رات 10:00 (59 منٹ میں ڈیلیوری)'))))), Boolean(getStoreSettings().announcement) && /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)',
-      color: '#09131e',
-      fontSize: '11.5px',
-      fontWeight: 800,
-      padding: '5px 12px',
-      textAlign: 'center',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '6px',
-      borderBottom: '1px solid rgba(0,0,0,0.15)',
-      letterSpacing: '0.01em'
-    }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE2"), /*#__PURE__*/React.createElement("span", null, getStoreSettings().announcement)), /*#__PURE__*/React.createElement("header", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, (() => {
+    const t = getStoreSettings().deliveryTiming || '';
+    const cleanTiming = t.replace(/\s*\([^)]*\)/g, '').trim();
+    return cleanTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM', 'Delivery Timing: 11:00 AM – 10:00 PM', 'ڈیلیوری کے اوقات: صبح 11:00 تا رات 10:00');
+  })())))), /*#__PURE__*/React.createElement("header", {
     className: "sticky top-0 z-30 shadow-md",
     style: {
       background: 'linear-gradient(135deg, #09131e 0%, #0d1a2d 50%, #08111c 100%)',
@@ -18708,7 +18713,11 @@ function ZSMart() {
     className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-amber-600"
-  }, "\u23F0"), /*#__PURE__*/React.createElement("span", null, getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)', 'Delivery Timing: Subah 11:00 AM se Raat 10:00 PM tak (59 Min Delivery)', 'ڈیلیوری ٹائمنگ: صبح 11:00 بجے سے رات 10:00 بجے تک (59 منٹ میں ڈیلیوری)'))), /*#__PURE__*/React.createElement("div", {
+  }, "\u23F0"), /*#__PURE__*/React.createElement("span", null, (() => {
+    const t = getStoreSettings().deliveryTiming || '';
+    const cleanTiming = t.replace(/\s*\([^)]*\)/g, '').trim();
+    return cleanTiming || tr(language, 'Delivery Timing: 11:00 AM – 10:00 PM', 'Delivery Timing: Subah 11:00 AM se Raat 10:00 PM tak', 'ڈیلیوری ٹائمنگ: صبح 11:00 بجے سے رات 10:00 بجے تک');
+  })())), /*#__PURE__*/React.createElement("div", {
     className: "flex flex-wrap items-center justify-center gap-2 mb-3 px-3"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setAboutOpen(true),
@@ -18885,21 +18894,31 @@ function ZSMart() {
       setCheckoutOpen(false);
       setCartOpen(true);
     }
-  }), mobileMenuOpen && /*#__PURE__*/React.createElement("div", {
-    className: "fixed inset-0 z-50 flex justify-end sm:hidden animate-fade-in",
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex justify-end sm:hidden",
     style: {
-      background: 'rgba(0,0,0,0.6)',
-      backdropFilter: 'blur(4px)',
-      WebkitBackdropFilter: 'blur(4px)'
+      pointerEvents: mobileMenuOpen ? 'auto' : 'none',
+      zIndex: 9999
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "absolute inset-0",
+    style: {
+      position: 'absolute',
+      inset: 0,
+      background: 'rgba(0,0,0,0.65)',
+      backdropFilter: 'blur(5px)',
+      WebkitBackdropFilter: 'blur(5px)',
+      opacity: mobileMenuOpen ? 1 : 0,
+      transition: 'opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1)'
+    },
     onClick: () => setMobileMenuOpen(false)
   }), /*#__PURE__*/React.createElement("div", {
-    className: "relative w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col justify-between p-5 overflow-y-auto animate-scale-in",
+    className: "relative w-[85%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col justify-between p-5 overflow-y-auto",
     style: {
       zIndex: 60,
-      borderLeft: '1px solid rgba(0,0,0,0.1)'
+      borderLeft: '1px solid rgba(0,0,0,0.1)',
+      transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
+      transition: 'transform 0.32s cubic-bezier(0.16, 1, 0.3, 1)',
+      willChange: 'transform'
     },
     onClick: e => e.stopPropagation()
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -21993,12 +22012,11 @@ function OrderHistoryModal({
       style: {
         background: '#ffffff',
         borderBottom: '1px solid #e2e8f0',
-        padding: '0 16px',
-        height: 60,
+        padding: '10px 16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 12,
+        gap: 10,
         flexShrink: 0,
         position: 'sticky',
         top: 0,
@@ -22051,27 +22069,28 @@ function OrderHistoryModal({
         fontWeight: 900,
         fontSize: 15,
         color: '#0f172a',
-        letterSpacing: '0.02em'
+        lineHeight: 1.2
       }
-    }, "Order #", order.id), /*#__PURE__*/React.createElement("div", {
+    }, tr(language, 'Order Details', 'Order ki Tafseelat', 'آرڈر کی تفصیلات')), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
-        color: '#64748b',
-        marginTop: 1
+        color: '#2563eb',
+        fontWeight: 800
       }
-    }, order.dateText, " \xB7 ", totalItemsCount, " ", totalItemsCount === 1 ? 'item' : 'items'))), /*#__PURE__*/React.createElement("div", {
+    }, "#", formatDisplayOrderId(order.id)))), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
-        gap: 8
+        gap: 8,
+        flexShrink: 0
       }
     }, /*#__PURE__*/React.createElement("a", {
-      href: buildWhatsAppUrl(getStoreSettings().whatsapp, "Hello ZS Mart, I have a question regarding Order #" + order.id),
+      href: buildWhatsAppUrl(getStoreSettings().whatsapp, "Assalam U Alaikum ZS Mart, I have a question regarding Order #" + order.id),
       target: "_blank",
       rel: "noopener noreferrer",
       style: {
         height: 34,
-        padding: '0 10px',
+        padding: '0 11px',
         borderRadius: 10,
         background: '#25d366',
         display: 'flex',
@@ -22092,24 +22111,138 @@ function OrderHistoryModal({
       fill: "#ffffff"
     }, /*#__PURE__*/React.createElement("path", {
       d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
-    })), /*#__PURE__*/React.createElement("span", null, "WhatsApp")), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 16,
-        fontWeight: 900,
-        color: '#059669'
-      }
-    }, "Rs ", Number(order.grandTotal || 0).toLocaleString()))), /*#__PURE__*/React.createElement("div", {
+    })), /*#__PURE__*/React.createElement("span", null, "WhatsApp")))), /*#__PURE__*/React.createElement("div", {
       style: {
         flex: 1,
-        padding: 16,
+        padding: 14,
         display: 'flex',
         flexDirection: 'column',
-        gap: 14,
+        gap: 12,
         maxWidth: 640,
         width: '100%',
         margin: '0 auto'
       }
-    }, (() => {
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: 16,
+        padding: '14px 16px',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        background: '#eff6ff',
+        border: '1px solid #bfdbfe',
+        borderRadius: 8,
+        padding: '4px 10px'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        fontWeight: 900,
+        color: '#1d4ed8',
+        textTransform: 'uppercase'
+      }
+    }, "Order"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 14,
+        fontWeight: 900,
+        color: '#1e40af'
+      }
+    }, "#", formatDisplayOrderId(order.id))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: 'right'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        fontWeight: 700,
+        color: '#64748b',
+        textTransform: 'uppercase'
+      }
+    }, "Total Bill"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 17,
+        fontWeight: 900,
+        color: '#059669',
+        lineHeight: 1.1
+      }
+    }, "Rs ", Number(order.grandTotal || 0).toLocaleString()))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: '#f8fafc',
+        border: '1px dashed #cbd5e1',
+        borderRadius: 10,
+        padding: '6px 10px',
+        fontSize: 11,
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: '#64748b',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 5
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontWeight: 700,
+        color: '#475569'
+      }
+    }, "Ref ID:"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontFamily: 'monospace',
+        color: '#0f172a',
+        fontWeight: 600
+      }
+    }, order.id)), /*#__PURE__*/React.createElement("button", {
+      type: "button",
+      onClick: () => {
+        try {
+          navigator.clipboard.writeText(order.id);
+          alert(tr(language, 'Order Ref # copied to clipboard!', 'Order Ref # copy ho gaya!', 'آرڈر ریفرنس کاپی ہو گیا!'));
+        } catch (e) {}
+      },
+      style: {
+        background: '#ffffff',
+        border: '1px solid #cbd5e1',
+        borderRadius: 6,
+        padding: '3px 8px',
+        fontSize: 10,
+        fontWeight: 800,
+        color: '#2563eb',
+        cursor: 'pointer',
+        flexShrink: 0
+      }
+    }, "\uD83D\uDCCB Copy")), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        fontSize: 11.5,
+        color: '#64748b',
+        paddingTop: 2
+      }
+    }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCC5 ", order.dateText || `${order.date} ${order.time}`), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE6 ", totalItemsCount, " ", totalItemsCount === 1 ? 'item' : 'items'))), (() => {
       const orderCreatedTime = parseOrderCreatedAt(order);
       const diffMinutes = Math.max(0, Math.floor((nowTs - orderCreatedTime) / (1000 * 60)));
       let elapsedText = '';
@@ -22531,11 +22664,15 @@ function OrderHistoryModal({
         fontWeight: 700
       }
     }, "Tap item to view details \uD83D\uDD0D")), order.items && order.items.map((item, i) => {
-      const imgSrc = getProductImgSrc(item) || (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
+      const isParchi = item.isParchi || String(item.id || '').includes('parchi') || String(item.name || '').includes('Parchi');
+      const isVoice = item.isVoice || String(item.id || '').includes('voice') || String(item.name || '').includes('Voice');
+      const imgSrc = item.photoUrl || getProductImgSrc(item) || (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
       return /*#__PURE__*/React.createElement("div", {
         key: i,
         onClick: () => {
-          if (onSelectProduct) {
+          if (isParchi && (item.photoUrl || order.photoUrl)) {
+            window.open(item.photoUrl || order.photoUrl, '_blank');
+          } else if (!isParchi && !isVoice && onSelectProduct) {
             onSelectProduct(item);
           }
         },
@@ -22545,11 +22682,11 @@ function OrderHistoryModal({
           gap: 12,
           padding: '12px 16px',
           borderBottom: i < order.items.length - 1 ? '1px solid #f8fafc' : 'none',
-          cursor: 'pointer',
+          cursor: !isParchi && !isVoice || item.photoUrl ? 'pointer' : 'default',
           transition: 'background 0.15s ease'
         },
         className: "hover:bg-blue-50/50 active:bg-blue-50",
-        title: "Click to view product details"
+        title: isParchi ? 'Parchi Slip Order' : 'Click to view product details'
       }, /*#__PURE__*/React.createElement("div", {
         style: {
           width: 44,
@@ -22573,7 +22710,29 @@ function OrderHistoryModal({
           objectFit: 'contain',
           borderRadius: 8
         }
-      }) : /*#__PURE__*/React.createElement("div", {
+      }) : isParchi ? /*#__PURE__*/React.createElement("div", {
+        style: {
+          width: '100%',
+          height: '100%',
+          borderRadius: 8,
+          background: '#ecfdf5',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 20
+        }
+      }, "\uD83D\uDCF8") : isVoice ? /*#__PURE__*/React.createElement("div", {
+        style: {
+          width: '100%',
+          height: '100%',
+          borderRadius: 8,
+          background: '#f0fdf4',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 20
+        }
+      }, "\uD83C\uDF99\uFE0F") : /*#__PURE__*/React.createElement("div", {
         style: {
           width: '100%',
           height: '100%',
@@ -22586,7 +22745,7 @@ function OrderHistoryModal({
           fontWeight: 900,
           color: '#0284c7'
         }
-      }, item.initial || item.name && item.name[0] || 'S'), /*#__PURE__*/React.createElement("span", {
+      }, item.name && item.name.replace(/[^a-zA-Z0-9]/g, '')[0] || 'S'), !isParchi && !isVoice && /*#__PURE__*/React.createElement("span", {
         style: {
           position: 'absolute',
           bottom: -2,
@@ -22995,6 +23154,12 @@ function OrderHistoryModal({
     }
   }, orders.map((order, idx) => {
     const totalItemsCount = order.items ? order.items.reduce((acc, item) => acc + (item.qty || 1), 0) : 0;
+    const displayId = formatDisplayOrderId(order.id);
+    const normStatus = String(order.status || 'placed').toLowerCase();
+    const isCanc = ['cancelled', 'rejected'].includes(normStatus);
+    const isDeliv = ['delivered', 'completed'].includes(normStatus);
+    const isOnWay = ['dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery'].includes(normStatus);
+    const isConf = ['confirmed', 'accepted', 'processing', 'packed'].includes(normStatus);
     return /*#__PURE__*/React.createElement("div", {
       key: order.id,
       onClick: () => setSelectedOrder(order),
@@ -23004,10 +23169,12 @@ function OrderHistoryModal({
         borderRadius: 16,
         padding: '14px 16px',
         cursor: 'pointer',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-        transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+        boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10
       },
-      className: "hover:shadow-md hover:border-blue-300 active:scale-[0.99]"
+      className: "hover:shadow-md hover:border-blue-300 active:scale-[0.99] transition-all"
     }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
@@ -23023,8 +23190,8 @@ function OrderHistoryModal({
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        width: 28,
-        height: 28,
+        width: 26,
+        height: 26,
         borderRadius: 8,
         background: '#f1f5f9',
         color: '#0f172a',
@@ -23036,112 +23203,116 @@ function OrderHistoryModal({
       }
     }, "#", orders.length - idx), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 13.5,
+        fontSize: 14,
         fontWeight: 900,
         color: '#0f172a'
       }
-    }, "Order #", order.id), /*#__PURE__*/React.createElement("span", {
+    }, "Order #", displayId)), /*#__PURE__*/React.createElement("div", {
       style: {
-        padding: '2px 8px',
-        borderRadius: 6,
-        fontSize: 10,
+        fontSize: 15,
+        fontWeight: 900,
+        color: '#059669',
+        whiteSpace: 'nowrap'
+      }
+    }, "Rs ", Number(order.grandTotal || 0).toLocaleString())), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        flexWrap: 'wrap'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        padding: '3px 9px',
+        borderRadius: 8,
+        fontSize: 10.5,
         fontWeight: 800,
         background: order.deliveryMethod === 'pickup' ? '#eff6ff' : '#ecfdf5',
         color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669',
         border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0'
       }
-    }, order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Delivery'), (() => {
-      const nSt = String(order.status || 'placed').toLowerCase();
-      const isDeliv = ['delivered', 'completed'].includes(nSt);
-      const isOnWay = ['dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery'].includes(nSt);
-      const isConf = ['confirmed', 'accepted', 'processing', 'packed'].includes(nSt);
-      const isCanc = ['cancelled', 'rejected'].includes(nSt);
-      if (isCanc) return /*#__PURE__*/React.createElement("span", {
-        style: {
-          padding: '2px 8px',
-          borderRadius: 6,
-          fontSize: 10,
-          fontWeight: 800,
-          background: '#fee2e2',
-          color: '#dc2626',
-          border: '1px solid #fecaca'
-        }
-      }, "\u25CF Cancelled");
-      if (isDeliv) return /*#__PURE__*/React.createElement("span", {
-        style: {
-          padding: '2px 8px',
-          borderRadius: 6,
-          fontSize: 10,
-          fontWeight: 800,
-          background: '#ecfdf5',
-          color: '#059669',
-          border: '1px solid #a7f3d0'
-        }
-      }, "\u25CF Delivered");
-      if (isOnWay) return /*#__PURE__*/React.createElement("span", {
-        style: {
-          padding: '2px 8px',
-          borderRadius: 6,
-          fontSize: 10,
-          fontWeight: 800,
-          background: '#eff6ff',
-          color: '#2563eb',
-          border: '1px solid #bfdbfe'
-        }
-      }, "\u25CF On Way");
-      if (isConf) return /*#__PURE__*/React.createElement("span", {
-        style: {
-          padding: '2px 8px',
-          borderRadius: 6,
-          fontSize: 10,
-          fontWeight: 800,
-          background: '#f0fdf4',
-          color: '#0d9488',
-          border: '1px solid #bbf7d0'
-        }
-      }, "\u25CF Confirmed");
-      return /*#__PURE__*/React.createElement("span", {
-        style: {
-          padding: '2px 8px',
-          borderRadius: 6,
-          fontSize: 10,
-          fontWeight: 800,
-          background: '#f1f5f9',
-          color: '#475569',
-          border: '1px solid #cbd5e1'
-        }
-      }, "\u25CF Placed");
-    })()), /*#__PURE__*/React.createElement("div", {
+    }, order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Home Delivery'), isCanc ? /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 15,
-        fontWeight: 900,
-        color: '#059669'
+        padding: '3px 9px',
+        borderRadius: 8,
+        fontSize: 10.5,
+        fontWeight: 800,
+        background: '#fee2e2',
+        color: '#dc2626',
+        border: '1px solid #fecaca'
       }
-    }, "Rs ", Number(order.grandTotal || 0).toLocaleString())), /*#__PURE__*/React.createElement("div", {
+    }, "\u25CF Cancelled") : isDeliv ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        padding: '3px 9px',
+        borderRadius: 8,
+        fontSize: 10.5,
+        fontWeight: 800,
+        background: '#ecfdf5',
+        color: '#059669',
+        border: '1px solid #a7f3d0'
+      }
+    }, "\u25CF Delivered") : isOnWay ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        padding: '3px 9px',
+        borderRadius: 8,
+        fontSize: 10.5,
+        fontWeight: 800,
+        background: '#eff6ff',
+        color: '#2563eb',
+        border: '1px solid #bfdbfe'
+      }
+    }, "\u25CF On The Way") : isConf ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        padding: '3px 9px',
+        borderRadius: 8,
+        fontSize: 10.5,
+        fontWeight: 800,
+        background: '#f0fdf4',
+        color: '#0d9488',
+        border: '1px solid #bbf7d0'
+      }
+    }, "\u25CF Confirmed") : /*#__PURE__*/React.createElement("span", {
+      style: {
+        padding: '3px 9px',
+        borderRadius: 8,
+        fontSize: 10.5,
+        fontWeight: 800,
+        background: '#f1f5f9',
+        color: '#475569',
+        border: '1px solid #cbd5e1'
+      }
+    }, "\u25CF Placed")), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 11,
         color: '#64748b',
-        marginTop: 6,
         display: 'flex',
         alignItems: 'center',
         gap: 6
       }
-    }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCC5 ", order.dateText), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE6 ", totalItemsCount, " ", totalItemsCount === 1 ? 'item' : 'items')), /*#__PURE__*/React.createElement("div", {
+    }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCC5 ", order.dateText || `${order.date} ${order.time}`), /*#__PURE__*/React.createElement("span", null, "\u2022"), /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE6 ", totalItemsCount, " ", totalItemsCount === 1 ? 'item' : 'items')), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingTop: 6,
+        borderTop: '1px solid #f8fafc'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
         gap: 6,
-        marginTop: 10,
-        overflowX: 'auto',
-        paddingBottom: 2
+        overflowX: 'auto'
       }
-    }, order.items && order.items.slice(0, 5).map((it, itemIdx) => {
-      const imgSrc = getProductImgSrc(it) || (it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null);
+    }, order.items && order.items.slice(0, 4).map((it, itemIdx) => {
+      const isParchi = it.isParchi || String(it.id || '').includes('parchi') || String(it.name || '').includes('Parchi');
+      const isVoice = it.isVoice || String(it.id || '').includes('voice') || String(it.name || '').includes('Voice');
+      const imgSrc = it.photoUrl || getProductImgSrc(it) || (it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null);
       return /*#__PURE__*/React.createElement("div", {
         key: itemIdx,
         style: {
-          width: 32,
-          height: 32,
+          width: 34,
+          height: 34,
           borderRadius: 8,
           background: '#f8fafc',
           border: '1px solid #e2e8f0',
@@ -23161,17 +23332,25 @@ function OrderHistoryModal({
           objectFit: 'contain',
           borderRadius: 6
         }
-      }) : /*#__PURE__*/React.createElement("span", {
+      }) : isParchi ? /*#__PURE__*/React.createElement("span", {
         style: {
-          fontSize: 10,
-          fontWeight: 800,
-          color: '#64748b'
+          fontSize: 16
         }
-      }, it.initial || it.name?.[0] || 'S'));
-    }), order.items && order.items.length > 5 && /*#__PURE__*/React.createElement("div", {
+      }, "\uD83D\uDCF8") : isVoice ? /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 16
+        }
+      }, "\uD83C\uDF99\uFE0F") : /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 11,
+          fontWeight: 900,
+          color: '#2563eb'
+        }
+      }, it.name && it.name.replace(/[^a-zA-Z0-9]/g, '')[0] || 'S'));
+    }), order.items && order.items.length > 4 && /*#__PURE__*/React.createElement("div", {
       style: {
-        width: 32,
-        height: 32,
+        width: 34,
+        height: 34,
         borderRadius: 8,
         background: '#f1f5f9',
         border: '1px solid #e2e8f0',
@@ -23183,15 +23362,16 @@ function OrderHistoryModal({
         color: '#64748b',
         flexShrink: 0
       }
-    }, "+", order.items.length - 5), /*#__PURE__*/React.createElement("span", {
+    }, "+", order.items.length - 4)), /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 11,
+        fontSize: 11.5,
         color: '#2563eb',
-        fontWeight: 700,
-        marginLeft: 'auto',
-        flexShrink: 0
+        fontWeight: 800,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4
       }
-    }, "View Details \u2192")));
+    }, /*#__PURE__*/React.createElement("span", null, "View Details"), /*#__PURE__*/React.createElement("span", null, "\u2192"))));
   }))), orders.length > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       background: '#ffffff',
@@ -23605,15 +23785,42 @@ function CheckoutModal({
       borderRadius: 10,
       padding: '4px 12px',
       marginTop: 10,
-      fontSize: 12,
+      fontSize: 13,
       fontWeight: 900,
       color: '#166534'
     }
-  }, /*#__PURE__*/React.createElement("span", null, tr(language, 'Order Ref #:', 'Order Ref #:', 'آرڈر ریفرنس نمبر:')), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, tr(language, 'Order #:', 'Order #:', 'آرڈر نمبر:')), /*#__PURE__*/React.createElement("span", {
     style: {
       color: '#111827'
     }
-  }, "#", placedOrder.id))), /*#__PURE__*/React.createElement("div", {
+  }, "#", formatDisplayOrderId(placedOrder.id))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: '#475569',
+      marginTop: 4,
+      fontFamily: 'monospace'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "Ref: ", placedOrder.id)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 7,
+      background: '#ecfdf5',
+      border: '1.5px solid #86efac',
+      borderRadius: 12,
+      padding: '8px 14px',
+      marginTop: 10,
+      fontSize: 12.5,
+      fontWeight: 900,
+      color: '#15803d',
+      boxShadow: '0 2px 8px rgba(22,163,74,0.12)'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 16
+    }
+  }, "\u26A1"), /*#__PURE__*/React.createElement("span", null, placedOrder.deliveryMethod === 'pickup' ? tr(language, 'Ready for Store Pickup in 20 Mins!', '20 Mins mein Dukan se Pickup ke liye Tayyar!', '20 منٹ میں دکان سے پک اپ کے لیے تیار!') : tr(language, 'Order will be delivered within 59 Minutes!', 'Aapka Order 59 Minutes ke andar deliver ho jayega!', 'آپ کا آرڈر 59 منٹ کے اندر ڈیلیور ہو جائے گا!')))), /*#__PURE__*/React.createElement("div", {
     style: {
       background: '#f8fafc',
       border: '1px solid #e2e8f0',

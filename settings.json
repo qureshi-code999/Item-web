@@ -1,8 +1,8 @@
 {
   "deliveryFee": 99,
   "freeDeliveryThreshold": 1999,
-  "deliveryTiming": "Delivery Timing: 11:00 AM – 10:00 PM (Delivery within 59 Minutes)",
+  "deliveryTiming": "Delivery Timing: 11:00 AM – 10:00 PM",
   "whatsapp": "923391965200",
   "storeName": "ZS Mart",
-  "announcement": ""
+  "announcement": "{\"active\":true,\"title\":\"🔥 AAJ KI SPECIAL OFFER 🔥\",\"text\":\"anda 20 ruppe ka\",\"imageUrl\":\"https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/offer_banner.webp?v=1794149254024\",\"durationHours\":12,\"expiresAt\":1794192616388,\"createdAt\":\"2026-11-08T14:47:34.024Z\",\"updatedAt\":1794149416388}"
 }

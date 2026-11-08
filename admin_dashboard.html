@@ -6708,7 +6708,12 @@
         totalUnits += it.qty;
         msg += `${idx + 1}. *${it.cleanName}*\n`;
         if (it.discount > 0) {
-          msg += `   Retail: Rs. ${it.retailPrice} | Dis: -Rs. ${it.discount}\n`;
+          const itemDisTotal = it.lineDiscountTotal || (it.discount * it.qty);
+          if (it.qty > 1) {
+            msg += `   Retail: Rs. ${it.retailPrice} | Dis: -Rs. ${itemDisTotal.toLocaleString()} (-Rs. ${it.discount}/pc)\n`;
+          } else {
+            msg += `   Retail: Rs. ${it.retailPrice} | Dis: -Rs. ${itemDisTotal.toLocaleString()}\n`;
+          }
           msg += `   Rate: Rs. ${it.sellPrice} × ${it.qty} = *Rs. ${it.lineTotal.toLocaleString()}*\n`;
         } else {
           msg += `   Rate: Rs. ${it.sellPrice} × ${it.qty} = *Rs. ${it.lineTotal.toLocaleString()}*\n`;

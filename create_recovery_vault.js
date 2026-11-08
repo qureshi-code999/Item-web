@@ -29,11 +29,25 @@ try {
     console.warn('  [WARN] release-key.keystore not found!');
   }
 
-  // 2. Security Config & Secret
+  // 2. Security Config & Supabase Cloud Credentials
   const configSrc = path.join(rootDir, 'admin_config.json');
   if (fs.existsSync(configSrc)) {
     fs.copyFileSync(configSrc, path.join(tempVaultDir, 'admin_config.json'));
     console.log('  [OK] Master Admin Password Config: admin_config.json');
+  }
+
+  const supabaseSrc = path.join(rootDir, 'supabase_config.json');
+  if (fs.existsSync(supabaseSrc)) {
+    fs.copyFileSync(supabaseSrc, path.join(tempVaultDir, 'supabase_config.json'));
+    console.log('  [OK] Supabase Cloud Database Config & API Keys: supabase_config.json');
+  } else {
+    console.warn('  [WARN] supabase_config.json not found!');
+  }
+
+  const keystorePropsSrc = path.join(rootDir, 'android', 'keystore.properties');
+  if (fs.existsSync(keystorePropsSrc)) {
+    fs.copyFileSync(keystorePropsSrc, path.join(tempVaultDir, 'android_app', 'keystore.properties'));
+    console.log('  [OK] Play Store Keystore Properties: keystore.properties');
   }
 
   // 3. Database files
@@ -68,14 +82,20 @@ STEP 2: Command Prompt (cmd) khol kar ye command chalayein:
         git clone https://github.com/qureshi-code999/Item-web.git "Desktop\\ITEMS WEB"
 
 STEP 3: Is Recovery Vault ZIP se:
-        - "android_app\\release-key.keystore" file ko naye laptop ke folder:
+        - "android_app\\release-key.keystore" ko naye laptop ke folder:
           "Desktop\\ITEMS WEB\\android\\app\\" me paste karein.
-        - "admin_config.json" ko "Desktop\\ITEMS WEB\\" me paste karein.
+        - "android_app\\keystore.properties" ko naye laptop ke folder:
+          "Desktop\\ITEMS WEB\\android\\" me paste karein.
+        - "admin_config.json" aur "supabase_config.json" ko:
+          "Desktop\\ITEMS WEB\\" me paste karein.
+        - Tamaam .json files (products, dsr_data, rates, etc.) ko:
+          "Desktop\\ITEMS WEB\\" me paste karein.
 
-STEP 4: "Desktop\\ITEMS WEB\\ADMIN PORTAL.bat" ko double-click karein!
+STEP 4: "Desktop\\ITEMS WEB\\SETUP_NEW_LAPTOP.bat" ko double-click karein!
+        (Ye automatically npm install karega aur Admin Portal launch kar dega)
 
 BAS ITNA HI! Aapka pura Master Admin Panel, 1000+ items, photos, rates, 
-daily sales, aur Google Play Store bundle build system 100% wapis chal pare ga!
+daily sales, cloud database sync aur Google Play Store bundle system 100% chal pare ga!
 =======================================================================`;
 
   fs.writeFileSync(path.join(tempVaultDir, 'HOW_TO_RESTORE_ON_NEW_LAPTOP.txt'), instructions, 'utf8');

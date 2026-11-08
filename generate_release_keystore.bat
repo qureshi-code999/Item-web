@@ -29,6 +29,13 @@ if exist "%KEYSTORE_PATH%" (
     )
 )
 
+set /p STOREPASS="Enter keystore password (min 6 chars): "
+if "%STOREPASS%"=="" (
+    echo  [ERROR] Password cannot be empty.
+    pause
+    exit /b 1
+)
+
 echo.
 echo  Generating keystore... Please wait...
 echo.
@@ -39,8 +46,8 @@ keytool -genkeypair -v ^
   -keyalg RSA ^
   -keysize 2048 ^
   -validity 10000 ^
-  -storepass zsmart2026 ^
-  -keypass zsmart2026 ^
+  -storepass "%STOREPASS%" ^
+  -keypass "%STOREPASS%" ^
   -dname "CN=ZS Mart, OU=Mobile, O=ZS Mart, L=Karachi, ST=Sindh, C=PK"
 
 if %ERRORLEVEL% equ 0 (

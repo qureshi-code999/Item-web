@@ -1,9 +1,21 @@
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 
 const rootDir = __dirname;
 const jsxFile = path.join(rootDir, 'INDEX.JSX');
 const htmlFile = path.join(rootDir, 'index.html');
+
+// Safe parsing of JavaScript object/array literals without bare eval()
+function safeParseJsLiteral(codeStr, fallback = null) {
+  if (!codeStr || typeof codeStr !== 'string') return fallback;
+  try {
+    const sandbox = Object.create(null);
+    return vm.runInNewContext('(' + codeStr + ')', sandbox, { timeout: 30000 });
+  } catch (e) {
+    return fallback;
+  }
+}
 
 // Read files
 const jsx = fs.readFileSync(jsxFile, 'utf8');
@@ -13,70 +25,44 @@ const html = fs.readFileSync(htmlFile, 'utf8');
 const prodMatch = jsx.match(/(?:const|var)\s+PRODUCTS\s*=\s*(\[[\s\S]*?\n\s*\]);/);
 let jsxProducts = [];
 if (prodMatch) {
-  try {
-    let cleaned = prodMatch[1].replace(/SWATCH_GRADIENTS\[\d+\]/g, 'null');
-    jsxProducts = eval('(' + cleaned + ')');
-  } catch (e) {}
+  let cleaned = prodMatch[1].replace(/SWATCH_GRADIENTS\[\d+\]/g, 'null');
+  jsxProducts = safeParseJsLiteral(cleaned, []) || [];
 }
 
-// Also extract from index.html
-let htmlProducts = [];
-const htmlProdMatch = html.match(/(?:const|var)\s+PRODUCTS\s*=\s*(\[[\s\S]*?\n\s*\]);/);
-if (htmlProdMatch) {
-  try {
-    let cleanedHtml = htmlProdMatch[1].replace(/SWATCH_GRADIENTS\[\d+\]/g, 'null');
-    htmlProducts = eval('(' + cleanedHtml + ')');
-  } catch (e) {}
-}
-
-// Merge products: union of both files by ID, with INDEX.JSX taking precedence
-const prodMap = new Map();
-htmlProducts.forEach(p => prodMap.set(p.id, p));
-jsxProducts.forEach(p => {
-  const existing = prodMap.get(p.id) || {};
-  prodMap.set(p.id, { ...existing, ...p });
-});
-
-const products = Array.from(prodMap.values()).sort((a, b) => a.id - b.id);
-
-// If index.html had new items not in INDEX.JSX, sync them back to INDEX.JSX
-const jsxIds = new Set(jsxProducts.map(p => p.id));
-const missingInJsx = products.filter(p => !jsxIds.has(p.id));
-if (missingInJsx.length > 0 && prodMatch) {
-  let updatedJsx = jsx;
-  const idx = updatedJsx.indexOf('];', prodMatch.index);
-  if (idx > -1) {
-    const linesToAdd = missingInJsx.map(p => {
-      const escName = (p.name || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-      const escCat = (p.categoryName || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-      const escCatId = (p.categoryId || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-      const prioStr = p.priority ? `, priority: ${p.priority}` : '';
-      const filterStr = p.filterName ? `, filterName: "${(p.filterName || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"` : '';
-      return `      { id: ${p.id}, name: "${escName}", price: ${p.price}, categoryId: "${escCatId}", categoryName: "${escCat}"${prioStr}${filterStr} },`;
-    }).join('\n');
-    updatedJsx = updatedJsx.substring(0, idx) + '\n' + linesToAdd + '\n    ];' + updatedJsx.substring(idx + 2);
-    fs.writeFileSync(jsxFile, updatedJsx, 'utf8');
-    console.log(`Synced ${missingInJsx.length} missing items back to INDEX.JSX`);
+// Fallback to existing products.json if parse returned 0 products to prevent catalog wipeout
+if (!jsxProducts || jsxProducts.length === 0) {
+  const existingPath = path.join(rootDir, 'products.json');
+  if (fs.existsSync(existingPath)) {
+    try {
+      const existing = JSON.parse(fs.readFileSync(existingPath, 'utf8'));
+      if (Array.isArray(existing.products) && existing.products.length > 0) {
+        console.warn('⚠️ INDEX.JSX parse returned 0 products; using existing products.json fallback to prevent catalog wipeout!');
+        jsxProducts = existing.products;
+      }
+    } catch(e) {}
   }
 }
 
-// Keep index.html synchronized with full products list
-const latestProdMatch = jsx.match(/(?:const|var)\s+PRODUCTS\s*=\s*(\[[\s\S]*?\n\s*\]);/);
-const currentHtml = fs.readFileSync(htmlFile, 'utf8');
-const latestHtmlProdMatch = currentHtml.match(/(?:const|var)\s+PRODUCTS\s*=\s*(\[[\s\S]*?\n\s*\]);/);
-if (latestProdMatch && latestHtmlProdMatch && latestHtmlProdMatch[1] !== latestProdMatch[1]) {
-  const updatedHtml = currentHtml.replace(latestHtmlProdMatch[0], 'const PRODUCTS = ' + latestProdMatch[1] + ';');
-  fs.writeFileSync(htmlFile, updatedHtml, 'utf8');
-  console.log(`Synchronized full ${products.length} products to index.html!`);
+if (!jsxProducts || jsxProducts.length === 0) {
+  throw new Error('CRITICAL SAFETY STOP: Failed to parse PRODUCTS from INDEX.JSX! products.json will NOT be overwritten to prevent catalog wipeout.');
 }
+
+// Authoritative Source of Truth: INDEX.JSX defines the active product catalog
+const seenIds = new Set();
+const dedupedProducts = [];
+for (const p of jsxProducts) {
+  if (p && p.id != null && !seenIds.has(p.id)) {
+    seenIds.add(p.id);
+    dedupedProducts.push(p);
+  }
+}
+const products = dedupedProducts.sort((a, b) => a.id - b.id);
 
 // 2. Extract PRODUCT_IMAGE_MAP from index.html (or scan images folder)
 const imgMapMatch = html.match(/window\.PRODUCT_IMAGE_MAP\s*=\s*(\{[\s\S]*?\});/);
 let imageMap = {};
 if (imgMapMatch) {
-  try {
-    imageMap = eval('(' + imgMapMatch[1] + ')');
-  } catch (e) {}
+  imageMap = safeParseJsLiteral(imgMapMatch[1], {}) || {};
 }
 
 // Scan images directory to ensure any newly added images are also in imageMap
@@ -112,9 +98,7 @@ if (fs.existsSync(imgDir)) {
 const varMatch = html.match(/window\.PRODUCT_VARIANTS\s*=\s*(\{[\s\S]*?\n\s*\});/);
 let variants = {};
 if (varMatch) {
-  try {
-    variants = eval('(' + varMatch[1] + ')');
-  } catch (e) {}
+  variants = safeParseJsLiteral(varMatch[1], {}) || {};
 }
 
 // 4. Extract CATEGORIES list (order & names) from INDEX.JSX / index.html
@@ -123,9 +107,7 @@ const catMatch = jsx.match(/(?:const|var)\s+DEFAULT_CATEGORIES\s*=\s*(\[[\s\S]*?
   || jsx.match(/(?:const|var)\s+CATEGORIES\s*=\s*(\[[\s\S]*?\n\s*\]);/)
   || html.match(/(?:const|var)\s+CATEGORIES\s*=\s*(\[[\s\S]*?\n\s*\]);/);
 if (catMatch) {
-  try {
-    categories = eval('(' + catMatch[1] + ')');
-  } catch (e) {}
+  categories = safeParseJsLiteral(catMatch[1], []) || [];
 }
 
 // Auto-discover: Ensure any category assigned to products is included in categories list
@@ -200,6 +182,35 @@ products.forEach(p => {
   }
 });
 
+// Preserve & attach purchase rates from purchase_rates.json and existing products.json
+const ratesFile = path.join(rootDir, 'purchase_rates.json');
+let savedRates = {};
+if (fs.existsSync(ratesFile)) {
+  try {
+    const rfData = JSON.parse(fs.readFileSync(ratesFile, 'utf8'));
+    if (rfData.rates) savedRates = { ...rfData.rates };
+  } catch(e) {}
+}
+const existingProductsJson = path.join(rootDir, 'products.json');
+if (fs.existsSync(existingProductsJson)) {
+  try {
+    const epData = JSON.parse(fs.readFileSync(existingProductsJson, 'utf8'));
+    if (Array.isArray(epData.products)) {
+      epData.products.forEach(p => {
+        if (p.purchasePrice !== undefined && p.purchasePrice !== null && savedRates[String(p.id)] === undefined) {
+          savedRates[String(p.id)] = Number(p.purchasePrice);
+        }
+      });
+    }
+  } catch(e) {}
+}
+
+products.forEach(p => {
+  if (savedRates[String(p.id)] !== undefined && Number(savedRates[String(p.id)]) > 0) {
+    p.purchasePrice = Number(savedRates[String(p.id)]);
+  }
+});
+
 const payload = {
   version: 2,
   updatedAt: new Date().toISOString(),
@@ -218,13 +229,33 @@ const jsonStr = JSON.stringify(payload, null, 2);
 const targets = [
   path.join(rootDir, 'products.json'),
   path.join(rootDir, 'www', 'products.json'),
-  path.join(rootDir, 'android', 'app', 'src', 'main', 'assets', 'public', 'products.json')
+  path.join(rootDir, 'complete', 'products.json'),
+  path.join(rootDir, 'android', 'app', 'src', 'main', 'assets', 'public', 'products.json'),
+  'C:\\Users\\ALICOM4\\Desktop\\new apk complete\\products.json'
 ];
 
 targets.forEach(t => {
   const dir = path.dirname(t);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(t, jsonStr, 'utf8');
+  const tempPath = `${t}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}.tmp`;
+  try {
+    fs.writeFileSync(tempPath, jsonStr, 'utf8');
+    // Ensure written file is non-empty before replacing target
+    if (fs.existsSync(tempPath) && fs.statSync(tempPath).size > 1000) {
+      try {
+        fs.renameSync(tempPath, t);
+      } catch(renameErr) {
+        fs.copyFileSync(tempPath, t);
+        try { fs.unlinkSync(tempPath); } catch(e) {}
+      }
+    }
+  } catch(writeErr) {
+    fs.writeFileSync(t, jsonStr, 'utf8');
+  } finally {
+    if (fs.existsSync(tempPath)) {
+      try { fs.unlinkSync(tempPath); } catch(e) {}
+    }
+  }
   console.log(`Saved products.json (${(Buffer.byteLength(jsonStr) / 1024).toFixed(1)} KB) -> ${t}`);
 });
 

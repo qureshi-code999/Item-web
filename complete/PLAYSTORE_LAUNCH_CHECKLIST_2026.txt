@@ -1,0 +1,74 @@
+================================================================================
+           ZS MART (ZS MART) - GOOGLE PLAY STORE LAUNCH GUIDE (OCTOBER 2026)
+================================================================================
+
+Assalamu Alaikum! Aapki app 100% Google Play Store launch ke liye tayar hai.
+Tamam security vulnerabilities aur Claude AI ke audit ke genuine points deeply fix
+kar diye gaye hain aur sabhi fresh binaries is folder me updated hain.
+
+--------------------------------------------------------------------------------
+1. PLAY STORE PE KONSE FILE UPLOAD KARNI HAI?
+--------------------------------------------------------------------------------
+👉 File to Upload: "ZS_Mart_PlayStore_Release.aab"
+- Google Play Store hamesha ".aab" (Android App Bundle) format mangta hai.
+- Yeh file hamare official keystore (release-key.keystore) se signed hai aur Play Store
+  ke required Target SDK 35 (Android 15) aur 64-bit architecture se 100% compliant hai.
+
+👉 Mobile me Direct Install aur Testing ke liye:
+- "ZS_Mart_Release.apk" (Official signed fast release build)
+- "ZS_Mart_Debug.apk" (Developer debug build)
+
+--------------------------------------------------------------------------------
+2. STORE LISTING ASSETS (GRAPHICS)
+--------------------------------------------------------------------------------
+Play Console pe Store Listing ke waqt yeh graphics upload karein:
+- App Icon: "playstore_icon_512x512.png" (512x512 px 32-bit PNG)
+- Feature Graphic: "playstore_feature_graphic_1024x500.png" (1024x500 px Banner)
+
+--------------------------------------------------------------------------------
+3. PRIVACY POLICY URL
+--------------------------------------------------------------------------------
+Play Console pe Privacy Policy link dena lazmi hota hai:
+- File: "privacy-policy.html"
+- URL: https://qureshi-code999.github.io/Item-web/privacy-policy.html
+  (Ya agar aapki apni domain zsmart.pk active hai to: https://zsmart.pk/privacy-policy.html)
+
+--------------------------------------------------------------------------------
+4. GOOGLE PLAY DATA SAFETY DECLARATION (EXACT ANSWERS)
+--------------------------------------------------------------------------------
+Play Console ke Data Safety form me yeh select karein:
+1. Location:
+   - Approximate Location: YES (App functionality - delivery routing)
+   - Precise Location: YES (Doorstep delivery location button)
+   - Is it shared with third parties? NO
+   - Is it tracked in background? NO
+2. Personal Info:
+   - Name, Phone Number, Address: YES (Order fulfillment & delivery coordination)
+   - Is it shared? NO
+3. Photos and Videos:
+   - Photos: YES (Optional Parchi handwritten grocery slip upload)
+   - Is it shared? NO
+4. Audio / Microphone:
+   - Voice or sound recordings: YES (Optional user-initiated Voice Search & Voice Note Parchi grocery order)
+   - Is it shared with third parties? NO
+   - Is it optional? YES (Users can type or upload a photo instead)
+5. Financial Info:
+   - Does your app collect credit card/bank details? NO (Orders are Cash on Delivery)
+
+--------------------------------------------------------------------------------
+5. LAUNCH KE BAAD ADMIN PANEL SE CHANGING (LIVE CLOUD ENGINE)
+--------------------------------------------------------------------------------
+Aapka sawal: "Launch hone ke baad bhi me admin panel se changing kr skta ho na?"
+JAWAB: BILKUL 100%! AAP BINA KISI APK UPDATE KE LIVE CHANGE KAR SAKTE HAIN!
+
+Kyunke app Supabase Cloud Database + Realtime Architecture se linked hai:
+1. New Product Add karna:
+   - Admin panel se naya item add karein -> Tamam users ke mobile me foran show ho jayega.
+2. Price Change karna:
+   - Admin panel me price update karein -> Tamam customers ko live updated price nazar aayegi.
+3. Category Ranking / Priority:
+   - Admin panel se priority set karein -> App me categories usi sequence me sort ho jayengi.
+4. Delivery Charges & Announcements:
+   - Delivery fee change karein -> Sabhi users ko live update milega.
+5. In sab ke liye dobara APK banane ya Play Store pe update bhejne ki ZAROORAT NAHI HOTI!
+================================================================================

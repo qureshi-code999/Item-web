@@ -1,16 +1,16 @@
 {
-  "appId": "com.sahiltraders.app",
+  "appId": "com.zsmart.app",
   "appName": "ZS Mart",
   "webDir": "www",
   "bundledWebRuntime": false,
   "android": {
     "allowMixedContent": false,
-    "backgroundColor": "#000000"
+    "backgroundColor": "#030712"
   },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 1500,
-      "backgroundColor": "#000000",
+      "backgroundColor": "#030712",
       "showSpinner": false
     },
     "StatusBar": {

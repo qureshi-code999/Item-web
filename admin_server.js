@@ -2029,7 +2029,24 @@ function syncImageToTargets(fileName) {
         console.log(`[JSX] Renamed category ${catId} to "${newName}" in INDEX.JSX`);
       } catch(e) { console.warn('JSX rename notice:', e.message); }
 
-      // ── 5. Mirror products.json across all folders ─────────────
+      // ── 4b. Update translation files (languages/en.js, languages/ro.js, languages/ur.js) ──
+      try {
+        const langFiles = ['en.js', 'ro.js', 'ur.js'];
+        langFiles.forEach(lf => {
+          const lp = path.join(ROOT, 'languages', lf);
+          if (fs.existsSync(lp)) {
+            let lContent = fs.readFileSync(lp, 'utf8');
+            const lRegex = new RegExp(`(${catId}:\\s*")[^"]*(")`);
+            if (lRegex.test(lContent)) {
+              lContent = lContent.replace(lRegex, `$1${newName}$2`);
+              fs.writeFileSync(lp, lContent, 'utf8');
+              console.log(`[Language] Updated ${catId} -> "${newName}" in languages/${lf}`);
+            }
+          }
+        });
+      } catch(e) { console.warn('Language file category rename notice:', e.message); }
+
+      // ── 5. Mirror products.json & languages across all folders ─────────────
       const mirrorTargets = [
         path.join(ROOT, 'www', 'products.json'),
         path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'products.json'),
@@ -2038,6 +2055,25 @@ function syncImageToTargets(fileName) {
       ];
       const freshPj = fs.readFileSync(PRODUCTS_JSON, 'utf8');
       mirrorTargets.forEach(t => { try { fs.writeFileSync(t, freshPj, 'utf8'); } catch(e) {} });
+
+      const langDirs = [
+        path.join(ROOT, 'www', 'languages'),
+        path.join(ROOT, 'android', 'app', 'src', 'main', 'assets', 'public', 'languages'),
+        path.join(ROOT, 'complete', 'languages'),
+        'C:\\Users\\ALICOM4\\Desktop\\new apk complete\\languages'
+      ];
+      ['en.js', 'ro.js', 'ur.js'].forEach(lf => {
+        const srcL = path.join(ROOT, 'languages', lf);
+        if (fs.existsSync(srcL)) {
+          const lBuf = fs.readFileSync(srcL);
+          langDirs.forEach(ld => {
+            try {
+              if (!fs.existsSync(ld)) fs.mkdirSync(ld, { recursive: true });
+              fs.writeFileSync(path.join(ld, lf), lBuf);
+            } catch(e) {}
+          });
+        }
+      });
 
       // ── 6. Recompile JSX -> app.js ─────────────────────────────
       try {

@@ -62,6 +62,17 @@ if (!fs.existsSync(productsPath)) {
     const validCategoryIds = new Set(categories.map(c => c.id));
     const seenIds = new Set();
 
+    // Verify metadata presence (P0 Data Corruption Guard)
+    if (!pData.imageMap || typeof pData.imageMap !== 'object' || Object.keys(pData.imageMap).length === 0) {
+      errors.push('❌ products.json corrupted: missing or empty "imageMap"!');
+    }
+    if (!pData.itemImageVersions || typeof pData.itemImageVersions !== 'object' || Object.keys(pData.itemImageVersions).length === 0) {
+      errors.push('❌ products.json corrupted: missing or empty "itemImageVersions"!');
+    }
+    if (!pData.variants || typeof pData.variants !== 'object') {
+      errors.push('❌ products.json corrupted: missing "variants" dictionary!');
+    }
+
     // Known beverage brand regex patterns (with word boundary to avoid "LASTING" matching "STING")
     const beveragePatterns = [
       { name: 'PEPSI', regex: /\bPEPSI\b/i },
@@ -72,7 +83,8 @@ if (!fs.existsSync(productsPath)) {
       { name: 'MIRINDA', regex: /\bMIRINDA\b/i },
       { name: 'MOUNTAIN DEW', regex: /\bMOUNTAIN DEW\b|\bMTN DEW\b/i },
       { name: 'STING', regex: /\bSTING\b/i },
-      { name: 'PAKOLA', regex: /\bPAKOLA\b/i }
+      { name: 'PAKOLA', regex: /\bPAKOLA\b/i },
+      { name: 'SLICE', regex: /\bSLICE\b/i }
     ];
 
     products.forEach(p => {
@@ -90,9 +102,11 @@ if (!fs.existsSync(productsPath)) {
         errors.push(`❌ Product #${p.id} has empty name!`);
       }
 
-      // Check Price
+      // Check Price:
       if (p.price === undefined || p.price === null || isNaN(p.price) || Number(p.price) < 0) {
         errors.push(`❌ Product #${p.id} (${p.name}) has invalid price: ${p.price}`);
+      } else if (Number(p.price) === 0) {
+        warnings.push(`ℹ️ Product #${p.id} (${p.name}) has price 0 (Unpriced item — safely hidden from checkout)`);
       }
 
       // Check Category

@@ -1,5 +1,11 @@
 {
   "version": 2,
+  "rewrites": [
+    {
+      "source": "/(admin_server\\.js|admin_dashboard\\.html|.*\\.bak|.*\\.tmp|admin_config\\.json|supabase_config\\.json|dsr_data\\.json|purchase_rates\\.json|purchasing_.*\\.json|.*\\.secret|.*\\.sql|.*\\.properties|scratch/.*|apk/.*|complete/.*)",
+      "destination": "/404"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

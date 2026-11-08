@@ -1,4 +1,4 @@
-// SAHIL TRADERS MASTER APP BUNDLE
+// ZS MART MASTER APP BUNDLE
 (function() {
   'use strict';
   var React = window.React || (typeof React !== 'undefined' ? React : null);
@@ -21,11 +21,11 @@
 
 // ── GLOBAL STORE SETTINGS & BULLETPROOF ACCESSORS (Accessible everywhere) ──
 var DEFAULT_STORE_SETTINGS = {
-  deliveryFee: 150,
-  freeDeliveryThreshold: 2000,
+  deliveryFee: 99,
+  freeDeliveryThreshold: 1999,
   minOrderAmount: 0,
   deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
-  whatsapp: "923368945775",
+  whatsapp: "923391965200",
   announcement: ""
 };
 var SUPABASE_URL = "https://tmssjdczywukramcpcxc.supabase.co";
@@ -49,6 +49,12 @@ if (typeof window !== 'undefined') {
     if (cachedCats) {
       const parsedCats = JSON.parse(cachedCats);
       if (Array.isArray(parsedCats) && parsedCats.length > 0) {
+        parsedCats.sort((a, b) => {
+          const pa = a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0 ? Number(a.priority) : 999999;
+          const pb = b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0 ? Number(b.priority) : 999999;
+          if (pa !== pb) return pa - pb;
+          return 0;
+        });
         window.CATEGORIES = parsedCats;
       }
     }
@@ -62,11 +68,11 @@ function getStoreSettings() {
 }
 function getDeliveryFee() {
   const s = getStoreSettings();
-  return typeof s.deliveryFee === 'number' ? s.deliveryFee : 150;
+  return typeof s.deliveryFee === 'number' ? s.deliveryFee : 99;
 }
 function getFreeDeliveryThreshold() {
   const s = getStoreSettings();
-  return typeof s.freeDeliveryThreshold === 'number' ? s.freeDeliveryThreshold : 2000;
+  return typeof s.freeDeliveryThreshold === 'number' ? s.freeDeliveryThreshold : 1999;
 }
 function getTranslationValue(dictionary, key) {
   return key.split(".").reduce((value, part) => value?.[part], dictionary) || "";
@@ -85,19 +91,25 @@ function triggerHaptic(type = 'light') {
 }
 // Universal Smart WhatsApp URL Builder
 function buildWhatsAppUrl(phoneNumber, message) {
-  const activePhone = phoneNumber || getStoreSettings().whatsapp || '923368945775';
+  const activePhone = phoneNumber || getStoreSettings().whatsapp || '923391965200';
   const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
   const encodedText = encodeURIComponent(message || '');
   // Official WhatsApp Meta universal deep-link (prioritizes regular WhatsApp across all platforms)
   return `https://wa.me/${cleanPhone}?text=${encodedText}`;
 }
 
+// Global Helper: Check if running in native Capacitor / Android shell
+function checkIsNativeApp() {
+  if (typeof window === 'undefined') return false;
+  return Boolean(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() || window.location && (window.location.protocol === 'capacitor:' || window.location.protocol === 'ionic:') || typeof navigator !== 'undefined' && /wv|Android.*Version\/[\d.]+/i.test(navigator.userAgent));
+}
+
 // Smart WhatsApp App Launcher: Opens Regular WhatsApp First!
 function launchWhatsApp(phoneNumber, message) {
-  const activePhone = phoneNumber || getStoreSettings().whatsapp || '923368945775';
+  const activePhone = phoneNumber || getStoreSettings().whatsapp || '923391965200';
   const cleanPhone = String(activePhone).replace(/[^0-9]/g, '');
   const encodedText = encodeURIComponent(message || '');
-  const isCapacitor = typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+  const isCapacitor = checkIsNativeApp();
   const isAndroid = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
   const isMobile = typeof navigator !== 'undefined' && (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || isCapacitor);
   const universalWaUrl = `https://wa.me/${cleanPhone}?text=${encodedText}`;
@@ -140,52 +152,183 @@ function launchWhatsApp(phoneNumber, message) {
   }
 }
 
+// 🔒 Collision-proof unique Order ID generator (Chronological + Random Entropy)
+function generateUniqueOrderId(prefix = '') {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const datePart = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+  const timePart = `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return prefix ? `${prefix}-${datePart}-${timePart}-${randomSuffix}` : `${datePart}-${timePart}-${randomSuffix}`;
+}
+
+// 🕒 Bulletproof Timestamp Extractor for Order Tracking (Supports numeric epoch, ISO, date+time, & prefixed IDs)
+function parseOrderCreatedAt(order) {
+  if (!order) return Date.now();
+  if (typeof order.createdAt === 'number' && !isNaN(order.createdAt) && order.createdAt > 0) return order.createdAt;
+  if (order.createdAt) {
+    const num = Number(order.createdAt);
+    if (!isNaN(num) && num > 1000000000000) return num;
+    const t = new Date(order.createdAt).getTime();
+    if (!isNaN(t) && t > 0) return t;
+  }
+  if (order.createdAtIso) {
+    const t = new Date(order.createdAtIso).getTime();
+    if (!isNaN(t) && t > 0) return t;
+  }
+  if (order.date && order.time) {
+    const tStr = order.time.length === 5 ? order.time + ':00' : order.time;
+    const t = new Date(`${order.date}T${tStr}`).getTime();
+    if (!isNaN(t) && t > 0) return t;
+  }
+  if (order.id && typeof order.id === 'string' && order.id.includes('-')) {
+    const parts = order.id.split('-');
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (/^\d{8}$/.test(parts[i]) && /^\d{4,6}$/.test(parts[i + 1])) {
+        const dStr = parts[i];
+        const tStr = parts[i + 1];
+        const y = parseInt(dStr.slice(0, 4), 10);
+        const m = parseInt(dStr.slice(4, 6), 10) - 1;
+        const d = parseInt(dStr.slice(6, 8), 10);
+        const hh = parseInt(tStr.slice(0, 2), 10);
+        const mm = parseInt(tStr.slice(2, 4), 10);
+        const ss = tStr.length >= 6 ? parseInt(tStr.slice(4, 6), 10) : 0;
+        const parsed = new Date(y, m, d, hh, mm, ss).getTime();
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+    }
+  }
+  return Date.now();
+}
+
+// ── BULLETPROOF CLOUD ORDER DISPATCH & RETRY QUEUE ──
+function getPendingCloudOrders() {
+  try {
+    const raw = localStorage.getItem('zs_pending_cloud_orders');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function savePendingCloudOrders(orders) {
+  try {
+    localStorage.setItem('zs_pending_cloud_orders', JSON.stringify(orders || []));
+  } catch (e) {}
+}
+function queuePendingCloudOrder(sbOrder) {
+  try {
+    const list = getPendingCloudOrders();
+    if (!list.some(o => String(o.id) === String(sbOrder.id))) {
+      list.push(sbOrder);
+      savePendingCloudOrders(list);
+    }
+  } catch (e) {}
+}
+function removePendingCloudOrder(orderId) {
+  try {
+    const list = getPendingCloudOrders();
+    const filtered = list.filter(o => String(o.id) !== String(orderId));
+    savePendingCloudOrders(filtered);
+  } catch (e) {}
+}
+let isFlushingOrderQueue = false;
+async function flushPendingCloudOrders() {
+  if (isFlushingOrderQueue) return;
+  if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+  const list = getPendingCloudOrders();
+  if (!list || list.length === 0) return;
+  isFlushingOrderQueue = true;
+  try {
+    for (const sbOrder of list) {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(sbOrder),
+          keepalive: true
+        });
+        if (res.status >= 200 && res.status < 300 || res.status === 409) {
+          removePendingCloudOrder(sbOrder.id);
+        }
+      } catch (err) {
+        break;
+      }
+    }
+  } catch (e) {} finally {
+    isFlushingOrderQueue = false;
+  }
+}
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', flushPendingCloudOrders);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) flushPendingCloudOrders();
+  });
+  setInterval(flushPendingCloudOrders, 25000);
+  setTimeout(flushPendingCloudOrders, 3000);
+}
+
 // Smart Order Dispatcher to Admin Backend & Cloud Sync
 function dispatchOrderToBackend(orderRecord) {
   if (!orderRecord) return;
   try {
-    const bodyStr = JSON.stringify(orderRecord);
+    const rawPhone = orderRecord.customer && orderRecord.customer.phone || orderRecord.customerPhone || '';
+    const digits = String(rawPhone).replace(/[^0-9]/g, '');
+    const safePhone = digits.length >= 7 ? digits : '03000000000';
+    const sbOrder = {
+      id: String(orderRecord.id),
+      customer_name: orderRecord.customer && orderRecord.customer.name || orderRecord.customerName || 'Customer',
+      customer_phone: safePhone,
+      customer_address: orderRecord.customer && orderRecord.customer.address || orderRecord.customerAddress || '',
+      delivery_type: orderRecord.deliveryType || orderRecord.deliveryMethod || 'standard',
+      payment_method: orderRecord.paymentMethod || 'cash',
+      subtotal: Number(orderRecord.subtotal || 0),
+      delivery_fee: Number(orderRecord.deliveryFee || 0),
+      total: Number(orderRecord.grandTotal !== undefined ? orderRecord.grandTotal : orderRecord.total || 0),
+      total_savings: Number(orderRecord.totalSavings || 0),
+      status: orderRecord.status || 'placed',
+      items: orderRecord.items || [],
+      raw_data: orderRecord,
+      created_at: orderRecord.createdAtIso || new Date().toISOString()
+    };
 
-    // 1. Direct Supabase Cloud Database Insert (Guarantees delivery from 4G/5G/WiFi globally!)
+    // 1. Immediately store in persistent localStorage queue (offline proof)
+    queuePendingCloudOrder(sbOrder);
+
+    // 2. Direct Supabase Cloud Database Insert (Guarantees delivery from 4G/5G/WiFi globally!)
     try {
-      const sbOrder = {
-        id: String(orderRecord.id),
-        customer_name: orderRecord.customer && orderRecord.customer.name || 'Customer',
-        customer_phone: orderRecord.customer && orderRecord.customer.phone || '',
-        customer_address: orderRecord.customer && orderRecord.customer.address || '',
-        delivery_type: orderRecord.deliveryType || 'standard',
-        payment_method: orderRecord.paymentMethod || 'cash',
-        subtotal: Number(orderRecord.subtotal || 0),
-        delivery_fee: Number(orderRecord.deliveryFee || 0),
-        total: Number(orderRecord.total || 0),
-        total_savings: Number(orderRecord.totalSavings || 0),
-        status: orderRecord.status || 'pending',
-        items: orderRecord.items || [],
-        raw_data: orderRecord,
-        created_at: new Date().toISOString()
-      };
       fetch(`${SUPABASE_URL}/rest/v1/orders`, {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
+          'Prefer': 'return=minimal'
         },
         body: JSON.stringify(sbOrder),
         keepalive: true
+      }).then(res => {
+        if (res.status >= 200 && res.status < 300 || res.status === 409) {
+          removePendingCloudOrder(sbOrder.id);
+        }
       }).catch(() => {});
     } catch (e) {}
 
-    // 2. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
-    fetch('/api/customer-order', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: bodyStr,
-      keepalive: true
-    }).catch(() => {});
+    // 3. Direct Local/LAN Server (Instant delivery if on same WiFi or localhost)
+    try {
+      fetch('/api/customer-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderRecord),
+        keepalive: true
+      }).catch(() => {});
+    } catch (e) {}
   } catch (e) {}
 }
 function saveInvoiceAsImage(order, language) {
@@ -220,7 +363,7 @@ function saveInvoiceAsImage(order, language) {
   ctx.fillText('WHOLESALE & RETAIL STORE • KARACHI', 36, 70);
   ctx.fillStyle = '#475569';
   ctx.font = '600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-  ctx.fillText('📞 0336-8945775', 36, 88);
+  ctx.fillText('📞 ' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), 36, 88);
   ctx.fillStyle = '#0f172a';
   ctx.beginPath();
   if (ctx.roundRect) ctx.roundRect(width - 165, 34, 130, 24, 6);else ctx.rect(width - 165, 34, 130, 24);
@@ -298,9 +441,10 @@ function saveInvoiceAsImage(order, language) {
     ctx.fillText(nameText, 72, curY + 20);
     curY += 22;
     if (it.variant) {
-      ctx.fillStyle = '#b45309';
+      const isWeight = String(it.variant).includes('⚖️') || String(it.variant).toLowerCase().includes('wazan');
+      ctx.fillStyle = isWeight ? '#047857' : '#b45309';
       ctx.font = '700 10px system-ui, sans-serif';
-      ctx.fillText('🎨 Shade: ' + it.variant, 72, curY + 13);
+      ctx.fillText(isWeight ? it.variant : '🎨 Shade: ' + it.variant, 72, curY + 13);
       curY += 16;
     }
     if (it.extraPercent > 0) {
@@ -404,16 +548,26 @@ function saveInvoiceAsImage(order, language) {
   ctx.font = '500 10.5px system-ui, sans-serif';
   ctx.fillText('For exchanges or inquiries, WhatsApp us at +92 336 8945775', width / 2, curY);
   canvas.toBlob(async function (blob) {
-    if (!blob) {
-      generatePDFReceipt(order, language);
-      return;
-    }
+    if (!blob) return;
     const fileName = `ZS_Mart_Invoice_#ST-${order.id || 'order'}.png`;
+
+    // 1. Android Native Bridge: Direct save to MediaStore Gallery (Scoped Storage)
+    try {
+      const base64Data = canvas.toDataURL('image/png');
+      if (window.AndroidBridge && typeof window.AndroidBridge.saveImageToGallery === 'function') {
+        const saved = window.AndroidBridge.saveImageToGallery(base64Data, fileName);
+        if (saved) {
+          triggerHaptic('success');
+          alert(tr(language, '✅ Bill saved to your device Gallery / Photos!', '✅ Bill aapke phone ki Gallery mein save ho gaya!', 'بل گیلری میں محفوظ ہو گیا۔'));
+          return;
+        }
+      }
+    } catch (e) {}
+
+    // 2. Web Share API (Android Chrome / iOS Safari)
     const file = new File([blob], fileName, {
       type: 'image/png'
     });
-
-    // 1. Try Web Share API (native sheet on Android / iOS)
     if (navigator.canShare && navigator.canShare({
       files: [file]
     })) {
@@ -429,7 +583,7 @@ function saveInvoiceAsImage(order, language) {
       }
     }
 
-    // 2. Direct Anchor Download
+    // 3. Desktop Web Anchor Download Fallback
     try {
       const link = document.createElement('a');
       link.download = fileName;
@@ -440,21 +594,20 @@ function saveInvoiceAsImage(order, language) {
         document.body.removeChild(link);
         URL.revokeObjectURL(link.href);
       }, 1000);
+      triggerHaptic('success');
+      alert(tr(language, '✅ Bill downloaded to your device!', '✅ Bill download ho gaya!', 'بل ڈاؤن لوڈ ہو گیا۔'));
     } catch (e) {}
-
-    // 3. Also open PDF / Printable receipt window as guaranteed viewable receipt
-    setTimeout(() => {
-      generatePDFReceipt(order, language);
-    }, 300);
   }, 'image/png');
 }
 function generatePDFReceipt(order, language) {
   triggerHaptic('success');
+  const escHtml = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   const totalBulkSaved = order.totalSavings || (order.items || []).reduce((acc, it) => acc + (it.extraSavings || 0), 0);
   const itemsRows = (order.items || []).map((item, idx) => {
     const itemExtraSavings = Number(item.extraSavings || 0);
     const itemExtraPercent = Number(item.extraPercent || 0);
-    const variantText = item.variant ? `<div style="font-size: 11px; color: #b45309; font-weight: 700; margin-top: 2px;">🎨 Shade/Colour: ${item.variant}</div>` : '';
+    const isWeight = String(item.variant || '').includes('⚖️') || String(item.variant || '').toLowerCase().includes('wazan');
+    const variantText = item.variant ? `<div style="font-size: 11px; color: ${isWeight ? '#047857' : '#b45309'}; font-weight: 700; margin-top: 2px;">${isWeight ? escHtml(item.variant) : '🎨 Shade/Colour: ' + escHtml(item.variant)}</div>` : '';
     const discountBadge = itemExtraPercent > 0 ? `
           <div style="font-size: 11px; color: #15803d; font-weight: 700; margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 6px; border-radius: 4px;">
             🎁 Bulk Discount (${itemExtraPercent}% OFF): Saved Rs ${itemExtraSavings.toLocaleString()}
@@ -464,11 +617,11 @@ function generatePDFReceipt(order, language) {
         <tr>
           <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; text-align: center; color: #64748b; vertical-align: top;">${idx + 1}</td>
           <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; font-weight: 600; color: #0f172a; vertical-align: top;">
-            <div>${item.name}</div>
+            <div>${escHtml(item.name)}</div>
             ${variantText}
             ${discountBadge}
           </td>
-          <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center; color: #0f172a; vertical-align: top; font-weight: 700;">${item.qty || 1}</td>
+          <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center; color: #0f172a; vertical-align: top; font-weight: 700;">${Number(item.qty || 1)}</td>
           <td style="padding: 10px 10px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; color: #0f172a; vertical-align: top;">
             <div>Rs ${Number(item.price || 0).toLocaleString()}</div>
             ${itemExtraPercent > 0 ? `<div style="font-size: 10.5px; color: #16a34a; font-weight: 700;">(Effective: Rs ${Math.round(item.total / (item.qty || 1)).toLocaleString()}/pc)</div>` : ''}
@@ -486,7 +639,7 @@ function generatePDFReceipt(order, language) {
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Invoice #${order.id} - ZS Mart</title>
+          <title>Invoice #${escHtml(order.id)} - ZS Mart</title>
           <style>
             * { box-sizing: border-box; }
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: #f8fafc; margin: 0; padding: 16px; }
@@ -518,25 +671,25 @@ function generatePDFReceipt(order, language) {
               <div>
                 <h1 class="brand-title">ZS Mart</h1>
                 <div class="brand-sub">Wholesale & Retail Store • Karachi</div>
-                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 0336-8945775</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">📞 ${(getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0')}</div>
               </div>
               <div style="text-align: right;">
                 <span class="inv-badge">OFFICIAL INVOICE</span>
-                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 6px;">#ST-${order.id}</div>
-                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${order.dateText || new Date().toLocaleDateString()}</div>
+                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 6px;">#ST-${escHtml(order.id)}</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${escHtml(order.dateText || new Date().toLocaleDateString())}</div>
               </div>
             </div>
 
             <div class="meta-grid">
               <div>
                 <div class="meta-label">Customer Details</div>
-                <div class="meta-val">${order.customer?.name || 'Walk-in Customer'}</div>
-                <div style="color: #64748b; font-size: 11px;">${order.customer?.phone || ''}</div>
+                <div class="meta-val">${escHtml(order.customer?.name || 'Walk-in Customer')}</div>
+                <div style="color: #64748b; font-size: 11px;">${escHtml(order.customer?.phone || '')}</div>
               </div>
               <div>
                 <div class="meta-label">Delivery Destination</div>
                 <div class="meta-val">${order.deliveryMethod === 'pickup' ? '🏬 Store Pickup (ZS Mart Karachi)' : '🚚 Home Delivery'}</div>
-                <div style="color: #64748b; font-size: 11px;">${order.customer?.address || 'ZS Mart Karachi Store'}</div>
+                <div style="color: #64748b; font-size: 11px;">${escHtml(order.customer?.address || 'ZS Mart Karachi Store')}</div>
               </div>
             </div>
 
@@ -636,7 +789,7 @@ function generatePDFReceipt(order, language) {
 
                 ctx.fillStyle = '#475569';
                 ctx.font = '600 11px system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
-                ctx.fillText('📞 0336-8945775', 36, 88);
+                ctx.fillText('📞 ' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), 36, 88);
 
                 ctx.fillStyle = '#0f172a';
                 ctx.beginPath();
@@ -726,9 +879,10 @@ function generatePDFReceipt(order, language) {
                   curY += 22;
 
                   if (it.variant) {
-                    ctx.fillStyle = '#b45309';
+                    const isWeight = String(it.variant).includes('⚖️') || String(it.variant).toLowerCase().includes('wazan');
+                    ctx.fillStyle = isWeight ? '#047857' : '#b45309';
                     ctx.font = '700 10px system-ui, sans-serif';
-                    ctx.fillText('🎨 Shade: ' + it.variant, 72, curY + 13);
+                    ctx.fillText(isWeight ? it.variant : ('🎨 Shade: ' + it.variant), 72, curY + 13);
                     curY += 16;
                   }
 
@@ -884,11 +1038,52 @@ function generatePDFReceipt(order, language) {
         </body>
         </html>
       `;
-  const printWindow = window.open('', '_blank');
-  if (printWindow) {
-    printWindow.document.open();
-    printWindow.document.write(printHtml);
-    printWindow.document.close();
+
+  // 1. Android Native Print: Call native PrintManager via AndroidBridge (Opens Android Print Spooler / Save as PDF)
+  if (window.AndroidBridge && typeof window.AndroidBridge.printInvoice === 'function') {
+    try {
+      window.AndroidBridge.printInvoice(printHtml, String(order.id || 'order'));
+      return;
+    } catch (e) {}
+  }
+
+  // 2. Desktop Web / Browser Print: Use isolated hidden iframe so React App DOM is NEVER wiped!
+  try {
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.opacity = '0';
+    iframe.style.pointerEvents = 'none';
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(printHtml);
+    doc.close();
+    iframe.contentWindow.focus();
+    setTimeout(() => {
+      try {
+        iframe.contentWindow.print();
+      } catch (e) {}
+      setTimeout(() => {
+        try {
+          document.body.removeChild(iframe);
+        } catch (e) {}
+      }, 4000);
+    }, 500);
+  } catch (e) {
+    // Safe fallback only if iframe creation failed, verifying window reference is not self
+    try {
+      const printWindow = window.open('', '_blank');
+      if (printWindow && printWindow !== window) {
+        printWindow.document.open();
+        printWindow.document.write(printHtml);
+        printWindow.document.close();
+      }
+    } catch (err) {}
   }
 }
 function getImgUrl(imgPath) {
@@ -916,6 +1111,21 @@ function getImgUrl(imgPath) {
 
   // High-speed CDN with global edge caching for Android APK, WebView, and live Web
   return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${cleanName}${vQuery}`;
+}
+function getProductImgSrc(product) {
+  if (!product) return null;
+  if (product.imageUrl) {
+    const ver = product.imageVersion || typeof window !== 'undefined' && window.__IMG_CACHE_BUSTER__ || '';
+    return ver ? `${product.imageUrl}?v=${ver}` : product.imageUrl;
+  }
+  const ext = typeof window !== 'undefined' && window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || (product.hasImage ? 'webp' : null) || product.imageExt || null;
+  if (ext) {
+    return getImgUrl(`images/${product.id}.${ext}`);
+  }
+  return null;
+}
+if (typeof window !== 'undefined') {
+  window.getProductImgSrc = getProductImgSrc;
 }
 function translate(dictionary, key, params = {}) {
   let value = getTranslationValue(dictionary, key);
@@ -1209,6 +1419,144 @@ function calculateBulkPricing(sellingPrice, qty) {
     effectiveUnitPrice,
     tierLabel: tier.label
   };
+}
+
+// --- Loose Grocery & Weight Selection Helper Functions ---
+function isWeightSelectableProduct(product) {
+  if (!product) return false;
+  // SIRF attacheenidaalchawal category — koi keyword check nahi
+  const catId = (product.categoryId || '').toLowerCase();
+  return catId === 'attacheenidaalchawal';
+}
+function getWeightOptionsForProduct(product) {
+  if (!product || !product.price) return null;
+  if (!isWeightSelectableProduct(product)) return null;
+  const basePrice = Number(product.price) || 0;
+  if (basePrice <= 0) return null;
+  const nameUpper = (product.name || '').toUpperCase();
+
+  // Case 1: Atta / Maida (Flour options: 1kg, 2kg, 5kg, 10kg, 15kg, 20kg)
+  if (nameUpper.includes('ATTA') || nameUpper.includes('AATA') || nameUpper.includes('MAIDA')) {
+    const p1kg = basePrice;
+    return [{
+      id: '1kg',
+      label: '1 Kilo (1 KG)',
+      weightText: '1 KG',
+      multiplier: 1,
+      price: Math.round(p1kg * 1)
+    }, {
+      id: '2kg',
+      label: '2 Kilo (2 KG)',
+      weightText: '2 KG',
+      multiplier: 2,
+      price: Math.round(p1kg * 2)
+    }, {
+      id: '5kg',
+      label: '5 Kilo (5 KG Bag)',
+      weightText: '5 KG',
+      multiplier: 5,
+      price: Math.round(p1kg * 5),
+      isPopular: true
+    }, {
+      id: '10kg',
+      label: '10 Kilo (10 KG Bag)',
+      weightText: '10 KG',
+      multiplier: 10,
+      price: Math.round(p1kg * 10)
+    }, {
+      id: '15kg',
+      label: '15 Kilo (15 KG Bag)',
+      weightText: '15 KG',
+      multiplier: 15,
+      price: Math.round(p1kg * 15)
+    }, {
+      id: '20kg',
+      label: '20 Kilo (20 KG Bori)',
+      weightText: '20 KG',
+      multiplier: 20,
+      price: Math.round(p1kg * 20)
+    }];
+  }
+
+  // Case 2: Items where base price is for 1 Pao (Daalein, Chane, Sabut Dana)
+  const isBasePao = nameUpper.includes('1PAO') || nameUpper.includes('PAO');
+  if (isBasePao) {
+    const pPao = basePrice;
+    return [{
+      id: '1pao',
+      label: '1 Pao (250 Gram)',
+      weightText: '1 Pao (250g)',
+      multiplier: 1,
+      price: Math.round(pPao * 1),
+      isPopular: true
+    }, {
+      id: '1.5pao',
+      label: '1.5 Pao / Dhedh Pao (375g)',
+      weightText: '1.5 Pao (375g)',
+      multiplier: 1.5,
+      price: Math.round(pPao * 1.5)
+    }, {
+      id: 'adha_kg',
+      label: 'Adha Kilo / 2 Pao (500g)',
+      weightText: 'Adha Kilo (500g)',
+      multiplier: 2,
+      price: Math.round(pPao * 2)
+    }, {
+      id: '1kg',
+      label: '1 Kilo / 4 Pao (1000g)',
+      weightText: '1 KG (1000g)',
+      multiplier: 4,
+      price: Math.round(pPao * 4)
+    }, {
+      id: '2kg',
+      label: '2 Kilo (2000g)',
+      weightText: '2 KG (2000g)',
+      multiplier: 8,
+      price: Math.round(pPao * 8)
+    }];
+  }
+
+  // Case 3: Items where base price is for 1 KG (Cheeni, Chawal, Rice, etc.)
+  const p1kg = basePrice;
+  const pPao = p1kg / 4;
+  return [{
+    id: '1pao',
+    label: '1 Pao (250 Gram)',
+    weightText: '1 Pao (250g)',
+    multiplier: 0.25,
+    price: Math.round(pPao)
+  }, {
+    id: '1.5pao',
+    label: '1.5 Pao / Dhedh Pao (375g)',
+    weightText: '1.5 Pao (375g)',
+    multiplier: 0.375,
+    price: Math.round(pPao * 1.5)
+  }, {
+    id: 'adha_kg',
+    label: 'Adha Kilo (500 Gram)',
+    weightText: 'Adha Kilo (500g)',
+    multiplier: 0.5,
+    price: Math.round(p1kg * 0.5)
+  }, {
+    id: '1kg',
+    label: '1 Kilo (1 KG)',
+    weightText: '1 KG',
+    multiplier: 1,
+    price: Math.round(p1kg * 1),
+    isPopular: true
+  }, {
+    id: '2kg',
+    label: '2 Kilo (2 KG)',
+    weightText: '2 KG',
+    multiplier: 2,
+    price: Math.round(p1kg * 2)
+  }, {
+    id: '5kg',
+    label: '5 Kilo (5 KG Bag)',
+    weightText: '5 KG',
+    multiplier: 5,
+    price: Math.round(p1kg * 5)
+  }];
 }
 function getProductDisplayName(product, language) {
   if (!product) return "";
@@ -1628,84 +1976,115 @@ function PerfumeIcon({
 }
 // --- Product Categories and Data ---
 var DEFAULT_CATEGORIES = [{
-  id: "soaps",
-  name: "Local & Imported Soaps"
+  id: "attacheenidaalchawal",
+  name: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: "milkliquidpowder",
+  name: "Milk & Tea Essentials",
+  priority: 3
+}, {
+  id: "masale",
+  name: "Masale (Khule & Packed)",
+  priority: 2
+}, {
+  id: "groceryandkaryana",
+  name: "Grocery & Karyana",
+  priority: 1
+}, {
+  id: "beverages",
+  name: "Beverages (Cold Drinks, Juices & Water)",
+  priority: 4
 }, {
   id: "shampoo",
-  name: "Shampoo & Conditioners"
+  name: "Shampoo & Conditioners",
+  priority: 4
+}, {
+  id: "haircolour",
+  name: "Hair Colors & Care & Oils",
+  priority: 10
 }, {
   id: "creams",
-  name: "Creams & Lotions & Bleach"
+  name: "Creams & Lotions & Bleach",
+  priority: 8
+}, {
+  id: "shaving",
+  name: "Shaving & Razers & Blades",
+  priority: 9
 }, {
   id: "stationary",
-  name: "Stationary & Tapes"
+  name: "Stationary & Tapes",
+  priority: 17
 }, {
   id: "sports",
   name: "Sports & Toys"
-}, {
-  id: "shaving",
-  name: "Shaving & Razers & Blades"
-}, {
-  id: "haircolour",
-  name: "Hair Colors & Care & Oils"
 }, {
   id: "condemn",
   name: "Condoms"
 }, {
   id: "lock",
-  name: "Locks & Cells & Lighters"
+  name: "Locks & Cells & Lighters",
+  priority: 10
 }, {
   id: "general",
-  name: "General Items & Others"
+  name: "General Items & Others",
+  priority: 11
 }, {
   id: "babycare",
-  name: "Baby Care & Powders"
+  name: "Baby Care & Powders & Pampers",
+  priority: 7
 }, {
   id: "mosquito",
-  name: "Anti- Mosquitoes"
+  name: "Anti- Mosquitoes",
+  priority: 13
 }, {
   id: "personalcare",
-  name: "Personal Care"
+  name: "Personal Care",
+  priority: 6
 }, {
   id: "fragnances",
-  name: "Fragnances & Roll on"
+  name: "Fragnances & Roll on",
+  priority: 15
 }, {
   id: "toothpasteandbrush",
-  name: "Dental Cares"
+  name: "Dental Cares",
+  priority: 16
 }, {
   id: "facewash",
-  name: "Face Wash & Body Washes"
+  name: "Face Wash & Body Wash & Hand Wash",
+  priority: 5
 }, {
-  id: "groceryandkaryana",
-  name: "Grocery & Karyana"
-}, {
-  id: "beverages",
-  name: "Beverages (Cold Drinks, Juices & Water)"
+  id: "soaps",
+  name: "Local & Imported Soaps"
 }];
 function getGlobalCategories(productsList) {
   // 🔄 DYNAMIC CATEGORY ENGINE — no APK rebuild needed for order, name changes or new categories
   var baseCategories = typeof window !== 'undefined' && Array.isArray(window.CATEGORIES) && window.CATEGORIES.length > 0 ? window.CATEGORIES : DEFAULT_CATEGORIES;
   var winProds = typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : null;
   var liveProducts = productsList || (winProds && winProds.length >= PRODUCTS.length ? winProds : PRODUCTS);
-  if (!liveProducts || liveProducts.length === 0) {
-    return baseCategories;
-  }
+
   // Build a map of categoryId -> latest categoryName from products
   var liveNameMap = {};
-  for (var i = 0; i < liveProducts.length; i++) {
-    var p = liveProducts[i];
-    if (p.categoryId && p.categoryName && !liveNameMap[p.categoryId]) {
-      liveNameMap[p.categoryId] = p.categoryName;
+  if (liveProducts && liveProducts.length > 0) {
+    for (var i = 0; i < liveProducts.length; i++) {
+      var p = liveProducts[i];
+      if (p.categoryId && p.categoryName && !liveNameMap[p.categoryId]) {
+        liveNameMap[p.categoryId] = p.categoryName;
+      }
     }
   }
   // Override default category names with live names, preserving order and priority
+  var defaultPrioMap = {};
+  DEFAULT_CATEGORIES.forEach(function (dc) {
+    if (dc.priority) defaultPrioMap[dc.id] = dc.priority;
+  });
   var seenIds = {};
   var result = baseCategories.map(function (cat) {
     seenIds[cat.id] = true;
+    var prio = cat.priority !== undefined && cat.priority !== null && Number(cat.priority) > 0 ? Number(cat.priority) : defaultPrioMap[cat.id];
     return {
       id: cat.id,
       name: liveNameMap[cat.id] || cat.name,
-      priority: cat.priority
+      priority: prio
     };
   });
   // Append any brand-new categories from server not in defaults
@@ -1721,8 +2100,8 @@ function getGlobalCategories(productsList) {
 
   // ⚡ Sort categories: priority 1, 2, 3... first, then unprioritized preserving original order
   result.sort(function (a, b) {
-    var pa = typeof a.priority === 'number' && a.priority > 0 ? a.priority : 999999;
-    var pb = typeof b.priority === 'number' && b.priority > 0 ? b.priority : 999999;
+    var pa = a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0 ? Number(a.priority) : 999999;
+    var pb = b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0 ? Number(b.priority) : 999999;
     if (pa !== pb) return pa - pb;
     return 0;
   });
@@ -1731,26 +2110,2327 @@ function getGlobalCategories(productsList) {
 var CATEGORIES = DEFAULT_CATEGORIES;
 var SWATCH_GRADIENTS = ["from-amber-400 to-orange-500", "from-violet-500 to-purple-600", "from-emerald-400 to-teal-600", "from-rose-400 to-pink-600", "from-sky-400 to-blue-600", "from-fuchsia-400 to-purple-600", "from-teal-400 to-cyan-600", "from-indigo-400 to-violet-600"];
 var PRODUCTS = [{
-  id: 1,
-  name: "7 HERBAL OIL 100ML RS,250",
-  price: 220,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  priority: 2
+  id: 1722,
+  name: "MOBILE WATER GAME LARGE GOOD QUALITY RS,349",
+  price: 249,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
 }, {
-  id: 2,
-  name: "7 HERBAL OIL 200ML RP,400",
+  id: 1721,
+  name: "SPINNER GOOD QUALITY (METAL)  LARGE RS,499",
+  price: 329,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1720,
+  name: "SPINNER GOOD QUALITY (METAL) SMALL RS,249",
+  price: 149,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1719,
+  name: "TOY FIDGET MAGIC BALL SPINNER EXCELLENT QUALITY RS,699",
+  price: 349,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1718,
+  name: "MOBILE WATER GAME SMALL RS,120",
+  price: 99,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1717,
+  name: "LICHEN HAIR SHAMPOO SACHET  BROWN RS,100",
+  price: 79,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1716,
+  name: "LICHEN HAIR SHAMPOO SACHET BLACK RS,100",
+  price: 79,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1715,
+  name: "CONDOM DUREX MIX 12 IN 1 DIBI RS,2200",
+  price: 1699,
+  categoryId: "condemn",
+  categoryName: "Condoms"
+}, {
+  id: 1714,
+  name: "NIPPLE PP SMALL 1 PIECE",
+  price: 39,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1713,
+  name: "BUTTERFLY SUPER PLUS MAXI THICK 10 PAD RS,250",
+  price: 219,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1712,
+  name: "TISSUE ROLL SMALL NORMAL QUALITY RS,70",
+  price: 49,
+  categoryId: "general",
+  categoryName: "General Items & Others"
+}, {
+  id: 1711,
+  name: "EXAM BOARD WOOD  DESIGN GOOD QUALITY RS,180",
+  price: 109,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1710,
+  name: "DAIRY EXCELLENT QUALITY MEDIUM RS,139",
+  price: 99,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1709,
+  name: "DAIRY EXCELLENT QUALITY MINI RS,89",
+  price: 49,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1708,
+  name: "BAKING PAPER NON STICK 5 METRES RS,430",
+  price: 289,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1707,
+  name: "TOOTH PICK SMALL RS,50",
+  price: 39,
+  categoryId: "toothpasteandbrush",
+  categoryName: "Dental Cares"
+}, {
+  id: 1706,
+  name: "SIM SIM BALL SMALL RS,20",
+  price: 10,
+  categoryId: "sports",
+  categoryName: "Sports & Toys"
+}, {
+  id: 1705,
+  name: "CARE HAIR REMOVE SACHET RS,40",
+  price: 32,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1704,
+  name: "CARE HAIR REMOVE SACHET RS,50",
+  price: 46,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1703,
+  name: "HEAD & SHOULDER SHAMPOO SMALL RS,220",
+  price: 199,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1702,
+  name: "IODEX BALM RS,140",
+  price: 119,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1701,
+  name: "VICKS VAPO BALM RS,240",
+  price: 219,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1700,
+  name: "LOCK SILVER 63MM RS,650",
+  price: 499,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1699,
+  name: "LOCK SILVER 50MM RS,499",
+  price: 389,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1698,
+  name: "LOCK SILVER 38MM RS,339",
+  price: 279,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1697,
+  name: "LOCK SILVER 32MM RS,279",
+  price: 219,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1696,
+  name: "MULTANI MITTI WITH WHITENING CAPSULE FREE RS,100",
+  price: 69,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1695,
+  name: "HASHMI SORMI RS,200",
+  price: 189,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1694,
+  name: "DR,BON GENTLE SOFT BRUSH RS,100",
+  price: 69,
+  categoryId: "toothpasteandbrush",
+  categoryName: "Dental Cares"
+}, {
+  id: 1693,
+  name: "PASBAN RAT KILLER BOOK RS,100",
+  price: 69,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1692,
+  name: "123 RAT KILLER BOOK RS,100",
+  price: 84,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1691,
+  name: "SHAMPOO TRESEMME BOTANIQUE 360ML (GREEN) RS,930",
+  price: 904,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1690,
+  name: "SHAMPOO TRESEMME KERATIN SMOOTH 360ML (RED) RS,930",
+  price: 904,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1689,
+  name: "DOVE GO FRESH NOURISHMENT CREAM RS, 450",
+  price: 389,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1688,
+  name: "LOTION VASELINE 200ML (IMP) YELLOW RS,730",
+  price: 675,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1687,
+  name: "SHAMPOO LIFEBUOY 400ML (ONION) RS,670",
+  price: 549,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1686,
+  name: "CHANDNI WHITENING CREAM RS,400",
+  price: 359,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1685,
+  name: "SHAMPOO DOVE 400ML (HAIR FALL RESCUE) RS,920",
+  price: 899,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1684,
+  name: "REGISTER NARROW LINE (500 PAGES) RS,400",
+  price: 279,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1683,
+  name: "REGISTER NARROW LINE (300 PAGES) RS,300",
+  price: 189,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1682,
+  name: "SOAP LUX PURPLE JUMBO 133GM RS,160",
+  price: 153,
+  categoryId: "soaps",
+  categoryName: "Local & Imported Soaps"
+}, {
+  id: 1681,
+  name: "SHAMPOO BIO AMLA FARVEL ORIGINAL RS,150",
+  price: 129,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1680,
+  name: "EAGLE UNDER SHAVE RAZER RS,60",
+  price: 39,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades"
+}, {
+  id: 1679,
+  name: "APPLE NAIL REMOVER FAST ACTING RS,169",
+  price: 89,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1678,
+  name: "LIFEBOUY HAND WASH GERM PROTECTION 220ML RS,499",
+  price: 399,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1677,
+  name: "LIFEBOUY HAND WASH GERM PROTECTION 140ML RS,370",
+  price: 279,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1676,
+  name: "NEXTON BABY SOFT CREAM ALOE VERA 24H RS,545",
+  price: 499,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1675,
+  name: "NEXTON BABY JELLY MILD FRAGNANCE 24H PROTECTION RS,499",
+  price: 449,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1674,
+  name: "NEXTON BABY DIAPER CARE CREAM 25ML RS,250",
+  price: 224,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1673,
+  name: "NEXTON BABY OIL ALOE VERA 250ML RS,775",
+  price: 729,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1672,
+  name: "NEXTON BABY OIL ALOE VERA 125ML RS,499",
+  price: 459,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1671,
+  name: "NEXTON BABY CHARMING BABY POWDER  100G RS,275",
+  price: 254,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1670,
+  name: "NEXTON BABY GENTLE ALOE VERA SOAP RS,299",
+  price: 284,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1669,
+  name: "CREAM HOMEO CURE 2 DAYS RESULT RS,450",
+  price: 399,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1668,
+  name: "CZAR COACKROACH KILLER INJECTION RS,195",
+  price: 174,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1667,
+  name: "SHAMPOO PANTENE 360ML BLUE RS,750",
+  price: 729,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1666,
+  name: "JOLEN CREAM BLEACH RS,449",
+  price: 289,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1665,
+  name: "SHIRLEY MAY BODY SPRAY BLACK MARKET 200ML RS,999",
+  price: 889,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1664,
+  name: "KRONE BODY SPRAY NOIR GASS FREE 120ML RS,849",
+  price: 699,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1663,
+  name: "BODY SPRAY JOHN LOUIS PARIS ROME FOR MEN 200ML RS,",
+  price: 749,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1662,
+  name: "J. BODY SPRAY RHYTHM FOR HIM 150ML RS,899",
+  price: 799,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1661,
+  name: "J. BODY SPRAY MIKA FOR HIM 150ML RS,899",
+  price: 799,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1660,
+  name: "J. BODY SPRAY JANAN FOR HIM 150ML RS,899",
+  price: 799,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1659,
+  name: "HISCENTS PERFUME DARKER NIGHT 100ML RS,1280",
+  price: 999,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1658,
+  name: "HISCENTS PERFUME BLUE DE OCEAN 100ML RS,1280",
+  price: 999,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1657,
+  name: "AXE BODY SPRAY APOLLO 48H ACTIVE RS,850",
+  price: 759,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1656,
+  name: "AXE BODY SPRAY BLACK 48H ACTIVE RS,850",
+  price: 759,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1655,
+  name: "AXE BODY SPRAY DARK TEMPERATURE 48H ACTIVE RS,850",
+  price: 759,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1654,
+  name: "TPG ZAINAB PERFUME 100ML RS,749",
+  price: 689,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1653,
+  name: "TPG NAJAF PERFUME 100ML RS,749",
+  price: 689,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1652,
+  name: "BLACK IS BLACK PERFUME FOR MEN 100ML RS,1250",
+  price: 999,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1651,
+  name: "HISCENTS BODY SPRAY COCO CHANAL 200ML RS,749",
+  price: 599,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1650,
+  name: "HISCENTS BODY SPRAY BLUE DE OCEAN 200ML RS,749",
+  price: 599,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1649,
+  name: "MOON STAR CHICHI PINK 100ML RS,999",
+  price: 799,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1648,
+  name: "MOON STAR PERFUME BLACK MART 100ML RS,999",
+  price: 799,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1647,
+  name: "MOON STAR PERFUME EVERYONE 100ML RS,999",
+  price: 799,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1646,
+  name: "SPORT STAR PERFUME 50ML 24H ACTIVE RS,750",
+  price: 619,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1645,
+  name: "DIRHAM POCKET PERFUME 35ML RS,600",
+  price: 499,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1644,
+  name: "VDY POCKET PERFUME 35ML RS,580",
+  price: 480,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1643,
+  name: "SHALIS WOMEN POCKET PERFUME 35ML RS,580",
+  price: 480,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1642,
+  name: "GHILAF E KABA POCKET PERFUME 35ML RS,650",
+  price: 480,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1641,
+  name: "SABAYA POCKET PERFUME 35ML RS,500",
+  price: 380,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1640,
+  name: "NIVEA ROLL ON WOMEN DERMA CONTROL DEFEND RS,650",
+  price: 519,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1639,
+  name: "NIVEA ROLL ON WOMEN HIJAB ACTIVE 48H ACTIVE RS,650",
+  price: 519,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1638,
+  name: "NIVEA ROLL ON WOMEN BLACK & WHITE INVISIBLE 72H ACTIVE RS,650",
+  price: 519,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1637,
+  name: "NIVEA ROLL ON MEN DEEP ESPRESSO 72H ACTIVE RS,650",
+  price: 519,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1636,
+  name: "NIVEA ROLL ON MEN BLACK & WHITE INVISIBLE 72H ACTIVE RS,650",
+  price: 519,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1635,
+  name: "NIVEA ROLL ON MEN COOL KICK 72H ACTIVE RS,650",
+  price: 519,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1634,
+  name: "BODY SPRAY DARHAM ORIGINAL 200ML RS,1100",
+  price: 890,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1633,
+  name: "FRESH FRAGNANCE BODY SPRAY 200ML",
+  price: 499,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1632,
+  name: "HO HANDS ON (HAND ,FACE & BODY WASH) 3IN1 RS, 350",
+  price: 299,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1631,
+  name: "JOHNSON'S BABY BATH 200ML RS,650",
+  price: 544,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1630,
+  name: "JOHNSON'S BABY BATH (TOP TO TOE) 100ML RS,350",
+  price: 284,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1629,
+  name: "VATIKA HAIR OIL 100ML (BLACK SEED) COMPANY RS,390",
+  price: 364,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1628,
+  name: "VATIKA HAIR OIL 100ML (ONION) COMPANY RS,390",
+  price: 364,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1627,
+  name: "SHAMPOO VATIKA DUBAI (COCONUT & CASTER) RS,499",
+  price: 459,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1626,
+  name: "SHAMPOO VATIKA DUBAI (REETHA) RS,499",
+  price: 459,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1625,
+  name: "SHAMPOO SUNSILK HAIRFALL SOLUTION 360ML RS,799",
+  price: 774,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1624,
+  name: "SHAMPOO SUNSILK THICK & LONG 360ML RS,799",
+  price: 774,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1623,
+  name: "SHAMPOO MECLAY PUMP GOLDEN 660ML RS,1380",
+  price: 1140,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1622,
+  name: "SHAMPOO MECLAY PUMP BLACK 660ML RS,1380",
+  price: 1140,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1621,
+  name: "SHAMPOO MECLAY PUMP WHITE 660ML RS,1380",
+  price: 1140,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1620,
+  name: "SHAMPOO MECLAY PUMP PINK 660ML RS,1380",
+  price: 1140,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1619,
+  name: "GATSBY GEL WATER GLOSS HARD 3 75GM RS,359",
+  price: 305,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1618,
+  name: "GATSBY GEL HYPER SOLIC 7 150GM RS,680",
+  price: 549,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1617,
+  name: "BRYLCREEM STYLING CREAM (ORIGINAL) GREEN 125ML RS,670",
+  price: 569,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1616,
+  name: "PONDS HYDRA MIRACLE SUPER LIGHT GEL JAR RS,1200",
+  price: 1049,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1615,
+  name: "HAIR SOFTEN ESSENCE CAPSULE RS,15",
+  price: 9,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1614,
+  name: "PEARS BODY WASH PURE & GENTLE 250ML RS,720",
+  price: 599,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1613,
+  name: "PEARS BODY WASH OIL CLEAR & GLOW 250ML RS,720",
+  price: 599,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1612,
+  name: "LUX BODY WASH FRESH ALOE 250ML RS,470",
+  price: 449,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1611,
+  name: "LUX BODY WASH MAGICAL ORCHID 250ML RS,470",
+  price: 449,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1610,
+  name: "DETTOL HAND WASH ORIGINAL 250ML RS,550",
+  price: 514,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1609,
+  name: "FACE WASH SKIN WHITE OIL SKIN 12H RS,280",
+  price: 259,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1608,
+  name: "FACE WASH SKIN WHITE NORMAL SKIN 12H RS,240",
+  price: 219,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1607,
+  name: "CARESSE HONEY LOTION 115ML  RS,375",
+  price: 349,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1606,
+  name: "FACE WASH FIABILA EXTRA WHITENING RS,480",
+  price: 419,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1605,
+  name: "FAIR & LOVELY M,V TUBE (LARGE)  RS,350",
+  price: 339,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1604,
+  name: "FAIR & LOVELY SUN CREAM TUBE SPF30 RS,250",
+  price: 234,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1603,
+  name: "MOUTH WASH LISTERINE COOL MINT 250ML RS,699",
+  price: 599,
+  categoryId: "toothpasteandbrush",
+  categoryName: "Dental Cares"
+}, {
+  id: 1602,
+  name: "MOUTH WASH LISTERINE FRESH  CITRUS 250ML RS,699",
+  price: 599,
+  categoryId: "toothpasteandbrush",
+  categoryName: "Dental Cares"
+}, {
+  id: 1601,
+  name: "SHAMPOO DOVE 5 OIL NOURISHING CARE 400ML RS,999",
+  price: 969,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1600,
+  name: "SHAMPOO DOVE AMINO INTENSE REPAIR 400ML RS,999",
+  price: 969,
+  categoryId: "shampoo",
+  categoryName: "Shampoo & Conditioners"
+}, {
+  id: 1599,
+  name: "DOVE BODY LOTION SUPPLE BOUNCE  100ML RS,520",
+  price: 449,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1598,
+  name: "DOVE BODY LOTION LIGHT HYDRATION 100ML RS,520",
+  price: 449,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1597,
+  name: "DOVE BODY LOTION NOURISHED RADIANCE 100ML RS,550",
+  price: 449,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1596,
+  name: "FACE WASH SKIN WHITE ACTIVATED CHARCOAL RS,200",
+  price: 189,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1595,
+  name: "FACE WASH SKIN WHITE RICE MILK RS,200",
+  price: 189,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1594,
+  name: "FACE WASH SAEED GHANI RICE RS,550",
+  price: 489,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1593,
+  name: "FACE WASH SAEED GHANI ACTIVATED CHARCOAL RS,550",
+  price: 489,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1592,
+  name: "NCHANTEUR ROLL ON STUNNING 48H RS,580",
+  price: 489,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1591,
+  name: "ENCHANTEUR ROLL ON GORGEOUS 48H RS,580",
+  price: 489,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1590,
+  name: "ENCHANTEUR ROLL ON CHARMING 48H RS,580",
+  price: 489,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1589,
+  name: "ENCHANTEUR ROLL ON ENTICING 48H RS,580",
+  price: 489,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1588,
+  name: "FAIR & LOVELY WINTER CREAM JAR RS,399",
+  price: 379,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1587,
+  name: "FACE WASH RIVAJ WHITENING VITAMIN C LARGE RS,499",
+  price: 439,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1586,
+  name: "FACE WASH PONDS ACNE CONTROL SMALL RS,350",
+  price: 329,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1585,
+  name: "FACE WASH PONDS HYDRA MIRACLE ACNE CONTROL RS,520",
+  price: 499,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1584,
+  name: "FACE WASH PONDS ULTRA LIGHT BLOME GEL (INDONESIA) RS,550",
+  price: 529,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1583,
+  name: "FACE WASH PONDS SUN MIRACLE  & VITAMIN C (INDONESIA) RS,550",
+  price: 529,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1582,
+  name: "FACE WASH Y,C  VITAMIC-C LARGE RS,499",
+  price: 449,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1581,
+  name: "FACE WASH MEC (FLAWLESS BRIGHT) RS,499",
+  price: 399,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1580,
+  name: "FAIR & LOVELY FACE WASH MEN SMALL RS,220",
+  price: 209,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1579,
+  name: "LIP BALM R GOOD QUALITY RS,50",
+  price: 23.33,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1578,
+  name: "SAFIT BODY SHAVING RAZER FOR WOMEN (PACK OF 6) RS,150",
+  price: 140,
+  categoryId: "personalcare",
+  categoryName: "Personal Care"
+}, {
+  id: 1577,
+  name: "SKIN WHITE WHITENING CREAM JAR 91GM RS,270",
+  price: 249,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1576,
+  name: "SKIN WHITE WHITENING CREAM 50GM RS,125",
+  price: 114,
+  categoryId: "creams",
+  categoryName: "Creams & Lotions & Bleach"
+}, {
+  id: 1575,
+  name: "LAMIS PURE BLUE PERFUME 100ML (ORIGINAL) RS,2900",
+  price: 1999,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1574,
+  name: "LAMIS PURE BLACK PERFUME 100ML (ORIGINAL) RS,2900",
+  price: 1999,
+  categoryId: "fragnances",
+  categoryName: "Fragnances & Roll on"
+}, {
+  id: 1573,
+  name: "DOVE BODY WASH GO FRESH COCUMBER RS,799",
+  price: 549,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1572,
+  name: "DOVE BODY WASH DEEPLY NOURISHING RS,799",
+  price: 549,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1571,
+  name: "DOVE BODY WASH GO FRESH POMEGRANATE  RS,799",
+  price: 549,
+  categoryId: "facewash",
+  categoryName: "Face Wash & Body Wash & Hand Wash"
+}, {
+  id: 1570,
+  name: "TINKE WALI JHADO RS,160",
+  price: 139,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1569,
+  name: "HUB SALT (PINK SALT) PACKET RS,100",
+  price: 89,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1568,
+  name: "PISSI KALI MIRCH PACKET 40GM RS,130",
+  price: 99,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1567,
+  name: "KUTTI MIRCH PACKET 140GM RS,125",
+  price: 99,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1566,
+  name: "KUTTI MIRCH PACKET 70GM RS,65",
+  price: 49,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1565,
+  name: "PISSI LAL MIRCH PACKET 140GM RS,125",
+  price: 99,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1564,
+  name: "PISSI LAL MIRCH PACKET 70GM RS,125",
+  price: 49,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1563,
+  name: "CHIA SEEDS PACKET 50G RS,65",
+  price: 49,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1562,
+  name: "HALDI MASALA PACKET 140GM RS,150",
+  price: 119,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1561,
+  name: "HALDI MASALA PACKET 70GM RS,80",
+  price: 59,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1560,
+  name: "SOOJI (1PAO) RS,70",
+  price: 54,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1559,
+  name: "AJWAIN PACKET 100GM RS,65",
+  price: 49,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1558,
+  name: "SPECIAL GARM MASALA (PEESA HOA) 48GM RS,65",
+  price: 99,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1557,
+  name: "SPECIAL GARM MASALA (PEESA HOA) 24GM RS,65",
+  price: 49,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1556,
+  name: "SABUT DANA PACKET 200GM RS,150",
+  price: 119,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1555,
+  name: "SABUT DANA 100GM PACKET RS,80",
+  price: 59,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1554,
+  name: "SONF PACKET 50GM RS,70",
+  price: 49,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1553,
+  name: "ZEERA MASALA 35GM PACKET RS,70ZEERA MASALA 70GM PACKET RS,130",
+  price: 99,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1552,
+  name: "ZEERA MASALA 35GM PACKET RS,70",
+  price: 49,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1551,
+  name: "BAKE PARLOR BAR B. QUE MACARONI BOX 250GM RS,170",
+  price: 159,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1550,
+  name: "BAKE PARLOR TIKKA MACARONI 2IN1  BOX 250GM RS,170",
+  price: 159,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1549,
+  name: "BAKE PARLOR SPAGHETTI BOX 450GM RS,260",
+  price: 249,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1548,
+  name: "TANG LEMON PEPPER DRINK POUCH 125GM RS,100",
+  price: 95,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1547,
+  name: "TANG PINE APPLE DRINK POUCH 125GM RS,100",
+  price: 95,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1546,
+  name: "TANG MANGO DRINK POUCH 125GM RS,100",
+  price: 95,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1545,
+  name: "TANG ORANGE DRINK POUCH 125GM RS,100",
+  price: 95,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1544,
+  name: "YOUNG'S CHICKEN SPREAD SACHET SMALL RS,60",
+  price: 45,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1543,
+  name: "YOUNG'S MAYONNAISE 40ML SACHET RS,60",
+  price: 44,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1542,
+  name: "NESTLE CERELAC 3 FRUIT & WHEAT 30GM SACHET RS,50",
+  price: 49,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1541,
+  name: "NESTLE CERELAC RICE 30GM SACHET RS,50",
+  price: 49,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1540,
+  name: "NESTLE CERELAC WHEAT 30GM SACHET RS,50",
+  price: 49,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1539,
+  name: "NESTLE BUNYAD MILK POWDER SACHET 26GM RS,50",
+  price: 49,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1538,
+  name: "NESTLE BUNYAD MILK POWDER 260GM RS,530",
+  price: 504,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1537,
+  name: "NESTLE EVERYDAY MILK POWDER 230GM RS,540",
+  price: 504,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1536,
+  name: "NESTLE EVERYDAY MILK POWDER SACHET 13GM RS,35",
+  price: 30,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1535,
+  name: "NATIONAL CHILLI GARLIC  KETCHUP SACHET RS,20",
+  price: 19,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1534,
+  name: "NATIONAL TOMATO KETCHUP SACHET RS,20",
+  price: 19,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1533,
+  name: "SHANGRILA MIX ACHAR SACHET RS,20",
+  price: 19,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1532,
+  name: "NATIONAL MIX ACHAR SACHET RS,20",
+  price: 19,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1531,
+  name: "CORE TIOLET CLEANER & DRAIN OPENER RS,140",
+  price: 114,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1530,
+  name: "CORE ULTRA BLEACH (CLOTHES) 500ML RS,140",
+  price: 110,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1529,
+  name: "CORE FLOOR MOP BOTTLE 450ML RS,299",
+  price: 259,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1528,
+  name: "CORE FLOOR MOP BOTTLE 250ML RS,199",
+  price: 149,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1527,
+  name: "LACTOGEN 3 MILK POWDER 200GM RS,790",
+  price: 759,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1526,
+  name: "LACTOGEN 2 MILK POWDER 200GM RS,790",
+  price: 759,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1525,
+  name: "LACTOGEN 1 MILK POWDER 200GM RS,790",
+  price: 759,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1524,
+  name: "LACTOGEN 3 MILK POWDER 800GM RS,2950",
+  price: 2879,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1523,
+  name: "LACTOGEN 2 MILK POWDER 800GM RS,2950",
+  price: 2879,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1522,
+  name: "LACTOGEN 1 MILK POWDER 800GM RS,2950",
+  price: 2879,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1521,
+  name: "NATIONAL MIX FRUIT JAM 410GM RS,350",
+  price: 330,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1520,
+  name: "NATIONAL APPLE JAM 410GM RS,350",
+  price: 330,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1519,
+  name: "NATIONAL MANGO JAM 410GM RS,350",
+  price: 330,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1518,
+  name: "NATIONAL MIX FRUIT  JAM 200GM RS,250",
+  price: 230,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1517,
+  name: "NATIONAL APPLE JAM 200GM RS,250",
+  price: 230,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1516,
+  name: "NATIONAL MANGO JAM 200GM RS,250",
+  price: 230,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1515,
+  name: "NATIONAL MIX ACHAR 320GM RS,320",
+  price: 299,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1514,
+  name: "NATIONAL MIX ACHAR BOX 370GM RS,330",
+  price: 294,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1513,
+  name: "BAKE PARLOR SAWAIYA (VERMICELLI) 100GM  RS,60",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1512,
+  name: "YOUNG'S CHICKEN SPREAD 1 LITRE  RS,1300",
+  price: 1249,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1511,
+  name: "YOUNG'S CHICKEN SPREAD 500ML RS,720",
+  price: 699,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1510,
+  name: "YOUNG'S CHICKEN SPREAD 200ML RS,320",
+  price: 289,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1509,
+  name: "YOUNG'S MAYONNAISE POUCH 1LITRE RS,730",
+  price: 669,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1508,
+  name: "YOUNG'S MAYONNAISE POUCH 500ML RS,400",
+  price: 359,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1507,
+  name: "YOUNG'S MAYONNAISE POUCH 200ML RS,180",
+  price: 164,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1506,
+  name: "NATIONAL CHILLI GARLIC KETCHUP 800GM RS,450",
+  price: 389,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1505,
+  name: "NATIONAL TOMATO KETCHUP 800GM RS,450",
+  price: 389,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1504,
+  name: "NATIONAL CHILLI GARLIC KETCHUP 400GM RS,230",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1503,
+  name: "NATIONAL TOMATO KETCHUP 400GM RS,230",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1502,
+  name: "NATIONAL CHILLI GARLIC KETCHUP 200GM RS,150",
+  price: 119,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1501,
+  name: "NATIONAL TOMATO KETCHUP 200GM RS,150",
+  price: 119,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1500,
+  name: "BAISAN GOOD QUALITY RS,90",
+  price: 84,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1499,
+  name: "KNOOR MAGGI (SPICY BEEF) RS,175",
+  price: 165,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1498,
+  name: "KNOOR MAGGI HOT SPICY (BLAZZIN) RS,175",
+  price: 165,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1497,
+  name: "SHOOP MAGGI (CHICKEN) FAMILY PACK RS,270",
+  price: 249,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1496,
+  name: "SHOOP MAGGI (CHATT PATTA) FAMILY PACK RS,270",
+  price: 249,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1495,
+  name: "SHOOP MAGGI (CHICKEN) RS,45",
+  price: 42,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1494,
+  name: "SHOOP MAGGI (CHATT PATTA) RS,45",
+  price: 42,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1493,
+  name: "KNOOR MAGGI (CHICKEN) FAMILY PACK RS,200",
+  price: 181,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1492,
+  name: "KNOOR MAGGI (CHATT PATTA) FAMILY PACK RS,200",
+  price: 181,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1491,
+  name: "KNOOR MAGGI (CHICKEN) RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1490,
+  name: "KNOOR MAGGI (CHATT PATTA) RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1489,
+  name: "KNOOR MAGGI (CHICKEN) RS,35",
+  price: 33,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1488,
+  name: "KNOOR MAGGI (CHATT PATTA) RS,35",
+  price: 33,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1487,
+  name: "OLPER MILK 1000ML RS,380",
   price: 369,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  priority: 3
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
 }, {
-  id: 3,
-  name: "7 HERBAL OIL 50ML RS,170",
-  price: 155,
+  id: 1486,
+  name: "NESTLE MILK PACK 1000ML RS,380",
+  price: 369,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1485,
+  name: "CUP SHUP MILK 250ML 27 PIECE CARTON RS,1500",
+  price: 1479,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1484,
+  name: "TARANG MILK 220ML 27PIECE CARTON RS,1550",
+  price: 1479,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1483,
+  name: "OLPER MILK 250ML 27 PIECE CARTON RS,2550",
+  price: 2499,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1482,
+  name: "NESTLE MILK PACK 250ML 27 PIECE CARTON RS,2550",
+  price: 2499,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1481,
+  name: "CUP SHUP MILK 250ML RS,60",
+  price: 59,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1480,
+  name: "TARANG MILK 250ML RS,60",
+  price: 58,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1479,
+  name: "OLPER MILK 250ML RS,100",
+  price: 98,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1478,
+  name: "NESTLE MILK PACK 250ML RS,100",
+  price: 98,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1477,
+  name: "TAPAL FAMILY MIXTURE TEA BOX 900GM  RS,1850",
+  price: 1819,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1476,
+  name: "TAPAL FAMILY MIXTURE TEA BOX 430GM  RS,900",
+  price: 889,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1475,
+  name: "BONA PAPA PAMPER (XXL) PACKET RS,1400",
+  price: 1389,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1474,
+  name: "BONA PAPA PAMPER (XXL) 1PC RS,35",
+  price: 30,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1473,
+  name: "BONA PAPA PAMPER (XL) PACKET RS,1300",
+  price: 1289,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1472,
+  name: "BONA PAPA PAMPER (XL) 1PC RS,35",
+  price: 28,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1471,
+  name: "BONA PAPA PAMPER LARGE PACKET RS,1200",
+  price: 1189,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1470,
+  name: "BONA PAPA PAMPER LARGE 1PC RS,30",
+  price: 26,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1469,
+  name: "BONA PAPA PAMPER MEDIUM PACKET  RS,1150",
+  price: 1099,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1468,
+  name: "BONA PAPA PAMPER MEDIUM 1PC RS,27",
+  price: 23,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1467,
+  name: "BONA PAPA PAMPER SMALL PACKET RS,950",
+  price: 939,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1466,
+  name: "BONA PAPA PAMPER SMALL 1PC RS,23",
+  price: 19,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1465,
+  name: "BONA PAPA PAMPER (NEW BORN) PACKET RS,950",
+  price: 910,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1464,
+  name: "BONA PAPA PAMPER (NEW BORN) 1PC RS,20",
+  price: 19,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers"
+}, {
+  id: 1463,
+  name: "LAAL MASOR KI DAAL (1PAO) RS,90",
+  price: 69,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1462,
+  name: "KAALI MASAR DAAL (1PAO) RS,90",
+  price: 69,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1461,
+  name: "CHANE KI DAAL (1PAO) RS,90",
+  price: 79,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1460,
+  name: "DAAL MASH (1PAO) RS,120",
+  price: 109,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1459,
+  name: "MONG KI DAAL (1PAO) RS,90",
+  price: 69,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1458,
+  name: "SAFEED CHAANA (1PAO) RS,110",
+  price: 89,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1456,
+  name: "KALA CHAANA (1PAO) RS,90",
+  price: 79,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1455,
+  name: "MONG DAAL CHILKE WALI (1PAO) RS,90",
+  price: 74,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1454,
+  name: "FINE ATTA 1KG RS,190",
+  price: 180,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1453,
+  name: "TOTA BASMATI RICE RS,250",
+  price: 199,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1452,
+  name: "SABUT BASMATI RICE GOOD QUALITY RS,300",
+  price: 239,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1451,
+  name: "BASMATI CHAWAL (#1121) PREMIUM QUALITY RS,400",
+  price: 359,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1450,
+  name: "CHAKII ATTA 1KG RS,190",
+  price: 164,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1449,
+  name: "PURE SEELA CHAWAL PREMIUM QUALITY RS,450",
+  price: 380,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1448,
+  name: "CHEENI 1KG RS,150",
+  price: 134,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1447,
+  name: "ATTA MIX 1KG RS,175",
+  price: 162,
+  categoryId: "attacheenidaalchawal",
+  categoryName: "Atta & Chenee & Daal & Chawal"
+}, {
+  id: 1446,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,400",
+  price: 389,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1445,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,200",
+  price: 196,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1444,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,100",
+  price: 98,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1443,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,50",
+  price: 49,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1442,
+  name: "TAPAL FAMILY MIXTURE TEA BOX RS,30",
+  price: 29,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1441,
+  name: "TAPAL DANE DAR TEA PACKET 900GM RS,1850",
+  price: 1820,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1440,
+  name: "TAPAL DANE DAR TEA PACKET 350GM RS,750",
+  price: 734,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1439,
+  name: "TAPAL DANE DAR TEA BOX 170GM RS,400",
+  price: 389,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1438,
+  name: "TAPAL DANE DAR TEA BOX 85GM RS,200",
+  price: 196,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1437,
+  name: "TAPAL DANE DAR TEA BOX RS,100",
+  price: 92.83,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1436,
+  name: "TAPAL DANE DAR TEA BOX RS,50",
+  price: 49,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1435,
+  name: "TAPAL DANE DAR TEA BOX RS,30",
+  price: 29,
+  categoryId: "milkliquidpowder",
+  categoryName: "Milk & Tea Essentials"
+}, {
+  id: 1434,
+  name: "DUX STEPLER PIN 24/6 BOX RS,120",
+  price: 69,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1433,
+  name: "DUX STEPLER GOOD QUALITY 24/6 RS,550",
+  price: 479,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1432,
+  name: "DEER RAINBOW COLOR PENCIL (FULL SIZE) 12 PIECE  RS,220",
+  price: 149,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1431,
+  name: "DEER RAINBOW COLOR PENCIL (HALF SIZE) 12 PIECE  RS,150",
+  price: 89,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1430,
+  name: "SCALE NORMAL QUALITY LARGE RS,30",
+  price: 20,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1429,
+  name: "SCALE NORMAL QUALITY SMALL RS,20",
+  price: 14,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1428,
+  name: "SHAN CHAPLI KABAB MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1427,
+  name: "SHAN SHAMI KABAB MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1426,
+  name: "SHAN TIKKA SEEKH KABAB MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1425,
+  name: "SHAN KOFTA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1424,
+  name: "SHAN FRIED FISH MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1423,
+  name: "SHAN PAYA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1422,
+  name: "SHAN CHAAT MASALA BOX RS,100",
+  price: 92,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1421,
+  name: "SHAN TANDOORI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1420,
+  name: "SHAN PILAU BIRYANI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1419,
+  name: "SHAN KEEMA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1418,
+  name: "SHAN KORMA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1417,
+  name: "SHAN CHICKEN WHITE KARAHI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1416,
+  name: "SHAN SINDHI BIRYANI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1415,
+  name: "SHAN KARAHI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1414,
+  name: "SHAN CHICKEN MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1413,
+  name: "SHAN NIHARI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1412,
+  name: "SHAN ACHAR GOSHT MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1411,
+  name: "SHAN CHICKEN TIKKA MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1410,
+  name: "SHAN SPECIAL BOMBAY BIRYANI MASALA BOX RS,150",
+  price: 139,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1409,
+  name: "FACE MASK BLUE RS,20",
+  price: 6,
+  categoryId: "general",
+  categoryName: "General Items & Others"
+}, {
+  id: 1408,
+  name: "SOAP LUX WHITE 98GM RS,130",
+  price: 124,
+  categoryId: "soaps",
+  categoryName: "Local & Imported Soaps"
+}, {
+  id: 1407,
+  name: "SOAP LUX PINK 98GM RS,130",
+  price: 124,
+  categoryId: "soaps",
+  categoryName: "Local & Imported Soaps"
+}, {
+  id: 1406,
+  name: "SOAP LUX PURPLE 98GM RS,130",
+  price: 124,
+  categoryId: "soaps",
+  categoryName: "Local & Imported Soaps"
+}, {
+  id: 1405,
+  name: "DOLLAR INK PEN FP-5 RS,100",
+  price: 69,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1404,
+  name: "REGISTER NARROW LINE (400 PAGES) RS,370",
+  price: 249,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1403,
+  name: "PAPER COPY MEDIUM SIZE (3IN1) RS,120",
+  price: 84,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1402,
+  name: "PAPER COPY MEDIUM SIZE (URDU) RS,120",
+  price: 84,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1401,
+  name: "PAPER COPY MEDIUM SIZE (MATH) RS,120",
+  price: 84,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1400,
+  name: "PAPER COPY MEDIUM SIZE (ENGLISH) RS,120",
+  price: 84,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1399,
+  name: "PAPER COPY (NORMAL QUALITY) RS,50",
+  price: 34,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1398,
+  name: "PENCIL NORMAL QUALITY RS,20",
+  price: 13,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1397,
+  name: "TIP TOP GLUE SMALL RS,60",
+  price: 35,
+  categoryId: "stationary",
+  categoryName: "Stationary & Tapes"
+}, {
+  id: 1396,
+  name: "123 MOSQUITO GLOBE RS,160",
+  price: 139,
+  categoryId: "mosquito",
+  categoryName: "Anti- Mosquitoes"
+}, {
+  id: 1395,
+  name: "DARCO-1 BLACK SAFETY RS,20",
+  price: 10,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades"
+}, {
+  id: 1394,
+  name: "CELL SUPER MAXCELL AAA RS,40",
+  price: 24,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1393,
+  name: "LASER EXTRA DUTY CELL AA",
+  price: 29,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1392,
+  name: "RK STAINLESS DOUBLE EDGE BLADE RS,10",
+  price: 8,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades"
+}, {
+  id: 1391,
+  name: "CELL POWER PLUS AAA RS,40",
+  price: 24,
+  categoryId: "lock",
+  categoryName: "Locks & Cells & Lighters"
+}, {
+  id: 1390,
+  name: "SHAN SHAMI KABAB MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1389,
+  name: "SHAN TIKKA SEEKH KABAB MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1388,
+  name: "SHAN KOFTA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1387,
+  name: "SHAN FRIED FISH MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1386,
+  name: "SHAN PAYA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1385,
+  name: "SHAN CHAAT MASALA SACHET RS,30",
+  price: 28,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1384,
+  name: "SHAN TANDOORI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1383,
+  name: "SHAN PILAU BIRYANI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1382,
+  name: "SHAN KEEMA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1381,
+  name: "SHAN KORMA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1380,
+  name: "SHAN CHICKEN WHITE KARAHI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1379,
+  name: "SHAN SINDHI BIRYANI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1378,
+  name: "SHAN KARAHI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1377,
+  name: "SHAN CHICKEN MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1376,
+  name: "SHAN NIHARI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1375,
+  name: "SHAN CHICKEN TIKKA MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1374,
+  name: "SHAN SPECIAL BOMBAY BIRYANI MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1373,
+  name: "SHAN ACHAR GOSHT MASALA SACHET RS,80",
+  price: 74,
+  categoryId: "masale",
+  categoryName: "Masale (Khule & Packed)"
+}, {
+  id: 1372,
+  name: "SURF BRITE (SMALL) RS,10",
+  price: 10,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1371,
+  name: "SURF BONUS (SMALL) RS,10",
+  price: 10,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1370,
+  name: "SURF EXCEL (SMALL )RS,10",
+  price: 10,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1369,
+  name: "SURF BONUS 180GM RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1368,
+  name: "SURF EXCEL 90GM RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1367,
+  name: "SURF BRITE 95GM RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1366,
+  name: "SURF ARIEL 85GM RS,50",
+  price: 49,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1365,
+  name: "SURF BONUS 375GM RS,99",
+  price: 98,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1364,
+  name: "SURF SUNLIGHT 375GM RS,99",
+  price: 98,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1363,
+  name: "SURF SUNLIGHT 730GM  RS,199",
+  price: 194,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1362,
+  name: "SURF BONUS 1KG RS,270",
+  price: 270,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1361,
+  name: "SURF EXPRESS 1KG RS,520",
+  price: 499,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1360,
+  name: "SURF BRITE 1KG RS,620",
+  price: 599,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1359,
+  name: "SURF ARIEL 1KG RS,580",
+  price: 579,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1358,
+  name: "SURF EXCEL 1KG RS,620",
+  price: 599,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1357,
+  name: "SURF EXPRESS 500GM RS,260",
+  price: 249,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1356,
+  name: "SURF BRITE 500GM RS,310",
+  price: 299,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1355,
+  name: "SURF ARIEL 500GM RS,300",
+  price: 289,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1354,
+  name: "SURF EXCEL 500GM RS,310",
+  price: 299,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1353,
+  name: "LEMON MAX DISHWASH BAR (LARGE) RS,100",
+  price: 98,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1352,
+  name: "LEMON MAX DISHWASH BAR (MEDIUM) RS,35",
+  price: 35,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1351,
+  name: "LEMON MAX DISHWASH BAR (SMALL) RS,25",
+  price: 25,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1350,
+  name: "COLOUR GODREJ SACHET (NATURAL BLACK) RS,80",
+  price: 59,
   categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  priority: 1
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1349,
+  name: "MATCHES BOX RS,50",
+  price: 39,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1348,
+  name: "RIVON HAIR COLOR SACHET  (DARK BROWN) RS,80",
+  price: 74,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1347,
+  name: "RIVON HAIR COLOR SACHET  (BLACK) RS,80",
+  price: 74,
+  categoryId: "haircolour",
+  categoryName: "Hair Colors & Care & Oils"
+}, {
+  id: 1346,
+  name: "TANG SACHET PINEAPPLE RS,25",
+  price: 24,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1345,
+  name: "TANG SACHET ORANGE RS,25",
+  price: 24,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1344,
+  name: "TANG SACHET MANGO RS,25",
+  price: 24,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1343,
+  name: "RAFHAN CUSTURD POWDER STRAWBERRY 275 GM RS,220",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1342,
+  name: "RAFHAN CUSTURD POWDER VANILLA 275 GM RS,220",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1341,
+  name: "RAFHAN CUSTURD POWDER BANANA 275 GM RS,220",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1340,
+  name: "RAFHAN CUSTURD POWDER MANGO 275 GM RS,220",
+  price: 199,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1339,
+  name: "TURK BODY RAZER",
+  price: 34,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades"
+}, {
+  id: 1338,
+  name: "RISEK SACHET 20MG  PATA RS,30",
+  price: 24,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1337,
+  name: "LAZEEZA KHEER MIX BOX RS,165",
+  price: 159,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
+}, {
+  id: 1336,
+  name: "TRIM CLASSIC BODY RAZER RS,50",
+  price: 34,
+  categoryId: "shaving",
+  categoryName: "Shaving & Razers & Blades"
+}, {
+  id: 1335,
+  name: "TIGER LOTION SASHAY RS,10",
+  price: 9,
+  categoryId: "mosquito",
+  categoryName: "Anti- Mosquitoes"
 }, {
   id: 5,
   name: "AL RASHIEED OIL 100ML SASSO",
@@ -1759,8 +4439,8 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 6,
-  name: "ALOE VERA GEL TUBE (LARGE)",
-  price: 140,
+  name: "ALOE VERA GEL TUBE 260ML RS,360",
+  price: 299,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -1768,8 +4448,8 @@ var PRODUCTS = [{
   initial: "A"
 }, {
   id: 7,
-  name: "ALOE VERA GEL TUBE 160ml (MEDIUM) 160ML",
-  price: 99,
+  name: "ALOE VERA GEL TUBE 160ML RS,290",
+  price: 230,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -1777,8 +4457,8 @@ var PRODUCTS = [{
   initial: "A"
 }, {
   id: 8,
-  name: "ALOE VERA GEL TUBE (SMALL) 80ML",
-  price: 70,
+  name: "ALOE VERA GEL TUBE 80ML RS,230",
+  price: 169,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -1802,13 +4482,6 @@ var PRODUCTS = [{
   price: 140,
   categoryId: "sports",
   categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 17,
-  name: "BAJAJ ALMOND OIL 100ML",
-  price: 950,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  priority: 4
 }, {
   id: 18,
   name: "BALL ADIDAS",
@@ -1877,67 +4550,37 @@ var PRODUCTS = [{
 }, {
   id: 32,
   name: "BALL PEN PIANO YELLOW BLUE CAP",
-  price: 15,
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 33,
-  name: "BALL PEN PICASSO BLUE",
-  price: 18,
+  name: "BALL PEN PICASSO GRIP BLUE",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 34,
-  name: "BALL PEN PICASSO RED",
-  price: 18,
+  name: "BALL PEN PICASSO GRIP RED",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 37,
-  name: "BALL POINT PEN SIGNATURE (BLACK)",
-  price: 18,
+  name: "BALL  PEN SIGNATURE (BLACK) RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 38,
-  name: "BALL POINT PEN SIGNATURE (BLUE)",
-  price: 18,
+  name: "BALL PEN SIGNATURE (BLUE) RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
-  id: 46,
-  name: "BANYAN (# 38)",
-  price: 165,
-  categoryId: "general",
-  categoryName: "General Items & Others"
-}, {
-  id: 47,
-  name: "BANYAN (# 40)",
-  price: 175,
-  categoryId: "general",
-  categoryName: "General Items & Others"
-}, {
-  id: 48,
-  name: "BANYAN (# 42)",
-  price: 185,
-  categoryId: "general",
-  categoryName: "General Items & Others"
-}, {
-  id: 49,
-  name: "BANYAN (# 44)",
-  price: 195,
-  categoryId: "general",
-  categoryName: "General Items & Others"
-}, {
-  id: 50,
-  name: "BANYAN CHILD  30# GOOD QUALITY",
-  price: 80,
-  categoryId: "general",
-  categoryName: "General Items & Others"
-}, {
   id: 51,
-  name: "BIO AMLA HAIR OIL 100ML RS,280",
-  price: 190,
+  name: "BIO AMLA HAIR OIL 100ML RS,300",
+  price: 269,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -1946,13 +4589,13 @@ var PRODUCTS = [{
 }, {
   id: 52,
   name: "BIO AMLA HAIR OIL 200ML FARVAL ORIGINAL RS,475",
-  price: 380,
+  price: 444,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 53,
   name: "BIO AMLA HAIR OIL 50ML FARVAL ORIGINAL RS,160",
-  price: 140,
+  price: 139,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
@@ -2004,15 +4647,6 @@ var PRODUCTS = [{
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades"
 }, {
-  id: 65,
-  name: "BODY RAZOR TINKLE (DOUBLE PACK SAFETY)",
-  price: 190,
-  categoryId: "shaving",
-  categoryName: "Shaving & Razers & Blades",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[5],
-  initial: "B"
-}, {
   id: 66,
   name: "BODY RAZOR TWINKLE LADIES (EYEBROW)",
   price: 75,
@@ -2029,24 +4663,6 @@ var PRODUCTS = [{
   categoryName: "Fragnances & Roll on",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
-  initial: "B"
-}, {
-  id: 68,
-  name: "BODY SPRAY AXE (CHOCOLATE)",
-  price: 690,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[1],
-  initial: "B"
-}, {
-  id: 69,
-  name: "BODY SPRAY AXE (MIX)",
-  price: 690,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[2],
   initial: "B"
 }, {
   id: 70,
@@ -2100,18 +4716,6 @@ var PRODUCTS = [{
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on"
 }, {
-  id: 78,
-  name: "BODY SPRAY DUNHILL DESIRE (BLUE)",
-  price: 640,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on"
-}, {
-  id: 79,
-  name: "BODY SPRAY DUNHILL DESIRE (RED)",
-  price: 640,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on"
-}, {
   id: 81,
   name: "BODY SPRAY EVERY ONE",
   price: 590,
@@ -2121,15 +4725,9 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[6],
   initial: "B"
 }, {
-  id: 82,
-  name: "BODY SPRAY FERRARI (MIX)",
-  price: 390,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on"
-}, {
   id: 83,
   name: "BODY SPRAY FOGG (BLACK) MARCO (PK)",
-  price: 949,
+  price: 999,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
@@ -2138,7 +4736,7 @@ var PRODUCTS = [{
 }, {
   id: 84,
   name: "BODY SPRAY FOGG (DARK BLUE) ROYAL",
-  price: 949,
+  price: 999,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on"
 }, {
@@ -2211,18 +4809,6 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[3],
   initial: "B"
 }, {
-  id: 95,
-  name: "BODY SPRAY J. (OUD)",
-  price: 749,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on"
-}, {
-  id: 96,
-  name: "BODY SPRAY J. (ZARAR)",
-  price: 749,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on"
-}, {
   id: 97,
   name: "BODY SPRAY JANAN",
   price: 749,
@@ -2242,8 +4828,8 @@ var PRODUCTS = [{
   categoryName: "Fragnances & Roll on"
 }, {
   id: 100,
-  name: "BODY SPRAY MARKHOR (MIX) RP,625",
-  price: 690,
+  name: "BODY SPRAY MARKHOR (MIX) RS,820",
+  price: 694,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on"
 }, {
@@ -2377,8 +4963,8 @@ var PRODUCTS = [{
   categoryName: "Dental Cares"
 }, {
   id: 134,
-  name: "BRUSH COBOR",
-  price: 60,
+  name: "BRUSH COBOR I PIECE RS,80",
+  price: 59,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
@@ -2455,38 +5041,38 @@ var PRODUCTS = [{
   categoryName: "General Items & Others"
 }, {
   id: 146,
-  name: "BRYLCREEM (MEDIUM) (ORIGINAL) RED",
-  price: 580,
+  name: "BRYLCREEM STYLING CREAM (ORIGINAL) RED 125ML RS,670",
+  price: 569,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 148,
-  name: "BUTTERFLY PAD ALWAYS DARK BLUE RS,480",
-  price: 430,
+  name: "BUTTERFLY LONG PAD ULTRA THIN XXL RS,450",
+  price: 414,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 151,
-  name: "BUTTERFLY PAD ALWAYS ULTRA (EXTRA LONG) RP,230",
-  price: 210,
+  name: "BUTTERFLY PAD ULTRA THIN (EXTRA LONG) RS,230",
+  price: 209,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 152,
-  name: "BUTTERFLY PAD ALWAYS ULTRA (LONG) RP,230",
-  price: 210,
+  name: "BUTTERFLY PAD ULTRA THIN (LONG) RS,230",
+  price: 209,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 153,
-  name: "BUTTERFLY PAD MAXI THICK (EXTRA LONG 8PCS) RP,340",
-  price: 310,
+  name: "BUTTERFLY PAD MAXI THICK (EXTRA LONG 8PCS) RS,340",
+  price: 309,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 154,
-  name: "BUTTERFLY PAD MAXI THICK (LONG 9PCS) RP,340",
-  price: 310,
+  name: "BUTTERFLY PAD MAXI THICK (LONG 9PCS) RS,340",
+  price: 309,
   categoryId: "personalcare",
   categoryName: "Personal Care",
   hasImage: true,
@@ -2512,8 +5098,8 @@ var PRODUCTS = [{
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 158,
-  name: "CELL POWER PLUS AA",
-  price: 30,
+  name: "CELL POWER PLUS AA RS,40",
+  price: 34,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters",
   hasImage: true,
@@ -2521,26 +5107,26 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 159,
-  name: "CELL TOSHIBA AA (BLACK)",
-  price: 35,
+  name: "CELL TOSHIBA AA (BLACK) RS,50",
+  price: 39,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 161,
-  name: "CELL TOSHIBA AA (RED)",
-  price: 35,
+  name: "CELL TOSHIBA AA (RED) RS,40",
+  price: 34,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 162,
-  name: "CELL TOSHIBA AAA (BLACK)",
-  price: 35,
+  name: "CELL TOSHIBA AAA (BLACK) RS,50",
+  price: 39,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 163,
-  name: "CELL TOSHIBA AAA (RED)",
-  price: 35,
+  name: "CELL TOSHIBA AAA (RED) RS,40",
+  price: 34,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters",
   hasImage: true,
@@ -2548,8 +5134,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 165,
-  name: "CELL TOSHIBA SIZE (D)",
-  price: 140,
+  name: "CELL TOSHIBA SIZE (D) RS,220",
+  price: 179,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
@@ -2614,8 +5200,8 @@ var PRODUCTS = [{
   categoryName: "Anti- Mosquitoes"
 }, {
   id: 175,
-  name: "COFFEE SACHET (60 PCS)",
-  price: 40,
+  name: "COFFEE SACHET (60 PCS) RS,50",
+  price: 34,
   categoryId: "general",
   categoryName: "General Items & Others",
   hasImage: true,
@@ -2623,14 +5209,14 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 177,
-  name: "COLOUR BLACK ROSE # 43",
-  price: 190,
+  name: "COLOUR BLACK ROSE # 43 RS,220",
+  price: 189,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 178,
-  name: "COLOUR BLACK ROSE 45 # RS,220",
-  price: 190,
+  name: "COLOUR BLACK ROSE #45 RS,220",
+  price: 189,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2639,7 +5225,7 @@ var PRODUCTS = [{
 }, {
   id: 183,
   name: "COLOUR GARNIER (ALL COLOURS) RS,1099",
-  price: 899,
+  price: 969,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
@@ -2653,8 +5239,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 187,
-  name: "COLOUR GODREJ SACHET (DARK,BROWN)",
-  price: 70,
+  name: "COLOUR GODREJ SACHET (DARK,BROWN) RS,80",
+  price: 59,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2662,8 +5248,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 188,
-  name: "COLOUR GODREJ SACHET (NATURAL BROWN)",
-  price: 70,
+  name: "COLOUR GODREJ SACHET (NATURAL BROWN) RS,80",
+  price: 59,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2692,14 +5278,14 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 192,
-  name: "COLOUR KALA KOLA HAIR # 02 LARGE (M,BROWN)",
-  price: 190,
+  name: "COLOUR KALA KOLA # 02 (M,BROWN) RS,300",
+  price: 284,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 206,
-  name: "COLOUR OLIVIA (ALL COLOURS) RS,300",
-  price: 260,
+  name: "COLOUR OLIVIA (ALL COLORS) RS,320",
+  price: 279,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2717,7 +5303,7 @@ var PRODUCTS = [{
 }, {
   id: 208,
   name: "COLOUR PRIMA HAIR (# 43 BROWN) RS,80",
-  price: 60,
+  price: 59,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2726,7 +5312,7 @@ var PRODUCTS = [{
 }, {
   id: 209,
   name: "COLOUR PRIMA HAIR (# 45 BLACK) RS,80",
-  price: 60,
+  price: 59,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2734,8 +5320,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 219,
-  name: "COLOUR REVLON REGULAR (ALL COLOURS) (LARGE)",
-  price: 790,
+  name: "REVLON HAIR COLOR 40ML (ALL COLORS) RS,785",
+  price: 729,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2743,8 +5329,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 221,
-  name: "COLOUR SAMSOLE (# 43 DARK BROWN) SMALL RS,160",
-  price: 145,
+  name: "COLOUR SAMSOLE #43 DARK BROWN SMALL RS,160",
+  price: 149,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2752,8 +5338,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 222,
-  name: "COLOUR SAMSOLE (# 45) BLACK SMALL RS,160",
-  price: 145,
+  name: "COLOUR SAMSOLE (# 43) DARK BROWN  LARGE RS,300",
+  price: 279,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2761,8 +5347,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 223,
-  name: "COLOUR SAMSOLE (# 43) DARK BROWN LARGE RS,300",
-  price: 260,
+  name: "COLOUR SAMSOLE # 45 BLACK SMALL RS,160",
+  price: 149,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2771,7 +5357,7 @@ var PRODUCTS = [{
 }, {
   id: 224,
   name: "COLOUR SAMSOLE (# 45) BLACK LARGE RS,300",
-  price: 260,
+  price: 279,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -2780,13 +5366,13 @@ var PRODUCTS = [{
 }, {
   id: 225,
   name: "COLOUR WAJEE TUBE ( # 43 DARK BROWN) RS,70",
-  price: 0,
+  price: 70,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 226,
   name: "COLOUR WAJEE TUBE ( # 45 BLACK) RS,70",
-  price: 0,
+  price: 70,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
@@ -2845,8 +5431,8 @@ var PRODUCTS = [{
   categoryName: "Condoms"
 }, {
   id: 236,
-  name: "CONDOM DUREX 3 IN 1 DIBI",
-  price: 0,
+  name: "CONDOM DUREX MIX 3 IN 1 DIBI RS,600",
+  price: 299,
   categoryId: "condemn",
   categoryName: "Condoms",
   priority: 1
@@ -2867,8 +5453,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 239,
-  name: "CONDOM KLIMAX (ECSTASY) ORIGINAL IMP",
-  price: 190,
+  name: "CONDOM KLIMAX (EXTASY) ORIGINAL RS,315",
+  price: 289,
   categoryId: "condemn",
   categoryName: "Condoms"
 }, {
@@ -2878,21 +5464,15 @@ var PRODUCTS = [{
   categoryId: "condemn",
   categoryName: "Condoms"
 }, {
-  id: 242,
-  name: "CONDOM SATHI (MENTHOL)",
-  price: 90,
-  categoryId: "condemn",
-  categoryName: "Condoms"
-}, {
   id: 243,
-  name: "CONDOM SATHI (RED)",
-  price: 80,
+  name: "CONDOM SATHI (MENTHOL) 3IN1 RS,180",
+  price: 119,
   categoryId: "condemn",
   categoryName: "Condoms"
 }, {
   id: 244,
   name: "CONDOM SATHI BOX RS,90",
-  price: 80,
+  price: 79,
   categoryId: "condemn",
   categoryName: "Condoms",
   hasImage: true,
@@ -2900,8 +5480,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 245,
-  name: "CONDOM TOUCH (BLUE) PACK 3 IN 1",
-  price: 149,
+  name: "CONDOM TOUCH (BLUE) PACK 5 IN 1 RS,400",
+  price: 299,
   categoryId: "condemn",
   categoryName: "Condoms",
   hasImage: true,
@@ -2979,7 +5559,7 @@ var PRODUCTS = [{
 }, {
   id: 256,
   name: "CONDITIONER MECLAY (BLACK)",
-  price: 370,
+  price: 389,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -2987,8 +5567,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 257,
-  name: "CONDITIONER MECLAY (GOLDEN)",
-  price: 370,
+  name: "CONDITIONER MECLAY (GOLDEN) RS,450",
+  price: 389,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -2996,8 +5576,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 258,
-  name: "CONDITIONER MECLAY (ORANGE)",
-  price: 370,
+  name: "CONDITIONER MECLAY (ORANGE) RS,450",
+  price: 389,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -3005,8 +5585,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 259,
-  name: "CONDITIONER MECLAY (PINK)",
-  price: 370,
+  name: "CONDITIONER MECLAY (PINK) RS,450",
+  price: 389,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -3014,8 +5594,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 261,
-  name: "CONDITIONER MECLAY (PP)",
-  price: 370,
+  name: "CONDITIONER MECLAY (PP) RS,450",
+  price: 389,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -3023,8 +5603,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 262,
-  name: "CONDITIONER MECLAY (RED)",
-  price: 370,
+  name: "CONDITIONER MECLAY (RED) RS,450",
+  price: 389,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -3032,8 +5612,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 263,
-  name: "CONDITIONER MECLAY (WHITE)",
-  price: 370,
+  name: "CONDITIONER MECLAY (WHITE) RS,450",
+  price: 389,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -3053,8 +5633,8 @@ var PRODUCTS = [{
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 267,
-  name: "CONDITIONER TRESEMME 400ml (MIX)",
-  price: 840,
+  name: "CONDITIONER TRESEMME 170ML RS,600",
+  price: 584,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -3062,8 +5642,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 269,
-  name: "COTTON BUD DIBI 100 PIECESS (WOOD)",
-  price: 80,
+  name: "COTTON BUD DIBI 100 PIECESS (WOOD) RS,130",
+  price: 99,
   categoryId: "personalcare",
   categoryName: "Personal Care",
   hasImage: true,
@@ -3071,44 +5651,29 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 270,
-  name: "COTTON BUD (PACKET) PLASTIC",
-  price: 30,
+  name: "COTTON BUD (PACKET) PLASTIC RS,50",
+  price: 29,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 271,
-  name: "COTTON BUD (PACKET) WOOD",
-  price: 30,
+  name: "COTTON BUD (PACKET) WOOD RS,50",
+  price: 29,
   categoryId: "personalcare",
   categoryName: "Personal Care",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "C"
 }, {
-  id: 272,
-  name: "COTTON BUD (PKT) WOOD (100 PIECES) TOP TIP",
-  price: 90,
-  categoryId: "personalcare",
-  categoryName: "Personal Care"
-}, {
   id: 273,
-  name: "COTTON BUD DIBI (PLASTIC) 100 PIECESS TOP TIP",
-  price: 120,
+  name: "COTTON BUD DIBI (PLASTIC) 100 PIECESS TOP TIP RS,130",
+  price: 99,
   categoryId: "personalcare",
   categoryName: "Personal Care"
-}, {
-  id: 274,
-  name: "COTTON BUD DIBI (WOOD) 100 PIECESS BLUE TOP TIP",
-  price: 120,
-  categoryId: "general",
-  categoryName: "General Items & Others",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[5],
-  initial: "C"
 }, {
   id: 278,
-  name: "CREAM AJOOBA",
-  price: 340,
+  name: "CREAM UJOOBA EXTRA WHITE RS,360",
+  price: 319,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3116,8 +5681,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 279,
-  name: "CREAM ARCHI PERL THAILAND",
-  price: 130,
+  name: "CREAM ARCHI PERL THAILAND RS,249",
+  price: 179,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3131,14 +5696,8 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 281,
-  name: "CREAM ARINA GOLD RS,350",
-  price: 295,
-  categoryId: "creams",
-  categoryName: "Creams & Lotions & Bleach"
-}, {
-  id: 282,
-  name: "CREAM ARINA GOLD (MEN) RP,350",
-  price: 295,
+  name: "CREAM ARENA GOLD RS,350",
+  price: 314,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
@@ -3180,7 +5739,7 @@ var PRODUCTS = [{
 }, {
   id: 289,
   name: "CREAM CARE BLEACH (BOX) ALOE VERA (ORIGINAL) RS,40",
-  price: 35,
+  price: 36,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3219,28 +5778,19 @@ var PRODUCTS = [{
 }, {
   id: 296,
   name: "CREAM EU TUBE (LARGE) RS,250",
-  price: 220,
+  price: 149,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
-  id: 297,
-  name: "CREAM EU TUBE (SMALL) RS,160",
-  price: 145,
-  categoryId: "creams",
-  categoryName: "Creams & Lotions & Bleach",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[7],
-  initial: "C"
-}, {
   id: 298,
-  name: "CREAM EU TUBE 75g (MEDIUM) RS,320",
-  price: 290,
+  name: "CREAM EU TUBE 75G (MEDIUM) RS,320",
+  price: 294,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 299,
   name: "CREAM FACE FRESH (LARGE) RS,360",
-  price: 295,
+  price: 270,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3302,8 +5852,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 310,
-  name: "CREAM GOLDEN PEARL RS,360",
-  price: 290,
+  name: "CREAM GOLDEN PEARL WITH GLUTA SERUM RS,360",
+  price: 319,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3317,8 +5867,8 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 312,
-  name: "CREAM JHALAK RS,360",
-  price: 295,
+  name: "CREAM JHALAK BEAUTY RS,360",
+  price: 314,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
@@ -3356,8 +5906,8 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 319,
-  name: "CREAM NIVEA (BLUE) 60ml",
-  price: 470,
+  name: "CREAM NIVEA (BLUE) 60ML RS,600",
+  price: 478,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
@@ -3368,8 +5918,8 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 321,
-  name: "CREAM NIVEA SOFT 50ML",
-  price: 380,
+  name: "CREAM NIVEA SOFT 50ML RS,480",
+  price: 395,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3407,8 +5957,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 326,
-  name: "CREAM PARLEY BLEACH SACHET BLACK RS,70",
-  price: 60,
+  name: "PARLEY BLEACH SACHET BLACK RS,70",
+  price: 59,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3440,8 +5990,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 331,
-  name: "CREAM PONDS JAR LARGE COMPANY RS,450",
-  price: 430,
+  name: "PONDS BRIGHT BEAUTY JAR LARGE  RS,499",
+  price: 459,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
@@ -3476,8 +6026,8 @@ var PRODUCTS = [{
   initial: "C"
 }, {
   id: 336,
-  name: "CREAM SANDAL RP,360",
-  price: 295,
+  name: "CREAM SANDAL BEAUTY FOR WINTERS & SUMMERS RS,360",
+  price: 319,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
@@ -3494,26 +6044,26 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 339,
-  name: "CREAM SHAVING ADMIRAL",
-  price: 200,
+  name: "CREAM SHAVING ADMIRAL RS,250",
+  price: 219,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades"
 }, {
   id: 340,
   name: "CREAM SHAVING DIPLOMAT RS,200",
-  price: 190,
+  price: 189,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades"
 }, {
   id: 341,
-  name: "CREAM SHAVING JOLLY",
-  price: 180,
+  name: "JOLLY SHAVING CREAM RS,220",
+  price: 194,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades"
 }, {
   id: 342,
   name: "CREAM SHAVING TOUCH ME RS,230",
-  price: 210,
+  price: 219,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades"
 }, {
@@ -3524,32 +6074,32 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 344,
-  name: "CREAM SIA GOLD RP,360",
-  price: 295,
+  name: "CREAM SIA GOLD BEAUTY 24K RP,360",
+  price: 314,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 347,
-  name: "CREAM SUDO 125GM (ORIGINAL)",
-  price: 1550,
+  name: "CREAM SUDO 125GM (ORIGINAL) RS,1700",
+  price: 1589,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 348,
   name: "CREAM SUDO 60GM (ORIGINAL)",
-  price: 1150,
+  price: 1109,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 349,
-  name: "CREAM TIBET COLD (LARGE) RS,250",
-  price: 235,
+  name: "CREAM TIBET COLD (LARGE) RS,230",
+  price: 219,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 350,
   name: "CREAM TIBET COLD (SMALL) RS,180",
-  price: 170,
+  price: 174,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3558,7 +6108,7 @@ var PRODUCTS = [{
 }, {
   id: 351,
   name: "CREAM TIBET SNOW RS,230",
-  price: 220,
+  price: 214,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3584,26 +6134,17 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 355,
-  name: "DABUR AMLA HAIR OIL (DUBAI) 100ml RS,360",
-  price: 330,
+  name: "DABUR AMLA HAIR OIL 100ML RS,380",
+  price: 369,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "D"
 }, {
-  id: 356,
-  name: "DABUR AMLA HAIR OIL (DUBAI) 300ML RS,880",
-  price: 795,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[1],
-  initial: "D"
-}, {
   id: 357,
-  name: "DABUR AMLA HAIR OIL (DUBAI) 50ml RS,180",
-  price: 170,
+  name: "DABUR AMLA HAIR OIL 50ML RS,200",
+  price: 189,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -3635,47 +6176,35 @@ var PRODUCTS = [{
   initial: "D"
 }, {
   id: 362,
-  name: "DETTOL PANI 50ML (SMALL) RP,250",
-  price: 220,
+  name: "DETTOL PANI 50ML (SMALL) RS,250",
+  price: 229,
   categoryId: "general",
   categoryName: "General Items & Others",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "D"
 }, {
-  id: 363,
-  name: "DOLLAR GEL PEN (BLACK)",
-  price: 40,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 364,
-  name: "DOLLAR GEL PEN (BLUE)",
-  price: 40,
+  name: "DOLLAR GEL PEN (BLUE) RS,80",
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 365,
-  name: "DOLLAR GEL PEN (GREEN)",
-  price: 40,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 366,
-  name: "DOLLAR GEL PEN (RED)",
-  price: 40,
+  name: "DOLLAR GEL PEN (GREEN) RS,80",
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 367,
-  name: "DOLLAR PEN (CLIPPER) BLACK",
-  price: 18,
+  name: "DOLLAR PEN (CLIPPER) BLACK RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 368,
-  name: "DOLLAR PEN (CLIPPER) BLUE",
-  price: 18,
+  name: "DOLLAR PEN (CLIPPER) BLUE RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -3683,20 +6212,20 @@ var PRODUCTS = [{
   initial: "D"
 }, {
   id: 370,
-  name: "DOLLAR PEN (CLIPPER) RED",
-  price: 18,
+  name: "DOLLAR PEN (CLIPPER) RED RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 371,
-  name: "DOLLAR POINTER (BLACK)",
+  name: "DOLLAR POINTER (BLACK) RS,50",
   price: 30,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 372,
-  name: "DOLLAR POINTER (BLUE)",
-  price: 0,
+  name: "DOLLAR POINTER (BLUE) RS,50",
+  price: 30,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -3714,28 +6243,22 @@ var PRODUCTS = [{
 }, {
   id: 375,
   name: "DORCO RAZOR",
-  price: 190,
+  price: 179,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "D"
 }, {
-  id: 377,
-  name: "DUREX LUBE LARGE",
-  price: 1050,
-  categoryId: "condemn",
-  categoryName: "Condoms"
-}, {
   id: 378,
   name: "DUREX LUBE SMALL",
-  price: 890,
+  price: 1299,
   categoryId: "condemn",
   categoryName: "Condoms"
 }, {
   id: 379,
-  name: "ELFY JIMSA BOTTLE 20GM",
-  price: 140,
+  name: "ELFY GMSA BOTTLE 20GM RS,150",
+  price: 124,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -3743,8 +6266,8 @@ var PRODUCTS = [{
   initial: "E"
 }, {
   id: 380,
-  name: "ELFY JIMSA BOX",
-  price: 25,
+  name: "ELFY GMSA PATA RS,30",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -3792,7 +6315,7 @@ var PRODUCTS = [{
 }, {
   id: 387,
   name: "ERASER ORO",
-  price: 10,
+  price: 8,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -3812,14 +6335,14 @@ var PRODUCTS = [{
   name: "F & L M,V FACE WASH (SMALL) COMPANY RS.199",
   price: 190,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "F"
 }, {
   id: 400,
-  name: "F & L M,V JAR RP,450",
-  price: 395,
+  name: "FAIR & LOVELY  MULTI VITAMIN JAR RS,450",
+  price: 424,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3827,8 +6350,8 @@ var PRODUCTS = [{
   initial: "F"
 }, {
   id: 403,
-  name: "F & L M,V TUBE (SMALL) GLOW RS,170",
-  price: 160,
+  name: "FAIR & LOVELY M,V TUBE (SMALL)  RS,199",
+  price: 168,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -3839,7 +6362,7 @@ var PRODUCTS = [{
   name: "F & L M V FACE WASH (LARGE) COMPANY RS,380",
   price: 190,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "F"
@@ -3848,28 +6371,28 @@ var PRODUCTS = [{
   name: "FACE WASH ACNI-PLUS",
   price: 490,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "F"
 }, {
   id: 411,
-  name: "FACE WASH B N B BRIGHTENING RICE",
+  name: "FACE WASH B N B BRIGHTENING RICE RS,720",
   price: 640,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 412,
-  name: "FACE WASH B N B CLEANSER",
+  name: "FACE WASH B N B CLEANSER RS,720",
   price: 640,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 414,
   name: "FACE WASH CLEAN & CLEAR (SMALL)",
   price: 299,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "F"
@@ -3878,94 +6401,94 @@ var PRODUCTS = [{
   name: "FACE WASH DOVE (LARGE) (BLUE)",
   price: 590,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 416,
   name: "FACE WASH DOVE (LARGE) (GREEN)",
   price: 590,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 417,
   name: "FACE WASH DOVE (LARGE) (PINK)",
   price: 0,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 418,
   name: "FACE WASH FAIR MENZ (MIX) RP,210",
   price: 195,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "F"
 }, {
   id: 419,
   name: "FACE WASH GARNIER ( LARGE)  ACNO FIGHT RP,949",
-  price: 835,
+  price: 889,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 420,
   name: "FACE WASH GARNIER (LARGE)  OIL CLEAR RS,949",
   price: 835,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 421,
   name: "FACE WASH GARNIER (LARGE)  POWER WHITE RS,949",
   price: 835,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 422,
   name: "FACE WASH GARNIER (LARGE) SAKURE WHITE",
   price: 690,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 423,
   name: "FACE WASH GARNIER (LARGE) TURBO LIGHT WHITE+OIL CONTROL",
   price: 890,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 424,
   name: "FACE WASH GARNIER (LARGE) WOMEN (NEEM) PURE ACTIVE RS,649",
   price: 590,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 425,
   name: "FACE WASH GARNIER (LARGE) WOMEN (VITAMIN C) RP,619",
   price: 570,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "F"
 }, {
   id: 426,
-  name: "FACE WASH GARNIER (SMALL)  ACNO FIGHT RS,519",
-  price: 470,
+  name: "FACE WASH GARNIER ACNO FIGHT SMALL RS,519",
+  price: 489,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 427,
   name: "FACE WASH GARNIER (SMALL) OIL CLEAR RS,519",
-  price: 470,
+  price: 1,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "F"
 }, {
   id: 428,
-  name: "FACE WASH GARNIER (SMALL) POWER WHITE RS,519",
-  price: 470,
+  name: "FACE WASH GARNIER POWER WHITE RS,519",
+  price: 489,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "F"
@@ -3974,76 +6497,76 @@ var PRODUCTS = [{
   name: "FACE WASH GARNIER (SMALL) WOMEN (NEEM) RS,369",
   price: 340,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 430,
   name: "FACE WASH GARNIER (SMALL) WOMEN VITAMIN C RS,369",
   price: 340,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "F"
 }, {
   id: 431,
-  name: "FACE WASH GOLDEN PEARL (ACNO CLEAR)",
-  price: 230,
+  name: "FACE WASH GOLDEN PEARL (VITAMIN C) SMALL RS,300",
+  price: 269,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 432,
   name: "FACE WASH GOLDEN PEARL (OIL & CONTROL)",
   price: 230,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 433,
   name: "FACE WASH GOLDEN PEARL (FLAWLESS SKIN)",
   price: 230,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 434,
   name: "FACE WASH GOLDEN PEARL (LIGHT & GLOW)",
   price: 230,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 435,
   name: "FACE WASH GOLDEN PEARL (GREEN) HERBAL",
   price: 230,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 436,
-  name: "FACE WASH GOLDEN PEARL (TEA & TREE) ",
-  price: 230,
+  name: "FACE WASH GOLDEN PEARL (NEEM) RS,300",
+  price: 269,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 437,
   name: "FACE WASH GOLDEN PEARL (WHITE & BEAUTY)",
   price: 230,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 438,
   name: "FACE WASH GOLDEN PEARL (MEN)",
   price: 230,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 439,
   name: "FACE WASH GOLDEN PEARL (OIL CONTROL) LARGE",
   price: 450,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 440,
   name: "FACE WASH GOLDEN PEARL (FLAWLESS SKIN) LARGE",
   price: 450,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "F"
@@ -4052,7 +6575,7 @@ var PRODUCTS = [{
   name: "FACE WASH GOLDEN PEARL (LIGHT & GLOW) LARGE",
   price: 450,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "F"
@@ -4061,49 +6584,49 @@ var PRODUCTS = [{
   name: "FACE WASH GOLDEN PEARL (VITAMIN C) LARGE",
   price: 450,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 443,
   name: "FACE WASH GOLDEN PEARL (WHITE BEAUTY) LARGE",
   price: 450,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 444,
   name: "FACE WASH GOLDEN PEARL (DAILY FOAMING) LARGE",
   price: 450,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 445,
   name: "FACE WASH GOLDEN PEARL (HERBAL) LARGE",
   price: 450,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 446,
   name: "FACE WASH GOLDEN PEARL (WHITE BEAUTY) LARGE",
   price: 450,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 447,
-  name: "FACE WASH GOLDEN PEARL (MEN) LARGE",
-  price: 450,
+  name: "FACE WASH GOLDEN PEARL (MEN CHARCOAL) SMALL RS,300",
+  price: 210,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 448,
-  name: "FACE WASH HIMALAYA (LARGE) NEEM DUBAI RS,510",
-  price: 460,
+  name: "FACE WASH HIMALAYA (LARGE) NEEM DUBAI RS,590",
+  price: 559,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 449,
-  name: "FACE WASH HIMALAYA (SMALL) DUBAI RS,310",
-  price: 280,
+  name: "FACE WASH HIMALAYA (SMALL) DUBAI RS,360",
+  price: 324,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "F"
@@ -4112,139 +6635,127 @@ var PRODUCTS = [{
   name: "FACE WASH JHALAK",
   price: 180,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 451,
-  name: "FACE WASH JUNSUI LARGE (BLACK)",
-  price: 570,
+  name: "FACE WASH JUNSUI  (BLACK) RS,650",
+  price: 579,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "F"
 }, {
-  id: 452,
-  name: "FACE WASH JUNSUI LARGE (ICE COOL)",
-  price: 570,
-  categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
-}, {
-  id: 453,
-  name: "FACE WASH JUNSUI LARGE (GREEN) NEEM",
-  price: 570,
-  categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
-}, {
   id: 455,
-  name: "FACE WASH JUNSUI LARGE (L,GREEN COOL)",
-  price: 570,
+  name: "FACE WASH JUNSUI (L,GREEN COOL) RS,650",
+  price: 579,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 456,
-  name: "FACE WASH JUNSUI LARGE (PINK)",
-  price: 570,
+  name: "FACE WASH JUNSUI (EXTRA WHITENING RADIANCE) RS,650",
+  price: 579,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 457,
-  name: "FACE WASH JUNSUI LARGE (RED) PIMPLE FIGHTING",
-  price: 570,
+  name: "FACE WASH JUNSUI  (PIMPLE WHITENING) RS,650",
+  price: 579,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 458,
-  name: "FACE WASH JUNSUI LARGE ORANGE",
-  price: 570,
+  name: "FACE WASH JUNSUI  (PAPAYA SCRUB) RS,650",
+  price: 579,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 459,
-  name: "FACE WASH MEC (ALOE VERA)",
-  price: 390,
+  name: "FACE WASH MEC (COCUMBER EXTRACT) RS,499",
+  price: 399,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "F"
 }, {
   id: 460,
-  name: "FACE WASH MEC (BLACK CHARCOAL)",
-  price: 390,
+  name: "FACE WASH MEC (ACTIVATED CHARCOAL) RS,499",
+  price: 399,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "F"
 }, {
   id: 461,
-  name: "FACE WASH MEC (PINK)",
-  price: 390,
+  name: "FACE WASH MEC (NEEM LEAF EXTRACT) RS,499",
+  price: 399,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "F"
 }, {
   id: 462,
-  name: "FACE WASH MEC (ACNE CLEAN)",
-  price: 390,
+  name: "FACE WASH MEC (NOURISHING MILK) RS,499",
+  price: 399,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 463,
-  name: "FACE WASH MEC (RICE BRIGHTENING)",
-  price: 390,
+  name: "FACE WASH MEC (BRIGHTENING RICE) RS,499",
+  price: 399,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 464,
-  name: "FACE WASH MEC (LEMON)",
-  price: 390,
+  name: "FACE WASH MEC (BRIGHTING LEMON) RS,499",
+  price: 399,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 466,
   name: "FACE WASH PARLEY BLACK RS,300",
   price: 270,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "F"
 }, {
   id: 467,
-  name: "FACE WASH PONDS (IMP) ACNE SOLUTION",
-  price: 450,
+  name: "FACE WASH PONDS ACNE SOLUTION LARGE RS,499",
+  price: 435,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "F"
 }, {
   id: 468,
-  name: "FACE WASH PONDS (IMP) ACNE SOLUTION (SMALL)",
-  price: 270,
+  name: "FACE WASH PONDS ACNE SOLUTION SMALL RS,350",
+  price: 289,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "F"
 }, {
   id: 469,
-  name: "FACE WASH PONDS (IMP) BLACK (ACTIVATED CHARCOAL) LARGE",
-  price: 450,
+  name: "FACE WASH PONDS (ACTIVATED CHARCOAL) LARGE RS,499",
+  price: 435,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "F"
 }, {
   id: 470,
-  name: "FACE WASH PONDS (IMP) BLACK (ACTIVATED CHARCOAL) SMALL",
-  price: 270,
+  name: "FACE WASH PONDS (ACTIVATED CHARCOAL) SMALL RS,350",
+  price: 289,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "F"
@@ -4253,274 +6764,208 @@ var PRODUCTS = [{
   name: "FACE WASH PONDS (IMP) FLAWLESS WHITE",
   price: 590,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 472,
-  name: "FACE WASH PONDS (IMP) SUN DULLNESS (SCRUB)",
-  price: 460,
+  name: "FACE WASH PONDS (IMP) SUN DULLNESS (SCRUB) RS,550",
+  price: 434,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "F"
 }, {
   id: 473,
-  name: "FACE WASH PONDS (IMP) WHITE BEAUTY (PINK)",
-  price: 450,
+  name: "FACE WASH PONDS (IMP) WHITE BEAUTY (PINK) RS,530",
+  price: 434,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "F"
 }, {
   id: 474,
-  name: "FACE WASH PONDS (IMP) WHITE BEAUTY (SMALL)",
+  name: "FACE WASH PONDS (IMP) WHITE BEAUTY (SMALL) RS,350",
   price: 270,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "F"
 }, {
   id: 475,
-  name: "FACE WASH PONDS LARGE (COMPANY) BLACK RP,490",
-  price: 450,
+  name: "FACE WASH PONDS (WHIP) BLACK RS,499",
+  price: 434,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
-}, {
-  id: 476,
-  name: "FACE WASH PONDS LARGE (COMPANY) PINK RP,490",
-  price: 450,
-  categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
-}, {
-  id: 477,
-  name: "FACE WASH PONDS SMALL (COMPANY) BLACK RP,300",
-  price: 270,
-  categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 478,
-  name: "FACE WASH PONDS SMALL (COMPANY) PINK RS,300",
-  price: 270,
+  name: "FACE WASH PONDS (WHIP) PINK RS,499",
+  price: 434,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 479,
-  name: "FACE WASH PONDS MEN IMP (ACNE SOLUTION) LARGE",
+  name: "FACE WASH PONDS MEN IMP (ACNE CONTROL) LARGE RS,650",
   price: 590,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
-}, {
-  id: 480,
-  name: "FACE WASH PONDS MEN IMP (ENERGY CHARGE) LARGE",
-  price: 590,
-  categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 481,
-  name: "FACE WASH PONDS MEN IMP (LIGHTNING OIL CLEAR) LARGE",
+  name: "FACE WASH PONDS MEN IMP (OIL CONTROL) LARGE RS,650",
   price: 590,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 482,
-  name: "FACE WASH PONDS MEN IMP (POLLUTION OUT) LARGE",
+  name: "FACE WASH PONDS MEN IMP (BRIGHTENING & DARK SPOT FIGHTER) LARGE RS,650",
   price: 590,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
-}, {
-  id: 483,
-  name: "FACE WASH PONDS MEN IMP (POWER CLEAR) LARGE",
-  price: 590,
-  categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
-}, {
-  id: 484,
-  name: "FACE WASH PONDS MEN IMP (WHITE BOOST) LARGE",
-  price: 590,
-  categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 485,
-  name: "FACE WASH RIVAJ LEMON (LARGE)",
-  price: 310,
+  name: "FACE WASH RIVAJ LEMON (LARGE) RS,499",
+  price: 439,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 486,
-  name: "FACE WASH RIVAJ NEEM (LARGE)",
-  price: 310,
+  name: "FACE WASH RIVAJ NEEM (LARGE) RS,499",
+  price: 439,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 487,
-  name: "FACE WASH SAEED GHANI VITAMIN C",
-  price: 490,
+  name: "FACE WASH SAEED GHANI VITAMIN C SMALL RS,330",
+  price: 280,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 488,
   name: "FACE WASH SYED GHANI CHARCOAL",
   price: 490,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 489,
   name: "FACE WASH SYED GHANI GOAT MILK",
   price: 490,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 490,
   name: "FACE WASH RIVAJ LEMON (SMALL)",
   price: 175,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 491,
-  name: "FACE WASH RIVAJ NEEM (SMALL)",
-  price: 175,
+  name: "FACE WASH RIVAJ NEEM (SMALL) RS,220",
+  price: 189,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "F"
 }, {
   id: 492,
-  name: "FACE WASH Y,C (LARGE) COCUMBER",
-  price: 470,
+  name: "FACE WASH Y,C COCUMBER LARGE RS,499",
+  price: 449,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "F"
 }, {
   id: 493,
-  name: "FACE WASH Y,C (LARGE) NEEM GREEN",
-  price: 470,
+  name: "FACE WASH Y,C BAMBOO CHARCOAL LARGE RS,499",
+  price: 449,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 494,
-  name: "FACE WASH Y,C (LARGE) YELLOW LEMON",
-  price: 470,
+  name: "FACE WASH Y,C  LEMON EXTRACT LARGE RS,499",
+  price: 449,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "F"
 }, {
   id: 495,
-  name: "FACE WASH Y,C (LARGE) COW MILK EXTRACT",
-  price: 470,
+  name: "FACE WASH Y,C COW MILK EXTRACT LARGE RS,499",
+  price: 449,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "F"
 }, {
   id: 496,
-  name: "FACE WASH Y,C (SMALL) COW MILK EXTRACT",
-  price: 320,
+  name: "FACE WASH Y,C GOAT MILK EXTRACT LARGE RS,499",
+  price: 449,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "F"
 }, {
   id: 497,
-  name: "FACE WASH Y,C (SMALL) COCUMBER",
-  price: 320,
+  name: "FACE WASH Y,C GREEN TEA EXTRACT LARGE RS,499",
+  price: 449,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 499,
-  name: "FACE WASH Y,C (SMALL) NEEM GREEN",
+  name: "FACE WASH Y,C MILK EXTRACT SMALL RS,350",
   price: 320,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 500,
-  name: "FACE WASH Y,C (SMALL) YELLOW LEMON",
+  name: "FACE WASH Y,C LEMON SMALL RS,350",
   price: 320,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "F"
 }, {
   id: 502,
-  name: "FEEDER (LARGE NIPPLE) LARGE",
-  price: 0,
+  name: "FEEDER (CARE) COLOR LARGE RS,390",
+  price: 299,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 503,
-  name: "FEEDER (LARGE NIPPLE) MEDIUM",
-  price: 0,
+  name: "FEEDER (SHEILD BABY) CLASSIC TRAINING CUP SMALL RS,240",
+  price: 199,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 504,
-  name: "FEEDER GLASS LARGE",
-  price: 0,
+  name: "FEEDER (SHEILD BABY) NON-SPELL TRAINING CUP RS,499",
+  price: 399,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 505,
-  name: "FEEDER GLASS MEDIUM",
-  price: 0,
+  name: "FEEDER (MUMTA) COLOR LARGE RS,299",
+  price: 199,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 506,
-  name: "FEEDER GLASS SMALL",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 507,
-  name: "FEEDER MINI TREE (LARGE)",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 508,
-  name: "FEEDER MINI TREE (MEDIUM)",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 509,
-  name: "FEEDER MINI TREE (SMALL)",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 510,
-  name: "FEEDER PP (IMP) HANDLE LARGE",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[7],
-  initial: "F"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 511,
-  name: "FEEDER PP (IMP) HANDLE MEDIUM",
-  price: 0,
+  name: "FEEDER PURE LOVE MEDIUM RS,230",
+  price: 199,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
-  initial: "F"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 512,
-  name: "FEEDER PURE LOVE COLOR (LARGE)",
-  price: 280,
+  name: "FEEDER PURE LOVE COLOR (LARGE) RS,300",
+  price: 259,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "F"
@@ -4547,14 +6992,14 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 516,
-  name: "GATS BY GEL (MEDIUM) MIX",
-  price: 490,
+  name: "GATSBY GEL LEVEL 2 SOFT 150GM RS,680",
+  price: 549,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 519,
-  name: "4ME FOAM (LARGE) MIX",
-  price: 380,
+  name: "ADMIRAL SHAVING FOAM RS,450",
+  price: 349,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
@@ -4568,8 +7013,8 @@ var PRODUCTS = [{
   initial: "G"
 }, {
   id: 521,
-  name: "GILLETTE FOAM 200ml (GREEN)",
-  price: 860,
+  name: "GILLETTE FOAM 200ML (GREEN) RS,950",
+  price: 879,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades",
   hasImage: true,
@@ -4577,14 +7022,14 @@ var PRODUCTS = [{
   initial: "G"
 }, {
   id: 522,
-  name: "GILLETTE FOAM 200ml (BLUE)",
-  price: 860,
+  name: "GILLETTE FOAM 200ML (BLUE) RS,950",
+  price: 879,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades"
 }, {
   id: 523,
-  name: "GILLETTE FOAM 200ml (RED)",
-  price: 860,
+  name: "GILLETTE FOAM 200ML (RED) RS,950",
+  price: 879,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades",
   hasImage: true,
@@ -4598,8 +7043,8 @@ var PRODUCTS = [{
   categoryName: "Shaving & Razers & Blades"
 }, {
   id: 525,
-  name: "GILLETTE GEL (LARGE) MIX",
-  price: 940,
+  name: "GILLETTE SERIES SHAVING GELL 360ML RS,1100",
+  price: 949,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades",
   hasImage: true,
@@ -4647,7 +7092,7 @@ var PRODUCTS = [{
 }, {
   id: 535,
   name: "HASHMI SORMA RS,200",
-  price: 190,
+  price: 189,
   categoryId: "general",
   categoryName: "General Items & Others",
   hasImage: true,
@@ -4656,7 +7101,7 @@ var PRODUCTS = [{
 }, {
   id: 536,
   name: "HIGHLIGHTER",
-  price: 70,
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -4677,34 +7122,28 @@ var PRODUCTS = [{
 }, {
   id: 539,
   name: "INK BOTTLE DOLLAR (SMALL) BLACK",
-  price: 60,
+  price: 44,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 540,
   name: "INK BOTTLE DOLLAR (SMALL) BLUE",
-  price: 50,
+  price: 44,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "I"
 }, {
-  id: 541,
-  name: "INK PEN DOLLAR",
-  price: 70,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 542,
   name: "INK PEN PIANO CRYSTAL",
-  price: 70,
+  price: 64,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 543,
-  name: "INK REMOVER MARKER (ORO)",
-  price: 40,
+  name: "INK REMOVER MARKER (SANY)",
+  price: 29,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -4713,7 +7152,7 @@ var PRODUCTS = [{
 }, {
   id: 544,
   name: "INK REMOVER WHITENER",
-  price: 70,
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -4721,34 +7160,34 @@ var PRODUCTS = [{
   initial: "I"
 }, {
   id: 545,
-  name: "J BABY BATH 200ML TOP TO TOE",
-  price: 549,
+  name: "JOHNSON'S BABY BATH (TOP TO TOE) 200ML RS,650",
+  price: 544,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 548,
   name: "J BABY LINER",
   price: 50,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 549,
-  name: "J BABY LOTION 100ml (IMP)",
-  price: 490,
+  name: "JOHNSON'S BABY LOTION 100ML (IMP) RS,480",
+  price: 399,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 550,
-  name: "J BABY LOTION 200ml (IMP)",
-  price: 690,
+  name: "JOHNSON'S  BABY LOTION 200ML (IMP) RS,799",
+  price: 739,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 551,
   name: "J BABY OIL 125ml (IMP)",
   price: 650,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "J"
@@ -4757,13 +7196,13 @@ var PRODUCTS = [{
   name: "J BABY OIL 200ml (IMP)",
   price: 840,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 553,
   name: "J BABY OIL 50ml (IMP)",
   price: 320,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "J"
@@ -4772,19 +7211,19 @@ var PRODUCTS = [{
   name: "J BABY PERFUME COLOGNE",
   price: 690,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 555,
   name: "J BABY PETROLEUM GEL (PINK) SMALL",
   price: 490,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 556,
   name: "J BABY PETROLEUM GEL (BLUE) SMALL",
   price: 490,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "J"
@@ -4793,89 +7232,77 @@ var PRODUCTS = [{
   name: "J BABY POWDER 100g (MIX)",
   price: 590,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 558,
-  name: "J BABY POWDER 200g (MIX)",
-  price: 590,
+  name: "JOHNSON'S BABY POWDER 200G PINK RS,780",
+  price: 699,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 559,
-  name: "J BABY SHAMPOO 100ml (COMPANY)",
-  price: 320,
+  name: "JOHNSON'S BABY SHAMPOO 100ML RS,350",
+  price: 289,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "J"
 }, {
   id: 560,
-  name: "J BABY SHAMPOO 200ml (COMPANY)",
-  price: 590,
+  name: "JOHNSON'S BABY SHAMPOO 200ML RS,580",
+  price: 499,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
   initial: "J"
 }, {
-  id: 561,
-  name: "J BABY SHAMPOO 300ml (COMPANY)",
-  price: 750,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
   id: 562,
-  name: "J BABY SHAMPOO 750ml (COMPANY) (PUMP)",
-  price: 1780,
+  name: "JOHNSON'S BABY SHAMPOO 50ML RS,250",
+  price: 199,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 563,
-  name: "J BABY SOAP 100g GREEN",
-  price: 240,
+  name: "JOHNSON'S BABY SOAP 100G GREEN RS,330",
+  price: 234,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 564,
-  name: "J BABY SOAP 100g PINK",
-  price: 240,
+  name: "JOHNSON'S BABY SOAP 100G PINK RS,330",
+  price: 234,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "J"
 }, {
   id: 565,
-  name: "J BABY SOAP 100g WHITE",
-  price: 240,
+  name: "JOHNSON'S BABY SOAP 100G WHITE RS,330",
+  price: 234,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "J"
-}, {
-  id: 566,
-  name: "J BABY TOP-TO-TOE 100ML",
-  price: 350,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
 }, {
   id: 567,
   name: "J BABY WIPES (LARGE 84 PIECES) GOOD QUALITY",
   price: 240,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 569,
-  name: "KALA KOLA HAIR TONIC (LARGE) RS,500",
-  price: 460,
+  name: "KALA KOLA HAIR TONIC (LARGE) RS,550",
+  price: 529,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 570,
   name: "KALA KOLA HAIR TONIC (SMALL) RS,300",
-  price: 270,
+  price: 284,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
@@ -4898,8 +7325,8 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 576,
-  name: "KING COIL BLAKI (LARGE)",
-  price: 110,
+  name: "KINGTOX COIL BLACK RS,120",
+  price: 99,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes",
   hasImage: true,
@@ -4907,8 +7334,8 @@ var PRODUCTS = [{
   initial: "K"
 }, {
   id: 577,
-  name: "KING COIL GREEN (LARGE)",
-  price: 110,
+  name: "KINGTOX COIL GREEN RS,120",
+  price: 99,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes"
 }, {
@@ -4919,8 +7346,8 @@ var PRODUCTS = [{
   categoryName: "Anti- Mosquitoes"
 }, {
   id: 579,
-  name: "KING MACHINE SET",
-  price: 560,
+  name: "KINGTOX  MACHINE SET",
+  price: 579,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes"
 }, {
@@ -4943,26 +7370,26 @@ var PRODUCTS = [{
   initial: "K"
 }, {
   id: 582,
-  name: "KING REFILL",
-  price: 240,
+  name: "KINGTOX  ANTI-MOSQUITO REFILL RS,300",
+  price: 254,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes"
 }, {
   id: 583,
-  name: "KINGTOX SPRAY 300ml (SMALL)",
+  name: "KINGTOX SPRAY 300ML (SMALL) RS,480",
   price: 440,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes"
 }, {
   id: 584,
-  name: "KINGTOX SPRAY 400ml (MEDIUM)",
-  price: 540,
+  name: "KINGTOX SPRAY 400ML (MEDIUM) RS,620",
+  price: 549,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes"
 }, {
   id: 585,
-  name: "KINGTOX SPRAY 600 (LARGE)",
-  price: 740,
+  name: "KINGTOX SPRAY 600ML (LARGE) RS,780",
+  price: 719,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes"
 }, {
@@ -5030,8 +7457,8 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 600,
-  name: "LIGHTER (HEATER)",
-  price: 30,
+  name: "LIGHTER (HEATER) RS,40",
+  price: 29,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters",
   hasImage: true,
@@ -5064,7 +7491,7 @@ var PRODUCTS = [{
 }, {
   id: 606,
   name: "LIGHTER CIGARETTE GAS REFILL (RED)",
-  price: 199,
+  price: 234,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
@@ -5075,10 +7502,10 @@ var PRODUCTS = [{
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 608,
-  name: "LIP OIL",
-  price: 40,
-  categoryId: "general",
-  categoryName: "General Items & Others",
+  name: "DAR LIP OIL RS,60",
+  price: 49,
+  categoryId: "babycare",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "L"
@@ -5096,8 +7523,8 @@ var PRODUCTS = [{
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 611,
-  name: "LOCK BLACK 32mm",
-  price: 140,
+  name: "LOCK BLACK 32MM",
+  price: 199,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
@@ -5114,8 +7541,8 @@ var PRODUCTS = [{
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 614,
-  name: "LOCK BLACK 63mm",
-  price: 340,
+  name: "LOCK BLACK 63MM",
+  price: 499,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
 }, {
@@ -5168,8 +7595,8 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 621,
-  name: "LOTION CARE (SMALL) RS,250",
-  price: 230,
+  name: "LOTION CARE (SMALL) RS,220",
+  price: 209,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -5184,27 +7611,15 @@ var PRODUCTS = [{
 }, {
   id: 623,
   name: "LOTION MOTHER CARE 115ML RS,450",
-  price: 0,
+  price: 450,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 624,
   name: "LOTION MOTHER CARE 60ML RS,150",
-  price: 0,
+  price: 150,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 625,
-  name: "LOTION NEXTON 125ML RP,499",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 626,
-  name: "LOTION NEXTON 65ML RP,299",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 627,
   name: "LOTION NIVEA 100ML SMALL (MIX)",
@@ -5225,8 +7640,8 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 630,
-  name: "LOTION OLIVIA 110ml RS,220 (MOISTURIZING)",
-  price: 180,
+  name: "LOTION OLIVIA 110ML RS,220 (MOISTURIZING)",
+  price: 199,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
@@ -5237,26 +7652,20 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 632,
-  name: "LOTION OLIVIA 220ml RS,310 (MOISTURIZING)",
-  price: 280,
+  name: "LOTION OLIVIA (MOISTURIZING) 220ML RS,350",
+  price: 324,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 633,
-  name: "LOTION OLIVIA 220ml RS,310 (HONEY)",
-  price: 280,
-  categoryId: "creams",
-  categoryName: "Creams & Lotions & Bleach"
-}, {
-  id: 634,
-  name: "LOTION PONDS 100ml HONEY RS,350",
-  price: 330,
+  name: "LOTION OLIVIA (MOISTURIZING HONEY) 220ML RS,350",
+  price: 324,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 635,
   name: "LOTION PONDS 100ML RS,350",
-  price: 330,
+  price: 324,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -5264,14 +7673,14 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 636,
-  name: "LOTION PONDS 200ml RP,600",
-  price: 555,
+  name: "LOTION PONDS 200ML RS,600",
+  price: 579,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 637,
-  name: "LOTION PONDS 65ml RS,240",
-  price: 229,
+  name: "LOTION PONDS 65ML RS,180",
+  price: 169,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
@@ -5282,20 +7691,20 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 639,
-  name: "LOTION SKIN WHITE (VITAMIN C) RS,320",
-  price: 280,
+  name: "LOTION SKIN WHITE (VITAMIN C+ GOAT MILK) RS,350",
+  price: 329,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 640,
-  name: "LOTION SKIN WHITE HONEY GOAT MILK RS,320",
-  price: 280,
+  name: "LOTION SKIN WHITE (HONEY & GOAT MILK RS,350",
+  price: 329,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 641,
-  name: "LOTION VASELINE 100ML (IMP) COCA B",
-  price: 339,
+  name: "VASELINE LOTION 100ML (IMP) COCA BUTTER RS,360",
+  price: 333,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -5303,8 +7712,8 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 642,
-  name: "LOTION VASELINE 100ML (IMP) GREEN",
-  price: 339,
+  name: "VASELINE LOTION 100ML (IMP) GREEN RS,360",
+  price: 333,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -5312,14 +7721,14 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 643,
-  name: "LOTION VASELINE 100ml (IMP) PINK",
-  price: 339,
+  name: "VASELINE LOTION 100ML (IMP) PINK RS,360",
+  price: 333,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 644,
-  name: "LOTION VASELINE 100ML (IMP) WHITE",
-  price: 339,
+  name: "VASELINE LOTION 100ML (IMP) WHITE RS,360",
+  price: 333,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -5327,8 +7736,8 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 645,
-  name: "LOTION VASELINE 100ML (IMP) YELLOW",
-  price: 339,
+  name: "VASELINE LOTION 100ML (IMP) YELLOW RS,360",
+  price: 333,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -5336,14 +7745,14 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 646,
-  name: "LOTION VASELINE 200ml (IMP) WHITE",
-  price: 699,
+  name: "LOTION VASELINE 200ML (IMP) WHITE RS,730",
+  price: 675,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 647,
-  name: "LOTION VASELINE 200ML (IMP) COCO",
-  price: 699,
+  name: "LOTION VASELINE 200ML (IMP) COCO RS,730",
+  price: 675,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -5351,8 +7760,8 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 648,
-  name: "LOTION VASELINE 200ML (IMP) PINK",
-  price: 699,
+  name: "LOTION VASELINE 200ML (IMP) PINK RS,730",
+  price: 675,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -5360,20 +7769,20 @@ var PRODUCTS = [{
   initial: "L"
 }, {
   id: 649,
-  name: "LOTION VASELINE 200ml (IMP) GREEN",
-  price: 699,
+  name: "LOTION VASELINE 200ML (IMP) GREEN RS,730",
+  price: 675,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 650,
-  name: "LUBNA'S WONDER WAX (LARGE)",
-  price: 250,
+  name: "LUBNA'S WONDER WAX (LARGE) RS,180",
+  price: 149,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 651,
-  name: "LUBNA'S WONDER WAX (SMALL)",
-  price: 189,
+  name: "LUBNA'S WONDER WAX (SMALL) RS,150",
+  price: 119,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
@@ -5394,94 +7803,76 @@ var PRODUCTS = [{
 }, {
   id: 654,
   name: "LUDO (CARPET)",
-  price: 449,
+  price: 599,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 655,
-  name: "LUDO (LARGE) ",
-  price: 199,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 656,
-  name: "LUDO (XL) (GOOD QUALITY)",
+  name: "LUDO  WITH GETIYA (LARGE) RS,389",
   price: 289,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday",
+  categoryName: "Sports & Toys"
+}, {
+  id: 656,
+  name: "LUDO WITH GETIYA (XL) RS,550",
+  price: 399,
+  categoryId: "sports",
+  categoryName: "Sports & Toys",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "L"
 }, {
-  id: 657,
-  name: "LUDO (LARGE) WOOD GOOD QUALITY",
-  price: 489,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
   id: 658,
-  name: "LUDO (MEDIUM)",
-  price: 144,
+  name: "LUDO WITH GETIYA (MEDIUM) RS,299",
+  price: 199,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 659,
-  name: "LUDO (MEDIUM) WOOD GOOD QUALITY",
-  price: 429,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 660,
-  name: "LUDO (SMALL)",
-  price: 89,
+  name: "LUDO WITH GETIYA (SMALL) RS,200",
+  price: 149,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 661,
-  name: "LUDO (SMALL) WOOD GOOD QUALITY",
-  price: 299,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 662,
-  name: "LUDO DANA CRYSTAL",
-  price: 10,
+  name: "LUDO DANA CRYSTAL RS,20",
+  price: 9,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 663,
-  name: "LUDO DANA MILKY",
-  price: 10,
+  name: "LUDO DANA MILKY RS,20",
+  price: 9,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 664,
-  name: "LUX BODY WASH SOFT TOUCH (BLUE) (IMP)",
-  price: 430,
+  name: "LUX BODY WASH SOFT TOUCH (BLUE) (IMP) RS,520",
+  price: 439,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes"
+  categoryName: "Face Wash & Body Wash & Hand Wash"
 }, {
   id: 665,
-  name: "LUX BODY WASH SOFT TOUCH (PINK) (IMP)",
-  price: 430,
+  name: "LUX BODY WASH SOFT TOUCH (PINK) (IMP) RS,520",
+  price: 439,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "L"
 }, {
   id: 666,
-  name: "LUX BODY WASH SOFT TOUCH (PURPLE) (IMP)",
-  price: 430,
+  name: "LUX BODY WASH SOFT TOUCH (PURPLE) (IMP) RS,520",
+  price: 439,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "L"
 }, {
   id: 667,
   name: "MAGIC DEPOXI BOX (SMALL)",
-  price: 71,
+  price: 64,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5489,8 +7880,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 668,
-  name: "MARKER 604 (BLACK)",
-  price: 20,
+  name: "MARKER MERCURY BLUE (CUT ) RS,40",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5498,8 +7889,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 669,
-  name: "MARKER 604 (BLUE)",
-  price: 20,
+  name: "MARKER MERCURY BLUE (GOL) RS,40",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5507,8 +7898,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 670,
-  name: "MARKER MERCURY (BLUE)",
-  price: 20,
+  name: "MARKER MERCURY BLUE (GOL) RS,40",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5516,8 +7907,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 671,
-  name: "MARKER MERCURY (BLACK)",
-  price: 20,
+  name: "MERCURY MARKER  BLACK (GOL) RS,40",
+  price: 24,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5525,8 +7916,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 672,
-  name: "MARKER BOARD INK",
-  price: 89,
+  name: "DOLLAR BOARD MARKER INK RS,100",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -5549,8 +7940,8 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 675,
-  name: "MARKER PERMANENT (BLACK) DEER",
-  price: 69,
+  name: "DEER PERMANENT MARKER BLACK RS,100",
+  price: 59,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -5558,32 +7949,14 @@ var PRODUCTS = [{
   initial: "M"
 }, {
   id: 676,
-  name: "MARKER PERMANENT (BLUE) DEER",
-  price: 69,
+  name: "DEER PERMANENT MARKER BLUE RS,100",
+  price: 59,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
-  id: 677,
-  name: "MARKER SADA (BLACK)",
-  price: 15,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[7],
-  initial: "M"
-}, {
-  id: 678,
-  name: "MARKER SADA (BLUE)",
-  price: 15,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
-  initial: "M"
-}, {
   id: 679,
-  name: "MARKER SADA DOLLAR (BLUE)",
-  price: 21,
+  name: "BELO COLOR MARKER PACKET  MIX 10 PIECE RS,120",
+  price: 89,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
@@ -5594,8 +7967,8 @@ var PRODUCTS = [{
   categoryName: "General Items & Others"
 }, {
   id: 682,
-  name: "MEHNDI CONE",
-  price: 40,
+  name: "MEHNDI CONE RS,100",
+  price: 59,
   categoryId: "general",
   categoryName: "General Items & Others"
 }, {
@@ -5613,15 +7986,15 @@ var PRODUCTS = [{
 }, {
   id: 685,
   name: "METRO +7 AGAER BATTI (LARGE)",
-  price: 120,
-  categoryId: "general",
-  categoryName: "General Items & Others"
+  price: 114,
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana"
 }, {
   id: 686,
   name: "METRO AGHER BATTI (SMALL)",
   price: 50,
-  categoryId: "general",
-  categoryName: "General Items & Others",
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "M"
@@ -5669,20 +8042,14 @@ var PRODUCTS = [{
   categoryName: "Anti- Mosquitoes"
 }, {
   id: 692,
-  name: "MORTEIN MACHINE RP,560",
-  price: 0,
+  name: "MORTEIN MACHINE RS,650",
+  price: 589,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes"
 }, {
   id: 693,
-  name: "MORTEIN REFILLL (30 NIGHT)",
-  price: 239,
-  categoryId: "mosquito",
-  categoryName: "Anti- Mosquitoes"
-}, {
-  id: 694,
-  name: "MORTEIN REFILLL (60 NIGHT)",
-  price: 439,
+  name: "MORTEIN REFILLL (30 NIGHT) ODOURLESS RS,330",
+  price: 299,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes"
 }, {
@@ -5718,25 +8085,25 @@ var PRODUCTS = [{
 }, {
   id: 700,
   name: "MOTHER CARE OIL 125ML RP,480",
-  price: 0,
+  price: 480,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 701,
   name: "MOTHER CARE OIL 65ML",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 702,
-  name: "MOUTH WASH COLGATE 250ML (IMP) MIX",
-  price: 489,
+  name: "MOUTH WASH COLGATE GREEN FRESHMINT 250ML (IMP)",
+  price: 549,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 703,
-  name: "MOUTH WASH LISTERINE (MIX)",
-  price: 489,
+  name: "MOUTH WASH LISTERINE MULTI PROTECT ZERO 250ML RS,699",
+  price: 599,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
@@ -5770,12 +8137,6 @@ var PRODUCTS = [{
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
-  id: 710,
-  name: "NAIL CUTTER AKAI (JAPANI ORIGINAL) (LARGE) JAPANI",
-  price: 799,
-  categoryId: "personalcare",
-  categoryName: "Personal Care"
-}, {
   id: 711,
   name: "NAIL CUTTER AKAI (JAPANI ORIGINAL) (MEDIUM) JAPANI",
   price: 749,
@@ -5789,8 +8150,8 @@ var PRODUCTS = [{
   categoryName: "Personal Care"
 }, {
   id: 713,
-  name: "NAIL CUTTER V9 (GOOD QUALITY)",
-  price: 149,
+  name: "NAIL CUTTER V9 (EXCELLENT QUALITY) RS,299",
+  price: 169,
   categoryId: "general",
   categoryName: "General Items & Others",
   hasImage: true,
@@ -5831,113 +8192,83 @@ var PRODUCTS = [{
   name: "NEXTON BABY COLOGNE BLUE",
   price: 0,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 719,
-  name: "NEXTON BABY KIT MEDIUM",
-  price: 1800,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 720,
-  name: "NEXTON BABY KIT SMALL",
-  price: 999,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 721,
-  name: "NEXTON BABY LOTION 125ML RP,525",
-  price: 0,
+  name: "NEXTON BABY LOTION SMOOTH & SOFT  125ML RS,525",
+  price: 484,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 722,
-  name: "NEXTON BABY LOTION 250ML",
-  price: 0,
+  name: "NEXTON BABY LOTION SMOOTH & SOFT  250ML RS,799",
+  price: 729,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 723,
-  name: "NEXTON BABY LOTION 65ML RP,315",
-  price: 299,
+  name: "NEXTON BABY LOTION SMOOTH & SOFT 65ML RS,315",
+  price: 294,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 724,
-  name: "NEXTON BABY POWDER 100g RP,275 (MIX)",
-  price: 249,
+  name: "NEXTON BABY POWDER SOFT BLOSSOM 50G RS,210",
+  price: 194,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 725,
-  name: "NEXTON BABY POWDER 200g RP,430 (MIX)",
-  price: 399,
+  name: "NEXTON BABY POWDER SOFT BLOSSOM 100G RS,275",
+  price: 254,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 726,
-  name: "NEXTON BABY SHAMPOO 125ML RP,399",
-  price: 0,
+  name: "NEXTON BABY SHAMPOO 125ML RS,400",
+  price: 374,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 727,
-  name: "NEXTON BABY SHAMPOO 250ML RP,699",
-  price: 0,
+  name: "NEXTON BABY SHAMPOO 250ML RS,699",
+  price: 639,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 728,
-  name: "NEXTON BABY SHAMPOO 500ML RP,999",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 729,
   name: "NEXTON BABY SHAMPOO 65ML RP,260",
-  price: 0,
+  price: 244,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 730,
-  name: "NEXTON BABY SHAMPOO PUMP",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 731,
-  name: "NEXTON BABY SOAP RP,225",
-  price: 0,
+  name: "NEXTON BABY ROSE SOAP RS,299",
+  price: 284,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 732,
-  name: "NEXTON OIL 125ML RP,470",
-  price: 0,
+  name: "NEXTON BABY OIL  VITAMIN E 65ML RS,425",
+  price: 394,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 733,
-  name: "NEXTON WIPES",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 734,
   name: "NIPLE PP SMALL",
   price: 29,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 735,
-  name: "NIPPLE PP LARGE",
+  name: "NIPPLE PP LARGE 1 PIECE",
   price: 49,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 736,
   name: "NITRO HAIR WAX (MIX)",
-  price: 420,
+  price: 409,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
@@ -5957,58 +8288,31 @@ var PRODUCTS = [{
   initial: "N"
 }, {
   id: 753,
-  name: "PAPER COPY (ALL TYPES)",
-  price: 0,
+  name: "PAPER COPY (GOOD QUALITY) RS,60",
+  price: 44,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
-  id: 754,
-  name: "PARACHUTE COCONUT OIL (LARGE) ORIGINAL",
-  price: 989,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils"
-}, {
   id: 755,
-  name: "PARACHUTE COCONUT OIL (LARGE) HEMANI",
-  price: 889,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils"
-}, {
-  id: 756,
-  name: "PARACHUTE COCONUT OIL (MEDIUM) HEMANI",
-  price: 489,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
-  initial: "P"
-}, {
-  id: 757,
-  name: "PARACHUTE COCONUT OIL (MEDIUM) ORIGINAL",
-  price: 589,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils"
-}, {
-  id: 758,
-  name: "PARACHUTE COCONUT OIL (SMALL) HEMANI",
-  price: 269,
+  name: "PARACHUTE COCONUT OIL (MEDIUM) RS,450",
+  price: 389,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 759,
-  name: "PARACHUTE COCONUT OIL (SMALL) ORIGINAL",
-  price: 299,
+  name: "PARACHUTE COCONUT OIL (SMALL) ORIGINAL RS,380",
+  price: 319,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 760,
-  name: "PARTY PACK TISSUE ROSE PETAL (PINK) RP,250",
-  price: 229,
+  name: "ROSE PETAL PARTY PACK TISSUE 400 PIECE RS,270",
+  price: 254,
   categoryId: "general",
   categoryName: "General Items & Others"
 }, {
   id: 761,
-  name: "PARTY PACK TISSUE ROSE PETAL (WHITE) RP,275",
+  name: "ROSE PETAL POP UP TISSUE 150 PIECE RS,270",
   price: 249,
   categoryId: "general",
   categoryName: "General Items & Others"
@@ -6047,26 +8351,26 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 766,
-  name: "PASTE CLOSE UP (IMP) LARGE GREEN",
+  name: "PASTE CLOSE UP  GREEN LARGE RS,450",
   price: 399,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 767,
-  name: "PASTE CLOSE UP (IMP) LARGE RED",
+  name: "PASTE CLOSE UP  RED LARGE RS,450",
   price: 399,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 768,
-  name: "PASTE CLOSE UP (IMP) XL BLUE (ICY WHITE)",
+  name: "PASTE CLOSE UP (ICY WHITE) IMP 160G RS,499",
   price: 449,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 769,
-  name: "PASTE CLOSE UP (SMALL) GREEN",
-  price: 199,
+  name: "PASTE CLOSE UP (SMALL) GREEN RS,220",
+  price: 174,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6074,8 +8378,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 770,
-  name: "PASTE CLOSE UP (SMALL) RED",
-  price: 199,
+  name: "PASTE CLOSE UP (SMALL) RED RS,200",
+  price: 174,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6083,20 +8387,20 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 771,
-  name: "PASTE COLGATE 100g HERBAL RS,220",
-  price: 205,
+  name: "PASTE COLGATE 100G HERBAL RS,230",
+  price: 214,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 772,
-  name: "PASTE COLGATE 100g SADA RS,230",
-  price: 214,
+  name: "PASTE COLGATE 100G SADA RS,240",
+  price: 219,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 773,
   name: "PASTE COLGATE 125G MAX FRESH (GREEN) RS,325",
-  price: 310,
+  price: 299,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6104,14 +8408,14 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 774,
-  name: "PASTE COLGATE 125g MAX FRESH (BLUE) RS,325",
-  price: 310,
+  name: "PASTE COLGATE 125G MAX FRESH (BLUE) RS,340",
+  price: 319,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 775,
-  name: "PASTE COLGATE 125G MAX FRESH (RED) RS,325",
-  price: 310,
+  name: "PASTE COLGATE 125G MAX FRESH (RED) RS,300",
+  price: 283,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6125,26 +8429,26 @@ var PRODUCTS = [{
   categoryName: "Dental Cares"
 }, {
   id: 777,
-  name: "PASTE COLGATE 200g HERBAL RS,420",
-  price: 397,
+  name: "PASTE COLGATE 200G HERBAL RS,400",
+  price: 379,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 778,
-  name: "PASTE COLGATE 200g SADA RS,430",
-  price: 405,
+  name: "PASTE COLGATE 200G SADA RS,440",
+  price: 419,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 779,
-  name: "PASTE COLGATE 20g HERBAL RS,50",
-  price: 46,
+  name: "PASTE COLGATE 20G HERBAL RS,50",
+  price: 48,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 780,
-  name: "PASTE COLGATE 20g SADA RS,50",
-  price: 46,
+  name: "PASTE COLGATE 20G SADA RS,50",
+  price: 48,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6152,8 +8456,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 781,
-  name: "PASTE COLGATE 40g SADA RS,75",
-  price: 69,
+  name: "PASTE COLGATE 40G SADA RS,75",
+  price: 71,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
@@ -6164,32 +8468,32 @@ var PRODUCTS = [{
   categoryName: "Dental Cares"
 }, {
   id: 783,
-  name: "PASTE COLGATE 75g HERBAL RS,180",
-  price: 169,
+  name: "PASTE COLGATE 75G HERBAL RS,180",
+  price: 173,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 784,
-  name: "PASTE COLGATE 75g SADA RS,190",
-  price: 179,
+  name: "PASTE COLGATE 75G SADA RS,200",
+  price: 191,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 785,
-  name: "PASTE COLGATE 75g MAX FRESH RS,220 (GREEN)",
-  price: 209,
+  name: "PASTE COLGATE 75G MAX FRESH RS,220 (GREEN)",
+  price: 219,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 786,
-  name: "PASTE COLGATE 75g MAX FRESH RS,220 (RED)",
-  price: 209,
+  name: "PASTE COLGATE 75G MAX FRESH RS,230 (RED)",
+  price: 219,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 787,
-  name: "PASTE COLGATE 75g MAX FRESH RS,220 (BLUE)",
-  price: 209,
+  name: "PASTE COLGATE 75G MAX FRESH RS,230 (BLUE)",
+  price: 219,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6197,8 +8501,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 788,
-  name: "PASTE DOCTOR RS,110",
-  price: 96,
+  name: "PASTE DOCTOR WITH FLOURIDE RS,110",
+  price: 104,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6206,8 +8510,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 789,
-  name: "PASTE DOCTOR RS,220",
-  price: 199,
+  name: "PASTE DOCTOR WITH FLOURIDE RS,220",
+  price: 204,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6221,14 +8525,14 @@ var PRODUCTS = [{
   categoryName: "Dental Cares"
 }, {
   id: 791,
-  name: "PASTE FORHANS (LARGE) RS,300",
-  price: 285,
+  name: "PASTE FORHANS (LARGE) RS,400",
+  price: 389,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 792,
   name: "PASTE FORHANS (SMALL) RS,180",
-  price: 169,
+  price: 173,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6243,13 +8547,13 @@ var PRODUCTS = [{
 }, {
   id: 794,
   name: "PASTE MEDICAM 65GM RS,250",
-  price: 224,
+  price: 234,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 795,
   name: "PASTE MEDICAM 90GM RS,320",
-  price: 289,
+  price: 311,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
@@ -6266,32 +8570,32 @@ var PRODUCTS = [{
   categoryName: "Dental Cares"
 }, {
   id: 798,
-  name: "PASTE SENSODYNE 100g (FLUORIDE) RS,450",
-  price: 429,
+  name: "PASTE SENSODYNE 100G (FLUORIDE) RS,400",
+  price: 388,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 799,
-  name: "PASTE SENSODYNE 100g (ORIGINAL) RS,450",
-  price: 429,
+  name: "PASTE SENSODYNE 100G (ORIGINAL) RS,520",
+  price: 499,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 800,
-  name: "PASTE SENSODYNE 100g (RAPID ACTION) RS,545",
-  price: 519,
+  name: "PASTE SENSODYNE 100G (RAPID ACTION) RS,545",
+  price: 509,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 801,
-  name: "PASTE SENSODYNE 30g (COMPLETE PROTECTION +) RS,165",
-  price: 155,
+  name: "PASTE SENSODYNE 30G (COMPLETE PROTECTION +) RS,165",
+  price: 157,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 802,
-  name: "PASTE SENSODYNE 30g (RAPID ACTION) RS,165",
-  price: 154,
+  name: "PASTE SENSODYNE 30G (RAPID ACTION) RS,165",
+  price: 157,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6299,8 +8603,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 804,
-  name: "PASTE SENSODYNE 70g (FLUORIDE) RS,380",
-  price: 354,
+  name: "PASTE SENSODYNE 70G (FLUORIDE) RS,400",
+  price: 379,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6308,8 +8612,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 805,
-  name: "PASTE SENSODYNE 70g (ORIGINAL) RS,380",
-  price: 354,
+  name: "PASTE SENSODYNE 70G (ORIGINAL) RS,400",
+  price: 379,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6317,8 +8621,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 806,
-  name: "PASTE SENSODYNE 70g (RAPID ACTION) RS,420",
-  price: 399,
+  name: "PASTE SENSODYNE 70G (RAPID ACTION) RS,460",
+  price: 439,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -6338,26 +8642,20 @@ var PRODUCTS = [{
   categoryName: "Dental Cares"
 }, {
   id: 809,
-  name: "PEN (BLUE SIGNATURE) BLACK",
-  price: 17,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 810,
-  name: "PEN (BLUE SIGNATURE) BLUE",
-  price: 17,
+  name: "BALL PEN SIGNATURE (RED) RS,30",
+  price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 811,
   name: "PEN DOLLAR SP 10",
-  price: 70,
+  price: 74,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 812,
-  name: "PEN PIANO (BLACK) GRIPPER 0.8MM",
-  price: 20,
+  name: "PEN PIANO CLICK  (BLACK) RS,20",
+  price: 14,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -6365,8 +8663,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 813,
-  name: "PEN PIANO (BLUE) GRIPPER 0.8MM",
-  price: 20,
+  name: "PEN PIANO CLICK  (BLUE) RS,20",
+  price: 14,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -6374,21 +8672,12 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 814,
-  name: "PEN PIANO (RED) GRIPPER 0.8MM",
-  price: 20,
+  name: "PEN PIANO CLICK  (BLACK) RS,20",
+  price: 14,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
-  initial: "P"
-}, {
-  id: 815,
-  name: "PEN PIANO OLD YELLOW",
-  price: 17,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
   initial: "P"
 }, {
   id: 816,
@@ -6401,7 +8690,7 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 817,
-  name: "PENCIL MY DOLLAR",
+  name: "DOLLAR MY PENCIL",
   price: 19,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
@@ -6411,7 +8700,7 @@ var PRODUCTS = [{
 }, {
   id: 818,
   name: "PENCIL ORO",
-  price: 19,
+  price: 25,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -6446,7 +8735,7 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 823,
-  name: "PERFUME DELYCIA (MEDIUM) BEAUTY RS,650",
+  name: "PERFUME DELYCIA BEAUTY (MEDIUM) RS,650",
   price: 619,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
@@ -6455,7 +8744,7 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 824,
-  name: "PERFUME DELYCIA (MEDIUM) CHECK RS,650",
+  name: "PERFUME DELYCIA CHECK (MEDIUM) RS,650",
   price: 619,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
@@ -6464,8 +8753,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 825,
-  name: "PERFUME DELYCIA (SMALL) BEAUTY RS,350",
-  price: 325,
+  name: "PERFUME DELYCIA BEAUTY SMALL RS,350",
+  price: 324,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
@@ -6473,8 +8762,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 826,
-  name: "PERFUME DELYCIA (SMALL) CHECK RS,350",
-  price: 325,
+  name: "PERFUME DELYCIA CHECK (SMALL) RS,350",
+  price: 324,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
@@ -6530,7 +8819,7 @@ var PRODUCTS = [{
   categoryName: "Fragnances & Roll on"
 }, {
   id: 835,
-  name: "PERFUME MEDORA (MEDIUM) BLUE RS,650",
+  name: "PERFUME MEDORA  BLUE (MEDIUM) RS,650",
   price: 619,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
@@ -6539,7 +8828,7 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 836,
-  name: "PERFUME MEDORA (MEDIUM) GREEN RS,650",
+  name: "PERFUME MEDORA GREEN (MEDIUM) RS,650",
   price: 619,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
@@ -6548,8 +8837,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 837,
-  name: "PERFUME MEDORA (SMALL) BLUE RS,350",
-  price: 325,
+  name: "PERFUME MEDORA  BLUE (SMALL) RS,350",
+  price: 332,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
@@ -6557,8 +8846,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 838,
-  name: "PERFUME MEDORA (SMALL) GREEN RS,350",
-  price: 325,
+  name: "PERFUME MEDORA GREEN (SMALL) RS,350",
+  price: 332,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
@@ -6566,8 +8855,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 839,
-  name: "PERFUME MEDORA (SMALL) RED RS,350",
-  price: 325,
+  name: "PERFUME MEDORA RED (SMALL) RS,350",
+  price: 332,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
@@ -6575,8 +8864,8 @@ var PRODUCTS = [{
   initial: "P"
 }, {
   id: 840,
-  name: "PERFUME MEDORA (MEDIUM) RED RS,650",
-  price: 325,
+  name: "PERFUME MEDORA RED (MEDIUM) RS,650",
+  price: 619,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
@@ -6689,19 +8978,19 @@ var PRODUCTS = [{
   name: "POWDER BERG (LARGE) RS,380",
   price: 349,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 855,
   name: "POWDER BERG (SMALL) RS,220",
   price: 180,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 856,
   name: "POWDER BLACK BEAUTY (LARGE) RS,450",
   price: 410,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "P"
@@ -6710,7 +8999,7 @@ var PRODUCTS = [{
   name: "POWDER BLACK BEAUTY (SMALL) RP,220",
   price: 195,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "P"
@@ -6719,13 +9008,13 @@ var PRODUCTS = [{
   name: "POWDER BLACK CAT (LARGE) RS,480",
   price: 430,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 859,
   name: "POWDER BLACK CAT (SMALL) RS,250",
   price: 210,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "P"
@@ -6734,17 +9023,17 @@ var PRODUCTS = [{
   name: "POWDER COOL COOL RS,210",
   price: 170,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 862,
   name: "POWDER DENTONIC BOX 100GM (MEDIUM) RS,75",
-  price: 0,
+  price: 75,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
   id: 863,
   name: "POWDER DENTONIC BOX 200GM (LARGE) RS,130",
-  price: 0,
+  price: 130,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares"
 }, {
@@ -6752,7 +9041,7 @@ var PRODUCTS = [{
   name: "POWDER EDEN ROCK (LARGE) RS,310",
   price: 260,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "P"
@@ -6761,43 +9050,43 @@ var PRODUCTS = [{
   name: "POWDER EDEN ROCK (SMALL) RS,210",
   price: 180,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "P"
 }, {
   id: 866,
-  name: "POWDER ENCHANTEUR 125g (PURPLE)",
-  price: 479,
+  name: "POWDER ENCHANTEUR 125G (PURPLE) RS,540",
+  price: 489,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "P"
 }, {
   id: 867,
-  name: "POWDER ENCHANTEUR 125g (PINK)",
-  price: 479,
+  name: "POWDER ENCHANTEUR 125G (PINK) RS,540",
+  price: 489,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "P"
 }, {
   id: 868,
-  name: "POWDER ENCHANTEUR 125g (ROSE)",
-  price: 479,
+  name: "POWDER ENCHANTEUR 125G (ROSE) RS,540",
+  price: 489,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "P"
 }, {
   id: 869,
-  name: "POWDER ENCHANTEUR 125g (YELLOW)",
-  price: 479,
+  name: "POWDER ENCHANTEUR 125G (YELLOW) RS,540",
+  price: 489,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "P"
@@ -6806,37 +9095,31 @@ var PRODUCTS = [{
   name: "POWDER ENGLISH PRICKLY HEAT LARGE",
   price: 390,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 871,
   name: "POWDER ENGLISH PRICKLY HEAT SMALL",
   price: 239,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 872,
-  name: "POWDER MEDORA (LARGE) (JOY) RS,480",
-  price: 440,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 873,
-  name: "POWDER MEDORA (SMALL) (JOY) RS,230",
-  price: 210,
+  name: "POWDER MEDORA  (JOY) SMALL RS,230",
+  price: 214,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 874,
   name: "POWDER MEDORA (SMALL) (MIX) RS,230",
-  price: 210,
+  price: 214,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 875,
   name: "POWDER MOTHER CARE GO-RASH 150g SMALL RS,400",
   price: 360,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "P"
@@ -6845,7 +9128,7 @@ var PRODUCTS = [{
   name: "POWDER MOTHER CARE GO-RASH 250g LARGE RS,550",
   price: 499,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "P"
@@ -6854,13 +9137,13 @@ var PRODUCTS = [{
   name: "POWDER TIBET (LARGE) RS,580",
   price: 540,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 878,
-  name: "POWDER TIBET (SMALL) RS,190",
-  price: 179,
+  name: "POWDER TIBET (SMALL) RS,200",
+  price: 189,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "P"
@@ -6879,7 +9162,7 @@ var PRODUCTS = [{
 }, {
   id: 883,
   name: "RAZOR TREET HYGIENE",
-  price: 45,
+  price: 46,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades",
   hasImage: true,
@@ -6895,45 +9178,33 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[1],
   initial: "R"
 }, {
-  id: 904,
-  name: "REGISTER (ALL TYPES)",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 905,
-  name: "RACKET (SET) (EXCELLENT QUALITY)",
-  price: 2250,
+  name: "RACKET (SET) (EXCELLENT QUALITY) RS,1600",
+  price: 1199,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 906,
-  name: "RACKET (SET) (NORMAL QUALITY)",
-  price: 999,
+  name: "RACKET (SET) (NORMAL QUALITY) RS,999",
+  price: 699,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 907,
-  name: "RACKET (SET) (MEDIUM QUALITY)",
-  price: 1450,
+  name: "RACKET (SET) (GOOD QUALITY) RS,1300",
+  price: 899,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 908,
-  name: "ROLL ON FA (AQUA)",
-  price: 449,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on"
-}, {
-  id: 909,
-  name: "ROLL ON ENCHANTEUR (MIX) WOMEN",
-  price: 499,
+  name: "ROLL ON FA (AQUA) 50ML RS,450",
+  price: 389,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on"
 }, {
   id: 910,
-  name: "ROLL ON FA (GREEN)",
-  price: 449,
+  name: "ROLL ON FA (CARIBBEAN WAVE) 50ML RS,450",
+  price: 389,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
@@ -6941,14 +9212,14 @@ var PRODUCTS = [{
   initial: "R"
 }, {
   id: 911,
-  name: "ROLL ON FA (PINK)",
-  price: 449,
+  name: "ROLL ON FA (PINK)  50ML RS,450",
+  price: 389,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on"
 }, {
   id: 912,
-  name: "ROLL ON FA (MYSTIC MOMENT)",
-  price: 449,
+  name: "ROLL ON FA (MYSTIC MOMENT) 50ML RS,450",
+  price: 389,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
@@ -6956,27 +9227,12 @@ var PRODUCTS = [{
   initial: "R"
 }, {
   id: 913,
-  name: "ROLL ON FA (SPORT)",
-  price: 449,
+  name: "ROLL ON FA (SPORT) 50ML RS,450",
+  price: 389,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
-  initial: "R"
-}, {
-  id: 914,
-  name: "ROLL ON NIVEA (MEN)",
-  price: 499,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on"
-}, {
-  id: 915,
-  name: "ROLL ON NIVEA (WOMEN)",
-  price: 499,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
   initial: "R"
 }, {
   id: 917,
@@ -6986,56 +9242,38 @@ var PRODUCTS = [{
   categoryName: "Fragnances & Roll on"
 }, {
   id: 918,
-  name: "ROOM SPRAY  DO IT",
-  price: 239,
+  name: "ROOM SPRAY  FRESHRITE MIX RS,300",
+  price: 249,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on"
 }, {
   id: 919,
-  name: "ROOM SPRAY (FRESH FRAGRANCE) MIX",
-  price: 269,
+  name: "ROOM SPRAY (FRESH FRAGRANCE) MIX RS,349",
+  price: 279,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on"
 }, {
-  id: 920,
-  name: "ROOM SPRAY (IMP) DARHAM",
-  price: 650,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[1],
-  initial: "R"
-}, {
-  id: 921,
-  name: "ROOM SPRAY (HOUSE CARE) MIX",
-  price: 279,
-  categoryId: "fragnances",
-  categoryName: "Fragnances & Roll on",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[2],
-  initial: "R"
-}, {
   id: 922,
   name: "ROOM SPRAY (FREY) MIX",
-  price: 299,
+  price: 369,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on"
 }, {
   id: 923,
-  name: "ROOM SPRAY NEW (GOOD MORNING) MIX",
-  price: 239,
+  name: "ROOM SPRAY (4ME) MIX RS,339",
+  price: 299,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on"
 }, {
   id: 926,
-  name: "ROSE PETAL TISSUE ROLL MAXOB",
+  name: "ROSE PETAL TISSUE ROLL MAXOB RS,140",
   price: 119,
   categoryId: "general",
   categoryName: "General Items & Others"
 }, {
   id: 927,
-  name: "SABALON SPRAY (PK) LARGE",
-  price: 419,
+  name: "SABALON SPRAY (PK) LARGE RS,499",
+  price: 429,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -7043,7 +9281,7 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 928,
-  name: "SABALON SPRAY (PK) SMALL",
+  name: "SABALON SPRAY (PK) SMALL RS,349",
   price: 299,
   categoryId: "fragnances",
   categoryName: "Fragnances & Roll on",
@@ -7085,8 +9323,8 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 934,
-  name: "SCALE ORO LARGE",
-  price: 59,
+  name: "ORO SCALE  LARGE",
+  price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -7094,7 +9332,7 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 935,
-  name: "SCALE ORO SMALL",
+  name: "ORO SCALE  SMALL",
   price: 35,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
@@ -7185,25 +9423,25 @@ var PRODUCTS = [{
 }, {
   id: 949,
   name: "SHAMPOO BIO AMLA FARVAL ORIGINAL RS,700",
-  price: 599,
+  price: 601,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 950,
   name: "SHAMPOO BIO AMLA FARVEL ORIGINAL RS,340",
-  price: 295,
+  price: 307,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 951,
   name: "SHAMPOO BIO AMLA FARVEL ORIGINAL RS,500",
-  price: 430,
+  price: 439,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 952,
   name: "SHAMPOO BIO AMLA FARVEL ORIGINAL RS,180",
-  price: 145,
+  price: 159,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7211,20 +9449,20 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 953,
-  name: "SHAMPOO CLEAR 200ml  (MEN) BLUE RS,499",
-  price: 479,
+  name: "SHAMPOO CLEAR (MEN) RS,499",
+  price: 484,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 955,
-  name: "SHAMPOO CLEAR 400ml (MEN) BLUE RS,830",
-  price: 789,
+  name: "SHAMPOO CLEAR (MEN)  400ML RS,830",
+  price: 804,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 958,
-  name: "SHAMPOO DOVE 175ml (GOLDEN) DAILY MOISTURE RS,520",
-  price: 495,
+  name: "SHAMPOO DOVE 175ML (GOLDEN) DAILY MOISTURE RS,550",
+  price: 539,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7232,8 +9470,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 959,
-  name: "SHAMPOO DOVE 175ML (HAIR FALL) RS,520",
-  price: 495,
+  name: "SHAMPOO DOVE 175ML (HAIR FALL) RS,550",
+  price: 539,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7241,8 +9479,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 960,
-  name: "SHAMPOO DOVE 175ml (INTENSIVE REPAIR) RS,520",
-  price: 495,
+  name: "SHAMPOO DOVE 175ML (INTENSIVE REPAIR) RS,550",
+  price: 539,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7250,8 +9488,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 961,
-  name: "SHAMPOO DOVE 175ml (LIGHT BLUE) RS,520",
-  price: 495,
+  name: "SHAMPOO DOVE 175ML (DANDRUFF CARE) RS,540",
+  price: 539,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7259,8 +9497,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 962,
-  name: "SHAMPOO DOVE 400ml (INTENSIVE REPAIR) RS,940",
-  price: 495,
+  name: "SHAMPOO DOVE 400ML (INTENSIVE REPAIR) RS,870",
+  price: 839,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
@@ -7272,7 +9510,7 @@ var PRODUCTS = [{
 }, {
   id: 965,
   name: "SHAMPOO ENGLISH ANTI LICE (MEDIUM) RS,240",
-  price: 225,
+  price: 224,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7289,8 +9527,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 971,
-  name: "SHAMPOO LIFEBUOY 100ml (GREEN) RS,200",
-  price: 189,
+  name: "SHAMPOO LIFEBUOY 100ML (GREEN) RS,200",
+  price: 184,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7298,8 +9536,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 972,
-  name: "SHAMPOO LIFEBUOY 100ml (ONION) RP,200",
-  price: 189,
+  name: "SHAMPOO LIFEBUOY 100ML (ONION) RP,200",
+  price: 184,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7337,8 +9575,8 @@ var PRODUCTS = [{
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 977,
-  name: "SHAMPOO LIFEBUOY 400ml (GREEN) RS,620",
-  price: 589,
+  name: "SHAMPOO LIFEBUOY 400ML (GREEN) RS,670",
+  price: 649,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7357,33 +9595,27 @@ var PRODUCTS = [{
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
-  id: 980,
-  name: "SHAMPOO LOREAL LARGE (GLYCOLIC EXTRA GLOSS) RS,1050",
-  price: 949,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
   id: 981,
   name: "SHAMPOO LOREAL LARGE (TOTAL REPAIR 5) RS,930",
-  price: 849,
+  price: 889,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 982,
   name: "SHAMPOO LOREAL LARGE (EXTRA-ORDINARY OIL) RP,930",
-  price: 849,
+  price: 889,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 983,
   name: "SHAMPOO LOREAL LARGE (COLOR VIBRANCY) RS,930",
-  price: 849,
+  price: 889,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 984,
   name: "SHAMPOO LOREAL LARGE (DREAM LONG) RS,930",
-  price: 849,
+  price: 889,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7392,13 +9624,13 @@ var PRODUCTS = [{
 }, {
   id: 985,
   name: "SHAMPOO LOREAL LARGE (FALL RESIST 3D) RS,930",
-  price: 849,
+  price: 889,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 986,
   name: "SHAMPOO LOREAL MEDIUM (HYALURON MOISTURE) RS,600",
-  price: 559,
+  price: 569,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7406,29 +9638,20 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 987,
-  name: "SHAMPOO LOREAL MEDIUM (HYALURON PURE) RS,530",
-  price: 489,
+  name: "SHAMPOO LOREAL MEDIUM (HYALURON PURE) RS,600",
+  price: 569,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
-  id: 988,
-  name: "SHAMPOO LOREAL MEDIUM (GLYCOLIC EXTRA GLOSS) RS,530",
-  price: 489,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[6],
-  initial: "S"
-}, {
   id: 989,
-  name: "SHAMPOO LOREAL MEDIUM (TOTAL REPAIR 5) RS,530",
-  price: 489,
+  name: "SHAMPOO LOREAL MEDIUM (TOTAL REPAIR 5) RS,550",
+  price: 514,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 990,
-  name: "SHAMPOO LOREAL MEDIUM (EXTRA-ORDINARY OIL) RS,530",
-  price: 489,
+  name: "SHAMPOO LOREAL MEDIUM (EXTRA-ORDINARY OIL) RS,550",
+  price: 514,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7436,8 +9659,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 991,
-  name: "SHAMPOO LOREAL MEDIUM (COLOR VIBRANCY) RS,530",
-  price: 489,
+  name: "SHAMPOO LOREAL MEDIUM (COLOR VIBRANCY) RS,550",
+  price: 514,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7445,8 +9668,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 992,
-  name: "SHAMPOO LOREAL MEDIUM (DREAM LONG) RS,530",
-  price: 489,
+  name: "SHAMPOO LOREAL MEDIUM (DREAM LONG) RS,550",
+  price: 514,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7454,14 +9677,14 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 993,
-  name: "SHAMPOO LOREAL MEDIUM (FALL RESIST 3D) RS,530",
-  price: 489,
+  name: "SHAMPOO LOREAL MEDIUM (FALL RESIST 3D) RS,550",
+  price: 514,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 994,
-  name: "SHAMPOO MECLAY MEDIUM (PINK)",
-  price: 369,
+  name: "SHAMPOO MECLAY 180ML (PINK) RS,450",
+  price: 379,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7469,8 +9692,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 995,
-  name: "SHAMPOO MECLAY MEDIUM (PURPLE)",
-  price: 369,
+  name: "SHAMPOO MECLAY 180ML (PURPLE) RS,450",
+  price: 379,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7478,8 +9701,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 996,
-  name: "SHAMPOO MECLAY MEDIUM (DARK BLUE)",
-  price: 369,
+  name: "SHAMPOO MECLAY 180ML (DARK BLUE) RS,450",
+  price: 379,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7487,8 +9710,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 997,
-  name: "SHAMPOO MECLAY MEDIUM (GREEN)",
-  price: 369,
+  name: "SHAMPOO MECLAY 180ML (GREEN) RS,450",
+  price: 379,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7496,8 +9719,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 998,
-  name: "SHAMPOO MECLAY MEDIUM (BLACK)",
-  price: 369,
+  name: "SHAMPOO MECLAY 180ML  (BLACK) RS,450",
+  price: 379,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7505,8 +9728,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 999,
-  name: "SHAMPOO MECLAY MEDIUM (RED)",
-  price: 369,
+  name: "SHAMPOO MECLAY 180ML (RED) RS,450",
+  price: 379,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7514,14 +9737,14 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 1000,
-  name: "SHAMPOO MECLAY MEDIUM (ORANGE)",
-  price: 369,
+  name: "SHAMPOO MECLAY 180ML (ORANGE) RS,450",
+  price: 379,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1001,
-  name: "SHAMPOO MECLAY MEDIUM (GOLDEN) ",
-  price: 369,
+  name: "SHAMPOO MECLAY 180ML (GOLDEN)  RS,450",
+  price: 379,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7529,8 +9752,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 1002,
-  name: "SHAMPOO MECLAY MEDIUM (WHITE)",
-  price: 369,
+  name: "SHAMPOO MECLAY 180ML (WHITE) RS,450",
+  price: 379,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7538,8 +9761,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 1003,
-  name: "SHAMPOO MECLAY LARGE (PINK)",
-  price: 660,
+  name: "SHAMPOO MECLAY LARGE (PINK) RS,780",
+  price: 659,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7547,32 +9770,32 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 1004,
-  name: "SHAMPOO MECLAY LARGE (PURPLE)",
-  price: 660,
+  name: "SHAMPOO MECLAY LARGE (PURPLE) RS,780",
+  price: 659,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1005,
-  name: "SHAMPOO MECLAY LARGE (DARK BLUE)",
-  price: 660,
+  name: "SHAMPOO MECLAY LARGE (DARK BLUE) RS,780",
+  price: 659,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1006,
-  name: "SHAMPOO MECLAY LARGE (GREEN)",
-  price: 660,
+  name: "SHAMPOO MECLAY LARGE (GREEN) RS,780",
+  price: 659,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1007,
-  name: "SHAMPOO MECLAY LARGE (BLACK)",
-  price: 660,
+  name: "SHAMPOO MECLAY LARGE (BLACK) RS,780",
+  price: 659,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1008,
-  name: "SHAMPOO MECLAY LARGE (RED)",
-  price: 660,
+  name: "SHAMPOO MECLAY LARGE (RED) RS,780",
+  price: 659,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7580,14 +9803,14 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 1009,
-  name: "SHAMPOO MECLAY LARGE (ORANGE)",
-  price: 660,
+  name: "SHAMPOO MECLAY LARGE (ORANGE) RS,780",
+  price: 659,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1010,
-  name: "SHAMPOO MECLAY LARGE (GOLDEN)",
-  price: 660,
+  name: "SHAMPOO MECLAY LARGE (GOLDEN) RS,780",
+  price: 659,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners",
   hasImage: true,
@@ -7595,8 +9818,8 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 1011,
-  name: "SHAMPOO MECLAY LARGE (WHITE)",
-  price: 660,
+  name: "SHAMPOO MECLAY LARGE (WHITE) RS,780",
+  price: 659,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
@@ -7619,20 +9842,20 @@ var PRODUCTS = [{
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1015,
-  name: "SHAMPOO PALMOLIVE (MEDIUM) (WHITE) BRILLIANT SHINE RS,330",
-  price: 379,
+  name: "SHAMPOO PALMOLIVE (MEDIUM) (WHITE) BRILLIANT SHINE RS,440",
+  price: 414,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1016,
-  name: "SHAMPOO PALMOLIVE (MEDIUM) (GREEN) HEALTHY & SMOOTH RS,330",
-  price: 379,
+  name: "SHAMPOO PALMOLIVE (MEDIUM) (GREEN) HEALTHY & SMOOTH RS,440",
+  price: 414,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1017,
-  name: "SHAMPOO PALMOLIVE (MEDIUM) (PINK) INTENSIVE MOISTURE RS,330",
-  price: 379,
+  name: "SHAMPOO PALMOLIVE (MEDIUM) (PINK) INTENSIVE MOISTURE RS,440",
+  price: 414,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
@@ -7645,33 +9868,9 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[1],
   initial: "S"
 }, {
-  id: 1035,
-  name: "SHAMPOO SUNSILK (IMP) LARGE (BLACK) BLACK SHINE",
-  price: 889,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
-  id: 1036,
-  name: "SHAMPOO SUNSILK (IMP) LARGE (BLUE) ANTI DANDRUFF",
-  price: 889,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
-  id: 1037,
-  name: "SHAMPOO SUNSILK (IMP) LARGE (GOLDEN) H,F SOLUTION",
-  price: 889,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
-  id: 1038,
-  name: "SHAMPOO SUNSILK (IMP) MEDIUM (GREEN)",
-  price: 439,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
   id: 1040,
-  name: "SHAMPOO SUNSILK (IMP) MEDIUM (BLACK)",
-  price: 439,
+  name: "SHAMPOO SUNSILK MEDIUM ROSEMARY & ARGAN OIL RS,499",
+  price: 484,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
@@ -7711,105 +9910,75 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[1],
   initial: "S"
 }, {
-  id: 1045,
-  name: "SHAMPOO SUNSILK 400ml (PINK) THICK & LONG RS,799",
-  price: 769,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
-  id: 1046,
-  name: "SHAMPOO SUNSILK 400ml (GOLDEN) SOFT & SMOOTH",
-  price: 769,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
-  id: 1047,
-  name: "SHAMPOO TRESEMME (IMP) 170ml (BLACK)",
-  price: 520,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
-  id: 1048,
-  name: "SHAMPOO TRESEMME (IMP) 170ml (GREEN)",
-  price: 520,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
-  id: 1049,
-  name: "SHAMPOO TRESEMME (IMP) 170ml (RED)",
-  price: 520,
-  categoryId: "shampoo",
-  categoryName: "Shampoo & Conditioners"
-}, {
   id: 1051,
-  name: "SHAMPOO TRESEMME 400ml (GREEN)",
-  price: 885,
+  name: "SHAMPOO TRESEMME 170ML (GREEN) RS,570",
+  price: 549,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1052,
-  name: "SHAMPOO TRESEMME 400ml (BLACK)",
-  price: 885,
+  name: "SHAMPOO TRESEMME 170ML (BLACK) RS,570",
+  price: 549,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1053,
-  name: "SHAMPOO TRESEMME 400ml (RED)",
-  price: 885,
+  name: "SHAMPOO TRESEMME 170ML (RED) RS,570",
+  price: 549,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1054,
-  name: "SHAMPOO VATIKA DUBAI LARGE (BLACK) RP,720",
-  price: 659,
+  name: "SHAMPOO VATIKA DUBAI (HONEY & EGG) 360ML RS,799",
+  price: 699,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1055,
-  name: "SHAMPOO VATIKA DUBAI LARGE (OLIVE) RS,720",
-  price: 659,
+  name: "SHAMPOO VATIKA DUBAI (OLIVE) RS,799",
+  price: 699,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1056,
-  name: "SHAMPOO VATIKA DUBAI LARGE (COCO,N) BLUE RS,720",
-  price: 659,
+  name: "SHAMPOO VATIKA DUBAI (COCONUT & CASTER) RS,799",
+  price: 699,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1057,
-  name: "SHAMPOO VATIKA DUBAI LARGE (CACTUS) RS,720",
-  price: 659,
+  name: "SHAMPOO VATIKA DUBAI (ALMOND & HONEY) RS,799",
+  price: 699,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1058,
-  name: "SHAMPOO VATIKA DUBAI MEDIUM (ALMOND & HONEY) RS,435",
-  price: 399,
+  name: "SHAMPOO VATIKA DUBAI (ALMOND & HONEY) RS,499",
+  price: 459,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1059,
-  name: "SHAMPOO VATIKA DUBAI MEDIUM (OLIVE) RS,435",
-  price: 399,
+  name: "SHAMPOO VATIKA DUBAI (OLIVE & HENNA) RS,499",
+  price: 459,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1060,
-  name: "SHAMPOO VATIKA DUBAI MEDIUM (CACTUS) RS,435",
-  price: 399,
+  name: "SHAMPOO VATIKA DUBAI (HONEY & EGG) RS,499",
+  price: 459,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1061,
-  name: "SHAMPOO VATIKA DUBAI MEDIUM (BLACK) RS,435",
-  price: 399,
+  name: "SHAMPOO VATIKA DUBAI (BLACK SEED) RS,499",
+  price: 459,
   categoryId: "shampoo",
   categoryName: "Shampoo & Conditioners"
 }, {
   id: 1062,
-  name: "SHARPENER ORO RS,10",
-  price: 9,
+  name: "APPLE SHARPENER  RS,10",
+  price: 8,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -7817,49 +9986,40 @@ var PRODUCTS = [{
   initial: "S"
 }, {
   id: 1063,
-  name: "SHUTTLECOCK (PAR WALI) GOOD QUALITY",
-  price: 0,
+  name: "SHUTTLECOCK (PAR WALI) GOOD QUALITY RS,150",
+  price: 109,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 1064,
-  name: "SHUTTLECOCK (PAR WALI) EXCELLENT QUALITY",
-  price: 0,
+  name: "SHUTTLECOCK AIR KING (PAR WALI) EXCELLENT QUALITY RS,200",
+  price: 179,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 1065,
-  name: "SHUTTLECOCK (PLASTIC) EXCELLENT QUALITY",
-  price: 0,
+  name: "SHUTTLECOCK (PLASTIC) EXCELLENT QUALITY RS,150",
+  price: 89,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 1066,
-  name: "SHUTTLECOCK (PLASTIC) GOOD QUALITY",
-  price: 85,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[6],
-  initial: "S"
+  categoryName: "Sports & Toys"
 }, {
   id: 1067,
   name: "SHIELD CHOOSNI (3 MONTH)",
   price: 90,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1068,
   name: "SHIELD CHOOSNI (6 MONTH)",
   price: 90,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1075,
-  name: "SHIELD NIPPLE BOX",
-  price: 80,
+  name: "SHIELD NIPPLE (1 PEICE) RS,50",
+  price: 39,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
+  categoryName: "Baby Care & Powders & Pampers",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
   initial: "S"
@@ -7868,47 +10028,32 @@ var PRODUCTS = [{
   name: "SOAP CAPRI (FAMILY PACK) 135G (YELLOW)",
   price: 130,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 27
 }, {
   id: 1081,
   name: "SOAP CAPRI (3 IN 1) YELLOW RS,390",
   price: 350,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
-}, {
-  id: 1083,
-  name: "SOAP DETTOL JUMBO COMPANY RS,150 (COOL)",
-  price: 139,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 28
 }, {
   id: 1084,
-  name: "SOAP DETTOL JUMBO COMPANY RS,150 (GREEN)",
-  price: 139,
+  name: "SOAP DETTOL JUMBO (GREEN) RS,160",
+  price: 149,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
-}, {
-  id: 1086,
-  name: "SOAP DETTOL MEDIUM COMPANY (COOL) RS,140",
-  price: 129,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
-}, {
-  id: 1087,
-  name: "SOAP DETTOL SMALL COMPANY (COOL)",
-  price: 129,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 6
 }, {
   id: 1088,
-  name: "SOAP DOVE LARGE WHITE (IMP)",
+  name: "SOAP DOVE LARGE WHITE (IMP) RS,530",
   price: 449,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps",
   priority: 1
 }, {
   id: 1089,
-  name: "SOAP DOVE LARGE PINK (IMP)",
+  name: "SOAP DOVE LARGE PINK (IMP) RS,530",
   price: 449,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps",
@@ -7917,35 +10062,19 @@ var PRODUCTS = [{
   initial: "S",
   priority: 2
 }, {
-  id: 1090,
-  name: "SOAP DOVE SMALL WHITE (IMP)",
-  price: 0,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
-}, {
-  id: 1091,
-  name: "SOAP DOVE SMALL PINK (IMP)",
-  price: 0,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[4],
-  initial: "S"
-}, {
   id: 1092,
   name: "SOAP FAIZA (NEEM)",
   price: 110,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 32
 }, {
   id: 1093,
   name: "SOAP FAIZA (PP)",
-  price: 110,
+  price: 109,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 33
 }, {
   id: 1094,
   name: "SOAP GOLDEN PEARL (BLUE)",
@@ -7954,7 +10083,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
-  initial: "S"
+  initial: "S",
+  priority: 9
 }, {
   id: 1095,
   name: "SOAP GOLDEN PEARL (PINK)",
@@ -7963,7 +10093,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
+  initial: "S",
+  priority: 10
 }, {
   id: 1096,
   name: "SOAP GOLDEN PEARL (YELLOW)",
@@ -7972,85 +10103,81 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
-  initial: "S"
+  initial: "S",
+  priority: 11
 }, {
   id: 1097,
-  name: "SOAP IMPERIAL 175gm LARGE",
-  price: 390,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
-}, {
-  id: 1098,
-  name: "SOAP IMPERIAL LEATHER SMALL",
-  price: 239,
+  name: "IMPERIAL LEATHER CLASSIC BEAUTY SOAP 190GM RS,RS,450",
+  price: 379,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
-}, {
-  id: 1099,
-  name: "SOAP LIFEBUOY (LARGE) GREEN RS,125",
-  price: 119,
-  categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  priority: 26
 }, {
   id: 1100,
-  name: "SOAP LIFEBUOY (MEDIUM) (BLUE) RS,95",
-  price: 90,
+  name: "SOAP LIFEBUOY (SMALL) RED RS,75",
+  price: 69,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 14
 }, {
   id: 1101,
-  name: "SOAP LIFEBUOY (XL) BLUE RS,125",
-  price: 119,
+  name: "SOAP LIFEBUOY (MEDIUM) BLUE RS,110",
+  price: 104,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 13
 }, {
   id: 1102,
-  name: "SOAP LIFEBUOY (XL) GREEN RS,125",
-  price: 119,
+  name: "SOAP LIFEBUOY (MEDIUM) GREEN RS,110",
+  price: 104,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 12
 }, {
   id: 1103,
-  name: "SOAP PALMOLIVE (LARGE) RS,150 BLACK",
-  price: 139,
+  name: "SOAP PALMOLIVE GREEN (LARGE) RS,160",
+  price: 151,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 16
 }, {
   id: 1104,
-  name: "SOAP PALMOLIVE (LARGE) RS,150 ORANGE",
-  price: 139,
+  name: "SOAP PALMOLIVE ORANGE (LARGE) RS,160",
+  price: 151,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 17
 }, {
   id: 1105,
-  name: "SOAP PALMOLIVE (LARGE) RS,150 YELLOW",
-  price: 139,
+  name: "SOAP PALMOLIVE PINK (LARGE) RS,160",
+  price: 151,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 18
 }, {
   id: 1109,
-  name: "SOAP PEARS (BLUE)",
-  price: 399,
+  name: "SOAP PEARS (BLUE) RS,450",
+  price: 374,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 19
 }, {
   id: 1110,
-  name: "SOAP PEARS (GREEN)",
-  price: 399,
+  name: "SOAP PEARS (GREEN) RS,450",
+  price: 374,
   categoryId: "soaps",
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
-  initial: "S"
+  initial: "S",
+  priority: 20
 }, {
   id: 1111,
-  name: "SOAP PEARS (ORANGE)",
-  price: 399,
+  name: "SOAP PEARS (ORANGE) RS.450",
+  price: 374,
   categoryId: "soaps",
-  categoryName: "Local & Imported Soaps"
+  categoryName: "Local & Imported Soaps",
+  priority: 21
 }, {
   id: 1112,
   name: "SOAP SKIN WHITE (BLUE) RS,150",
@@ -8059,7 +10186,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
-  initial: "S"
+  initial: "S",
+  priority: 22
 }, {
   id: 1113,
   name: "SOAP SKIN WHITE (GREEN) RS,150",
@@ -8068,7 +10196,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
-  initial: "S"
+  initial: "S",
+  priority: 23
 }, {
   id: 1114,
   name: "SOAP SKIN WHITE (PINK) RS,150",
@@ -8077,7 +10206,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
-  initial: "S"
+  initial: "S",
+  priority: 24
 }, {
   id: 1115,
   name: "SOAP TIBET (LARGE FAMILY SIZE) RS,109",
@@ -8086,7 +10216,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
+  initial: "S",
+  priority: 31
 }, {
   id: 1116,
   name: "SOAP TIBET (MEDIUM BATH SIZE) RS,89",
@@ -8095,7 +10226,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
-  initial: "S"
+  initial: "S",
+  priority: 30
 }, {
   id: 1117,
   name: "SOAP TIBET (SMALL STANDARD SIZE) RS,70",
@@ -8104,7 +10236,8 @@ var PRODUCTS = [{
   categoryName: "Local & Imported Soaps",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
-  initial: "S"
+  initial: "S",
+  priority: 29
 }, {
   id: 1118,
   name: "SOFT TOUCH WONDER WAX LARGE GREEN",
@@ -8144,27 +10277,27 @@ var PRODUCTS = [{
 }, {
   id: 1130,
   name: "SUNBLOCK RIVAJ (LARGE) RP,630",
-  price: 579,
+  price: 589,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "S"
 }, {
   id: 1131,
-  name: "SUNBLOCK RIVAJ SPF 60 (SMALL) RP,300",
-  price: 260,
+  name: "SUNBLOCK RIVAJ SPF 60 (SMALL) RS,300",
+  price: 279,
   categoryId: "facewash",
-  categoryName: "Face Wash & Body Washes",
+  categoryName: "Face Wash & Body Wash & Hand Wash",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "S"
 }, {
   id: 1132,
-  name: "TOY AUTO CAR",
-  price: 50,
+  name: "TOY AUTO CAR RS,100",
+  price: 49,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 1133,
   name: "TOY AUTO CAR METAL",
@@ -8178,12 +10311,6 @@ var PRODUCTS = [{
   categoryId: "sports",
   categoryName: "Sports & Toys & Birthday"
 }, {
-  id: 1135,
-  name: "TOY BARREL O SLIME (MELON) KHARBOZA",
-  price: 40,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
   id: 1136,
   name: "TOY BARREL O SLIME JAR LARGE 200g",
   price: 99,
@@ -8191,16 +10318,10 @@ var PRODUCTS = [{
   categoryName: "Sports & Toys & Birthday"
 }, {
   id: 1137,
-  name: "TOY BLOCKS GAME",
-  price: 240,
+  name: "TOY BLOCKS GAME (CUBE) RS,250",
+  price: 199,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 1138,
-  name: "TOY BUBBLE CARTOON FACE (EX QUALITY)",
-  price: 0,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 1139,
   name: "TOY BUBBLE CARTOON FACE (GOOD QUALITY)",
@@ -8208,50 +10329,8 @@ var PRODUCTS = [{
   categoryId: "sports",
   categoryName: "Sports & Toys & Birthday"
 }, {
-  id: 1140,
-  name: "TOY BUBBLE FEEDER",
-  price: 0,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 1141,
-  name: "TOY BUBBLE FEEDER EX QUALITY",
-  price: 0,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 1142,
-  name: "TOY BUBBLE SURAHI WALA (EX LONG)",
-  price: 0,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 1143,
-  name: "TOY BUBBLE SURAHI WALA (EX QUALITY)",
-  price: 0,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 1144,
-  name: "TOY BUBBLE WITH FAN",
-  price: 0,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
   id: 1145,
   name: "TOY CAR JUMPING LARGE PIECE 18 (DORAEMON)",
-  price: 0,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 1146,
-  name: "TOY CAR JUMPING LARGE PIECE 18",
-  price: 0,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
-  id: 1147,
-  name: "TOY CAR JUMPING MEDIUM  (JEEP ) EX QUALITY",
   price: 0,
   categoryId: "sports",
   categoryName: "Sports & Toys & Birthday"
@@ -8264,24 +10343,24 @@ var PRODUCTS = [{
 }, {
   id: 1149,
   name: "TOY CLAY LARGE",
-  price: 85,
+  price: 51.5,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday",
+  categoryName: "Sports & Toys",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "T"
 }, {
   id: 1150,
-  name: "TOY LASER LIGHT GUN",
-  price: 0,
+  name: "TOY LASER LIGHT GUN RS,149",
+  price: 99,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 1151,
-  name: "TOY LIGHTING BALL",
-  price: 0,
+  name: "TOY LIGHTING BALL LARGE RS,149",
+  price: 99,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 1152,
   name: "TOY POP UP PATAKA (YELLOW)",
@@ -8296,10 +10375,10 @@ var PRODUCTS = [{
   categoryName: "Sports & Toys & Birthday"
 }, {
   id: 1154,
-  name: "TOY WATER GUN",
-  price: 0,
+  name: "TOY WATER GUN RS,100",
+  price: 59,
   categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
+  categoryName: "Sports & Toys"
 }, {
   id: 1155,
   name: "TOY YOYO DORI LIGHT WALA (GOOD QUALITY)",
@@ -8307,45 +10386,18 @@ var PRODUCTS = [{
   categoryId: "sports",
   categoryName: "Sports & Toys & Birthday"
 }, {
-  id: 1156,
-  name: "TAPE DOUBLE 2 INCH",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1157,
-  name: "TAPE DOUBLE SIDED (1 INCH)",
-  price: 65,
+  name: "DOUBLE SIDED TAPE  (1 INCH) RS,70",
+  price: 54,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
   initial: "T"
 }, {
-  id: 1158,
-  name: "TAPE DOUBLE SIDED (1 INCH)",
-  price: 63,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
-  initial: "T"
-}, {
-  id: 1159,
-  name: "TAPE DOUBLE SIDED (1 INCH) TRANSPARENT",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 1160,
-  name: "TAPE KAGHAZ (0.5 INCH) HALF INCH 12 PIECES",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1161,
-  name: "TAPE KAGHAZ 1 INCH",
-  price: 65,
+  name: "TAPE KAGHAZ  1 INCH RS,70",
+  price: 39,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
@@ -8353,135 +10405,78 @@ var PRODUCTS = [{
   initial: "T"
 }, {
   id: 1162,
-  name: "TAPE KAGHAZ 2 INCH",
-  price: 0,
+  name: "TAPE KAGHAZ  2 INCH RS,120",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 1163,
-  name: "TAPE OSAKA (BLACK)",
-  price: 45,
+  name: "TAPE OSAKA (BLACK) RS,60",
+  price: 48,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "T"
 }, {
-  id: 1164,
-  name: "TAPE OSAKA (BLACK) FULL LENGTH",
-  price: 59,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1165,
-  name: "TAPE OSAKA (RED)",
-  price: 45,
+  name: "TAPE OSAKA (RED) RS,60",
+  price: 48,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[5],
   initial: "T"
 }, {
-  id: 1166,
-  name: "TAPE OSAKA (RED) FULL LENGTH",
-  price: 59,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1167,
-  name: "TAPE OSAKA (WHITE)",
-  price: 45,
+  name: "TAPE OSAKA (WHITE) RS,60",
+  price: 48,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[7],
   initial: "T"
 }, {
-  id: 1168,
-  name: "TAPE OSAKA (WHITE) FULL LENGTH",
-  price: 59,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1169,
-  name: "TAPE PACKING BROWN (2 INCH)",
-  price: 95,
+  name: "TAPE PACKING BROWN (2 INCH) RS,100",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "T"
 }, {
-  id: 1170,
-  name: "TAPE PACKING BROWN (2 INCH) 45 METER",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 1171,
-  name: "TAPE PACKING BROWN (2 INCH) 65 METER",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
-  id: 1172,
-  name: "TAPE PACKING BROWN (2 INCH) SHORT LENGTH (SMALL)",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1173,
-  name: "TAPE TRANSPARENT (0.5 INCH) EX QUALITY",
-  price: 0,
+  name: "TAPE TRANSPARENT CLEAR (2 INCH) RS,100",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
 }, {
   id: 1174,
-  name: "TAPE TRANSPARENT (1 INCH)",
-  price: 55,
+  name: "TAPE TRANSPARENT (1 INCH) RS,70",
+  price: 39,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[6],
   initial: "T"
 }, {
-  id: 1175,
-  name: "TAPE TRANSPARENT (1 INCH) FULL LENGTH",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1176,
-  name: "TAPE TRANSPARENT (2 INCH)",
-  price: 95,
+  name: "TAPE TRANSPARENT (2 INCH) RS,100",
+  price: 69,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[0],
   initial: "T"
 }, {
-  id: 1177,
-  name: "TAPE TRANSPARENT (2 INCH) (MOTI)",
-  price: 0,
-  categoryId: "stationary",
-  categoryName: "Stationary & Tapes"
-}, {
   id: 1178,
   name: "TAPE TRANSPARENT RS,10",
-  price: 85,
+  price: 7,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[2],
-  initial: "T"
-}, {
-  id: 1179,
-  name: "TASH REGAL",
-  price: 180,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
   initial: "T"
 }, {
   id: 1180,
@@ -8503,8 +10498,8 @@ var PRODUCTS = [{
   categoryName: "Anti- Mosquitoes"
 }, {
   id: 1183,
-  name: "TOOTH PICK DENTAL FLOSS",
-  price: 59,
+  name: "TOOTH PICK DENTAL FLOSS RS,120",
+  price: 69,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
   hasImage: true,
@@ -8512,7 +10507,7 @@ var PRODUCTS = [{
   initial: "T"
 }, {
   id: 1184,
-  name: "TOOTH PICK LARGE",
+  name: "TOOTH PICK LARGE (EXCELLENT QUALITY) RS,130",
   price: 89,
   categoryId: "toothpasteandbrush",
   categoryName: "Dental Cares",
@@ -8520,33 +10515,27 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[4],
   initial: "T"
 }, {
-  id: 1185,
-  name: "TOYS MIX",
-  price: 0,
-  categoryId: "sports",
-  categoryName: "Sports & Toys & Birthday"
-}, {
   id: 1186,
   name: "TRUST PAD LARGE (ORANGE) R,P 190",
-  price: 0,
+  price: 190,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 1187,
   name: "TRUST PAD LARGE (PURPLE) RS,340",
-  price: 0,
+  price: 340,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 1188,
   name: "TRUST PAD LARGE (PINK) RS,220",
-  price: 0,
+  price: 220,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 1189,
   name: "TRUST PAD LARGE (YELLOW) RS,290",
-  price: 0,
+  price: 290,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
@@ -8570,12 +10559,6 @@ var PRODUCTS = [{
   hasImage: true,
   gradient: SWATCH_GRADIENTS[1],
   initial: "T"
-}, {
-  id: 1193,
-  name: "TUSBHI (LED) GREEN",
-  price: 135,
-  categoryId: "general",
-  categoryName: "General Items & Others"
 }, {
   id: 1194,
   name: "TUSBHI (LED) PATA",
@@ -8643,24 +10626,9 @@ var PRODUCTS = [{
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
-  id: 1204,
-  name: "VASELINE HAIR TONIC 100ml (NON ORIGINAL)",
-  price: 199,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
-  initial: "V"
-}, {
   id: 1205,
   name: "VASELINE HAIR TONIC 100ml (ORIGINAL)",
   price: 499,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils"
-}, {
-  id: 1206,
-  name: "VASELINE HAIR TONIC 200ml (NON ORIGINAL)",
-  price: 299,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
@@ -8671,14 +10639,14 @@ var PRODUCTS = [{
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 1208,
-  name: "VASELINE PETROLEUM (IMP) 250ML S,A (MIX)",
-  price: 899,
+  name: "VASELINE PETROLEUM (IMP) 100ML S,A COCA BUTTER RS,480",
+  price: 389,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 1209,
-  name: "VASELINE PETROLEUM (IMP) 100ml S,A (MIX)",
-  price: 399,
+  name: "VASELINE PETROLEUM (IMP) 100ML S,A BLUE RS,480",
+  price: 389,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -8686,13 +10654,13 @@ var PRODUCTS = [{
   initial: "V"
 }, {
   id: 1210,
-  name: "VASELINE PETROLEUM (IMP) 50ml",
+  name: "VASELINE PETROLEUM (IMP) 50ML RS,320",
   price: 259,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 1211,
-  name: "VASELINE PETROLEUM (IMP) 50ml S,A (BLUE,ORIGINAL)",
+  name: "VASELINE PETROLEUM (IMP) 50ML S,A (BLUE,ORIGINAL) RS,320",
   price: 249,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
@@ -8701,7 +10669,7 @@ var PRODUCTS = [{
   initial: "V"
 }, {
   id: 1212,
-  name: "VASELINE PETROLEUM (IMP) 50ml S,A (GREEN,ALOE FRESH)",
+  name: "VASELINE PETROLEUM (IMP) 50ML S,A (GREEN,ALOE FRESH) RS,320",
   price: 249,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
@@ -8709,17 +10677,8 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[5],
   initial: "V"
 }, {
-  id: 1213,
-  name: "VASELINE PETROLEUM (IMP) 50ml S,A (MIX)",
-  price: 249,
-  categoryId: "creams",
-  categoryName: "Creams & Lotions & Bleach",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[6],
-  initial: "V"
-}, {
   id: 1214,
-  name: "VASELINE PETROLEUM (IMP) 50ml S,A (PINK,BABY)",
+  name: "VASELINE PETROLEUM (IMP) 50ML S,A (PINK,BABY) RS,320",
   price: 249,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
@@ -8728,7 +10687,7 @@ var PRODUCTS = [{
   initial: "V"
 }, {
   id: 1215,
-  name: "VASELINE PETROLEUM (IMP) 50ml S,A (VITAMIN E)",
+  name: "VASELINE PETROLEUM (IMP) 50ML S,A (VITAMIN E) RS,320",
   price: 249,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
@@ -8737,8 +10696,8 @@ var PRODUCTS = [{
   initial: "V"
 }, {
   id: 1216,
-  name: "VASELINE TIBET RS,130",
-  price: 119,
+  name: "VASELINE TIBET RS,140",
+  price: 129,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach",
   hasImage: true,
@@ -8752,20 +10711,20 @@ var PRODUCTS = [{
   categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 1218,
-  name: "VATIKA HAIR OIL 100ml (ALMOND) COMPANY RS,370",
-  price: 339,
+  name: "VATIKA HAIR OIL 100ML (ALMOND) COMPANY RS,390",
+  price: 364,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 1219,
-  name: "VATIKA HAIR OIL 100ml (CACTUS) COMPANY RP,350",
-  price: 319,
+  name: "VATIKA HAIR OIL 100ML (CACTUS) COMPANY RP,390",
+  price: 364,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 1220,
-  name: "VATIKA HAIR OIL 100ml (Coconut)",
-  price: 319,
+  name: "VATIKA HAIR OIL 100ML (COCONUT) RS,390",
+  price: 364,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -8773,14 +10732,14 @@ var PRODUCTS = [{
   initial: "V"
 }, {
   id: 1221,
-  name: "VATIKA HAIR OIL 100ML (GARLIC) COMPANY RP,350",
-  price: 319,
+  name: "VATIKA HAIR OIL 100ML (ROSEMARY) COMPANY RP,370",
+  price: 349,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
 }, {
   id: 1222,
-  name: "VATIKA HAIR OIL 100ml (OLIVE)",
-  price: 319,
+  name: "VATIKA HAIR OIL 100ML (OLIVE) RS,390",
+  price: 364,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils",
   hasImage: true,
@@ -8788,94 +10747,28 @@ var PRODUCTS = [{
   initial: "V"
 }, {
   id: 1223,
-  name: "VATIKA HAIR OIL 200ml (ALMOND) RS,640",
-  price: 599,
+  name: "VATIKA HAIR OIL 200ML (ALMOND) RS,720",
+  price: 674,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
-}, {
-  id: 1224,
-  name: "VATIKA HAIR OIL 200ml (CACTUS)",
-  price: 599,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
-  initial: "V"
 }, {
   id: 1225,
-  name: "VATIKA HAIR OIL 200ml (Coconut)",
-  price: 599,
+  name: "VATIKA HAIR OIL 200ML (COCONUT) RS,720",
+  price: 674,
   categoryId: "haircolour",
   categoryName: "Hair Colors & Care & Oils"
-}, {
-  id: 1226,
-  name: "VATIKA HAIR OIL 200ml (GARLIC)",
-  price: 599,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils"
-}, {
-  id: 1227,
-  name: "VATIKA HAIR OIL 200ml (OLIVE)",
-  price: 599,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
-  initial: "V"
-}, {
-  id: 1228,
-  name: "VATIKA HAIR OIL 200ml (ONION)",
-  price: 599,
-  categoryId: "haircolour",
-  categoryName: "Hair Colors & Care & Oils"
-}, {
-  id: 1229,
-  name: "VEET JAR LARGE (BLUE) RS,595",
-  price: 559,
-  categoryId: "personalcare",
-  categoryName: "Personal Care"
-}, {
-  id: 1230,
-  name: "VEET JAR LARGE (GREEN) RS,595",
-  price: 559,
-  categoryId: "personalcare",
-  categoryName: "Personal Care"
-}, {
-  id: 1231,
-  name: "VEET JAR LARGE (MIX) RS,595",
-  price: 559,
-  categoryId: "personalcare",
-  categoryName: "Personal Care",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[7],
-  initial: "V"
 }, {
   id: 1232,
-  name: "VEET JAR LARGE (PINK) RS,595",
-  price: 559,
+  name: "VEET JAR MEDIUM (PINK) RS,300",
+  price: 284,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
   id: 1233,
-  name: "VEET JAR SMALL (GREEN) RS,300",
-  price: 269,
+  name: "VEET JAR MEDIUM (GREEN) RS,300",
+  price: 284,
   categoryId: "personalcare",
   categoryName: "Personal Care"
-}, {
-  id: 1234,
-  name: "VEET JAR SMALL (PINK) RS,300",
-  price: 269,
-  categoryId: "personalcare",
-  categoryName: "Personal Care"
-}, {
-  id: 1235,
-  name: "VEET JAR SMALL 40G (MIX) RS,300",
-  price: 269,
-  categoryId: "personalcare",
-  categoryName: "Personal Care",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[6],
-  initial: "V"
 }, {
   id: 1236,
   name: "VEET STRIPS (BLUE)",
@@ -8896,14 +10789,8 @@ var PRODUCTS = [{
   categoryName: "Personal Care"
 }, {
   id: 1239,
-  name: "VEET TUBE LARGE (BLUE) FULL SIZE",
-  price: 799,
-  categoryId: "personalcare",
-  categoryName: "Personal Care"
-}, {
-  id: 1240,
-  name: "VEET TUBE LARGE (IMP) GREEN",
-  price: 699,
+  name: "VEET TUBE LARGE (GREEN) FULL SIZE RS,495",
+  price: 469,
   categoryId: "personalcare",
   categoryName: "Personal Care"
 }, {
@@ -8930,7 +10817,7 @@ var PRODUCTS = [{
 }, {
   id: 1244,
   name: "VEET TUBE SMALL 25G (MIX) RS,250",
-  price: 229,
+  price: 224,
   categoryId: "personalcare",
   categoryName: "Personal Care",
   hasImage: true,
@@ -9007,10 +10894,7 @@ var PRODUCTS = [{
   name: "WAX PATI BUKRAM",
   price: 90,
   categoryId: "personalcare",
-  categoryName: "Personal Care",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
-  initial: "W"
+  categoryName: "Personal Care"
 }, {
   id: 1255,
   name: "WAX PATI BUKRAM",
@@ -9040,52 +10924,22 @@ var PRODUCTS = [{
   categoryName: "Personal Care"
 }, {
   id: 1259,
-  name: "WIPES CHINA BABY",
-  price: 99,
+  name: "ONO BABY WIPES 60 PIECE RS,229",
+  price: 149,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1260,
-  name: "WIPES JEEP CAMERA",
-  price: 169,
+  name: "TINY SOULS WIPES",
+  price: 149,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 1261,
-  name: "WIPES NEXTON",
-  price: 0,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 1262,
-  name: "WIPES PAMPER (NON ORIGINAL)",
-  price: 249,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[4],
-  initial: "W"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1263,
-  name: "WIPES SOFT CREME (MIX)",
-  price: 129,
+  name: "SENSITIVE WIPES ORIGINAL RS,150",
+  price: 124,
   categoryId: "babycare",
-  categoryName: "Baby Care & Powders",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[7],
-  initial: "W"
-}, {
-  id: 1264,
-  name: "WIPES SOFT-CREAM (BLUE)",
-  price: 129,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
-}, {
-  id: 1265,
-  name: "WIPES SOFT-CREAM (WHITE)",
-  price: 129,
-  categoryId: "babycare",
-  categoryName: "Baby Care & Powders"
+  categoryName: "Baby Care & Powders & Pampers"
 }, {
   id: 1266,
   name: "ZERO MOSQUITO SACHET BOX RS,10",
@@ -9099,8 +10953,8 @@ var PRODUCTS = [{
   id: 1267,
   name: "NATIONAL SALT RS,60",
   price: 58,
-  categoryId: "general",
-  categoryName: "General Items & Others",
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[3],
   initial: "N"
@@ -9108,81 +10962,15 @@ var PRODUCTS = [{
   id: 1268,
   name: "LAHORI NAMAK RS,35",
   price: 29,
-  categoryId: "general",
-  categoryName: "General Items & Others",
+  categoryId: "groceryandkaryana",
+  categoryName: "Grocery & Karyana",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
   initial: "L"
 }, {
-  id: 1269,
-  name: "LEMON MAX LONG BAR RS,100",
-  price: 95,
-  categoryId: "general",
-  categoryName: "General Items & Others",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[5],
-  initial: "L"
-}, {
-  id: 1270,
-  name: "LEMON MAX BAR SMALL RS,35",
-  price: 34,
-  categoryId: "general",
-  categoryName: "General Items & Others",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[6],
-  initial: "L"
-}, {
-  id: 1271,
-  name: "SURF EXCEL 500G RS,310",
-  price: 299,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  priority: 1,
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[7],
-  initial: "S"
-}, {
-  id: 1272,
-  name: "SURF ARIEL RS,310",
-  price: 299,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  priority: 2,
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
-  initial: "S"
-}, {
-  id: 1273,
-  name: "SURF BRITE RS,300",
-  price: 285,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  priority: 3,
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[1],
-  initial: "S"
-}, {
-  id: 1274,
-  name: "SURF SUNLIGHT RS,199",
-  price: 185,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[2],
-  initial: "S"
-}, {
-  id: 1275,
-  name: "SURF BONUS 1KG RS,230",
-  price: 210,
-  categoryId: "groceryandkaryana",
-  categoryName: "Grocery & Karyana",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[3],
-  initial: "S"
-}, {
   id: 1276,
   name: "TIGER JUMBO COIL RS,120",
-  price: 105,
+  price: 99,
   categoryId: "mosquito",
   categoryName: "Anti- Mosquitoes",
   hasImage: true,
@@ -9191,7 +10979,7 @@ var PRODUCTS = [{
 }, {
   id: 1277,
   name: "BODY RAZER BIG PAKI RS,50",
-  price: 37,
+  price: 29,
   categoryId: "shaving",
   categoryName: "Shaving & Razers & Blades",
   hasImage: true,
@@ -9227,7 +11015,7 @@ var PRODUCTS = [{
 }, {
   id: 1281,
   name: "SPRITE 300ML BOTTLE",
-  price: 75,
+  price: 74,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9237,7 +11025,7 @@ var PRODUCTS = [{
 }, {
   id: 1282,
   name: "SPRITE 500ML BOTTLE",
-  price: 105,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9257,7 +11045,7 @@ var PRODUCTS = [{
 }, {
   id: 1284,
   name: "SPRITE 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9267,7 +11055,7 @@ var PRODUCTS = [{
 }, {
   id: 1285,
   name: "SPRITE 2.25L JUMBO BOTTLE",
-  price: 249,
+  price: 229,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9277,7 +11065,7 @@ var PRODUCTS = [{
 }, {
   id: 1286,
   name: "SPRITE 250ML CAN",
-  price: 109,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sprite",
@@ -9287,7 +11075,7 @@ var PRODUCTS = [{
 }, {
   id: 1287,
   name: "COCA COLA 300ML BOTTLE",
-  price: 75,
+  price: 74,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9297,7 +11085,7 @@ var PRODUCTS = [{
 }, {
   id: 1288,
   name: "COCA COLA 500ML BOTTLE",
-  price: 105,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9317,7 +11105,7 @@ var PRODUCTS = [{
 }, {
   id: 1290,
   name: "COCA COLA 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9327,7 +11115,7 @@ var PRODUCTS = [{
 }, {
   id: 1291,
   name: "COCA COLA 2.25L JUMBO BOTTLE",
-  price: 249,
+  price: 229,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9337,7 +11125,7 @@ var PRODUCTS = [{
 }, {
   id: 1292,
   name: "COCA COLA 250ML CAN",
-  price: 109,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Coca-Cola",
@@ -9353,11 +11141,12 @@ var PRODUCTS = [{
   filterName: "Fanta",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
-  initial: "F"
+  initial: "F",
+  priority: 1
 }, {
   id: 1293,
   name: "FANTA 500ML BOTTLE",
-  price: 105,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Fanta",
@@ -9377,7 +11166,7 @@ var PRODUCTS = [{
 }, {
   id: 1295,
   name: "FANTA 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Fanta",
@@ -9387,7 +11176,7 @@ var PRODUCTS = [{
 }, {
   id: 1296,
   name: "FANTA 2.25L JUMBO BOTTLE",
-  price: 249,
+  price: 229,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Fanta",
@@ -9397,7 +11186,7 @@ var PRODUCTS = [{
 }, {
   id: 1297,
   name: "FANTA 250ML CAN",
-  price: 109,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Fanta",
@@ -9417,7 +11206,7 @@ var PRODUCTS = [{
 }, {
   id: 1299,
   name: "PEPSI 500ML BOTTLE",
-  price: 110,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9427,7 +11216,7 @@ var PRODUCTS = [{
 }, {
   id: 1300,
   name: "PEPSI 1 LITRE BOTTLE",
-  price: 160,
+  price: 149,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9437,7 +11226,7 @@ var PRODUCTS = [{
 }, {
   id: 1301,
   name: "PEPSI 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9447,7 +11236,7 @@ var PRODUCTS = [{
 }, {
   id: 1302,
   name: "PEPSI 2.25L JUMBO BOTTLE",
-  price: 259,
+  price: 239,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9457,7 +11246,7 @@ var PRODUCTS = [{
 }, {
   id: 1303,
   name: "PEPSI 250ML CAN",
-  price: 109e+36,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Pepsi",
@@ -9477,7 +11266,7 @@ var PRODUCTS = [{
 }, {
   id: 1305,
   name: "7UP 500ML BOTTLE",
-  price: 110,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -9487,7 +11276,7 @@ var PRODUCTS = [{
 }, {
   id: 1306,
   name: "7UP 1 LITRE BOTTLE",
-  price: 160,
+  price: 149,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -9497,7 +11286,7 @@ var PRODUCTS = [{
 }, {
   id: 1307,
   name: "7UP 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -9507,7 +11296,7 @@ var PRODUCTS = [{
 }, {
   id: 1308,
   name: "7UP 2.25L JUMBO BOTTLE",
-  price: 259,
+  price: 239,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "7Up",
@@ -9537,7 +11326,7 @@ var PRODUCTS = [{
 }, {
   id: 1311,
   name: "MIRINDA 500ML BOTTLE",
-  price: 110,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9547,7 +11336,7 @@ var PRODUCTS = [{
 }, {
   id: 1312,
   name: "MIRINDA 1 LITRE BOTTLE",
-  price: 160,
+  price: 149,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9557,7 +11346,7 @@ var PRODUCTS = [{
 }, {
   id: 1313,
   name: "MIRINDA 1.5 LITRE BOTTLE",
-  price: 199,
+  price: 189,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9567,7 +11356,7 @@ var PRODUCTS = [{
 }, {
   id: 1314,
   name: "MIRINDA 2.25L JUMBO BOTTLE",
-  price: 259,
+  price: 239,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9577,7 +11366,7 @@ var PRODUCTS = [{
 }, {
   id: 1315,
   name: "MIRINDA 250ML CAN",
-  price: 109,
+  price: 99,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Mirinda",
@@ -9585,69 +11374,9 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[3],
   initial: "M"
 }, {
-  id: 1316,
-  name: "MOUNTAIN DEW 345ML BOTTLE",
-  price: 75,
-  categoryId: "beverages",
-  categoryName: "Beverages (Cold Drinks, Juices & Water)",
-  filterName: "Mountain Dew",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[4],
-  initial: "M"
-}, {
-  id: 1317,
-  name: "MOUNTAIN DEW 500ML BOTTLE",
-  price: 110,
-  categoryId: "beverages",
-  categoryName: "Beverages (Cold Drinks, Juices & Water)",
-  filterName: "Mountain Dew",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[5],
-  initial: "M"
-}, {
-  id: 1318,
-  name: "MOUNTAIN DEW 1 LITRE BOTTLE",
-  price: 160,
-  categoryId: "beverages",
-  categoryName: "Beverages (Cold Drinks, Juices & Water)",
-  filterName: "Mountain Dew",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[6],
-  initial: "M"
-}, {
-  id: 1319,
-  name: "MOUNTAIN DEW 1.5 LITRE BOTTLE",
-  price: 199,
-  categoryId: "beverages",
-  categoryName: "Beverages (Cold Drinks, Juices & Water)",
-  filterName: "Mountain Dew",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[7],
-  initial: "M"
-}, {
-  id: 1320,
-  name: "MOUNTAIN DEW 2.25L JUMBO BOTTLE",
-  price: 259,
-  categoryId: "beverages",
-  categoryName: "Beverages (Cold Drinks, Juices & Water)",
-  filterName: "Mountain Dew",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[0],
-  initial: "M"
-}, {
-  id: 1321,
-  name: "MOUNTAIN DEW 250ML CAN",
-  price: 109,
-  categoryId: "beverages",
-  categoryName: "Beverages (Cold Drinks, Juices & Water)",
-  filterName: "Mountain Dew",
-  hasImage: true,
-  gradient: SWATCH_GRADIENTS[1],
-  initial: "M"
-}, {
   id: 1322,
   name: "STING BERRY 300ML BOTTLE",
-  price: 75,
+  price: 89,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sting",
@@ -9657,7 +11386,7 @@ var PRODUCTS = [{
 }, {
   id: 1323,
   name: "STING BERRY 500ML BOTTLE",
-  price: 110,
+  price: 114,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
   filterName: "Sting",
@@ -9665,20 +11394,103 @@ var PRODUCTS = [{
   gradient: SWATCH_GRADIENTS[3],
   initial: "S"
 }, {
-  id: 1324,
-  name: "STING BERRY 250ML CAN",
-  price: 109,
+  id: 1326,
+  name: "PAKOLA CHOCOLATE JUICE 250ML",
+  price: 104,
   categoryId: "beverages",
   categoryName: "Beverages (Cold Drinks, Juices & Water)",
-  filterName: "Sting",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[0],
+  initial: "P"
+}, {
+  id: 1327,
+  name: "PAKOLA BADAM JUICE 250ML",
+  price: 104,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[1],
+  initial: "P"
+}, {
+  id: 1328,
+  name: "PAKOLA STRAWBERRY JUICE 250ML",
+  price: 104,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[2],
+  initial: "P"
+}, {
+  id: 1329,
+  name: "PAKOLA DRINK 300ML BOTTLE",
+  price: 65,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[3],
+  initial: "P"
+}, {
+  id: 1330,
+  name: "PAKOLA DRINK 500ML BOTTLE",
+  price: 89,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
   hasImage: true,
   gradient: SWATCH_GRADIENTS[4],
-  initial: "S"
+  initial: "P"
+}, {
+  id: 1331,
+  name: "PAKOLA DRINK 1.5 LITRE BOTTLE",
+  price: 189,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Pakola",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[5],
+  initial: "P"
+}, {
+  id: 1332,
+  name: "SLICE MANGO JUICE 200ML TETRA PACK",
+  price: 49,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Slice",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[0],
+  initial: "S",
+  priority: 1
+}, {
+  id: 1333,
+  name: "SLICE MANGO JUICE 355ML BOTTLE",
+  price: 79,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Slice",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[1],
+  initial: "S",
+  priority: 2
+}, {
+  id: 1334,
+  name: "SLICE MANGO JUICE 1 LITRE BOTTLE",
+  price: 179,
+  categoryId: "beverages",
+  categoryName: "Beverages (Cold Drinks, Juices & Water)",
+  filterName: "Slice",
+  hasImage: true,
+  gradient: SWATCH_GRADIENTS[2],
+  initial: "S",
+  priority: 3
 }];
 var PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
 const BRAND_STOP_WORDS = new Set(["SOAP", "SOAPS", "SHAMPOO", "CONDITIONER", "CREAM", "LOTION", "POWDER", "SPRAY", "BODY", "FACE", "WASH", "TOOTH", "PASTE", "BRUSH", "RAZOR", "BLADE", "OIL", "HAIR", "COLOUR", "COLOR", "BALL", "PEN", "TOY", "TAPE", "CELL", "LOCK", "CANDLE", "PAD", "WIPES", "PERFUME", "PERFUMES", "DEO", "DEODORANT", "TALCUM", "ROOM", "FRESHNER", "FRESHENER", "ROLL", "ON", "AIR", "LARGE", "MEDIUM", "SMALL", "SACHET", "PACK", "PCS", "PIECE", "SIZE", "FULL", "HALF", "MIX", "ALL", "GOOD", "QUALITY", "ORIGINAL", "NON", "IMP", "PK", "RS", "RP", "ML", "G", "GM", "KG", "INCH", "BLACK", "WHITE", "BLUE", "GREEN", "RED", "PINK", "YELLOW", "GOLDEN", "BROWN", "ORANGE", "PURPLE", "DARK", "LIGHT"]);
-const BRAND_PHRASES = ["BIO AMLA", "BLACK ROSE", "AL RASHIEED", "JUST FOR MEN", "ONE MAN SHOW", "WHITE ROSE", "SOFT CREME", "SOFT CREAM", "SKIN WHITE", "CHI CHI", "7 HERBAL", "BODY SHOP", "COCA COLA", "MOUNTAIN DEW", "7UP", "PEPSI", "MIRINDA", "STING"];
+const BRAND_PHRASES = ["BIO AMLA", "BLACK ROSE", "AL RASHIEED", "JUST FOR MEN", "ONE MAN SHOW", "WHITE ROSE", "SOFT CREME", "SOFT CREAM", "SKIN WHITE", "CHI CHI", "7 HERBAL", "BODY SHOP", "COCA COLA", "MOUNTAIN DEW", "7UP", "PEPSI", "MIRINDA", "STING", "SLICE"];
 const BEVERAGE_BRANDS = [{
   id: "Sprite",
   name: "Sprite",
@@ -9734,15 +11546,6 @@ const BEVERAGE_BRANDS = [{
   color: "#f97316",
   bg: "#fff7ed"
 }, {
-  id: "Mountain Dew",
-  name: "Mountain Dew",
-  tag: "Citrus Charge Energy",
-  sizes: "6 Sizes & Varieties",
-  logo: "images/brand_dew.webp",
-  fromPrice: 75,
-  color: "#65a30d",
-  bg: "#f7fee7"
-}, {
   id: "Sting",
   name: "Sting Energy",
   tag: "Berry Blast Energy",
@@ -9754,12 +11557,21 @@ const BEVERAGE_BRANDS = [{
 }, {
   id: "Pakola",
   name: "Pakola",
-  tag: "Ice Cream Soda",
-  sizes: "Coming Soon",
+  tag: "Ice Cream Soda & Juices",
+  sizes: "6 Sizes & Varieties",
   logo: "images/brand_pakola.webp",
-  fromPrice: 0,
+  fromPrice: 70,
   color: "#047857",
   bg: "#ecfdf5"
+}, {
+  id: "Slice",
+  name: "Slice",
+  tag: "Mango Fruit Drink",
+  sizes: "3 Sizes & Varieties",
+  logo: "images/brand_slice.webp",
+  fromPrice: 49,
+  color: "#d97706",
+  bg: "#fffbeb"
 }];
 function getProductBrand(name) {
   const clean = String(name || "").toUpperCase().replace(/[#(),.&/+_-]/g, " ").replace(/\b\d+\s*(ML|G|GM|KG|PCS|PC|INCH|METER)\b/g, " ").replace(/\b(RS|RP)\s*\d+\b/g, " ").replace(/\s+/g, " ").trim();
@@ -9935,9 +11747,9 @@ function AboutUsModal({
   onClose,
   language
 }) {
-  if (!isOpen) return null;
   const [modalLang, setModalLang] = React.useState('ro');
   const isUrdu = modalLang === 'ur';
+  if (!isOpen) return null;
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 shadow-lg animate-fade-in",
     onClick: onClose
@@ -10117,7 +11929,7 @@ function AboutUsModal({
     className: "font-bold text-gray-900"
   }, tr(modalLang, 'Daily (7 Days a Week):', 'Rozana (7 Din Khula, Koi Chutti Nahi):', 'روزانہ (7 دن کھلا، کوئی چھٹی نہیں):')), /*#__PURE__*/React.createElement("div", {
     className: "text-purple-700 font-extrabold text-sm mt-0.5"
-  }, tr(modalLang, '8:00 AM – 11:30 PM', 'Subha 8:00 se Raat 11:30 tak', 'صبح 8:00 بجے سے رات 11:30 بجے تک'))), /*#__PURE__*/React.createElement("span", {
+  }, tr(modalLang, '10:00 AM – 10:00 PM', 'Subha 10:00 se Raat 10:00 tak', 'صبح 10:00 بجے سے رات 10:00 بجے تک'))), /*#__PURE__*/React.createElement("span", {
     className: "bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 uppercase"
   }, tr(modalLang, 'Open', 'Khula Hai', 'کھلا ہے')))), /*#__PURE__*/React.createElement("div", {
     className: "bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 text-emerald-950 text-xs space-y-2"
@@ -10158,10 +11970,10 @@ function AboutUsModal({
   })))), /*#__PURE__*/React.createElement("div", {
     className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3"
   }, /*#__PURE__*/React.createElement("a", {
-    href: buildWhatsAppUrl(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔')),
+    href: buildWhatsAppUrl(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923391965200', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔')),
     onClick: e => {
       e.preventDefault();
-      launchWhatsApp(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'));
+      launchWhatsApp(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923391965200', tr(modalLang, 'Hi ZS Mart! I have an inquiry about your store.', 'Salam ZS Mart! Mujhe aapke store ke baare mein maloomat chahiye.', 'سلام! میں ZS Mart کے بارے میں معلومات حاصل کرنا چاہتا ہوں۔'));
     },
     className: "flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none cursor-pointer"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC"), /*#__PURE__*/React.createElement("span", null, tr(modalLang, 'Chat on WhatsApp', 'WhatsApp par Rabta Karein', 'واٹس ایپ پر رابطہ کریں'))), /*#__PURE__*/React.createElement("button", {
@@ -10338,7 +12150,7 @@ function ReturnPolicyModal({
     className: "font-bold text-gray-900"
   }, tr(language, 'Send Photo/Video on WhatsApp:', 'Kharab Cheez ki Photo Bhejein:', 'واپسی یا تبدیلی کی تصویر بھیجیں:')), /*#__PURE__*/React.createElement("p", {
     className: "text-[11px] text-gray-600 mt-0.5"
-  }, tr(language, 'Take a quick photo or video of the damaged item & WhatsApp to 03368945775.', 'Kharab ya leak cheez ki tasveer hamare WhatsApp (03368945775) par bhejein.', 'خراب یا لیک شدہ چیز کی تصویر ہمارے واپس ایپ (03368945775) پر بھیجیں')))), /*#__PURE__*/React.createElement("div", {
+  }, tr(language, 'Take a quick photo or video of the damaged item & WhatsApp to ' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + '.', 'Kharab ya leak cheez ki tasveer hamare WhatsApp (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ') par bhejein.', 'خراب یا لیک شدہ چیز کی تصویر ہمارے واٹس ایپ (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ') پر بھیجیں')))), /*#__PURE__*/React.createElement("div", {
     className: "flex items-start gap-2.5 bg-white/80 p-2.5 rounded-xl border border-blue-100"
   }, /*#__PURE__*/React.createElement("span", {
     className: "w-5 h-5 rounded-full bg-blue-600 text-white font-black flex items-center justify-center text-[10px] shrink-0 mt-0.5"
@@ -10357,10 +12169,10 @@ function ReturnPolicyModal({
   }, tr(language, 'Our rider will replace the item at your doorstep or send your money refund.', 'Rider nayi cheez de kar purani le jayega ya paise refund honge.', 'رائڈر نئی چیز دے کر پرانی لے جائے گا یا پیسے ری فنڈ ہوں گے'))))))), /*#__PURE__*/React.createElement("div", {
     className: "p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-3 shrink-0"
   }, /*#__PURE__*/React.createElement("a", {
-    href: buildWhatsAppUrl(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔')),
+    href: buildWhatsAppUrl(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923391965200', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔')),
     onClick: e => {
       e.preventDefault();
-      launchWhatsApp(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923368945775', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'));
+      launchWhatsApp(getStoreSettings().whatsapp || window.STORE_CONFIG && window.STORE_CONFIG.whatsappNumber || '923391965200', tr(language, 'Hi ZS Mart! I want to claim a return/exchange for my order.', 'Salam ZS Mart! Mujhe apne order ka return/exchange claim karna hai.', 'سلام! میں اپنے آرڈر کی واپسی یا تبدیلی کا کلیم کرنا چاہتا ہوں۔'));
     },
     className: "flex-1 py-3 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-2 text-decoration-none cursor-pointer"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'WhatsApp Claim', 'WhatsApp par Claim Karein', 'واٹس ایپ پر کلیم کریں'))), /*#__PURE__*/React.createElement("button", {
@@ -10368,15 +12180,112 @@ function ReturnPolicyModal({
     className: "py-3 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
   }, tr(language, 'Close', 'Band Karein', 'بند کریں')))));
 }
+function PrivacyPolicyModal({
+  isOpen,
+  onClose,
+  language
+}) {
+  if (!isOpen) return null;
+  const isUrdu = language === 'ur';
+  const openFullPolicyPage = () => {
+    // Use raw GitHub URL — works on Android APK, web, and all devices permanently
+    const POLICY_URL = 'https://raw.githubusercontent.com/qureshi-code999/Item-web/main/privacy-policy.html';
+    try {
+      if (checkIsNativeApp()) {
+        window.open(POLICY_URL, '_blank');
+        return;
+      }
+      // On web: try local file first, fallback to GitHub raw
+      const base = window.location.href.replace(/\/[^\/]*$/, '/');
+      const localUrl = base + 'privacy-policy.html';
+      window.open(localUrl, '_blank');
+    } catch (e) {
+      window.open(POLICY_URL, '_blank');
+    }
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 shadow-2xl animate-fade-in",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col",
+    style: {
+      maxHeight: '92vh'
+    },
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "relative bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-900 text-white p-5 pb-6 text-center shrink-0"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    className: "absolute top-4 right-4 text-gray-300 hover:text-white w-8 h-8 flex items-center justify-center rounded-full bg-white/10 transition-colors cursor-pointer",
+    "aria-label": "Close"
+  }, "\u2715"), /*#__PURE__*/React.createElement("div", {
+    className: "w-12 h-12 mx-auto mb-2.5 rounded-2xl bg-white/15 border border-white/20 p-2 shadow-lg flex items-center justify-center text-2xl"
+  }, "\uD83D\uDD12"), /*#__PURE__*/React.createElement("h2", {
+    className: "text-lg sm:text-xl font-black tracking-wider uppercase text-emerald-300 font-poppins"
+  }, tr(language, 'Privacy Policy & Data Safety', 'Zati Maloomat ki Hifazat (Privacy Policy)', 'پرائیویسی پالیسی اور ڈیٹا سیفٹی')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-emerald-100 font-semibold mt-0.5"
+  }, tr(language, 'Google Play User Data & Security Compliant', 'Google Play Policy ke Ain Mutabiq', 'گوگل پلے پالیسی کے مطابق مکمل شفاف'))), /*#__PURE__*/React.createElement("div", {
+    className: "p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 text-gray-800 text-xs leading-relaxed"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-3.5 text-emerald-950 shadow-xs space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2 font-black text-xs text-emerald-900"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDEE1\uFE0F"), /*#__PURE__*/React.createElement("span", null, tr(language, '100% Confidential & Secure Guarantee', 'Aapki Privacy Hamari Zimmedari Hai', 'آپ کا ڈیٹا 100% محفوظ ہے'))), /*#__PURE__*/React.createElement("p", {
+    className: isUrdu ? 'font-urdu text-right text-xs leading-loose font-bold' : 'text-xs text-emerald-950 leading-relaxed font-semibold'
+  }, tr(language, 'ZS Mart respects your privacy. We collect your contact details strictly to process and deliver your grocery orders via WhatsApp. We NEVER sell or share your data with advertisers or third parties.', 'ZS Mart aapki zati maloomat ki hifazat karta hai. Hum aapka naam, phone number aur pata sirf aapka grocery order WhatsApp ke zariye deliver karne ke liye istemal karte hain. Hamara app aapka data kisi teesri party ko nahi bechta.', 'زیڈ ایس مارٹ (ZS Mart) آپ کی پرائیویسی کا مکمل احترام کرتا ہے۔ ہم آپ کا نام، فون نمبر اور پتہ صرف آپ کا گروسری آرڈر ڈیلیور کرنے کے لیے استعمال کرتے ہیں۔ ہم آپ کا ڈیٹا کسی تیسری پارٹی یا اشتہاری کمپنی کو کبھی فروخت نہیں کرتے۔'))), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 font-black text-gray-900"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCCD"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Location (GPS)', 'Location (GPS)', 'لوکیشن (GPS)'))), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 font-medium leading-relaxed"
+  }, tr(language, 'Used only when you tap "Use Current Location" to auto-fill delivery address. No background tracking.', 'Sirf order address auto-fill karne ke liye, background mein koi tracking nahi hoti.', 'صرف ڈیلیوری ایڈریس درج کرنے کے لیے، بیک گراؤنڈ میں ٹریکنگ نہیں ہوتی۔'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 font-black text-gray-900"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDF99\uFE0F"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Microphone / Voice', 'Microphone / Voice', 'مائیکروفون / وائس'))), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 font-medium leading-relaxed"
+  }, tr(language, 'Activated only when you tap Record Voice Note or Voice Search. Mic is released immediately on close.', 'Sirf bol kar search ya voice note ke liye, band karte hi mic foran release ho jata hai.', 'صرف وائس آرڈر کے لیے، موڈل بند ہوتے ہی مائیک فوری بند ہو جاتا ہے۔'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 font-black text-gray-900"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCF7"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Slip / Parchi Photos', 'Parchi Photos', 'پرچی فوٹو'))), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 font-medium leading-relaxed"
+  }, tr(language, 'Used only to pack your handwritten grocery list items accurately.', 'Sirf aapki haath se likhi list dekh kar order pack karne ke liye istemal hota hai.', 'صرف لسٹ دیکھ کر سامان پیک کرنے کے لیے استعمال ہوتی ہے۔'))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-gray-50 border border-gray-200 rounded-2xl p-3 space-y-1"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 font-black text-gray-900"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDDD1\uFE0F"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Right to Delete', 'Data Delete Karwana', 'ڈیٹا ڈیلیٹ کروانے کا حق'))), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-600 font-medium leading-relaxed"
+  }, tr(language, 'You can request deletion of your order profile at any time via WhatsApp helpline.', 'Aap kisi bhi waqt WhatsApp par message bhej kar apna data delete karwa sakte hain.', 'آپ کسی بھی وقت واٹس ایپ پر کہہ کر اپنا ڈیٹا ڈیلیٹ کروا سکتے ہیں۔')))), /*#__PURE__*/React.createElement("div", {
+    className: "bg-blue-50/70 border border-blue-200 rounded-2xl p-3 text-[11px] space-y-1 text-blue-950"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "font-bold flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, "ZS Mart Wholesale & Retail \u2022 Karachi, Pakistan")), /*#__PURE__*/React.createElement("p", {
+    className: "text-gray-600"
+  }, "R4C4+RV6, Safaid White Masjid Rd, Allah Wala Town Sector H Korangi, Karachi. Helpline: ", (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0')))), /*#__PURE__*/React.createElement("div", {
+    className: "p-3 sm:p-4 bg-gray-50 border-t border-gray-100 flex items-center gap-2.5 shrink-0"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: openFullPolicyPage,
+    className: "flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase text-center transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDF10"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Full Web Policy', 'Puri Policy Kholein', 'مکمل پالیسی پیج'))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: onClose,
+    className: "py-2.5 px-5 rounded-xl bg-gray-900 hover:bg-black text-white font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
+  }, tr(language, 'Close', 'Band Karein', 'بند کریں')))));
+}
 function WelcomeDisclaimerModal({
   isOpen,
   onClose,
   onOpenAbout,
+  onOpenPrivacyPolicy,
   language
 }) {
-  if (!isOpen) return null;
   const [modalLang, setModalLang] = React.useState('ro');
   const isUrdu = modalLang === 'ur';
+  if (!isOpen) return null;
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-[99] flex items-center justify-center p-4 bg-black/75 shadow-2xl animate-fade-in",
     onClick: onClose
@@ -10406,7 +12315,16 @@ function WelcomeDisclaimerModal({
   }, "\uD83D\uDCD6 ", tr(modalLang, 'Read About Us', 'Hamare Baare Mein Parhein (About Us)', 'ہماری معلومات پڑھیں (Read About Us)')), /*#__PURE__*/React.createElement("button", {
     onClick: onClose,
     className: "w-full py-2.5 px-5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
-  }, tr(modalLang, 'Understood, Continue', 'Theek Hai, Aage Barhein', 'ٹھیک ہے، آگے بڑھیں')))));
+  }, tr(modalLang, 'Understood, Continue', 'Theek Hai, Aage Barhein', 'ٹھیک ہے، آگے بڑھیں')), /*#__PURE__*/React.createElement("div", {
+    className: "pt-2 text-center"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => {
+      if (typeof onOpenPrivacyPolicy === 'function') onOpenPrivacyPolicy();
+      onClose();
+    },
+    className: "text-[11px] font-semibold text-gray-500 hover:text-emerald-700 underline bg-transparent border-none cursor-pointer p-0"
+  }, "\uD83D\uDD12 ", tr(modalLang, 'Privacy Policy & Data Safety', 'Privacy Policy (Zati Maloomat)', 'پرائیویسی پالیسی اور ڈیٹا کا تحفظ'))))));
 }
 function ParchiOrderModal({
   open,
@@ -10414,7 +12332,6 @@ function ParchiOrderModal({
   language,
   saveOrderHistory
 }) {
-  if (!open) return null;
   const [orderMode, setOrderMode] = useState('photo'); // 'photo' | 'voice'
   const [photo, setPhoto] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
@@ -10451,6 +12368,237 @@ function ParchiOrderModal({
   const [location, setLocation] = useState(() => window.__prefetchedLocation || null);
   const [locLoading, setLocLoading] = useState(false);
   const [locError, setLocError] = useState(null);
+
+  // ── IN-APP VOICE NOTE RECORDING & LIFECYCLE MEMORY CLEANUP ──
+  const [voiceAudioBlob, setVoiceAudioBlob] = useState(null);
+  const [voiceAudioUrl, setVoiceAudioUrl] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [audioVolume, setAudioVolume] = useState(0);
+  const mediaRecorderRef = useRef(null);
+  const audioStreamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const animFrameRef = useRef(null);
+  const timerIntervalRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+  // Bulletproof cleanup: safely stops MediaRecorder, closes AudioContext, cancels requestAnimationFrame, and releases all audio tracks
+  const cleanupVoiceRecording = (abort = false) => {
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        if (abort) {
+          mediaRecorderRef.current.ondataavailable = null;
+          mediaRecorderRef.current.onstop = null;
+        }
+        mediaRecorderRef.current.stop();
+      } catch (e) {}
+      mediaRecorderRef.current = null;
+    }
+    if (audioStreamRef.current) {
+      try {
+        audioStreamRef.current.getTracks().forEach(track => {
+          try {
+            track.stop();
+          } catch (e) {}
+        });
+      } catch (e) {}
+      audioStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      try {
+        if (audioContextRef.current.state !== 'closed') {
+          audioContextRef.current.close();
+        }
+      } catch (e) {}
+      audioContextRef.current = null;
+    }
+    if (abort && voiceAudioUrl) {
+      try {
+        URL.revokeObjectURL(voiceAudioUrl);
+      } catch (e) {}
+      setVoiceAudioUrl(null);
+      setVoiceAudioBlob(null);
+    }
+    analyserRef.current = null;
+    setIsRecording(false);
+    setAudioVolume(0);
+  };
+  useEffect(() => {
+    window.__parchiCleanupRecording = () => {
+      cleanupVoiceRecording(true);
+    };
+    return () => {
+      cleanupVoiceRecording(true);
+      window.__parchiCleanupRecording = null;
+    };
+  }, []);
+  const handleModalClose = () => {
+    cleanupVoiceRecording(true);
+    if (onClose) onClose();
+  };
+  const handleSwitchMode = mode => {
+    triggerHaptic('light');
+    if (orderMode !== mode) {
+      if (isRecording) {
+        cleanupVoiceRecording(true);
+      }
+      setOrderMode(mode);
+    }
+  };
+  const startRecording = async () => {
+    triggerHaptic('medium');
+    cleanupVoiceRecording(true);
+    setVoiceAudioBlob(null);
+    if (voiceAudioUrl) {
+      try {
+        URL.revokeObjectURL(voiceAudioUrl);
+      } catch (e) {}
+      setVoiceAudioUrl(null);
+    }
+    setRecordingSeconds(0);
+    audioChunksRef.current = [];
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert(language === 'ur' ? 'آپ کے براؤزر میں مائیکروفون دستیاب نہیں ہے۔' : 'Microphone access is not supported on this device.');
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true
+      });
+      audioStreamRef.current = stream;
+
+      // AudioContext + Analyser for live visualizer
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          audioContextRef.current = ctx;
+          const source = ctx.createMediaStreamSource(stream);
+          const analyser = ctx.createAnalyser();
+          analyser.fftSize = 64;
+          source.connect(analyser);
+          analyserRef.current = analyser;
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          let lastMeterUpdate = 0;
+          const updateMeter = ts => {
+            if (!analyserRef.current) return;
+            if (!ts || ts - lastMeterUpdate >= 80) {
+              lastMeterUpdate = ts || performance.now();
+              analyserRef.current.getByteFrequencyData(dataArray);
+              let sum = 0;
+              for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+              }
+              const avg = sum / dataArray.length;
+              const nextVol = Math.min(100, Math.round(avg / 128 * 100));
+              setAudioVolume(prev => Math.abs(prev - nextVol) >= 2 ? nextVol : prev);
+            }
+            animFrameRef.current = requestAnimationFrame(updateMeter);
+          };
+          animFrameRef.current = requestAnimationFrame(updateMeter);
+        }
+      } catch (err) {
+        console.warn('AudioContext visualization warning:', err);
+      }
+
+      // MediaRecorder with cross-platform mimeType selection
+      const mimeTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', ''];
+      let selectedMime = '';
+      for (const m of mimeTypes) {
+        if (!m || typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) {
+          selectedMime = m;
+          break;
+        }
+      }
+      const recorder = selectedMime ? new MediaRecorder(stream, {
+        mimeType: selectedMime
+      }) : new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+      recorder.ondataavailable = e => {
+        if (e.data && e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
+        }
+      };
+      recorder.onstop = () => {
+        const finalBlob = new Blob(audioChunksRef.current, {
+          type: recorder.mimeType || 'audio/webm'
+        });
+        setVoiceAudioBlob(finalBlob);
+        const url = URL.createObjectURL(finalBlob);
+        setVoiceAudioUrl(url);
+      };
+      recorder.start(250);
+      setIsRecording(true);
+      timerIntervalRef.current = setInterval(() => {
+        setRecordingSeconds(prev => {
+          if (prev >= 120) {
+            stopRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      console.error('Microphone error:', err);
+      cleanupVoiceRecording(true);
+      alert(language === 'ur' ? 'مائیکروفون کی اجازت نہیں ملی۔ براہ کرم اجازت دیں یا واٹس ایپ پر بولیں۔' : 'Microphone permission denied. Please allow microphone access or use WhatsApp voice note.');
+    }
+  };
+  const stopRecording = () => {
+    triggerHaptic('success');
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (e) {}
+    }
+    if (audioStreamRef.current) {
+      try {
+        audioStreamRef.current.getTracks().forEach(track => {
+          try {
+            track.stop();
+          } catch (e) {}
+        });
+      } catch (e) {}
+      audioStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      try {
+        if (audioContextRef.current.state !== 'closed') audioContextRef.current.close();
+      } catch (e) {}
+      audioContextRef.current = null;
+    }
+    setIsRecording(false);
+    setAudioVolume(0);
+  };
+  const discardRecording = () => {
+    triggerHaptic('light');
+    cleanupVoiceRecording(true);
+    setVoiceAudioBlob(null);
+    if (voiceAudioUrl) {
+      try {
+        URL.revokeObjectURL(voiceAudioUrl);
+      } catch (e) {}
+      setVoiceAudioUrl(null);
+    }
+    setRecordingSeconds(0);
+  };
   const handleGetLocation = (auto = false) => {
     if (auto) return;
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
@@ -10539,17 +12687,20 @@ function ParchiOrderModal({
   };
   const uploadParchiToCloud = async blob => {
     if (!blob) return null;
+    if (blob.size && blob.size > 10 * 1024 * 1024) {
+      console.warn('Parchi image exceeds 10MB limit, skipping cloud upload.');
+      return null;
+    }
     try {
       const fileName = `parchi_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.jpg`;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       const res = await fetch(`${SUPABASE_URL}/storage/v1/object/parchi-orders/${fileName}`, {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Content-Type': blob.type || 'image/jpeg',
-          'x-upsert': 'true'
+          'Content-Type': blob.type || 'image/jpeg'
         },
         body: blob,
         signal: controller.signal
@@ -10563,8 +12714,41 @@ function ParchiOrderModal({
     }
     return null;
   };
+  const uploadVoiceAudioToCloud = async blob => {
+    if (!blob) return null;
+    if (blob.size && blob.size > 10 * 1024 * 1024) {
+      console.warn('Voice recording exceeds 10MB limit, skipping cloud upload.');
+      return null;
+    }
+    try {
+      const ext = blob.type && blob.type.includes('mp4') ? 'mp4' : blob.type && blob.type.includes('ogg') ? 'ogg' : 'webm';
+      const fileName = `voice_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/parchi-orders/${fileName}`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': blob.type || 'audio/webm'
+        },
+        body: blob,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        return `${SUPABASE_URL}/storage/v1/object/public/parchi-orders/${fileName}`;
+      }
+    } catch (err) {
+      console.warn('Voice cloud upload warning:', err);
+    }
+    return null;
+  };
   const handleSubmit = async e => {
     e.preventDefault();
+    if (isRecording) {
+      stopRecording();
+    }
     if (!name.trim()) {
       alert(tr(language, 'Please enter your name.', 'Apna naam darj karein.', 'براہ کرم اپنا نام درج کریں۔'));
       return;
@@ -10579,7 +12763,7 @@ function ParchiOrderModal({
     }
     setIsUploading(true);
     triggerHaptic('success');
-    const orderId = Math.floor(100000 + Math.random() * 900000);
+    const orderId = generateUniqueOrderId('P');
     setSubmittedOrderId(orderId);
     const now = new Date();
     const dateText = now.toLocaleDateString('en-GB', {
@@ -10601,12 +12785,21 @@ function ParchiOrderModal({
         }
       } catch (err) {}
     }
+    let cloudVoiceUrl = null;
+    if (orderMode === 'voice' && voiceAudioBlob) {
+      try {
+        cloudVoiceUrl = await uploadVoiceAudioToCloud(voiceAudioBlob);
+      } catch (err) {}
+    }
     const _pNow = new Date();
     const _pPad = n => String(n).padStart(2, '0');
     const pDateStr = `${_pNow.getFullYear()}-${_pPad(_pNow.getMonth() + 1)}-${_pPad(_pNow.getDate())}`;
     const pTimeStr = `${_pPad(_pNow.getHours())}:${_pPad(_pNow.getMinutes())}`;
     const orderRecord = {
       id: orderId,
+      createdAt: _pNow.getTime(),
+      createdAtIso: _pNow.toISOString(),
+      status: 'placed',
       date: pDateStr,
       time: pTimeStr,
       dateText: dateText,
@@ -10623,19 +12816,21 @@ function ParchiOrderModal({
         location: location ? location.mapUrl : null
       },
       items: [{
-        id: 'parchi-slip',
-        name: `📸 Parchi Slip Order (${notes ? notes.substring(0, 30) : 'Handwritten List'})`,
+        id: orderMode === 'voice' ? 'parchi-voice' : 'parchi-slip',
+        name: orderMode === 'voice' ? `🎙️ Voice Note Order (${notes ? notes.substring(0, 30) : cloudVoiceUrl ? 'Audio Attached' : 'Voice Message'})` : `📸 Parchi Slip Order (${notes ? notes.substring(0, 30) : 'Handwritten List'})`,
         qty: 1,
         price: 0,
         total: 0,
-        photoUrl: cloudImgUrl || null
+        photoUrl: cloudImgUrl || null,
+        audioUrl: cloudVoiceUrl || null
       }],
       subtotal: 0,
       deliveryFee: deliveryMethod === "home" ? getDeliveryFee() : 0,
       grandTotal: 0,
       isParchi: true,
       notes: notes.trim(),
-      photoUrl: cloudImgUrl || null
+      photoUrl: cloudImgUrl || null,
+      audioUrl: cloudVoiceUrl || null
     };
     if (typeof saveOrderHistory === 'function') {
       saveOrderHistory(orderRecord);
@@ -10654,8 +12849,12 @@ function ParchiOrderModal({
     if (cloudImgUrl) {
       photoLinkText = `\n\n📸 *PARCHI SLIP PHOTO (Haath se likhi list):*\n👉 ${cloudImgUrl}\n_(Link par click karke parchi photo dekhein)_`;
     }
-    const attachNote = orderMode === 'voice' ? '\n🎙️ _(Voice note audio is WhatsApp chat mein send ki ja rahi hai)_' : cloudImgUrl ? '' : '\n📸 _(Parchi ki photo chat mein send ki ja rahi hai)_';
-    const waText = `${orderTitle}\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}${notes.trim() ? `\n📝 *Notes:* ${notes.trim()}` : ''}${photoLinkText}${attachNote}`;
+    let voiceLinkText = '';
+    if (cloudVoiceUrl) {
+      voiceLinkText = `\n\n🎙️ *VOICE RECORDING (Awaaz ka recording link):*\n👉 ${cloudVoiceUrl}\n_(Link par click karke voice recording sunein)_`;
+    }
+    const attachNote = orderMode === 'voice' ? cloudVoiceUrl ? '' : '\n🎙️ _(Voice note audio is WhatsApp chat mein send ki ja rahi hai)_' : cloudImgUrl ? '' : '\n📸 _(Parchi ki photo chat mein send ki ja rahi hai)_';
+    const waText = `${orderTitle}\n\n🔢 *Order Ref:* #${orderId}\n👤 *Customer:* ${name.trim()}\n📞 *WhatsApp:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup (ZS Mart Karachi)' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}${notes.trim() ? `\n📝 *Notes:* ${notes.trim()}` : ''}${photoLinkText}${voiceLinkText}${attachNote}`;
 
     // Try native share first if available and user attached file
     let sharedWithFile = false;
@@ -10686,9 +12885,10 @@ function ParchiOrderModal({
     const waText = `*Salam ZS Mart!* 📸\n*Parchi Order Ref:* #${submittedOrderId || 'ST'}\n👤 *Customer:* ${name.trim()}\n📞 *Phone:* ${phone.trim()}\n🚚 *Method:* ${deliveryMethod === 'pickup' ? 'Store Pickup' : 'Home Delivery'}\n📍 *Address:* ${deliveryMethod === 'home' ? address.trim() : 'Store Pickup'}${locText}${photoLinkText}`;
     launchWhatsApp(getStoreSettings().whatsapp, waText);
   };
+  if (!open) return null;
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 shadow-2xl animate-fade-in",
-    onClick: onClose
+    onClick: handleModalClose
   }, /*#__PURE__*/React.createElement("div", {
     className: "bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200 animate-scale-in relative flex flex-col",
     style: {
@@ -10711,7 +12911,7 @@ function ParchiOrderModal({
     className: "text-[10px] text-emerald-100 font-medium"
   }, tr(language, 'Upload written slip & order in 5 seconds', 'Haath se likhi list upload karein aur 5 sec mein order bhein', 'ہاتھ سے لکھی پرچی بھیجیں')))), /*#__PURE__*/React.createElement("button", {
     type: "button",
-    onClick: onClose,
+    onClick: handleModalClose,
     className: "w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center cursor-pointer transition-colors"
   }, "\u2715")), /*#__PURE__*/React.createElement("div", {
     className: "p-4 sm:p-5 overflow-y-auto space-y-4"
@@ -10762,14 +12962,25 @@ function ParchiOrderModal({
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCE4"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Share Photo on WhatsApp', 'WhatsApp Par Photo Bhejein', 'واٹس ایپ پر تصویر شیئر کریں'))), photo && /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: () => {
-      const a = document.createElement('a');
-      a.href = photo;
-      a.download = `ZS_Mart_Parchi_Order_${submittedOrderId || 'slip'}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      triggerHaptic('success');
-      alert(tr(language, 'Photo saved to your phone! You can easily attach it in WhatsApp.', 'Photo phone mein save ho gayi! WhatsApp mein aasani se attach kar dein.', 'تصویر محفوظ ہو گئی۔'));
+      const fileName = `ZS_Mart_Parchi_Order_${submittedOrderId || 'slip'}.jpg`;
+      if (window.AndroidBridge && typeof window.AndroidBridge.saveImageToGallery === 'function') {
+        const saved = window.AndroidBridge.saveImageToGallery(photo, fileName);
+        if (saved) {
+          triggerHaptic('success');
+          alert(tr(language, 'Photo saved to your phone Gallery! You can easily attach it in WhatsApp.', 'Photo phone gallery mein save ho gayi! WhatsApp mein aasani se attach kar dein.', 'تصویر موبائل گیلری میں محفوظ ہو گئی۔'));
+          return;
+        }
+      }
+      try {
+        const a = document.createElement('a');
+        a.href = photo;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => document.body.removeChild(a), 500);
+        triggerHaptic('success');
+        alert(tr(language, 'Photo downloaded to your device!', 'Photo device mein download ho gayi!', 'تصویر ڈاؤن لوڈ ہو گئی۔'));
+      } catch (e) {}
     },
     className: "w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCBE"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Save Photo to Gallery', 'Photo Phone Mein Save Karein', 'تصویر موبائل میں محفوظ کریں'))), /*#__PURE__*/React.createElement("button", {
@@ -10778,7 +12989,7 @@ function ParchiOrderModal({
     className: "w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-sm cursor-pointer"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Open WhatsApp Chat Again', 'WhatsApp Chat Dobara Kholein', 'دوبارہ واٹس ایپ کھولیں'))), /*#__PURE__*/React.createElement("button", {
     type: "button",
-    onClick: onClose,
+    onClick: handleModalClose,
     className: "w-full py-2.5 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl uppercase tracking-wider cursor-pointer"
   }, tr(language, 'Continue Shopping', 'Kharidari Jari Rakhein', 'خریداری جاری رکھیں')))) : /*#__PURE__*/React.createElement("form", {
     onSubmit: handleSubmit,
@@ -10794,10 +13005,7 @@ function ParchiOrderModal({
     }
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    onClick: () => {
-      triggerHaptic('light');
-      setOrderMode('photo');
-    },
+    onClick: () => handleSwitchMode('photo'),
     style: {
       padding: '8px 10px',
       borderRadius: 11,
@@ -10815,10 +13023,7 @@ function ParchiOrderModal({
     }
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCF8"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Photo Slip', 'Photo Parchi', 'پرچی فوٹو'))), /*#__PURE__*/React.createElement("button", {
     type: "button",
-    onClick: () => {
-      triggerHaptic('light');
-      setOrderMode('voice');
-    },
+    onClick: () => handleSwitchMode('voice'),
     style: {
       padding: '8px 10px',
       borderRadius: 11,
@@ -10842,10 +13047,170 @@ function ParchiOrderModal({
       padding: '16px',
       textAlign: 'center'
     }
+  }, isRecording ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 10
+    }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 50,
-      height: 50,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 10,
+      height: 10,
+      borderRadius: '50%',
+      background: '#ef4444',
+      display: 'inline-block'
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      fontWeight: 900,
+      color: '#dc2626'
+    }
+  }, tr(language, 'Recording Voice Note...', 'Awaaz Record Ho Rahi Hai...', 'آواز ریکارڈ ہو رہی ہے...')), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontWeight: 800,
+      color: '#475569',
+      background: '#ffffff',
+      padding: '2px 8px',
+      borderRadius: 6,
+      border: '1px solid #cbd5e1'
+    }
+  }, String(Math.floor(recordingSeconds / 60)).padStart(2, '0'), ":", String(recordingSeconds % 60).padStart(2, '0'))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      height: 32,
+      margin: '2px 0'
+    }
+  }, [0.6, 1.2, 0.8, 1.5, 0.9, 1.3, 0.7].map((factor, idx) => {
+    const barHeight = Math.max(6, Math.min(28, Math.round(audioVolume * factor / 3)));
+    return /*#__PURE__*/React.createElement("div", {
+      key: idx,
+      style: {
+        width: 5,
+        height: `${barHeight}px`,
+        borderRadius: 3,
+        background: '#10b981',
+        transition: 'height 0.08s ease'
+      }
+    });
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      width: '100%',
+      justifyContent: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: stopRecording,
+    style: {
+      padding: '9px 16px',
+      borderRadius: 12,
+      border: 'none',
+      background: '#dc2626',
+      color: '#ffffff',
+      fontWeight: 900,
+      fontSize: 12,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      boxShadow: '0 3px 10px rgba(220,38,38,0.3)'
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\u23F9\uFE0F"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Stop & Save', 'Recording Khatam Karein', 'ریکارڈنگ مکمل کریں'))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: discardRecording,
+    style: {
+      padding: '9px 12px',
+      borderRadius: 12,
+      border: '1px solid #cbd5e1',
+      background: '#ffffff',
+      color: '#64748b',
+      fontWeight: 700,
+      fontSize: 12,
+      cursor: 'pointer'
+    }
+  }, tr(language, 'Cancel', 'Cancel', 'منسوخ')))) : voiceAudioUrl ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      color: '#065f46',
+      fontWeight: 900,
+      fontSize: 13
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\u2705"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Voice Note Recorded!', 'Voice Note Record Ho Gaya!', 'وائس نوٹ ریکارڈ ہو گیا!'))), /*#__PURE__*/React.createElement("audio", {
+    controls: true,
+    src: voiceAudioUrl,
+    style: {
+      width: '100%',
+      maxWidth: 280,
+      height: 36,
+      borderRadius: 8
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: startRecording,
+    style: {
+      padding: '6px 12px',
+      borderRadius: 8,
+      border: '1px solid #a7f3d0',
+      background: '#ffffff',
+      color: '#047857',
+      fontWeight: 800,
+      fontSize: 11,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDD04"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Re-record', 'Dobara Record Karein', 'دوبارہ ریکارڈ کریں'))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: discardRecording,
+    style: {
+      padding: '6px 12px',
+      borderRadius: 8,
+      border: '1px solid #fecaca',
+      background: '#ffffff',
+      color: '#dc2626',
+      fontWeight: 800,
+      fontSize: 11,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDDD1\uFE0F"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Delete', 'Delete Karein', 'حذف کریں'))))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: startRecording,
+    style: {
+      width: 54,
+      height: 54,
       borderRadius: '50%',
       background: '#10b981',
       color: '#ffffff',
@@ -10854,7 +13219,9 @@ function ParchiOrderModal({
       justifyContent: 'center',
       fontSize: 24,
       margin: '0 auto 10px',
-      boxShadow: '0 4px 14px rgba(16,185,129,0.35)'
+      boxShadow: '0 4px 14px rgba(16,185,129,0.35)',
+      border: 'none',
+      cursor: 'pointer'
     }
   }, "\uD83C\uDF99\uFE0F"), /*#__PURE__*/React.createElement("h4", {
     style: {
@@ -10863,14 +13230,20 @@ function ParchiOrderModal({
       color: '#065f46',
       margin: '0 0 4px'
     }
-  }, tr(language, 'Voice Note Order on WhatsApp', 'WhatsApp par Bol Kar Order Karein', 'واٹس ایپ پر بول کر آرڈر کریں')), /*#__PURE__*/React.createElement("p", {
+  }, tr(language, 'Tap Mic to Record Voice Order', 'Mic Daba Kar Bol Kar Order Dein', 'مائیک دبا کر بولیں')), /*#__PURE__*/React.createElement("p", {
     style: {
       fontSize: 11.5,
       color: '#047857',
       lineHeight: 1.4,
-      margin: '0 0 10px'
+      margin: '0 0 6px'
     }
-  }, tr(language, 'Enter your details below and click submit. WhatsApp will open directly to send your voice recording.', 'Neeche apna naam aur pata likhein aur submit dabayein. WhatsApp par voice note record karke foran bhejein.', 'نیچے تفصیلات درج کریں اور بٹن دبائیں۔ واٹس ایپ پر وائس میسج بھیجیں۔'))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+  }, tr(language, 'Speak your items (e.g. 2kg sugar, 1 tea box) and submit.', 'Apna samaan bol kar batayein aur submit karein.', 'اپنا مطلوبہ سامان بولیں اور آرڈر بھیجیں۔')), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: '#059669',
+      fontStyle: 'italic'
+    }
+  }, tr(language, 'Or click submit below to record directly on WhatsApp', 'Ya neeche submit daba kar direct WhatsApp par bol kar bhejein', 'یا نیچے بٹن دبا کر براہ راست واٹس ایپ پر بولیں')))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
     className: "block text-xs font-extrabold text-gray-800 mb-1.5 uppercase tracking-wider"
   }, tr(language, '1. Take or Upload Photo of Slip *', '1. Parchi ki Photo Khainchein ya Select Karein *', '1. پرچی کی تصویر لیں یا اپلوڈ کریں *')), photo ? /*#__PURE__*/React.createElement("div", {
     className: "relative rounded-2xl border-2 border-emerald-500 overflow-hidden bg-gray-50 h-48 flex items-center justify-center group shadow-sm"
@@ -11036,7 +13409,6 @@ function WishlistDrawer({
   language,
   langData
 }) {
-  if (!open) return null;
   const wishlistedProducts = useMemo(() => {
     if (!products || !wishlist) return [];
     return products.filter(p => wishlist.includes(p.id));
@@ -11048,6 +13420,7 @@ function WishlistDrawer({
     });
     onClose();
   };
+  if (!open) return null;
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 overflow-hidden bg-black/60  flex justify-end animate-fade-in",
     onClick: onClose
@@ -11080,14 +13453,13 @@ function WishlistDrawer({
     className: "text-xs text-gray-500 max-w-xs mx-auto"
   }, tr(language, 'Tap the heart icon on any product to save it here for quick repeat orders.', 'Kisi bhi product par dil (heart) daba kar save karein.', 'پروڈکٹ پر دل کے نشان کو دبا کر محفوظ کریں۔'))) : wishlistedProducts.map(product => {
     const pricing = getProductPricing(product);
-    const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-    const imgSrc = hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+    const imgSrc = getProductImgSrc(product);
     return /*#__PURE__*/React.createElement("div", {
       key: product.id,
       className: "flex items-center gap-3 p-2.5 rounded-2xl border border-gray-100 hover:border-gray-300 bg-white transition-all shadow-2xs"
     }, /*#__PURE__*/React.createElement("div", {
       className: "w-14 h-14 bg-gray-50 rounded-xl p-1 flex items-center justify-center shrink-0"
-    }, hasFile ? /*#__PURE__*/React.createElement("img", {
+    }, imgSrc ? /*#__PURE__*/React.createElement("img", {
       src: imgSrc,
       alt: product.name,
       className: "w-full h-full object-contain"
@@ -11139,41 +13511,92 @@ function ProductDetailModal({
   language,
   onSelectProduct,
   isWishlisted,
-  onToggleWishlist
+  onToggleWishlist,
+  onSaveOrderHistory
 }) {
-  if (!open || !product) return null;
   const isUrdu = language === 'ur';
   const [modalQty, setModalQty] = React.useState(1);
   const [packMenuOpen, setPackMenuOpen] = React.useState(false);
-  const pricing = useMemo(() => getProductPricing(product), [product]);
-  const bulkPricing = useMemo(() => calculateBulkPricing(pricing.sellingPrice, modalQty), [pricing.sellingPrice, modalQty]);
-  // Find 4-6 Related Products from the same category (excluding current product)
+  const weightOptions = useMemo(() => product ? getWeightOptionsForProduct(product) : null, [product]);
+  const [selectedWeightId, setSelectedWeightId] = React.useState(null);
+  React.useEffect(() => {
+    if (weightOptions && weightOptions.length > 0) {
+      const def = weightOptions.find(o => o.isPopular) || weightOptions[0];
+      setSelectedWeightId(def.id);
+    } else {
+      setSelectedWeightId(null);
+    }
+    setModalQty(1);
+  }, [product, weightOptions]);
+  const activeWeight = useMemo(() => {
+    if (!weightOptions || weightOptions.length === 0) return null;
+    return weightOptions.find(o => o.id === selectedWeightId) || weightOptions[0];
+  }, [weightOptions, selectedWeightId]);
+  const pricing = useMemo(() => product ? getProductPricing(product) : {
+    sellingPrice: 0,
+    retailPrice: 0,
+    savings: 0,
+    hasDiscount: false
+  }, [product]);
+  const currentUnitPrice = activeWeight ? activeWeight.price : pricing.sellingPrice;
+  const bulkPricing = useMemo(() => calculateBulkPricing(currentUnitPrice, modalQty), [currentUnitPrice, modalQty]);
+  // Find 4-6 Related Products from the same category (excluding current product and zero-priced items)
   const relatedProducts = useMemo(() => {
     if (!product || !products) return [];
-    const sameCat = products.filter(p => p.categoryId === product.categoryId && p.id !== product.id);
+    const sameCat = products.filter(p => p && Number(p.price) > 0 && p.categoryId === product.categoryId && p.id !== product.id);
     if (sameCat.length >= 4) return sameCat.slice(0, 6);
 
     // Fallback: items with same brand or general items
     const brand = getProductFilterName(product);
-    const sameBrand = products.filter(p => p.id !== product.id && getProductFilterName(p) === brand);
+    const sameBrand = products.filter(p => p && Number(p.price) > 0 && p.id !== product.id && getProductFilterName(p) === brand);
     const combined = Array.from(new Set([...sameCat, ...sameBrand]));
     return combined.slice(0, 6);
   }, [product, products]);
-  const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || product.hasImage || !!product.imageUrl;
-  const imageSrc = product.imageUrl ? `${product.imageUrl}?v=${product.imageVersion || Date.now()}` : hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || 'webp'}`) : null;
+  if (!open || !product) return null;
+  const imageSrc = getProductImgSrc(product);
+  const hasFile = Boolean(imageSrc);
   const handleDirectWhatsAppOrder = () => {
+    if (!product || product.price === undefined || product.price === null || Number(product.price) <= 0 || bulkPricing.finalTotal <= 0) {
+      alert(isUrdu ? 'اس پروڈکٹ کی قیمت فی الحال دستیاب نہیں ہے۔' : 'This product is currently unavailable.');
+      return;
+    }
     const pName = getProductDisplayName(product, language);
+    const weightLine = activeWeight ? `\n⚖️ *Weight / Wazan:* ${activeWeight.label}` : '';
+    const weightVariantStr = activeWeight ? `⚖️ Wazan: ${activeWeight.weightText}` : '';
     let discountInfo = '';
-    if (bulkPricing.extraPercent > 0) {
+    if (bulkPricing.extraPercent > 0 && !activeWeight) {
       discountInfo += `\n🎁 *Bulk Volume Discount (${bulkPricing.extraPercent}%):* -Rs ${bulkPricing.extraSavings.toLocaleString()}`;
     }
-    if (pricing.hasDiscount) {
+    if (pricing.hasDiscount && !activeWeight) {
       discountInfo += `\n🏷️ *Retail:* ~Rs ${(pricing.retailPrice * modalQty).toLocaleString()}~ (Total Savings: Rs ${(pricing.savings * modalQty + bulkPricing.extraSavings).toLocaleString()})`;
     }
-    const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}\n🔢 *Quantity:* ${modalQty}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
+    const msg = `Assalam U Alaikum ZS Mart!\nI want to order this item directly:\n\n📦 *Product:* ${pName}${weightLine}\n🔢 *Quantity:* ${modalQty} ${activeWeight ? 'Pack(s)' : ''}\n💰 *Price:* *Rs ${bulkPricing.finalTotal.toLocaleString()}*${discountInfo}\n\nPlease confirm my order.`;
+    const _dwNow = new Date();
+    const deliveryFee = typeof calculateDeliveryFee === 'function' ? calculateDeliveryFee(bulkPricing.finalTotal) : 0;
+    let directCustPhone = '';
+    let directCustName = 'Direct WhatsApp Customer';
+    let directCustAddress = '';
+    try {
+      const savedProfile = localStorage.getItem('zs_mart_customer_profile');
+      if (savedProfile) {
+        const p = JSON.parse(savedProfile);
+        if (p.phone) directCustPhone = p.phone;
+        if (p.name) directCustName = p.name;
+        if (p.address) directCustAddress = p.address;
+      }
+    } catch (e) {}
     const directOrderRecord = {
-      id: Math.floor(100000 + Math.random() * 900000),
-      dateText: new Date().toLocaleDateString('en-PK', {
+      id: generateUniqueOrderId('DW'),
+      createdAt: _dwNow.getTime(),
+      createdAtIso: _dwNow.toISOString(),
+      date: _dwNow.toISOString().slice(0, 10),
+      time: _dwNow.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }),
+      status: 'placed',
+      dateText: _dwNow.toLocaleDateString('en-PK', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
@@ -11181,23 +13604,35 @@ function ProductDetailModal({
         minute: '2-digit'
       }),
       customer: {
-        name: 'Direct WhatsApp Customer',
-        phone: ''
+        name: directCustName,
+        phone: directCustPhone,
+        address: directCustAddress
       },
       deliveryMethod: 'home',
+      deliveryFee: deliveryFee,
       channel: 'whatsapp_direct',
       subtotal: bulkPricing.finalTotal,
-      grandTotal: bulkPricing.finalTotal,
+      grandTotal: bulkPricing.finalTotal + deliveryFee,
       items: [{
         id: product.id,
         name: product.name,
-        price: product.price,
+        variant: weightVariantStr || null,
+        price: currentUnitPrice,
         qty: modalQty,
-        total: bulkPricing.finalTotal
+        total: bulkPricing.finalTotal,
+        imageUrl: product.imageUrl || null,
+        imageExt: window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || null
       }]
     };
     dispatchOrderToBackend(directOrderRecord);
-    launchWhatsApp(getStoreSettings().whatsapp, msg);
+    if (typeof onSaveOrderHistory === 'function') {
+      onSaveOrderHistory(directOrderRecord);
+    } else if (typeof window !== 'undefined' && typeof window.__saveOrderHistory === 'function') {
+      window.__saveOrderHistory(directOrderRecord);
+    }
+    setTimeout(() => {
+      launchWhatsApp(getStoreSettings().whatsapp, msg);
+    }, 100);
   };
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 shadow-2xl animate-fade-in",
@@ -11285,7 +13720,21 @@ function ProductDetailModal({
     className: "bg-gray-200 text-gray-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full"
   }, product.categoryName)), /*#__PURE__*/React.createElement("h3", {
     className: "text-base sm:text-lg font-black text-gray-900 leading-snug"
-  }, getProductDisplayName(product, language)), pricing.hasDiscount ? /*#__PURE__*/React.createElement("div", {
+  }, getProductDisplayName(product, language)), activeWeight ? /*#__PURE__*/React.createElement("div", {
+    className: "space-y-1.5 bg-gradient-to-r from-emerald-50 via-white to-teal-50 p-2.5 sm:p-3 rounded-2xl border border-emerald-300 shadow-2xs text-left"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between flex-wrap gap-1"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "text-[10px] font-black uppercase tracking-wider text-emerald-800"
+  }, tr(language, 'Price for Selected Weight', 'Muntakhab Wazan Ka Rate', 'منتخب وزن کا ریٹ')), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-baseline gap-2"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-2xl sm:text-3xl font-black text-emerald-950"
+  }, "Rs. ", activeWeight.price.toLocaleString()))), /*#__PURE__*/React.createElement("span", {
+    className: "inline-block bg-emerald-600 text-white text-xs font-black px-2.5 py-1 rounded-xl shadow-xs"
+  }, "\u2696\uFE0F ", activeWeight.weightText)), /*#__PURE__*/React.createElement("div", {
+    className: "text-[10.5px] font-bold text-emerald-700"
+  }, tr(language, '100% Pure, Clean & Fresh Quality Guaranteed', '100% Khalis, Saaf Suthri Aala Quality', 'خالص اور معیاری کوالٹی'))) : pricing.hasDiscount ? /*#__PURE__*/React.createElement("div", {
     className: "space-y-1.5 bg-gradient-to-r from-emerald-50/70 via-white to-red-50/50 p-2.5 sm:p-3 rounded-2xl border border-emerald-200/80 shadow-2xs text-left"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between flex-wrap gap-1"
@@ -11319,8 +13768,41 @@ function ProductDetailModal({
     className: "text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"
   }, tr(language, 'Cheaper than Supermarts', 'Supermarket se Sasta', 'سپر مارکیٹ سے سستا'))))), /*#__PURE__*/React.createElement("div", {
     className: "space-y-2.5 pt-2 border-t border-gray-200/80 w-full"
+  }, weightOptions && weightOptions.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "bg-emerald-50/80 border border-emerald-300 rounded-2xl p-3 space-y-2 shadow-2xs"
   }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center justify-between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "text-base"
+  }, "\u2696\uFE0F"), /*#__PURE__*/React.createElement("span", {
+    className: "text-xs font-black text-emerald-950 uppercase tracking-wide"
+  }, isUrdu ? 'کتنا چاہیے؟ وزن منتخب کریں:' : 'Kitna Chahiye? Wazan Select Karein:')), /*#__PURE__*/React.createElement("span", {
+    className: "text-[11px] font-black text-emerald-800 bg-white border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-2xs"
+  }, activeWeight ? activeWeight.weightText : '')), /*#__PURE__*/React.createElement("div", {
+    className: "grid grid-cols-2 sm:grid-cols-3 gap-2"
+  }, weightOptions.map(opt => {
+    const isSelected = activeWeight && activeWeight.id === opt.id;
+    return /*#__PURE__*/React.createElement("button", {
+      key: opt.id,
+      type: "button",
+      onClick: () => {
+        triggerHaptic('light');
+        setSelectedWeightId(opt.id);
+      },
+      className: `flex flex-col items-start p-2.5 rounded-xl border text-left transition-all relative cursor-pointer active:scale-98 ${isSelected ? 'border-emerald-600 bg-white shadow-md ring-2 ring-emerald-500/30' : 'border-emerald-200 bg-white/70 hover:bg-white hover:border-emerald-400'}`
+    }, opt.isPopular && /*#__PURE__*/React.createElement("span", {
+      className: "absolute -top-2 right-2 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.2 rounded-md shadow-2xs uppercase"
+    }, "\u2B50 Popular"), /*#__PURE__*/React.createElement("span", {
+      className: `text-xs font-bold leading-tight ${isSelected ? 'text-emerald-950 font-black' : 'text-gray-800'}`
+    }, opt.weightText), /*#__PURE__*/React.createElement("span", {
+      className: `text-xs font-black mt-1 ${isSelected ? 'text-emerald-700' : 'text-emerald-800'}`
+    }, "Rs. ", opt.price.toLocaleString()));
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "flex items-center justify-between gap-2.5"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-2"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-2xs shrink-0"
   }, /*#__PURE__*/React.createElement("button", {
@@ -11342,7 +13824,13 @@ function ProductDetailModal({
     onClick: () => setModalQty(q => q + 1),
     className: "w-8 h-8 bg-gray-100 hover:bg-gray-200 text-gray-800 font-black text-base flex items-center justify-center cursor-pointer transition-colors",
     title: "Plus 1"
-  }, "+")), /*#__PURE__*/React.createElement("div", {
+  }, "+")), activeWeight && /*#__PURE__*/React.createElement("span", {
+    className: "text-[11px] font-bold text-gray-600"
+  }, modalQty > 1 ? `x ${modalQty} Packs` : `1 Pack`)), activeWeight ? /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 font-black text-xs"
+  }, /*#__PURE__*/React.createElement("span", null, "Total:"), /*#__PURE__*/React.createElement("span", {
+    className: "text-sm text-emerald-700 font-black"
+  }, "Rs. ", bulkPricing.finalTotal.toLocaleString())) : /*#__PURE__*/React.createElement("div", {
     className: "flex-1 min-w-0"
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
@@ -11363,7 +13851,7 @@ function ProductDetailModal({
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M19.5 8.25l-7.5 7.5-7.5-7.5"
-  }))))), /*#__PURE__*/React.createElement("div", {
+  }))))), !activeWeight && /*#__PURE__*/React.createElement("div", {
     style: {
       background: 'linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%)',
       border: '1px solid #6ee7b7',
@@ -11444,14 +13932,22 @@ function ProductDetailModal({
   }))), /*#__PURE__*/React.createElement("div", {
     className: "grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1"
   }, /*#__PURE__*/React.createElement("button", {
+    disabled: !product || !product.price || Number(product.price) <= 0,
     onClick: () => {
-      onAddToCart(product, null, modalQty);
+      if (!product || !product.price || Number(product.price) <= 0) return;
+      const productToAdd = activeWeight ? {
+        ...product,
+        price: currentUnitPrice
+      } : product;
+      const variantToAdd = activeWeight ? `⚖️ Wazan: ${activeWeight.weightText}` : null;
+      onAddToCart(productToAdd, variantToAdd, modalQty);
       onClose();
     },
-    className: "w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDED2"), /*#__PURE__*/React.createElement("span", null, translate(langData, "addToCart"), " (", modalQty, ")")), /*#__PURE__*/React.createElement("button", {
+    className: "w-full py-2.5 px-3 rounded-xl bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDED2"), /*#__PURE__*/React.createElement("span", null, !product || !product.price || Number(product.price) <= 0 ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں') : activeWeight ? `${translate(langData, "addToCart")} (${activeWeight.weightText}${modalQty > 1 ? ` × ${modalQty}` : ''})` : `${translate(langData, "addToCart")} (${modalQty})`)), /*#__PURE__*/React.createElement("button", {
+    disabled: !product || !product.price || Number(product.price) <= 0,
     onClick: handleDirectWhatsAppOrder,
-    className: "w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+    className: "w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-xs tracking-wider uppercase transition-colors shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCAC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Buy on WhatsApp', 'WhatsApp par Order Karein', 'واٹس ایپ پر آرڈر کریں')))), /*#__PURE__*/React.createElement("div", {
     className: `border rounded-xl px-3 py-2 shadow-2xs ${bulkPricing.extraPercent > 0 ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-emerald-300' : 'bg-amber-50/70 border-amber-200/80'}`
   }, /*#__PURE__*/React.createElement("div", {
@@ -11595,8 +14091,7 @@ function ProductDetailModal({
     className: "grid grid-cols-2 sm:grid-cols-3 gap-2.5"
   }, relatedProducts.map(rel => {
     const relPricing = getProductPricing(rel);
-    const relHasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[rel.id];
-    const relImgSrc = relHasFile ? getImgUrl(`images/${rel.id}.${window.PRODUCT_IMAGE_MAP[rel.id]}`) : null;
+    const relImgSrc = getProductImgSrc(rel);
     return /*#__PURE__*/React.createElement("div", {
       key: rel.id,
       onClick: () => onSelectProduct && onSelectProduct(rel),
@@ -11605,7 +14100,7 @@ function ProductDetailModal({
       className: "absolute top-1.5 left-1.5 z-10 bg-red-600 text-white text-[8.5px] font-black px-1.5 py-0.5 rounded shadow-2xs uppercase"
     }, relPricing.discountPercent, "% OFF"), /*#__PURE__*/React.createElement("div", {
       className: "h-20 w-full bg-gray-50 rounded-xl p-1 mb-2 flex items-center justify-center overflow-hidden"
-    }, relHasFile ? /*#__PURE__*/React.createElement("img", {
+    }, relImgSrc ? /*#__PURE__*/React.createElement("img", {
       src: relImgSrc,
       alt: rel.name,
       loading: "lazy",
@@ -11843,8 +14338,7 @@ function VariantSelectionModal({
   language,
   langData
 }) {
-  if (!open || !product) return null;
-  const config = window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id] || {
+  const config = product && window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id] || {
     title: "Select Option",
     options: []
   };
@@ -11856,7 +14350,8 @@ function VariantSelectionModal({
     }
     setQty(1);
   }, [product]);
-  const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
+  if (!open || !product) return null;
+  const modalImgSrc = getProductImgSrc(product);
   return /*#__PURE__*/React.createElement("div", {
     className: "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 shadow-2xl animate-fade-in"
   }, /*#__PURE__*/React.createElement("div", {
@@ -11865,8 +14360,8 @@ function VariantSelectionModal({
     className: "p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-3"
-  }, ext ? /*#__PURE__*/React.createElement("img", {
-    src: getImgUrl(`images/${product.id}.${ext}`),
+  }, modalImgSrc ? /*#__PURE__*/React.createElement("img", {
+    src: modalImgSrc,
     alt: "",
     className: "w-12 h-12 rounded-xl object-contain bg-white border border-gray-200 p-1 shrink-0"
   }) : /*#__PURE__*/React.createElement("div", {
@@ -12051,6 +14546,7 @@ class RootErrorBoundary extends React.Component {
         onClick: () => {
           try {
             // Clear cart from storage so it does not loop crash
+            localStorage.removeItem('zs_mart_cart');
             localStorage.removeItem('sahil_traders_cart');
           } catch (e) {}
           window.location.reload();
@@ -12071,7 +14567,7 @@ class RootErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-function SahilTraders() {
+function ZSMart() {
   const [productsList, setProductsList] = useState(() => {
     const winProds = typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0 ? window.PRODUCTS : null;
     if (winProds && winProds.length > 0) return winProds;
@@ -12087,10 +14583,13 @@ function SahilTraders() {
     return PRODUCTS;
   });
   const products = productsList;
+  const isNativeApp = checkIsNativeApp();
   const [isSyncingProducts, setIsSyncingProducts] = useState(false);
   const [syncToast, setSyncToast] = useState(null);
+  const [categoriesVersion, setCategoriesVersion] = useState(0);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [returnPolicyOpen, setReturnPolicyOpen] = useState(false);
+  const [privacyPolicyOpen, setPrivacyPolicyOpen] = useState(false);
   const [language, setLanguage] = useState("en");
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
@@ -12204,18 +14703,66 @@ function SahilTraders() {
       if (cached) return JSON.parse(cached);
     } catch (e) {}
     return {
-      deliveryFee: 150,
-      freeDeliveryThreshold: 2000,
+      deliveryFee: 99,
+      freeDeliveryThreshold: 1999,
       deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
-      whatsapp: "923368945775",
+      whatsapp: "923391965200",
       announcement: ""
     };
   });
+  const applySyncedSettings = raw => {
+    if (!raw || typeof raw !== 'object') return false;
+    const s = {
+      deliveryFee: Number(raw.delivery_fee ?? raw.deliveryFee ?? 99),
+      freeDeliveryThreshold: Number(raw.free_delivery_threshold ?? raw.freeDeliveryThreshold ?? 1999),
+      deliveryTiming: String(raw.delivery_timing || raw.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
+      whatsapp: String(raw.whatsapp || '923391965200'),
+      announcement: String(raw.announcement ?? '')
+    };
+    if (!isNaN(s.deliveryFee) && s.deliveryFee >= 0 && !isNaN(s.freeDeliveryThreshold) && s.freeDeliveryThreshold > 0) {
+      if (typeof window !== "undefined") window.APP_SETTINGS = s;
+      setAppSettings(s);
+      try {
+        localStorage.setItem('zs_mart_settings', JSON.stringify(s));
+      } catch (e) {}
+      return true;
+    }
+    return false;
+  };
   useEffect(() => {
-    // Fetch fresh settings from local server or bundled settings.json or remote fallback
     const cacheBuster = Date.now();
-    const settingsUrls = [`settings.json?v=${cacheBuster}`, `/settings.json?v=${cacheBuster}`, `https://raw.githubusercontent.com/qureshi-code999/Item-web/main/settings.json?v=${cacheBuster}`, `https://sahiltraders.vercel.app/settings.json?v=${cacheBuster}`, `http://localhost:8888/api/settings`];
+    const sbUrl = "https://tmssjdczywukramcpcxc.supabase.co";
+    const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
     (async () => {
+      // 1. Primary: Live Supabase store_settings table (so Android APK & Web always get live Admin settings)
+      try {
+        const sbController = new AbortController();
+        const sbTid = setTimeout(() => sbController.abort(), 4000);
+        const sbRes = await fetch(`${sbUrl}/rest/v1/store_settings?id=eq.main&select=*`, {
+          signal: sbController.signal,
+          cache: 'no-store',
+          headers: {
+            'apikey': sbKey,
+            'Authorization': `Bearer ${sbKey}`
+          }
+        });
+        clearTimeout(sbTid);
+        if (sbRes.ok) {
+          const rows = await sbRes.json();
+          if (Array.isArray(rows) && rows.length > 0 && applySyncedSettings(rows[0])) {
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // 2. Fallback: Local server, GitHub raw, or bundled settings.json if offline
+      const settingsUrls = [];
+      if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '8888') {
+        settingsUrls.push(`http://localhost:8888/api/settings`);
+      }
+      settingsUrls.push(`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/settings.json?v=${cacheBuster}`);
+      settingsUrls.push(`settings.json?v=${cacheBuster}`);
+      settingsUrls.push(`/settings.json?v=${cacheBuster}`);
       for (const url of settingsUrls) {
         try {
           const controller = new AbortController();
@@ -12228,19 +14775,7 @@ function SahilTraders() {
           if (res.ok) {
             const data = await res.json();
             const raw = data.settings || data;
-            const s = {
-              deliveryFee: Number(raw.deliveryFee ?? 150),
-              freeDeliveryThreshold: Number(raw.freeDeliveryThreshold ?? 2000),
-              deliveryTiming: String(raw.deliveryTiming || 'Delivery Timing: 10:00 AM – 10:00 PM'),
-              whatsapp: String(raw.whatsapp || '923368945775'),
-              announcement: String(raw.announcement || '')
-            };
-            if (s.deliveryFee >= 0 && s.freeDeliveryThreshold > 0) {
-              if (typeof window !== "undefined") window.APP_SETTINGS = s;
-              setAppSettings(s);
-              try {
-                localStorage.setItem('zs_mart_settings', JSON.stringify(s));
-              } catch (e) {}
+            if (applySyncedSettings(raw)) {
               break;
             }
           }
@@ -12250,139 +14785,405 @@ function SahilTraders() {
   }, []);
 
   // ══════════ LIVE DYNAMIC PRODUCTS SYNC (Instant Online Sync via Supabase) ══════════
+  const isFetchingProductsRef = useRef(false);
+  const lastProductsFetchTimeRef = useRef(0);
+  const lastProductSyncTimestampRef = useRef(null);
+  const fetchLiveProductsRef = useRef(null);
+  function syncCartWithFreshProducts(freshList) {
+    if (!freshList || freshList.length === 0) return;
+    const prodMap = new Map(freshList.map(p => [Number(p.id), p]));
+    setCart(prevCart => {
+      if (!prevCart || prevCart.length === 0) return prevCart;
+      let changed = false;
+      const updated = prevCart.map(item => {
+        const fresh = prodMap.get(Number(item.product && item.product.id));
+        if (fresh && (fresh.price !== item.product.price || fresh.name !== item.product.name || fresh.imageUrl !== item.product.imageUrl)) {
+          changed = true;
+          return {
+            ...item,
+            product: {
+              ...item.product,
+              price: fresh.price,
+              name: fresh.name,
+              imageUrl: fresh.imageUrl,
+              hasImage: fresh.hasImage,
+              imageVersion: fresh.imageVersion
+            }
+          };
+        }
+        return item;
+      });
+      return changed ? updated : prevCart;
+    });
+  }
   async function fetchLiveProducts(isManual) {
     isManual = !!isManual;
+    if (isFetchingProductsRef.current) return;
+    const now = Date.now();
+    // Guard: Minimum 3 seconds between automatic background fetches (allows near-instant updates)
+    if (!isManual && now - lastProductsFetchTimeRef.current < 3000) return;
+    isFetchingProductsRef.current = true;
+    lastProductsFetchTimeRef.current = now;
     setIsSyncingProducts(true);
     if (isManual) {
       triggerHaptic('medium');
     }
-    const cacheBuster = Date.now();
-    const sbUrl = "https://tmssjdczywukramcpcxc.supabase.co";
-    const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
-    let freshProducts = null;
-    let freshCategories = null;
-    let freshSettings = null;
-
-    // 1. PRIMARY: Fetch directly from Supabase Cloud Database with auto-pagination (Bypasses 1000 limit)
     try {
-      const controller = new AbortController();
-      const tid = setTimeout(() => controller.abort(), 6000);
-      let allSbRows = [];
-      let offset = 0;
-      const pageSize = 1000;
-      while (true) {
-        const sbRes = await fetch(`${sbUrl}/rest/v1/products?select=*&order=id.asc&limit=${pageSize}&offset=${offset}`, {
-          signal: controller.signal,
-          cache: 'no-store',
-          headers: {
-            'apikey': sbKey,
-            'Authorization': `Bearer ${sbKey}`
+      const cacheBuster = Date.now();
+      const sbUrl = "https://tmssjdczywukramcpcxc.supabase.co";
+      const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
+      const persistProductsToLocalCache = prods => {
+        if (!prods || prods.length === 0) return;
+        try {
+          const compact = prods.map(p => ({
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            categoryId: p.categoryId,
+            categoryName: p.categoryName,
+            priority: p.priority,
+            filterName: p.filterName,
+            hasImage: p.hasImage,
+            imageUrl: p.imageUrl,
+            imageVersion: p.imageVersion
+          }));
+          localStorage.setItem("zs_groceries_products_cache", JSON.stringify(compact));
+        } catch (e) {
+          console.warn('LocalStorage quota limit reached; relying on in-memory state');
+        }
+        const newImgMap = {
+          ...(window.PRODUCT_IMAGE_MAP || {})
+        };
+        const imgVerMap = {
+          ...(window.__ITEM_IMG_VERSIONS__ || {})
+        };
+        let maxVer = Date.now();
+        prods.forEach(p => {
+          if (p.hasImage || p.imageUrl) {
+            newImgMap[p.id] = 'webp';
+          }
+          if (p.imageVersion) {
+            imgVerMap[p.id] = p.imageVersion;
+            maxVer = Math.max(maxVer, Number(p.imageVersion));
           }
         });
-        if (!sbRes.ok) break;
-        const chunk = await sbRes.json();
-        if (!Array.isArray(chunk) || chunk.length === 0) break;
-        allSbRows = allSbRows.concat(chunk);
-        if (chunk.length < pageSize) break;
-        offset += pageSize;
-      }
-      clearTimeout(tid);
-      if (allSbRows.length > 0) {
-        freshProducts = allSbRows.map(p => ({
-          id: Number(p.id),
-          name: p.name,
-          price: Number(p.price),
-          categoryId: p.category_id || p.categoryId || 'general',
-          categoryName: p.category_name || p.categoryName || 'General Items',
-          priority: p.priority ? Number(p.priority) : undefined,
-          filterName: p.filter_name || p.filterName || undefined,
-          hasImage: !!p.has_image,
-          imageUrl: p.image_url,
-          imageVersion: p.image_version || p.imageVersion
-        }));
-      }
-    } catch (e) {}
-
-    // 2. FALLBACK ENDPOINTS (Local server or bundled JSON if offline)
-    if (!freshProducts) {
-      const endpoints = [];
-      if (!isNativeApp && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        endpoints.push(`http://localhost:8888/products.json?v=${cacheBuster}`);
-      }
-      endpoints.push(`./products.json?v=${cacheBuster}`);
-      endpoints.push(`https://zsmart.pk/products.json?v=${cacheBuster}`);
-      endpoints.push(`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`);
-      for (const url of endpoints) {
+        window.PRODUCT_IMAGE_MAP = newImgMap;
+        window.__ITEM_IMG_VERSIONS__ = imgVerMap;
+        window.__IMG_CACHE_BUSTER__ = maxVer;
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 2500);
-          const res = await fetch(url, {
-            signal: controller.signal,
-            cache: 'no-store'
-          });
-          clearTimeout(timeoutId);
-          if (res.ok) {
-            const json = await res.json();
-            if (json && (Array.isArray(json) || json.products && Array.isArray(json.products))) {
-              const prods = Array.isArray(json) ? json : json.products || [];
-              if (prods.length > 0) {
-                freshProducts = prods;
-                if (json.categories) freshCategories = json.categories;
-                if (json.settings) freshSettings = json.settings;
-                break;
-              }
+          localStorage.setItem("zs_groceries_imagemap_cache", JSON.stringify(newImgMap));
+          localStorage.setItem("zs_item_img_versions", JSON.stringify(imgVerMap));
+          localStorage.setItem("zs_img_cache_buster", String(maxVer));
+        } catch (e) {}
+      };
+      const syncCloudCategoriesAndSettings = async () => {
+        try {
+          const [catRes, setRes] = await Promise.all([fetch(`${sbUrl}/rest/v1/categories?select=*&order=priority.asc.nullslast`, {
+            cache: 'no-store',
+            headers: {
+              'apikey': sbKey,
+              'Authorization': `Bearer ${sbKey}`
+            }
+          }).catch(() => null), fetch(`${sbUrl}/rest/v1/store_settings?id=eq.main&select=*`, {
+            cache: 'no-store',
+            headers: {
+              'apikey': sbKey,
+              'Authorization': `Bearer ${sbKey}`
+            }
+          }).catch(() => null)]);
+          if (catRes && catRes.ok) {
+            const sbCats = await catRes.json();
+            if (Array.isArray(sbCats) && sbCats.length > 0) {
+              const mappedCats = sbCats.map(c => ({
+                id: c.id,
+                name: c.name,
+                priority: typeof c.priority === 'number' && c.priority > 0 ? c.priority : undefined
+              }));
+              mappedCats.sort((a, b) => {
+                const pa = a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0 ? Number(a.priority) : 999999;
+                const pb = b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0 ? Number(b.priority) : 999999;
+                if (pa !== pb) return pa - pb;
+                return 0;
+              });
+              window.CATEGORIES = mappedCats;
+              try {
+                localStorage.setItem("zs_groceries_categories_cache", JSON.stringify(mappedCats));
+              } catch (e) {}
+              setCategoriesVersion(v => v + 1);
             }
           }
-        } catch (err) {}
+          if (setRes && setRes.ok) {
+            const sbSettings = await setRes.json();
+            if (Array.isArray(sbSettings) && sbSettings.length > 0) {
+              applySyncedSettings(sbSettings[0]);
+            }
+          }
+        } catch (e) {}
+      };
+
+      // ── INSTANT DUAL CLOUD SYNC: Deletions + Edits & Additions (~250-350ms) ──
+      if (productsList && productsList.length > 0) {
+        try {
+          const idUrl = `${sbUrl}/rest/v1/products?select=id&limit=5000`;
+          const updateUrl = `${sbUrl}/rest/v1/products?select=*&order=updated_at.desc.nullslast&limit=100`;
+          const prioUrl = `${sbUrl}/rest/v1/products?select=*&priority=not.is.null`;
+          const [idRes, updateRes, prioRes] = await Promise.all([fetch(idUrl, {
+            cache: 'no-store',
+            headers: {
+              'apikey': sbKey,
+              'Authorization': `Bearer ${sbKey}`
+            }
+          }), fetch(updateUrl, {
+            cache: 'no-store',
+            headers: {
+              'apikey': sbKey,
+              'Authorization': `Bearer ${sbKey}`
+            }
+          }), fetch(prioUrl, {
+            cache: 'no-store',
+            headers: {
+              'apikey': sbKey,
+              'Authorization': `Bearer ${sbKey}`
+            }
+          }).catch(() => null)]);
+          if (idRes.ok && updateRes.ok) {
+            const idRows = await idRes.json();
+            const updateRows = await updateRes.json();
+            let prioRows = null;
+            if (prioRes && prioRes.ok) {
+              try {
+                prioRows = await prioRes.json();
+              } catch (e) {}
+            }
+            if (Array.isArray(idRows) && idRows.length > 0 && Array.isArray(updateRows)) {
+              const activeIdSet = new Set(idRows.map(r => Number(r.id)));
+              let listChanged = false;
+              const currentList = productsList || window.PRODUCTS || [];
+
+              // 1. Instant Deletion Detection: Prune any item whose ID no longer exists in Supabase
+              const pruned = currentList.filter(p => {
+                if (!activeIdSet.has(Number(p.id))) {
+                  listChanged = true;
+                  return false;
+                }
+                return true;
+              });
+
+              // 2. Count mismatch check: agar Supabase me zyada items hain local se,
+              //    to naye items hain jo top-100 updated_at me nahi aate.
+              //    Is case me full reload karo (freshProducts flow chalega).
+              if (activeIdSet.size > pruned.length) {
+                // Fall through to full Supabase fetch below
+                console.log('[ZS Sync] Count mismatch - Supabase:', activeIdSet.size, 'local:', pruned.length, '- triggering full reload');
+              } else {
+                // 3. Instant Edit & Addition Detection: Merge top 100 updated rows + all prioritized items
+                const prodMap = new Map(pruned.map(p => [Number(p.id), p]));
+                const combinedRows = Array.isArray(prioRows) && prioRows.length > 0 ? [...updateRows, ...prioRows] : updateRows;
+
+                // If prioRows was fetched, un-prioritize any local items that lost priority in cloud
+                if (Array.isArray(prioRows)) {
+                  const activePrioIds = new Set(prioRows.map(r => Number(r.id)));
+                  prodMap.forEach((p, pId) => {
+                    if (p && p.priority && !activePrioIds.has(pId)) {
+                      p.priority = undefined;
+                      listChanged = true;
+                    }
+                  });
+                }
+                combinedRows.forEach(row => {
+                  const rowId = Number(row.id);
+                  if (!activeIdSet.has(rowId)) return;
+                  const existing = prodMap.get(rowId);
+                  const updatedItem = {
+                    id: rowId,
+                    name: row.name,
+                    price: Number(row.price),
+                    categoryId: row.category_id || row.categoryId || 'general',
+                    categoryName: row.category_name || row.categoryName || 'General Items',
+                    priority: row.priority ? Number(row.priority) : undefined,
+                    filterName: row.filter_name || row.filterName || undefined,
+                    hasImage: !!row.has_image,
+                    imageUrl: row.image_url,
+                    imageVersion: row.image_version || row.imageVersion
+                  };
+                  if (!existing || existing.price !== updatedItem.price || existing.name !== updatedItem.name || existing.categoryId !== updatedItem.categoryId || existing.categoryName !== updatedItem.categoryName || existing.priority !== updatedItem.priority || existing.imageUrl !== updatedItem.imageUrl || existing.imageVersion !== updatedItem.imageVersion) {
+                    prodMap.set(rowId, updatedItem);
+                    listChanged = true;
+                  }
+                });
+                if (listChanged) {
+                  const merged = Array.from(prodMap.values()).sort((a, b) => a.id - b.id);
+                  setProductsList(merged);
+                  window.PRODUCTS = merged;
+                  persistProductsToLocalCache(merged);
+                  syncCartWithFreshProducts(merged);
+                }
+                await syncCloudCategoriesAndSettings();
+                if (isManual) {
+                  setSyncToast(tr(language, "✅ Store updated live!", "✅ Store live update ho gaya!", "✅ اسٹور لائیو اپ ڈیٹ ہوگیا!"));
+                  setTimeout(() => setSyncToast(null), 2500);
+                }
+                return;
+              } // end count-match branch
+            }
+          }
+        } catch (e) {}
       }
-    }
-    if (freshProducts && freshProducts.length > 0) {
-      setProductsList(freshProducts);
-      window.PRODUCTS = freshProducts;
+      let freshProducts = null;
+      let freshCategories = null;
+      let freshSettings = null;
+
+      // 1. PRIMARY: Fetch directly from Supabase Cloud Database with per-chunk timeout (Bypasses 1000 limit)
       try {
-        localStorage.setItem("zs_groceries_products_cache", JSON.stringify(freshProducts));
-      } catch (e) {}
-      const newImgMap = {
-        ...(window.PRODUCT_IMAGE_MAP || {})
-      };
-      const imgVerMap = {
-        ...(window.__ITEM_IMG_VERSIONS__ || {})
-      };
-      let maxVer = Date.now();
-      freshProducts.forEach(p => {
-        if (p.hasImage || p.imageUrl) {
-          newImgMap[p.id] = 'webp';
+        let allSbRows = [];
+        let offset = 0;
+        const pageSize = 1000;
+        while (true) {
+          const chunkController = new AbortController();
+          const chunkTid = setTimeout(() => chunkController.abort(), 15000);
+          try {
+            const sbRes = await fetch(`${sbUrl}/rest/v1/products?select=*&order=id.asc&limit=${pageSize}&offset=${offset}`, {
+              signal: chunkController.signal,
+              cache: 'no-store',
+              headers: {
+                'apikey': sbKey,
+                'Authorization': `Bearer ${sbKey}`
+              }
+            });
+            clearTimeout(chunkTid);
+            if (!sbRes.ok) break;
+            const chunk = await sbRes.json();
+            if (!Array.isArray(chunk) || chunk.length === 0) break;
+            allSbRows = allSbRows.concat(chunk);
+            if (chunk.length < pageSize) break;
+            offset += pageSize;
+          } catch (chunkErr) {
+            clearTimeout(chunkTid);
+            break;
+          }
         }
-        if (p.imageVersion) {
-          imgVerMap[p.id] = p.imageVersion;
-          maxVer = Math.max(maxVer, Number(p.imageVersion));
+        if (allSbRows.length > 0) {
+          lastProductSyncTimestampRef.current = new Date(Date.now() - 30000).toISOString();
+          freshProducts = allSbRows.map(p => ({
+            id: Number(p.id),
+            name: p.name,
+            price: Number(p.price),
+            categoryId: p.category_id || p.categoryId || 'general',
+            categoryName: p.category_name || p.categoryName || 'General Items',
+            priority: p.priority ? Number(p.priority) : undefined,
+            filterName: p.filter_name || p.filterName || undefined,
+            hasImage: !!p.has_image,
+            imageUrl: p.image_url,
+            imageVersion: p.image_version || p.imageVersion
+          }));
         }
-      });
-      window.PRODUCT_IMAGE_MAP = newImgMap;
-      window.__ITEM_IMG_VERSIONS__ = imgVerMap;
-      window.__IMG_CACHE_BUSTER__ = maxVer;
-      try {
-        localStorage.setItem("zs_groceries_imagemap_cache", JSON.stringify(newImgMap));
-        localStorage.setItem("zs_item_img_versions", JSON.stringify(imgVerMap));
-        localStorage.setItem("zs_img_cache_buster", String(maxVer));
+        await syncCloudCategoriesAndSettings();
       } catch (e) {}
-      if (isManual) {
-        setSyncToast(tr(language, `✅ ${freshProducts.length} items live synced from Cloud!`, `✅ ${freshProducts.length} items live cloud update ho gaye!`, `✅ ${freshProducts.length} آئٹمز کلاؤڈ سے لائیو اپ ڈیٹ ہوگئے!`));
+
+      // 2. FALLBACK ENDPOINTS (Local server or bundled JSON if offline)
+      if (!freshProducts) {
+        try {
+          const isNative = typeof isNativeApp !== 'undefined' ? isNativeApp : checkIsNativeApp();
+          const endpoints = [];
+          if (!isNative && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+            endpoints.push(`http://localhost:8888/products.json?v=${cacheBuster}`);
+          }
+          endpoints.push(`./products.json?v=${cacheBuster}`);
+          endpoints.push(`https://raw.githubusercontent.com/qureshi-code999/Item-web/main/products.json?v=${cacheBuster}`);
+          for (const url of endpoints) {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 2500);
+              const res = await fetch(url, {
+                signal: controller.signal,
+                cache: 'no-store'
+              });
+              clearTimeout(timeoutId);
+              if (res.ok) {
+                const json = await res.json();
+                if (json && (Array.isArray(json) || json.products && Array.isArray(json.products))) {
+                  const prods = Array.isArray(json) ? json : json.products || [];
+                  if (prods.length > 0) {
+                    freshProducts = prods;
+                    if (json.categories) freshCategories = json.categories;
+                    if (json.settings) freshSettings = json.settings;
+                    if (json.imageMap && typeof json.imageMap === 'object') {
+                      window.PRODUCT_IMAGE_MAP = {
+                        ...(window.PRODUCT_IMAGE_MAP || {}),
+                        ...json.imageMap
+                      };
+                    }
+                    if (json.itemImageVersions && typeof json.itemImageVersions === 'object') {
+                      window.__ITEM_IMG_VERSIONS__ = {
+                        ...(window.__ITEM_IMG_VERSIONS__ || {}),
+                        ...json.itemImageVersions
+                      };
+                    }
+                    if (json.variants && typeof json.variants === 'object') {
+                      window.PRODUCT_VARIANTS = {
+                        ...(window.PRODUCT_VARIANTS || {}),
+                        ...json.variants
+                      };
+                    }
+                    break;
+                  }
+                }
+              }
+            } catch (err) {}
+          }
+        } catch (fbErr) {
+          console.warn('Fallback endpoints error:', fbErr);
+        }
+      }
+      if (freshSettings) {
+        applySyncedSettings(freshSettings);
+      }
+      if (freshCategories && Array.isArray(freshCategories) && freshCategories.length > 0) {
+        freshCategories.sort((a, b) => {
+          const pa = a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0 ? Number(a.priority) : 999999;
+          const pb = b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0 ? Number(b.priority) : 999999;
+          if (pa !== pb) return pa - pb;
+          return 0;
+        });
+        window.CATEGORIES = freshCategories;
+        try {
+          localStorage.setItem("zs_groceries_categories_cache", JSON.stringify(freshCategories));
+        } catch (e) {}
+        setCategoriesVersion(v => v + 1);
+      }
+      if (freshProducts && freshProducts.length > 0) {
+        setProductsList(freshProducts);
+        window.PRODUCTS = freshProducts;
+        persistProductsToLocalCache(freshProducts);
+        syncCartWithFreshProducts(freshProducts);
+        if (isManual) {
+          setSyncToast(tr(language, `✅ ${freshProducts.length} items live synced from Cloud!`, `✅ ${freshProducts.length} items live cloud update ho gaye!`, `✅ ${freshProducts.length} آئٹمز کلاؤڈ سے لائیو اپ ڈیٹ ہوگئے!`));
+          setTimeout(() => setSyncToast(null), 3000);
+        }
+      } else if (isManual) {
+        setSyncToast(tr(language, "⚠️ Offline or server busy", "⚠️ Internet/server connect nahi ho saka", "⚠️ سرور سے رابطہ نہیں ہو سکا"));
         setTimeout(() => setSyncToast(null), 3000);
       }
-    } else if (isManual) {
-      setSyncToast(tr(language, "⚠️ Offline or server busy", "⚠️ Internet/server connect nahi ho saka", "⚠️ سرور سے رابطہ نہیں ہو سکا"));
-      setTimeout(() => setSyncToast(null), 3000);
+    } finally {
+      isFetchingProductsRef.current = false;
+      setIsSyncingProducts(false);
     }
-    setIsSyncingProducts(false);
   }
+  fetchLiveProductsRef.current = fetchLiveProducts;
   useEffect(() => {
     try {
       const cachedCats = localStorage.getItem("zs_groceries_categories_cache");
       if (cachedCats && typeof window !== 'undefined') {
         const parsedCats = JSON.parse(cachedCats);
         if (Array.isArray(parsedCats) && parsedCats.length > 0) {
+          parsedCats.sort((a, b) => {
+            const pa = a.priority !== undefined && a.priority !== null && !isNaN(Number(a.priority)) && Number(a.priority) > 0 ? Number(a.priority) : 999999;
+            const pb = b.priority !== undefined && b.priority !== null && !isNaN(Number(b.priority)) && Number(b.priority) > 0 ? Number(b.priority) : 999999;
+            if (pa !== pb) return pa - pb;
+            return 0;
+          });
           window.CATEGORIES = parsedCats;
+          setCategoriesVersion(v => v + 1);
         }
       }
     } catch (e) {}
@@ -12398,16 +15199,20 @@ function SahilTraders() {
       }
     } catch (e) {}
 
-    // Initial fetch on app start
-    fetchLiveProducts(false);
+    // Initial fetch on app mount
+    if (fetchLiveProductsRef.current) {
+      fetchLiveProductsRef.current(false);
+    }
 
-    // Auto-refresh when app comes to foreground or window gets focus
+    // Auto-refresh when app comes to foreground or window gets focus (throttled)
     const onVisibilityChange = () => {
       if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-        fetchLiveProducts(false);
+        if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(false);
       }
     };
-    const onFocus = () => fetchLiveProducts(false);
+    const onFocus = () => {
+      if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(false);
+    };
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', onVisibilityChange);
     }
@@ -12415,10 +15220,10 @@ function SahilTraders() {
       window.addEventListener('focus', onFocus);
     }
 
-    // Periodic background poll every 25 seconds
+    // Periodic background poll every 15 seconds (near-instant cloud sync for all edits & deletes)
     const intervalId = setInterval(() => {
-      fetchLiveProducts(false);
-    }, 25000);
+      if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(false);
+    }, 15000);
     return () => {
       if (typeof document !== 'undefined') {
         document.removeEventListener('visibilitychange', onVisibilityChange);
@@ -12428,7 +15233,7 @@ function SahilTraders() {
       }
       clearInterval(intervalId);
     };
-  }, [fetchLiveProducts]);
+  }, []);
 
   // Auto-scroll to absolute top of page whenever category or brand selection changes
   useEffect(() => {
@@ -12443,9 +15248,11 @@ function SahilTraders() {
   function persistCartSnapshot(nextCart) {
     try {
       if (!nextCart || nextCart.length === 0) {
+        localStorage.removeItem("zs_mart_cart");
         localStorage.removeItem("sahil_traders_cart");
       } else {
         localStorage.setItem("zs_mart_cart", JSON.stringify(nextCart));
+        localStorage.removeItem("sahil_traders_cart");
       }
     } catch (e) {}
   }
@@ -12466,9 +15273,53 @@ function SahilTraders() {
   const backToastTimerRef = useRef(null);
   useEffect(() => {
     window.handleAppBackButton = () => {
+      // Abort any active speech recognition / microphone immediately
+      if (window.__activeSpeechRec) {
+        try {
+          window.__activeSpeechRec.abort();
+        } catch (e) {}
+        window.__activeSpeechRec = null;
+      }
+      if (isListening) {
+        setIsListening(false);
+      }
+
       // 1. If Exit Modal is open, close it
       if (exitModalOpen) {
         setExitModalOpen(false);
+        return;
+      }
+      // 1.2. If Hair Colour Shade Variant Modal is open, close it
+      if (variantModalProduct) {
+        setVariantModalProduct(null);
+        return;
+      }
+      // 1.3. If Welcome / Onboarding Popup is open, close it
+      if (welcomeOpen) {
+        setWelcomeOpen(false);
+        return;
+      }
+      // 1.4. If Policy or About Modals are open, close them
+      if (aboutOpen) {
+        setAboutOpen(false);
+        return;
+      }
+      if (returnPolicyOpen) {
+        setReturnPolicyOpen(false);
+        return;
+      }
+      if (privacyPolicyOpen) {
+        setPrivacyPolicyOpen(false);
+        return;
+      }
+      // 1.5. If Mobile Search is focused, blur input and close search mode
+      if (mobileSearchFocused) {
+        setMobileSearchFocused(false);
+        try {
+          if (document.activeElement && typeof document.activeElement.blur === 'function') {
+            document.activeElement.blur();
+          }
+        } catch (e) {}
         return;
       }
       // 2. If Sort Modal or Filter Menu is open, close it
@@ -12495,8 +15346,13 @@ function SahilTraders() {
         setCartOpen(false);
         return;
       }
-      // 5. If Parchi modal is open, close it
+      // 5. If Parchi modal is open, close it & clean up any voice recording streams/contexts
       if (parchiModalOpen) {
+        if (typeof window.__parchiCleanupRecording === 'function') {
+          try {
+            window.__parchiCleanupRecording();
+          } catch (e) {}
+        }
         setParchiModalOpen(false);
         return;
       }
@@ -12560,7 +15416,7 @@ function SahilTraders() {
         backToastTimerRef.current = setTimeout(() => setBackToastVisible(false), 2000);
       }
     };
-  }, [exitModalOpen, sortModalOpen, filterMenuOpen, selectedProduct, checkoutOpen, cartOpen, parchiModalOpen, orderHistoryOpen, wishlistOpen, mobileMenuOpen, accountDrawerOpen, activeTab, searchTerm, selectedCategory, selectedBrand, activeCategory, language]);
+  }, [exitModalOpen, variantModalProduct, welcomeOpen, aboutOpen, returnPolicyOpen, privacyPolicyOpen, mobileSearchFocused, sortModalOpen, filterMenuOpen, selectedProduct, checkoutOpen, cartOpen, parchiModalOpen, orderHistoryOpen, wishlistOpen, mobileMenuOpen, accountDrawerOpen, activeTab, searchTerm, selectedCategory, selectedBrand, activeCategory, language]);
   useEffect(() => {
     backStateRef.current = {
       checkoutOpen,
@@ -12591,7 +15447,8 @@ function SahilTraders() {
         const key = keyOf(snapshot);
         if (!force && !replace && key === lastHistoryKeyRef.current) return;
         const entry = {
-          page: 'sahil-app-state',
+          page: 'zs-app-state',
+          zsApp: true,
           sahilApp: true,
           snapshot
         };
@@ -12606,16 +15463,27 @@ function SahilTraders() {
     const exitStore = () => {
       allowRealBackRef.current = true;
       setExitModalOpen(false);
+      if (window.AndroidBridge && typeof window.AndroidBridge.exitApp === 'function') {
+        try {
+          window.AndroidBridge.exitApp();
+          return;
+        } catch (e) {}
+      }
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App && typeof window.Capacitor.Plugins.App.exitApp === 'function') {
+        try {
+          window.Capacitor.Plugins.App.exitApp();
+          return;
+        } catch (e) {}
+      }
       const steps = Math.max(2, appHistoryDepthRef.current + 1);
       try {
         window.history.go(-steps);
       } catch (e) {}
-      setTimeout(() => {
-        try {
-          window.location.replace('about:blank');
-        } catch (e) {}
-      }, 900);
+      try {
+        window.close();
+      } catch (e) {}
     };
+    window.zsExitStore = exitStore;
     window.sahilExitStore = exitStore;
     const restoreSnapshot = snapshot => {
       restoringHistoryRef.current = true;
@@ -12634,7 +15502,7 @@ function SahilTraders() {
     };
     try {
       window.history.replaceState({
-        page: 'sahil-back-base'
+        page: 'zs-back-base'
       }, '', window.location.href);
       pushCurrentAppState(false);
       appHistoryReadyRef.current = true;
@@ -12642,7 +15510,7 @@ function SahilTraders() {
     const handlePopState = event => {
       if (allowRealBackRef.current) return;
       if (event && event.preventDefault) event.preventDefault();
-      if (event.state && event.state.sahilApp && event.state.snapshot) {
+      if (event.state && (event.state.zsApp || event.state.sahilApp) && event.state.snapshot) {
         lastHistoryKeyRef.current = keyOf(event.state.snapshot);
         restoreSnapshot(event.state.snapshot);
         return;
@@ -12661,6 +15529,7 @@ function SahilTraders() {
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('pageshow', handlePageShow);
+      if (window.zsExitStore === exitStore) delete window.zsExitStore;
       if (window.sahilExitStore === exitStore) delete window.sahilExitStore;
     };
   }, []);
@@ -12676,6 +15545,10 @@ function SahilTraders() {
   const cartTotal = cart.reduce((sum, i) => sum + calculateBulkPricing(i.product.price, i.qty).finalTotal, 0);
   const cartBulkSavings = cart.reduce((sum, i) => sum + calculateBulkPricing(i.product.price, i.qty).extraSavings, 0);
   function addToCart(product, variant = null, qtyToAdd = 1, sourceElement = null) {
+    if (!product || product.price === undefined || product.price === null || Number(product.price) <= 0) {
+      console.warn('Blocked adding item with zero or invalid price to cart:', product);
+      return;
+    }
     triggerHaptic('medium');
     if (window.PRODUCT_VARIANTS && window.PRODUCT_VARIANTS[product.id] && !variant) {
       setVariantModalProduct(product);
@@ -12832,13 +15705,33 @@ function SahilTraders() {
     triggerHaptic('light');
     setCart([]);
     try {
+      localStorage.removeItem("zs_mart_cart");
       localStorage.removeItem("sahil_traders_cart");
     } catch (e) {}
   }
   function saveOrderHistory(order) {
     if (!order) return;
+    const normalized = {
+      ...order,
+      createdAt: order.createdAt || parseOrderCreatedAt(order),
+      createdAtIso: order.createdAtIso || new Date(order.createdAt || parseOrderCreatedAt(order)).toISOString(),
+      status: order.status || 'placed'
+    };
     setOrderHistory(prev => {
-      const next = [order, ...prev].slice(0, 50);
+      const next = [normalized, ...prev.filter(o => String(o.id) !== String(normalized.id))].slice(0, 50);
+      try {
+        localStorage.setItem("zs_mart_order_history", JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  }
+  function updateOrderInHistory(orderId, patch) {
+    if (!orderId || !patch) return;
+    setOrderHistory(prev => {
+      const next = prev.map(o => String(o.id) === String(orderId) ? {
+        ...o,
+        ...patch
+      } : o);
       try {
         localStorage.setItem("zs_mart_order_history", JSON.stringify(next));
       } catch (e) {}
@@ -12849,11 +15742,20 @@ function SahilTraders() {
     triggerHaptic('light');
     setOrderHistory([]);
     try {
+      localStorage.removeItem("zs_mart_order_history");
       localStorage.removeItem("sahil_traders_order_history");
     } catch (e) {}
   }
   function handleVoiceSearch() {
     triggerHaptic('medium');
+    const focusActiveSearchInput = () => {
+      const target = mobileSearchFocused && mobileSearchInputRef.current ? mobileSearchInputRef.current : searchInputRef.current && searchInputRef.current.offsetParent !== null ? searchInputRef.current : mobileSearchInputRef.current || searchInputRef.current;
+      if (target) {
+        try {
+          target.focus();
+        } catch (e) {}
+      }
+    };
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRec) {
       try {
@@ -12862,27 +15764,27 @@ function SahilTraders() {
         rec.interimResults = false;
         rec.maxAlternatives = 1;
         rec.onstart = () => {
+          window.__activeSpeechRec = rec;
           setIsListening(true);
         };
         rec.onresult = event => {
+          window.__activeSpeechRec = null;
           const transcript = event.results && event.results[0] && event.results[0][0] && event.results[0][0].transcript;
           if (transcript) {
             triggerHaptic('success');
             setSearchTerm(transcript);
             setSuggestOpen(true);
-            if (searchInputRef.current) {
-              searchInputRef.current.focus();
-            }
+            focusActiveSearchInput();
           }
         };
         rec.onerror = err => {
+          window.__activeSpeechRec = null;
           setIsListening(false);
-          if (searchInputRef.current) {
-            searchInputRef.current.focus();
-            setSuggestOpen(true);
-          }
+          focusActiveSearchInput();
+          setSuggestOpen(true);
         };
         rec.onend = () => {
+          window.__activeSpeechRec = null;
           setIsListening(false);
         };
         rec.start();
@@ -12893,10 +15795,8 @@ function SahilTraders() {
     }
 
     // Fallback for Android WebView where SpeechRecognition is not bundled:
-    if (searchInputRef.current) {
-      searchInputRef.current.focus();
-      setSuggestOpen(true);
-    }
+    focusActiveSearchInput();
+    setSuggestOpen(true);
     alert(tr(language, '🎙️ Voice Search Active! Please speak using the Microphone 🎤 on your keyboard.', '🎙️ Voice Search: Apne mobile keyboard ke Mic 🎤 button se bol kar search karein.', '🎙️ وائس سرچ: موبائل کی بورڈ کے مائیک 🎤 سے بول کر سرچ کریں۔'));
   }
   function handleReorder(items) {
@@ -12905,22 +15805,26 @@ function SahilTraders() {
     setCart(prev => {
       let next = [...prev];
       items.forEach(item => {
-        const existing = next.find(i => i.product?.id === item.id);
+        const itemVariant = item.variant || null;
+        const existing = next.find(i => String(i.product?.id) === String(item.id) && (i.variant || null) === itemVariant);
         if (existing) {
           existing.qty += item.qty || 1;
         } else {
-          const fullProduct = products.find(p => p.id === item.id) || {
+          const fullProduct = products.find(p => String(p.id) === String(item.id)) || {
             id: item.id,
             name: item.name,
             price: item.price,
             categoryId: item.categoryId || 'soaps',
             hasImage: !!item.imageExt
           };
-          next.push({
-            product: fullProduct,
-            qty: item.qty || 1,
-            variant: item.variant || null
-          });
+          // Security: ensure unpriced or zero-rate items are never added via reorder
+          if (fullProduct && Number(fullProduct.price) > 0) {
+            next.push({
+              product: fullProduct,
+              qty: item.qty || 1,
+              variant: itemVariant
+            });
+          }
         }
       });
       persistCartSnapshot(next);
@@ -12968,6 +15872,11 @@ function SahilTraders() {
     }, 2200);
     const removeTimer = setTimeout(() => {
       setShowSplash(false);
+      if (window.AndroidBridge && typeof window.AndroidBridge.setStatusBarLight === 'function') {
+        try {
+          window.AndroidBridge.setStatusBarLight(true);
+        } catch (e) {}
+      }
     }, 2600);
     return () => {
       clearTimeout(fadeTimer);
@@ -13055,74 +15964,18 @@ function SahilTraders() {
     setVisibleCount(24);
   }, [selectedCategory, searchTerm]);
 
-  // 🚀 Lightweight Idle Image Storage Caching Engine (Zero UI Lag)
-  useEffect(() => {
-    if (showSplash) return;
-    if (typeof window === 'undefined' || !window.PRODUCT_IMAGE_MAP) return;
-    let isCancelled = false;
-    const imageMap = window.PRODUCT_IMAGE_MAP;
-    const ids = Object.keys(imageMap);
-    let index = 0;
-    const batchSize = 2; // Small 2-item batches so CPU never freezes
+  // 🚀 Native On-Demand Image Loading (Browser loading="lazy" handles on-demand viewport caching without background network choking)
 
-    async function processBatch() {
-      if (isCancelled || index >= ids.length) return;
-      const currentBatch = ids.slice(index, index + batchSize);
-      index += batchSize;
-      for (const id of currentBatch) {
-        if (isCancelled) break;
-        const ext = imageMap[id];
-        // WebP → jsDelivr (10x smaller, faster second load), PNG → Vercel
-        const url = ext === 'webp' ? 'https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/' + id + '.webp' : 'https://sahiltraders.vercel.app/images/' + id + '.' + ext;
-        try {
-          if ('caches' in window) {
-            const cache = await caches.open('zs-images-cache-v2');
-            const matched = await cache.match(url);
-            if (!matched) {
-              const resp = await fetch(url, {
-                mode: 'cors',
-                cache: 'force-cache'
-              });
-              if (resp.ok) await cache.put(url, resp);
-            }
-          }
-        } catch (e) {}
-      }
-      if (!isCancelled && index < ids.length) {
-        if ('requestIdleCallback' in window) {
-          window.requestIdleCallback(processBatch, {
-            timeout: 2000
-          });
-        } else {
-          setTimeout(processBatch, 400);
-        }
-      }
-    }
-
-    // Wait 4 full seconds after app open before starting background idle caching
-    const startTimer = setTimeout(() => {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(processBatch, {
-          timeout: 3000
-        });
-      } else {
-        setTimeout(processBatch, 1000);
-      }
-    }, 4000);
-    return () => {
-      isCancelled = true;
-      clearTimeout(startTimer);
-    };
-  }, [showSplash]);
   const baseFiltered = useMemo(() => {
+    const validProducts = (products || []).filter(p => p && p.price !== undefined && p.price !== null && Number(p.price) > 0);
     const term = debouncedSearchTerm.trim();
     if (term === "") {
-      if (selectedCategory) return products.filter(p => p.categoryId === selectedCategory);
-      return products;
+      if (selectedCategory) return validProducts.filter(p => p.categoryId === selectedCategory);
+      return validProducts;
     }
     const scored = [];
-    for (let i = 0; i < products.length; i++) {
-      const p = products[i];
+    for (let i = 0; i < validProducts.length; i++) {
+      const p = validProducts[i];
       const score = matchProductTokens(p, term);
       if (score > 0) {
         scored.push({
@@ -13195,10 +16048,11 @@ function SahilTraders() {
   }, [searchTerm, selectedCategory, activeCategory, selectedBrand, showSplash, sortedProducts]);
   const suggestions = useMemo(() => {
     const term = debouncedSearchTerm.trim();
-    if (term === "") return [];
+    if (term === "") return (recentSearches || []).filter(p => p && Number(p.price) > 0);
     const scored = [];
     for (let i = 0; i < products.length; i++) {
       const p = products[i];
+      if (!p || Number(p.price) <= 0) continue;
       const score = matchProductTokens(p, term);
       if (score > 0) {
         scored.push({
@@ -13209,7 +16063,7 @@ function SahilTraders() {
     }
     scored.sort((a, b) => b.score - a.score);
     return scored.slice(0, 6).map(item => item.product);
-  }, [products, debouncedSearchTerm]);
+  }, [products, debouncedSearchTerm, recentSearches]);
   function recordSearch(product) {
     if (!product) return;
     setRecentSearches(prev => {
@@ -13244,8 +16098,8 @@ function SahilTraders() {
   }
   // Show search results if searching, else show category home or products
   const showCategoryHome = !isSearching && !selectedCategory;
-  const categoriesList = getGlobalCategories(products);
-  const selectedCategoryName = selectedCategory ? langData.categories?.[selectedCategory] || categoriesList.find(c => c.id === selectedCategory)?.name || selectedCategory : null;
+  const categoriesList = useMemo(() => getGlobalCategories(products), [products, categoriesVersion]);
+  const selectedCategoryName = selectedCategory ? categoriesList.find(c => c.id === selectedCategory)?.name || langData.categories?.[selectedCategory] || selectedCategory : null;
   return /*#__PURE__*/React.createElement("div", {
     className: "min-h-screen relative text-gray-900",
     style: {
@@ -13578,8 +16432,7 @@ function SahilTraders() {
       color: '#94a3b8'
     }
   }, "Recent"), suggestions.slice(0, 8).map(product => {
-    const hasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-    const imgUrl = hasImg ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+    const imgUrl = getProductImgSrc(product);
     return /*#__PURE__*/React.createElement("button", {
       key: product.id,
       type: "button",
@@ -13721,6 +16574,46 @@ function SahilTraders() {
     strokeLinejoin: "round",
     d: "M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
   })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Policy', 'Policy', 'پالیسی'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setPrivacyPolicyOpen(true),
+    title: tr(language, 'Privacy Policy', 'Privacy Policy', 'پرائیویسی پالیسی'),
+    style: {
+      background: 'rgba(255,255,255,0.06)',
+      border: '1.5px solid rgba(255,255,255,0.09)',
+      borderRadius: '10px',
+      padding: '7px 11px',
+      fontSize: '11.5px',
+      fontWeight: 600,
+      color: 'rgba(255,255,255,0.7)',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '5px',
+      transition: 'all 0.18s',
+      whiteSpace: 'nowrap'
+    },
+    onMouseEnter: e => {
+      e.currentTarget.style.background = 'rgba(255,255,255,0.12)';
+      e.currentTarget.style.color = '#fff';
+    },
+    onMouseLeave: e => {
+      e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+      e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      width: '14px',
+      height: '14px',
+      color: '#38bdf8'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+  })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Privacy', 'Privacy', 'پرائیویسی'))), /*#__PURE__*/React.createElement("button", {
     onClick: () => setAboutOpen(true),
     title: tr(language, 'About Us', 'Hamare Baare Mein', 'ہمارے بارے میں'),
     style: {
@@ -14033,6 +16926,8 @@ function SahilTraders() {
       marginTop: '1px'
     }
   }, "Wholesale & Retail"))), /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-1.5 flex-1 justify-end max-w-[210px]"
+  }, /*#__PURE__*/React.createElement("div", {
     className: "flex-1 max-w-[160px] relative cursor-pointer",
     onClick: () => {
       setMobileSearchFocused(true);
@@ -14110,7 +17005,42 @@ function SahilTraders() {
     strokeLinecap: "round",
     strokeLinejoin: "round",
     d: "M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
-  }))))), /*#__PURE__*/React.createElement("div", {
+  }))))), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: e => {
+      e.stopPropagation();
+      triggerHaptic('light');
+      setMobileMenuOpen(true);
+    },
+    style: {
+      width: '34px',
+      height: '34px',
+      borderRadius: '10px',
+      background: 'rgba(255,255,255,0.08)',
+      border: '1px solid rgba(255,255,255,0.14)',
+      color: '#ffffff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      flexShrink: 0
+    },
+    title: tr(language, 'Menu', 'Menu', 'مینو'),
+    "aria-label": "Navigation Menu"
+  }, /*#__PURE__*/React.createElement("svg", {
+    style: {
+      width: '18px',
+      height: '18px'
+    },
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+  })))), /*#__PURE__*/React.createElement("div", {
     ref: mobileSearchBoxRef,
     style: {
       position: 'absolute',
@@ -14315,8 +17245,7 @@ function SahilTraders() {
       color: '#94a3b8'
     }
   }, "Recent"), suggestions.slice(0, 8).map(product => {
-    const hasImg = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id];
-    const imgUrl = hasImg ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP[product.id]}`) : null;
+    const imgUrl = getProductImgSrc(product);
     return /*#__PURE__*/React.createElement("button", {
       key: product.id,
       type: "button",
@@ -14394,7 +17323,7 @@ function SahilTraders() {
   }))))))), /*#__PURE__*/React.createElement("main", {
     className: "max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 main-content-area",
     style: {
-      paddingBottom: 'calc(72px + env(safe-area-inset-bottom, 0px))',
+      paddingBottom: '58px',
       paddingTop: activeTab === 'account' ? 'calc(10px + env(safe-area-inset-top, 0px))' : undefined,
       position: 'relative'
     }
@@ -14404,7 +17333,7 @@ function SahilTraders() {
       display: activeTab === 'account' ? 'block' : 'none'
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: `max-w-2xl mx-auto space-y-4 pb-8 ${activeTab === 'account' ? 'account-page-enter' : ''}`
+    className: `max-w-2xl mx-auto space-y-4 pb-2 ${activeTab === 'account' ? 'account-page-enter' : ''}`
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -14759,7 +17688,7 @@ function SahilTraders() {
       color: 'rgba(255,255,255,0.9)',
       marginTop: '2px'
     }
-  }, getStoreSettings().whatsapp || '0336-8945775', " \u2022 ", tr(language, 'Direct Chat with Store', 'Store se Direct Rabta', 'دکان سے براہ راست رابطہ')))), /*#__PURE__*/React.createElement("span", {
+  }, getStoreSettings().whatsapp || '923391965200', " \u2022 ", tr(language, 'Direct Chat with Store', 'Store se Direct Rabta', 'دکان سے براہ راست رابطہ')))), /*#__PURE__*/React.createElement("span", {
     style: {
       background: '#ffffff',
       color: '#128C7E',
@@ -14770,7 +17699,7 @@ function SahilTraders() {
       whiteSpace: 'nowrap'
     }
   }, tr(language, 'Chat', 'Chat', 'چیٹ'))), /*#__PURE__*/React.createElement("a", {
-    href: "tel:03368945775",
+    href: `tel:${(getStoreSettings().whatsapp || "923391965200").replace(/^92/, "0")}`,
     style: {
       background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
       borderRadius: '18px',
@@ -14814,7 +17743,7 @@ function SahilTraders() {
       fontWeight: 800,
       marginTop: '2px'
     }
-  }, "0336-8945775 (10:00 AM \u2013 9:00 PM, 7 Days)"))), /*#__PURE__*/React.createElement("span", {
+  }, (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'), " (10:00 AM \u2013 10:00 PM, 7 Days)"))), /*#__PURE__*/React.createElement("span", {
     style: {
       background: '#38bdf8',
       color: '#0f172a',
@@ -14919,7 +17848,7 @@ function SahilTraders() {
       color: '#64748b',
       marginTop: '1px'
     }
-  }, tr(language, '7-day easy returns & exchange guarantee', '7 din me asan wapsi guarantee', '7 دن میں آسان واپسی کی گارنٹی'))), /*#__PURE__*/React.createElement("span", {
+  }, tr(language, 'Same-day return & exchange guarantee', 'Usi din asan wapsi & tabdeeli guarantee', 'اسی دن آسان واپسی اور تبدیلی کی گارنٹی'))), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: '16px',
       color: '#94a3b8'
@@ -14937,6 +17866,7 @@ function SahilTraders() {
       padding: '12px 14px',
       background: 'transparent',
       border: 'none',
+      borderBottom: '1px solid #f1f5f9',
       cursor: 'pointer',
       textAlign: 'left'
     }
@@ -14969,6 +17899,55 @@ function SahilTraders() {
       marginTop: '1px'
     }
   }, tr(language, 'Owners, wholesale history & store info', 'Malikan aur dukan ki maloomat', 'مالکان اور دکان کی تفصیلات'))), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: '16px',
+      color: '#94a3b8'
+    }
+  }, "\u203A")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      triggerHaptic('light');
+      setPrivacyPolicyOpen(true);
+    },
+    style: {
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '12px 14px',
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      textAlign: 'left'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: '34px',
+      height: '34px',
+      borderRadius: '10px',
+      background: '#f0fdf4',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '16px',
+      flexShrink: 0
+    }
+  }, "\uD83D\uDD12"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '12.5px',
+      fontWeight: 800,
+      color: '#0f172a'
+    }
+  }, tr(language, 'Privacy Policy', 'Privacy Policy', 'پرائیویسی پالیسی')), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: '10px',
+      color: '#64748b',
+      marginTop: '1px'
+    }
+  }, tr(language, 'User data protection & Google Play compliance', 'Aapka data mehfooz hai - Mukammal policy', 'صارف کے ڈیٹا کا تحفظ اور پالیسی'))), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: '16px',
       color: '#94a3b8'
@@ -15017,7 +17996,7 @@ function SahilTraders() {
       color: '#059669',
       fontWeight: 700
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, "10:00 AM \u2013 9:00 PM (7 Days a Week, No Holiday)")), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "\u23F0"), /*#__PURE__*/React.createElement("span", null, "10:00 AM \u2013 10:00 PM (7 Days a Week, No Holiday)")), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -15025,7 +18004,7 @@ function SahilTraders() {
       color: '#2563eb',
       fontWeight: 700
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("span", null, "Official Helpline: 0336-8945775")))), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDCDE"), /*#__PURE__*/React.createElement("span", null, "Official Helpline: ", (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0'))))), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'center',
       padding: '6px 0 16px'
@@ -15042,7 +18021,27 @@ function SahilTraders() {
       color: '#94a3b8',
       marginTop: '2px'
     }
-  }, "Sahil Saleem & Muhammad Zubair Moin \u2022 Karachi \uD83C\uDDF5\uD83C\uDDF0")))), /*#__PURE__*/React.createElement("div", {
+  }, "Sahil Saleem & Muhammad Zubair Moin \u2022 Karachi \uD83C\uDDF5\uD83C\uDDF0"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: '6px'
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => {
+      triggerHaptic('light');
+      setPrivacyPolicyOpen(true);
+    },
+    style: {
+      background: 'none',
+      border: 'none',
+      color: '#059669',
+      fontSize: '11px',
+      fontWeight: 700,
+      textDecoration: 'underline',
+      cursor: 'pointer',
+      padding: '2px 6px'
+    }
+  }, "\uD83D\uDD12 ", tr(language, 'Privacy Policy', 'Privacy Policy', 'پرائیویسی پالیسی')))))), /*#__PURE__*/React.createElement("div", {
     key: "home-panel",
     style: {
       display: activeTab === 'account' ? 'none' : 'block'
@@ -15051,7 +18050,8 @@ function SahilTraders() {
     products: products,
     onSelectCategory: setSelectedCategory,
     langData: langData,
-    language: language
+    language: language,
+    categoriesVersion: categoriesVersion
   }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 10,
@@ -15199,7 +18199,7 @@ function SahilTraders() {
         transition: 'all 0.15s',
         flexShrink: 0
       }
-    }, langData.categories?.[cat.id] || cat.name);
+    }, cat.name || langData.categories?.[cat.id] || cat.id);
   })), /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 10,
@@ -15355,7 +18355,7 @@ function SahilTraders() {
       gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))',
       gap: 12
     }
-  }, BEVERAGE_BRANDS.map(b => {
+  }, BEVERAGE_BRANDS.filter(b => (products || []).some(p => p.categoryId === 'beverages' && getProductFilterName(p) === b.id)).map(b => {
     const brandProducts = (products || []).filter(p => p.categoryId === 'beverages' && getProductFilterName(p) === b.id);
     const brandProdsCount = brandProducts.length;
     const isComingSoon = brandProdsCount === 0;
@@ -15570,10 +18570,18 @@ function SahilTraders() {
     className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-gray-50 shadow-xs"
   }, /*#__PURE__*/React.createElement("span", {
     className: "text-amber-600"
-  }, "\u23F0"), /*#__PURE__*/React.createElement("span", null, getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 10:00 AM – 9:00 PM (7 Days a Week, No Holiday)', 'Delivery Timing: Subah 10:00 AM se Raat 9:00 PM tak (7 Din Khula, Koi Chutti Nahi)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 9:00 بجے تک (7 دن کھلا، کوئی چھٹی نہیں)'))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
+  }, "\u23F0"), /*#__PURE__*/React.createElement("span", null, getStoreSettings().deliveryTiming || tr(language, 'Delivery Timing: 10:00 AM – 10:00 PM (7 Days a Week, No Holiday)', 'Delivery Timing: Subah 10:00 AM se Raat 10:00 PM tak (7 Din Khula, Koi Chutti Nahi)', 'ڈیلیوری ٹائمنگ: صبح 10:00 بجے سے رات 10:00 بجے تک (7 دن کھلا، کوئی چھٹی نہیں)'))), /*#__PURE__*/React.createElement("div", {
+    className: "flex flex-wrap items-center justify-center gap-2 mb-3 px-3"
+  }, /*#__PURE__*/React.createElement("button", {
     onClick: () => setAboutOpen(true),
-    className: "mb-3 inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-4 py-1.5 transition-colors cursor-pointer bg-white"
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'About ZS Mart', 'Hamare Baare Mein (About ZS Mart)', 'ہمارے بارے میں (About ZS Mart)')))), /*#__PURE__*/React.createElement("p", {
+    className: "inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-3.5 py-1.5 transition-colors cursor-pointer bg-white shadow-2xs"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83C\uDFEC"), /*#__PURE__*/React.createElement("span", null, tr(language, 'About ZS Mart', 'About ZS Mart', 'ہمارے بارے میں'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setReturnPolicyOpen(true),
+    className: "inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-black border border-gray-300 rounded-full px-3.5 py-1.5 transition-colors cursor-pointer bg-white shadow-2xs"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDEE1\uFE0F"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Return Policy', 'Wapsi Policy', 'واپسی پالیسی'))), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setPrivacyPolicyOpen(true),
+    className: "inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 border border-emerald-300 rounded-full px-3.5 py-1.5 transition-colors cursor-pointer bg-emerald-50 shadow-2xs"
+  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDD12"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Privacy Policy', 'Privacy Policy', 'پرائیویسی پالیسی')))), /*#__PURE__*/React.createElement("p", {
     className: "text-xs tracking-[0.3em] uppercase",
     style: {
       color: 'rgba(0,0,0,0.12)'
@@ -15629,9 +18637,9 @@ function SahilTraders() {
       textTransform: 'uppercase',
       fontFamily: "'Poppins',sans-serif"
     }
-  }, translate(langData, "added")))), /*#__PURE__*/React.createElement(ProductDetailModal, {
+  }, translate(langData, "added")))), !!selectedProduct && /*#__PURE__*/React.createElement(ProductDetailModal, {
     product: selectedProduct,
-    open: !!selectedProduct,
+    open: true,
     onClose: () => setSelectedProduct(null),
     onAddToCart: addToCart,
     products: products,
@@ -15639,14 +18647,15 @@ function SahilTraders() {
     language: language,
     onSelectProduct: selectProductWithHash,
     isWishlisted: selectedProduct ? wishlist.includes(selectedProduct.id) : false,
-    onToggleWishlist: toggleWishlist
-  }), /*#__PURE__*/React.createElement(ParchiOrderModal, {
-    open: parchiModalOpen,
+    onToggleWishlist: toggleWishlist,
+    onSaveOrderHistory: saveOrderHistory
+  }), parchiModalOpen && /*#__PURE__*/React.createElement(ParchiOrderModal, {
+    open: true,
     onClose: () => setParchiModalOpen(false),
     language: language,
     saveOrderHistory: saveOrderHistory
-  }), /*#__PURE__*/React.createElement(WishlistDrawer, {
-    open: wishlistOpen,
+  }), wishlistOpen && /*#__PURE__*/React.createElement(WishlistDrawer, {
+    open: true,
     onClose: () => setWishlistOpen(false),
     wishlist: wishlist,
     products: products,
@@ -15654,9 +18663,9 @@ function SahilTraders() {
     onRemoveWishlist: toggleWishlist,
     language: language,
     langData: langData
-  }), /*#__PURE__*/React.createElement(VariantSelectionModal, {
+  }), !!variantModalProduct && /*#__PURE__*/React.createElement(VariantSelectionModal, {
     product: variantModalProduct,
-    open: !!variantModalProduct,
+    open: true,
     onClose: () => setVariantModalProduct(null),
     language: language,
     langData: langData,
@@ -15664,23 +18673,28 @@ function SahilTraders() {
       setVariantModalProduct(null);
       addToCart(product, shade, qty);
     }
-  }), /*#__PURE__*/React.createElement(ReturnPolicyModal, {
-    isOpen: returnPolicyOpen,
+  }), returnPolicyOpen && /*#__PURE__*/React.createElement(ReturnPolicyModal, {
+    isOpen: true,
     onClose: () => setReturnPolicyOpen(false),
     language: language
-  }), /*#__PURE__*/React.createElement(AboutUsModal, {
-    isOpen: aboutOpen,
+  }), privacyPolicyOpen && /*#__PURE__*/React.createElement(PrivacyPolicyModal, {
+    isOpen: true,
+    onClose: () => setPrivacyPolicyOpen(false),
+    language: language
+  }), aboutOpen && /*#__PURE__*/React.createElement(AboutUsModal, {
+    isOpen: true,
     onClose: () => setAboutOpen(false),
     language: language
-  }), !showSplash && /*#__PURE__*/React.createElement(WelcomeDisclaimerModal, {
-    isOpen: welcomeOpen,
+  }), !showSplash && welcomeOpen && /*#__PURE__*/React.createElement(WelcomeDisclaimerModal, {
+    isOpen: true,
     onClose: () => {
       setWelcomeOpen(false);
       try {
-        sessionStorage.setItem("sahil_traders_welcome_seen", "1");
+        sessionStorage.setItem("zs_mart_welcome_seen", "1");
       } catch (e) {}
     },
     onOpenAbout: () => setAboutOpen(true),
+    onOpenPrivacyPolicy: () => setPrivacyPolicyOpen(true),
     language: language
   }), /*#__PURE__*/React.createElement(FloatingWhatsAppButton, null), /*#__PURE__*/React.createElement(CartDrawer, {
     open: cartOpen,
@@ -15696,14 +18710,15 @@ function SahilTraders() {
       setCheckoutOpen(true);
     },
     onSelectProduct: handleSelectProductFromCart
-  }), /*#__PURE__*/React.createElement(OrderHistoryModal, {
-    open: orderHistoryOpen,
+  }), orderHistoryOpen && /*#__PURE__*/React.createElement(OrderHistoryModal, {
+    open: true,
     orders: orderHistory,
     langData: langData,
     language: language,
     onClose: () => setOrderHistoryOpen(false),
     onClear: clearOrderHistory,
     onReorder: handleReorder,
+    onUpdateOrder: updateOrderInHistory,
     onSelectProduct: item => {
       setOrderHistoryOpen(false);
       const p = products.find(prod => String(prod.id) === String(item.id)) || item;
@@ -15874,8 +18889,34 @@ function SahilTraders() {
     className: "text-[11px] text-gray-500"
   }, tr(language, '100% replacement or money refund', '100% tabdeeli ya paise wapas', '\u062e\u0631\u0627\u0628 \u0686\u06cc\u0632 \u06a9\u06cc 100% \u062a\u0628\u062f\u06cc\u0644\u06cc \u06cc\u0627 \u0631\u06cc \u0641\u0646\u0688')))), /*#__PURE__*/React.createElement("span", {
     className: "text-gray-400 text-xs"
+  }, "\u203A")), /*#__PURE__*/React.createElement("button", {
+    onClick: () => {
+      setMobileMenuOpen(false);
+      setPrivacyPolicyOpen(true);
+    },
+    className: "w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "flex items-center gap-3"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-lg"
+  }, /*#__PURE__*/React.createElement("svg", {
+    className: "w-5 h-5 text-sky-600",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    viewBox: "0 0 24 24"
+  }, /*#__PURE__*/React.createElement("path", {
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    d: "M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+  }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "text-xs font-bold text-gray-900"
+  }, tr(language, 'Privacy Policy', 'Privacy Policy', 'پرائیویسی پالیسی')), /*#__PURE__*/React.createElement("p", {
+    className: "text-[11px] text-gray-500"
+  }, tr(language, 'User data protection & safety', 'Aapka data 100% mehfooz hai', 'صارف کے ڈیٹا کا مکمل تحفظ')))), /*#__PURE__*/React.createElement("span", {
+    className: "text-gray-400 text-xs"
   }, "\u203A")), /*#__PURE__*/React.createElement("a", {
-    href: "tel:03368945775",
+    href: `tel:${(getStoreSettings().whatsapp || "923391965200").replace(/^92/, "0")}`,
     className: "w-full flex items-center justify-between p-3.5 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 transition-all text-left cursor-pointer shadow-2xs text-decoration-none"
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex items-center gap-3"
@@ -15893,7 +18934,7 @@ function SahilTraders() {
     d: "M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106a1.15 1.15 0 00-1.01.258l-1.589 1.589a13.385 13.385 0 01-6.697-6.697l1.589-1.589a1.15 1.15 0 00.258-1.01L7.544 3.102A1.125 1.125 0 006.453 2.25H5.08A2.25 2.25 0 002.25 4.5v2.25z"
   }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
     className: "text-xs font-bold text-gray-900"
-  }, tr(language, 'Direct Phone Call (0336-8945775)', 'Direct Call Karein (0336-8945775)', '\u0628\u0631\u0627\u06c1\u0650 \u0631\u0627\u0633\u062a \u0641\u0648\u0646 \u06a9\u0627\u0644 (0336-8945775)')), /*#__PURE__*/React.createElement("p", {
+  }, tr(language, 'Direct Phone Call (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ')', 'Direct Call Karein (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ')', 'براہِ راست فون کال (' + (getStoreSettings().whatsapp || '923391965200').replace(/^92/, '0') + ')')), /*#__PURE__*/React.createElement("p", {
     className: "text-[11px] text-gray-500"
   }, tr(language, 'Tap to call us directly', 'Fori call kar ke maloomat ya order dein', '\u0641\u0648\u0631\u06cc \u06a9\u0627\u0644 \u06a9\u0631 \u06a9\u06d2 \u0645\u0639\u0644\u0648\u0645\u0627\u0622 \u06cc\u0627 \u0622\u0631\u0688\u0631 \u062f\u06cc\u06ba')))), /*#__PURE__*/React.createElement("span", {
     className: "text-gray-400 text-xs"
@@ -15974,16 +19015,12 @@ function SahilTraders() {
     className: "text-center text-[10px] text-gray-500 space-y-0.5"
   }, /*#__PURE__*/React.createElement("p", {
     className: "font-semibold text-gray-700"
-  }, tr(language, 'Open 7 Days a Week (No Holiday)', '7 Din Khula (Koi Chutti Nahi)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 9:00 \u0628\u062c\u06d2 (7 \u062f\u0646 \u06a9\u06be\u0644\u0627\u060c \u06a9\u0648\u0626\u06cc \u0686DA\u0679\u06cc \u0646\u06c1\u06cc\u06ba)')), /*#__PURE__*/React.createElement("p", null, tr(language, 'Sahil Saleem & Muhammad Zubair Moin', 'Sahil Saleem & Muhammad Zubair Moin', '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646')), /*#__PURE__*/React.createElement("div", {
+  }, tr(language, 'Open 7 Days a Week (No Holiday)', '7 Din Khula (Koi Chutti Nahi)', '\u0688\u0644\u06cc\u0648\u0631\u06cc \u06a9\u06d2 \u0627\u0648\u0642\u0627\u062a: \u0635\u0628\u062d 10:00 \u0628\u062c\u06d2 \u062a\u0627 \u0631\u0627\u062a 10:00 \u0628\u062c\u06d2 (7 \u062f\u0646 \u06a9\u06be\u0644\u0627\u060c \u06a9\u0648\u0626\u06cc \u0686DA\u0679\u06cc \u0646\u06c1\u06cc\u06ba)')), /*#__PURE__*/React.createElement("p", null, tr(language, 'Sahil Saleem & Muhammad Zubair Moin', 'Sahil Saleem & Muhammad Zubair Moin', '\u0633\u0627\u062d\u0644 \u0633\u0644\u06cc\u0645 \u0627\u0648\u0631 \u0645\u062d\u0645\u062f \u0632\u0628\u06cc\u0631 \u0645\u0639\u06cc\u0646')), /*#__PURE__*/React.createElement("div", {
     className: "pt-2"
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      try {
-        const base = window.location.href.replace(/\/[^\/]*$/, '/');
-        window.open(base + 'privacy-policy.html', '_system');
-      } catch (e) {
-        window.open('privacy-policy.html', '_blank');
-      }
+      setMobileMenuOpen(false);
+      setPrivacyPolicyOpen(true);
     },
     className: "inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 underline bg-transparent border-none cursor-pointer p-0"
   }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDD12"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Privacy Policy', 'Privacy Policy (Zati Maloomat ki Hifazat)', '\u067e\u0631\u0627\u0626\u06cc\u0648\u06cc\u0633\u06cc \u067e\u0627\u0644\u06cc\u0633\u06cc')))))))), exitModalOpen && /*#__PURE__*/React.createElement("div", {
@@ -16016,7 +19053,8 @@ function SahilTraders() {
     className: "flex-1 py-2.5 rounded-xl border border-gray-200 bg-gray-100 text-black text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-all cursor-pointer"
   }, tr(language, 'No, Stay', 'Nahi, Wapis Rahein', 'نہیں، واپس رہیں')), /*#__PURE__*/React.createElement("button", {
     onClick: () => {
-      if (window.sahilExitStore) window.sahilExitStore();
+      const fn = window.zsExitStore || window.sahilExitStore;
+      if (fn) fn();
     },
     className: "flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-extrabold uppercase tracking-wider hover:brightness-110 transition-all shadow-md cursor-pointer"
   }, tr(language, 'Yes, Exit', 'Haan, Bahar Jaein', 'ہاں، باہر جائیں'))))), /*#__PURE__*/React.createElement("nav", {
@@ -16026,23 +19064,25 @@ function SahilTraders() {
       bottom: 0,
       left: 0,
       right: 0,
-      background: 'rgba(255, 255, 255, 0.15)',
-      backdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(220%) contrast(110%)',
-      borderTop: '1px solid rgba(255, 255, 255, 0.45)',
-      boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,0.7)',
+      background: 'rgba(255, 255, 255, 0.98)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderTop: '1px solid #e2e8f0',
+      boxShadow: '0 -2px 12px rgba(0, 0, 0, 0.05)',
       zIndex: 45,
       transform: 'translateZ(0)',
       WebkitTransform: 'translateZ(0)',
-      willChange: 'transform',
-      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       display: 'flex',
-      alignItems: 'stretch',
-      height: '58px'
+      alignItems: 'center',
+      height: '50px',
+      paddingTop: '2px',
+      paddingBottom: 'clamp(0px, env(safe-area-inset-bottom, 0px), 4px)',
+      boxSizing: 'border-box'
     }
   }, /*#__PURE__*/React.createElement("button", {
     onClick: () => {
       triggerHaptic('light');
+      if (fetchLiveProductsRef.current) fetchLiveProductsRef.current(true);
       setActiveTab('home');
       setSelectedCategory(null);
       setSearchTerm('');
@@ -16054,28 +19094,28 @@ function SahilTraders() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 1,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '2px 1px',
       position: 'relative'
     }
   }, activeTab === 'home' && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      top: 0,
+      top: -2,
       left: '50%',
       transform: 'translateX(-50%)',
-      width: 22,
-      height: 3,
+      width: 20,
+      height: 2.5,
       borderRadius: '0 0 3px 3px',
       background: '#059669'
     }
   }), /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: activeTab === 'home' ? '#059669' : '#0f172a'
     },
     fill: activeTab === 'home' ? '#059669' : 'none',
@@ -16088,7 +19128,7 @@ function SahilTraders() {
     d: "M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: activeTab === 'home' ? '#059669' : '#0f172a',
       letterSpacing: '0.01em'
@@ -16104,11 +19144,11 @@ function SahilTraders() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 1,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '2px 1px',
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -16117,8 +19157,8 @@ function SahilTraders() {
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: '#0f172a'
     },
     fill: "none",
@@ -16134,12 +19174,12 @@ function SahilTraders() {
       position: 'absolute',
       top: -4,
       right: -7,
-      minWidth: 15,
-      height: 15,
-      borderRadius: 8,
+      minWidth: 14,
+      height: 14,
+      borderRadius: 7,
       background: '#10b981',
       color: '#fff',
-      fontSize: 9,
+      fontSize: 8.5,
       fontWeight: 900,
       display: 'flex',
       alignItems: 'center',
@@ -16148,7 +19188,7 @@ function SahilTraders() {
     }
   }, orderHistory.length > 9 ? '9+' : orderHistory.length)), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: '#0f172a',
       letterSpacing: '0.01em'
@@ -16167,27 +19207,27 @@ function SahilTraders() {
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '2px 2px',
+      padding: '0px 2px',
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      width: 44,
-      height: 44,
+      width: 40,
+      height: 40,
       borderRadius: '50%',
       background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-      boxShadow: '0 6px 18px rgba(16,185,129,0.5), 0 0 0 3.5px rgba(255,255,255,0.9)',
+      boxShadow: '0 4px 14px rgba(16,185,129,0.45), 0 0 0 3px rgba(255,255,255,0.95)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       position: 'relative',
-      transform: 'translateY(-8px)',
+      transform: 'translateY(-6px)',
       transition: 'all 0.2s'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: '#ffffff'
     },
     fill: "none",
@@ -16203,12 +19243,12 @@ function SahilTraders() {
       position: 'absolute',
       top: -3,
       right: -3,
-      minWidth: 17,
-      height: 17,
-      borderRadius: 9,
+      minWidth: 16,
+      height: 16,
+      borderRadius: 8,
       background: '#ef4444',
       color: '#fff',
-      fontSize: 9,
+      fontSize: 8.5,
       fontWeight: 900,
       display: 'flex',
       alignItems: 'center',
@@ -16217,10 +19257,10 @@ function SahilTraders() {
     }
   }, cartCount > 9 ? '9+' : cartCount)), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: '#0f172a',
-      marginTop: '-6px',
+      marginTop: '-5px',
       letterSpacing: '0.01em'
     }
   }, tr(language, 'Cart', 'Cart', 'کارٹ'))), /*#__PURE__*/React.createElement("button", {
@@ -16234,17 +19274,17 @@ function SahilTraders() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 1,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '2px 1px',
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: '#0f172a'
     },
     fill: "none",
@@ -16261,7 +19301,7 @@ function SahilTraders() {
     d: "M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: '#0f172a',
       letterSpacing: '0.01em'
@@ -16277,28 +19317,28 @@ function SahilTraders() {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 2,
+      gap: 1,
       background: 'none',
       border: 'none',
       cursor: 'pointer',
-      padding: '4px 2px',
+      padding: '2px 1px',
       position: 'relative'
     }
   }, activeTab === 'account' && /*#__PURE__*/React.createElement("span", {
     style: {
       position: 'absolute',
-      top: 0,
+      top: -2,
       left: '50%',
       transform: 'translateX(-50%)',
-      width: 22,
-      height: 3,
+      width: 20,
+      height: 2.5,
       borderRadius: '0 0 3px 3px',
       background: '#059669'
     }
   }), /*#__PURE__*/React.createElement("svg", {
     style: {
-      width: 20,
-      height: 20,
+      width: 19,
+      height: 19,
       color: activeTab === 'account' ? '#059669' : '#0f172a'
     },
     fill: activeTab === 'account' ? '#059669' : 'none',
@@ -16311,7 +19351,7 @@ function SahilTraders() {
     d: "M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
   })), /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: '10px',
+      fontSize: '9.5px',
       fontWeight: 800,
       color: activeTab === 'account' ? '#059669' : '#0f172a',
       letterSpacing: '0.01em'
@@ -17257,6 +20297,109 @@ const CATEGORY_META = {
     }, /*#__PURE__*/React.createElement("path", {
       d: "M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
     }))
+  },
+  groceryandkaryana: {
+    image: '',
+    gradient: 'linear-gradient(135deg,#059669,#10b981)',
+    icon: /*#__PURE__*/React.createElement("svg", {
+      style: {
+        width: 40,
+        height: 40,
+        color: 'white'
+      },
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "1.8",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-2H6z"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M3 6h18"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M16 10a4 4 0 01-8 0"
+    }))
+  },
+  beverages: {
+    image: '',
+    gradient: 'linear-gradient(135deg,#f59e0b,#ef4444)',
+    icon: /*#__PURE__*/React.createElement("svg", {
+      style: {
+        width: 40,
+        height: 40,
+        color: 'white'
+      },
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "1.8",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M7 21h10a2 2 0 002-2V9a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M9 3h6v4H9z"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M12 11v6"
+    }))
+  },
+  fragnances: {
+    image: '',
+    gradient: 'linear-gradient(135deg,#8b5cf6,#ec4899)',
+    icon: /*#__PURE__*/React.createElement("svg", {
+      style: {
+        width: 40,
+        height: 40,
+        color: 'white'
+      },
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "1.8",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7z"
+    }), /*#__PURE__*/React.createElement("circle", {
+      cx: "12",
+      cy: "9",
+      r: "2.5"
+    }))
+  },
+  toothpasteandbrush: {
+    image: '',
+    gradient: 'linear-gradient(135deg,#06b6d4,#3b82f6)',
+    icon: /*#__PURE__*/React.createElement("svg", {
+      style: {
+        width: 40,
+        height: 40,
+        color: 'white'
+      },
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "1.8",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+    }))
+  },
+  facewash: {
+    image: '',
+    gradient: 'linear-gradient(135deg,#14b8a6,#0284c7)',
+    icon: /*#__PURE__*/React.createElement("svg", {
+      style: {
+        width: 40,
+        height: 40,
+        color: 'white'
+      },
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: "1.8",
+      viewBox: "0 0 24 24"
+    }, /*#__PURE__*/React.createElement("path", {
+      d: "M12 3v18"
+    }), /*#__PURE__*/React.createElement("path", {
+      d: "M3 12h18"
+    }), /*#__PURE__*/React.createElement("circle", {
+      cx: "12",
+      cy: "12",
+      r: "9"
+    }))
   }
 };
 // ————— CATEGORY HOME ————————————————————————————————————————————————————————————————————————————
@@ -17264,10 +20407,12 @@ const CategoryHome = React.memo(function CategoryHome({
   products,
   onSelectCategory,
   langData,
-  language
+  language,
+  categoriesVersion
 }) {
   const isUrdu = language === 'ur';
-  const categoriesList = getGlobalCategories(products);
+  const categoriesList = useMemo(() => getGlobalCategories(products), [products, categoriesVersion]);
+  const isNativeApp = checkIsNativeApp();
 
   // ⚡ Pre-compute category products & images in O(N) instead of O(N*Categories) on every frame
   const categoryData = useMemo(() => {
@@ -17291,7 +20436,7 @@ const CategoryHome = React.memo(function CategoryHome({
         if (pa !== pb) return pa - pb;
         return a.id - b.id;
       });
-      const imageProducts = sortedCatProducts.filter(p => window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage).slice(0, 6);
+      const imageProducts = sortedCatProducts.filter(p => window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage || p.imageUrl).slice(0, 6);
       const doubleItems = imageProducts.length > 0 ? [...imageProducts, ...imageProducts] : [];
       const animSpeed = imageProducts.length * 3.5 + 's';
       return {
@@ -17334,11 +20479,12 @@ const CategoryHome = React.memo(function CategoryHome({
       whiteSpace: 'nowrap'
     }
   }, categoriesList.length, " Categories \xB7 ", products.length.toLocaleString(), "+ Items")), /*#__PURE__*/React.createElement("div", {
-    style: {
+    className: `categories-grid ${!isNativeApp ? 'categories-web-5col' : ''}`,
+    style: isNativeApp ? {
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
       gap: 8
-    }
+    } : undefined
   }, categoryData.map(({
     cat,
     count,
@@ -17442,21 +20588,16 @@ const CategoryHome = React.memo(function CategoryHome({
         animation: `catSlideTrack ${animSpeed} linear infinite`
       }
     }, doubleItems.map((item, idx) => {
-      const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
+      const itemImgSrc = getProductImgSrc(item);
       return /*#__PURE__*/React.createElement("div", {
         key: idx,
         className: "cat-img-box"
-      }, ext && /*#__PURE__*/React.createElement("img", {
-        src: getImgUrl(`images/${item.id}.${ext}`),
+      }, itemImgSrc && /*#__PURE__*/React.createElement("img", {
+        src: itemImgSrc,
         alt: "",
         loading: "lazy",
         onError: e => {
-          if (!e.target.dataset.triedCdn) {
-            e.target.dataset.triedCdn = 'true';
-            e.target.src = `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${item.id}.${ext}`;
-          } else {
-            e.target.style.display = 'none';
-          }
+          e.target.style.display = 'none';
         }
       }));
     }))) : /*#__PURE__*/React.createElement("div", {
@@ -17502,7 +20643,7 @@ const CategoryHome = React.memo(function CategoryHome({
         whiteSpace: 'normal',
         wordBreak: 'break-word'
       }
-    }, langData.categories?.[cat.id] || cat.name)), /*#__PURE__*/React.createElement("div", {
+    }, cat.name || langData.categories?.[cat.id] || cat.id)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -17557,7 +20698,7 @@ function CategoryDropdown({
     style: {
       color: '#000000'
     }
-  }, "\u2713")), CATEGORIES.map(cat => /*#__PURE__*/React.createElement("button", {
+  }, "\u2713")), categoriesList.map(cat => /*#__PURE__*/React.createElement("button", {
     key: cat.id,
     onClick: () => {
       setActiveCategory(cat.id);
@@ -17569,7 +20710,7 @@ function CategoryDropdown({
       color: activeCategory === cat.id ? '#000000' : 'rgba(0,0,0,0.7)',
       background: activeCategory === cat.id ? 'rgba(0,0,0,0.12)' : 'transparent'
     }
-  }, /*#__PURE__*/React.createElement("span", null, langData.categories?.[cat.id] || cat.name), activeCategory === cat.id && /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement("span", null, cat.name || langData.categories?.[cat.id] || cat.id), activeCategory === cat.id && /*#__PURE__*/React.createElement("span", {
     style: {
       color: '#000000'
     }
@@ -17587,6 +20728,7 @@ const ProductCard = React.memo(function ProductCard({
 }) {
   const isUrdu = language === 'ur';
   const pricing = useMemo(() => getProductPricing(product), [product]);
+  const isWeightItem = useMemo(() => isWeightSelectableProduct(product), [product]);
   const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || product.hasImage || !!product.imageUrl;
   const imageSrc = product.imageUrl ? `${product.imageUrl}?v=${product.imageVersion || Date.now()}` : hasFile ? getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || 'webp'}`) : null;
   return /*#__PURE__*/React.createElement("div", {
@@ -17666,32 +20808,43 @@ const ProductCard = React.memo(function ProductCard({
     style: {
       color: '#000000'
     }
-  }, translate(langData, 'priceLabel', {
+  }, Number(product.price) > 0 ? translate(langData, 'priceLabel', {
     amount: product.price.toLocaleString()
-  })), /*#__PURE__*/React.createElement("button", {
+  }) : tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں')), isWeightItem && /*#__PURE__*/React.createElement("div", {
+    className: "mt-1 mb-0.5"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "inline-flex items-center gap-1 text-[9.5px] sm:text-[10.5px] font-black text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded-md"
+  }, /*#__PURE__*/React.createElement("span", null, "\u2696\uFE0F"), /*#__PURE__*/React.createElement("span", null, product.name && (product.name.toUpperCase().includes('ATTA') || product.name.toUpperCase().includes('MAIDA')) ? '1 KG, 5 KG, 10 KG, 20 KG' : '1 Pao, Adha Kilo, 1 KG'))), /*#__PURE__*/React.createElement("button", {
+    disabled: !product.price || Number(product.price) <= 0,
     onClick: e => {
       e.stopPropagation();
-      if (onSelectProduct) onSelectProduct(product);
+      if (product.price && Number(product.price) > 0 && onSelectProduct) onSelectProduct(product);
     },
     className: "product-add-btn mt-2.5 sm:mt-3 w-full py-2 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2",
     style: {
-      background: '#111111',
-      border: '1px solid #111111',
+      background: !product.price || Number(product.price) <= 0 ? '#9ca3af' : isWeightItem ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' : '#111111',
+      border: '1px solid ' + (!product.price || Number(product.price) <= 0 ? '#9ca3af' : isWeightItem ? '#059669' : '#111111'),
       color: '#ffffff',
-      boxShadow: '0 6px 14px rgba(0,0,0,0.16)',
+      boxShadow: !product.price || Number(product.price) <= 0 ? 'none' : isWeightItem ? '0 6px 14px rgba(5,150,105,0.25)' : '0 6px 14px rgba(0,0,0,0.16)',
+      cursor: !product.price || Number(product.price) <= 0 ? 'not-allowed' : 'pointer',
+      opacity: !product.price || Number(product.price) <= 0 ? 0.6 : 1,
       transform: 'translateY(0)'
     },
     onMouseEnter: e => {
-      e.currentTarget.style.background = '#1f2937';
-      e.currentTarget.style.borderColor = '#1f2937';
-      e.currentTarget.style.transform = 'translateY(-1px)';
+      if (product.price && Number(product.price) > 0 && !isWeightItem) {
+        e.currentTarget.style.background = '#1f2937';
+        e.currentTarget.style.borderColor = '#1f2937';
+        e.currentTarget.style.transform = 'translateY(-1px)';
+      }
     },
     onMouseLeave: e => {
-      e.currentTarget.style.background = '#111111';
-      e.currentTarget.style.borderColor = '#111111';
-      e.currentTarget.style.transform = 'translateY(0)';
+      if (product.price && Number(product.price) > 0 && !isWeightItem) {
+        e.currentTarget.style.background = '#111111';
+        e.currentTarget.style.borderColor = '#111111';
+        e.currentTarget.style.transform = 'translateY(0)';
+      }
     }
-  }, /*#__PURE__*/React.createElement("span", null, "\uD83D\uDED2"), /*#__PURE__*/React.createElement("span", null, tr(language, 'Click to Buy', 'Click to Buy', 'خریدیں')))));
+  }, /*#__PURE__*/React.createElement("span", null, !product.price || Number(product.price) <= 0 ? '⏳' : isWeightItem ? '⚖️' : '🛒'), /*#__PURE__*/React.createElement("span", null, !product.price || Number(product.price) <= 0 ? tr(language, 'Out of Stock', 'Out of Stock', 'دستیاب نہیں') : isWeightItem ? tr(language, 'Select Weight & Buy', 'Wazan Chuniye', 'وزن منتخب کریں') : tr(language, 'Click to Buy', 'Click to Buy', 'خریدیں')))));
 });
 
 // -----------------------------------------------------------------------------
@@ -17982,8 +21135,8 @@ function CartDrawer({
       title: "Click to view product details"
     }, pricing.hasDiscount && /*#__PURE__*/React.createElement("span", {
       className: "absolute -top-1.5 -left-1.5 z-10 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.2 rounded-md shadow-2xs uppercase"
-    }, pricing.discountPercent, "%"), window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? /*#__PURE__*/React.createElement("img", {
-      src: getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`),
+    }, pricing.discountPercent, "%"), getProductImgSrc(product) ? /*#__PURE__*/React.createElement("img", {
+      src: getProductImgSrc(product),
       onError: e => {
         e.target.onerror = null;
       },
@@ -18021,21 +21174,23 @@ function CartDrawer({
       title: "Click to view product details"
     }, getProductDisplayName(product, language)), variant && /*#__PURE__*/React.createElement("div", {
       style: {
-        marginTop: 1,
+        marginTop: 2,
         marginBottom: 3
       }
     }, /*#__PURE__*/React.createElement("span", {
       style: {
-        fontSize: 10.5,
+        fontSize: 11,
         fontWeight: 800,
-        color: '#92400e',
-        background: '#fef3c7',
-        border: '1px solid #fde68a',
+        color: variant.startsWith('⚖️') ? '#065f46' : '#92400e',
+        background: variant.startsWith('⚖️') ? '#ecfdf5' : '#fef3c7',
+        border: variant.startsWith('⚖️') ? '1px solid #a7f3d0' : '1px solid #fde68a',
         borderRadius: 6,
-        padding: '2px 7px',
-        display: 'inline-block'
+        padding: '2px 8px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4
       }
-    }, "\uD83C\uDFA8 Shade: ", variant)), /*#__PURE__*/React.createElement("div", {
+    }, variant.startsWith('⚖️') ? variant : `🎨 Shade: ${variant}`)), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -18543,24 +21698,132 @@ function OrderHistoryModal({
   onClose,
   onClear,
   onReorder,
-  onSelectProduct
+  onSelectProduct,
+  onUpdateOrder
 }) {
-  if (!open) return null;
   const [selectedOrder, setSelectedOrder] = React.useState(null);
   const [nowTs, setNowTs] = React.useState(() => Date.now());
   React.useEffect(() => {
+    if (!open) return;
     window.__orderDetailSelected = !!selectedOrder;
     window.__closeOrderDetail = () => setSelectedOrder(null);
     return () => {
       window.__orderDetailSelected = false;
       window.__closeOrderDetail = null;
     };
-  }, [selectedOrder]);
+  }, [open, selectedOrder]);
   React.useEffect(() => {
-    if (!selectedOrder) return;
+    if (!open || !selectedOrder) return;
     const timer = setInterval(() => setNowTs(Date.now()), 10000);
     return () => clearInterval(timer);
-  }, [selectedOrder]);
+  }, [open, selectedOrder]);
+
+  // 🔄 Real-time Order Status Sync (Supabase Cloud + Local Admin Server)
+  React.useEffect(() => {
+    if (!open) return;
+    let isMounted = true;
+    async function fetchRealStatus() {
+      // 1. Check privacy-safe cloud order_statuses map in store_settings (updates all orders in list + selectedOrder)
+      try {
+        const stRes = await fetch(`${SUPABASE_URL}/rest/v1/store_settings?id=eq.order_statuses&select=announcement,updated_at`, {
+          cache: 'no-store',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        if (stRes.ok) {
+          const stRows = await stRes.json();
+          if (Array.isArray(stRows) && stRows.length > 0 && stRows[0].announcement && isMounted) {
+            const statusMap = JSON.parse(stRows[0].announcement);
+            if (statusMap && typeof statusMap === 'object') {
+              if (Array.isArray(orders)) {
+                orders.forEach(o => {
+                  const oid = String(o.id);
+                  const mappedStatus = statusMap[oid] ? String(statusMap[oid]).trim().toLowerCase() : null;
+                  if (mappedStatus && mappedStatus !== String(o.status || '').trim().toLowerCase()) {
+                    if (typeof onUpdateOrder === 'function') onUpdateOrder(oid, {
+                      status: mappedStatus
+                    });
+                  }
+                });
+              }
+              if (selectedOrder && selectedOrder.id) {
+                const selId = String(selectedOrder.id);
+                const liveStatus = statusMap[selId] ? String(statusMap[selId]).trim().toLowerCase() : null;
+                if (liveStatus && liveStatus !== String(selectedOrder.status || '').trim().toLowerCase()) {
+                  setSelectedOrder(prev => prev && String(prev.id) === selId ? {
+                    ...prev,
+                    status: liveStatus
+                  } : prev);
+                  if (typeof onUpdateOrder === 'function') onUpdateOrder(selId, {
+                    status: liveStatus
+                  });
+                  return;
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {}
+      if (!selectedOrder || !selectedOrder.id) return;
+      const ordId = String(selectedOrder.id);
+
+      // 2. Check Supabase orders table directly (if allowed by policy)
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?id=eq.${encodeURIComponent(ordId)}&select=status,updated_at`, {
+          cache: 'no-store',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0 && data[0].status && isMounted) {
+            const liveStatus = String(data[0].status).trim().toLowerCase();
+            if (liveStatus !== (selectedOrder.status || '').toLowerCase()) {
+              setSelectedOrder(prev => prev && String(prev.id) === ordId ? {
+                ...prev,
+                status: liveStatus
+              } : prev);
+              if (typeof onUpdateOrder === 'function') onUpdateOrder(ordId, {
+                status: liveStatus
+              });
+              return;
+            }
+          }
+        }
+      } catch (e) {}
+
+      // 3. Local admin server fallback
+      try {
+        const localRes = await fetch(`/api/order-status?id=${encodeURIComponent(ordId)}`);
+        if (localRes.ok) {
+          const data = await localRes.json();
+          if (data && data.status && isMounted) {
+            const liveStatus = String(data.status).trim().toLowerCase();
+            if (liveStatus !== (selectedOrder.status || '').toLowerCase()) {
+              setSelectedOrder(prev => prev && String(prev.id) === ordId ? {
+                ...prev,
+                status: liveStatus
+              } : prev);
+              if (typeof onUpdateOrder === 'function') onUpdateOrder(ordId, {
+                status: liveStatus
+              });
+            }
+          }
+        }
+      } catch (e) {}
+    }
+    fetchRealStatus();
+    const poll = setInterval(fetchRealStatus, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(poll);
+    };
+  }, [open, selectedOrder?.id]);
+  if (!open) return null;
 
   // ─── Detail View (When a single order is clicked) ────────
   if (selectedOrder) {
@@ -18698,27 +21961,45 @@ function OrderHistoryModal({
         margin: '0 auto'
       }
     }, (() => {
-      let orderCreatedTime = Date.now();
-      if (order.createdAt) {
-        orderCreatedTime = Number(order.createdAt);
-      } else if (order.id && typeof order.id === 'string' && order.id.includes('-')) {
-        const parts = order.id.split('-');
-        const dStr = parts[0];
-        const tStr = parts[1];
-        if (dStr.length === 8 && tStr.length >= 6) {
-          const y = parseInt(dStr.slice(0, 4), 10);
-          const m = parseInt(dStr.slice(4, 6), 10) - 1;
-          const d = parseInt(dStr.slice(6, 8), 10);
-          const hh = parseInt(tStr.slice(0, 2), 10);
-          const mm = parseInt(tStr.slice(2, 4), 10);
-          const ss = parseInt(tStr.slice(4, 6), 10);
-          orderCreatedTime = new Date(y, m, d, hh, mm, ss).getTime();
-        }
-      }
+      const orderCreatedTime = parseOrderCreatedAt(order);
       const diffMinutes = Math.max(0, Math.floor((nowTs - orderCreatedTime) / (1000 * 60)));
-      const isStep2 = diffMinutes >= 5;
-      const isStep3 = diffMinutes >= 35;
-      const isStep4 = diffMinutes >= 47;
+      let elapsedText = '';
+      if (diffMinutes < 1) {
+        elapsedText = tr(language, 'Just now', 'Abhi', 'ابھی');
+      } else if (diffMinutes < 60) {
+        elapsedText = `${diffMinutes}m ${tr(language, 'ago', 'pehle', 'پہلے')}`;
+      } else if (diffMinutes < 1440) {
+        const hrs = Math.floor(diffMinutes / 60);
+        const rem = diffMinutes % 60;
+        elapsedText = `${hrs}h ${rem}m ${tr(language, 'ago', 'pehle', 'پہلے')}`;
+      } else {
+        const days = Math.floor(diffMinutes / 1440);
+        elapsedText = `${days}d ${tr(language, 'ago', 'pehle', 'پہلے')}`;
+      }
+      const normStatus = String(order.status || 'placed').trim().toLowerCase();
+      const isCancelled = ['cancelled', 'rejected'].includes(normStatus);
+      const isStep1 = !isCancelled;
+      const isStep2 = ['confirmed', 'accepted', 'processing', 'packed', 'dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery', 'delivered', 'completed'].includes(normStatus);
+      const isStep3 = ['dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery', 'delivered', 'completed'].includes(normStatus);
+      const isStep4 = ['delivered', 'completed'].includes(normStatus);
+      let statusBadgeText = '';
+      let statusBadgeColor = '#2563eb';
+      if (isCancelled) {
+        statusBadgeText = '● ' + tr(language, 'Cancelled', 'Mansookh', 'منسوخ');
+        statusBadgeColor = '#ef4444';
+      } else if (isStep4) {
+        statusBadgeText = '● ' + tr(language, 'Delivered', 'Delivered', 'پہنچ چکا');
+        statusBadgeColor = '#059669';
+      } else if (isStep3) {
+        statusBadgeText = '● ' + tr(language, 'On The Way', 'Rawaana', 'روانہ');
+        statusBadgeColor = '#2563eb';
+      } else if (isStep2) {
+        statusBadgeText = '● ' + tr(language, 'Confirmed', 'Tasdeeq', 'تصدیق');
+        statusBadgeColor = '#0d9488';
+      } else {
+        statusBadgeText = '● ' + tr(language, 'Placed', 'Mausool', 'موصول') + ` (${elapsedText})`;
+        statusBadgeColor = '#4f46e5';
+      }
       return /*#__PURE__*/React.createElement("div", {
         style: {
           background: '#ffffff',
@@ -18739,12 +22020,23 @@ function OrderHistoryModal({
           justifyContent: 'space-between',
           alignItems: 'center'
         }
-      }, /*#__PURE__*/React.createElement("span", null, tr(language, 'Live Order Tracking', 'Live Order Status', 'آرڈر ٹریکنگ')), /*#__PURE__*/React.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", null, tr(language, 'Order Tracking', 'Order Status', 'آرڈر اسٹیٹس')), /*#__PURE__*/React.createElement("span", {
         style: {
-          color: isStep4 ? '#059669' : '#2563eb',
+          color: statusBadgeColor,
           fontWeight: 900
         }
-      }, isStep4 ? '● ' + tr(language, 'Delivered', 'Delivered', 'پہنچ چکا') : '● ' + tr(language, 'Active', 'Faal', 'فعال'), " (", diffMinutes, "m)")), /*#__PURE__*/React.createElement("div", {
+      }, statusBadgeText)), isCancelled ? /*#__PURE__*/React.createElement("div", {
+        style: {
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          borderRadius: 12,
+          padding: '12px 14px',
+          textAlign: 'center',
+          color: '#991b1b',
+          fontSize: 12,
+          fontWeight: 700
+        }
+      }, "\u274C ", tr(language, 'This order has been cancelled.', 'Yeh order cancel kar diya gaya hai.', 'یہ آرڈر منسوخ کر دیا گیا ہے۔')) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
         style: {
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
@@ -18784,7 +22076,7 @@ function OrderHistoryModal({
           color: '#64748b',
           marginTop: 2
         }
-      }, "0m")), /*#__PURE__*/React.createElement("div", {
+      }, elapsedText)), /*#__PURE__*/React.createElement("div", {
         style: {
           display: 'flex',
           flexDirection: 'column',
@@ -18817,7 +22109,7 @@ function OrderHistoryModal({
           color: isStep2 ? '#059669' : '#94a3b8',
           marginTop: 2
         }
-      }, "5m")), /*#__PURE__*/React.createElement("div", {
+      }, isStep2 ? '✓ ' + tr(language, 'Done', 'Shuda', 'شدہ') : tr(language, 'Review', 'Jaiza', 'زیرِ جائزہ'))), /*#__PURE__*/React.createElement("div", {
         style: {
           display: 'flex',
           flexDirection: 'column',
@@ -18850,7 +22142,7 @@ function OrderHistoryModal({
           color: isStep3 ? '#2563eb' : '#94a3b8',
           marginTop: 2
         }
-      }, "35m")), /*#__PURE__*/React.createElement("div", {
+      }, isStep3 ? '✓ ' + tr(language, 'Dispatched', 'Rawaana', 'روانہ') : tr(language, 'Pending', 'Baqi', 'باقی'))), /*#__PURE__*/React.createElement("div", {
         style: {
           display: 'flex',
           flexDirection: 'column',
@@ -18882,7 +22174,71 @@ function OrderHistoryModal({
           color: isStep4 ? '#059669' : '#94a3b8',
           marginTop: 2
         }
-      }, "47m"))));
+      }, isStep4 ? '✓ ' + tr(language, 'Delivered', 'Pahonch gaya', 'پہنچ گیا') : tr(language, 'Pending', 'Baqi', 'باقی')))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          background: isStep4 ? '#ecfdf5' : '#f8fafc',
+          border: isStep4 ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
+          borderRadius: 12,
+          padding: '10px 12px',
+          marginTop: 14,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 5
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: 11
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          color: '#64748b',
+          fontWeight: 700
+        }
+      }, order.deliveryMethod === 'pickup' ? '🏪 ' + tr(language, 'Store Pickup Timing:', 'Pickup Timing:', 'پک اپ ٹائمنگ:') : '🚚 ' + tr(language, 'Estimated Delivery Window:', 'Takhmeena Delivery:', 'تخمینہ ڈلیوری:')), /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontWeight: 800,
+          color: '#0f172a'
+        }
+      }, order.deliveryMethod === 'pickup' ? tr(language, '20 – 45 mins', '20 se 45 min', '20 تا 45 منٹ') : tr(language, '30 – 60 mins', '30 se 60 min', '30 تا 60 منٹ'))), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11,
+          color: isStep4 ? '#059669' : '#475569',
+          lineHeight: 1.45,
+          fontWeight: isStep4 ? 700 : 500
+        }
+      }, isStep4 ? tr(language, 'Order successfully delivered. Thank you for shopping with ZS Mart!', 'Order kamyabi se deliver ho chuka hai. ZS Mart par shopping ka shukriya!', 'آرڈر کامیابی سے پہنچ چکا ہے۔ خریداری کا شکریہ!') : isStep3 ? tr(language, 'Rider is on the way to your delivery address.', 'Rider order le kar aap ki taraf nikal chuka hai.', 'رائڈر آرڈر لے کر آپ کی طرف روانہ ہے۔') : isStep2 ? tr(language, 'Order confirmed by store. Items are being packed.', 'Order tasdeeq ho gaya hai, samaan pack kiya ja raha hai.', 'آرڈر تصدیق ہو چکا ہے، سامان پیک ہو رہا ہے۔') : tr(language, 'Order placed via WhatsApp. Our team is reviewing and confirming.', 'Order receive ho gaya hai. Hamari team check aur tasdeeq kar rahi hai.', 'آرڈر موصول ہو چکا ہے۔ ہماری ٹیم جائزہ لے رہی ہے۔'))), !isStep4 && /*#__PURE__*/React.createElement("a", {
+        href: buildWhatsAppUrl(getStoreSettings().whatsapp, `Assalam U Alaikum ZS Mart!\n\nMere Order No #${order.id} ka live status bata dein.\n📅 Date: ${order.dateText || order.date || ''}\n💰 Total: Rs ${Number(order.grandTotal || 0).toLocaleString()}`),
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: {
+          marginTop: 10,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+          padding: '9px 12px',
+          borderRadius: 10,
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          color: '#15803d',
+          fontSize: 11.5,
+          fontWeight: 800,
+          textDecoration: 'none'
+        },
+        className: "hover:bg-green-100 transition-colors"
+      }, /*#__PURE__*/React.createElement("svg", {
+        style: {
+          width: 14,
+          height: 14
+        },
+        viewBox: "0 0 24 24",
+        fill: "#15803d"
+      }, /*#__PURE__*/React.createElement("path", {
+        d: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+      })), /*#__PURE__*/React.createElement("span", null, tr(language, 'Inquire Live Status on WhatsApp', 'WhatsApp par Live Status Poochein', 'واٹس ایپ پر لائیو اسٹیٹس پوچھیں')))));
     })(), /*#__PURE__*/React.createElement("div", {
       style: {
         display: 'flex',
@@ -19026,8 +22382,7 @@ function OrderHistoryModal({
         fontWeight: 700
       }
     }, "Tap item to view details \uD83D\uDD0D")), order.items && order.items.map((item, i) => {
-      const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id];
-      const imgSrc = hasFile ? getImgUrl(`images/${item.id}.${window.PRODUCT_IMAGE_MAP[item.id]}`) : item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null;
+      const imgSrc = getProductImgSrc(item) || (item.imageExt ? getImgUrl(`images/${item.id}.${item.imageExt}`) : null);
       return /*#__PURE__*/React.createElement("div", {
         key: i,
         onClick: () => {
@@ -19114,7 +22469,24 @@ function OrderHistoryModal({
           color: '#64748b',
           marginTop: 2
         }
-      }, "Qty ", item.qty, " \xD7 Rs ", Number(item.price || 0).toLocaleString()), item.extraPercent > 0 && /*#__PURE__*/React.createElement("div", {
+      }, "Qty ", item.qty, " \xD7 Rs ", Number(item.price || 0).toLocaleString()), item.variant && /*#__PURE__*/React.createElement("div", {
+        style: {
+          marginTop: 3
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 10,
+          fontWeight: 800,
+          color: String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#047857' : '#92400e',
+          background: String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#ecfdf5' : '#fef3c7',
+          border: `1px solid ${String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#a7f3d0' : '#fde68a'}`,
+          padding: '1.5px 6px',
+          borderRadius: 4,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 3
+        }
+      }, String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? item.variant : `🎨 Shade: ${item.variant}`)), item.extraPercent > 0 && /*#__PURE__*/React.createElement("div", {
         style: {
           fontSize: 10,
           color: '#16a34a',
@@ -19529,7 +22901,68 @@ function OrderHistoryModal({
         color: order.deliveryMethod === 'pickup' ? '#2563eb' : '#059669',
         border: order.deliveryMethod === 'pickup' ? '1px solid #bfdbfe' : '1px solid #a7f3d0'
       }
-    }, order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Delivery')), /*#__PURE__*/React.createElement("div", {
+    }, order.deliveryMethod === 'pickup' ? '🏪 Pickup' : '🚚 Delivery'), (() => {
+      const nSt = String(order.status || 'placed').toLowerCase();
+      const isDeliv = ['delivered', 'completed'].includes(nSt);
+      const isOnWay = ['dispatched', 'on_way', 'on_the_way', 'shipped', 'out_for_delivery'].includes(nSt);
+      const isConf = ['confirmed', 'accepted', 'processing', 'packed'].includes(nSt);
+      const isCanc = ['cancelled', 'rejected'].includes(nSt);
+      if (isCanc) return /*#__PURE__*/React.createElement("span", {
+        style: {
+          padding: '2px 8px',
+          borderRadius: 6,
+          fontSize: 10,
+          fontWeight: 800,
+          background: '#fee2e2',
+          color: '#dc2626',
+          border: '1px solid #fecaca'
+        }
+      }, "\u25CF Cancelled");
+      if (isDeliv) return /*#__PURE__*/React.createElement("span", {
+        style: {
+          padding: '2px 8px',
+          borderRadius: 6,
+          fontSize: 10,
+          fontWeight: 800,
+          background: '#ecfdf5',
+          color: '#059669',
+          border: '1px solid #a7f3d0'
+        }
+      }, "\u25CF Delivered");
+      if (isOnWay) return /*#__PURE__*/React.createElement("span", {
+        style: {
+          padding: '2px 8px',
+          borderRadius: 6,
+          fontSize: 10,
+          fontWeight: 800,
+          background: '#eff6ff',
+          color: '#2563eb',
+          border: '1px solid #bfdbfe'
+        }
+      }, "\u25CF On Way");
+      if (isConf) return /*#__PURE__*/React.createElement("span", {
+        style: {
+          padding: '2px 8px',
+          borderRadius: 6,
+          fontSize: 10,
+          fontWeight: 800,
+          background: '#f0fdf4',
+          color: '#0d9488',
+          border: '1px solid #bbf7d0'
+        }
+      }, "\u25CF Confirmed");
+      return /*#__PURE__*/React.createElement("span", {
+        style: {
+          padding: '2px 8px',
+          borderRadius: 6,
+          fontSize: 10,
+          fontWeight: 800,
+          background: '#f1f5f9',
+          color: '#475569',
+          border: '1px solid #cbd5e1'
+        }
+      }, "\u25CF Placed");
+    })()), /*#__PURE__*/React.createElement("div", {
       style: {
         fontSize: 15,
         fontWeight: 900,
@@ -19554,8 +22987,7 @@ function OrderHistoryModal({
         paddingBottom: 2
       }
     }, order.items && order.items.slice(0, 5).map((it, itemIdx) => {
-      const hasFile = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[it.id];
-      const imgSrc = hasFile ? getImgUrl(`images/${it.id}.${window.PRODUCT_IMAGE_MAP[it.id]}`) : it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null;
+      const imgSrc = getProductImgSrc(it) || (it.imageExt ? getImgUrl(`images/${it.id}.${it.imageExt}`) : null);
       return /*#__PURE__*/React.createElement("div", {
         key: itemIdx,
         style: {
@@ -19799,6 +23231,17 @@ function CheckoutModal({
       setErrors(e);
       return;
     }
+    if (!cart || cart.length === 0 || cartTotal <= 0) {
+      alert(isUrdu ? 'کارٹ خالی ہے یا رقم درست نہیں۔' : 'Cart is empty or invalid.');
+      return;
+    }
+    const hasInvalidPrice = cart.some(({
+      product
+    }) => !product || product.price === undefined || product.price === null || Number(product.price) <= 0);
+    if (hasInvalidPrice) {
+      alert(isUrdu ? 'کارٹ میں موجود بعض اشیاء کی قیمت درست نہیں۔ براہ کرم دوبارہ کوشش کریں۔' : 'Some items in cart have invalid pricing.');
+      return;
+    }
     setPlacing(true);
     const totalBulkSavings = cart.reduce((sum, {
       product,
@@ -19813,9 +23256,9 @@ function CheckoutModal({
       variant
     }) => {
       const bulk = calculateBulkPricing(product.price, qty);
-      const shadeText = variant ? `\n   🎨 Shade / Colour: ${variant}` : '';
+      const variantText = variant ? `\n   ${variant.startsWith('⚖️') ? variant : `🎨 Shade / Colour: ${variant}`}` : '';
       const bulkText = bulk.extraPercent > 0 ? `\n   🎁 Extra Bulk Discount (${bulk.extraPercent}% OFF): -Rs ${bulk.extraSavings.toLocaleString()} (Effective: Rs ${Math.round(bulk.finalTotal / qty)}/pc)` : '';
-      return `• ${product.name}${shadeText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
+      return `• ${product.name}${variantText}\n   Qty: ${qty}  |  Rate: Rs ${product.price.toLocaleString()}  |  Total: Rs ${bulk.finalTotal.toLocaleString()}${bulkText}`;
     }).join('\n\n');
     const deliveryText = deliveryMethod === 'pickup' ? '🏪 Store Pickup (ZS Mart Shop)\n  ⏱️ Pickup Time: Ready in 20 Mins to 1 Hour' : `🚚 Home Delivery (${deliveryFee === 0 ? 'FREE Delivery' : `Rs ${getDeliveryFee()} Delivery Fee`})`;
     const bulkSavingsSummary = totalBulkSavings > 0 ? `\n*🎁 Total Bulk Discount Saved:* -Rs ${totalBulkSavings.toLocaleString()}` : '';
@@ -19833,7 +23276,10 @@ function CheckoutModal({
     const localDateStr = `${orderDate.getFullYear()}-${_pad(orderDate.getMonth() + 1)}-${_pad(orderDate.getDate())}`;
     const localTimeStr = `${_pad(orderDate.getHours())}:${_pad(orderDate.getMinutes())}`;
     const orderRecord = {
-      id: `${orderDate.getFullYear()}${_pad(orderDate.getMonth() + 1)}${_pad(orderDate.getDate())}-${_pad(orderDate.getHours())}${_pad(orderDate.getMinutes())}${_pad(orderDate.getSeconds())}`,
+      id: generateUniqueOrderId('ORD'),
+      createdAt: orderDate.getTime(),
+      createdAtIso: orderDate.toISOString(),
+      status: 'placed',
       date: localDateStr,
       time: localTimeStr,
       dateText: orderDate.toLocaleDateString('en-PK', {
@@ -19875,15 +23321,18 @@ function CheckoutModal({
           extraSavings: bulk.extraSavings,
           total: bulk.finalTotal,
           initial: product.initial,
+          imageUrl: product.imageUrl || null,
           imageExt: window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? window.PRODUCT_IMAGE_MAP[product.id] : null
         };
       })
     };
     // Dispatch order to server & cloud relay BEFORE opening WhatsApp
     dispatchOrderToBackend(orderRecord);
-    try {
-      launchWhatsApp(getStoreSettings().whatsapp, msg);
-    } catch (err) {}
+    setTimeout(() => {
+      try {
+        launchWhatsApp(getStoreSettings().whatsapp, msg);
+      } catch (err) {}
+    }, 100);
     if (typeof saveOrderHistory === 'function') {
       saveOrderHistory(orderRecord);
     }
@@ -20126,14 +23575,15 @@ function CheckoutModal({
     style: {
       fontSize: 10,
       fontWeight: 800,
-      color: '#92400e',
-      background: '#fef3c7',
+      color: String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#047857' : '#92400e',
+      background: String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#ecfdf5' : '#fef3c7',
+      border: `1px solid ${String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? '#a7f3d0' : '#fde68a'}`,
       padding: '1px 5px',
       borderRadius: 4,
       display: 'inline-block',
       marginTop: 1
     }
-  }, "Shade: ", item.variant), item.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
+  }, String(item.variant).includes('⚖️') || String(item.variant).toLowerCase().includes('wazan') ? item.variant : `Shade: ${item.variant}`), item.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 9.5,
       fontWeight: 800,
@@ -20363,12 +23813,12 @@ function CheckoutModal({
     style: {
       background: 'none',
       border: 'none',
-      color: 'rgba(255,255,255,0.4)',
+      color: '#64748b',
       cursor: 'pointer',
       display: 'flex'
     },
-    onMouseEnter: e => e.currentTarget.style.color = 'white',
-    onMouseLeave: e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'
+    onMouseEnter: e => e.currentTarget.style.color = '#0f172a',
+    onMouseLeave: e => e.currentTarget.style.color = '#64748b'
   }, /*#__PURE__*/React.createElement("svg", {
     style: {
       width: 20,
@@ -20434,8 +23884,8 @@ function CheckoutModal({
         gap: 8,
         minWidth: 0
       }
-    }, window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] ? /*#__PURE__*/React.createElement("img", {
-      src: getImgUrl(`images/${product.id}.${window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[product.id] || "png"}`),
+    }, getProductImgSrc(product) ? /*#__PURE__*/React.createElement("img", {
+      src: getProductImgSrc(product),
       onError: e => {
         e.target.onerror = null;
       },
@@ -20473,14 +23923,14 @@ function CheckoutModal({
       style: {
         fontSize: 9.5,
         fontWeight: 800,
-        color: '#92400e',
-        background: '#fef3c7',
-        border: '1px solid #fde68a',
+        color: String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan') ? '#047857' : '#92400e',
+        background: String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan') ? '#ecfdf5' : '#fef3c7',
+        border: `1px solid ${String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan') ? '#a7f3d0' : '#fde68a'}`,
         borderRadius: 4,
-        padding: '0.5px 4px',
+        padding: '0.5px 5px',
         display: 'inline-block'
       }
-    }, "Shade: ", variant), bulk.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
+    }, String(variant).includes('⚖️') || String(variant).toLowerCase().includes('wazan') ? variant : `Shade: ${variant}`), bulk.extraPercent > 0 && /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 9,
         fontWeight: 800,
@@ -20934,18 +24384,19 @@ function CheckoutModal({
   })), translate(langData, "placeOrderBtn")))))));
 }
 
-  window.SahilTraders = SahilTraders;
+  window.ZSMart = ZSMart;
+  window.SahilTraders = ZSMart;
 
   // Auto-mount React App safely when DOM is ready
   function mount() {
     var rootEl = document.getElementById('root');
-    if (rootEl && !rootEl.__reactRootMounted && typeof ReactDOM !== 'undefined' && ReactDOM.createRoot && typeof SahilTraders !== 'undefined') {
+    if (rootEl && !rootEl.__reactRootMounted && typeof ReactDOM !== 'undefined' && ReactDOM.createRoot && typeof ZSMart !== 'undefined') {
       rootEl.__reactRootMounted = true;
       var appEl = typeof RootErrorBoundary !== 'undefined'
-        ? React.createElement(RootErrorBoundary, null, React.createElement(SahilTraders))
-        : React.createElement(SahilTraders);
+        ? React.createElement(RootErrorBoundary, null, React.createElement(ZSMart))
+        : React.createElement(ZSMart);
       ReactDOM.createRoot(rootEl).render(appEl);
-      console.log('Sahil Traders App mounted successfully via React 18 createRoot with ErrorBoundary!');
+      console.log('ZS Mart App mounted successfully via React 18 createRoot with ErrorBoundary!');
     }
   }
   if (document.readyState === 'loading') {

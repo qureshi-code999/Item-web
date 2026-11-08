@@ -27,7 +27,7 @@ let jsxCode = fs.readFileSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/INDEX.JSX', 'u
 
 // Strip ES module imports/exports for browser UMD execution
 jsxCode = jsxCode.replace(/import\s+React[^\n]*\n/g, '');
-jsxCode = jsxCode.replace(/export\s+default\s+function\s+SahilTraders/g, 'function SahilTraders');
+jsxCode = jsxCode.replace(/export\s+default\s+function\s+(?:SahilTraders|ZSMart)/g, 'function ZSMart');
 
 // Transform with Babel React preset
 const compiled = Babel.transform(jsxCode, {
@@ -36,7 +36,7 @@ const compiled = Babel.transform(jsxCode, {
 }).code;
 
 // Wrap inside an isolated IIFE so no global const / let clashes can ever occur
-const output = `// SAHIL TRADERS MASTER APP BUNDLE
+const output = `// ZS MART MASTER APP BUNDLE
 (function() {
   'use strict';
   var React = window.React || (typeof React !== 'undefined' ? React : null);
@@ -49,18 +49,19 @@ const output = `// SAHIL TRADERS MASTER APP BUNDLE
 
 ${compiled}
 
-  window.SahilTraders = SahilTraders;
+  window.ZSMart = ZSMart;
+  window.SahilTraders = ZSMart;
 
   // Auto-mount React App safely when DOM is ready
   function mount() {
     var rootEl = document.getElementById('root');
-    if (rootEl && !rootEl.__reactRootMounted && typeof ReactDOM !== 'undefined' && ReactDOM.createRoot && typeof SahilTraders !== 'undefined') {
+    if (rootEl && !rootEl.__reactRootMounted && typeof ReactDOM !== 'undefined' && ReactDOM.createRoot && typeof ZSMart !== 'undefined') {
       rootEl.__reactRootMounted = true;
       var appEl = typeof RootErrorBoundary !== 'undefined'
-        ? React.createElement(RootErrorBoundary, null, React.createElement(SahilTraders))
-        : React.createElement(SahilTraders);
+        ? React.createElement(RootErrorBoundary, null, React.createElement(ZSMart))
+        : React.createElement(ZSMart);
       ReactDOM.createRoot(rootEl).render(appEl);
-      console.log('Sahil Traders App mounted successfully via React 18 createRoot with ErrorBoundary!');
+      console.log('ZS Mart App mounted successfully via React 18 createRoot with ErrorBoundary!');
     }
   }
   if (document.readyState === 'loading') {
@@ -109,8 +110,22 @@ try {
   console.error('Error exporting products.json:', err.message);
 }
 
-// Sync style.css, index.html, products.json, settings.json, sw.js to www and android assets
-const syncFiles = ['style.css', 'index.html', 'products.json', 'tailwind.local.css', 'settings.json', 'sw.js'];
+// Auto-version sw.js with build timestamp to bust stale service worker caches on web
+try {
+  const swPath = path.join(__dirname, 'sw.js');
+  if (fs.existsSync(swPath)) {
+    let swContent = fs.readFileSync(swPath, 'utf8');
+    const newVersion = `v${Date.now()}`;
+    swContent = swContent.replace(/const CACHE_VERSION = '[^']+';/, `const CACHE_VERSION = '${newVersion}';`);
+    fs.writeFileSync(swPath, swContent, 'utf8');
+    console.log(`Auto-versioned sw.js with ${newVersion}`);
+  }
+} catch(e) {
+  console.warn('Could not auto-version sw.js:', e.message);
+}
+
+// Sync style.css, index.html, products.json, settings.json, sw.js, manifest.json, privacy-policy.html to www and android assets
+const syncFiles = ['style.css', 'index.html', 'products.json', 'tailwind.local.css', 'settings.json', 'sw.js', 'manifest.json', 'privacy-policy.html'];
 const syncDirs = [
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/www',
   'c:/Users/ALICOM4/Desktop/ITEMS WEB/android/app/src/main/assets/public'
@@ -145,7 +160,7 @@ const logoFiles = [
   'zs-mart-logo.png', 'zs-mart-logo.jpg', 'zs-groceries-logo.png', 'zs-groceries-logo.jpg',
   'zs-traders-logo.png', 'zs-traders-logo.jpg', 'sahil-traders-logo.png',
   'brand_sprite.webp', 'brand_coca_cola.webp', 'brand_fanta.webp', 'brand_pepsi.webp',
-  'brand_7up.webp', 'brand_mirinda.webp', 'brand_dew.webp', 'brand_sting.webp', 'brand_pakola.webp'
+  'brand_7up.webp', 'brand_mirinda.webp', 'brand_dew.webp', 'brand_sting.webp', 'brand_pakola.webp', 'brand_slice.webp'
 ];
 syncDirs.forEach(dir => {
   const imagesDestDir = path.join(dir, 'images');
@@ -157,6 +172,15 @@ syncDirs.forEach(dir => {
       console.log(`Synced images/${lf} -> ${path.join(imagesDestDir, lf)}`);
     }
   });
+  // Remove any stray numeric product images (e.g. 2016.webp) from mobile bundle assets since product images are served from Supabase CDN
+  fs.readdirSync(imagesDestDir).forEach(imgFile => {
+    if (/^\d+\.(webp|png|jpg|jpeg)$/i.test(imgFile)) {
+      try {
+        fs.unlinkSync(path.join(imagesDestDir, imgFile));
+        console.log(`Removed stray product image from bundle: ${path.join(imagesDestDir, imgFile)}`);
+      } catch (e) {}
+    }
+  });
   // Also sync icon-192 and icon-512
   ['icon-192.png', 'icon-512.png'].forEach(ic => {
     const src = path.join('c:/Users/ALICOM4/Desktop/ITEMS WEB', ic);
@@ -166,6 +190,18 @@ syncDirs.forEach(dir => {
     }
   });
 });
+
+// Sync privacy-policy.html and products.json to complete/ folder as well
+const completePrivacyDest = 'c:/Users/ALICOM4/Desktop/ITEMS WEB/complete/privacy-policy.html';
+if (fs.existsSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/privacy-policy.html') && fs.existsSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/complete')) {
+  fs.copyFileSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/privacy-policy.html', completePrivacyDest);
+  console.log(`Synced privacy-policy.html -> ${completePrivacyDest}`);
+}
+const completeProductsDest = 'c:/Users/ALICOM4/Desktop/ITEMS WEB/complete/products.json';
+if (fs.existsSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/products.json') && fs.existsSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/complete')) {
+  fs.copyFileSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/products.json', completeProductsDest);
+  console.log(`Synced products.json -> ${completeProductsDest}`);
+}
 
 // Final check: ensure no stray backup or temp files remain in target dirs
 ['c:/Users/ALICOM4/Desktop/ITEMS WEB/www', 'c:/Users/ALICOM4/Desktop/ITEMS WEB/android/app/src/main/assets/public'].forEach(cleanStrayFiles);

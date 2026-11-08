@@ -56,6 +56,7 @@ cloudflared.exe
 *.secret
 admin_token.secret
 admin_config.json
+supabase_config.json
 .env
 .env.local
 .env.*
@@ -65,5 +66,14 @@ keystore.properties
 *.bak
 *.tmp
 *~
+# === CONFIDENTIAL BUSINESS DATA (Never push sales, profits, or wholesale rates) ===
+dsr_data.json
+purchase_rates.json
+purchasing_sections.json
+purchasing_sheets.json
 scratch/
+apk/
+complete/*.aab
+complete/*.apk
+*.sql
 

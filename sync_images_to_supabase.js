@@ -11,6 +11,7 @@ const IMAGES_DIR = path.join(ROOT, 'images');
 
 const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 const { supabaseUrl, supabaseKey } = config;
+const serviceKey = (config.serviceRoleKey && config.serviceRoleKey.trim()) || supabaseKey;
 
 const mimeTypes = {
   '.webp': 'image/webp',
@@ -36,8 +37,8 @@ function uploadSingleImage(fileName) {
       path: fullUrl.pathname,
       method: 'POST',
       headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
+        'apikey': serviceKey,
+        'Authorization': `Bearer ${serviceKey}`,
         'Content-Type': contentType,
         'x-upsert': 'true'
       }

@@ -22,8 +22,9 @@ echo  DO NOT CLOSE THIS WINDOW WHILE USING THE ADMIN DASHBOARD!
 echo ================================================================
 echo.
 
-:: Free port 8888 if an old process is hanging
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8888" ^| findstr "LISTENING"') do taskkill /f /pid %%a >nul 2>&1
+:: Free port 8888 cleanly if an old process is hanging
+powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 8888 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }" >nul 2>&1
+timeout /t 1 /nobreak >nul
 
 node "%~dp0admin_server.js"
 pause

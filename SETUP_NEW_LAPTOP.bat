@@ -39,11 +39,11 @@ echo   [OK] Git is ready.
 echo.
 echo  [3/4] Installing necessary dependencies (npm install)...
 cd /d "%~dp0"
-call npm install --omit=dev >nul 2>&1
+call npm install
 echo   [OK] Dependencies verified.
 
 echo.
-echo  [4/4] Checking Google Play Store Keystore file...
+echo  [4/4] Checking Google Play Store Keystore & Supabase Config...
 if not exist "%~dp0android\app\release-key.keystore" (
     echo   [NOTICE] 'release-key.keystore' is missing in android\app\
     echo   Please copy 'release-key.keystore' from your Google Drive Recovery Vault
@@ -52,6 +52,15 @@ if not exist "%~dp0android\app\release-key.keystore" (
     echo.
 ) else (
     echo   [OK] Play Store Keystore is present.
+)
+if not exist "%~dp0supabase_config.json" (
+    echo   [NOTICE] 'supabase_config.json' is missing in root folder!
+    echo   Please copy 'supabase_config.json' from your Google Drive Recovery Vault
+    echo   into: %~dp0
+    echo   (This is required for Supabase Cloud Database sync).
+    echo.
+) else (
+    echo   [OK] Supabase Cloud Database Config is present.
 )
 
 echo.

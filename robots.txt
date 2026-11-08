@@ -4,4 +4,4 @@ Disallow: /archive/
 Disallow: /Backups/
 Disallow: /scratch/
 
-Sitemap: https://sahiltraders.com/sitemap.xml
+Sitemap: https://zsmart.pk/sitemap.xml

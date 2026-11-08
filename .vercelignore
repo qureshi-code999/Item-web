@@ -1,0 +1,29 @@
+# Vercel Deployment Ignore File
+# Never expose backend administration, backups, secrets or offline build files
+
+admin_dashboard.html
+admin_server.js
+admin_config.json
+*.bak
+*.json.bak
+*.tmp
+*.secret
+*.keystore
+*.jks
+keystore.properties
+dsr_data.json
+purchase_rates.json
+purchasing_*.json
+supabase_config.json
+.env*
+android/
+Backups/
+archive/
+scratch/
+apk/
+complete/
+*.sql
+*.bat
+*.ps1
+*.log
+

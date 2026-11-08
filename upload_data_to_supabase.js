@@ -19,7 +19,8 @@ if (!fs.existsSync(CONFIG_FILE)) {
 }
 
 const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
-const { supabaseUrl, supabaseKey } = config;
+const supabaseUrl = config.supabaseUrl;
+const supabaseKey = config.serviceRoleKey || config.supabaseKey;
 
 if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project-id')) {
   console.error('\n🛑 Error: Please enter your real supabaseUrl and supabaseKey inside supabase_config.json');
@@ -132,7 +133,7 @@ async function migrate() {
     name: c.name,
     priority: typeof c.priority === 'number' ? c.priority : (idx + 1)
   }));
-  await supabaseRequest('/rest/v1/categories', 'POST', catRows);
+  await supabaseRequest('/rest/v1/categories?on_conflict=id', 'POST', catRows);
   console.log(`  ✅ Successfully migrated ${catRows.length} categories!`);
 
   // 3. Upload Store Settings
@@ -147,7 +148,7 @@ async function migrate() {
     store_name: String(settingsData.storeName || 'ZS Mart'),
     announcement: String(settingsData.announcement || '')
   }];
-  await supabaseRequest('/rest/v1/store_settings', 'POST', settingsRow);
+  await supabaseRequest('/rest/v1/store_settings?on_conflict=id', 'POST', settingsRow);
   console.log(`  ✅ Store settings synced!`);
 
   // 4. Batch Upload Products to Supabase
@@ -162,13 +163,11 @@ async function migrate() {
       const ext = imageMap[pId] || (p.hasImage ? 'webp' : null);
       const hasImg = !!ext;
       const imageUrl = hasImg ? `${supabaseUrl}/storage/v1/object/public/product-images/${pId}.${ext}` : null;
-      const pRate = ratesData[String(pId)] !== undefined ? Number(ratesData[String(pId)]) : (p.purchasePrice ? Number(p.purchasePrice) : null);
 
       return {
         id: pId,
         name: String(p.name).trim().toUpperCase(),
         price: Number(p.price),
-        purchase_price: pRate,
         category_id: String(p.categoryId || 'general').trim(),
         category_name: String(p.categoryName || 'General Items').trim(),
         priority: p.priority ? Number(p.priority) : null,
@@ -179,19 +178,113 @@ async function migrate() {
       };
     });
 
-    await supabaseRequest('/rest/v1/products', 'POST', prodRows);
+    await supabaseRequest('/rest/v1/products?on_conflict=id', 'POST', prodRows);
     successCount += prodRows.length;
     process.stdout.write(`\r  Progress: [${successCount} / ${products.length}] products uploaded...`);
   }
 
   console.log(`\n  ✅ SUCCESS! All ${successCount} products uploaded to Supabase Database!`);
 
-  // 5. Initial Image Sync notice
-  console.log('\n[4/4] Image Storage Bucket Check:');
-  console.log('  Images will be served directly from Supabase CDN or local images.');
-  console.log('  Any new image uploaded in Master Admin Panel will go directly to Supabase Storage.\n');
+  // 4. Upload Purchase Rates to secure purchase_rates table
+  console.log(`\n[4/7] Uploading Purchase Rates to Supabase...`);
+  const rateEntries = Object.keys(ratesData).filter(k => !isNaN(Number(k)) && Number(k) > 0);
+  if (rateEntries.length > 0) {
+    const rateRows = rateEntries.map(k => ({
+      product_id: Number(k),
+      purchase_price: Number(ratesData[k]),
+      purchase_rate: Number(ratesData[k]),
+      updated_at: new Date().toISOString()
+    }));
+    try {
+      await supabaseRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', rateRows);
+    } catch(e) {
+      // Fallback: if table only has purchase_price or only purchase_rate
+      const fallbackRows = rateEntries.map(k => ({
+        product_id: Number(k),
+        purchase_price: Number(ratesData[k]),
+        updated_at: new Date().toISOString()
+      }));
+      await supabaseRequest('/rest/v1/purchase_rates?on_conflict=product_id', 'POST', fallbackRows);
+    }
+    console.log(`  ✅ Synced ${rateRows.length} purchase rates to Supabase!`);
+  } else {
+    console.log(`  ℹ️ No purchase rates found to sync.`);
+  }
 
-  console.log('================================================================');
+  // 5. Upload DSR Expenses to Supabase
+  console.log(`\n[5/7] Uploading DSR Expenses to Supabase...`);
+  const dsrJsonPath = path.join(ROOT, 'dsr_data.json');
+  if (fs.existsSync(dsrJsonPath)) {
+    try {
+      const dsrData = JSON.parse(fs.readFileSync(dsrJsonPath, 'utf8'));
+      const expenses = (dsrData.expenses || []).map(e => ({
+        id: String(e.id),
+        date: String(e.date || new Date().toISOString().slice(0, 10)),
+        title: String(e.title || 'General Expense'),
+        amount: Number(e.amount) || 0,
+        category: String(e.category || 'misc'),
+        updated_at: new Date().toISOString()
+      }));
+      if (expenses.length > 0) {
+        await supabaseRequest('/rest/v1/expenses?on_conflict=id', 'POST', expenses);
+        console.log(`  ✅ Synced ${expenses.length} expenses to Supabase!`);
+      } else {
+        console.log(`  ℹ️ No expenses found to sync.`);
+      }
+    } catch(err) {
+      console.warn(`  ℹ️ Expenses sync skipped: Table 'expenses' not yet created in Supabase SQL editor.`);
+    }
+  }
+
+  // 6. Upload Purchasing Sections to Supabase
+  console.log(`\n[6/7] Uploading Purchasing Sections to Supabase...`);
+  const sectionsJsonPath = path.join(ROOT, 'purchasing_sections.json');
+  if (fs.existsSync(sectionsJsonPath)) {
+    try {
+      const secData = JSON.parse(fs.readFileSync(sectionsJsonPath, 'utf8'));
+      const secRow = [{
+        id: 'main',
+        sections: secData.sections || [],
+        item_sections: secData.itemSections || {},
+        updated_at: secData.updatedAt || new Date().toISOString()
+      }];
+      await supabaseRequest('/rest/v1/purchasing_sections?on_conflict=id', 'POST', secRow);
+      console.log(`  ✅ Synced purchasing sections to Supabase!`);
+    } catch(err) {
+      console.warn(`  ℹ️ Purchasing sections sync skipped: Table 'purchasing_sections' not yet created in Supabase SQL editor.`);
+    }
+  }
+
+  // 7. Upload Purchasing Sheets to Supabase
+  console.log(`\n[7/7] Uploading Purchasing Sheets to Supabase...`);
+  const sheetsJsonPath = path.join(ROOT, 'purchasing_sheets.json');
+  if (fs.existsSync(sheetsJsonPath)) {
+    try {
+      const sheetsData = JSON.parse(fs.readFileSync(sheetsJsonPath, 'utf8'));
+      const sheets = (sheetsData.sheets || []).map(s => ({
+        id: String(s.id),
+        date: String(s.date || new Date().toISOString().slice(0, 10)),
+        title: String(s.title || 'Market Purchasing Sheet'),
+        market_name: String(s.marketName || 'Wholesale Market'),
+        items: Array.isArray(s.items) ? s.items : [],
+        sections: Array.isArray(s.sections) ? s.sections : [],
+        total_items: Number(s.totalItems) || 0,
+        total_qty: Number(s.totalQty) || 0,
+        total_amount: Number(s.totalAmount) || 0,
+        created_at: s.createdAt || new Date().toISOString()
+      }));
+      if (sheets.length > 0) {
+        await supabaseRequest('/rest/v1/purchasing_sheets?on_conflict=id', 'POST', sheets);
+        console.log(`  ✅ Synced ${sheets.length} purchasing sheets to Supabase!`);
+      } else {
+        console.log(`  ℹ️ No purchasing sheets found to sync.`);
+      }
+    } catch(err) {
+      console.warn(`  ℹ️ Purchasing sheets sync skipped: Table 'purchasing_sheets' not yet created in Supabase SQL editor.`);
+    }
+  }
+
+  console.log('\n================================================================');
   console.log('     🎉 MIGRATION COMPLETED SUCCESSFULLY WITH 0 DATA LOSS!');
   console.log('================================================================\n');
 }

@@ -4,5 +4,5 @@
   "deliveryTiming": "Delivery Timing: 11:00 AM – 10:00 PM",
   "whatsapp": "923391965200",
   "storeName": "ZS Mart",
-  "announcement": ""
+  "announcement": "{\"active\":true,\"title\":\"🔥 AAJ KI SPECIAL OFFER 🔥\",\"text\":\"\\\"1999 se zyada ke saman pe free home delivery\\\"\",\"buttonText\":\"🛒 Shop Now & Continue\",\"imageUrl\":\"https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/offer_banner.webp?v=1794190292646\",\"durationHours\":24,\"expiresAt\":1794276779997,\"createdAt\":\"2026-11-08T14:47:34.024Z\",\"updatedAt\":1794190379997}"
 }

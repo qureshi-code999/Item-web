@@ -157,8 +157,7 @@ if (fs.existsSync(langSrc)) {
 
 // Sync logo and icon assets to www and android assets
 const logoFiles = [
-  'zs-mart-logo.png', 'zs-mart-logo.jpg', 'zs-groceries-logo.png', 'zs-groceries-logo.jpg',
-  'zs-traders-logo.png', 'zs-traders-logo.jpg', 'sahil-traders-logo.png',
+  'zs-mart-logo.png', 'zs-mart-logo.jpg',
   'brand_sprite.webp', 'brand_coca_cola.webp', 'brand_fanta.webp', 'brand_pepsi.webp',
   'brand_7up.webp', 'brand_mirinda.webp', 'brand_dew.webp', 'brand_sting.webp', 'brand_pakola.webp', 'brand_slice.webp'
 ];

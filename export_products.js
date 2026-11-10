@@ -151,7 +151,7 @@ let storeSettings = {
   freeDeliveryThreshold: 2000,
   minOrderAmount: 0,
   deliveryTiming: "Delivery Timing: 10:00 AM – 10:00 PM",
-  whatsapp: "923368945775"
+  whatsapp: "923391965200"
 };
 const settingsFile = path.join(rootDir, 'settings.json');
 if (fs.existsSync(settingsFile)) {

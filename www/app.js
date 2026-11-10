@@ -28,8 +28,8 @@ var DEFAULT_STORE_SETTINGS = {
   whatsapp: "923391965200",
   announcement: ""
 };
-var SUPABASE_URL = "https://tmssjdczywukramcpcxc.supabase.co";
-var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
+var SUPABASE_URL = "https://mketjutjfnutntvyvjur.supabase.co";
+var SUPABASE_ANON_KEY = "sb_publishable_v83Y29EmSWnnmsdpOILfAQ_Eu-XMjSO";
 if (typeof window !== 'undefined') {
   try {
     const cached = localStorage.getItem('zs_mart_settings');
@@ -13615,7 +13615,7 @@ function ProductDetailModal({
         el.src = `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${product.id}.${ext}`;
       } else if (!el.dataset.triedSupabase) {
         el.dataset.triedSupabase = 'true';
-        el.src = `https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/${product.id}.${ext}`;
+        el.src = `https://mketjutjfnutntvyvjur.supabase.co/storage/v1/object/public/product-images/${product.id}.${ext}`;
       } else {
         el.style.display = 'none';
         if (el.nextElementSibling) el.nextElementSibling.style.display = 'flex';
@@ -14652,8 +14652,8 @@ function ZSMart() {
   };
   useEffect(() => {
     const cacheBuster = Date.now();
-    const sbUrl = "https://tmssjdczywukramcpcxc.supabase.co";
-    const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
+    const sbUrl = "https://mketjutjfnutntvyvjur.supabase.co";
+    const sbKey = "sb_publishable_v83Y29EmSWnnmsdpOILfAQ_Eu-XMjSO";
     (async () => {
       // 1. Primary: Live Supabase store_settings table (so Android APK & Web always get live Admin settings)
       try {
@@ -14781,8 +14781,8 @@ function ZSMart() {
     }
     try {
       const cacheBuster = Date.now();
-      const sbUrl = "https://tmssjdczywukramcpcxc.supabase.co";
-      const sbKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2Mjg4MzgsImV4cCI6MjEwNzIwNDgzOH0.ZF4W3-4hdvEvmVnHr3h9EzSetcLMy3_EGIq-t7L-EbI";
+      const sbUrl = "https://mketjutjfnutntvyvjur.supabase.co";
+      const sbKey = "sb_publishable_v83Y29EmSWnnmsdpOILfAQ_Eu-XMjSO";
       const persistProductsToLocalCache = prods => {
         if (!prods || prods.length === 0) return;
         try {
@@ -20788,7 +20788,7 @@ const ProductCard = React.memo(function ProductCard({
       } else if (!el.dataset.triedSupabase) {
         el.dataset.triedSupabase = 'true';
         // Fallback 2: Supabase Cloud Storage CDN
-        el.src = `https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/${product.id}.${ext}`;
+        el.src = `https://mketjutjfnutntvyvjur.supabase.co/storage/v1/object/public/product-images/${product.id}.${ext}`;
       } else {
         el.style.display = 'none';
         if (el.nextElementSibling) {

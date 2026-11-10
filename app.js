@@ -7620,7 +7620,7 @@ var PRODUCTS = [{
   categoryName: "Locks & Cells & Lighters"
 }, {
   id: 613,
-  name: "LOCK BLACK 50mm",
+  name: "LOCK BLACK 50MM",
   price: 260,
   categoryId: "lock",
   categoryName: "Locks & Cells & Lighters"
@@ -11585,6 +11585,9 @@ var PRODUCTS = [{
   initial: "S",
   priority: 3
 }];
+if (typeof window !== 'undefined') {
+  window.PRODUCTS = PRODUCTS;
+}
 var PAGE_SIZE = 10;
 const RECENT_LIMIT = 15;
 const BRAND_STOP_WORDS = new Set(["SOAP", "SOAPS", "SHAMPOO", "CONDITIONER", "CREAM", "LOTION", "POWDER", "SPRAY", "BODY", "FACE", "WASH", "TOOTH", "PASTE", "BRUSH", "RAZOR", "BLADE", "OIL", "HAIR", "COLOUR", "COLOR", "BALL", "PEN", "TOY", "TAPE", "CELL", "LOCK", "CANDLE", "PAD", "WIPES", "PERFUME", "PERFUMES", "DEO", "DEODORANT", "TALCUM", "ROOM", "FRESHNER", "FRESHENER", "ROLL", "ON", "AIR", "LARGE", "MEDIUM", "SMALL", "SACHET", "PACK", "PCS", "PIECE", "SIZE", "FULL", "HALF", "MIX", "ALL", "GOOD", "QUALITY", "ORIGINAL", "NON", "IMP", "PK", "RS", "RP", "ML", "G", "GM", "KG", "INCH", "BLACK", "WHITE", "BLUE", "GREEN", "RED", "PINK", "YELLOW", "GOLDEN", "BROWN", "ORANGE", "PURPLE", "DARK", "LIGHT"]);
@@ -14761,8 +14764,6 @@ class RootErrorBoundary extends React.Component {
 }
 function ZSMart() {
   const [productsList, setProductsList] = useState(() => {
-    const winProds = typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length >= PRODUCTS.length ? window.PRODUCTS : null;
-    if (winProds && winProds.length >= PRODUCTS.length) return winProds;
     try {
       const cached = localStorage.getItem("zs_groceries_products_cache");
       if (cached) {
@@ -14770,6 +14771,9 @@ function ZSMart() {
         // Only trust cache if it is at least as complete as our bundled catalog (prevents stale 1000-item truncated cache)
         if (Array.isArray(parsed) && parsed.length >= PRODUCTS.length) {
           return parsed;
+        } else {
+          // Immediately purge any stale truncated cache from user's device
+          localStorage.removeItem("zs_groceries_products_cache");
         }
       }
     } catch (e) {}

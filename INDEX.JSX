@@ -2547,7 +2547,7 @@ function getTranslationValue(dictionary, key) {
       { id: 610, name: "LOCK BLACK 25mm", price: 80, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 611, name: "LOCK BLACK 32MM", price: 199, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 612, name: "LOCK BLACK 38mm", price: 160, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
-      { id: 613, name: "LOCK BLACK 50mm", price: 260, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 613, name: "LOCK BLACK 50MM", price: 260, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 614, name: "LOCK BLACK 63MM", price: 499, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 615, name: "LOCK FRONT KEY (LARGE) GOOD QUALITY", price: 680, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 616, name: "LOCK FRONT KEY (MEDIUM)", price: 520, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
@@ -3081,6 +3081,9 @@ function getTranslationValue(dictionary, key) {
       { id: 1333, name: "SLICE MANGO JUICE 355ML BOTTLE", price: 79, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Slice", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "S", priority: 2 },
       { id: 1334, name: "SLICE MANGO JUICE 1 LITRE BOTTLE", price: 179, categoryId: "beverages", categoryName: "Beverages (Cold Drinks, Juices & Water)", filterName: "Slice", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "S", priority: 3 },
     ];
+    if (typeof window !== 'undefined') {
+      window.PRODUCTS = PRODUCTS;
+    }
     var PAGE_SIZE = 10;
     const RECENT_LIMIT = 15;
     const BRAND_STOP_WORDS = new Set([
@@ -6305,8 +6308,6 @@ class RootErrorBoundary extends React.Component {
 
 export default function ZSMart() {
   const [productsList, setProductsList] = useState(() => {
-    const winProds = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length >= PRODUCTS.length) ? window.PRODUCTS : null;
-    if (winProds && winProds.length >= PRODUCTS.length) return winProds;
     try {
       const cached = localStorage.getItem("zs_groceries_products_cache");
       if (cached) {
@@ -6314,6 +6315,9 @@ export default function ZSMart() {
         // Only trust cache if it is at least as complete as our bundled catalog (prevents stale 1000-item truncated cache)
         if (Array.isArray(parsed) && parsed.length >= PRODUCTS.length) {
           return parsed;
+        } else {
+          // Immediately purge any stale truncated cache from user's device
+          localStorage.removeItem("zs_groceries_products_cache");
         }
       }
     } catch (e) {}

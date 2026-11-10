@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-10T19:47:41.037Z",
+  "updatedAt": "2026-11-10T20:13:15.547Z",
   "total": 1349,
   "settings": {
     "deliveryFee": 99,
@@ -7172,11 +7172,12 @@
     },
     {
       "id": 613,
-      "name": "LOCK BLACK 50mm",
+      "name": "LOCK BLACK 50MM",
       "price": 260,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1794314845595
+      "imageVersion": 1794314845595,
+      "purchasePrice": 389
     },
     {
       "id": 614,

@@ -328,6 +328,9 @@ function getCorsOrigin(req) {
   if (/^https:\/\/(www\.)?zsmart\.pk$/i.test(origin)) {
     return origin;
   }
+  if (/^https:\/\/(.*\.)?vercel\.app$/i.test(origin) || /^https:\/\/sahiltraders\.vercel\.app$/i.test(origin)) {
+    return origin;
+  }
   return 'null';
 }
 

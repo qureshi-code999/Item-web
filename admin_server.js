@@ -638,6 +638,7 @@ function calculateOrderProfit(order, rates, productsMap, options = {}) {
     totalProfit: totalProfit,
     deliveryFee: deliveryFee,
     grandTotal: grandTotal,
+    total: grandTotal,
     profitMarginPct: profitMarginPct,
     missingCostCount: missingCostCount,
     allCostsSet: missingCostCount === 0

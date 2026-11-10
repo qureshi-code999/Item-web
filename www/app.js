@@ -4703,8 +4703,8 @@ var PRODUCTS = [{
   initial: "B"
 }, {
   id: 60,
-  name: "HUDA BEAUTY MASK SACHET",
-  price: 50,
+  name: "HUDA BEAUTY MASK SACHET RS,80",
+  price: 69,
   categoryId: "creams",
   categoryName: "Creams & Lotions & Bleach"
 }, {
@@ -7189,12 +7189,6 @@ var PRODUCTS = [{
   price: 49,
   categoryId: "stationary",
   categoryName: "Stationary & Tapes"
-}, {
-  id: 537,
-  name: "HUDA BEAUTY BLACK MASK SACHET",
-  price: 50,
-  categoryId: "creams",
-  categoryName: "Creams & Lotions & Bleach"
 }, {
   id: 538,
   name: "HUSSAIN MANJAN BOX (MEDIUM) RS,80",

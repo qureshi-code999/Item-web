@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-10T20:13:15.547Z",
-  "total": 1349,
+  "updatedAt": "2026-11-10T21:19:04.503Z",
+  "total": 1348,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -1845,7 +1845,6 @@
     "534": 1788525503758,
     "535": 1788525503798,
     "536": 1788525503837,
-    "537": 1788525504129,
     "538": 1788525504176,
     "539": 1788525504210,
     "540": 1788525504302,
@@ -3251,11 +3250,12 @@
     },
     {
       "id": 60,
-      "name": "HUDA BEAUTY MASK SACHET",
-      "price": 50,
+      "name": "HUDA BEAUTY MASK SACHET RS,80",
+      "price": 69,
       "categoryId": "creams",
       "categoryName": "Creams & Lotions & Bleach",
-      "imageVersion": 1788525508174
+      "imageVersion": 1788525508174,
+      "purchasePrice": 50
     },
     {
       "id": 61,
@@ -6589,14 +6589,6 @@
       "categoryName": "Stationary & Tapes",
       "imageVersion": 1788525503837,
       "purchasePrice": 37.5
-    },
-    {
-      "id": 537,
-      "name": "HUDA BEAUTY BLACK MASK SACHET",
-      "price": 50,
-      "categoryId": "creams",
-      "categoryName": "Creams & Lotions & Bleach",
-      "imageVersion": 1788525504129
     },
     {
       "id": 538,

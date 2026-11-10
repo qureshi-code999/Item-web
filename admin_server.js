@@ -43,7 +43,7 @@ function resilientLookup(hostname, options, callback) {
         }
       })
       .catch(err => {
-        if (hostname === 'tmssjdczywukramcpcxc.supabase.co') {
+        if (hostname.endsWith('.supabase.co')) {
           const cloudflareIps = ['172.64.149.246', '104.18.38.10'];
           dnsCache.set(hostname, { ips: cloudflareIps, time: Date.now() });
           if (options && options.all) {

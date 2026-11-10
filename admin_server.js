@@ -669,50 +669,66 @@ function syncPurchaseRatesFromSupabase() {
   if (!cfg || !cfg.supabaseUrl) return Promise.resolve(0);
   const keyToUse = (cfg.serviceRoleKey && cfg.serviceRoleKey.trim()) || cfg.supabaseKey;
   if (!keyToUse) return Promise.resolve(0);
-  return new Promise((resolve) => {
+
+  return new Promise(async (resolve) => {
     try {
-      const fullUrl = new URL('/rest/v1/purchase_rates?select=product_id,purchase_price&limit=5000', cfg.supabaseUrl);
-      const req = https.request({
-        hostname: fullUrl.hostname,
-        port: 443,
-        path: fullUrl.pathname + fullUrl.search,
-        method: 'GET',
-        lookup: resilientLookup,
-        headers: {
-          'apikey': keyToUse,
-          'Authorization': `Bearer ${keyToUse}`
-        }
-      }, (res) => {
-        let raw = '';
-        res.on('data', c => raw += c);
-        res.on('end', () => {
-          if (res.statusCode < 200 || res.statusCode >= 300 || !raw) return resolve(0);
-          try {
-            const rows = JSON.parse(raw);
-            if (!Array.isArray(rows) || rows.length === 0) return resolve(0);
-            const ratesObj = safeReadJson(RATES_FILE, { rates: {} });
-            if (!ratesObj.rates) ratesObj.rates = {};
-            let added = 0;
-            rows.forEach(r => {
-              const pid = String(r.product_id || '');
-              const price = Number(r.purchase_price !== undefined ? r.purchase_price : r.purchase_rate);
-              if (pid && !isNaN(price) && price > 0 && ratesObj.rates[pid] !== price) {
-                ratesObj.rates[pid] = price;
-                added++;
+      let offset = 0;
+      const pageSize = 1000;
+      let allRows = [];
+
+      while (true) {
+        const fullUrl = new URL(`/rest/v1/purchase_rates?select=product_id,purchase_price,purchase_rate&order=product_id.asc&limit=${pageSize}&offset=${offset}`, cfg.supabaseUrl);
+        const chunk = await new Promise((resChunk) => {
+          const req = https.request({
+            hostname: fullUrl.hostname,
+            port: 443,
+            path: fullUrl.pathname + fullUrl.search,
+            method: 'GET',
+            lookup: resilientLookup,
+            headers: {
+              'apikey': keyToUse,
+              'Authorization': `Bearer ${keyToUse}`
+            }
+          }, (res) => {
+            let raw = '';
+            res.on('data', c => raw += c);
+            res.on('end', () => {
+              if (res.statusCode < 200 || res.statusCode >= 300 || !raw) return resChunk([]);
+              try {
+                const parsed = JSON.parse(raw);
+                resChunk(Array.isArray(parsed) ? parsed : []);
+              } catch(e) {
+                resChunk([]);
               }
             });
-            if (added > 0) {
-              ratesObj.updatedAt = new Date().toISOString();
-              safeAtomicWriteJson(RATES_FILE, ratesObj);
-            }
-            resolve(added);
-          } catch (e) {
-            resolve(0);
-          }
+          });
+          req.on('error', () => resChunk([]));
+          req.end();
         });
+
+        if (!chunk || chunk.length === 0) break;
+        allRows = allRows.concat(chunk);
+        if (chunk.length < pageSize) break;
+        offset += pageSize;
+      }
+
+      if (allRows.length === 0) return resolve(0);
+      const ratesObj = safeReadJson(RATES_FILE, { rates: {} });
+      if (!ratesObj.rates) ratesObj.rates = {};
+      let added = 0;
+      allRows.forEach(r => {
+        const pid = String(r.product_id || '');
+        const price = Number(r.purchase_price !== undefined ? r.purchase_price : r.purchase_rate);
+        if (pid && !isNaN(price) && price > 0 && ratesObj.rates[pid] !== price) {
+          ratesObj.rates[pid] = price;
+          added++;
+        }
       });
-      req.on('error', () => resolve(0));
-      req.end();
+      if (added > 0) {
+        ratesObj.updatedAt = new Date().toISOString();
+        safeAtomicWriteJson(RATES_FILE, ratesObj);
+      }
+      resolve(added);
     } catch (e) {
       resolve(0);
     }

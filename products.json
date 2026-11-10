@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-10T13:13:10.332Z",
-  "total": 1305,
+  "updatedAt": "2026-11-10T19:47:41.037Z",
+  "total": 1349,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -3310,6 +3310,17 @@
       "imageVersion": 1788525515165
     },
     {
+      "id": 70,
+      "name": "BODY SPRAY BOLD (MIX) OLD SLIM",
+      "price": 690,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "B",
+      "imageVersion": 1794314845624
+    },
+    {
       "id": 71,
       "name": "BODY SPRAY BRUT (GREEN)",
       "price": 790,
@@ -3552,6 +3563,102 @@
       "imageVersion": 1788525463060
     },
     {
+      "id": 106,
+      "name": "BODY SPRAY RASSASI BLUE LADY",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845391
+    },
+    {
+      "id": 107,
+      "name": "BODY SPRAY RASSASI BLUE MEN",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845400
+    },
+    {
+      "id": 110,
+      "name": "BODY SPRAY RASSASI EMOTION (MEN)",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845407
+    },
+    {
+      "id": 111,
+      "name": "BODY SPRAY RASSASI EMOTION (WOMEN)",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845415
+    },
+    {
+      "id": 113,
+      "name": "BODY SPRAY RASSASI HOPE (MEN)",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845423
+    },
+    {
+      "id": 117,
+      "name": "BODY SPRAY RASSASI ROMANCE (MEN)",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845430
+    },
+    {
+      "id": 118,
+      "name": "BODY SPRAY RASSASI ROMANCE (WOMEN)",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845436
+    },
+    {
+      "id": 119,
+      "name": "BODY SPRAY RASSASI ROYAL BLACK",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845444
+    },
+    {
+      "id": 120,
+      "name": "BODY SPRAY RASSASI ROYAL BLUE",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845452
+    },
+    {
+      "id": 121,
+      "name": "BODY SPRAY RASSASI ROYAL PINK (W,M)",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845495
+    },
+    {
+      "id": 122,
+      "name": "BODY SPRAY RASSASI SECRET",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845502
+    },
+    {
+      "id": 123,
+      "name": "BODY SPRAY RASSASI TWINKLE",
+      "price": 880,
+      "categoryId": "fragnances",
+      "categoryName": "Fragnances & Roll on",
+      "imageVersion": 1794314845510
+    },
+    {
       "id": 124,
       "name": "BODY SPRAY SHALIS (MEN)",
       "price": 890,
@@ -3685,7 +3792,7 @@
     {
       "id": 144,
       "name": "BRUSH TYR HANDLE",
-      "price": 69,
+      "price": 70,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "imageVersion": 1788525478537,
@@ -3694,7 +3801,7 @@
     {
       "id": 145,
       "name": "BRUSH TYR SADA",
-      "price": 69,
+      "price": 70,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "imageVersion": 1788525478568,
@@ -3756,6 +3863,30 @@
       "initial": "B",
       "imageVersion": 1788525479453,
       "purchasePrice": 270
+    },
+    {
+      "id": 155,
+      "name": "CELL CAMELION LONGER LASTING AA",
+      "price": 50,
+      "categoryId": "lock",
+      "categoryName": "Locks & Cells & Lighters",
+      "imageVersion": 1794314845538
+    },
+    {
+      "id": 156,
+      "name": "CELL DOUBLE CHARGER AA",
+      "price": 30,
+      "categoryId": "lock",
+      "categoryName": "Locks & Cells & Lighters",
+      "imageVersion": 1794314845545
+    },
+    {
+      "id": 157,
+      "name": "CELL DOUBLE CHARGER AAA",
+      "price": 30,
+      "categoryId": "lock",
+      "categoryName": "Locks & Cells & Lighters",
+      "imageVersion": 1794314845553
     },
     {
       "id": 158,
@@ -5531,7 +5662,7 @@
     {
       "id": 419,
       "name": "FACE WASH GARNIER ( LARGE)  ACNO FIGHT RP,949",
-      "price": 879,
+      "price": 889,
       "categoryId": "facewash",
       "categoryName": "Face Wash & Body Wash & Hand Wash",
       "imageVersion": 1788525495691,
@@ -5548,7 +5679,7 @@
     {
       "id": 421,
       "name": "FACE WASH GARNIER (LARGE)  POWER WHITE RS,949",
-      "price": 879,
+      "price": 835,
       "categoryId": "facewash",
       "categoryName": "Face Wash & Body Wash & Hand Wash",
       "imageVersion": 1788525495809,
@@ -5805,6 +5936,14 @@
       "initial": "F",
       "imageVersion": 1788525498712,
       "purchasePrice": 260
+    },
+    {
+      "id": 450,
+      "name": "FACE WASH JHALAK",
+      "price": 180,
+      "categoryId": "facewash",
+      "categoryName": "Face Wash & Body Wash & Hand Wash",
+      "imageVersion": 1794314845560
     },
     {
       "id": 451,
@@ -6099,6 +6238,14 @@
       "categoryId": "facewash",
       "categoryName": "Face Wash & Body Wash & Hand Wash",
       "imageVersion": 1788525501789
+    },
+    {
+      "id": 489,
+      "name": "FACE WASH SYED GHANI GOAT MILK",
+      "price": 490,
+      "categoryId": "facewash",
+      "categoryName": "Face Wash & Body Wash & Hand Wash",
+      "imageVersion": 1794314845568
     },
     {
       "id": 490,
@@ -6763,6 +6910,14 @@
       "purchasePrice": 84.66
     },
     {
+      "id": 578,
+      "name": "KING MAAT",
+      "price": 7,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes",
+      "imageVersion": 1794314845578
+    },
+    {
       "id": 579,
       "name": "KINGTOX  MACHINE SET",
       "price": 579,
@@ -6781,6 +6936,17 @@
       "gradient": null,
       "initial": "K",
       "imageVersion": 1788525507221
+    },
+    {
+      "id": 581,
+      "name": "KING RAT BOOK",
+      "price": 180,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "K",
+      "imageVersion": 1794314845588
     },
     {
       "id": 582,
@@ -6886,8 +7052,8 @@
     },
     {
       "id": 599,
-      "name": "LIGHTER (ARCO GARARRI) RS,50",
-      "price": 39,
+      "name": "LIGHTER (ARCO GARARRI)",
+      "price": 40,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
       "hasImage": true,
@@ -6910,7 +7076,7 @@
     },
     {
       "id": 601,
-      "name": "LIGHTER (SADA TIK) RS,30",
+      "name": "LIGHTER (SADA TIK)",
       "price": 25,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
@@ -6989,7 +7155,7 @@
     {
       "id": 611,
       "name": "LOCK BLACK 32MM",
-      "price": 179,
+      "price": 199,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
       "imageVersion": 1788525509006,
@@ -6997,12 +7163,20 @@
     },
     {
       "id": 612,
-      "name": "LOCK BLACK 38MM",
-      "price": 220,
+      "name": "LOCK BLACK 38mm",
+      "price": 160,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
       "imageVersion": 1788525509040,
       "purchasePrice": 125
+    },
+    {
+      "id": 613,
+      "name": "LOCK BLACK 50mm",
+      "price": 260,
+      "categoryId": "lock",
+      "categoryName": "Locks & Cells & Lighters",
+      "imageVersion": 1794314845595
     },
     {
       "id": 614,
@@ -7141,6 +7315,14 @@
       "categoryName": "Creams & Lotions & Bleach",
       "imageVersion": 1788525511033,
       "purchasePrice": 170
+    },
+    {
+      "id": 631,
+      "name": "LOTION OLIVIA 110ml RS,220 (HONEY)",
+      "price": 180,
+      "categoryId": "creams",
+      "categoryName": "Creams & Lotions & Bleach",
+      "imageVersion": 1794314845601
     },
     {
       "id": 632,
@@ -7599,6 +7781,14 @@
       "imageVersion": 1788525516263
     },
     {
+      "id": 684,
+      "name": "CAT FOOD (FLUFFY)",
+      "price": 830,
+      "categoryId": "general",
+      "categoryName": "General Items & Others",
+      "imageVersion": 1794314845608
+    },
+    {
       "id": 685,
       "name": "METRO +7 AGAER BATTI (LARGE)",
       "price": 114,
@@ -7652,6 +7842,17 @@
       "gradient": null,
       "initial": "M",
       "imageVersion": 1788525516829
+    },
+    {
+      "id": 690,
+      "name": "MOOV SPRAY",
+      "price": 849,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care",
+      "hasImage": true,
+      "gradient": null,
+      "initial": "M",
+      "imageVersion": 1794314845616
     },
     {
       "id": 691,
@@ -7793,6 +7994,14 @@
       "imageVersion": 1788525518185
     },
     {
+      "id": 711,
+      "name": "NAIL CUTTER AKAI (JAPANI ORIGINAL) (MEDIUM) JAPANI",
+      "price": 749,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care",
+      "imageVersion": 1794314845635
+    },
+    {
       "id": 712,
       "name": "NAIL CUTTER MINI",
       "price": 60,
@@ -7815,7 +8024,7 @@
     {
       "id": 714,
       "name": "NALKI (MIX)",
-      "price": 12,
+      "price": 70,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "imageVersion": 1788525518689,
@@ -7832,7 +8041,7 @@
     {
       "id": 716,
       "name": "NALKI (BLACK)",
-      "price": 12,
+      "price": 15,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "hasImage": true,
@@ -7844,7 +8053,7 @@
     {
       "id": 717,
       "name": "NALKI (WHITE)",
-      "price": 12,
+      "price": 15,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "hasImage": true,
@@ -8242,8 +8451,8 @@
     },
     {
       "id": 782,
-      "name": "PASTE COLGATE 45G HERBAL RS,75",
-      "price": 71,
+      "name": "PASTE COLGATE 45g HERBAL RS,75",
+      "price": 69,
       "categoryId": "toothpasteandbrush",
       "categoryName": "Dental Cares",
       "imageVersion": 1788525525097,
@@ -8322,6 +8531,14 @@
       "purchasePrice": 170
     },
     {
+      "id": 790,
+      "name": "PASTE ENGLISH SMALL RS,140",
+      "price": 125,
+      "categoryId": "toothpasteandbrush",
+      "categoryName": "Dental Cares",
+      "imageVersion": 1794314845642
+    },
+    {
       "id": 791,
       "name": "PASTE FORHANS (LARGE) RS,400",
       "price": 389,
@@ -8368,6 +8585,22 @@
       "categoryName": "Dental Cares",
       "imageVersion": 1788525525719,
       "purchasePrice": 280
+    },
+    {
+      "id": 796,
+      "name": "PASTE PARODONTAX 50g RS,250",
+      "price": 235,
+      "categoryId": "toothpasteandbrush",
+      "categoryName": "Dental Cares",
+      "imageVersion": 1794314845650
+    },
+    {
+      "id": 797,
+      "name": "PASTE PARODONTAX 100g RS,400",
+      "price": 375,
+      "categoryId": "toothpasteandbrush",
+      "categoryName": "Dental Cares",
+      "imageVersion": 1794314845657
     },
     {
       "id": 798,
@@ -8645,7 +8878,7 @@
     {
       "id": 827,
       "name": "PERFUME DELYCIA (SMALL) FEELING RS,350",
-      "price": 324,
+      "price": 325,
       "categoryId": "fragnances",
       "categoryName": "Fragnances & Roll on",
       "hasImage": true,
@@ -8961,6 +9194,14 @@
       "gradient": null,
       "initial": "P",
       "imageVersion": 1788525532181
+    },
+    {
+      "id": 861,
+      "name": "POWDER COOL COOL RS,210",
+      "price": 170,
+      "categoryId": "babycare",
+      "categoryName": "Baby Care & Powders & Pampers",
+      "imageVersion": 1794314845666
     },
     {
       "id": 862,
@@ -10944,6 +11185,27 @@
       "purchasePrice": 3.16
     },
     {
+      "id": 1180,
+      "name": "TIGER INSECT SPRAY 300ML (SMALL)",
+      "price": 0,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes"
+    },
+    {
+      "id": 1181,
+      "name": "TIGER INSECT SPRAY 400ML (MEDIUM)",
+      "price": 0,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes"
+    },
+    {
+      "id": 1182,
+      "name": "TIGER INSECT SPRAY 600ML (LARGE)",
+      "price": 0,
+      "categoryId": "mosquito",
+      "categoryName": "Anti- Mosquitoes"
+    },
+    {
       "id": 1183,
       "name": "TOOTH PICK DENTAL FLOSS RS,120",
       "price": 69,
@@ -10966,6 +11228,34 @@
       "initial": "T",
       "imageVersion": 1788525470699,
       "purchasePrice": 45
+    },
+    {
+      "id": 1186,
+      "name": "TRUST PAD LARGE (ORANGE) R,P 190",
+      "price": 190,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care"
+    },
+    {
+      "id": 1187,
+      "name": "TRUST PAD LARGE (PURPLE) RS,340",
+      "price": 340,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care"
+    },
+    {
+      "id": 1188,
+      "name": "TRUST PAD LARGE (PINK) RS,220",
+      "price": 220,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care"
+    },
+    {
+      "id": 1189,
+      "name": "TRUST PAD LARGE (YELLOW) RS,290",
+      "price": 290,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care"
     },
     {
       "id": 1190,
@@ -11048,6 +11338,38 @@
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "imageVersion": 1788525471508
+    },
+    {
+      "id": 1200,
+      "name": "UNDERWEAR LADIES  BLACK & SKIN (LARGE) GOOD QUALITY (# 520)",
+      "price": 200,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care",
+      "imageVersion": 1794314845460
+    },
+    {
+      "id": 1201,
+      "name": "UNDERWEAR LADIES  BLACK & SKIN (MEDIUM) GOOD QUALITY (# 320)",
+      "price": 200,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care",
+      "imageVersion": 1794314845473
+    },
+    {
+      "id": 1202,
+      "name": "UNDERWEAR LADIES  BLACK & SKIN (SMALL) GOOD QUALITY (# 120)",
+      "price": 200,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care",
+      "imageVersion": 1794314845481
+    },
+    {
+      "id": 1203,
+      "name": "UNDERWEAR LADIES  BLACK & SKIN (X,L) GOOD QUALITY (# 620)",
+      "price": 200,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care",
+      "imageVersion": 1794314845489
     },
     {
       "id": 1205,
@@ -11405,6 +11727,13 @@
       "categoryName": "Personal Care"
     },
     {
+      "id": 1254,
+      "name": "WAX PATI BUKRAM",
+      "price": 90,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care"
+    },
+    {
       "id": 1255,
       "name": "WAX PATI BUKRAM",
       "price": 90,
@@ -11414,6 +11743,30 @@
       "gradient": null,
       "initial": "W",
       "imageVersion": 1788525476221
+    },
+    {
+      "id": 1256,
+      "name": "WHITE ROSE H,R JAR (LARGE) RS,280",
+      "price": 239,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care",
+      "imageVersion": 1794314845516
+    },
+    {
+      "id": 1257,
+      "name": "WHITE ROSE H,R JAR (MEDIUM) RS,220",
+      "price": 199,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care",
+      "imageVersion": 1794314845523
+    },
+    {
+      "id": 1258,
+      "name": "WHITE ROSE H,R JAR (SMALL) RS,190",
+      "price": 169,
+      "categoryId": "personalcare",
+      "categoryName": "Personal Care",
+      "imageVersion": 1794314845529
     },
     {
       "id": 1259,

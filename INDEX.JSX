@@ -2147,6 +2147,7 @@ function getTranslationValue(dictionary, key) {
       { id: 64, name: "BLADE TREET (PLATINUM)", price: 90, categoryId: "shaving", categoryName: "Shaving & Razers & Blades" },
       { id: 66, name: "BODY RAZOR TWINKLE LADIES (EYEBROW)", price: 75, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "B" },
       { id: 67, name: "BODY SPRAY (INDO) MIX", price: 240, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "B" },
+      { id: 70, name: "BODY SPRAY BOLD (MIX) OLD SLIM", price: 690, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "B" },
       { id: 71, name: "BODY SPRAY BRUT (GREEN)", price: 790, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
       { id: 72, name: "BODY SPRAY CHI CHI (BLUE) FOR MEN", price: 690, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
       { id: 73, name: "BODY SPRAY CHI CHI (CRAZY GIRL)", price: 690, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
@@ -2173,6 +2174,18 @@ function getTranslationValue(dictionary, key) {
       { id: 101, name: "BODY SPRAY MARQUIS (MEHROON)", price: 699, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
       { id: 102, name: "BODY SPRAY ONE MAN SHOW (BLACK)", price: 790, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
       { id: 105, name: "BODY SPRAY PURE BLACK", price: 590, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "B" },
+      { id: 106, name: "BODY SPRAY RASSASI BLUE LADY", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 107, name: "BODY SPRAY RASSASI BLUE MEN", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 110, name: "BODY SPRAY RASSASI EMOTION (MEN)", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 111, name: "BODY SPRAY RASSASI EMOTION (WOMEN)", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 113, name: "BODY SPRAY RASSASI HOPE (MEN)", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 117, name: "BODY SPRAY RASSASI ROMANCE (MEN)", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 118, name: "BODY SPRAY RASSASI ROMANCE (WOMEN)", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 119, name: "BODY SPRAY RASSASI ROYAL BLACK", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 120, name: "BODY SPRAY RASSASI ROYAL BLUE", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 121, name: "BODY SPRAY RASSASI ROYAL PINK (W,M)", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 122, name: "BODY SPRAY RASSASI SECRET", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
+      { id: 123, name: "BODY SPRAY RASSASI TWINKLE", price: 880, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
       { id: 124, name: "BODY SPRAY SHALIS (MEN)", price: 890, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "B" },
       { id: 125, name: "BODY SPRAY SHALIS (WOMEN)", price: 890, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
       { id: 127, name: "BODY SPRAY SHE (MIX)", price: 490, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
@@ -2187,14 +2200,17 @@ function getTranslationValue(dictionary, key) {
       { id: 141, name: "BRUSH SHAVING (GOOD QUALITY)", price: 190, categoryId: "shaving", categoryName: "Shaving & Razers & Blades", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "B" },
       { id: 142, name: "BRUSH SUREE PLASTIC PACKING SINGLE (NYLON TAR) BLACK", price: 120, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 143, name: "BRUSH SUREE PLASTIC PACKING SINGLE (NYLON TAR) WHITE", price: 120, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "B" },
-      { id: 144, name: "BRUSH TYR HANDLE", price: 69, categoryId: "general", categoryName: "General Items & Others" },
-      { id: 145, name: "BRUSH TYR SADA", price: 69, categoryId: "general", categoryName: "General Items & Others" },
+      { id: 144, name: "BRUSH TYR HANDLE", price: 70, categoryId: "general", categoryName: "General Items & Others" },
+      { id: 145, name: "BRUSH TYR SADA", price: 70, categoryId: "general", categoryName: "General Items & Others" },
       { id: 146, name: "BRYLCREEM STYLING CREAM (ORIGINAL) RED 125ML RS,670", price: 569, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 148, name: "BUTTERFLY LONG PAD ULTRA THIN XXL RS,450", price: 414, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 151, name: "BUTTERFLY PAD ULTRA THIN (EXTRA LONG) RS,230", price: 209, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 152, name: "BUTTERFLY PAD ULTRA THIN (LONG) RS,230", price: 209, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 153, name: "BUTTERFLY PAD MAXI THICK (EXTRA LONG 8PCS) RS,340", price: 309, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 154, name: "BUTTERFLY PAD MAXI THICK (LONG 9PCS) RS,340", price: 309, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "B" },
+      { id: 155, name: "CELL CAMELION LONGER LASTING AA", price: 50, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 156, name: "CELL DOUBLE CHARGER AA", price: 30, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 157, name: "CELL DOUBLE CHARGER AAA", price: 30, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 158, name: "CELL POWER PLUS AA RS,40", price: 34, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "C" },
       { id: 159, name: "CELL TOSHIBA AA (BLACK) RS,50", price: 39, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 161, name: "CELL TOSHIBA AA (RED) RS,40", price: 34, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
@@ -2375,9 +2391,9 @@ function getTranslationValue(dictionary, key) {
       { id: 416, name: "FACE WASH DOVE (LARGE) (GREEN)", price: 590, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 417, name: "FACE WASH DOVE (LARGE) (PINK)", price: 0, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 418, name: "FACE WASH FAIR MENZ (MIX) RP,210", price: 195, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "F" },
-      { id: 419, name: "FACE WASH GARNIER ( LARGE)  ACNO FIGHT RP,949", price: 879, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
+      { id: 419, name: "FACE WASH GARNIER ( LARGE)  ACNO FIGHT RP,949", price: 889, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 420, name: "FACE WASH GARNIER (LARGE)  OIL CLEAR RS,949", price: 835, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
-      { id: 421, name: "FACE WASH GARNIER (LARGE)  POWER WHITE RS,949", price: 879, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
+      { id: 421, name: "FACE WASH GARNIER (LARGE)  POWER WHITE RS,949", price: 835, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 422, name: "FACE WASH GARNIER (LARGE) SAKURE WHITE", price: 690, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 423, name: "FACE WASH GARNIER (LARGE) TURBO LIGHT WHITE+OIL CONTROL", price: 890, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 424, name: "FACE WASH GARNIER (LARGE) WOMEN (NEEM) PURE ACTIVE RS,649", price: 590, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
@@ -2406,6 +2422,7 @@ function getTranslationValue(dictionary, key) {
       { id: 447, name: "FACE WASH GOLDEN PEARL (MEN CHARCOAL) SMALL RS,300", price: 210, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 448, name: "FACE WASH HIMALAYA (LARGE) NEEM DUBAI RS,590" , price: 559, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 449, name: "FACE WASH HIMALAYA (SMALL) DUBAI RS,360", price: 324, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "F" },
+      { id: 450, name: "FACE WASH JHALAK" , price: 180, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 451, name: "FACE WASH JUNSUI  (BLACK) RS,650", price: 579, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "F" },
       { id: 455, name: "FACE WASH JUNSUI (L,GREEN COOL) RS,650", price: 579, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 456, name: "FACE WASH JUNSUI (EXTRA WHITENING RADIANCE) RS,650", price: 579, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
@@ -2435,6 +2452,7 @@ function getTranslationValue(dictionary, key) {
       { id: 486, name: "FACE WASH RIVAJ NEEM (LARGE) RS,499", price: 439, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 487, name: "FACE WASH SAEED GHANI VITAMIN C SMALL RS,330", price: 280, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 488, name: "FACE WASH SYED GHANI CHARCOAL", price: 490, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
+      { id: 489, name: "FACE WASH SYED GHANI GOAT MILK", price: 490, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 490, name: "FACE WASH RIVAJ LEMON (SMALL)", price: 175, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash" },
       { id: 491, name: "FACE WASH RIVAJ NEEM (SMALL) RS,220", price: 189, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "F" },
       { id: 492, name: "FACE WASH Y,C COCUMBER LARGE RS,499", price: 449, categoryId: "facewash", categoryName: "Face Wash & Body Wash & Hand Wash", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "F" },
@@ -2502,8 +2520,10 @@ function getTranslationValue(dictionary, key) {
       { id: 573, name: "KEUNE POWDER (ALL COLOURS)", price: 0, categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 576, name: "KINGTOX COIL BLACK RS,120", price: 99, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "K" },
       { id: 577, name: "KINGTOX COIL GREEN RS,120", price: 99, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
+      { id: 578, name: "KING MAAT", price: 7, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 579, name: "KINGTOX  MACHINE SET", price: 579, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 580, name: "KING MOSPEL", price: 130, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "K" },
+      { id: 581, name: "KING RAT BOOK", price: 180, categoryId: "mosquito", categoryName: "Anti- Mosquitoes", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "K" },
       { id: 582, name: "KINGTOX  ANTI-MOSQUITO REFILL RS,300", price: 254, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 583, name: "KINGTOX SPRAY 300ML (SMALL) RS,480", price: 440, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 584, name: "KINGTOX SPRAY 400ML (MEDIUM) RS,620", price: 549, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
@@ -2514,9 +2534,9 @@ function getTranslationValue(dictionary, key) {
       { id: 592, name: "LASTIK BAREEK CHILD", price: 20, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "L" },
       { id: 595, name: "LASTIK CHORDA LADIES ROLL (SMALL)", price: 80, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
       { id: 596, name: "LASTIK CHORDA WHITE (LARGE)", price: 25, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "L" },
-      { id: 599, name: "LIGHTER (ARCO GARARRI) RS,50", price: 39, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "L" },
+      { id: 599, name: "LIGHTER (ARCO GARARRI)", price: 40, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "L" },
       { id: 600, name: "LIGHTER (HEATER) RS,40", price: 29, categoryId: "lock", categoryName: "Locks & Cells & Lighters", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
-      { id: 601, name: "LIGHTER (SADA TIK) RS,30", price: 25, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 601, name: "LIGHTER (SADA TIK)", price: 25, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 603, name: "LIGHTER CHOLAH (PUZZO)", price: 199, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 604, name: "LIGHTER CHOLAH (REFILL)", price: 199, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 605, name: "LIGHTER CHOLAH FULL STEEL GUN", price: 0, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
@@ -2525,8 +2545,9 @@ function getTranslationValue(dictionary, key) {
       { id: 608, name: "DAR LIP OIL RS,60", price: 49, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "L" },
       { id: 609, name: "LOCK BLACK 20mm", price: 70, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 610, name: "LOCK BLACK 25mm", price: 80, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
-      { id: 611, name: "LOCK BLACK 32MM", price: 179, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
-      { id: 612, name: "LOCK BLACK 38MM", price: 220, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 611, name: "LOCK BLACK 32MM", price: 199, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 612, name: "LOCK BLACK 38mm", price: 160, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
+      { id: 613, name: "LOCK BLACK 50mm", price: 260, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 614, name: "LOCK BLACK 63MM", price: 499, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 615, name: "LOCK FRONT KEY (LARGE) GOOD QUALITY", price: 680, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
       { id: 616, name: "LOCK FRONT KEY (MEDIUM)", price: 520, categoryId: "lock", categoryName: "Locks & Cells & Lighters" },
@@ -2542,6 +2563,7 @@ function getTranslationValue(dictionary, key) {
       { id: 628, name: "LOTION NIVEA 200ML (MIX)", price: 889, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 629, name: "LOTION NIVEA 400ML (MIX)", price: 1800, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 630, name: "LOTION OLIVIA 110ML RS,220 (MOISTURIZING)", price: 199, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
+      { id: 631, name: "LOTION OLIVIA 110ml RS,220 (HONEY)", price: 180, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 632, name: "LOTION OLIVIA (MOISTURIZING) 220ML RS,350", price: 324, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 633, name: "LOTION OLIVIA (MOISTURIZING HONEY) 220ML RS,350", price: 324, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 635, name: "LOTION PONDS 100ML RS,350", price: 324, categoryId: "creams", categoryName: "Creams & Lotions & Bleach", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "L" },
@@ -2587,11 +2609,13 @@ function getTranslationValue(dictionary, key) {
       { id: 681, name: "MEHANDI ARAQ", price: 30, categoryId: "general", categoryName: "General Items & Others" },
       { id: 682, name: "MEHANDI CONE RS,100", price: 79, categoryId: "general", categoryName: "General Items & Others" },
       { id: 683, name: "MEHANDI CONE SINGHAR", price: 50, categoryId: "general", categoryName: "General Items & Others" },
+      { id: 684, name: "CAT FOOD (FLUFFY)", price: 830, categoryId: "general", categoryName: "General Items & Others" },
       { id: 685, name: "METRO +7 AGAER BATTI (LARGE)", price: 114, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", priority: 48 },
       { id: 686, name: "METRO AGHER BATTI (SMALL)", price: 50, categoryId: "groceryandkaryana", categoryName: "Grocery & Karyana", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "M", priority: 49 },
       { id: 687, name: "MIRROR DOUBLE SIDED (LARGE)", price: 240, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "M" },
       { id: 688, name: "MIRROR DOUBLE SIDED (MEDIUM)", price: 189, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "M" },
       { id: 689, name: "MIRROR DOUBLE SIDED (SMALL)", price: 129, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "M" },
+      { id: 690, name: "MOOV SPRAY", price: 849, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "M" },
       { id: 691, name: "MORTEIN COIL LARGE", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 692, name: "MORTEIN MACHINE RS,650", price: 589, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 693, name: "MORTEIN REFILLL (30 NIGHT) ODOURLESS RS,330", price: 299, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
@@ -2608,12 +2632,13 @@ function getTranslationValue(dictionary, key) {
       { id: 706, name: "MULTANI MUTTI JAR", price: 80, categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
       { id: 708, name: "MUNDIAL OLIVE OIL 175ML", price: 579, categoryId: "general", categoryName: "General Items & Others" },
       { id: 709, name: "NAIL CUTTER 555 (LARGE)", price: 0, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 711, name: "NAIL CUTTER AKAI (JAPANI ORIGINAL) (MEDIUM) JAPANI", price: 749, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 712, name: "NAIL CUTTER MINI", price: 60, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 713, name: "NAIL CUTTER V9 (EXCELLENT QUALITY) RS,299", price: 169, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "N" },
-      { id: 714, name: "NALKI (MIX)", price: 12, categoryId: "general", categoryName: "General Items & Others" },
+      { id: 714, name: "NALKI (MIX)", price: 70, categoryId: "general", categoryName: "General Items & Others" },
       { id: 715, name: "NAIR HAIR REMOVAL SPRAY (MIX)", price: 0, categoryId: "personalcare", categoryName: "Personal Care" },
-      { id: 716, name: "NALKI (BLACK)", price: 12, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "N" },
-      { id: 717, name: "NALKI (WHITE)", price: 12, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "N" },
+      { id: 716, name: "NALKI (BLACK)", price: 15, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "N" },
+      { id: 717, name: "NALKI (WHITE)", price: 15, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "N" },
       { id: 718, name: "NEXTON BABY COLOGNE BLUE", price: 0, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 721, name: "NEXTON BABY LOTION SMOOTH & SOFT  125ML RS,525", price: 484, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 722, name: "NEXTON BABY LOTION SMOOTH & SOFT  250ML RS,799", price: 729, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
@@ -2655,7 +2680,7 @@ function getTranslationValue(dictionary, key) {
       { id: 779, name: "PASTE COLGATE 20G HERBAL RS,50", price: 48, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 780, name: "PASTE COLGATE 20G SADA RS,50", price: 48, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
       { id: 781, name: "PASTE COLGATE 40G SADA RS,75", price: 71, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
-      { id: 782, name: "PASTE COLGATE 45G HERBAL RS,75", price: 71, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
+      { id: 782, name: "PASTE COLGATE 45g HERBAL RS,75", price: 69, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 783, name: "PASTE COLGATE 75G HERBAL RS,180", price: 173, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 784, name: "PASTE COLGATE 75G SADA RS,200", price: 191, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 785, name: "PASTE COLGATE 75G MAX FRESH RS,220 (GREEN)", price: 219, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
@@ -2663,11 +2688,14 @@ function getTranslationValue(dictionary, key) {
       { id: 787, name: "PASTE COLGATE 75G MAX FRESH RS,230 (BLUE)", price: 219, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
       { id: 788, name: "PASTE DOCTOR WITH FLOURIDE RS,110", price: 104, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
       { id: 789, name: "PASTE DOCTOR WITH FLOURIDE RS,220", price: 204, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
+      { id: 790, name: "PASTE ENGLISH SMALL RS,140", price: 125, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 791, name: "PASTE FORHANS (LARGE) RS,400", price: 389, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 792, name: "PASTE FORHANS (SMALL) RS,180", price: 173, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
       { id: 793, name: "PASTE MEDICAM 35GM RS,120", price: 109, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 794, name: "PASTE MEDICAM 65GM RS,250", price: 234, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 795, name: "PASTE MEDICAM 90GM RS,320", price: 311, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
+      { id: 796, name: "PASTE PARODONTAX 50g RS,250", price: 235, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
+      { id: 797, name: "PASTE PARODONTAX 100g RS,400", price: 375, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 798, name: "PASTE SENSODYNE 100G (FLUORIDE) RS,400", price: 388, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 799, name: "PASTE SENSODYNE 100G (ORIGINAL) RS,520", price: 499, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 800, name: "PASTE SENSODYNE 100G (RAPID ACTION) RS,545", price: 509, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
@@ -2694,7 +2722,7 @@ function getTranslationValue(dictionary, key) {
       { id: 824, name: "PERFUME DELYCIA CHECK (MEDIUM) RS,650", price: 619, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[7], initial: "P" },
       { id: 825, name: "PERFUME DELYCIA BEAUTY SMALL RS,350", price: 324, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "P" },
       { id: 826, name: "PERFUME DELYCIA CHECK (SMALL) RS,350", price: 324, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[3], initial: "P" },
-      { id: 827, name: "PERFUME DELYCIA (SMALL) FEELING RS,350", price: 324, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
+      { id: 827, name: "PERFUME DELYCIA (SMALL) FEELING RS,350", price: 325, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "P" },
       { id: 828, name: "PERFUME DO IT", price: 1790, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
       { id: 829, name: "PERFUME EVERY ONE", price: 1690, categoryId: "fragnances", categoryName: "Fragnances & Roll on", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "P" },
       { id: 830, name: "PERFUME FOR EVER", price: 790, categoryId: "fragnances", categoryName: "Fragnances & Roll on" },
@@ -2726,6 +2754,7 @@ function getTranslationValue(dictionary, key) {
       { id: 857, name: "POWDER BLACK BEAUTY (SMALL) RP,220", price: 195, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "P" },
       { id: 858, name: "POWDER BLACK CAT (LARGE) RS,480", price: 430, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 859, name: "POWDER BLACK CAT (SMALL) RS,250", price: 210, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers", hasImage: true, gradient: SWATCH_GRADIENTS[5], initial: "P" },
+      { id: 861, name: "POWDER COOL COOL RS,210", price: 170, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 862, name: "POWDER DENTONIC BOX 100GM (MEDIUM) RS,75", price: 75, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 863, name: "POWDER DENTONIC BOX 200GM (LARGE) RS,130", price: 130, categoryId: "toothpasteandbrush", categoryName: "Dental Cares" },
       { id: 864, name: "POWDER EDEN ROCK (LARGE) RS,310", price: 260, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "P" },
@@ -2924,8 +2953,15 @@ function getTranslationValue(dictionary, key) {
       { id: 1174, name: "TAPE TRANSPARENT (1 INCH) RS,70", price: 39, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[6], initial: "T" },
       { id: 1176, name: "TAPE TRANSPARENT (2 INCH) RS,100", price: 69, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[0], initial: "T" },
       { id: 1178, name: "TAPE TRANSPARENT RS,10", price: 7, categoryId: "stationary", categoryName: "Stationary & Tapes", hasImage: true, gradient: SWATCH_GRADIENTS[2], initial: "T" },
+      { id: 1180, name: "TIGER INSECT SPRAY 300ML (SMALL)", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
+      { id: 1181, name: "TIGER INSECT SPRAY 400ML (MEDIUM)", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
+      { id: 1182, name: "TIGER INSECT SPRAY 600ML (LARGE)", price: 0, categoryId: "mosquito", categoryName: "Anti- Mosquitoes" },
       { id: 1183, name: "TOOTH PICK DENTAL FLOSS RS,120", price: 69, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "T" },
       { id: 1184, name: "TOOTH PICK LARGE (EXCELLENT QUALITY) RS,130", price: 89, categoryId: "toothpasteandbrush", categoryName: "Dental Cares", hasImage: true, gradient: SWATCH_GRADIENTS[4], initial: "T" },
+      { id: 1186, name: "TRUST PAD LARGE (ORANGE) R,P 190", price: 190, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1187, name: "TRUST PAD LARGE (PURPLE) RS,340", price: 340, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1188, name: "TRUST PAD LARGE (PINK) RS,220", price: 220, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1189, name: "TRUST PAD LARGE (YELLOW) RS,290", price: 290, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1190, name: "TUSAR GENTS", price: 80, categoryId: "general", categoryName: "General Items & Others" },
       { id: 1191, name: "TUSAR LADIES", price: 80, categoryId: "general", categoryName: "General Items & Others" },
       { id: 1192, name: "TUSBHI (LED)", price: 135, categoryId: "general", categoryName: "General Items & Others", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "T" },
@@ -2935,6 +2971,10 @@ function getTranslationValue(dictionary, key) {
       { id: 1197, name: "UHU TUBE (# 11)", price: 110,categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 1198, name: "UHU TUBE (# 12)", price: 165,categoryId: "stationary", categoryName: "Stationary & Tapes" },
       { id: 1199, name: "UHU TUBE (# 13)", price: 275,categoryId: "stationary", categoryName: "Stationary & Tapes" },
+      { id: 1200, name: "UNDERWEAR LADIES  BLACK & SKIN (LARGE) GOOD QUALITY (# 520)", price: 200,categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1201, name: "UNDERWEAR LADIES  BLACK & SKIN (MEDIUM) GOOD QUALITY (# 320)", price: 200,categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1202, name: "UNDERWEAR LADIES  BLACK & SKIN (SMALL) GOOD QUALITY (# 120)", price: 200,categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1203, name: "UNDERWEAR LADIES  BLACK & SKIN (X,L) GOOD QUALITY (# 620)", price: 200,categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1205, name: "VASELINE HAIR TONIC 100ml (ORIGINAL)", price: 499,categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 1207, name: "VASELINE HAIR TONIC 200ml (ORIGINAL)", price: 899,categoryId: "haircolour", categoryName: "Hair Colors & Care & Oils" },
       { id: 1208, name: "VASELINE PETROLEUM (IMP) 100ML S,A COCA BUTTER RS,480", price: 389,categoryId: "creams", categoryName: "Creams & Lotions & Bleach" },
@@ -2972,7 +3012,11 @@ function getTranslationValue(dictionary, key) {
       { id: 1251, name: "WASH ROOM TIKI (GOOD QUALITY) FRESH", price: 150, categoryId: "general", categoryName: "General Items & Others" },
       { id: 1252, name: "WASH ROOM TIKI (SASTI)", price: 70, categoryId: "general", categoryName: "General Items & Others" },
       { id: 1253, name: "WAX PATI", price: 80, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1254, name: "WAX PATI BUKRAM", price: 90, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1255, name: "WAX PATI BUKRAM", price: 90, categoryId: "personalcare", categoryName: "Personal Care", hasImage: true, gradient: SWATCH_GRADIENTS[1], initial: "W" },
+      { id: 1256, name: "WHITE ROSE H,R JAR (LARGE) RS,280", price: 239, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1257, name: "WHITE ROSE H,R JAR (MEDIUM) RS,220", price: 199, categoryId: "personalcare", categoryName: "Personal Care" },
+      { id: 1258, name: "WHITE ROSE H,R JAR (SMALL) RS,190", price: 169, categoryId: "personalcare", categoryName: "Personal Care" },
       { id: 1259, name: "ONO BABY WIPES 60 PIECE RS,229", price: 149, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 1260, name: "TINY SOULS WIPES", price: 149, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
       { id: 1263, name: "SENSITIVE WIPES ORIGINAL RS,150", price: 124, categoryId: "babycare", categoryName: "Baby Care & Powders & Pampers" },
@@ -6261,13 +6305,14 @@ class RootErrorBoundary extends React.Component {
 
 export default function ZSMart() {
   const [productsList, setProductsList] = useState(() => {
-    const winProds = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length > 0) ? window.PRODUCTS : null;
-    if (winProds && winProds.length > 0) return winProds;
+    const winProds = (typeof window !== 'undefined' && Array.isArray(window.PRODUCTS) && window.PRODUCTS.length >= PRODUCTS.length) ? window.PRODUCTS : null;
+    if (winProds && winProds.length >= PRODUCTS.length) return winProds;
     try {
       const cached = localStorage.getItem("zs_groceries_products_cache");
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        // Only trust cache if it is at least as complete as our bundled catalog (prevents stale 1000-item truncated cache)
+        if (Array.isArray(parsed) && parsed.length >= PRODUCTS.length) {
           return parsed;
         }
       }
@@ -6642,44 +6687,64 @@ export default function ZSMart() {
           // ── INSTANT DUAL CLOUD SYNC: Deletions + Edits & Additions (~250-350ms) ──
           if (productsList && productsList.length > 0) {
             try {
-              const idUrl = `${sbUrl}/rest/v1/products?select=id&limit=5000`;
+              // Fetch all product IDs from cloud across all pages (bypasses PostgREST 1000 limit)
+              const fetchAllCloudIds = async () => {
+                let allIds = [];
+                let off = 0;
+                while (true) {
+                  const r = await fetch(`${sbUrl}/rest/v1/products?select=id&order=id.asc&limit=1000&offset=${off}`, {
+                    cache: 'no-store',
+                    headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` }
+                  }).catch(() => null);
+                  if (!r || !r.ok) break;
+                  const chunk = await r.json();
+                  if (!Array.isArray(chunk) || chunk.length === 0) break;
+                  allIds = allIds.concat(chunk);
+                  if (chunk.length < 1000) break;
+                  off += 1000;
+                }
+                return allIds;
+              };
+
               const updateUrl = `${sbUrl}/rest/v1/products?select=*&order=updated_at.desc.nullslast&limit=100`;
               const prioUrl = `${sbUrl}/rest/v1/products?select=*&priority=not.is.null`;
 
-              const [idRes, updateRes, prioRes] = await Promise.all([
-                fetch(idUrl, { cache: 'no-store', headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` } }),
+              const [idRows, updateRes, prioRes] = await Promise.all([
+                fetchAllCloudIds(),
                 fetch(updateUrl, { cache: 'no-store', headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` } }),
                 fetch(prioUrl, { cache: 'no-store', headers: { 'apikey': sbKey, 'Authorization': `Bearer ${sbKey}` } }).catch(() => null)
               ]);
 
-              if (idRes.ok && updateRes.ok) {
-                const idRows = await idRes.json();
+              if (Array.isArray(idRows) && idRows.length > 0 && updateRes.ok) {
                 const updateRows = await updateRes.json();
                 let prioRows = null;
                 if (prioRes && prioRes.ok) {
                   try { prioRows = await prioRes.json(); } catch(e) {}
                 }
 
-                if (Array.isArray(idRows) && idRows.length > 0 && Array.isArray(updateRows)) {
+                if (Array.isArray(updateRows)) {
                   const activeIdSet = new Set(idRows.map(r => Number(r.id)));
                   let listChanged = false;
-                  const currentList = productsList || window.PRODUCTS || [];
+                  const currentList = productsList || window.PRODUCTS || PRODUCTS || [];
 
-                  // 1. Instant Deletion Detection: Prune any item whose ID no longer exists in Supabase
-                  const pruned = currentList.filter(p => {
-                    if (!activeIdSet.has(Number(p.id))) {
-                      listChanged = true;
-                      return false;
-                    }
-                    return true;
-                  });
+                  // 1. Instant Deletion Detection:
+                  // CRITICAL SAFETY GUARD: Never prune bundled products if Supabase returned fewer rows than our bundled catalog!
+                  let pruned = currentList;
+                  if (idRows.length >= (PRODUCTS || []).length) {
+                    pruned = currentList.filter(p => {
+                      if (!activeIdSet.has(Number(p.id))) {
+                        listChanged = true;
+                        return false;
+                      }
+                      return true;
+                    });
+                  }
 
-                  // 2. Count mismatch check: agar Supabase me zyada items hain local se,
-                  //    to naye items hain jo top-100 updated_at me nahi aate.
-                  //    Is case me full reload karo (freshProducts flow chalega).
-                  if (activeIdSet.size > pruned.length) {
+                  // 2. Count mismatch check: agar Supabase me zyada items hain local se ya local catalog chota hai bundled se,
+                  //    to full reload karo (freshProducts flow chalega).
+                  if (activeIdSet.size > pruned.length || pruned.length < (PRODUCTS || []).length) {
                     // Fall through to full Supabase fetch below
-                    console.log('[ZS Sync] Count mismatch - Supabase:', activeIdSet.size, 'local:', pruned.length, '- triggering full reload');
+                    console.log('[ZS Sync] Count check - Supabase:', activeIdSet.size, 'local:', pruned.length, 'bundled:', (PRODUCTS || []).length, '- triggering full reload');
                   } else {
                   // 3. Instant Edit & Addition Detection: Merge top 100 updated rows + all prioritized items
                   const prodMap = new Map(pruned.map(p => [Number(p.id), p]));

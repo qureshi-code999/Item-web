@@ -831,6 +831,15 @@ function syncSupabaseOrders() {
   if (isSyncingOrders) return Promise.resolve(0);
   isSyncingOrders = true;
 
+  const endpoints = [
+    { url: cfg.supabaseUrl, key: keyToUse, isPrimary: true }
+  ];
+  const LEGACY_URL = 'https://tmssjdczywukramcpcxc.supabase.co';
+  const LEGACY_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtc3NqZGN6eXd1a3JhbWNwY3hjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MTYyODgzOCwiZXhwIjoyMTA3MjA0ODM4fQ.TeJpkSqk00IkJWVssper9onGfOWP6ACuSIhkYJsMS3M';
+  if (cfg.supabaseUrl !== LEGACY_URL) {
+    endpoints.push({ url: LEGACY_URL, key: LEGACY_KEY, isPrimary: false });
+  }
+
   return new Promise(async (resolve) => {
     try {
       let dsr = safeReadJson(DSR_FILE, { orders: [], expenses: [] });
@@ -840,100 +849,106 @@ function syncSupabaseOrders() {
       const rates = getSavedPurchaseRates();
       const catalog = getProductsCatalogMap();
       let addedCount = 0;
-      let offset = 0;
-      const pageSize = 200;
-      let hasMore = true;
 
-      // Auto-paginate through incoming orders (never capped at 100)
-      while (hasMore) {
-        const fullUrl = new URL(`/rest/v1/orders?select=*&order=created_at.desc&limit=${pageSize}&offset=${offset}`, cfg.supabaseUrl);
-        const rows = await new Promise((resChunk) => {
-          const req = https.request({
-            hostname: fullUrl.hostname,
-            port: 443,
-            path: fullUrl.pathname + fullUrl.search,
-            method: 'GET',
-            lookup: resilientLookup,
-            headers: {
-              'apikey': keyToUse,
-              'Authorization': `Bearer ${keyToUse}`
-            }
-          }, (res) => {
-            let raw = '';
-            res.on('data', chunk => raw += chunk);
-            res.on('end', () => {
-              if (res.statusCode < 200 || res.statusCode >= 300 || !raw) return resChunk([]);
-              try {
-                const parsed = JSON.parse(raw);
-                resChunk(Array.isArray(parsed) ? parsed : []);
-              } catch(e) {
-                resChunk([]);
+      for (const ep of endpoints) {
+        let offset = 0;
+        const pageSize = 100;
+        let hasMore = true;
+
+        while (hasMore) {
+          const fullUrl = new URL(`/rest/v1/orders?select=*&order=created_at.desc&limit=${pageSize}&offset=${offset}`, ep.url);
+          const rows = await new Promise((resChunk) => {
+            const req = https.request({
+              hostname: fullUrl.hostname,
+              port: 443,
+              path: fullUrl.pathname + fullUrl.search,
+              method: 'GET',
+              lookup: resilientLookup,
+              headers: {
+                'apikey': ep.key,
+                'Authorization': `Bearer ${ep.key}`
               }
+            }, (res) => {
+              let raw = '';
+              res.on('data', chunk => raw += chunk);
+              res.on('end', () => {
+                if (res.statusCode < 200 || res.statusCode >= 300 || !raw) return resChunk([]);
+                try {
+                  const parsed = JSON.parse(raw);
+                  resChunk(Array.isArray(parsed) ? parsed : []);
+                } catch(e) {
+                  resChunk([]);
+                }
+              });
             });
+            req.on('error', () => resChunk([]));
+            req.end();
           });
-          req.on('error', () => resChunk([]));
-          req.end();
-        });
 
-        if (rows.length === 0) break;
+          if (!rows || rows.length === 0) break;
 
-        let consecutiveExisting = 0;
-        for (const row of rows) {
-          if (!row || !row.id) continue;
-          const sId = String(row.id);
-          if (existingIds.has(sId)) {
-            consecutiveExisting++;
-            // If we encounter 15 consecutive already-synced orders, local DSR has caught up
-            if (consecutiveExisting >= 15) {
-              hasMore = false;
-              break;
+          let consecutiveExisting = 0;
+          for (const row of rows) {
+            if (!row || !row.id) continue;
+            const sId = String(row.id);
+            if (existingIds.has(sId)) {
+              consecutiveExisting++;
+              if (consecutiveExisting >= 15) {
+                hasMore = false;
+                break;
+              }
+              continue;
             }
-            continue;
+
+            consecutiveExisting = 0;
+            existingIds.add(sId);
+
+            const raw = (row.raw_data && typeof row.raw_data === 'object' && Object.keys(row.raw_data).length > 0) ? row.raw_data : null;
+            const orderData = raw ? { ...raw, id: sId } : {
+              id: sId,
+              date: row.created_at ? String(row.created_at).slice(0, 10) : getPktDateString(),
+              customerName: row.customer_name || 'Customer',
+              customerPhone: row.customer_phone || '',
+              customerAddress: row.customer_address || '',
+              customer: {
+                name: row.customer_name || 'Customer',
+                phone: row.customer_phone || '',
+                address: row.customer_address || ''
+              },
+              deliveryType: row.delivery_type || 'standard',
+              deliveryMethod: row.delivery_type || 'standard',
+              paymentMethod: row.payment_method || 'cash',
+              items: Array.isArray(row.items) ? row.items : [],
+              subtotal: Number(row.subtotal || 0),
+              deliveryFee: Number(row.delivery_fee || 0),
+              total: Number(row.total || 0),
+              grandTotal: Number(row.total || 0),
+              totalSavings: Number(row.total_savings || 0),
+              status: row.status || 'placed',
+              source: 'whatsapp_app',
+              channel: 'whatsapp'
+            };
+            orderData.id = sId;
+            const processed = calculateOrderProfit(orderData, rates, catalog);
+            dsr.orders.unshift(processed);
+            addedCount++;
+
+            // Forward legacy order to new primary Supabase if needed
+            if (!ep.isPrimary) {
+              supabaseApiRequest('/rest/v1/orders?on_conflict=id', 'POST', row).catch(() => {});
+            }
           }
 
-          consecutiveExisting = 0;
-          existingIds.add(sId);
-
-          const raw = (row.raw_data && typeof row.raw_data === 'object' && Object.keys(row.raw_data).length > 0) ? row.raw_data : null;
-          const orderData = raw ? { ...raw, id: sId } : {
-            id: sId,
-            date: row.created_at,
-            customerName: row.customer_name || 'Customer',
-            customerPhone: row.customer_phone || '',
-            customerAddress: row.customer_address || '',
-            customer: {
-              name: row.customer_name || 'Customer',
-              phone: row.customer_phone || '',
-              address: row.customer_address || ''
-            },
-            deliveryType: row.delivery_type || 'standard',
-            deliveryMethod: row.delivery_type || 'standard',
-            paymentMethod: row.payment_method || 'cash',
-            items: Array.isArray(row.items) ? row.items : [],
-            subtotal: Number(row.subtotal || 0),
-            deliveryFee: Number(row.delivery_fee || 0),
-            total: Number(row.total || 0),
-            grandTotal: Number(row.total || 0),
-            totalSavings: Number(row.total_savings || 0),
-            status: row.status || 'placed',
-            source: 'whatsapp_app',
-            channel: 'whatsapp'
-          };
-          orderData.id = sId;
-          const processed = calculateOrderProfit(orderData, rates, catalog);
-          dsr.orders.unshift(processed);
-          addedCount++;
+          if (rows.length < pageSize || !hasMore) break;
+          offset += pageSize;
+          if (offset >= 2000) break;
         }
-
-        if (rows.length < pageSize || !hasMore) break;
-        offset += pageSize;
-        if (offset >= 5000) break; // Maximum safe window per sync cycle
       }
 
       if (addedCount > 0) {
         safeAtomicWriteJson(DSR_FILE, dsr);
         syncOrderStatusesToSupabase(dsr.orders);
-        console.log(`[Supabase Cloud Sync] Received and saved ${addedCount} new orders from Supabase Database!`);
+        console.log(`[Supabase Cloud Sync] Received and saved ${addedCount} new orders from Cloud Database!`);
       }
       isSyncingOrders = false;
       resolve(addedCount);
@@ -2233,8 +2248,11 @@ function syncImageToTargets(fileName) {
       });
     }
 
-    // 6. API: DSR Sales GET (With live profit recalculation and catalog coverage)
+    // 6. API: DSR Sales GET (With live cloud sync, profit recalculation and catalog coverage)
     if (pathname === '/api/dsr' && req.method === 'GET') {
+      try {
+        await syncCloudOrders();
+      } catch(e) {}
       let dsr = { orders: [], expenses: [] };
       if (fs.existsSync(DSR_FILE)) {
         try { dsr = JSON.parse(fs.readFileSync(DSR_FILE, 'utf8')); } catch(e) {}

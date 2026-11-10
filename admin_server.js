@@ -997,9 +997,7 @@ function syncPurchasingSectionsFromSupabase() {
 
 function syncCloudOrders() {
   try {
-    syncPurchaseRatesFromSupabase().catch(() => {});
-    syncPurchasingSectionsFromSupabase().catch(() => {});
-    // Sync from Supabase Cloud Database (Guaranteed 100% secure orders without public leak)
+    // Only sync incoming customer orders from cloud (purchase rates & sections are local files)
     return syncSupabaseOrders().catch(() => 0);
   } catch(e) {
     return Promise.resolve(0);
@@ -3319,8 +3317,13 @@ server.listen(PORT, '127.0.0.1', () => {
   } catch(e) {}
 
   // Start Background Cloud Order Sync (Polls for incoming WhatsApp orders every 10s)
-  setTimeout(syncCloudOrders, 1500);
-  setInterval(syncCloudOrders, 10000);
+  setTimeout(() => {
+    syncPurchaseRatesFromSupabase().catch(() => {});
+    syncPurchasingSectionsFromSupabase().catch(() => {});
+    syncCloudOrders().catch(() => {});
+  }, 2000);
+  // Poll for incoming WhatsApp orders every 60s (bandwidth friendly)
+  setInterval(syncCloudOrders, 60000);
 });
 
 process.on('uncaughtException', (err) => {

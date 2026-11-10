@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-11-08T20:32:42.453Z",
-  "total": 1348,
+  "updatedAt": "2026-11-09T01:56:54.774Z",
+  "total": 1305,
   "settings": {
     "deliveryFee": 99,
     "freeDeliveryThreshold": 1999,
@@ -3308,17 +3308,6 @@
       "imageVersion": 1788525515165
     },
     {
-      "id": 70,
-      "name": "BODY SPRAY BOLD (MIX) OLD SLIM",
-      "price": 690,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "B",
-      "imageVersion": 1788525517465
-    },
-    {
       "id": 71,
       "name": "BODY SPRAY BRUT (GREEN)",
       "price": 790,
@@ -3561,102 +3550,6 @@
       "imageVersion": 1788525463060
     },
     {
-      "id": 106,
-      "name": "BODY SPRAY RASSASI BLUE LADY",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525463623
-    },
-    {
-      "id": 107,
-      "name": "BODY SPRAY RASSASI BLUE MEN",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525464116
-    },
-    {
-      "id": 110,
-      "name": "BODY SPRAY RASSASI EMOTION (MEN)",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525465551
-    },
-    {
-      "id": 111,
-      "name": "BODY SPRAY RASSASI EMOTION (WOMEN)",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525466372
-    },
-    {
-      "id": 113,
-      "name": "BODY SPRAY RASSASI HOPE (MEN)",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525467374
-    },
-    {
-      "id": 117,
-      "name": "BODY SPRAY RASSASI ROMANCE (MEN)",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525469781
-    },
-    {
-      "id": 118,
-      "name": "BODY SPRAY RASSASI ROMANCE (WOMEN)",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525470589
-    },
-    {
-      "id": 119,
-      "name": "BODY SPRAY RASSASI ROYAL BLACK",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525470728
-    },
-    {
-      "id": 120,
-      "name": "BODY SPRAY RASSASI ROYAL BLUE",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525471550
-    },
-    {
-      "id": 121,
-      "name": "BODY SPRAY RASSASI ROYAL PINK (W,M)",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525472079
-    },
-    {
-      "id": 122,
-      "name": "BODY SPRAY RASSASI SECRET",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525472847
-    },
-    {
-      "id": 123,
-      "name": "BODY SPRAY RASSASI TWINKLE",
-      "price": 880,
-      "categoryId": "fragnances",
-      "categoryName": "Fragnances & Roll on",
-      "imageVersion": 1788525473439
-    },
-    {
       "id": 124,
       "name": "BODY SPRAY SHALIS (MEN)",
       "price": 890,
@@ -3790,18 +3683,20 @@
     {
       "id": 144,
       "name": "BRUSH TYR HANDLE",
-      "price": 70,
+      "price": 69,
       "categoryId": "general",
       "categoryName": "General Items & Others",
-      "imageVersion": 1788525478537
+      "imageVersion": 1788525478537,
+      "purchasePrice": 30
     },
     {
       "id": 145,
       "name": "BRUSH TYR SADA",
-      "price": 70,
+      "price": 69,
       "categoryId": "general",
       "categoryName": "General Items & Others",
-      "imageVersion": 1788525478568
+      "imageVersion": 1788525478568,
+      "purchasePrice": 25
     },
     {
       "id": 146,
@@ -3859,30 +3754,6 @@
       "initial": "B",
       "imageVersion": 1788525479453,
       "purchasePrice": 270
-    },
-    {
-      "id": 155,
-      "name": "CELL CAMELION LONGER LASTING AA",
-      "price": 50,
-      "categoryId": "lock",
-      "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525479502
-    },
-    {
-      "id": 156,
-      "name": "CELL DOUBLE CHARGER AA",
-      "price": 30,
-      "categoryId": "lock",
-      "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525479543
-    },
-    {
-      "id": 157,
-      "name": "CELL DOUBLE CHARGER AAA",
-      "price": 30,
-      "categoryId": "lock",
-      "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525479579
     },
     {
       "id": 158,
@@ -5658,7 +5529,7 @@
     {
       "id": 419,
       "name": "FACE WASH GARNIER ( LARGE)  ACNO FIGHT RP,949",
-      "price": 889,
+      "price": 879,
       "categoryId": "facewash",
       "categoryName": "Face Wash & Body Wash & Hand Wash",
       "imageVersion": 1788525495691,
@@ -5675,10 +5546,11 @@
     {
       "id": 421,
       "name": "FACE WASH GARNIER (LARGE)  POWER WHITE RS,949",
-      "price": 835,
+      "price": 879,
       "categoryId": "facewash",
       "categoryName": "Face Wash & Body Wash & Hand Wash",
-      "imageVersion": 1788525495809
+      "imageVersion": 1788525495809,
+      "purchasePrice": 790
     },
     {
       "id": 422,
@@ -5931,14 +5803,6 @@
       "initial": "F",
       "imageVersion": 1788525498712,
       "purchasePrice": 260
-    },
-    {
-      "id": 450,
-      "name": "FACE WASH JHALAK",
-      "price": 180,
-      "categoryId": "facewash",
-      "categoryName": "Face Wash & Body Wash & Hand Wash",
-      "imageVersion": 1788525498746
     },
     {
       "id": 451,
@@ -6233,14 +6097,6 @@
       "categoryId": "facewash",
       "categoryName": "Face Wash & Body Wash & Hand Wash",
       "imageVersion": 1788525501789
-    },
-    {
-      "id": 489,
-      "name": "FACE WASH SYED GHANI GOAT MILK",
-      "price": 490,
-      "categoryId": "facewash",
-      "categoryName": "Face Wash & Body Wash & Hand Wash",
-      "imageVersion": 1788525501921
     },
     {
       "id": 490,
@@ -6905,14 +6761,6 @@
       "purchasePrice": 84.66
     },
     {
-      "id": 578,
-      "name": "KING MAAT",
-      "price": 7,
-      "categoryId": "mosquito",
-      "categoryName": "Anti- Mosquitoes",
-      "imageVersion": 1788525507145
-    },
-    {
       "id": 579,
       "name": "KINGTOX  MACHINE SET",
       "price": 579,
@@ -6931,17 +6779,6 @@
       "gradient": null,
       "initial": "K",
       "imageVersion": 1788525507221
-    },
-    {
-      "id": 581,
-      "name": "KING RAT BOOK",
-      "price": 180,
-      "categoryId": "mosquito",
-      "categoryName": "Anti- Mosquitoes",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "K",
-      "imageVersion": 1788525507261
     },
     {
       "id": 582,
@@ -7047,14 +6884,15 @@
     },
     {
       "id": 599,
-      "name": "LIGHTER (ARCO GARARRI)",
-      "price": 40,
+      "name": "LIGHTER (ARCO GARARRI) RS,50",
+      "price": 39,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
       "hasImage": true,
       "gradient": null,
       "initial": "L",
-      "imageVersion": 1788525507859
+      "imageVersion": 1788525507859,
+      "purchasePrice": 23
     },
     {
       "id": 600,
@@ -7070,11 +6908,12 @@
     },
     {
       "id": 601,
-      "name": "LIGHTER (SADA TIK)",
+      "name": "LIGHTER (SADA TIK) RS,30",
       "price": 25,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525508275
+      "imageVersion": 1788525508275,
+      "purchasePrice": 17
     },
     {
       "id": 603,
@@ -7148,7 +6987,7 @@
     {
       "id": 611,
       "name": "LOCK BLACK 32MM",
-      "price": 199,
+      "price": 179,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
       "imageVersion": 1788525509006,
@@ -7156,19 +6995,12 @@
     },
     {
       "id": 612,
-      "name": "LOCK BLACK 38mm",
-      "price": 160,
+      "name": "LOCK BLACK 38MM",
+      "price": 220,
       "categoryId": "lock",
       "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525509040
-    },
-    {
-      "id": 613,
-      "name": "LOCK BLACK 50mm",
-      "price": 260,
-      "categoryId": "lock",
-      "categoryName": "Locks & Cells & Lighters",
-      "imageVersion": 1788525509076
+      "imageVersion": 1788525509040,
+      "purchasePrice": 125
     },
     {
       "id": 614,
@@ -7307,14 +7139,6 @@
       "categoryName": "Creams & Lotions & Bleach",
       "imageVersion": 1788525511033,
       "purchasePrice": 170
-    },
-    {
-      "id": 631,
-      "name": "LOTION OLIVIA 110ml RS,220 (HONEY)",
-      "price": 180,
-      "categoryId": "creams",
-      "categoryName": "Creams & Lotions & Bleach",
-      "imageVersion": 1788525511080
     },
     {
       "id": 632,
@@ -7773,22 +7597,14 @@
       "imageVersion": 1788525516263
     },
     {
-      "id": 684,
-      "name": "CAT FOOD (FLUFFY)",
-      "price": 830,
-      "categoryId": "general",
-      "categoryName": "General Items & Others",
-      "imageVersion": 1788525516413
-    },
-    {
       "id": 685,
       "name": "METRO +7 AGAER BATTI (LARGE)",
       "price": 114,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 48,
       "imageVersion": 1788525516465,
-      "purchasePrice": 98.33,
-      "priority": 48
+      "purchasePrice": 98.33
     },
     {
       "id": 686,
@@ -7799,8 +7615,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "M",
-      "imageVersion": 1788525516508,
-      "priority": 49
+      "priority": 49,
+      "imageVersion": 1788525516508
     },
     {
       "id": 687,
@@ -7834,17 +7650,6 @@
       "gradient": null,
       "initial": "M",
       "imageVersion": 1788525516829
-    },
-    {
-      "id": 690,
-      "name": "MOOV SPRAY",
-      "price": 849,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care",
-      "hasImage": true,
-      "gradient": null,
-      "initial": "M",
-      "imageVersion": 1788525516888
     },
     {
       "id": 691,
@@ -7986,14 +7791,6 @@
       "imageVersion": 1788525518185
     },
     {
-      "id": 711,
-      "name": "NAIL CUTTER AKAI (JAPANI ORIGINAL) (MEDIUM) JAPANI",
-      "price": 749,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care",
-      "imageVersion": 1788525518292
-    },
-    {
       "id": 712,
       "name": "NAIL CUTTER MINI",
       "price": 60,
@@ -8016,10 +7813,11 @@
     {
       "id": 714,
       "name": "NALKI (MIX)",
-      "price": 70,
+      "price": 12,
       "categoryId": "general",
       "categoryName": "General Items & Others",
-      "imageVersion": 1788525518689
+      "imageVersion": 1788525518689,
+      "purchasePrice": 5.2
     },
     {
       "id": 715,
@@ -8032,24 +7830,26 @@
     {
       "id": 716,
       "name": "NALKI (BLACK)",
-      "price": 15,
+      "price": 12,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "hasImage": true,
       "gradient": null,
       "initial": "N",
-      "imageVersion": 1788525519249
+      "imageVersion": 1788525519249,
+      "purchasePrice": 5.2
     },
     {
       "id": 717,
       "name": "NALKI (WHITE)",
-      "price": 15,
+      "price": 12,
       "categoryId": "general",
       "categoryName": "General Items & Others",
       "hasImage": true,
       "gradient": null,
       "initial": "N",
-      "imageVersion": 1788525519425
+      "imageVersion": 1788525519425,
+      "purchasePrice": 5.2
     },
     {
       "id": 718,
@@ -8440,11 +8240,12 @@
     },
     {
       "id": 782,
-      "name": "PASTE COLGATE 45g HERBAL RS,75",
-      "price": 69,
+      "name": "PASTE COLGATE 45G HERBAL RS,75",
+      "price": 71,
       "categoryId": "toothpasteandbrush",
       "categoryName": "Dental Cares",
-      "imageVersion": 1788525525097
+      "imageVersion": 1788525525097,
+      "purchasePrice": 65
     },
     {
       "id": 783,
@@ -8519,14 +8320,6 @@
       "purchasePrice": 170
     },
     {
-      "id": 790,
-      "name": "PASTE ENGLISH SMALL RS,140",
-      "price": 125,
-      "categoryId": "toothpasteandbrush",
-      "categoryName": "Dental Cares",
-      "imageVersion": 1788525525551
-    },
-    {
       "id": 791,
       "name": "PASTE FORHANS (LARGE) RS,400",
       "price": 389,
@@ -8573,22 +8366,6 @@
       "categoryName": "Dental Cares",
       "imageVersion": 1788525525719,
       "purchasePrice": 280
-    },
-    {
-      "id": 796,
-      "name": "PASTE PARODONTAX 50g RS,250",
-      "price": 235,
-      "categoryId": "toothpasteandbrush",
-      "categoryName": "Dental Cares",
-      "imageVersion": 1788525525749
-    },
-    {
-      "id": 797,
-      "name": "PASTE PARODONTAX 100g RS,400",
-      "price": 375,
-      "categoryId": "toothpasteandbrush",
-      "categoryName": "Dental Cares",
-      "imageVersion": 1788525525778
     },
     {
       "id": 798,
@@ -8866,13 +8643,14 @@
     {
       "id": 827,
       "name": "PERFUME DELYCIA (SMALL) FEELING RS,350",
-      "price": 325,
+      "price": 324,
       "categoryId": "fragnances",
       "categoryName": "Fragnances & Roll on",
       "hasImage": true,
       "gradient": null,
       "initial": "P",
-      "imageVersion": 1788525527570
+      "imageVersion": 1788525527570,
+      "purchasePrice": 287
     },
     {
       "id": 828,
@@ -9181,14 +8959,6 @@
       "gradient": null,
       "initial": "P",
       "imageVersion": 1788525532181
-    },
-    {
-      "id": 861,
-      "name": "POWDER COOL COOL RS,210",
-      "price": 170,
-      "categoryId": "babycare",
-      "categoryName": "Baby Care & Powders & Pampers",
-      "imageVersion": 1788525532452
     },
     {
       "id": 862,
@@ -11172,27 +10942,6 @@
       "purchasePrice": 3.16
     },
     {
-      "id": 1180,
-      "name": "TIGER INSECT SPRAY 300ML (SMALL)",
-      "price": 0,
-      "categoryId": "mosquito",
-      "categoryName": "Anti- Mosquitoes"
-    },
-    {
-      "id": 1181,
-      "name": "TIGER INSECT SPRAY 400ML (MEDIUM)",
-      "price": 0,
-      "categoryId": "mosquito",
-      "categoryName": "Anti- Mosquitoes"
-    },
-    {
-      "id": 1182,
-      "name": "TIGER INSECT SPRAY 600ML (LARGE)",
-      "price": 0,
-      "categoryId": "mosquito",
-      "categoryName": "Anti- Mosquitoes"
-    },
-    {
       "id": 1183,
       "name": "TOOTH PICK DENTAL FLOSS RS,120",
       "price": 69,
@@ -11215,34 +10964,6 @@
       "initial": "T",
       "imageVersion": 1788525470699,
       "purchasePrice": 45
-    },
-    {
-      "id": 1186,
-      "name": "TRUST PAD LARGE (ORANGE) R,P 190",
-      "price": 190,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care"
-    },
-    {
-      "id": 1187,
-      "name": "TRUST PAD LARGE (PURPLE) RS,340",
-      "price": 340,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care"
-    },
-    {
-      "id": 1188,
-      "name": "TRUST PAD LARGE (PINK) RS,220",
-      "price": 220,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care"
-    },
-    {
-      "id": 1189,
-      "name": "TRUST PAD LARGE (YELLOW) RS,290",
-      "price": 290,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care"
     },
     {
       "id": 1190,
@@ -11325,38 +11046,6 @@
       "categoryId": "stationary",
       "categoryName": "Stationary & Tapes",
       "imageVersion": 1788525471508
-    },
-    {
-      "id": 1200,
-      "name": "UNDERWEAR LADIES  BLACK & SKIN (LARGE) GOOD QUALITY (# 520)",
-      "price": 200,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care",
-      "imageVersion": 1788525471602
-    },
-    {
-      "id": 1201,
-      "name": "UNDERWEAR LADIES  BLACK & SKIN (MEDIUM) GOOD QUALITY (# 320)",
-      "price": 200,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care",
-      "imageVersion": 1788525471656
-    },
-    {
-      "id": 1202,
-      "name": "UNDERWEAR LADIES  BLACK & SKIN (SMALL) GOOD QUALITY (# 120)",
-      "price": 200,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care",
-      "imageVersion": 1788525471707
-    },
-    {
-      "id": 1203,
-      "name": "UNDERWEAR LADIES  BLACK & SKIN (X,L) GOOD QUALITY (# 620)",
-      "price": 200,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care",
-      "imageVersion": 1788525471772
     },
     {
       "id": 1205,
@@ -11714,13 +11403,6 @@
       "categoryName": "Personal Care"
     },
     {
-      "id": 1254,
-      "name": "WAX PATI BUKRAM",
-      "price": 90,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care"
-    },
-    {
       "id": 1255,
       "name": "WAX PATI BUKRAM",
       "price": 90,
@@ -11730,30 +11412,6 @@
       "gradient": null,
       "initial": "W",
       "imageVersion": 1788525476221
-    },
-    {
-      "id": 1256,
-      "name": "WHITE ROSE H,R JAR (LARGE) RS,280",
-      "price": 239,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care",
-      "imageVersion": 1788525476267
-    },
-    {
-      "id": 1257,
-      "name": "WHITE ROSE H,R JAR (MEDIUM) RS,220",
-      "price": 199,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care",
-      "imageVersion": 1788525476500
-    },
-    {
-      "id": 1258,
-      "name": "WHITE ROSE H,R JAR (SMALL) RS,190",
-      "price": 169,
-      "categoryId": "personalcare",
-      "categoryName": "Personal Care",
-      "imageVersion": 1788525476732
     },
     {
       "id": 1259,
@@ -11802,8 +11460,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "N",
-      "imageVersion": 1788525477453,
-      "priority": 1
+      "priority": 1,
+      "imageVersion": 1788525477453
     },
     {
       "id": 1268,
@@ -11814,8 +11472,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "L",
-      "imageVersion": 1788525477495,
-      "priority": 2
+      "priority": 2,
+      "imageVersion": 1788525477495
     },
     {
       "id": 1276,
@@ -11850,8 +11508,8 @@
       "hasImage": true,
       "gradient": null,
       "initial": "L",
-      "imageVersion": 1790065131291,
-      "priority": 50
+      "priority": 50,
+      "imageVersion": 1790065131291
     },
     {
       "id": 1279,
@@ -12514,9 +12172,9 @@
       "price": 159,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 52,
       "imageVersion": 1792419532962,
-      "purchasePrice": 150,
-      "priority": 52
+      "purchasePrice": 150
     },
     {
       "id": 1338,
@@ -12542,9 +12200,9 @@
       "price": 199,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 3,
       "imageVersion": 1792577387598,
-      "purchasePrice": 185,
-      "priority": 3
+      "purchasePrice": 185
     },
     {
       "id": 1341,
@@ -12552,9 +12210,9 @@
       "price": 199,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 4,
       "imageVersion": 1792577444280,
-      "purchasePrice": 185,
-      "priority": 4
+      "purchasePrice": 185
     },
     {
       "id": 1342,
@@ -12562,9 +12220,9 @@
       "price": 199,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 5,
       "imageVersion": 1792577531873,
-      "purchasePrice": 185,
-      "priority": 5
+      "purchasePrice": 185
     },
     {
       "id": 1343,
@@ -12572,9 +12230,9 @@
       "price": 199,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 6,
       "imageVersion": 1792577583625,
-      "purchasePrice": 185,
-      "priority": 6
+      "purchasePrice": 185
     },
     {
       "id": 1344,
@@ -12582,9 +12240,9 @@
       "price": 24,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 7,
       "imageVersion": 1792578163638,
-      "purchasePrice": 21.875,
-      "priority": 7
+      "purchasePrice": 21.875
     },
     {
       "id": 1345,
@@ -12592,9 +12250,9 @@
       "price": 24,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 8,
       "imageVersion": 1792578205083,
-      "purchasePrice": 21.875,
-      "priority": 8
+      "purchasePrice": 21.875
     },
     {
       "id": 1346,
@@ -12602,9 +12260,9 @@
       "price": 24,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 9,
       "imageVersion": 1792578248548,
-      "purchasePrice": 21.875,
-      "priority": 9
+      "purchasePrice": 21.875
     },
     {
       "id": 1347,
@@ -12630,9 +12288,9 @@
       "price": 39,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 51,
       "imageVersion": 1792578714707,
-      "purchasePrice": 32,
-      "priority": 51
+      "purchasePrice": 32
     },
     {
       "id": 1350,
@@ -12649,9 +12307,9 @@
       "price": 25,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 14,
       "imageVersion": 1792579426751,
-      "purchasePrice": 23,
-      "priority": 14
+      "purchasePrice": 23
     },
     {
       "id": 1352,
@@ -12659,9 +12317,9 @@
       "price": 35,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 15,
       "imageVersion": 1792579481292,
-      "purchasePrice": 32,
-      "priority": 15
+      "purchasePrice": 32
     },
     {
       "id": 1353,
@@ -12669,9 +12327,9 @@
       "price": 98,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 16,
       "imageVersion": 1792579559674,
-      "purchasePrice": 92.7,
-      "priority": 16
+      "purchasePrice": 92.7
     },
     {
       "id": 1354,
@@ -12679,9 +12337,9 @@
       "price": 299,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 17,
       "imageVersion": 1792586159552,
-      "purchasePrice": 285,
-      "priority": 17
+      "purchasePrice": 285
     },
     {
       "id": 1355,
@@ -12689,9 +12347,9 @@
       "price": 289,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 18,
       "imageVersion": 1792586275526,
-      "purchasePrice": 270.83,
-      "priority": 18
+      "purchasePrice": 270.83
     },
     {
       "id": 1356,
@@ -12699,9 +12357,9 @@
       "price": 299,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 19,
       "imageVersion": 1792586727041,
-      "purchasePrice": 283.33,
-      "priority": 19
+      "purchasePrice": 283.33
     },
     {
       "id": 1357,
@@ -12709,9 +12367,9 @@
       "price": 249,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 20,
       "imageVersion": 1792587969425,
-      "purchasePrice": 233.33,
-      "priority": 20
+      "purchasePrice": 233.33
     },
     {
       "id": 1358,
@@ -12719,9 +12377,9 @@
       "price": 599,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 21,
       "imageVersion": 1792588406191,
-      "purchasePrice": 566.66,
-      "priority": 21
+      "purchasePrice": 566.66
     },
     {
       "id": 1359,
@@ -12729,9 +12387,9 @@
       "price": 579,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 22,
       "imageVersion": 1792588516696,
-      "purchasePrice": 541.66,
-      "priority": 22
+      "purchasePrice": 541.66
     },
     {
       "id": 1360,
@@ -12739,9 +12397,9 @@
       "price": 599,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 23,
       "imageVersion": 1792589007186,
-      "purchasePrice": 566.66,
-      "priority": 23
+      "purchasePrice": 566.66
     },
     {
       "id": 1361,
@@ -12749,9 +12407,9 @@
       "price": 499,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 24,
       "imageVersion": 1792589566269,
-      "purchasePrice": 466.66,
-      "priority": 24
+      "purchasePrice": 466.66
     },
     {
       "id": 1362,
@@ -12759,9 +12417,9 @@
       "price": 270,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 25,
       "imageVersion": 1792589729974,
-      "purchasePrice": 240,
-      "priority": 25
+      "purchasePrice": 240
     },
     {
       "id": 1363,
@@ -12769,9 +12427,9 @@
       "price": 194,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 26,
       "imageVersion": 1792589839905,
-      "purchasePrice": 187.55,
-      "priority": 26
+      "purchasePrice": 187.55
     },
     {
       "id": 1364,
@@ -12779,9 +12437,9 @@
       "price": 98,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 27,
       "imageVersion": 1792589927061,
-      "purchasePrice": 92,
-      "priority": 27
+      "purchasePrice": 92
     },
     {
       "id": 1365,
@@ -12789,9 +12447,9 @@
       "price": 98,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 28,
       "imageVersion": 1792590219688,
-      "purchasePrice": 92,
-      "priority": 28
+      "purchasePrice": 92
     },
     {
       "id": 1366,
@@ -12799,9 +12457,9 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 29,
       "imageVersion": 1792590410466,
-      "purchasePrice": 44.44,
-      "priority": 29
+      "purchasePrice": 44.44
     },
     {
       "id": 1367,
@@ -12809,9 +12467,9 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 30,
       "imageVersion": 1792590832860,
-      "purchasePrice": 45.138,
-      "priority": 30
+      "purchasePrice": 45.138
     },
     {
       "id": 1368,
@@ -12819,9 +12477,9 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 31,
       "imageVersion": 1792590919221,
-      "purchasePrice": 44.44,
-      "priority": 31
+      "purchasePrice": 44.44
     },
     {
       "id": 1369,
@@ -12829,9 +12487,9 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 32,
       "imageVersion": 1792591047957,
-      "purchasePrice": 45.238,
-      "priority": 32
+      "purchasePrice": 45.238
     },
     {
       "id": 1370,
@@ -12839,9 +12497,9 @@
       "price": 10,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 33,
       "imageVersion": 1792591249829,
-      "purchasePrice": 9.5,
-      "priority": 33
+      "purchasePrice": 9.5
     },
     {
       "id": 1371,
@@ -12849,9 +12507,9 @@
       "price": 10,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 34,
       "imageVersion": 1792591305128,
-      "purchasePrice": 9.16,
-      "priority": 34
+      "purchasePrice": 9.16
     },
     {
       "id": 1372,
@@ -12859,9 +12517,9 @@
       "price": 10,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 35,
       "imageVersion": 1792591437181,
-      "purchasePrice": 9.5,
-      "priority": 35
+      "purchasePrice": 9.5
     },
     {
       "id": 1373,
@@ -13895,9 +13553,9 @@
       "price": 33,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 36,
       "imageVersion": 1793299604308,
-      "purchasePrice": 31.25,
-      "priority": 36
+      "purchasePrice": 31.25
     },
     {
       "id": 1489,
@@ -13905,9 +13563,9 @@
       "price": 33,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 37,
       "imageVersion": 1793299733337,
-      "purchasePrice": 31.25,
-      "priority": 37
+      "purchasePrice": 31.25
     },
     {
       "id": 1490,
@@ -13915,9 +13573,9 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 38,
       "imageVersion": 1793299783636,
-      "purchasePrice": 45.55,
-      "priority": 38
+      "purchasePrice": 45.55
     },
     {
       "id": 1491,
@@ -13925,9 +13583,9 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 39,
       "imageVersion": 1793299820218,
-      "purchasePrice": 45.55,
-      "priority": 39
+      "purchasePrice": 45.55
     },
     {
       "id": 1492,
@@ -13935,9 +13593,9 @@
       "price": 181,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 40,
       "imageVersion": 1793299907244,
-      "purchasePrice": 171.11,
-      "priority": 40
+      "purchasePrice": 171.11
     },
     {
       "id": 1493,
@@ -13945,9 +13603,9 @@
       "price": 181,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 41,
       "imageVersion": 1793300054861,
-      "purchasePrice": 171.11,
-      "priority": 41
+      "purchasePrice": 171.11
     },
     {
       "id": 1494,
@@ -13955,9 +13613,9 @@
       "price": 42,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 42,
       "imageVersion": 1793300251110,
-      "purchasePrice": 35.83,
-      "priority": 42
+      "purchasePrice": 35.83
     },
     {
       "id": 1495,
@@ -13965,9 +13623,9 @@
       "price": 42,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 43,
       "imageVersion": 1793300291205,
-      "purchasePrice": 35.83,
-      "priority": 43
+      "purchasePrice": 35.83
     },
     {
       "id": 1496,
@@ -13975,9 +13633,9 @@
       "price": 249,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 44,
       "imageVersion": 1793300589928,
-      "purchasePrice": 215,
-      "priority": 44
+      "purchasePrice": 215
     },
     {
       "id": 1497,
@@ -13985,9 +13643,9 @@
       "price": 249,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 45,
       "imageVersion": 1793300737099,
-      "purchasePrice": 215,
-      "priority": 45
+      "purchasePrice": 215
     },
     {
       "id": 1498,
@@ -13995,9 +13653,9 @@
       "price": 165,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 46,
       "imageVersion": 1793300860130,
-      "purchasePrice": 145,
-      "priority": 46
+      "purchasePrice": 145
     },
     {
       "id": 1499,
@@ -14005,9 +13663,9 @@
       "price": 165,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 47,
       "imageVersion": 1793300914996,
-      "purchasePrice": 145,
-      "priority": 47
+      "purchasePrice": 145
     },
     {
       "id": 1500,
@@ -14132,9 +13790,9 @@
       "price": 49,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 53,
       "imageVersion": 1793357149869,
-      "purchasePrice": 40,
-      "priority": 53
+      "purchasePrice": 40
     },
     {
       "id": 1514,
@@ -14142,9 +13800,9 @@
       "price": 294,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 54,
       "imageVersion": 1793357363367,
-      "purchasePrice": 260,
-      "priority": 54
+      "purchasePrice": 260
     },
     {
       "id": 1515,
@@ -14152,9 +13810,9 @@
       "price": 299,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 55,
       "imageVersion": 1793366354415,
-      "purchasePrice": 260,
-      "priority": 55
+      "purchasePrice": 260
     },
     {
       "id": 1516,
@@ -14162,9 +13820,9 @@
       "price": 230,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 56,
       "imageVersion": 1793525126646,
-      "purchasePrice": 200,
-      "priority": 56
+      "purchasePrice": 200
     },
     {
       "id": 1517,
@@ -14172,9 +13830,9 @@
       "price": 230,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 57,
       "imageVersion": 1793525165387,
-      "purchasePrice": 200,
-      "priority": 57
+      "purchasePrice": 200
     },
     {
       "id": 1518,
@@ -14182,9 +13840,9 @@
       "price": 230,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 58,
       "imageVersion": 1793525188095,
-      "purchasePrice": 200,
-      "priority": 58
+      "purchasePrice": 200
     },
     {
       "id": 1519,
@@ -14192,9 +13850,9 @@
       "price": 330,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 59,
       "imageVersion": 1793525242991,
-      "purchasePrice": 300,
-      "priority": 59
+      "purchasePrice": 300
     },
     {
       "id": 1520,
@@ -14202,9 +13860,9 @@
       "price": 330,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 60,
       "imageVersion": 1793525278080,
-      "purchasePrice": 301,
-      "priority": 60
+      "purchasePrice": 301
     },
     {
       "id": 1521,
@@ -14212,9 +13870,9 @@
       "price": 330,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 61,
       "imageVersion": 1793525308907,
-      "purchasePrice": 300,
-      "priority": 61
+      "purchasePrice": 300
     },
     {
       "id": 1522,
@@ -14312,9 +13970,9 @@
       "price": 19,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 62,
       "imageVersion": 1793528296742,
-      "purchasePrice": 16.67,
-      "priority": 62
+      "purchasePrice": 16.67
     },
     {
       "id": 1533,
@@ -14322,9 +13980,9 @@
       "price": 19,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 63,
       "imageVersion": 1793528368750,
-      "purchasePrice": 16.67,
-      "priority": 63
+      "purchasePrice": 16.67
     },
     {
       "id": 1534,
@@ -14431,9 +14089,9 @@
       "price": 95,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 10,
       "imageVersion": 1793529912792,
-      "purchasePrice": 90,
-      "priority": 10
+      "purchasePrice": 90
     },
     {
       "id": 1546,
@@ -14441,9 +14099,9 @@
       "price": 95,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 11,
       "imageVersion": 1793529938914,
-      "purchasePrice": 90,
-      "priority": 11
+      "purchasePrice": 90
     },
     {
       "id": 1547,
@@ -14451,9 +14109,9 @@
       "price": 95,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 12,
       "imageVersion": 1793529984880,
-      "purchasePrice": 90,
-      "priority": 12
+      "purchasePrice": 90
     },
     {
       "id": 1548,
@@ -14461,9 +14119,9 @@
       "price": 95,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 13,
       "imageVersion": 1793530037955,
-      "purchasePrice": 90,
-      "priority": 13
+      "purchasePrice": 90
     },
     {
       "id": 1549,
@@ -14480,9 +14138,9 @@
       "price": 159,
       "categoryId": "groceryandkaryana",
       "categoryName": "Grocery & Karyana",
+      "priority": 64,
       "imageVersion": 1793530286536,
-      "purchasePrice": 142.5,
-      "priority": 64
+      "purchasePrice": 142.5
     },
     {
       "id": 1551,
@@ -16031,6 +15689,17 @@
       "categoryName": "Sports & Toys",
       "imageVersion": 1793973430633,
       "purchasePrice": 130
+    },
+    {
+      "id": 1723,
+      "name": "LOCK BLACK 50MM",
+      "price": 299,
+      "categoryId": "lock",
+      "categoryName": "Locks & Cells & Lighters",
+      "purchasePrice": 195,
+      "hasImage": true,
+      "imageUrl": "https://tmssjdczywukramcpcxc.supabase.co/storage/v1/object/public/product-images/1723.webp",
+      "imageVersion": 1794189239844
     }
   ]
 }

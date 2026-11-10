@@ -1158,12 +1158,16 @@ function getTranslationValue(dictionary, key) {
         }
       }
 
-      if (isBundledAsset || isLocalDevServer) {
+      const isNative = typeof checkIsNativeApp === 'function' ? checkIsNativeApp() : false;
+
+      // 1. Live Web (sahiltraders.vercel.app / custom domain), Local Dev Server, or Bundled Assets:
+      // Load directly from local ./images/ folder with zero latency, same-origin HTTP/2 and Edge cache!
+      if (!isNative || isBundledAsset || isLocalDevServer) {
         return './images/' + cleanName + vQuery;
       }
 
-      // High-speed CDN with global edge caching for Android APK, WebView, and live Web
-      return `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${cleanName}${vQuery}`;
+      // 2. Native Android App: Load from fast Anycast Vercel Edge CDN
+      return `https://sahiltraders.vercel.app/images/${cleanName}${vQuery}`;
     }
 
     function getProductImgSrc(product) {
@@ -10527,17 +10531,18 @@ export default function ZSMart() {
                               {pricing.discountPercent}%
                             </span>
                           )}
-                          {getProductImgSrc(product) ? (
+                          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`}>
+                            <span style={{ color: '#1a1a2e', fontWeight: 800, fontSize: 16, fontFamily: "'Poppins',sans-serif" }}>{product.initial}</span>
+                          </div>
+                          {getProductImgSrc(product) && (
                             <img
                               src={getProductImgSrc(product)}
-                              onError={(e) => { e.target.onerror = null; }}
+                              loading="lazy"
+                              decoding="async"
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
                               alt={product.name}
-                              className="w-12 h-12 rounded-xl object-contain bg-white p-1 border border-gray-200 hover:border-gray-300 transition-colors shadow-2xs"
+                              className="absolute inset-0 w-12 h-12 rounded-xl object-contain bg-white p-1 border border-gray-200 hover:border-gray-300 transition-opacity shadow-2xs"
                             />
-                          ) : (
-                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${product.gradient} flex items-center justify-center`}>
-                              <span style={{ color: '#1a1a2e', fontWeight: 800, fontSize: 16, fontFamily: "'Poppins',sans-serif" }}>{product.initial}</span>
-                            </div>
                           )}
                         </div>
                         {/* Info */}
@@ -11929,18 +11934,21 @@ export default function ZSMart() {
                         return (
                           <div key={`${product.id}-${variant || ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                              {getProductImgSrc(product) ? (
-                                <img
-                                  src={getProductImgSrc(product)}
-                                  onError={(e) => { e.target.onerror = null; }}
-                                  alt={product.name}
-                                  className="w-7 h-7 rounded-lg object-contain bg-white p-0.5 shrink-0 border border-gray-200"
-                                />
-                              ) : (
+                              <div style={{ position: 'relative', width: 28, height: 28 }} className="shrink-0">
                                 <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${product.gradient} flex items-center justify-center shrink-0`}>
                                   <span style={{ color: '#1a1a2e', fontSize: 10, fontWeight: 800 }}>{product.initial}</span>
                                 </div>
-                              )}
+                                {getProductImgSrc(product) && (
+                                  <img
+                                    src={getProductImgSrc(product)}
+                                    loading="lazy"
+                                    decoding="async"
+                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    alt={product.name}
+                                    className="absolute inset-0 w-7 h-7 rounded-lg object-contain bg-white p-0.5 shrink-0 border border-gray-200"
+                                  />
+                                )}
+                              </div>
                               <div style={{ minWidth: 0 }}>
                                 <p style={{ fontSize: 12, color: '#1a1a2e', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{toTitleCase(product.name)}</p>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>

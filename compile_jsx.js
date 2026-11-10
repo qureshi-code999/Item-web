@@ -199,8 +199,17 @@ if (fs.existsSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/privacy-policy.html') && f
 }
 const completeProductsDest = 'c:/Users/ALICOM4/Desktop/ITEMS WEB/complete/products.json';
 if (fs.existsSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/products.json') && fs.existsSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/complete')) {
-  fs.copyFileSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/products.json', completeProductsDest);
-  console.log(`Synced products.json -> ${completeProductsDest}`);
+  try {
+    fs.copyFileSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/products.json', completeProductsDest);
+    console.log(`Synced products.json -> ${completeProductsDest}`);
+  } catch(e) {
+    try {
+      fs.writeFileSync(completeProductsDest, fs.readFileSync('c:/Users/ALICOM4/Desktop/ITEMS WEB/products.json'));
+      console.log(`Synced products.json (write) -> ${completeProductsDest}`);
+    } catch(err2) {
+      console.warn(`Warning syncing products.json to complete:`, err2.message);
+    }
+  }
 }
 
 // Final check: ensure no stray backup or temp files remain in target dirs

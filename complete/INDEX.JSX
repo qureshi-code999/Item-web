@@ -10035,8 +10035,8 @@ export default function ZSMart() {
           return { doubleItems: [], animSpeed: '0s', hasImages: false };
         }
 
-        // Ensure at least 4 items so the reel seamlessly fills the card width
-        let baseItems = imageProducts;
+        // Optimized: Pick top 6 items per category so the marquee loops instantly without choking memory
+        let baseItems = imageProducts.slice(0, 6);
         while (baseItems.length < 4) {
           baseItems = [...baseItems, ...imageProducts];
         }
@@ -10095,15 +10095,19 @@ export default function ZSMart() {
                   {doubleItems.map((item, idx) => {
                     const itemImgSrc = getProductImgSrc(item);
                     return (
-                      <div key={idx} className="cat-img-box">
+                      <div key={idx} className="cat-img-box" style={{ position: 'relative' }}>
+                        <div className={`w-full h-full rounded-lg bg-gradient-to-br ${item.gradient || 'from-emerald-500 to-teal-600'} flex items-center justify-center`}>
+                          <span style={{ color: '#1a1a2e', fontWeight: 800, fontSize: 13, fontFamily: "'Poppins',sans-serif" }}>
+                            {item.initial || (item.name ? item.name[0] : 'P')}
+                          </span>
+                        </div>
                         {itemImgSrc && (
                           <img
                             src={itemImgSrc}
                             alt=""
-                            loading="lazy"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                            }}
+                            decoding="async"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            className="absolute inset-0 w-full h-full object-contain p-1 bg-white"
                           />
                         )}
                       </div>

@@ -20722,8 +20722,8 @@ const CategoryCard = React.memo(function CategoryCard({
       };
     }
 
-    // Ensure at least 4 items so the reel seamlessly fills the card width
-    let baseItems = imageProducts;
+    // Optimized: Pick top 6 items per category so the marquee loops instantly without choking memory
+    let baseItems = imageProducts.slice(0, 6);
     while (baseItems.length < 4) {
       baseItems = [...baseItems, ...imageProducts];
     }
@@ -20835,14 +20835,27 @@ const CategoryCard = React.memo(function CategoryCard({
     const itemImgSrc = getProductImgSrc(item);
     return /*#__PURE__*/React.createElement("div", {
       key: idx,
-      className: "cat-img-box"
-    }, itemImgSrc && /*#__PURE__*/React.createElement("img", {
+      className: "cat-img-box",
+      style: {
+        position: 'relative'
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: `w-full h-full rounded-lg bg-gradient-to-br ${item.gradient || 'from-emerald-500 to-teal-600'} flex items-center justify-center`
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: '#1a1a2e',
+        fontWeight: 800,
+        fontSize: 13,
+        fontFamily: "'Poppins',sans-serif"
+      }
+    }, item.initial || (item.name ? item.name[0] : 'P'))), itemImgSrc && /*#__PURE__*/React.createElement("img", {
       src: itemImgSrc,
       alt: "",
-      loading: "lazy",
+      decoding: "async",
       onError: e => {
-        e.target.style.display = 'none';
-      }
+        e.currentTarget.style.display = 'none';
+      },
+      className: "absolute inset-0 w-full h-full object-contain p-1 bg-white"
     }));
   }))) : /*#__PURE__*/React.createElement("div", {
     style: {

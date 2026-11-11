@@ -20835,27 +20835,23 @@ const CategoryCard = React.memo(function CategoryCard({
     const itemImgSrc = getProductImgSrc(item);
     return /*#__PURE__*/React.createElement("div", {
       key: idx,
-      className: "cat-img-box",
-      style: {
-        position: 'relative'
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: `w-full h-full rounded-lg bg-gradient-to-br ${item.gradient || 'from-emerald-500 to-teal-600'} flex items-center justify-center`
-    }, /*#__PURE__*/React.createElement("span", {
-      style: {
-        color: '#1a1a2e',
-        fontWeight: 800,
-        fontSize: 13,
-        fontFamily: "'Poppins',sans-serif"
-      }
-    }, item.initial || (item.name ? item.name[0] : 'P'))), itemImgSrc && /*#__PURE__*/React.createElement("img", {
+      className: "cat-img-box"
+    }, itemImgSrc && /*#__PURE__*/React.createElement("img", {
       src: itemImgSrc,
       alt: "",
       decoding: "async",
       onError: e => {
-        e.currentTarget.style.display = 'none';
+        const el = e.currentTarget;
+        const ext = window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[item.id] || 'webp';
+        if (!el.dataset.triedCdn) {
+          el.dataset.triedCdn = 'true';
+          el.src = `https://cdn.jsdelivr.net/gh/qureshi-code999/Item-web@main/images/${item.id}.${ext}`;
+        } else if (!el.dataset.triedSupabase) {
+          el.dataset.triedSupabase = 'true';
+          el.src = `https://mketjutjfnutntvyvjur.supabase.co/storage/v1/object/public/product-images/${item.id}.${ext}`;
+        }
       },
-      className: "absolute inset-0 w-full h-full object-contain p-1 bg-white"
+      className: "w-full h-full object-contain p-1"
     }));
   }))) : /*#__PURE__*/React.createElement("div", {
     style: {
@@ -20945,6 +20941,31 @@ const CategoryHome = React.memo(function CategoryHome({
     }
     return map;
   }, [products]);
+
+  // 🚀 Instant RAM Preloader for ALL Category Marquees (Pre-caches images in memory so reel images show immediately)
+  React.useEffect(() => {
+    if (!categoriesList || categoriesList.length === 0) return;
+    categoriesList.forEach(cat => {
+      const catProds = productMap[cat.id];
+      if (!catProds || catProds.length === 0) return;
+      const sorted = [...catProds].sort((a, b) => {
+        const pa = a.priority && a.priority > 0 ? a.priority : 999999;
+        const pb = b.priority && b.priority > 0 ? b.priority : 999999;
+        if (pa !== pb) return pa - pb;
+        return a.id - b.id;
+      });
+      const imageProducts = sorted.filter(p => window.PRODUCT_IMAGE_MAP && window.PRODUCT_IMAGE_MAP[p.id] || p.hasImage || p.imageUrl);
+      const topItems = imageProducts.slice(0, 6);
+      topItems.forEach(item => {
+        const src = getProductImgSrc(item);
+        if (src) {
+          const img = new Image();
+          img.decoding = 'async';
+          img.src = src;
+        }
+      });
+    });
+  }, [categoriesList, productMap]);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 12,
